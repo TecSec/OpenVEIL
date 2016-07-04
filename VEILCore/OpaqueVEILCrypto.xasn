@@ -1,0 +1,336 @@
+<!--
+	Copyright (c) 2016, TecSec, Inc.
+
+	Redistribution and use in source and binary forms, with or without
+	modification, are permitted provided that the following conditions are met:
+	
+		* Redistributions of source code must retain the above copyright
+		  notice, this list of conditions and the following disclaimer.
+		* Redistributions in binary form must reproduce the above copyright
+		  notice, this list of conditions and the following disclaimer in the
+		  documentation and/or other materials provided with the distribution.
+		* Neither the name of TecSec nor the names of the contributors may be
+		  used to endorse or promote products derived from this software 
+		  without specific prior written permission.
+		 
+	ALTERNATIVELY, provided that this notice is retained in full, this product
+	may be distributed under the terms of the GNU General Public License (GPL),
+	in which case the provisions of the GPL apply INSTEAD OF those given above.
+		 
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+	DISCLAIMED.  IN NO EVENT SHALL TECSEC BE LIABLE FOR ANY 
+	DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+	(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+	LOSS OF USE, DATA OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+	ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+  Written by Roger Butler
+-->
+
+<?xml version="1.0" encoding="utf-8" ?>
+<Root xmlns="http://schemas.tecsec.com/xml2asn1codegen/2015">
+  <File Name="OpaqueVEILCrypto" ExportSymbol="VEILCORE_API" TemplateExternSymbol="VEILCORE_TEMPLATE_EXTERN">
+    
+    <Include Name="CryptoAsn1.h"/>
+    
+    <Namespace Name="Asn1">
+
+      <Sequence  Name="ContextValue">
+        <Any Name="value"/>
+      </Sequence>
+      <Sequence  Name="Context">
+        <OID Name="contextType"/>
+        <SequenceOf Name="contextValues" Tag="Set" Type="Universal">
+          <Sequence Name="ContextValue" ElementType="ContextValue" Tag="Sequence" Type="Universal"/>
+        </SequenceOf>
+        <Bool Name="fallback" Initializer="false"/>
+      </Sequence>
+      
+      <Sequence  Name="ValueWithContext">
+        <Any Name="distingAttrValue"/>
+        <SequenceOf Name="contextList" Tag="Set" Type="Universal" Optional="true">
+          <Sequence Name="Context" ElementType="Context" Tag="Sequence" Type="Universal"/>
+        </SequenceOf>
+      </Sequence>
+      
+      <Sequence  Name="RdnNamePart" Tag="Sequence" Type="Universal">
+        <OID Name="type"/>
+        <Any Name="value"/>
+        <Bool Name="primaryDistinguished" Initializer="true"/>
+        <SequenceOf Name="valuesWithContext" Tag="Set" Type="Universal" Optional="true">
+          <Sequence Name="ValueWithContext" ElementType="ValueWithContext" Tag="Sequence" Type="Universal"/>
+        </SequenceOf>
+      </Sequence>
+      
+      <Sequence  Name="RdnSequence">
+        <SequenceOf Name="rdnPart" Tag="Sequence" Type="Universal" >
+          <Sequence Name="RdnNamePart" ElementType="RdnNamePart" Tag="Sequence" Type="Universal"/>
+        </SequenceOf>
+      </Sequence>
+      
+      <Sequence  Name="IssuerAndSerialNumber">
+        <Choice Name="issuer">
+          <Sequence Name="issuerName" ElementType="RdnSequence"/>
+        </Choice>
+        <Int64 Name="serialNumber" Initializer="0"/>
+      </Sequence>
+      
+      <Sequence Name="HashAlgAndDigest">
+        <Sequence Name="hashAlgorithm" ElementType="Asn1::AlgorithmIdentifier"/>
+        <OctetString Name="digest"/>
+      </Sequence>
+
+
+      <Sequence Name="CryptoLicense" OID="id_CKM_CRYPTO_LICENSE" DefaultVersion="0" Exported="true">
+        <Version Name="V0" OID="id_CKM_CRYPTO_LICENSE" MinNumber="0" MaxNumber="0">
+          <String Name="Company"/>
+          <Bool Name="DevOnly"/>
+          <Date Name="issue"/>
+          <Date Name="expire"/>
+          <Sequence Name="SignatureAlgorithm" ElementType="Asn1::AlgorithmIdentifier"/>
+          <OctetString Name="Signature"/>
+        </Version>
+        <Part Name="Signable">
+          <Version Name="Signable_V0" OID="id_CKM_CRYPTO_LICENSE" MinNumber="0" MaxNumber="0">
+            <String Name="Company"/>
+            <Bool Name="DevOnly"/>
+            <Date Name="issue"/>
+            <Date Name="expire"/>
+            <Sequence Name="SignatureAlgorithm" ElementType="Asn1::AlgorithmIdentifier"/>
+          </Version>
+          <String Name="Company"/>
+          <Bool Name="DevOnly"/>
+          <Date Name="issue"/>
+          <Date Name="expire"/>
+          <Sequence Name="SignatureAlgorithm" ElementType="Asn1::AlgorithmIdentifier"/>
+        </Part>
+        <String Name="Company"/>
+        <Bool Name="DevOnly"/>
+        <Date Name="issue"/>
+        <Date Name="expire"/>
+        <Sequence Name="SignatureAlgorithm" ElementType="Asn1::AlgorithmIdentifier"/>
+        <OctetString Name="Signature"/>
+      </Sequence>
+
+
+      <Namespace Name="CMS">
+        <Sequence Name="CmsAttribute">
+          <OID Name="oid"/>
+          <Any Name="value"/>
+        </Sequence>
+        
+        <Sequence Name="EncapsulatedContentInfo">
+          <OID Name="eContentType"/>
+          <OctetString Name="eContent" Tag="0" Type="Context" Optional="true"/>
+        </Sequence>
+        
+        <Sequence Name="OriginatorInfo">
+          <String Name="base64Certs" Tag="0" Type="Context" Optional="true"/>
+          <String Name="base64Crls" Tag="1" Type="Context" Optional="true"/>
+        </Sequence>
+        
+        <Sequence Name="EncryptedContentInfo">
+          <OID Name="contentType"/>
+          <Sequence Name="contentEncryptionAlgorithm" ElementType="Asn1::AlgorithmIdentifier"/>
+          <OctetString Name="encryptedContent" Tag="0" Type="Context" Optional="true"/>
+        </Sequence>
+        
+        <Sequence Name="OtherKeyAttribute">
+          <OID Name="keyAttrId"/>
+          <Any Name="keyAttr" Optional="true"/>
+        </Sequence>
+        
+        <Sequence Name="KeyEncryptionKeyIdentifier">
+          <OctetString Name="keyIdentifier"/>
+          <Date Name="date"/>
+          <Sequence Name="other" ElementType="OtherKeyAttribute" Optional="true" />
+        </Sequence>
+        
+        <Sequence Name="OtherRecipientInfo">
+          <OID Name="oriType"/>
+          <Any Name="oriValue" Optional="true" />
+        </Sequence>
+        
+        <Sequence Name="OriginatorPublicKey">
+          <Sequence Name="algorithm" ElementType="Asn1::AlgorithmIdentifier"/>
+          <Bitstring Name="publicKey"/>
+        </Sequence>
+        
+        <Sequence Name="UserKeyingMaterial">
+          <OctetString Name="userKeyingMaterial"/>
+        </Sequence>
+        
+        <Sequence Name="RecipientKeyIdentifier">
+          <OctetString Name="subjectKeyIdentifer"/>
+          <Date Name="date" Optional="true"/>
+          <Sequence Name="other" ElementType="OtherKeyAttribute" Optional="true"/>
+        </Sequence>
+        
+        <Sequence Name="RecipientKeyIdHash">
+          <Sequence Name="certHash" ElementType="HashAlgAndDigest"/>
+          <Date Name="date" Optional="true"/>
+          <Sequence Name="other" ElementType="OtherKeyAttribute" Optional="true"/>
+        </Sequence>
+        
+        <Sequence Name="OriginatorIdentifierOrKey">
+          <Choice Name="idInfo">
+            <Sequence Name="issuer" ElementType="IssuerAndSerialNumber"/>
+            <OctetString Name="subjectKeyIdentifer" Tag="0" Type="Context"/>
+            <Sequence Name="originatorKey" ElementType="OriginatorPublicKey" Tag="1" Type="Context"/>
+            <Sequence Name="certHash" ElementType="HashAlgAndDigest" Tag="2" Type="Context"/>
+          </Choice>
+        </Sequence>
+        
+        <Sequence Name="KeyTransportRecipientInfo" DefaultVersion="0">
+          <Version Name="V0" MinNumber="0" MaxNumber="0">
+            <Choice Name="rid"/>
+            <Sequence Name="keyEncryptionAlgorithm" ElementType="Asn1::AlgorithmIdentifier"/>
+            <OctetString Name="encryptedKey"/>
+          </Version>
+          <Choice Name="rid">
+            <Sequence Name="issuerAndSerialNumber" ElementType="IssuerAndSerialNumber"/>
+            <OctetString Name="subjectKeyIdentifier" Tag="0" Type="Context"/>
+            <Sequence Name="certHash" ElementType="HashAlgAndDigest" Tag="1" Type="Context"/>
+          </Choice>
+          <Sequence Name="keyEncryptionAlgorithm" ElementType="Asn1::AlgorithmIdentifier"/>
+          <OctetString Name="encryptedKey"/>
+        </Sequence>
+        
+        <Sequence Name="KekRecipientInfo" DefaultVersion="0">
+          <Version Name="V0" MinNumber="0" MaxNumber="0">
+            <Sequence Name="kekid" ElementType="KeyEncryptionKeyIdentifier"/>
+            <Sequence Name="keyEncryptionAlgorithm" ElementType="Asn1::AlgorithmIdentifier"/>
+            <OctetString Name="encryptedKey"/>
+          </Version>
+          <Sequence Name="kekid" ElementType="KeyEncryptionKeyIdentifier"/>
+          <Sequence Name="keyEncryptionAlgorithm" ElementType="Asn1::AlgorithmIdentifier"/>
+          <OctetString Name="encryptedKey"/>
+        </Sequence>
+        
+        <Sequence Name="PasswordRecipientInfo" DefaultVersion="0">
+          <Version Name="V0" MinNumber="0" MaxNumber="0">
+            <Sequence Name="keyDerivationAlgorithm" ElementType="Asn1::AlgorithmIdentifier" />
+            <Sequence Name="keyEncryptionAlgorithm" ElementType="Asn1::AlgorithmIdentifier"/>
+            <OctetString Name="encryptedKey"/>
+          </Version>
+          <Sequence Name="keyDerivationAlgorithm" ElementType="Asn1::AlgorithmIdentifier" Tag="0" Type="Context" Optional="true"/>
+          <Sequence Name="keyEncryptionAlgorithm" ElementType="Asn1::AlgorithmIdentifier"/>
+          <OctetString Name="encryptedKey"/>
+        </Sequence>
+        
+        <Sequence Name="RecipientEncryptedKey">
+          <Choice Name="rid">
+            <Sequence Name="issuerAndSerialNumber" ElementType="IssuerAndSerialNumber"/>
+            <Sequence Name="rKeyId" ElementType="RecipientKeyIdentifier" Tag="0" Type="Context"/>
+            <Sequence Name="rKeyIdHash" ElementType="RecipientKeyIdHash" Tag="1" Type="Context"/>
+          </Choice>
+          <OctetString Name="encryptedKey"/>
+        </Sequence>
+        
+        <Sequence Name="KeyAgreementRecipientInfo" DefaultVersion="0">
+          <Version Name="V0" MinNumber="0" MaxNumber="0">
+            <Sequence Name="originator" ElementType="OriginatorIdentifierOrKey" />
+            <Sequence Name="ukm" ElementType="UserKeyingMaterial"/>
+            <Sequence Name="keyEncryptionAlgorithm" ElementType="Asn1::AlgorithmIdentifier"/>
+            <SequenceOf Name="recipientEncryptedKeys"/>
+          </Version>
+          <Sequence Name="originator" ElementType="OriginatorIdentifierOrKey" Tag="0" Type="Context"/>
+          <Sequence Name="ukm" ElementType="UserKeyingMaterial" Tag="1" Type="Context" Optional="true"/>
+          <Sequence Name="keyEncryptionAlgorithm" ElementType="Asn1::AlgorithmIdentifier"/>
+          <SequenceOf Name="recipientEncryptedKeys" Tag="Sequence" Type="Universal">
+            <Sequence Name="RecipientEncryptedKey" ElementType="RecipientEncryptedKey" Tag="Sequence" Type="Universal"/>
+          </SequenceOf>
+        </Sequence>
+        
+        <Sequence Name="RecipientInfo">
+          <Choice Name="recipientChoice">
+            <Sequence Name="ktri" ElementType="KeyTransportRecipientInfo"/>
+            <Sequence Name="kari" ElementType="KeyAgreementRecipientInfo" Tag="1" Type="Context"/>
+            <Sequence Name="kekri" ElementType="KekRecipientInfo" Tag="2" Type="Context"/>
+            <Sequence Name="pwri" ElementType="PasswordRecipientInfo" Tag="3" Type="Context"/>
+            <Sequence Name="ori" ElementType="OtherRecipientInfo" Tag="4" Type="Context"/>
+          </Choice>
+        </Sequence>
+        
+        <Sequence Name="SignerInfo" DefaultVersion="0">
+          <Version Name="V0" MinNumber="0" MaxNumber="0">
+            <Choice Name="signerId"/>
+            <Sequence Name="digestAlgorithm" ElementType="Asn1::AlgorithmIdentifier"/>
+            <SequenceOf Name="signedAttributes"/>
+            <Sequence Name="signatureAlgorithm" ElementType="Asn1::AlgorithmIdentifier" />
+            <OctetString Name="signature"/>
+            <SequenceOf Name="unsignedAttributes"/>
+          </Version>
+          <Choice Name="signerId">
+            <Sequence Name="issuerAndSerialNumber" ElementType="IssuerAndSerialNumber"/>
+            <OctetString Name="subjectKeyIdentifier" Tag="0" Type="Context"/>
+            <Sequence Name="certHash" ElementType="HashAlgAndDigest" Tag="1" Type="Context"/>
+          </Choice>
+          <Sequence Name="digestAlgorithm" ElementType="Asn1::AlgorithmIdentifier"/>
+          <SequenceOf Name="signedAttributes" Tag="0" Type="Context" Optional="true">
+            <Sequence Name="CmsAttribute" ElementType="CmsAttribute" Tag="Sequence" Type="Universal"/>
+          </SequenceOf>
+          <Sequence Name="signatureAlgorithm" ElementType="Asn1::AlgorithmIdentifier" />
+          <OctetString Name="signature"/>
+          <SequenceOf Name="unsignedAttributes" Tag="1" Type="Context" Optional="true">
+            <Sequence Name="CmsAttribute" ElementType="CmsAttribute" Tag="Sequence" Type="Universal"/>
+          </SequenceOf>
+        </Sequence>
+        
+        <Sequence Name="SignedData" DefaultVersion="0">
+          <Version Name="V0" MinNumber="0" MaxNumber="0">
+            <SequenceOf Name="DigestAlgorithms"/>
+            <Sequence Name="EncapContentInfo" ElementType="EncapsulatedContentInfo"/>
+            <String Name="base64Certificates"/>
+            <String Name="base64Crls"/>
+            <SequenceOf Name="SignerInfos"/>
+          </Version>
+          <SequenceOf Name="DigestAlgorithms" Tag="Set" Type="Universal">
+            <Sequence Name="AlgId" ElementType="Asn1::AlgorithmIdentifier" Tag="Sequence" Type="Universal"/>
+          </SequenceOf>
+          <Sequence Name="EncapContentInfo" ElementType="EncapsulatedContentInfo"/>
+          <String Name="base64Certificates" Tag="0" Type="Context" Optional="true"/>
+          <String Name="base64Crls" Tag="1" Type="Context" Optional="true"/>
+          <SequenceOf Name="SignerInfos" Tag="Set" Type="Universal" >
+            <Sequence Name="SignerInfo" ElementType="SignerInfo" Tag="Sequence" Type="Universal"/>
+          </SequenceOf>
+        </Sequence>
+        
+        <Sequence Name="EnvelopedData" DefaultVersion="0">
+          <Version Name="V0" MinNumber="0" MaxNumber="0">
+            <Sequence Name="originatorInfo" ElementType="OriginatorInfo"/>
+            <SequenceOf Name="recipientInfos"/>
+            <Sequence Name="encryptedContentInfo" ElementType="EncryptedContentInfo" />
+            <SequenceOf Name="unprotectedAttributes"/>
+          </Version>
+          <Sequence Name="originatorInfo" ElementType="OriginatorInfo" Tag="0" Type="Context" Optional="true"/>
+          <SequenceOf Name="recipientInfos" Tag="Set" Type="Universal">
+            <Sequence Name="RecipientInfo" ElementType="RecipientInfo" Tag="Sequence" Type="Universal"/>
+          </SequenceOf>
+          <Sequence Name="encryptedContentInfo" ElementType="EncryptedContentInfo" Tag="Sequence" Type="Universal"/>
+          <SequenceOf Name="unprotectedAttributes" Tag="1" Type="Context"  Optional="true">
+            <Sequence Name="CmsAttribute" ElementType="CmsAttribute" Tag="Sequence" Type="Universal"/>
+          </SequenceOf>
+        </Sequence>
+        
+        <Sequence Name="ContentInfo" OID="id_signedData" DefaultVersion="0">
+          <!--<VersionSubObject Name="signedData" OID="id_signedData" ElementType="SignedData"/>
+                    <VersionSubObject Name="envelopedData" OID="id_envelopedData" ElementType="EnvelopedData"/>-->
+          <Version Name="SignedVer" OID="id_signedData">
+            <Sequence Name="signedData" ElementType="SignedData"/>
+          </Version>
+          <Version Name="EnvVer" OID="id_envelopedData">
+            <Sequence Name="envelopedData" ElementType="EnvelopedData"/>
+          </Version>
+          <Sequence Name="signedData" ElementType="SignedData"/>
+          <Sequence Name="envelopedData" ElementType="EnvelopedData"/>
+        </Sequence>
+
+      </Namespace>
+    </Namespace>
+  </File>
+</Root>

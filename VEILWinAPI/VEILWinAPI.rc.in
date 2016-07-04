@@ -1,0 +1,328 @@
+//	Copyright (c) 2016, TecSec, Inc.
+//
+//	Redistribution and use in source and binary forms, with or without
+//	modification, are permitted provided that the following conditions are met:
+//	
+//		* Redistributions of source code must retain the above copyright
+//		  notice, this list of conditions and the following disclaimer.
+//		* Redistributions in binary form must reproduce the above copyright
+//		  notice, this list of conditions and the following disclaimer in the
+//		  documentation and/or other materials provided with the distribution.
+//		* Neither the name of TecSec nor the names of the contributors may be
+//		  used to endorse or promote products derived from this software 
+//		  without specific prior written permission.
+//		 
+//	ALTERNATIVELY, provided that this notice is retained in full, this product
+//	may be distributed under the terms of the GNU General Public License (GPL),
+//	in which case the provisions of the GPL apply INSTEAD OF those given above.
+//		 
+//	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+//	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+//	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+//	DISCLAIMED.  IN NO EVENT SHALL TECSEC BE LIABLE FOR ANY 
+//	DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+//	(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+//	LOSS OF USE, DATA OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+//	ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+//	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+// Written by Roger Butler
+
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (United States) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+#endif    // English (United States) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION @VEILCORE_VERSION_COMMA@,0
+ PRODUCTVERSION @VEILCORE_VERSION_COMMA@,0
+ FILEFLAGSMASK 0x17L
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "Comments", "Provides a windows API library of common dialogs for @VEILCORENAME@."
+            VALUE "CompanyName", "TecSec, Inc."
+            VALUE "FileDescription", "Provides a windows API library of common dialogs for @VEILCORENAME@."
+			VALUE "FileVersion", "@VEILCORE_VERSION@.0"
+            VALUE "InternalName", "@VEILCORENAME@WinAPI"
+            VALUE "LegalCopyright", "@VEIL_COPYRIGHT@"
+            VALUE "OriginalFilename", "@VEILCORENAME@WinAPI.dll"
+            VALUE "ProductName", "@VEILCORENAME@"
+			VALUE "ProductVersion", "@VEILCORE_VERSION@.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+#endif    // not APSTUDIO_INVOKED
+
+IDD_AUDIENCE_SELECTOR DIALOGEX 0, 0, 302, 236
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Select Audience for Encrypted Data"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "Favorites:",IDC_STATIC,6,8,33,8
+    COMBOBOX        IDC_FAVORITECOMBO,42,6,252,90,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Group Access Rights",IDC_STATIC,6,24,288,187
+    LTEXT           "Token:",IDC_STATIC,15,39,24,8
+    COMBOBOX        IDC_TOKENCOMBO,42,36,166,104,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "&Log into token...",IDC_TOKEN_LOGIN,214,35,80,15
+    CONTROL         "List1",IDC_GROUPLIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOCOLUMNHEADER | WS_BORDER,15,54,228,150
+    PUSHBUTTON      "&Add",IDC_GROUPADD,249,54,36,12
+    PUSHBUTTON      "&Edit",IDC_GROUPEDIT,249,68,36,12
+    PUSHBUTTON      "&Delete",IDC_GROUPDELETE,249,82,36,12
+    PUSHBUTTON      "&Save as Favorite",IDC_CREATE_FAVORITE,5,215,63,14
+    PUSHBUTTON      "&Help",IDHELP,135,215,50,14
+    DEFPUSHBUTTON   "&OK",IDOK,190,215,50,14
+    PUSHBUTTON      "&Cancel",IDCANCEL,245,215,50,14
+    LTEXT           "Static",IDC_PARAM,273,201,22,8,NOT WS_VISIBLE
+    PUSHBUTTON      "&Delete Favorite",IDC_DELETE_FAVORITE,69,215,62,14
+END
+
+IDD_ATTRIBUTE_SELECTOR_GRID DIALOGEX 0, 0, 402, 190
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Attribute Selector"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,65,169,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,291,169,50,14
+    LTEXT           "Attributes with encrypt key.",IDC_ATTRLIST_LEFT_STATIC,9,6,86,8
+    LTEXT           "Static",IDC_PARAM,7,175,19,8,NOT WS_VISIBLE
+    CONTROL         "Custom1",IDC_SELECT_ATTRIBUTE_GRID,"MyTSGrid",WS_VSCROLL | WS_HSCROLL | WS_TABSTOP | 0x1d,7,18,388,147,WS_EX_CLIENTEDGE
+END
+
+IDD_LOGIN DIALOGEX 0, 0, 248, 151
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Enter Password"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         103,IDC_TECSEC_LOGO,"Static",SS_BITMAP | SS_CENTERIMAGE | SS_REALSIZEIMAGE,0,0,248,45
+    LTEXT           "Token Name:",IDC_STATIC,11,58,43,8
+    LTEXT           "Token Name Here",IDC_TOKEN_NAME,62,58,176,27
+    LTEXT           "&Please enter the user password here:",IDC_STATIC,10,90,122,8
+    EDITTEXT        IDC_PASSWORD,9,100,229,12,ES_PASSWORD | ES_AUTOHSCROLL
+    PUSHBUTTON      "About...",IDC_ABOUT,11,130,50,14
+    DEFPUSHBUTTON   "OK",IDOK,132,130,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,188,130,50,14
+    LTEXT           "",IDC_STATUS,9,115,229,8
+    LTEXT           "0",IDC_PARAM,9,136,8,8,NOT WS_VISIBLE | WS_DISABLED
+END
+
+IDD_ABOUT_CKM DIALOGEX 0, 0, 248, 281
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About VEIL"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         103,IDC_TECSEC_LOGO,"Static",SS_BITMAP | SS_CENTERIMAGE | SS_REALSIZEIMAGE,0,0,248,45
+    LTEXT           "Warning",IDC_WARNING,7,139,231,45
+    LTEXT           "Trademark",IDC_TRADEMARK,7,116,228,17
+    CTEXT           "App Title",IDC_APPTITLE,7,53,233,8
+    CTEXT           "Version",IDC_VERSION,7,67,233,8
+    CTEXT           "Copyright",IDC_COPYRIGHT,7,81,233,8
+    LTEXT           "Part Of",IDC_PARTOF,7,96,234,16
+    LTEXT           "Patents",IDC_PATENTS,7,184,231,66
+    DEFPUSHBUTTON   "OK",IDOK,97,258,50,14
+END
+
+IDD_KEYVEILLOGIN DIALOGEX 0, 0, 248, 151
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Connect to KeyVEIL"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         103,IDC_TECSEC_LOGO,"Static",SS_BITMAP | SS_CENTERIMAGE | SS_REALSIZEIMAGE,0,0,248,45
+    LTEXT           "KeyVEIL URL:",IDC_STATIC,11,58,43,8
+    EDITTEXT        IDC_URL,62,58,176,12
+    LTEXT           "Username:",IDC_STATIC,11,70,43,8
+    EDITTEXT        IDC_USERNAME,62,70,176,12
+    LTEXT           "&Please enter the user password here:",IDC_STATIC,10,90,122,8
+    EDITTEXT        IDC_PASSWORD,9,100,229,12,ES_PASSWORD | ES_AUTOHSCROLL
+    PUSHBUTTON      "About...",IDC_ABOUT,11,130,50,14
+    DEFPUSHBUTTON   "OK",IDOK,132,130,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,188,130,50,14
+    LTEXT           "",IDC_STATUS,9,115,229,8
+    LTEXT           "0",IDC_PARAM,9,136,8,8,NOT WS_VISIBLE | WS_DISABLED
+END
+
+IDD_TOKEN_SELECTOR DIALOGEX 0, 0, 181, 137
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Token Selector"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "List1",IDC_TOKEN_LIST,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,6,33,168,78
+    PUSHBUTTON      "&Refresh",IDREFRESH,6,117,50,14
+    DEFPUSHBUTTON   "&OK",IDOK,65,117,50,14
+    PUSHBUTTON      "&Cancel",IDCANCEL,124,117,50,14
+    LTEXT           "Select a Token.  Click Refresh to update the list after Tokens are added or changed.",IDC_EXPLANATION,6,6,168,18
+    LTEXT           "0",IDC_PARAM,0,0,19,8,NOT WS_VISIBLE
+END
+
+IDD_ENTER_FAVORITE_NAME DIALOGEX 0, 0, 317, 74
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Enter Favorite Name"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "0",IDC_PARAM,7,59,60,8,NOT WS_VISIBLE | WS_DISABLED
+    LTEXT           "Enter the name by which this favorite shall be known:",IDC_FAVORITE_PROMPT,7,7,303,8
+    EDITTEXT        IDC_FAVORITE_NAME,7,17,303,14,ES_AUTOHSCROLL
+    LTEXT           "",IDC_FAVORITE_INFO,7,34,303,16
+    DEFPUSHBUTTON   "OK",IDOK,206,53,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,260,53,50,14
+END
+
+IDD_PROGRESS DIALOG 0, 0, 186, 63
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Processing..."
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "Cancel",IDCANCEL,66,42,50,14
+    CONTROL         "Progress1",IDC_PROGRESS,"msctls_progress32",PBS_SMOOTH | WS_BORDER,6,26,174,9
+    LTEXT           "",IDC_STATUSMSG,6,8,174,16
+END
+
+IDD_VEIL_FILE_SETTINGS_PAGE DIALOGEX 0, 0, 296, 155
+STYLE DS_SETFONT | WS_CHILD
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    GROUPBOX        "Behavior",IDC_BEHAVIOR_STATIC,4,4,283,5
+    CONTROL         "&Overwrite existing file(s)",IDC_OVR_EXIST_CHK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,17,18,89,10
+//    CONTROL         "Allow &individual certificate selection",IDC_ALLOW_CERT_ENC_CHK,
+//                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,17,30,127,10
+//    CONTROL         "C&lose desktop application after operation",IDC_CLOSE_AFT_OPN_CHK,
+//                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,17,42,144,10
+//    CONTROL         "&Launch CKMfile after Windows Logon",IDC_CKMFILE_CHECK,
+//                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,17,54,144,10
+    CONTROL         "C&lose desktop application after operation",IDC_CLOSE_AFT_OPN_CHK,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,17,30,144,10
+//    CONTROL         "&Launch CKMfile after Windows Logon",IDC_CKMFILE_CHECK,
+//                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,17,42,144,10
+	GROUPBOX        "",IDC_FILE_SETTING_STATIC,167,10,1,115
+    CONTROL         "&Encryption",IDC_DEL_AFT_ENC_CHK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,194,30,49,10
+//    CONTROL         "&Signing",IDC_DEL_AFT_SIG_CHK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,194,42,39,10
+//    CONTROL         "&Decryption/Verification",IDC_DEL_AFT_DECVER_CHK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,194,54,88,10
+	CONTROL         "&Decryption", IDC_DEL_AFT_DECVER_CHK, "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 194, 42, 88, 10
+
+//    GROUPBOX        "Context Menu Support",IDC_APP_SETTING_STATIC,4,84,162,5
+//	LTEXT           "Session &timeout: ",IDC_STATIC,6,96,54,8
+//    EDITTEXT        IDC_TIME_OUT_EDIT,61,94,20,12,ES_CENTER | ES_AUTOHSCROLL | ES_NUMBER
+//    LTEXT           "min.",IDC_STATIC,81,96,14,8
+//    LTEXT           "Number of &passes for Secure Delete: ",IDC_SEC_DEL_PASSES_STATIC,6,108,119,8
+//    EDITTEXT        IDC_SECURE_DELETE,125,106,24,12,ES_NUMBER
+
+	GROUPBOX        "Context Menu Support",IDC_APP_SETTING_STATIC,4,70,162,5
+	LTEXT           "Session &timeout: ",IDC_STATIC,6,81,54,8
+    EDITTEXT        IDC_TIME_OUT_EDIT,61,81,20,12,ES_CENTER | ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "min.",IDC_STATIC,81,81,14,8
+    LTEXT           "Number of &passes for Secure Delete: ",IDC_SEC_DEL_PASSES_STATIC,6,96,119,8
+    EDITTEXT        IDC_SECURE_DELETE,125,96,24,12,ES_NUMBER
+
+	LTEXT           "Delete Original File(s) After:",IDC_STATIC,176,18,100,9
+    GROUPBOX        "Window",IDC_WINDOWSTATIC,170,70,120,5
+    CONTROL         "Always on top",IDC_ALWAYSONTOP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,194,81,60,10
+//    LTEXT           "Position Left",IDC_STATIC,192,95,40,8
+//    EDITTEXT        IDC_POSLEFT,240,94,20,12,ES_CENTER | ES_AUTOHSCROLL | ES_NUMBER
+//    LTEXT           "Position Top",IDC_STATIC,192,110,40,8
+//    EDITTEXT        IDC_POSTOP,240,107,20,12,ES_CENTER | ES_AUTOHSCROLL | ES_NUMBER
+    GROUPBOX        "File Compression Type",IDC_COMPRESSION_STATIC,4,125,283,5
+    COMBOBOX        IDC_COMPTYPE_COMBO,6,137,70,60,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_VEIL_DEFAULT_PAGE DIALOGEX 0, 0, 296, 155
+STYLE DS_SETFONT | WS_CHILD
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+//    LTEXT           "CKMweb",IDC_TM_STATIC,6,5,283,8
+//    CONTROL         "Enable CKM&web",IDC_TM_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,16,69,10
+    LTEXT           "KeyVEIL URL:",IDC_STATIC,6,6,47,8
+    EDITTEXT        IDC_KEYVEIL_URL,6,17,281,14,ES_AUTOHSCROLL
+    LTEXT           "Default KeyVEIL user name:",IDC_STATIC,6,35,90,8
+    EDITTEXT        IDC_KEYVEIL_USERNAME,6,46,281,14,ES_AUTOHSCROLL
+    LTEXT           "&Default Encryption Algorithm",IDC_DEF_ALG_STATIC,6,68,283,9
+    COMBOBOX        IDC_ALG_COMBO,6,78,70,60,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "This algorithm is used by VEIL applications for data security.",IDC_STATIC,83,80,195,8
+    LTEXT           "&Default Hash Algorithm",IDC_DEF_HASH_ALG_STATIC,6,92,283,9
+    COMBOBOX        IDC_HASH_ALG_COMBO,6,102,70,60,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "This algorithm is used by VEIL applications for data integrity.",IDC_STATIC,83,104,195,8
+END
+
+
+IDB_ATTR_ACCESS         BITMAP                  "..\\SolutionItems\\Graphics\\readwrit.bmp"
+IDC_VSIZE               CURSOR                  "SplitV.cur"
+IDB_TECSECLOGO          BITMAP                  "tecseclogo.bmp"
+
+
+STRINGTABLE
+BEGIN
+IDS_APPTITLE            "CKM�"
+IDS_VERSION             "Version 7.00"
+IDS_COPYRIGHT           "� 2000-2015 TecSec Inc."
+IDS_TRADEMARK           "VEIL, CKM and Constructive Key Management are registered trademarks of TecSec, Inc."
+IDS_WARNING             "Warning: All VEIL and CKM programs are protected by copyright law and international treaties. Unauthorized reproduction or distribution of these programs or any portion of them may result in civil and criminal penalties, and will be prosecuted to the fullest extent possible under law."
+IDS_PARTOF              "The VEIL suite includes KEyVEIL, OpenVEIL, OpaqueVEIL and more."
+IDS_PATENTS             "This product is protected by one or more of the following U.S. patents, as well as pending U.S. patent applications and foreign patents: 5,369,702; 5,369,707; 5,375,169; 5,410,599; 5,432,851; 5,440,290; 5,680,452; 	5,787,173; 5,898,781; 6,075,865; 6,229,445; 6,266,417; 6,490,680; 6,542,608; 6,549,623; 6,606,386; 6,608,901; 6,684,330; 6,694,433; 6,754,820; 6,845,453; 6,868,598; 7,016,495; 7,069,448; 7,079,653; 7,089,417; 7,095,851; 7,095,852; 7,111,173; 7,131,009; 7,178,030; 7,212,632; 7,490,240; 7,539,855; 7,738,660 ;7,817,800; 7,974,410; 8,077,870; 8,083,808; 8,285,991; 8,308,820; 8,712,046\n"
+END
+
+/////////////////////////////////////////////////////////////////////////////
+

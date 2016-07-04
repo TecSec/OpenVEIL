@@ -1,0 +1,6 @@
+libbz2.vcxproj.user
+Debug
+Release
+DebugCrypto
+./Build
+*.bak

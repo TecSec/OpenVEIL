@@ -1,0 +1,15 @@
+@echo off
+
+if not "%1"=="" (
+  if not exist "%1:\" (
+    echo Invalid device specified
+    goto end
+  )
+)
+
+call CleanRelease.cmd
+
+call BuildRelease.cmd %1
+if errorlevel 1 goto end
+
+:end

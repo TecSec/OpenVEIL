@@ -1,0 +1,318 @@
+//	Copyright (c) 2016, TecSec, Inc.
+//
+//	Redistribution and use in source and binary forms, with or without
+//	modification, are permitted provided that the following conditions are met:
+//	
+//		* Redistributions of source code must retain the above copyright
+//		  notice, this list of conditions and the following disclaimer.
+//		* Redistributions in binary form must reproduce the above copyright
+//		  notice, this list of conditions and the following disclaimer in the
+//		  documentation and/or other materials provided with the distribution.
+//		* Neither the name of TecSec nor the names of the contributors may be
+//		  used to endorse or promote products derived from this software 
+//		  without specific prior written permission.
+//		 
+//	ALTERNATIVELY, provided that this notice is retained in full, this product
+//	may be distributed under the terms of the GNU General Public License (GPL),
+//	in which case the provisions of the GPL apply INSTEAD OF those given above.
+//		 
+//	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+//	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+//	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+//	DISCLAIMED.  IN NO EVENT SHALL TECSEC BE LIABLE FOR ANY 
+//	DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+//	(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+//	LOSS OF USE, DATA OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+//	ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+//	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+// Written by Roger Butler
+
+#include "stdafx.h"
+
+#ifdef _WIN32
+#undef ERROR
+#endif
+
+#define ERROR(a) utils->console() << BoldRed << "ERROR:  " << BoldWhite << a << ::endl
+#define WARN(a) utils->console() << BoldGreen << "WARNING:  " << BoldWhite << a << ::endl
+#define BLOCKSIZE 4096
+
+template <class T>
+static bool ReleasePtr(std::shared_ptr<T> &ptr) { ptr.reset(); return true; }
+
+typedef tscrypto::tsCryptoStringList stringList;
+
+enum {
+	OPT_HELP = 0,
+};
+
+static const struct OptionList options[] = {
+	{ "", "VEIL tool FILE DECRYPT commands" },
+	{ "", "=================================" },
+	{ "--help, -h, -?", "This help information." },
+	{ "", "" },
+	{ "", "The list of files to read follow the options." },
+	{ "", "" },
+};
+static const CSimpleOptA::SOption g_rgOptions1[] =
+{
+	{ OPT_HELP, "-?", SO_NONE },
+	{ OPT_HELP, "-h", SO_NONE },
+	{ OPT_HELP, "--help", SO_NONE },
+	SO_END_OF_OPTIONS
+};
+
+class FileInfoTool : public IVeilToolCommand, public tsmod::IObject
+{
+public:
+	FileInfoTool()
+	{}
+	~FileInfoTool()
+	{}
+
+	// tsmod::IObject
+	virtual void OnConstructionFinished()
+	{
+		utils = ::TopServiceLocator()->get_instance<IVeilUtilities>("VeilUtilities");
+	}
+
+	// Inherited via IVeilToolCommand
+	virtual tscrypto::tsCryptoString getDescription() const override
+	{
+		return "Perform file decryption operations";
+	}
+	virtual int RunCommand(CSimpleOptA & opts) override
+	{
+		int retVal = 0;
+		std::shared_ptr<IFileVEILOperations> ops;
+		std::shared_ptr<IVEILFileList> filelist;
+		tscrypto::tsCryptoString path;
+		tscrypto::tsCryptoString searchPath, searchFile, searchExt;
+		int count;
+		int index;
+		tscrypto::tsCryptoString name;
+
+		if (!InitializeCmsHeader())
+		{
+			ERROR("We were unable to initialize the CMS Header system.");
+			return 1;
+		}
+
+		if (!(ops = CreateFileVEILOperationsObject()))
+		{
+			ERROR("Unable to access the file support functions\n");
+			return 1;
+		}
+
+		opts.Init(opts.FileCount(), opts.Files(), g_rgOptions1, SO_O_NOERR | SO_O_USEALL | SO_O_ICASE);
+
+		while (opts.Next())
+		{
+			if (opts.LastError() == SO_SUCCESS)
+			{
+				if (opts.OptionId() == OPT_HELP)
+				{
+					Usage();
+					return 0;
+				}
+				else {
+					ERROR("Unknown option: " << opts.OptionText());
+					return 8;
+				}
+			}
+			else
+			{
+				ERROR("Invalid arguments detected.");
+				Usage();
+				return 9;
+			}
+		}
+
+		if (opts.FileCount() == 0)
+		{
+			Usage();
+			return 9;
+		}
+
+		for (int i = 0; i < opts.FileCount(); i++)
+		{
+			xp_SplitPath(opts.File(i), searchPath, searchFile, searchExt);
+			XP_FileListHandle files = xp_GetFileListHandle(opts.File(i));
+			DWORD fileCount = xp_GetFileCount(files);
+
+			for (DWORD f = 0; f < fileCount; f++)
+			{
+				tscrypto::tsCryptoString filename;
+
+				if (xp_GetFileName(files, f, filename))
+				{
+					filelist.reset();
+
+					if (searchPath.size() > 0)
+						filename.prepend(searchPath);
+
+					if (!(ops->GetStreamNames(filename.c_str(), filelist)))
+					{
+						//        printf("Unable to retrieve the list of file streams for file '%s'\n", fileToEncrypt.c_str());
+						//        return 1;
+					}
+
+					printf("-------------------------------------------------------------------------------\n");
+					DumpInfo(filename.c_str());
+					if (!filelist)
+					{
+						count = 0;
+					}
+					else
+					{
+						count = filelist->FileCount();
+					}
+					for (index = 0; index < count; index++)
+					{
+						printf("-------------------------------------------------------------------------------\n");
+						if (SUCCEEDED(filelist->GetFileName(index, path)))
+						{
+							name = filename;
+							name += path;
+							DumpInfo(name.c_str());
+						}
+					}
+				}
+			}
+		}
+
+		return retVal;
+	}
+	virtual tscrypto::tsCryptoString getCommandName() const override
+	{
+		return "info";
+	}
+protected:
+	void Usage()
+	{
+		utils->Usage(options, sizeof(options) / sizeof(options[0]));
+	}
+	int DumpInfo(const char *filename)
+	{
+		int64_t fileLength;
+		//	int len;
+		FILE* infile;
+		std::shared_ptr<ICmsHeader> header7;
+		bool isCkm7 = true;
+		tscrypto::tsCryptoData fileContents;
+
+		if (fopen_s(&infile, filename, ("rb")) != 0 || infile == NULL)
+		{
+			cout << "Unable to open the input file '" << filename << "'." << std::endl;
+			return 1;
+		}
+#ifdef HAVE__FTELLI64
+		_fseeki64(infile, 0, SEEK_END);
+		fileLength = _ftelli64(infile);
+		_fseeki64(infile, 0, SEEK_SET);
+#elif defined(HAVE_FTELL)
+		fseek(infile, 0, SEEK_END);
+		fileLength = ftell(infile);
+		fseek(infile, 0, SEEK_SET);
+#else
+#error Need an implementation of ftell
+#endif // HAVE__FTELLI64
+
+
+		if (fileLength > 20480)
+			fileContents.resize(20480);
+		else
+			fileContents.resize((int)fileLength);
+
+		if (fread(fileContents.rawData(), 1, fileContents.size(), infile) != (DWORD)fileContents.size())
+		{
+			fclose(infile);
+			printf("Unable to read from the input file '%s'.\n", filename);
+			return 1;
+		}
+		fclose(infile);
+
+		if (!(header7 = ::TopServiceLocator()->try_get_instance<ICmsHeader>("/CmsHeader")))
+		{
+			printf("An error occurred while creating the CMS Header.\n");
+			return 1;
+		}
+		if (!header7->IsProbableHeader(fileContents.c_str(), fileContents.size()))
+		{
+			isCkm7 = false;
+			printf("The input file '%s' does not contain the required CKM Header.\n", filename);
+			return 1;
+		}
+
+		tscrypto::tsCryptoString output;
+		char buff[512];
+
+		if (isCkm7)
+		{
+			std::shared_ptr<IFileVEILOperations> ops;
+
+			output = header7->GetDebugString();
+
+			if (!!(ops = CreateFileVEILOperationsObject()))
+			{
+				bool hr = ops->ValidateFileContents_PublicOnly(filename);
+
+				if (!hr)
+				{
+					output += "ERROR:  File integrity checks FAILED\n";
+				}
+				else
+				{
+					output += "File integrity checks PASS\n";
+				}
+			}
+			else
+			{
+				output += "File integrity not checked\n";
+			}
+		}
+		else
+		{
+			output = "This file is not a CKM 7 encrypted file.\n";
+		}
+
+#ifdef HAVE_SPRINTF_S
+		sprintf_s(buff, sizeof(buff), "File length:           %lld\n", fileLength);
+		output.prepend(buff);
+
+		sprintf_s(buff, sizeof(buff), "File name:             %s\n", filename);
+		output.prepend(buff);
+#elif defined(HAVE__SNPRINTF)
+		_snprintf(buff, sizeof(buff), "File length:           %lld\n", fileLength);
+		output.prepend(buff);
+
+		_snprintf(buff, sizeof(buff), "File name:             %s\n", filename);
+		output.prepend(buff);
+#elif defined(HAVE_SNPRINTF)
+		snprintf(buff, sizeof(buff), "File length:           %lld\n", fileLength);
+		output.prepend(buff);
+
+		snprintf(buff, sizeof(buff), "File name:             %s\n", filename);
+		output.prepend(buff);
+#elif defined(HAVE_SPRINTF)
+		sprintf(buff, "File length:           %lld\n", fileLength);
+		output.prepend(buff);
+
+		sprintf(buff, "File name:             %s\n", filename);
+		output.prepend(buff);
+#endif // defined
+
+		printf("%s\n", output.c_str());
+		return 0;
+	}
+protected:
+	std::shared_ptr<IVeilUtilities> utils;
+};
+
+tsmod::IObject* HIDDEN CreateFileInfoTool()
+{
+	return dynamic_cast<tsmod::IObject*>(new FileInfoTool());
+}
+

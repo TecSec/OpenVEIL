@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+	Copyright (c) 2016, TecSec, Inc.
+
+	Redistribution and use in source and binary forms, with or without
+	modification, are permitted provided that the following conditions are met:
+	
+		* Redistributions of source code must retain the above copyright
+		  notice, this list of conditions and the following disclaimer.
+		* Redistributions in binary form must reproduce the above copyright
+		  notice, this list of conditions and the following disclaimer in the
+		  documentation and/or other materials provided with the distribution.
+		* Neither the name of TecSec nor the names of the contributors may be
+		  used to endorse or promote products derived from this software 
+		  without specific prior written permission.
+		 
+	ALTERNATIVELY, provided that this notice is retained in full, this product
+	may be distributed under the terms of the GNU General Public License (GPL),
+	in which case the provisions of the GPL apply INSTEAD OF those given above.
+		 
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+	DISCLAIMED.  IN NO EVENT SHALL TECSEC BE LIABLE FOR ANY 
+	DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+	(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+	LOSS OF USE, DATA OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+	ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+  Written by Roger Butler
+-->
+<Root xmlns="http://schemas.tecsec.com/xml2asn1codegen/2015">
+  <File Name="Asn1CkmHeader" SourceFile="Asn1CkmHeader.cpp" HeaderFile="Asn1CkmHeader.h"  ExportSymbol="VEILCORE_API" TemplateExternSymbol="VEILCORE_TEMPLATE_EXTERN">
+    <Import Name="CryptoAsn1.export"/>
+    
+    <Namespace Name="Asn1">
+      <Namespace Name="CMS">
+        <Sequence Name="CmsName">
+          <OID Name="OID" Optional="true"/>
+          <Any Name="Value" Optional="true"/>
+          <Bool Name="PrimaryDistinguished" Default="true"/>
+          <!--// TODO:  Needs valuesWithContext-->
+        </Sequence>
+        <Sequence Name="CmsIssuerAndSerialNumber">
+          <SequenceOf Name="Name" Tag="Set">
+            <Sequence Name="CmsName" ElementType="CmsName" Tag="Sequence" Type="Universal"/>
+          </SequenceOf>
+          <OctetString Name="SerialNumber"/>
+        </Sequence>
+        <Sequence Name="CmsHE_Attribute">
+          <Guid Name="Id"/>
+          <Int32 Name="Version" Initializer="0"/>
+          <Int32 Name="CryptoGroupNumber" Initializer="0"/>
+          <OctetString Name="Signature" Optional="true"/>
+        </Sequence>
+        <Sequence Name="CmsHE_AttributeListExtension">
+          <SequenceOf Name="Attributes">
+            <Sequence Name="CmsHE_Attribute" ElementType="CmsHE_Attribute"/>
+          </SequenceOf>
+        </Sequence>
+        <Sequence Name="CmsHE_Hash">
+          <Sequence Name="Algorithm" ElementType="AlgorithmIdentifier"/>
+          <OctetString Name="Hash"/>
+        </Sequence>
+        <Sequence Name="CmsHE_CryptoGroup">
+          <Guid Name="CryptoGroupId"/>
+          <Int32 Name="CML" Initializer="0"/>
+          <OctetString Name="EphemeralPublic" Optional="true"/>
+        </Sequence>
+        <Sequence Name="CmsHE_CryptoGroupList">
+          <SequenceOf Name="CryptoGroup">
+            <Sequence Name="CmsHE_CryptoGroup" ElementType="CmsHE_CryptoGroup"/>
+          </SequenceOf>
+        </Sequence>
+        <Sequence Name="CmsHE_FullCert">
+          <OctetString Name="Certificate"/>
+          <OctetString Name="ProtectedValue" Optional="true"/>
+        </Sequence>
+        <Sequence Name="CmsHE_PartialCert">
+          <OctetString Name="KeyId"/>
+          <OctetString Name="Subject"/>
+          <OctetString Name="ProtectedValue" Optional="true"/>
+        </Sequence>
+        <Sequence Name="CmsHE_Pin">
+          <OctetString Name="Salt"/>
+          <OctetString Name="HMAC"/>
+          <Int32 Name="Iterations" Initializer="1000"/>
+          <Int32 Name="KeySize" Initializer="32"/>
+          <String Name="Description"/>
+          <OctetString Name="ProtectedValue" Optional="true"/>
+        </Sequence>
+        <Sequence Name="CmsHE_Attrs">
+          <SequenceOf Name="AttrIndices">
+            <Int32 Name="AttrIndex"/>
+          </SequenceOf>
+          <OctetString Name="EncryptedRandom" Optional="true"/>
+        </Sequence>
+        <Sequence Name="CmsHE_External">
+          <OID Name="OID"/>
+          <OctetString Name="Parameters"/>
+          <OctetString Name="ProtectedValue" Optional="true"/>
+        </Sequence>
+        <SequenceOf Name="CmsHE_AccessGroups">
+          <Choice Name="Item">
+            <Sequence Name="CertItem" ElementType="CmsHE_FullCert" Tag="0" Type="Context"/>
+            <Sequence Name="PartialItem" ElementType="CmsHE_PartialCert" Tag="1" Type="Context"/>
+            <Sequence Name="PinItem" ElementType="CmsHE_Pin" Tag="2" Type="Context"/>
+            <Sequence Name="AttrItem" ElementType="CmsHE_Attrs" Tag="3" Type="Context"/>
+            <Sequence Name="ExternalItem" ElementType="CmsHE_External" Tag="4" Type="Context"/>
+          </Choice>
+        </SequenceOf>
+        <Sequence Name="CmsExtension">
+          <OID Name="OID"/>
+          <Bool Name="Critical" Default="false"/>
+          <OctetString Name="Value"/>
+        </Sequence>
+        <Sequence Name="CmsHeaderData">
+          <Part Name="Signable">
+            <OID Name="OID"/>
+            <Int32 Name="Version"/>
+            <Int32 Name="CombinerVersion"/>
+            <Choice Name="WhoCreated"/>
+            <Date Name="CreationDate"/>
+            <Choice Name="EncAlg"/>
+            <Int32 Name="Compression"/>
+            <Int32 Name="Padding"/>
+
+            <Guid Name="objectId"/>
+            <SequenceOf Name="ProtectedExtensions"/>
+            <Sequence Name="SignatureAlgorithm" ElementType="AlgorithmIdentifier"/>
+          </Part>
+          <OID Name="OID"/>
+          <Int32 Name="Version"/>
+          <Int32 Name="CombinerVersion"/>
+          <Choice Name="WhoCreated">
+            <Sequence Name="Issuer" ElementType="CmsIssuerAndSerialNumber"/>
+            <OctetString Name="SubjectId" Tag="0" Type="Context"/>
+            <Guid Name="SubjectGuid" Tag="1" Type="Context"/>
+          </Choice>
+          <Date Name="CreationDate"/>
+          <Choice Name="EncAlg">
+            <Enum Name="EncryptionAlgorithmId" ElementType="tscrypto::TS_ALG_ID" BaseType="Int32" Tag="Number" Initializer="tscrypto::_TS_ALG_ID::TS_ALG_INVALID"/>
+            <Sequence Name="EncryptionAlgorithm" ElementType="AlgorithmIdentifier"/>
+          </Choice>
+          <Int32 Name="Compression" Default="0" Tag="0" Type="Context"/>
+          <Int32 Name="Padding" Default="0" Tag="1" Type="Context"/>
+
+          <Guid Name="objectId" Tag="6" Type="Context" Optional="true"/>
+
+          <SequenceOf Name="ProtectedExtensions" Tag="2" Type="Context" Optional="true">
+            <Sequence Name="CmsExtension" ElementType="CmsExtension" Tag="Sequence" Type="Universal"/>
+          </SequenceOf>
+          <Sequence Name="SignatureAlgorithm" ElementType="AlgorithmIdentifier" Tag="3" Type="Context" Optional="true"/>
+          <OctetString Name="Signature" Tag="4" Type="Context" Optional="true"/>
+          <SequenceOf Name="UnprotectedExtensions" Tag="5" Type="Context" Optional="true">
+            <Sequence Name="CmsExtension" ElementType="CmsExtension" Tag="Sequence" Type="Universal"/>
+          </SequenceOf>
+          <Int32 Name="PaddedSize" Tag="7" Type="Context" Optional="true"/>
+
+          <!--<Function ReturnType="tscrypto::TS_ALG_ID" Name="getEncryptionAlgorithmAsId" Parameters="" suffix="const">
+                        <Description>
+                            <![CDATA[<Summary>Retrieves the encryption algorithm id translated into a TS_ALG_ID</Summary>
+<Returns>The TS_ALG_ID of the encryption algorithm</Returns>
+]]>
+                        </Description>
+<![CDATA[
+switch (_EncAlg.selectedItem)
+{
+case CmsHeaderData_EncAlg::Choice_EncryptionAlgorithmId: // ID
+    return _EncAlg._EncryptionAlgorithmId;
+case CmsHeaderData_EncAlg::Choice_EncryptionAlgorithm: // AlgorithmIdentifier
+    return tsCrypto::OIDtoID(_EncAlg._EncryptionAlgorithm._oid.oidString());
+default:
+    return tscrypto::_TS_ALG_ID::TS_ALG_INVALID;
+}
+]]>
+                    </Function>
+                    <Function ReturnType="tscrypto::tsCryptoData" Name="getEncryptionAlgorithmAsOID" Parameters="" suffix="const">
+<![CDATA[
+switch (_EncAlg.selectedItem)
+{
+case CmsHeaderData_EncAlg::Choice_EncryptionAlgorithmId: // ID
+    return tscrypto::tsCryptoData(tsCrypto::IDtoOID(_EncAlg._EncryptionAlgorithmId), tscrypto::tsCryptoData::OID);
+case CmsHeaderData_EncAlg::Choice_EncryptionAlgorithm: // AlgorithmIdentifier
+    return _EncAlg._EncryptionAlgorithm._oid.oid();
+default:
+    return tscrypto::tsCryptoData();
+}
+]]>
+                    </Function>
+                    <Function ReturnType="tscrypto::TS_ALG_ID" Name="getSignatureAlgorithmAsId" Parameters="" suffix="const">
+                        <![CDATA[
+if (_SignatureAlgorithm.value == nullptr)
+    return tscrypto::_TS_ALG_ID::TS_ALG_INVALID;
+                                    
+return tsCrypto::OIDtoID(dynamic_cast<tscrypto::AlgorithmIdentifier*>(_SignatureAlgorithm.value)->_oid.oidString());
+]]>
+                    </Function>
+                    <Function ReturnType="tscrypto::tsCryptoData" Name="getSignatureAlgorithmAsOID" Parameters="" suffix="const">
+                        <![CDATA[
+if (_SignatureAlgorithm.value != nullptr)
+    return dynamic_cast<tscrypto::AlgorithmIdentifier*>(_SignatureAlgorithm.value)->_oid.oid();
+return tscrypto::tsCryptoData();
+]]>
+                    </Function>
+                    <Function ReturnType="void" Name="setSignatureAlgorithmId" Parameters="tscrypto::TS_ALG_ID id">
+<![CDATA[
+tscrypto::AlgorithmIdentifier ai;
+ai._oid.oidString(tsCrypto::IDtoOID(id));
+_SignatureAlgorithm.set(ai);
+]]>
+                    </Function>-->
+          <Function ReturnType="void" Name="setSignatureAlgorithm" Parameters="const tscrypto::tsCryptoData &amp;oid, const tscrypto::Asn1AnyField &amp;parameters">
+            <![CDATA[
+tscrypto::AlgorithmIdentifier ai;
+ai._oid.oid(oid);
+ai._Parameter = parameters;
+_SignatureAlgorithm.set(ai);
+]]>
+          </Function>
+        </Sequence>
+      </Namespace>
+    </Namespace>
+  </File>
+  <!--<Sequence Name="ProtectedExtensions" ElementType="CmsExtensionList" Tag="2" Type="Context" Optional="true"/>-->
+  <!--<Sequence Name="UnprotectedExtensions" ElementType="CmsExtensionList" Tag="5" Type="Context" Optional="true"/>-->
+  <!--<Sequence Name="CmsExtensionList" ElementType="CmsExtensionList">
+                    <Array Name="Extension" ElementType="CmsExtension" Tag="Sequence" Type="Universal"/>
+                </Sequence>-->
+</Root>

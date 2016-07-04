@@ -1,0 +1,123 @@
+#	Copyright (c) 2016, TecSec, Inc.
+#
+#	Redistribution and use in source and binary forms, with or without
+#	modification, are permitted provided that the following conditions are met:
+#	
+#		* Redistributions of source code must retain the above copyright
+#		  notice, this list of conditions and the following disclaimer.
+#		* Redistributions in binary form must reproduce the above copyright
+#		  notice, this list of conditions and the following disclaimer in the
+#		  documentation and/or other materials provided with the distribution.
+#		* Neither the name of TecSec nor the names of the contributors may be
+#		  used to endorse or promote products derived from this software 
+#		  without specific prior written permission.
+#		 
+#	ALTERNATIVELY, provided that this notice is retained in full, this product
+#	may be distributed under the terms of the GNU General Public License (GPL),
+#	in which case the provisions of the GPL apply INSTEAD OF those given above.
+#		 
+#	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+#	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+#	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+#	DISCLAIMED.  IN NO EVENT SHALL TECSEC BE LIABLE FOR ANY 
+#	DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+#	(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+#	LOSS OF USE, DATA OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+#	ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+#	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+# Written by Roger Butler
+
+include (CheckIncludeFiles)
+include (CheckLibraryExists)
+include (CheckSymbolExists)
+
+find_path(HARU_INCLUDE_DIR hpdf.h
+    HINTS
+        $ENV{HARU_ROOT}/include
+        $ENV{HARU_ROOT}/include/libharu
+        ${BZ2_ROOT}/include
+        ${BZ2_ROOT}/include/libharu
+)
+mark_as_advanced(HARU_INCLUDE_DIR)
+# if (NOT HARU_LIBRARIES)
+    find_library(HARU_SHARED_LIBRARY_RELEASE NAMES libhpdf HINTS $ENV{HARU_ROOT}/lib${TS_LIB_DIR_SUFFIX} ${HARU_ROOT}/lib${TS_LIB_DIR_SUFFIX})
+    find_library(HARU_SHARED_LIBRARY_RELWITHDEBINFO NAMES libhpdf HINTS $ENV{HARU_ROOT}/lib${TS_LIB_DIR_SUFFIX} ${HARU_ROOT}/lib${TS_LIB_DIR_SUFFIX})
+    find_library(HARU_STATIC_LIBRARY_RELEASE NAMES libhpdfs HINTS $ENV{HARU_ROOT}/lib${TS_LIB_DIR_SUFFIX} ${HARU_ROOT}/lib${TS_LIB_DIR_SUFFIX})
+    find_library(HARU_STATIC_LIBRARY_RELWITHDEBINFO NAMES libhpdfs HINTS $ENV{HARU_ROOT}/lib${TS_LIB_DIR_SUFFIX} ${HARU_ROOT}/lib${TS_LIB_DIR_SUFFIX})
+    find_library(HARU_SHARED_LIBRARY_DEBUG NAMES libhpdfd HINTS $ENV{HARU_ROOT}/lib${TS_LIB_DIR_SUFFIX} ${HARU_ROOT}/lib${TS_LIB_DIR_SUFFIX})
+    find_library(HARU_STATIC_LIBRARY_DEBUG NAMES libhpdfsd HINTS $ENV{HARU_ROOT}/lib${TS_LIB_DIR_SUFFIX} ${HARU_ROOT}/lib${TS_LIB_DIR_SUFFIX})
+	IF(WIN32)
+		SET(_tmp ${CMAKE_FIND_LIBRARY_SUFFIXES})
+		SET(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_SHARED_LIBRARY_SUFFIX})
+		find_library(HARU_SHARED_SO_RELEASE NAMES libhpdf HINTS $ENV{HARU_ROOT}/bin${TS_LIB_DIR_SUFFIX} ${HARU_ROOT}/bin${TS_LIB_DIR_SUFFIX})
+		find_library(HARU_SHARED_SO_RELWITHDEBINFO NAMES libhpdf HINTS $ENV{HARU_ROOT}/bin${TS_LIB_DIR_SUFFIX} ${HARU_ROOT}/bin${TS_LIB_DIR_SUFFIX})
+		find_library(HARU_SHARED_SO_DEBUG NAMES libhpdfd HINTS $ENV{HARU_ROOT}/bin${TS_LIB_DIR_SUFFIX} ${HARU_ROOT}/bin${TS_LIB_DIR_SUFFIX})
+		SET(CMAKE_FIND_LIBRARY_SUFFIXES ${_tmp})
+	endif(WIN32)
+# endif ()
+
+if(HARU_INCLUDE_DIR AND EXISTS "${HARU_INCLUDE_DIR}/hpdf_version.h")
+    file(STRINGS "${HARU_INCLUDE_DIR}/hpdf_version.h" HARU_H REGEX "^#define HPDF_VERSION_TEXT \"[^\"]*\"$")
+
+    string(REGEX REPLACE "^.*HPDF_VERSION_TEXT \"([0-9]+).*$" "\\1" HARU_VERSION_MAJOR "${HARU_H}")
+    string(REGEX REPLACE "^.*HPDF_VERSION_TEXT \"[0-9]+\\.([0-9]+).*$" "\\1" HARU_VERSION_MINOR  "${HARU_H}")
+    string(REGEX REPLACE "^.*HPDF_VERSION_TEXT \"[0-9]+\\.[0-9]+\\.([0-9]+).*$" "\\1" HARU_VERSION_PATCH "${HARU_H}")
+    set(HARU_VERSION_STRING "${HARU_VERSION_MAJOR}.${HARU_VERSION_MINOR}.${HARU_VERSION_PATCH}")
+
+    # only append a TWEAK version if it exists:
+    set(HARU_VERSION_TWEAK "")
+    if( "${HARU_H}" MATCHES "HARU_VERSION \"[0-9]+\\.[0-9]+\\.[0-9]+\\.([0-9]+)")
+        set(HARU_VERSION_TWEAK "${CMAKE_MATCH_1}")
+        set(HARU_VERSION_STRING "${HARU_VERSION_STRING}.${HARU_VERSION_TWEAK}")
+    endif()
+
+    set(HARU_MAJOR_VERSION "${HARU_VERSION_MAJOR}")
+    set(HARU_MINOR_VERSION "${HARU_VERSION_MINOR}")
+    set(HARU_PATCH_VERSION "${HARU_VERSION_PATCH}")
+endif()
+
+# handle the QUIETLY and REQUIRED arguments and set BZip2_FOUND to TRUE if
+# all listed variables are TRUE
+include(FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(HARU
+                                  REQUIRED_VARS HARU_SHARED_LIBRARY_RELEASE HARU_STATIC_LIBRARY_RELEASE HARU_SHARED_LIBRARY_DEBUG HARU_STATIC_LIBRARY_DEBUG HARU_INCLUDE_DIR
+                                  VERSION_VAR HARU_VERSION_STRING)
+
+if(HARU_FOUND)
+    set(HARU_INCLUDE_DIRS ${HARU_INCLUDE_DIR})
+    set(HARU_LIBRARIES ${HARU_LIBRARY})
+
+    if(NOT TARGET HARU)
+		if(WIN32)
+		  add_library(HARU SHARED IMPORTED)
+		  set_property(TARGET HARU PROPERTY IMPORTED_LOCATION_DEBUG "${HARU_SHARED_SO_DEBUG}")
+		  set_property(TARGET HARU PROPERTY IMPORTED_LOCATION_RELEASE "${HARU_SHARED_SO_RELEASE}")
+		  set_property(TARGET HARU PROPERTY IMPORTED_LOCATION_RELWITHDEBINFO "${HARU_SHARED_SO_RELWITHDEBINFO}")
+		  set_property(TARGET HARU PROPERTY IMPORTED_IMPLIB_DEBUG "${HARU_SHARED_LIBRARY_DEBUG}")
+		  set_property(TARGET HARU PROPERTY IMPORTED_IMPLIB_RELEASE "${HARU_SHARED_LIBRARY_RELEASE}")
+		  set_property(TARGET HARU PROPERTY IMPORTED_IMPLIB_RELWITHDEBINFO "${HARU_SHARED_LIBRARY_RELWITHDEBINFO}")
+		  set_property(TARGET HARU PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${HARU_INCLUDE_DIRS}")
+		else(WIN32)
+		  add_library(HARU SHARED IMPORTED)
+		  set_target_properties(HARU PROPERTIES
+			IMPORTED_LOCATION_DEBUG "${HARU_SHARED_LIBRARY_DEBUG}"
+			IMPORTED_LOCATION_RELEASE "${HARU_SHARED_LIBRARY_RELEASE}"
+			IMPORTED_LOCATION_RELWITHDEBINFO "${HARU_SHARED_LIBRARY_RELWITHDEBINFO}"
+			INTERFACE_INCLUDE_DIRECTORIES "${HARU_INCLUDE_DIRS}")
+		endif(WIN32)
+    endif()
+   
+    if(NOT TARGET HARU_STATIC)
+      add_library(HARU_STATIC UNKNOWN IMPORTED)
+      set_target_properties(HARU_STATIC PROPERTIES
+        IMPORTED_LOCATION_DEBUG "${HARU_STATIC_LIBRARY_DEBUG}"
+        IMPORTED_LOCATION_RELEASE "${HARU_STATIC_LIBRARY_RELEASE}"
+        IMPORTED_LOCATION_RELWITHDEBINFO "${HARU_STATIC_LIBRARY_RELWITHDEBINFO}"
+        INTERFACE_INCLUDE_DIRECTORIES "${HARU_INCLUDE_DIR}")
+    endif()
+	
+endif()
+
+mark_as_advanced(HARU_INCLUDE_DIR)

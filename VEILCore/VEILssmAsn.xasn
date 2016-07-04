@@ -1,0 +1,193 @@
+<!--
+	Copyright (c) 2016, TecSec, Inc.
+
+	Redistribution and use in source and binary forms, with or without
+	modification, are permitted provided that the following conditions are met:
+	
+		* Redistributions of source code must retain the above copyright
+		  notice, this list of conditions and the following disclaimer.
+		* Redistributions in binary form must reproduce the above copyright
+		  notice, this list of conditions and the following disclaimer in the
+		  documentation and/or other materials provided with the distribution.
+		* Neither the name of TecSec nor the names of the contributors may be
+		  used to endorse or promote products derived from this software 
+		  without specific prior written permission.
+		 
+	ALTERNATIVELY, provided that this notice is retained in full, this product
+	may be distributed under the terms of the GNU General Public License (GPL),
+	in which case the provisions of the GPL apply INSTEAD OF those given above.
+		 
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+	DISCLAIMED.  IN NO EVENT SHALL TECSEC BE LIABLE FOR ANY 
+	DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+	(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+	LOSS OF USE, DATA OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+	ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+  Written by Roger Butler
+-->
+
+<?xml version="1.0" encoding="utf-8" ?>
+<Root xmlns="http://schemas.tecsec.com/xml2asn1codegen/2015">
+  <File Name="VEILssmAsn" ExportSymbol="VEILCORE_API" TemplateExternSymbol="VEILCORE_TEMPLATE_EXTERN">
+
+    <ID Name="id_VEIL_SSM_REQUEST_OID" Value="2.23.42.9.10.3.0.3.8.0"/>
+    <ID Name="id_VEIL_SSM_RESPONSE_OID" Value="2.23.42.9.10.3.0.3.8.1"/>
+
+    <Namespace Name="VEILssmAsn">
+
+      <Enum Name="SSMCommand">
+        <ID Name="cmd_None" Value="0"/>
+        <ID Name="cmd_ListKeys" Value="1"/>
+        <ID Name="cmd_CreateKey" Value="2"/>
+        <ID Name="cmd_DeleteKey" Value="3"/>
+        <ID Name="cmd_Derive" Value="4"/>
+
+
+        <ID Name="cmd_Import" Value="99"/>
+        <ID Name="cmd_Export" Value="99"/>
+        <ID Name="cmd_Sign" Value="99"/>
+        <ID Name="cmd_Verify" Value="99"/>
+        <ID Name="cmd_Wrap" Value="99"/>
+        <ID Name="cmd_Unwrap" Value="99"/>
+        <ID Name="cmd_Encrypt" Value="99"/>
+        <ID Name="cmd_Decrypt" Value="99"/>
+        <ID Name="cmd_Rename" Value="99"/>
+        <ID Name="cmd_AssignKeyTo" Value="99"/>
+      </Enum>
+
+      <Enum Name="ResultCodes">
+        <ID Name="rslt_OK" Value="0"/>
+        <ID Name="rslt_BadCommand" Value="1"/>
+        <ID Name="rslt_NotImplementedYet" Value="2"/>
+        <ID Name="rslt_Exception" Value="3"/>
+        <ID Name="rslt_NoDB" Value="4"/>
+        <ID Name="rslt_DBReadError" Value="5"/>
+        <ID Name="rslt_DBWriteError" Value="6"/>
+        <ID Name="rslt_InvalidArgument" Value="7"/>
+        <ID Name="rslt_NotAllowed" Value="8"/>
+        <ID Name="rslt_CannotGenerate" Value="9"/>
+        <ID Name="rslt_CannotDelete" Value="10"/>
+        <ID Name="rslt_CannotEncrypt" Value="11"/>
+        <ID Name="rslt_CannotSign" Value="12"/>
+        <ID Name="rslt_CannotDecrypt" Value="13"/>
+        <ID Name="rslt_CannotVerify" Value="14"/>
+        <ID Name="rslt_CannotWrap" Value="15"/>
+        <ID Name="rslt_CannotUnwrap" Value="16"/>
+        <ID Name="rslt_CannotDerive" Value="17"/>
+        <ID Name="rslt_KeyIncompatible" Value="18"/>
+      </Enum>
+
+      <Enum Name="KeyType">
+        <ID Name="kt_None" Value="0"/>
+        <ID Name="kt_P256" Value="1"/>
+        <ID Name="kt_P384" Value="2"/>
+        <ID Name="kt_P521" Value="3"/>
+
+        <ID Name="kt_AES_128" Value="100"/>
+        <ID Name="kt_AES_192" Value="101"/>
+        <ID Name="kt_AES_256" Value="102"/>
+      </Enum>
+
+      <Enum Name="RightsType">
+        <ID Name="rt_None" Value="0"/>
+        <ID Name="rt_Export" Value="1"/>
+        <ID Name="rt_Encrypt" Value="2"/>
+        <ID Name="rt_Decrypt" Value="4"/>
+        <ID Name="rt_Wrap" Value="8"/>
+        <ID Name="rt_Unwrap" Value="16"/>
+        <ID Name="rt_Sign" Value="32"/>
+        <ID Name="rt_Verify" Value="64"/>
+        <ID Name="rt_Delete" Value="128"/>
+        <ID Name="rt_Derive" Value="256"/>
+      </Enum>
+
+      <Enum Name="ListKeysType">
+        <ID Name="lkt_User" Value="0"/>
+        <ID Name="lkt_Group" Value="1"/>
+        <ID Name="lkt_All" Value="2"/>
+      </Enum>
+
+      <Sequence Name="ListKeysRequest" ElementType="ListKeysRequest">
+        <Enum Name="type" ElementType="ListKeysType" BaseType="Int32" Initializer="lkt_User"/>
+      </Sequence>
+
+      <Sequence Name="CreateKeyRequest" ElementType="CreateKeyRequest">
+        <String Name="name"/>
+        <Enum Name="keyType" ElementType="KeyType" BaseType="Int32" Tag="1" Type="Context" Initializer="kt_None"/>
+        <Int32 Name="UserID" Initializer="0"/>
+        <Int32 Name="GroupID" Initializer="0"/>
+        <Enum Name="userRights" ElementType="RightsType" BaseType="Int32" Tag="1" Type="Context" Initializer="rt_None"/>
+        <Enum Name="groupRights" ElementType="RightsType" BaseType="Int32" Tag="1" Type="Context" Initializer="rt_None"/>
+        <Enum Name="worldRights" ElementType="RightsType" BaseType="Int32" Tag="1" Type="Context" Initializer="rt_None"/>
+      </Sequence>
+
+      <Sequence Name="DeriveKeyRequest" ElementType="DeriveKeyRequest">
+        <Guid Name="KeyId"/>
+        <OctetString Name="AsymPublicKey"/>
+        <Int32 Name="keyBitSize" Initializer="0"/>
+        <OctetString Name="Context"/>
+      </Sequence>
+      
+      <Sequence Name="Request" ElementType="Request" OID="id_VEIL_SSM_REQUEST_OID" DefaultVersion="0">
+        <Version Name="V0" OID="id_VEIL_SSM_REQUEST_OID" MinNumber="0" MaxNumber="0">
+          <Enum Name="command"/>
+          <Guid Name="Id"/>
+          <Choice Name="commandInfo"/>
+        </Version>
+
+        <Enum Name="command" ElementType="SSMCommand" BaseType="Int32" Initializer="cmd_None"/>
+        <Guid Name="Id"/>
+        <Choice Name="commandInfo">
+          <Guid Name="KeyId"/>
+          <Sequence Name="listKeys" ElementType="ListKeysRequest" Tag="0" Type="Context"/>
+          <Sequence Name="createKey" ElementType="CreateKeyRequest" Tag="1" Type="Context"/>
+          <Sequence Name="deriveKey" ElementType="DeriveKeyRequest" Tag="2" Type="Context"/>
+        </Choice>
+      </Sequence>
+
+      <!-- =================================================================== -->
+
+      <Sequence Name="KeyInfo" ElementType="KeyInfo">
+        <String Name="name"/>
+        <Guid Name="Id"/>
+        <Int32 Name="UserID" Initializer="0"/>
+        <Int32 Name="GroupID" Initializer="0"/>
+        <Enum Name="UserPermissions" ElementType="RightsType" BaseType="Int32" Initializer="rt_None"/>
+        <Enum Name="GroupPermissions" ElementType="RightsType" BaseType="Int32" Initializer="rt_None"/>
+        <Enum Name="WorldPermissions" ElementType="RightsType" BaseType="Int32" Initializer="rt_None"/>
+        <Enum Name="Type" ElementType="KeyType" BaseType="Int32" Initializer="kt_None"/>
+      </Sequence>
+
+      <Sequence Name="ListKeysResponse" ElementType="ListKeysResponse">
+        <SequenceOf Name="Keys" Tag="0" Type="Context">
+          <Sequence Name="info" ElementType="KeyInfo"/>
+        </SequenceOf>
+      </Sequence>
+
+      <Sequence Name="Response" ElementType="Response" OID="id_VEIL_SSM_RESPONSE_OID" DefaultVersion="0">
+        <Version Name="V0" OID="id_VEIL_SSM_RESPONSE_OID" MinNumber="0" MaxNumber="0">
+          <Enum Name="command"/>
+          <Guid Name="Id"/>
+          <Enum Name="resultCode"/>
+          <Choice Name="responseInfo"/>
+        </Version>
+
+        <Enum Name="command" ElementType="SSMCommand" BaseType="Int32" Initializer="cmd_None"/>
+        <Guid Name="Id"/>
+        <Enum Name="resultCode" ElementType="ResultCodes" BaseType="Int32" Initializer="rslt_OK"/>
+        <Choice Name="responseInfo">
+          <String Name="ErrorInfo"/>
+          <Guid Name="ResultId"/>
+          <Sequence Name="listKeys" ElementType="ListKeysResponse" Tag="0" Type="Context"/>
+          <OctetString Name="data" Tag="1" Type="Context"/>
+        </Choice>
+      </Sequence>
+
+    </Namespace>
+  </File>
+</Root>

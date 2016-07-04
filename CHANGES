@@ -1,0 +1,32 @@
+Changes for 7.0.4:
+
+ * Initial Open Source release of OpenVEIL
+
+Changes for 7.0.21:
+
+ * Many new algorithms were added.
+ * TLS 1.2 client and server support added.
+ * Numerous bug fixes
+
+
+Changes for 1/27/2016
+
+ * Removed many warnings and fixed a few bugs in the process.  This caused breaking changes in the API as std:vector was not designed to be exported from DLLs/SOs.
+ * Fixed SHA3 related code as it was failing to operate correctly with GCC 5.2.0 when built as x86 code.
+ * Added the debug logging system
+ * Created veil.exe as a commandline application that will eventually replace most if not all of the other commandline utilities.
+ * ...
+ 
+ Changes for 7.0.32
+ * OpenVEIL is now the foundation for all of the VEIL products.
+ * Additional crypto algorithms added (X25519, secp256k1, Salsa20, Chacha20, poly1305, ...)
+ * Low level GUI dialogs for Windows API and WxWidgets
+ * XML parser
+ * Much more ...
+
+ Changes for 7.0.33
+ * Complete revamp of the crypto system in order to support certifiability with FIPS and Common Criteria.  The crypto had to be extracted into its own module.  We also had to clear the old version history from the public repository.
+ * Numerous other changes including a rewrite of the Crypto string and data classes to conform more closely with C++11...
+ * Basically the API structure has changed and will require some work on the application side to build with the new system.
+
+ 

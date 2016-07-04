@@ -1,0 +1,12 @@
+*.user
+*.lst
+*.obj
+*.bak
+x86
+x64
+lib
+obj
+*.sdf
+*.suo
+./Build
+*~
