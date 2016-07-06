@@ -53,6 +53,12 @@ endif()
 ## Start Options
 #####################################################################
 
+if(WIN32)
+	set(OPENVEIL_SDK_FOLDER "c:/TecSec/VEIL" CACHE PATH "The install location for OpenVEIL")
+else()
+	set(OPENVEIL_SDK_FOLDER "~/local/VEIL" CACHE PATH "The install location for OpenVEIL")
+endif()
+
 set(${VEILCORENAME_U}_MAJOR_VERSION 7)
 set(${VEILCORENAME_U}_MINOR_VERSION 0)
 set(${VEILCORENAME_U}_REVISION_VERSION 32)
@@ -87,10 +93,10 @@ set(SuperProject ON)
 
 include(tecsec_configure_env)
 include(tecsec_ConfigureVEILCrypto)
-get_filename_component(__tmp ${VEILCRYPTO_ROOT_DIR} DIRECTORY)
-string(FIND ${__tmp} "/" __tmpPos REVERSE)
-string(SUBSTRING ${__tmp} 0 ${__tmpPos} __tmp)
-set(SDK_FOLDER ${__tmp}/VEIL)
+# get_filename_component(__tmp ${VEILCRYPTO_ROOT_DIR} DIRECTORY)
+# string(FIND ${__tmp} "/" __tmpPos REVERSE)
+# string(SUBSTRING ${__tmp} 0 ${__tmpPos} __tmp)
+set(SDK_FOLDER ${OPENVEIL_SDK_FOLDER})
 set(TS_INSTALL_PREFIX ${SDK_FOLDER}/${TS_TOOLSET})
 include (tecsec_installdirs)
 include(tecsec_packages)
@@ -157,7 +163,9 @@ elseif(TARGET pcsc)
 endif(HAVE_WINDOWS_H)
 
 ImportTarget(VEILCryptoCore)
-ImportTarget(VEILEnhancedCrypto)
+if(TARGET VEILEnhancedCrypto)
+	ImportTarget(VEILEnhancedCrypto)
+endif(TARGET VEILEnhancedCrypto)
 
 include_directories(
 	${CMAKE_CURRENT_BINARY_DIR} 
@@ -291,7 +299,9 @@ if (wxWidgets_FOUND)
 endif (wxWidgets_FOUND)
 
 CopyImportTargetBinaries(VEILCryptoCore ${BIN_DIR})
-CopyImportTargetBinaries(VEILEnhancedCrypto ${BIN_DIR})
+if(TARGET VEILEnhancedCrypto)
+	CopyImportTargetBinaries(VEILEnhancedCrypto ${BIN_DIR})
+endif(TARGET VEILEnhancedCrypto)
 
 CONFIGURE_FILE(VEILApiVersion.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/VEILApiVersion.cmake)
 

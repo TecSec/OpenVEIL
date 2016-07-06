@@ -29,22 +29,42 @@
 #
 # Written by Roger Butler
 
+set(__paths 
+      ENV VEILCrypto_ROOT
+      ENV VEILCrypto
+      C:/
+      D:/
+      ENV ProgramFiles\(x86\)
+      ENV ProgramFiles
+)
 if(WIN32)
   find_path(VEILCRYPTO_ROOT_DIR
     NAMES 
       include/VEILCryptoCore.h
     PATHS
-      ENV VEILCrypto_ROOT_DIR
-      ENV VEILCrypto
-      C:/
-      D:/
-      ENV ProgramFiles
+      ${__paths}
     PATH_SUFFIXES
 		  TecSec/CRYPTO_7-0/${TS_TOOLSET}
 		  TecSec/CRYPTO_7/${TS_TOOLSET}
 		  TecSec/CRYPTO/${TS_TOOLSET}
     DOC "VEILCrypto base/installation directory"
     )
+  if (VEILCRYPTO_ROOT_DIR)
+    if(NOT EXISTS ${VEILCRYPTO_ROOT_DIR}/VEILCrypto.cmake)
+      unset(VEILCRYPTO_ROOT_DIR CACHE)
+      find_path(VEILCRYPTO_ROOT_DIR
+        NAMES 
+          include/VEILCryptoCore.h
+        PATHS
+          ${__paths}
+    PATH_SUFFIXES
+		  TecSec/CRYPTO_7-0/${TS_TOOLSET}
+		  TecSec/CRYPTO_7/${TS_TOOLSET}
+		  TecSec/CRYPTO/${TS_TOOLSET}
+    DOC "VEILCrypto base/installation directory"
+    )
+    endif()
+  endif()    
 else()
   message(FATAL_ERROR "The search process for VEILCrypto for this environment has not been configured.")
 endif(WIN32)
@@ -53,46 +73,55 @@ endif(WIN32)
 
 if (VEILCRYPTO_ROOT_DIR)
 
-  # message(STATUS "Looking for VEILCrypto at:  ${VEILCRYPTO_ROOT_DIR}/bin${TS_LIB_DIR_SUFFIX}${EXE_DLL_POSTFIX}/VEILCrypto.cmake")
+  if(DEBUG_VEILCRYPTO)
+    message(STATUS "Looking for VEILCrypto at:  ${VEILCRYPTO_ROOT_DIR}/bin${TS_LIB_DIR_SUFFIX}${EXE_DLL_POSTFIX}/VEILCrypto.cmake")
+  endif()
 
   # Build the values needed for program development here
   if(EXISTS ${VEILCRYPTO_ROOT_DIR}/VEILCrypto.cmake)
     include(${VEILCRYPTO_ROOT_DIR}/VEILCrypto.cmake)
 
+    set(__suffix "${EXE_DLL_POSTFIX}")
+    if(EXE_DLL_POSTFIX STREQUAL "d" AND NOT IS_DIRECTORY "${VEILCRYPTO_ROOT_DIR}/bin${TS_LIB_DIR_SUFFIX}${EXE_DLL_POSTFIX}")
+      set(__suffix "")
+    endif()
+
     set(CRYPTO_INSTALL_PREFIX "${VEILCRYPTO_ROOT_DIR}")
-    set(CRYPTO_BIN_DIR "${VEILCRYPTO_ROOT_DIR}/bin${TS_LIB_DIR_SUFFIX}${EXE_DLL_POSTFIX}")
+    set(CRYPTO_BIN_DIR "${VEILCRYPTO_ROOT_DIR}/bin${TS_LIB_DIR_SUFFIX}${__suffix}")
     set(CRYPTO_INCLUDE_DIR "${VEILCRYPTO_ROOT_DIR}/include")
-    set(CRYPTO_LIB_DIR "${VEILCRYPTO_ROOT_DIR}/lib${TS_LIB_DIR_SUFFIX}${EXE_DLL_POSTFIX}")
+    set(CRYPTO_LIB_DIR "${VEILCRYPTO_ROOT_DIR}/lib${TS_LIB_DIR_SUFFIX}${__suffix}")
     set(CRYPTO_SHLIB_DIR "${CRYPTO_BIN_DIR}")
 
-    # message(STATUS "CRYPTO_INSTALL_PREFIX = ${CRYPTO_INSTALL_PREFIX}")
-    # message(STATUS "CRYPTO_BIN_DIR        = ${CRYPTO_BIN_DIR}")
-    # message(STATUS "CRYPTO_INCLUDE_DIR    = ${CRYPTO_INCLUDE_DIR}")
-    # message(STATUS "CRYPTO_LIB_DIR        = ${CRYPTO_LIB_DIR}")
-    # message(STATUS "CRYPTO_SHLIB_DIR      = ${CRYPTO_SHLIB_DIR}")
+    if(DEBUG_VEILCRYPTO)
+      message(STATUS "CRYPTO_INSTALL_PREFIX = ${CRYPTO_INSTALL_PREFIX}")
+      message(STATUS "CRYPTO_BIN_DIR        = ${CRYPTO_BIN_DIR}")
+      message(STATUS "CRYPTO_INCLUDE_DIR    = ${CRYPTO_INCLUDE_DIR}")
+      message(STATUS "CRYPTO_LIB_DIR        = ${CRYPTO_LIB_DIR}")
+      message(STATUS "CRYPTO_SHLIB_DIR      = ${CRYPTO_SHLIB_DIR}")
+    endif(DEBUG_VEILCRYPTO)
 
     if(WIN32)
       if (MSYS OR MINGW)
-        set(_cryptocore_implib "${CRYPTO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}VEILCryptoCore${EXE_DLL_POSTFIX}.dll${CMAKE_STATIC_LIBRARY_SUFFIX}")
+        set(_cryptocore_implib "${CRYPTO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}VEILCryptoCore${__suffix}.dll${CMAKE_STATIC_LIBRARY_SUFFIX}")
       else(MSYS OR MINGW)
-        set(_cryptocore_implib "${CRYPTO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}VEILCryptoCore${EXE_DLL_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}")
+        set(_cryptocore_implib "${CRYPTO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}VEILCryptoCore${__suffix}${CMAKE_STATIC_LIBRARY_SUFFIX}")
       endif(MSYS OR MINGW)
-      set(_enhancedcrypto_implib "${CRYPTO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}VEILEnhancedCrypto${EXE_DLL_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}")
-      set(_cryptocore_bin_modules "${CRYPTO_SHLIB_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCryptoCore${EXE_DLL_POSTFIX}${CMAKE_SHARED_LIBRARY_SUFFIX}")
-      set(_enhancedcrypto_bin_modules "${CRYPTO_SHLIB_DIR}/VEILEnhancedCrypto${EXE_DLL_POSTFIX}.crypto")
+      set(_enhancedcrypto_implib "${CRYPTO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}VEILEnhancedCrypto${__suffix}${CMAKE_STATIC_LIBRARY_SUFFIX}")
+      set(_cryptocore_bin_modules "${CRYPTO_SHLIB_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCryptoCore${__suffix}${CMAKE_SHARED_LIBRARY_SUFFIX}")
+      set(_enhancedcrypto_bin_modules "${CRYPTO_SHLIB_DIR}/VEILEnhancedCrypto${__suffix}.crypto")
     elseif(ANDROID)
-      set(_cryptocore_implib "${CRYPTO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}VEILCryptoCore${EXE_DLL_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}")
-      set(_cryptocore_bin_modules "${CRYPTO_SHLIB_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCryptoCore${EXE_DLL_POSTFIX}${CMAKE_SHARED_LIBRARY_SUFFIX}")
+      set(_cryptocore_implib "${CRYPTO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}VEILCryptoCore${__suffix}${CMAKE_STATIC_LIBRARY_SUFFIX}")
+      set(_cryptocore_bin_modules "${CRYPTO_SHLIB_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCryptoCore${__suffix}${CMAKE_SHARED_LIBRARY_SUFFIX}")
 
-      set(_enhancedcrypto_implib "${CRYPTO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}VEILEnhancedCrypto${EXE_DLL_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}")
-      set(_enhancedcrypto_bin_modules "${CRYPTO_SHLIB_DIR}/VEILEnhancedCrypto${EXE_DLL_POSTFIX}.crypto")
+      set(_enhancedcrypto_implib "${CRYPTO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}VEILEnhancedCrypto${__suffix}${CMAKE_STATIC_LIBRARY_SUFFIX}")
+      set(_enhancedcrypto_bin_modules "${CRYPTO_SHLIB_DIR}/VEILEnhancedCrypto${__suffix}.crypto")
 
     else(WIN32)
-      set(_cryptocore_implib "${CRYPTO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}VEILCryptoCore${EXE_DLL_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}")
-      set(_cryptocore_bin_modules "${CRYPTO_SHLIB_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCryptoCore${EXE_DLL_POSTFIX}${CMAKE_SHARED_LIBRARY_SUFFIX}.${CRYPTO_VERSION};${CRYPTO_SHLIB_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCryptoCore${EXE_DLL_POSTFIX}${CMAKE_SHARED_LIBRARY_SUFFIX}.${CRYPTO_SO_VERSION}")
+      set(_cryptocore_implib "${CRYPTO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}VEILCryptoCore${__suffix}${CMAKE_STATIC_LIBRARY_SUFFIX}")
+      set(_cryptocore_bin_modules "${CRYPTO_SHLIB_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCryptoCore${__suffix}${CMAKE_SHARED_LIBRARY_SUFFIX}.${CRYPTO_VERSION};${CRYPTO_SHLIB_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCryptoCore${__suffix}${CMAKE_SHARED_LIBRARY_SUFFIX}.${CRYPTO_SO_VERSION}")
 
-      set(_enhancedcrypto_implib "${CRYPTO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}VEILEnhancedCrypto${EXE_DLL_POSTFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}")
-      set(_enhancedcrypto_bin_modules "${SHLIBCRYPTO_SHLIB_DIR_DIR}/VEILEnhancedCrypto${EXE_DLL_POSTFIX}.crypto.${CRYPTO_VERSION}")
+      set(_enhancedcrypto_implib "${CRYPTO_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}VEILEnhancedCrypto${__suffix}${CMAKE_STATIC_LIBRARY_SUFFIX}")
+      set(_enhancedcrypto_bin_modules "${SHLIBCRYPTO_SHLIB_DIR_DIR}/VEILEnhancedCrypto${__suffix}.crypto.${CRYPTO_VERSION}")
     endif(WIN32)
     IF(${TS_X_PLATFORM} STREQUAL "x86")
       set(BIGNUM_INCLUDE_DIR ${CRYPTO_INCLUDE_DIR}/VEILCryptoCore/base32Library)
@@ -101,10 +130,10 @@ if (VEILCRYPTO_ROOT_DIR)
     ENDIF(${TS_X_PLATFORM} STREQUAL "x86")
 
 
-    if(NOT TARGET VEILCryptoCore AND EXISTS ${CRYPTO_SHLIB_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCryptoCore${EXE_DLL_POSTFIX}${CMAKE_SHARED_LIBRARY_SUFFIX})
+    if(NOT TARGET VEILCryptoCore AND EXISTS ${CRYPTO_SHLIB_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCryptoCore${__suffix}${CMAKE_SHARED_LIBRARY_SUFFIX})
       add_library(VEILCryptoCore SHARED IMPORTED)
       set_target_properties(VEILCryptoCore PROPERTIES
-        IMPORTED_LOCATION_${TS_CONFIG} "${CRYPTO_SHLIB_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCryptoCore${EXE_DLL_POSTFIX}${CMAKE_SHARED_LIBRARY_SUFFIX}"
+        IMPORTED_LOCATION_${TS_CONFIG} "${CRYPTO_SHLIB_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCryptoCore${__suffix}${CMAKE_SHARED_LIBRARY_SUFFIX}"
         IMPORTED_IMPLIB_${TS_CONFIG} "${_cryptocore_implib}"
         INTERFACE_INCLUDE_DIRECTORIES "${CRYPTO_INCLUDE_DIR};${BIGNUM_INCLUDE_DIR}"
         INTERFACE_INCLUDE_DIRECTORIES_${TS_CONFIG} "${CRYPTO_INCLUDE_DIR};${BIGNUM_INCLUDE_DIR}"
@@ -114,10 +143,10 @@ if (VEILCRYPTO_ROOT_DIR)
       message(FATAL_ERROR "VEILCryptoCore not found")
     endif()
         
-    if(NOT TARGET VEILEnhancedCrypto AND EXISTS ${CRYPTO_SHLIB_DIR}/VEILEnhancedCrypto${EXE_DLL_POSTFIX}.crypto)
+    if(NOT TARGET VEILEnhancedCrypto AND EXISTS ${CRYPTO_SHLIB_DIR}/VEILEnhancedCrypto${__suffix}.crypto)
       add_library(VEILEnhancedCrypto SHARED IMPORTED)
       set_target_properties(VEILEnhancedCrypto PROPERTIES
-        IMPORTED_LOCATION_${TS_CONFIG} "${CRYPTO_SHLIB_DIR}/VEILEnhancedCrypto${EXE_DLL_POSTFIX}.crypto"
+        IMPORTED_LOCATION_${TS_CONFIG} "${CRYPTO_SHLIB_DIR}/VEILEnhancedCrypto${__suffix}.crypto"
         IMPORTED_IMPLIB_${TS_CONFIG} "${_enhancedcrypto_implib}"
         INTERFACE_INCLUDE_DIRECTORIES "${CRYPTO_INCLUDE_DIR}"
         INTERFACE_INCLUDE_DIRECTORIES_${TS_CONFIG} "${CRYPTO_INCLUDE_DIR}"

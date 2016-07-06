@@ -499,7 +499,7 @@ bool tsJsonPreferencesBase::saveConfigurationChanges(JsonConfigLocation location
 						}
 						else
 						{
-							if (_preferenceItems->at(i).Value[0] == '{')
+							if (!_preferenceItems->at(i).Value.empty() && _preferenceItems->at(i).Value[0] == '{')
 							{
 								JSONObject o;
 
@@ -1046,7 +1046,7 @@ bool tsJsonPreferencesBase::SaveTextValue(JsonConfigLocation &loc, tscrypto::tsC
 		{
 			JSONField* fld = reinterpret_cast<JSONField*>(element);
 
-			if (value[0] == '{')
+			if (!value.empty() && value[0] == '{')
 			{
 				if (fld->Type() == JSONField::jsonNull)
 				{

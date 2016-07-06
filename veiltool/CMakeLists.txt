@@ -52,7 +52,9 @@ set(CppSources
 	)
 
 CopyImportTargetBinariesToBuildFolder(VEILCryptoCore ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${TS_VS_CONFIG})
-CopyImportTargetBinariesToBuildFolder(VEILEnhancedCrypto ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${TS_VS_CONFIG})
+if(TARGET VEILEnhancedCrypto)
+	CopyImportTargetBinariesToBuildFolder(VEILEnhancedCrypto ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${TS_VS_CONFIG})
+endif(TARGET VEILEnhancedCrypto)
 
 add_executable(veiltool 
 	targetver.h 
