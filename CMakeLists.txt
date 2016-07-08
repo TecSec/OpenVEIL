@@ -54,7 +54,11 @@ endif()
 #####################################################################
 
 if(WIN32)
-	set(OPENVEIL_SDK_FOLDER "c:/TecSec/VEIL" CACHE PATH "The install location for OpenVEIL")
+	if(NOT "$ENV{VEIL_ROOT}" STREQUAL "")
+		set(OPENVEIL_SDK_FOLDER "$ENV{VEIL_ROOT}" CACHE PATH "The install location for OpenVEIL")
+	else()
+		set(OPENVEIL_SDK_FOLDER "c:/TecSec/VEIL" CACHE PATH "The install location for OpenVEIL")
+	endif()
 else()
 	set(OPENVEIL_SDK_FOLDER "~/local/VEIL" CACHE PATH "The install location for OpenVEIL")
 endif()
