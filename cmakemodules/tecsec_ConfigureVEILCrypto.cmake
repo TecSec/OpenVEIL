@@ -47,6 +47,10 @@ if(WIN32)
 		  TecSec/CRYPTO_7-0/${TS_TOOLSET}
 		  TecSec/CRYPTO_7/${TS_TOOLSET}
 		  TecSec/CRYPTO/${TS_TOOLSET}
+		  CRYPTO_7-0/${TS_TOOLSET}
+		  CRYPTO_7/${TS_TOOLSET}
+		  CRYPTO/${TS_TOOLSET}
+      ${TS_TOOLSET}
     DOC "VEILCrypto base/installation directory"
     )
   if (VEILCRYPTO_ROOT_DIR)
@@ -61,6 +65,10 @@ if(WIN32)
 		  TecSec/CRYPTO_7-0/${TS_TOOLSET}
 		  TecSec/CRYPTO_7/${TS_TOOLSET}
 		  TecSec/CRYPTO/${TS_TOOLSET}
+		  CRYPTO_7-0/${TS_TOOLSET}
+		  CRYPTO_7/${TS_TOOLSET}
+		  CRYPTO/${TS_TOOLSET}
+      ${TS_TOOLSET}
     DOC "VEILCrypto base/installation directory"
     )
     endif()

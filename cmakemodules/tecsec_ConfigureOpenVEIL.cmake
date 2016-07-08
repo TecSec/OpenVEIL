@@ -49,6 +49,10 @@ if(WIN32)
 		  TecSec/VEIL_7-0/${TS_TOOLSET}
 		  TecSec/VEIL_7/${TS_TOOLSET}
 		  TecSec/VEIL/${TS_TOOLSET}
+		  VEIL_7-0/${TS_TOOLSET}
+		  VEIL_7/${TS_TOOLSET}
+		  VEIL/${TS_TOOLSET}
+      ${TS_TOOLSET}
     DOC "VEIL base/installation directory"
     )
   if (VEIL_ROOT_DIR)
@@ -63,6 +67,10 @@ if(WIN32)
 		  TecSec/VEIL_7-0/${TS_TOOLSET}
 		  TecSec/VEIL_7/${TS_TOOLSET}
 		  TecSec/VEIL/${TS_TOOLSET}
+		  VEIL_7-0/${TS_TOOLSET}
+		  VEIL_7/${TS_TOOLSET}
+		  VEIL/${TS_TOOLSET}
+      ${TS_TOOLSET}
     DOC "VEIL base/installation directory"
     )
     endif()

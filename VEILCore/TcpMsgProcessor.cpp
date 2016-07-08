@@ -552,7 +552,7 @@ public:
 
 		if (TsStriCmp(scheme, "https") == 0)
 		{
-			if (!(_httpsTunnel = ::TopServiceLocator()->get_instance<ISslHandshake_Client>("PROTOCOL_SSL_CLIENT")))
+			if (!(_httpsTunnel = CryptoLocator()->get_instance<ISslHandshake_Client>("PROTOCOL_SSL_CLIENT")))
 				return false;
 			_httpsTunnel->useCompression(false);
 			_httpsTunnel->RegisterCommsDataSendCallback([this](const tscrypto::tsCryptoData& data)->bool { return sendControlData(data); });
