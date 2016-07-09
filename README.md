@@ -17,7 +17,7 @@ can be found in the build folder that is created by the bootstrap.
 - VEIL Cryptographic Library (Contact TecSec, Inc.)
 - Windows
   - CMake 3.2+
-  - Visual Studio 2013 or Visual Studio 2015.
+  - Visual Studio 2013 or Visual Studio 2015 or mingw-w64.
 - Linux
   - CMake 3.2+
   - GCC 4.8.2+
@@ -43,9 +43,17 @@ directory there is a folder depending on which version of Visual Studio was used
 directory there is a bin directory that has DLLs and executables for OpenVEIL. Directories
 that end in 'd' were built with Debug.
 
+If you are going to use mingw then copy the files in make\windows\mingw_support to a folder in your path.  Then modify the files so that they reference the path to the required mingw folder.  The files are currently configured as if you had installed the mingw system in the folder c:\mingw-w64.  To bootstrap a mingw environment use the following:
+
+`cd make\windows`
+
+`bootstrap_mingw 4.8.2w x64`
+
+This will use the file UseGcc4.8.2w.cmd to configure the path and then create the makefiles needed to build the samples.  In this command the 4.8.2 is the version of GCC.  The 'w' represents 'win32' threads.  Replace this with a 'p' if you are using pthreads.  The x64 is the processor type.  This could be replaced with x86 for 32 bit.
+
 ### Linux
 
-TODO: Describe the installation process
+Under Linux we support gcc but you may be able to use any compiler that cmake supports.  Note however that you must use a C++11 compiler.  The lowest version that we have tested is GCC 4.8.2.
 
 ## Usage
 
