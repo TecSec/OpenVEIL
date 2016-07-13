@@ -65,7 +65,7 @@ endif()
 
 set(${VEILCORENAME_U}_MAJOR_VERSION 7)
 set(${VEILCORENAME_U}_MINOR_VERSION 0)
-set(${VEILCORENAME_U}_REVISION_VERSION 33)
+set(${VEILCORENAME_U}_REVISION_VERSION 34)
 set(${VEILCORENAME_U}_BUILD_VERSION 0)
 
 option(TS_INTERNAL_SD_DAEMON "Enable the reference copy of sd_daemon code within VEIL (More portable)." ON)

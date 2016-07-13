@@ -58,5 +58,8 @@ TARGET_LINK_LIBRARIES(filetool VEILCore VEILCmsHeader VEILFileSupport)
 set_target_properties(filetool PROPERTIES 
 	SUFFIX ".veil"  
 	)
+if(NOT MSVC)
+	set_target_properties(filetool PROPERTIES PREFIX "")
+endif(NOT MSVC)
 
 install(TARGETS filetool LIBRARY DESTINATION ${SHLIB_DIR} RUNTIME DESTINATION ${BIN_DIR})

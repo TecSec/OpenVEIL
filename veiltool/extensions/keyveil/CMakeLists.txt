@@ -63,5 +63,8 @@ TARGET_LINK_LIBRARIES(keyveiltool VEILCore)
 set_target_properties(keyveiltool PROPERTIES 
 	SUFFIX ".veil"  
 	)
+if(NOT MSVC)
+	set_target_properties(keyveiltool PROPERTIES PREFIX "")
+endif(NOT MSVC)
 
 install(TARGETS keyveiltool LIBRARY DESTINATION ${SHLIB_DIR} RUNTIME DESTINATION ${BIN_DIR})

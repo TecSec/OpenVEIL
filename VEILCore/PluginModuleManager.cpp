@@ -183,12 +183,21 @@ std::shared_ptr<tsmod::IPluginModule> PluginModuleManager::FindModule(const char
 void PluginModuleManager::LoadModulesOfType(const char* pattern, tsmod::IReportError* log, std::function<void(std::function<bool()>)> registerCleanup)
 {
 #ifndef ANDROID
+// #ifdef _DEBUG
+// printf ("Searching for modules:  %s\n", pattern);
+// #endif
+
 	XP_FileListHandle files = xp_GetFileListHandle(pattern);
 	DWORD count;
 	tscrypto::tsCryptoString path, name, ext, tmp;
 
 	if (files == XP_FILELIST_INVALID)
+	{
+// #ifdef _DEBUG
+// printf ("  None found\n");
+// #endif
 		return;
+	}
 
 	auto cleanup = finally([&files]() {xp_CloseFileList(files);});
 
@@ -202,6 +211,9 @@ void PluginModuleManager::LoadModulesOfType(const char* pattern, tsmod::IReportE
 	{
 		if (xp_GetFileName(files, i, name))
 		{
+// #ifdef _DEBUG
+// printf ("  found: %s\n", name.c_str());
+// #endif
 			tmp = path;
 			tmp << name;
 			LoadModule(tmp.c_str(), log, registerCleanup);

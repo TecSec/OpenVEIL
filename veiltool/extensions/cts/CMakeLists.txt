@@ -57,5 +57,8 @@ TARGET_LINK_LIBRARIES(cts VEILCore)
 set_target_properties(cts PROPERTIES 
 	SUFFIX ".veil"  
 	)
+if(NOT MSVC)
+	set_target_properties(cts PROPERTIES PREFIX "")
+endif(NOT MSVC)
 
 install(TARGETS cts LIBRARY DESTINATION ${SHLIB_DIR} RUNTIME DESTINATION ${BIN_DIR})

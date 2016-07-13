@@ -60,5 +60,8 @@ TARGET_LINK_LIBRARIES(smartcard VEILCore VEILSmartCard)
 set_target_properties(smartcard PROPERTIES 
 	SUFFIX ".veil"  
 	)
+if(NOT MSVC)
+	set_target_properties(smartcard PROPERTIES PREFIX "")
+endif(NOT MSVC)
 
 install(TARGETS smartcard LIBRARY DESTINATION ${SHLIB_DIR} RUNTIME DESTINATION ${BIN_DIR})
