@@ -2172,7 +2172,7 @@ bool EncryptProcessor::DecryptEncAuthData(const tscrypto::tsCryptoData &_key, st
 			return TSRETURN_ERROR(("Unable to compute the data hash."), false);
 		}
 
-		if (!m_workingBuffer.compare(header->GetDataHash()))
+		if (m_workingBuffer.compare(header->GetDataHash()) != 0)
 		{
 			LogError("Unable to decrypt the file - data hash invalid.");
 			return TSRETURN_ERROR(("Unable to decrypt the file - data hash invalid"), false);
@@ -2450,7 +2450,7 @@ bool EncryptProcessor::DecryptEncAuthData(const tscrypto::tsCryptoData &_key, in
 			return TSRETURN_ERROR(("Unable to compute the data hash."), false);
 		}
 
-		if (!m_workingBuffer.compare(finalHash))
+		if (m_workingBuffer.compare(finalHash) != 0)
 		{
 			LogError("Unable to decrypt the file - data hash invalid.");
 			return TSRETURN_ERROR(("Unable to decrypt the file - data hash invalid"), false);
@@ -2832,7 +2832,7 @@ bool EncryptProcessor::DecryptHashed(const tscrypto::tsCryptoData &_key, std::sh
 			return TSRETURN_ERROR(("Unable to compute the data hash."), false);
 		}
 
-		if (!m_workingBuffer.compare(header->GetDataHash()))
+		if (m_workingBuffer.compare(header->GetDataHash()) != 0)
 		{
 			LogError("Unable to decrypt the file - data hash invalid.");
 			return TSRETURN_ERROR(("Unable to decrypt the file - data hash invalid"), false);
@@ -3129,7 +3129,7 @@ bool EncryptProcessor::DecryptHashed(const tscrypto::tsCryptoData &_key, int blo
 			return TSRETURN_ERROR(("Unable to compute the data hash."), false);
 		}
 
-		if (!m_workingBuffer.compare(finalHash))
+		if (m_workingBuffer.compare(finalHash) != 0)
 		{
 			LogError("Unable to decrypt the file - data hash invalid.");
 			return TSRETURN_ERROR(("Unable to decrypt the file - data hash invalid"), false);
@@ -3280,7 +3280,7 @@ bool EncryptProcessor::ValidateEncAuthFormat(std::shared_ptr<ICmsHeader> header,
 	if (!hasher->finish(tmp))
 		return false;
 
-	if (!tmp.compare(header->GetDataHash()))
+	if (tmp.compare(header->GetDataHash()) != 0)
 		return false;
 	return true;
 }
@@ -3335,7 +3335,7 @@ bool EncryptProcessor::ValidateEncAuthFormat(const tscrypto::tsCryptoData &final
 	if (!hasher->finish(tmp))
 		return false;
 
-	if (!tmp.compare(finalhash))
+	if (tmp.compare(finalhash) != 0)
 		return false;
 	return true;
 }
@@ -3381,7 +3381,7 @@ bool EncryptProcessor::ValidateHashedFormat(std::shared_ptr<ICmsHeader> header, 
 	if (!hasher->finish(tmp))
 		return false;
 
-	if (!tmp.compare(header->GetDataHash()))
+	if (tmp.compare(header->GetDataHash()) != 0)
 		return false;
 	return true;
 }
@@ -3422,7 +3422,7 @@ bool EncryptProcessor::ValidateHashedFormat(const tscrypto::tsCryptoData &finalh
 	if (!hasher->finish(tmp))
 		return false;
 
-	if (!tmp.compare(finalhash))
+	if (tmp.compare(finalhash) != 0)
 		return false;
 	return true;
 }

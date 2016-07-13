@@ -997,7 +997,7 @@ bool CCKMCryptoHelperImpl::DecryptEncAuthData(const tscrypto::tsCryptoData &_key
 			return TSRETURN_ERROR(("Unable to compute the data hash."), false);
 		}
 
-		if (!tmp.compare(header->GetDataHash()))
+		if (tmp.compare(header->GetDataHash()) != 0)
 		{
 			LOG(DebugError, "Unable to decrypt the file - data hash invalid.");
 			return TSRETURN_ERROR(("Unable to decrypt the file - data hash invalid"), false);
@@ -1290,7 +1290,7 @@ bool CCKMCryptoHelperImpl::DecryptHashed(const tscrypto::tsCryptoData &_key, std
 			return TSRETURN_ERROR(("Unable to compute the data hash."), false);
 		}
 
-		if (!tmp.compare(header->GetDataHash()))
+		if (tmp.compare(header->GetDataHash()) != 0)
 		{
 			LOG(DebugError, "Unable to decrypt the file - data hash invalid.");
 			return TSRETURN_ERROR(("Unable to decrypt the file - data hash invalid"), false);
@@ -1952,7 +1952,7 @@ WaitableBool CCKMCryptoHelperImpl::ProcessFifoFinishDecryptHashed(std::shared_pt
 			return TSRETURN_ERROR(("Unable to compute the data hash."), wait_false);
 		}
 
-		if (!m_tmp.compare(m_finalHash))
+		if (m_tmp.compare(m_finalHash) != 0)
 		{
 			LOG(DebugError, "Unable to decrypt the file - data hash invalid.");
 			return TSRETURN_ERROR(("Unable to decrypt the file - data hash invalid"), wait_false);
@@ -2297,7 +2297,7 @@ WaitableBool CCKMCryptoHelperImpl::ProcessFifoFinishDecryptEncAuth(std::shared_p
 			return TSRETURN_ERROR(("Unable to compute the data hash."), wait_false);
 		}
 
-		if (!m_tmp.compare(m_finalHash))
+		if (m_tmp.compare(m_finalHash) != 0)
 		{
 			LOG(DebugError, "Unable to decrypt the file - data hash invalid.");
 			return TSRETURN_ERROR(("Unable to decrypt the file - data hash invalid"), wait_false);
