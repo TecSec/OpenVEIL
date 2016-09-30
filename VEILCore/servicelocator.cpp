@@ -37,7 +37,7 @@ using namespace tscrypto;
 tsmod::IObject::~IObject()
 {
 #ifdef _DEBUG
-	AutoLocker lock(gAllocatedObjectsListLock);
+	TSAUTOLOCKER lock(gAllocatedObjectsListLock);
 	auto it = std::remove_if(gAllocatedObjects.begin(), gAllocatedObjects.end(), [this](std::weak_ptr<tsmod::IObject> obj) ->bool {
 		if (obj.expired())
 			return true;
@@ -56,23 +56,23 @@ public:
 	ServiceLocator_t();
 	virtual ~ServiceLocator_t();
 
-	virtual bool AddSingletonClass(const char *className, std::function<tsmod::IObject* ()> creator) override;
-	virtual bool AddSingletonObject(const char *className, std::shared_ptr<tsmod::IObject> object) override;
-	virtual bool AddClass(const char *className, std::function<tsmod::IObject* ()> creator) override;
-	virtual bool CopyClass(const char *className, IServiceLocator* copyTo) const override;
-	virtual bool DeleteClass(const char *className) override;
+	virtual bool AddSingletonClass(const tscrypto::tsCryptoStringBase& className, std::function<tsmod::IObject* ()> creator) override;
+	virtual bool AddSingletonObject(const tscrypto::tsCryptoStringBase& className, std::shared_ptr<tsmod::IObject> object) override;
+	virtual bool AddClass(const tscrypto::tsCryptoStringBase& className, std::function<tsmod::IObject* ()> creator) override;
+	virtual bool CopyClass(const tscrypto::tsCryptoStringBase& className, IServiceLocator* copyTo) const override;
+	virtual bool DeleteClass(const tscrypto::tsCryptoStringBase& className) override;
 
-	virtual std::shared_ptr<tsmod::IObject> Create(const char* className) override;
-	virtual std::shared_ptr<tsmod::IObject> TryCreate(const char* className) override;
+	virtual std::shared_ptr<tsmod::IObject> Create(const tscrypto::tsCryptoStringBase& className) override;
+	virtual std::shared_ptr<tsmod::IObject> TryCreate(const tscrypto::tsCryptoStringBase& className) override;
 
 	virtual tscrypto::tsCryptoStringList ObjectNames(bool onlyInstantiatedSingletons) const override;
-	virtual tscrypto::tsCryptoStringList ObjectGroup(const char* prefix, bool onlyInstantiatedSingletons) const override;
+	virtual tscrypto::tsCryptoStringList ObjectGroup(const tscrypto::tsCryptoStringBase& prefix, bool onlyInstantiatedSingletons) const override;
 
-	virtual bool CanCreate(const char* className) const override;
+	virtual bool CanCreate(const tscrypto::tsCryptoStringBase& className) const override;
 	virtual std::shared_ptr<tsmod::IServiceLocator> Creator() const override;
 	virtual std::shared_ptr<tsmod::IObject> FinishConstruction(tsmod::IObject* obj) override;
-	virtual std::shared_ptr<tsmod::IObject> Create(const char* className, std::shared_ptr<tsmod::IServiceLocator> onService) override;
-	virtual std::shared_ptr<tsmod::IObject> TryCreate(const char* className, std::shared_ptr<tsmod::IServiceLocator> onService) override;
+	virtual std::shared_ptr<tsmod::IObject> Create(const tscrypto::tsCryptoStringBase& className, std::shared_ptr<tsmod::IServiceLocator> onService) override;
+	virtual std::shared_ptr<tsmod::IObject> TryCreate(const tscrypto::tsCryptoStringBase& className, std::shared_ptr<tsmod::IServiceLocator> onService) override;
 
 	// IMakeNewInstance
 	virtual std::shared_ptr<tsmod::IObject> newInstance() const override;
@@ -81,12 +81,12 @@ public:
 	virtual void acceptVisitor(tsmod::IServiceLocatorVisitor *visitor) override;
 	virtual void acceptVisitor(tsmod::IConstServiceLocatorVisitor *visitor) const override;
 
-	virtual std::shared_ptr<tsmod::IServiceLocator> resolvePath(tscrypto::tsCryptoString &path, bool createPaths) override;
-	virtual std::shared_ptr<tsmod::IServiceLocator> resolvePath(tscrypto::tsCryptoString &path) const override;
+	virtual std::shared_ptr<tsmod::IServiceLocator> resolvePath(tscrypto::tsCryptoStringBase &path, bool createPaths) override;
+	virtual std::shared_ptr<tsmod::IServiceLocator> resolvePath(tscrypto::tsCryptoStringBase &path) const override;
 	virtual tscrypto::tsCryptoString findObjectName(tsmod::IObject* obj) override;
-	virtual void BuildObjectPath(tscrypto::tsCryptoString& name) override;
+	virtual void BuildObjectPath(tscrypto::tsCryptoStringBase& name) override;
 
-	virtual void CleanEmptyCollections(const char *className) override
+	virtual void CleanEmptyCollections(const tscrypto::tsCryptoStringBase& className) override
 	{
 		std::shared_ptr<tsmod::IObject> ptr = _me.lock();
 
@@ -146,15 +146,16 @@ public:
 	{
 		return _isRoot || _creator.expired();
 	}
+	virtual bool CopyClassDef(const tscrypto::tsCryptoStringBase&className, const tscrypto::tsCryptoStringBase& newName) override;
 protected:
 	typedef std::map<tscrypto::tsCryptoString, std::function<tsmod::IObject*()> > _ClassMap;
 	typedef std::map<tscrypto::tsCryptoString, std::shared_ptr<tsmod::IObject>>	_ObjectMap;
 
-	std::shared_ptr<tsmod::IObject> internalTryCreate(const char* className, const char* fullName);
-	std::shared_ptr<tsmod::IObject> internalTryCreateSingleton(const char* className, const char* fullName);
-	std::shared_ptr<tsmod::IObject> internalTryCreate(const char* className, const char* fullName, std::shared_ptr<tsmod::IServiceLocator> onService);
-	std::shared_ptr<tsmod::IObject> internalTryCreateSingleton(const char* className, const char* fullName, std::shared_ptr<tsmod::IServiceLocator> onService);
-	bool internalCanCreate(const char* className) const;
+	std::shared_ptr<tsmod::IObject> internalTryCreate(const tscrypto::tsCryptoStringBase& className, const tscrypto::tsCryptoStringBase& fullName);
+	std::shared_ptr<tsmod::IObject> internalTryCreateSingleton(const tscrypto::tsCryptoStringBase& className, const tscrypto::tsCryptoStringBase& fullName);
+	std::shared_ptr<tsmod::IObject> internalTryCreate(const tscrypto::tsCryptoStringBase& className, const tscrypto::tsCryptoStringBase& fullName, std::shared_ptr<tsmod::IServiceLocator> onService);
+	std::shared_ptr<tsmod::IObject> internalTryCreateSingleton(const tscrypto::tsCryptoStringBase& className, const tscrypto::tsCryptoStringBase& fullName, std::shared_ptr<tsmod::IServiceLocator> onService);
+	bool internalCanCreate(const tscrypto::tsCryptoStringBase& className) const;
 	std::shared_ptr<tsmod::IServiceLocator> findRoot() const
 	{
 		std::shared_ptr<tsmod::IServiceLocator> item = std::dynamic_pointer_cast<tsmod::IServiceLocator>(_me.lock());
@@ -213,7 +214,7 @@ std::shared_ptr<tsmod::IObject> ServiceLocator_t::newInstance() const
 	return obj;
 }
 
-bool ServiceLocator_t::AddSingletonClass(const char *className, std::function<tsmod::IObject* ()> creator)
+bool ServiceLocator_t::AddSingletonClass(const tscrypto::tsCryptoStringBase& className, std::function<tsmod::IObject* ()> creator)
 {
 	AutoWriterLock lock(*this);
 
@@ -242,7 +243,7 @@ bool ServiceLocator_t::AddSingletonClass(const char *className, std::function<ts
 	return true;
 }
 
-bool ServiceLocator_t::AddSingletonObject(const char *className, std::shared_ptr<tsmod::IObject> object)
+bool ServiceLocator_t::AddSingletonObject(const tscrypto::tsCryptoStringBase& className, std::shared_ptr<tsmod::IObject> object)
 {
 	AutoWriterLock lock(*this);
 	tscrypto::tsCryptoString id(className);
@@ -276,7 +277,7 @@ bool ServiceLocator_t::AddSingletonObject(const char *className, std::shared_ptr
 	return true;
 }
 
-bool ServiceLocator_t::AddClass(const char *className, std::function<tsmod::IObject* ()> creator)
+bool ServiceLocator_t::AddClass(const tscrypto::tsCryptoStringBase& className, std::function<tsmod::IObject* ()> creator)
 {
 	tscrypto::tsCryptoString id(className);
 	std::shared_ptr<tsmod::IServiceLocator> loc = resolvePath(id, true);
@@ -309,7 +310,36 @@ bool ServiceLocator_t::AddClass(const char *className, std::function<tsmod::IObj
 	return true;
 }
 
-bool ServiceLocator_t::CopyClass(const char *className, IServiceLocator* copyTo) const
+bool ServiceLocator_t::CopyClassDef(const tscrypto::tsCryptoStringBase& className, const tscrypto::tsCryptoStringBase& newName)
+{
+	tscrypto::tsCryptoString id(className);
+
+	std::shared_ptr<tsmod::IServiceLocator> loc = resolvePath(id);
+
+	if (!loc)
+	{
+		throw std::runtime_error("Invalid service locator path requested.");
+	}
+
+	if (loc.get() != dynamic_cast<const tsmod::IServiceLocator*>(this))
+		return loc->CopyClassDef(id.c_str(), newName);
+
+	AutoReaderLock lock(*this);
+	_ClassMap::const_iterator found_single = _singleton_classes.find(id);
+	if (found_single != _singleton_classes.end())
+	{
+		bool retVal = AddSingletonClass(newName, found_single->second);
+		return retVal;
+	}
+	found_single = _classes.find(id);
+	if (found_single != _classes.end())
+	{
+		bool retVal = AddClass(newName, found_single->second);
+		return retVal;
+	}
+	return false;
+}
+bool ServiceLocator_t::CopyClass(const tscrypto::tsCryptoStringBase& className, IServiceLocator* copyTo) const
 {
 	tscrypto::tsCryptoString id(className);
 
@@ -339,7 +369,7 @@ bool ServiceLocator_t::CopyClass(const char *className, IServiceLocator* copyTo)
 	return false;
 }
 
-bool ServiceLocator_t::DeleteClass(const char *className)
+bool ServiceLocator_t::DeleteClass(const tscrypto::tsCryptoStringBase& className)
 {
 	tscrypto::tsCryptoString id(className);
 	bool retVal = false;
@@ -389,7 +419,7 @@ bool ServiceLocator_t::DeleteClass(const char *className)
 	return retVal;
 }
 
-std::shared_ptr<tsmod::IObject> ServiceLocator_t::Create(const char* className)
+std::shared_ptr<tsmod::IObject> ServiceLocator_t::Create(const tscrypto::tsCryptoStringBase& className)
 {
 	std::shared_ptr<tsmod::IObject> obj = TryCreate(className);
 
@@ -398,7 +428,7 @@ std::shared_ptr<tsmod::IObject> ServiceLocator_t::Create(const char* className)
 	return obj;
 }
 
-std::shared_ptr<tsmod::IObject> ServiceLocator_t::Create(const char* className, std::shared_ptr<tsmod::IServiceLocator> onService)
+std::shared_ptr<tsmod::IObject> ServiceLocator_t::Create(const tscrypto::tsCryptoStringBase& className, std::shared_ptr<tsmod::IServiceLocator> onService)
 {
 	std::shared_ptr<tsmod::IObject> obj = TryCreate(className, onService);
 
@@ -407,12 +437,12 @@ std::shared_ptr<tsmod::IObject> ServiceLocator_t::Create(const char* className, 
 	return obj;
 }
 
-std::shared_ptr<tsmod::IServiceLocator> ServiceLocator_t::resolvePath(tscrypto::tsCryptoString &path, bool createPaths)
+std::shared_ptr<tsmod::IServiceLocator> ServiceLocator_t::resolvePath(tscrypto::tsCryptoStringBase &path, bool createPaths)
 {
 	tscrypto::tsCryptoString id(path);
 
 	id.ToUpper();
-	if (id.find('/')  != tsCryptoString::npos)
+	if (id.find('/') != tsCryptoString::npos && id.find('/') < id.find_first_of("[{:;!@#$%^&*(<>?", 0))
 	{
 		std::shared_ptr<tsmod::IServiceLocator> loc = std::dynamic_pointer_cast<tsmod::IServiceLocator>(_me.lock());
 
@@ -420,7 +450,7 @@ std::shared_ptr<tsmod::IServiceLocator> ServiceLocator_t::resolvePath(tscrypto::
 		if (id[0] == '/')
 		{
 			loc = findRoot();
-			id.DeleteAt(0, 1);
+			id.erase(0, 1);
 		}
 
 		// Resolve paths first
@@ -432,6 +462,7 @@ std::shared_ptr<tsmod::IServiceLocator> ServiceLocator_t::resolvePath(tscrypto::
 			if (paths->at(i) == ".")
 			{
 				// Current service locator
+				id.erase(0, 2);
 			}
 			else if (paths->at(i) == "..")
 			{
@@ -439,6 +470,12 @@ std::shared_ptr<tsmod::IServiceLocator> ServiceLocator_t::resolvePath(tscrypto::
 				if (!loc->Creator())
 					return nullptr;
 				loc = loc->Creator();
+				id.erase(0, 3);
+			}
+			else if (paths->at(i).find_first_of("[{:;!@#$%^&*(<>?", 0) != tsCryptoString::npos)
+			{
+				path = id;
+				return loc;
 			}
 			else
 			{
@@ -453,20 +490,21 @@ std::shared_ptr<tsmod::IServiceLocator> ServiceLocator_t::resolvePath(tscrypto::
 				if (!newLoc)
 					return nullptr;
 				loc = newLoc;
+				id.erase(0, paths->at(i).size() + 1);
 			}
 		}
-		path = paths->at(count - 1);
+		path = id;
 		return loc;
 	}
 	path = id;
 	return std::dynamic_pointer_cast<tsmod::IServiceLocator>(_me.lock());
 }
-std::shared_ptr<tsmod::IServiceLocator> ServiceLocator_t::resolvePath(tscrypto::tsCryptoString &path) const
+std::shared_ptr<tsmod::IServiceLocator> ServiceLocator_t::resolvePath(tscrypto::tsCryptoStringBase &path) const
 {
 	tscrypto::tsCryptoString id(path);
 
 	id.ToUpper();
-	if (id.find('/') != tsCryptoString::npos)
+	if (id.find('/') != tsCryptoString::npos && id.find('/') < id.find_first_of("[{:;!@#$%^&*(<>?", 0))
 	{
 		std::shared_ptr<tsmod::IServiceLocator> loc = std::dynamic_pointer_cast<tsmod::IServiceLocator>(_me.lock());
 
@@ -474,7 +512,7 @@ std::shared_ptr<tsmod::IServiceLocator> ServiceLocator_t::resolvePath(tscrypto::
 		if (id[0] == '/')
 		{
 			loc = findRoot();
-			id.DeleteAt(0, 1);
+			id.erase(0, 1);
 		}
 
 		// Resolve paths first
@@ -486,6 +524,7 @@ std::shared_ptr<tsmod::IServiceLocator> ServiceLocator_t::resolvePath(tscrypto::
 			if (paths->at(i) == ".")
 			{
 				// Current service locator
+				id.erase(0, 2);
 			}
 			else if (paths->at(i) == "..")
 			{
@@ -493,6 +532,12 @@ std::shared_ptr<tsmod::IServiceLocator> ServiceLocator_t::resolvePath(tscrypto::
 				if (!loc->Creator())
 					return nullptr;
 				loc = loc->Creator();
+				id.erase(0, 3);
+			}
+			else if (paths->at(i).find_first_of("[{:;!@#$%^&*(<>?", 0) != tsCryptoString::npos)
+			{
+				path = id;
+				return loc;
 			}
 			else
 			{
@@ -502,16 +547,17 @@ std::shared_ptr<tsmod::IServiceLocator> ServiceLocator_t::resolvePath(tscrypto::
 				if (!newLoc)
 					return nullptr;
 				loc = newLoc;
+				id.erase(0, paths->at(i).size() + 1);
 			}
 		}
-		path = paths->at(count - 1);
+		path = id;
 		return loc;
 	}
 	path = id;
 	return std::dynamic_pointer_cast<tsmod::IServiceLocator>(_me.lock());
 }
 
-std::shared_ptr<tsmod::IObject> ServiceLocator_t::TryCreate(const char* className)
+std::shared_ptr<tsmod::IObject> ServiceLocator_t::TryCreate(const tscrypto::tsCryptoStringBase& className)
 {
 	tscrypto::tsCryptoString id(className);
 	std::shared_ptr<tsmod::IObject> obj;
@@ -529,7 +575,7 @@ std::shared_ptr<tsmod::IObject> ServiceLocator_t::TryCreate(const char* classNam
 	tscrypto::tsCryptoString fullName(id);
 
 	// Remove parameters
-	tscrypto::tsCryptoStringList parts = id.split(";", 2);
+	tscrypto::tsCryptoStringList parts = id.split("[{:;!@#$%^&*(<>?", 2);
 	id = parts->at(0);
 
 	// Now find the object
@@ -548,7 +594,7 @@ std::shared_ptr<tsmod::IObject> ServiceLocator_t::TryCreate(const char* classNam
 	}
 	return nullptr;
 }
-std::shared_ptr<tsmod::IObject> ServiceLocator_t::TryCreate(const char* className, std::shared_ptr<tsmod::IServiceLocator> onService)
+std::shared_ptr<tsmod::IObject> ServiceLocator_t::TryCreate(const tscrypto::tsCryptoStringBase& className, std::shared_ptr<tsmod::IServiceLocator> onService)
 {
 	tscrypto::tsCryptoString id(className);
 	std::shared_ptr<tsmod::IObject> obj;
@@ -566,7 +612,7 @@ std::shared_ptr<tsmod::IObject> ServiceLocator_t::TryCreate(const char* classNam
 	tscrypto::tsCryptoString fullName(id);
 
 	// Remove parameters
-	tscrypto::tsCryptoStringList parts = id.split(";", 2);
+	tscrypto::tsCryptoStringList parts = id.split("[{:;!@#$%^&*(<>?", 2);
 	id = parts->at(0);
 
 	// Now find the object
@@ -609,7 +655,7 @@ tscrypto::tsCryptoStringList ServiceLocator_t::ObjectNames(bool onlyInstantiated
 	return tmp;
 }
 
-tscrypto::tsCryptoStringList ServiceLocator_t::ObjectGroup(const char* prefix, bool onlyInstantiatedSingletons) const
+tscrypto::tsCryptoStringList ServiceLocator_t::ObjectGroup(const tscrypto::tsCryptoStringBase& prefix, bool onlyInstantiatedSingletons) const
 {
 	tscrypto::tsCryptoStringList tmp = CreateTsAsciiList();
 	tscrypto::tsCryptoString id(prefix);
@@ -648,7 +694,7 @@ tscrypto::tsCryptoStringList ServiceLocator_t::ObjectGroup(const char* prefix, b
 	return tmp;
 }
 
-bool ServiceLocator_t::CanCreate(const char* className) const
+bool ServiceLocator_t::CanCreate(const tscrypto::tsCryptoStringBase&className) const
 {
 	tscrypto::tsCryptoString id(className);
 
@@ -663,7 +709,7 @@ bool ServiceLocator_t::CanCreate(const char* className) const
 		return loc->CanCreate(id.c_str());
 
 	// Remove parameters
-	tscrypto::tsCryptoStringList parts = id.split(";", 2);
+	tscrypto::tsCryptoStringList parts = id.split("[{:;!@#$%^&*(<>?", 2);
 	id = parts->at(0);
 
 	// Now find the object
@@ -701,7 +747,7 @@ std::shared_ptr<tsmod::IObject> ServiceLocator_t::FinishConstruction(tsmod::IObj
 	o->_me = o;
 	o->OnConstructionFinished();
 #ifdef _DEBUG
-	AutoLocker lock(gAllocatedObjectsListLock);
+	TSAUTOLOCKER lock(gAllocatedObjectsListLock);
 	gAllocatedObjects.push_back(o->_me);
 #endif
 	return o;
@@ -834,7 +880,7 @@ void ServiceLocator_t::acceptVisitor(tsmod::IConstServiceLocatorVisitor *visitor
 	}
 }
 
-std::shared_ptr<tsmod::IObject> ServiceLocator_t::internalTryCreateSingleton(const char* className, const char* fullName)
+std::shared_ptr<tsmod::IObject> ServiceLocator_t::internalTryCreateSingleton(const tscrypto::tsCryptoStringBase& className, const tscrypto::tsCryptoStringBase& fullName)
 {
 	tsmod::IObject* obj = nullptr;
 	tscrypto::tsCryptoString id(className);
@@ -886,7 +932,7 @@ std::shared_ptr<tsmod::IObject> ServiceLocator_t::internalTryCreateSingleton(con
 	}
 	return o;
 }
-std::shared_ptr<tsmod::IObject> ServiceLocator_t::internalTryCreateSingleton(const char* className, const char* fullName, std::shared_ptr<tsmod::IServiceLocator> onService)
+std::shared_ptr<tsmod::IObject> ServiceLocator_t::internalTryCreateSingleton(const tscrypto::tsCryptoStringBase& className, const tscrypto::tsCryptoStringBase& fullName, std::shared_ptr<tsmod::IServiceLocator> onService)
 {
 	tsmod::IObject* obj = nullptr;
 	tscrypto::tsCryptoString id(className);
@@ -939,7 +985,7 @@ std::shared_ptr<tsmod::IObject> ServiceLocator_t::internalTryCreateSingleton(con
 	return o;
 }
 
-std::shared_ptr<tsmod::IObject> ServiceLocator_t::internalTryCreate(const char* className, const char* fullName)
+std::shared_ptr<tsmod::IObject> ServiceLocator_t::internalTryCreate(const tscrypto::tsCryptoStringBase& className, const tscrypto::tsCryptoStringBase& fullName)
 {
 	tsmod::IObject* obj = nullptr;
 	tscrypto::tsCryptoString id(className);
@@ -995,7 +1041,7 @@ std::shared_ptr<tsmod::IObject> ServiceLocator_t::internalTryCreate(const char* 
 	}
 	return o;
 }
-std::shared_ptr<tsmod::IObject> ServiceLocator_t::internalTryCreate(const char* className, const char* fullName, std::shared_ptr<tsmod::IServiceLocator> onService)
+std::shared_ptr<tsmod::IObject> ServiceLocator_t::internalTryCreate(const tscrypto::tsCryptoStringBase& className, const tscrypto::tsCryptoStringBase& fullName, std::shared_ptr<tsmod::IServiceLocator> onService)
 {
 	tsmod::IObject* obj = nullptr;
 	tscrypto::tsCryptoString id(className);
@@ -1052,7 +1098,7 @@ std::shared_ptr<tsmod::IObject> ServiceLocator_t::internalTryCreate(const char* 
 	return o;
 }
 
-bool ServiceLocator_t::internalCanCreate(const char* className) const
+bool ServiceLocator_t::internalCanCreate(const tscrypto::tsCryptoStringBase& className) const
 {
 	tscrypto::tsCryptoString id(className);
 
@@ -1078,7 +1124,7 @@ tscrypto::tsCryptoString ServiceLocator_t::findObjectName(tsmod::IObject* obj)
 	return "";
 }
 
-void ServiceLocator_t::BuildObjectPath(tscrypto::tsCryptoString& name)
+void ServiceLocator_t::BuildObjectPath(tscrypto::tsCryptoStringBase& name)
 {
 	if (_creator.expired())
 	{

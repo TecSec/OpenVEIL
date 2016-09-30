@@ -84,7 +84,7 @@ public:
      * \param name  true to link to master loggers.
      * \param level The Trace level for this stream.
      */
-    tsTraceStream(const tscrypto::tsCryptoString& name, int level);
+    tsTraceStream(const tscrypto::tsCryptoStringBase& name, int level);
     /// <summary>Destructor.</summary>
     ~tsTraceStream(void);
 
@@ -112,7 +112,7 @@ public:
     ///
     /// <returns>A reference to this object.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    tsTraceStream &operator<< (const tscrypto::tsCryptoString &value);
+    tsTraceStream &operator<< (const tscrypto::tsCryptoStringBase &value);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Stream insertion operator.</summary>
     ///
@@ -284,7 +284,7 @@ public:
     ///
     /// <returns>A reference to this object.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual tsTraceStream &setPrefix(const tscrypto::tsCryptoString& prfx);
+    virtual tsTraceStream &setPrefix(const tscrypto::tsCryptoStringBase& prfx);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Sets float precision for the next stream operator.</summary>
@@ -373,7 +373,7 @@ protected:
 	int _level;
 	tscrypto::tsCryptoString _partialLine;
 
-    void processData(tscrypto::tsCryptoString &data);
+    void processData(tscrypto::tsCryptoStringBase &data);
 	void resetSingleOps();
 };
 
@@ -531,7 +531,7 @@ public:
     /// <param name="strm">[in,out] The stream.</param>
     /// <param name="name">The name of this section.</param>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    tsTraceStreamSection(tsTraceStream &strm, const tscrypto::tsCryptoString& name) :
+    tsTraceStreamSection(tsTraceStream &strm, const tscrypto::tsCryptoStringBase& name) :
         m_stream(strm),
         m_name(name)
     {

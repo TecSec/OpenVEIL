@@ -41,7 +41,7 @@
 #pragma once
 
 	/// <summary>This type is used to report or look for a specific type of change from the CKM Change system.</summary>
-	typedef enum CKMChangeType {
+typedef enum CKMChangeType {
 		CKMChange_NoChange = 0,           ///< Indicates that no changes are wanted or found (placeholder)
 		CKMChange_ProviderChange = 1,     ///< Looking for or reporting a Token Provider change
 		CKMChange_TokenChange = 2,        ///< Looking for or reporting a Token change
@@ -52,35 +52,48 @@
 		CKMChange_File = 64,              ///< Looking for or reporting a potential change in a watched file
 
 		CKMChange_AnyChange = (int)0xFFFFFFFF  ///< Looking for all change types
-	} CKMChangeType;
+} CKMChangeType;
 
-	/// <summary>Base type for the reported change.  All changes must start with this information.<summary>
-	class EXPORT_SYMBOL ICkmChangeEvent
-	{
-	public:
+/// <summary>Base type for the reported change.  All changes must start with this information.<summary>
+class EXPORTED_VEILCORE_API ICkmChangeEvent
+{
+public:
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>Gets the change type.</summary>
 		///
 		/// <returns>The change type.</returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		virtual CKMChangeType GetChangeType() = 0;
-	};
+};
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// <summary>All change producers must implement this interface and register with CkmLoader using
-	/// the RegisterChangeProducer function.</summary>
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	class EXPORT_SYMBOL ICkmChangeProducer
-	{
-	public:
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/// <summary>All change producers must implement this interface and register with CkmLoader using
+/// the RegisterChangeProducer function.</summary>
+////////////////////////////////////////////////////////////////////////////////////////////////////
+class EXPORTED_VEILCORE_API ICkmChangeProducer
+{
+public:
 		/// <summary>Called by the change monitoring system to scan for changes.</summary>
 		virtual void ScanForChanges(void) = 0;
-	};
+};
 
-	/// <summary>All change consumers (listeners for changes) must implement this interface.</summary>
-	class EXPORT_SYMBOL ICkmChangeConsumer
-	{
-	public:
+/// <summary>All change consumers (listeners for changes) must implement this interface.</summary>
+class EXPORTED_VEILCORE_API ICkmChangeConsumer
+{
+public:
+	static void *operator new(std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void *operator new[](std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+		static void operator delete(void *ptr) {
+		tscrypto::cryptoDelete(ptr);
+	}
+	static void operator delete[](void *ptr) {
+		tscrypto::cryptoDelete(ptr);
+	}
+
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>Specifies the types of changes desired.</summary>
 		///
@@ -93,17 +106,17 @@
 		/// <param name="eventObj">[in] The event object.</param>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		virtual void          OnCkmChange(std::shared_ptr<ICkmChangeEvent>& eventObj) = 0;
-	};
-	/// <summary>Describes the change monitoring system</summary>
-	class EXPORT_SYMBOL ICkmChangeMonitor
-	{
-	public:
+};
+/// <summary>Describes the change monitoring system</summary>
+class EXPORTED_VEILCORE_API ICkmChangeMonitor
+{
+public:
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>Start a thread and run the change monitor in that thread.</summary>
         ///
         /// <returns>S_OK for success or a standard COM error for failure.</returns>
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        virtual bool StartChangeMonitorThread( void) = 0;
+	virtual bool StartChangeMonitorThread(void) = 0;
         ////////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>Stops the change monitor thread.</summary>
         ///
@@ -163,35 +176,35 @@
         /// <returns>S_OK for success or a standard COM error for failure.</returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		virtual bool RaiseChange(std::shared_ptr<ICkmChangeEvent> eventObj) = 0;
-	};
+};
 
 #if (defined(_WIN32) || defined(VEILCORE_EXPORTS)) && !defined(MSYS) && !defined(MINGW)
 #pragma warning(push)
 #pragma warning(disable:4231)
-	class ChangeTracker;
-	VEILCORE_TEMPLATE_EXTERN template class VEILCORE_API std::shared_ptr<ICkmChangeMonitor>;
-	VEILCORE_TEMPLATE_EXTERN template class VEILCORE_API std::shared_ptr<ICkmChangeProducer>;
-	VEILCORE_TEMPLATE_EXTERN template class VEILCORE_API std::shared_ptr<ChangeTracker>;
+class ChangeTracker;
+VEILCORE_TEMPLATE_EXTERN template class VEILCORE_API std::shared_ptr<ICkmChangeMonitor>;
+VEILCORE_TEMPLATE_EXTERN template class VEILCORE_API std::shared_ptr<ICkmChangeProducer>;
+VEILCORE_TEMPLATE_EXTERN template class VEILCORE_API std::shared_ptr<ChangeTracker>;
 #pragma warning(pop)
 #endif // defined
 
-	/** \brief The global change monitor object instance
-	*/
-	extern std::shared_ptr<ICkmChangeMonitor> VEILCORE_API gChangeMonitor;
-	/**
-	* \brief Gets the change monitor.  Will start the change monitor if needed.
-	*
-	* \param [in,out] pVal If non-null, the value.
-	*
-	* \return The change monitor.
-	*/
-	std::shared_ptr<ICkmChangeMonitor> VEILCORE_API GetChangeMonitor();
-	/**
-	* \brief Indicates if there currently is an active change monitor.
-	*
-	* \return A TSFRAMEWORK_API.
-	*/
-	bool VEILCORE_API HasChangeMonitor();
+/** \brief The global change monitor object instance
+*/
+extern std::shared_ptr<ICkmChangeMonitor> VEILCORE_API gChangeMonitor;
+/**
+* \brief Gets the change monitor.  Will start the change monitor if needed.
+*
+* \param [in,out] pVal If non-null, the value.
+*
+* \return The change monitor.
+*/
+std::shared_ptr<ICkmChangeMonitor> VEILCORE_API GetChangeMonitor();
+/**
+* \brief Indicates if there currently is an active change monitor.
+*
+* \return A TSFRAMEWORK_API.
+*/
+bool VEILCORE_API HasChangeMonitor();
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>An implementation if the TecSecCrypto_Fips::ICkmChangeProducer interface.</summary>
@@ -200,7 +213,7 @@
 ///
 /// <seealso cref="TecSecCrypto_Fips::ICkmChangeProducer"/>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-	class EXPORT_SYMBOL VEILCORE_API ChangeTracker : public ICkmChangeProducer, public tsmod::IObject
+class EXPORTED_VEILCORE_API ChangeTracker : public ICkmChangeProducer, public tsmod::IObject
 {
 public:
 	////////////////////////////////////////////////////////////////////////////////////////////////////

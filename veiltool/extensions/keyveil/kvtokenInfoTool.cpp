@@ -33,7 +33,7 @@
 
 enum options { OPT_HELP, OPT_URL, OPT_PASSWORD, OPT_USERNAME, OPT_TOKEN_PASSWORD, OPT_TOKEN_ID, OPT_TOKEN_NAME, OPT_TOKEN_SERIAL };
 
-static const struct OptionList Options[] = {
+static const struct tsmod::OptionList Options[] = {
 	{ "", "VEIL KEYVEIL TOKEN INFO options" },
 	{ "", "=================================" },
 	{ "--help, -h, -?", "This help information." },
@@ -70,7 +70,7 @@ static const CSimpleOptA::SOption OptionList[] =
 	SO_END_OF_OPTIONS
 };
 
-class KeyVEILTokenInfoTool : public IVeilToolCommand, public tsmod::IObject
+class KeyVEILTokenInfoTool : public tsmod::IVeilToolCommand, public tsmod::IObject
 {
 public:
 	KeyVEILTokenInfoTool()
@@ -79,12 +79,12 @@ public:
 	{}
 
 	// tsmod::IObject
-	virtual void OnConstructionFinished()
+	virtual void OnConstructionFinished() override
 	{
-		utils = ::TopServiceLocator()->get_instance<IVeilUtilities>("VeilUtilities");
+		utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
 	}
 
-	// Inherited via IVeilToolCommand
+	// Inherited via tsmod::IVeilToolCommand
 	virtual tscrypto::tsCryptoString getDescription() const override
 	{
 		return "Display token information";
@@ -159,7 +159,7 @@ public:
 
 		std::shared_ptr<IToken> token;
 		std::shared_ptr<IKeyVEILSession> session;
-		std::shared_ptr<Asn1::CTS::Profile> profile;
+		std::shared_ptr<Asn1::CTS::_POD_Profile> profile;
 
 		if (id != GUID_NULL)
 			token = connector->token(id);
@@ -236,7 +236,7 @@ public:
 		{
 			for (size_t c = 0; c < profile->get_cryptoGroupList()->size(); c++)
 			{
-				Asn1::CTS::CryptoGroup& grp = profile->get_cryptoGroupList()->get_at(c);
+				Asn1::CTS::_POD_CryptoGroup& grp = profile->get_cryptoGroupList()->get_at(c);
 
 				if (grp.get_Usage() == Asn1::CTS::cgu_User)
 				{
@@ -256,7 +256,7 @@ public:
 						fiefdomCount = grp.get_FiefdomList()->size();
 						for (size_t i = 0; i < fiefdomCount; i++)
 						{
-							Asn1::CTS::Fiefdom& fief = grp.get_FiefdomList()->get_at(i);
+							Asn1::CTS::_POD_Fiefdom& fief = grp.get_FiefdomList()->get_at(i);
 							printf("\n    Fiefdom:  %s\n", fief.get_Name().c_str());
 
 							if (fief.exists_CategoryList())
@@ -264,7 +264,7 @@ public:
 							categoryCount = fief.get_CategoryList()->size();
 								for (size_t j = 0; j < categoryCount; j++)
 								{
-								Asn1::CTS::Category& cat = fief.get_CategoryList()->get_at(j);
+								Asn1::CTS::_POD_Category& cat = fief.get_CategoryList()->get_at(j);
 									if (cat.exists_AttributeList())
 									{
 								attributeCount = cat.get_AttributeList()->size();
@@ -273,7 +273,7 @@ public:
 
 									for (size_t k = 0; k < attributeCount; k++)
 									{
-									Asn1::CTS::Attribute& attr = cat.get_AttributeList()->get_at(k);
+									Asn1::CTS::_POD_Attribute& attr = cat.get_AttributeList()->get_at(k);
 
 									printf("\n        Attribute:  %s\n", attr.get_Name().c_str());
 										printf("        --------------------------------------------------------------\n");
@@ -310,7 +310,7 @@ protected:
 		utils->Usage(Options, sizeof(Options) / sizeof(Options[0]));
 	}
 protected:
-	std::shared_ptr<IVeilUtilities> utils;
+	std::shared_ptr<tsmod::IVeilUtilities> utils;
 };
 
 tsmod::IObject* CreateKeyVEILTokenInfoTool()

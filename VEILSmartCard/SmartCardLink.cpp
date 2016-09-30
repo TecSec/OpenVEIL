@@ -449,7 +449,7 @@ private:
 			}
 			catch (tsstd::Exception &ex)
 			{
-				OperationFailed("EXCEPTION:  " + ex.Message());
+				OperationFailed(tsCryptoString(("EXCEPTION:  " + ex.Message()).c_str()));
 				CloseCardPump();
 			}
 		} while (_runnable);

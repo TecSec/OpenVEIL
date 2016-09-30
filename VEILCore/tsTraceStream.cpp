@@ -33,7 +33,7 @@
 
 
 
-tsTraceStream::tsTraceStream(const tscrypto::tsCryptoString& name, int level) :
+tsTraceStream::tsTraceStream(const tscrypto::tsCryptoStringBase& name, int level) :
     justHadNewline(true),
     numberBase(10),
 	width(0),
@@ -73,7 +73,7 @@ tsTraceStream &tsTraceStream::operator<<(tsTraceStream &(*_Pfn)(tsTraceStream &o
     return *this;
 }
 
-tsTraceStream &tsTraceStream::operator<< (const tscrypto::tsCryptoString &value)
+tsTraceStream &tsTraceStream::operator<< (const tscrypto::tsCryptoStringBase &value)
 {
     tscrypto::tsCryptoString data = value;
 
@@ -350,13 +350,13 @@ tsTraceStream &tsTraceStream::outdent()
     return *this;
 }
 
-tsTraceStream &tsTraceStream::setPrefix(const tscrypto::tsCryptoString& prfx)
+tsTraceStream &tsTraceStream::setPrefix(const tscrypto::tsCryptoStringBase& prfx)
 {
     prefix = prfx;
     return *this;
 }
 
-void tsTraceStream::processData(tscrypto::tsCryptoString &data)
+void tsTraceStream::processData(tscrypto::tsCryptoStringBase &data)
 {
     char *context = NULL;
     char *p;

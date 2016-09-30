@@ -29,4 +29,10 @@ Changes for 1/27/2016
  * Numerous other changes including a rewrite of the Crypto string and data classes to conform more closely with C++11...
  * Basically the API structure has changed and will require some work on the application side to build with the new system.
 
+ Changes for 7.0.35
+ * Initial work for OSX support
+ * Requires VEILCrypto 7.0.2
+ * Numerous changes to support CLang compiler (OSX).  
+ * Changes to handle memory allocation in a way that is safe for DLLs
+ * Changes to tsCryptoString have occured due to a circular reference that CLang detected.
  

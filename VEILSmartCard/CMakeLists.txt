@@ -29,6 +29,7 @@
 #
 # Written by Roger Butler
 
+IF (NOT APPLE)
 INCLUDE_DIRECTORIES(
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
@@ -76,6 +77,9 @@ target_include_directories(VEILSmartCard INTERFACE $<BUILD_INTERFACE:${PUBLIC_SO
 if(WIN32)
 	# add_dependencies(VEILSmartCard Configure.TSFrameworkVersion.h)
 ENDIF(WIN32)
+if(APPLE)
+    set_target_properties(VEILSmartCard PROPERTIES COMPILE_FLAGS ${PCSC_FLAGS})
+endif(APPLE)
 if(ANDROID)
 	set_target_properties(VEILSmartCard PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
 endif()
@@ -91,3 +95,4 @@ endif()
 set_target_properties(VEILSmartCard PROPERTIES OUTPUT_NAME ${VEILCORENAME}SmartCard)
 
 install(TARGETS VEILSmartCard ARCHIVE DESTINATION ${LIB_DIR} LIBRARY DESTINATION ${SHLIB_DIR} RUNTIME DESTINATION ${BIN_DIR})
+ENDIF(NOT APPLE)

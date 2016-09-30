@@ -55,7 +55,7 @@ public:
 		disconnect();
 	}
 
-	virtual ConnectionStatus genericConnectToServer(const tscrypto::tsCryptoString& url, const tscrypto::tsCryptoString& username, const tscrypto::tsCryptoString& password)
+	virtual ConnectionStatus genericConnectToServer(const tscrypto::tsCryptoStringBase& url, const tscrypto::tsCryptoStringBase& username, const tscrypto::tsCryptoStringBase& password) override
 	{
 		tscrypto::tsCryptoString cmd, errors, filename;
 		UrlParser parser;
@@ -67,7 +67,7 @@ public:
 			disconnect();
 		}
 		_isGenericConnection = true;
-		tscrypto::AutoLocker lock(_channelLock);
+		TSAUTOLOCKER lock(_channelLock);
 		_channel = CreateHttpChannel();
 		_hdr = std::shared_ptr<IHttpResponse>(dynamic_cast<IHttpResponse*>(CreateHttpResponse()));
 
@@ -116,7 +116,7 @@ public:
 				disconnect();
 				return connStatus_BadAuth;
 			}
-			if (!_msgProcessor->startTunnel(_scheme, std::dynamic_pointer_cast<ITcpChannel>(_channel), username, password.ToUTF8Data()))
+			if (!_msgProcessor->startTunnel(_scheme, std::dynamic_pointer_cast<ITcpChannel>(_channel), username, tsCryptoData(password)))
 			{
 				disconnect();
 				return connStatus_BadAuth;
@@ -133,7 +133,7 @@ public:
 			_channel->SendLogout();
 			if (username.size() > 0 && password.size() > 0)
 			{
-				if (!Login(_channel, _hdr.get(), _baseUri, username, password.ToUTF8Data()))
+				if (!Login(_channel, _hdr.get(), _baseUri, username, tsCryptoData(password)))
 				{
 					disconnect();
 					return connStatus_BadAuth;
@@ -152,7 +152,7 @@ public:
 		_lastConnected = true;
 		return connStatus_Connected;
 	}
-	virtual ConnectionStatus connect(const tscrypto::tsCryptoString& url, const tscrypto::tsCryptoString& username, const tscrypto::tsCryptoString& password)
+	virtual ConnectionStatus connect(const tscrypto::tsCryptoStringBase& url, const tscrypto::tsCryptoStringBase& username, const tscrypto::tsCryptoStringBase& password) override
 	{
 		tscrypto::tsCryptoString cmd, errors, filename;
 		UrlParser parser;
@@ -163,7 +163,7 @@ public:
 		{
 			disconnect();
 		}
-		tscrypto::AutoLocker lock(_channelLock);
+		TSAUTOLOCKER lock(_channelLock);
 		_isGenericConnection = false;
 
 		_msgProcessor = ::TopServiceLocator()->get_instance<IMessageProcessorControl>("TcpMessageProcessor");
@@ -206,7 +206,7 @@ public:
 				disconnect();
 				return connStatus_BadAuth;
 			}
-			if (!_msgProcessor->startTunnel(_scheme, _channel, username, password.ToUTF8Data()))
+			if (!_msgProcessor->startTunnel(_scheme, _channel, username, tsCryptoData(password)))
 			{
 				disconnect();
 				return connStatus_BadAuth;
@@ -223,7 +223,7 @@ public:
 			_channel->SendLogout();
 			if (password.size() > 0)
 			{
-				if (!Login(_channel, _hdr.get(), _baseUri, username, password.ToUTF8Data()))
+				if (!Login(_channel, _hdr.get(), _baseUri, username, tsCryptoData(password)))
 				{
 					disconnect();
 					return connStatus_BadAuth;
@@ -244,9 +244,9 @@ public:
 		_lastConnected = true;
 		return connStatus_Connected;
 	}
-	virtual void disconnect()
+	virtual void disconnect() override
 	{
-		tscrypto::AutoLocker lock(_channelLock);
+		TSAUTOLOCKER lock(_channelLock);
 		if (!!_channel)
 		{
 			if (_channel->isAuthenticated())
@@ -261,13 +261,13 @@ public:
 		_httpProcessor.reset();
 		_username.clear();
 		_password.clear();
-		tscrypto::AutoLocker tokenLock(_tokenListLock);
+		TSAUTOLOCKER tokenLock(_tokenListLock);
 		_tokens.clear();
-		tscrypto::AutoLocker favLock(_favoriteListLock);
+		TSAUTOLOCKER favLock(_favoriteListLock);
 		_favorites.clear();
 		_lastConnected = false;
 	}
-	virtual bool isConnected()
+	virtual bool isConnected() override
 	{
 		bool retVal = !!_channel && _channel->isConnected();
 
@@ -278,7 +278,7 @@ public:
 			{
 				disconnect();
 
-				tscrypto::AutoLocker lock(_callbackLock);
+				TSAUTOLOCKER lock(_callbackLock);
 				for (auto holder : _callbacks)
 				{ 
 					if (!!holder.generalFunc) 
@@ -288,13 +288,13 @@ public:
 		}
 		return retVal;
 	}
-	virtual bool refresh()
+	virtual bool refresh() override
 	{
-		tscrypto::AutoLocker favLock(_favoriteListLock);
+		TSAUTOLOCKER favLock(_favoriteListLock);
 		_favorites.clear();
 		favLock.Unlock();
 
-		tscrypto::AutoLocker lock(_channelLock);
+		TSAUTOLOCKER lock(_channelLock);
 		if (!_channel)
 			return false;
 		if (!_channel->isConnected())
@@ -335,47 +335,47 @@ public:
 			return true;
 		return LoadTokens();
 	}
-	virtual size_t tokenCount()
+	virtual size_t tokenCount() override
 	{
-		tscrypto::AutoLocker tokenLock(_tokenListLock);
+		TSAUTOLOCKER tokenLock(_tokenListLock);
 		return _tokens.size();
 	}
-	virtual std::shared_ptr<IToken> token(size_t index)
+	virtual std::shared_ptr<IToken> token(size_t index) override
 	{
 		if (index >= tokenCount())
 			return nullptr;
-		tscrypto::AutoLocker tokenLock(_tokenListLock);
+		TSAUTOLOCKER tokenLock(_tokenListLock);
 		return _tokens[index];
 	}
-	virtual std::shared_ptr<IToken> token(const tscrypto::tsCryptoString& tokenName)
+	virtual std::shared_ptr<IToken> token(const tscrypto::tsCryptoStringBase& tokenName) override
 	{
-		tscrypto::AutoLocker tokenLock(_tokenListLock);
-		auto it = std::find_if(_tokens.begin(), _tokens.end(), [&tokenName](std::shared_ptr<IToken>& token)->bool{ return tokenName == token->tokenName(); });
+		TSAUTOLOCKER tokenLock(_tokenListLock);
+		auto it = std::find_if(_tokens.begin(), _tokens.end(), [&tokenName](std::shared_ptr<IToken>& token)->bool { return tokenName == token->tokenName(); });
 		if (it == _tokens.end())
 			return nullptr;
 		return *it;
 	}
-	virtual std::shared_ptr<IToken> token(const tscrypto::tsCryptoData& serialNumber)
+	virtual std::shared_ptr<IToken> token(const tscrypto::tsCryptoData& serialNumber) override
 	{
-		tscrypto::AutoLocker tokenLock(_tokenListLock);
-		auto it = std::find_if(_tokens.begin(), _tokens.end(), [&serialNumber](std::shared_ptr<IToken>& token)->bool{ return serialNumber == token->serialNumber(); });
+		TSAUTOLOCKER tokenLock(_tokenListLock);
+		auto it = std::find_if(_tokens.begin(), _tokens.end(), [&serialNumber](std::shared_ptr<IToken>& token)->bool { return serialNumber == token->serialNumber(); });
 		if (it == _tokens.end())
 			return nullptr;
 		return *it;
 	}
-	virtual std::shared_ptr<IToken> token(const GUID& id)
+	virtual std::shared_ptr<IToken> token(const GUID& id) override
 	{
-		tscrypto::AutoLocker tokenLock(_tokenListLock);
-		auto it = std::find_if(_tokens.begin(), _tokens.end(), [&id](std::shared_ptr<IToken>& token)->bool{ return id == token->id(); });
+		TSAUTOLOCKER tokenLock(_tokenListLock);
+		auto it = std::find_if(_tokens.begin(), _tokens.end(), [&id](std::shared_ptr<IToken>& token)->bool { return id == token->id(); });
 		if (it == _tokens.end())
 			return nullptr;
 		return *it;
 	}
-	virtual bool sendJsonRequest(const tscrypto::tsCryptoString& verb, const tscrypto::tsCryptoString& cmd, const JSONObject &inData, JSONObject& outData, int& status)
+	virtual bool sendJsonRequest(const tscrypto::tsCryptoStringBase& verb, const tscrypto::tsCryptoStringBase& cmd, const JSONObject &inData, JSONObject& outData, int& status) override
 	{
 		tscrypto::tsCryptoString cmdToUse;
 
-		tscrypto::AutoLocker lock(_channelLock);
+		TSAUTOLOCKER lock(_channelLock);
 		if (!_channel || !_channel->isConnected() /*|| !_channel->isAuthenticated()*/)
 		{
 			//			if (!refresh())
@@ -393,7 +393,7 @@ public:
 		{
 			cmdToUse << _baseUri << cmd;
 		}
-		if (!runJsonCommand(_channel, _hdr.get(), cmdToUse, verb, [this, &status, &outData](const tscrypto::tsCryptoData& data, int code){
+		if (!runJsonCommand(_channel, _hdr.get(), cmdToUse, verb, [this, &status, &outData](const tscrypto::tsCryptoData& data, int code) {
 			LOG(FrameworkDevOnly, "Returned code " << code << " and data:" << tscrypto::endl << data.ToHexDump());
 			status = code;
 			if (data.size() > 0)
@@ -404,7 +404,7 @@ public:
 				}
 			}
 		},
-			[this, &status, &outData](const tscrypto::tsCryptoData& data, int code){
+			[this, &status, &outData](const tscrypto::tsCryptoData& data, int code) {
 			
 			JSONObject obj;
 
@@ -424,11 +424,11 @@ public:
 		}
 		return true;
 	}
-	virtual bool sendRequest(const tscrypto::tsCryptoString& verb, const tscrypto::tsCryptoString& cmd, const tscrypto::tsCryptoData &inData, tscrypto::tsCryptoData& outData, int& status)
+	virtual bool sendRequest(const tscrypto::tsCryptoStringBase& verb, const tscrypto::tsCryptoStringBase& cmd, const tscrypto::tsCryptoData &inData, tscrypto::tsCryptoData& outData, int& status) override
 	{
 		tscrypto::tsCryptoString cmdToUse;
 
-		tscrypto::AutoLocker lock(_channelLock);
+		TSAUTOLOCKER lock(_channelLock);
 		if (!_channel || !_channel->isConnected() /*|| !_channel->isAuthenticated()*/)
 		{
 			//			if (!refresh())
@@ -446,7 +446,7 @@ public:
 		{
 			cmdToUse << _baseUri << cmd;
 		}
-		if (!runJsonCommand(_channel, _hdr.get(), cmdToUse, verb, [this, &status, &outData](const tscrypto::tsCryptoData& data, int code){
+		if (!runJsonCommand(_channel, _hdr.get(), cmdToUse, verb, [this, &status, &outData](const tscrypto::tsCryptoData& data, int code) {
 			LOG(FrameworkDevOnly, "Returned code " << code << " and data:" << tscrypto::endl << data.ToHexDump());
 			status = code;
 			if (data.size() > 0)
@@ -454,7 +454,7 @@ public:
 				outData = data;
 			}
 		},
-			[this, &status, &outData](const tscrypto::tsCryptoData& data, int code){
+			[this, &status, &outData](const tscrypto::tsCryptoData& data, int code) {
 			status = code;
 			outData = data;
 			LOG(FrameworkError, "Failed with code " << code << " and data: " << tscrypto::endl << data.ToHexDump());
@@ -465,49 +465,49 @@ public:
 		}
 		return true;
 	}
-	virtual tscrypto::tsCryptoString status() const
+	virtual tscrypto::tsCryptoString status() const override
 	{
 		return _hdr->status();
 	}
-	virtual tscrypto::tsCryptoString reason() const
+	virtual tscrypto::tsCryptoString reason() const override
 	{
 		return _hdr->reason();
 	}
-	virtual tscrypto::tsCryptoString version() const
+	virtual tscrypto::tsCryptoString version() const override
 	{
 		return _hdr->version();
 	}
-	virtual size_t dataPartSize() const
+	virtual size_t dataPartSize() const override
 	{
 		return _hdr->dataPartSize();
 	}
-	virtual const tscrypto::tsCryptoData& dataPart() const
+	virtual const tscrypto::tsCryptoData& dataPart() const override
 	{
 		return _hdr->dataPart();
 	}
-	virtual WORD errorCode() const
+	virtual WORD errorCode() const override
 	{
 		return _hdr->errorCode();
 	}
-	virtual size_t attributeCount() const
+	virtual size_t attributeCount() const override
 	{
 		return _hdr->attributeCount();
 	}
-	virtual const HttpAttribute* attribute(size_t index) const
+	virtual const HttpAttribute* attribute(size_t index) const override
 	{
 		return _hdr->attribute(index);
 	}
-	virtual const HttpAttribute* attributeByName(const tscrypto::tsCryptoString& index) const
+	virtual const HttpAttribute* attributeByName(const tscrypto::tsCryptoStringBase& index) const override
 	{
 		return _hdr->attributeByName(index);
 	}
-	virtual const HttpAttribute* attributeByName(const char *index) const
+	virtual const HttpAttribute* attributeByName(const char *index) const override
 	{
 		return _hdr->attributeByName(index);
 	}
-	virtual size_t favoriteCount()
+	virtual size_t favoriteCount() override
 	{
-		tscrypto::AutoLocker favLock(_favoriteListLock);
+		TSAUTOLOCKER favLock(_favoriteListLock);
 		if (_favorites.size() == 0)
 		{
 			if (!_channel || !_channel->isAuthenticated())
@@ -517,44 +517,44 @@ public:
 		}
 		return _favorites.size();
 	}
-	virtual std::shared_ptr<IFavorite> favorite(size_t index)
+	virtual std::shared_ptr<IFavorite> favorite(size_t index) override
 	{
 		if (index >= favoriteCount())
 			return nullptr;
-		tscrypto::AutoLocker favLock(_favoriteListLock);
+		TSAUTOLOCKER favLock(_favoriteListLock);
 		return _favorites[index];
 	}
-	virtual std::shared_ptr<IFavorite> favorite(const tscrypto::tsCryptoString& name)
+	virtual std::shared_ptr<IFavorite> favorite(const tscrypto::tsCryptoStringBase& name) override
 	{
 		if (favoriteCount() == 0)
 			return nullptr;
 
-		tscrypto::AutoLocker favLock(_favoriteListLock);
-		auto it = std::find_if(_favorites.begin(), _favorites.end(), [&name](std::shared_ptr<IFavorite> obj) -> bool{
+		TSAUTOLOCKER favLock(_favoriteListLock);
+		auto it = std::find_if(_favorites.begin(), _favorites.end(), [&name](std::shared_ptr<IFavorite> obj) -> bool {
 			return obj->favoriteName() == name;
 		});
 		if (it == _favorites.end())
 			return nullptr;
 		return *it;
 	}
-	virtual std::shared_ptr<IFavorite> favorite(const GUID& id)
+	virtual std::shared_ptr<IFavorite> favorite(const GUID& id) override
 	{
 		if (favoriteCount() == 0)
 			return nullptr;
 
-		tscrypto::AutoLocker favLock(_favoriteListLock);
-		auto it = std::find_if(_favorites.begin(), _favorites.end(), [&id](std::shared_ptr<IFavorite> obj) -> bool{
+		TSAUTOLOCKER favLock(_favoriteListLock);
+		auto it = std::find_if(_favorites.begin(), _favorites.end(), [&id](std::shared_ptr<IFavorite> obj) -> bool {
 			return obj->favoriteId() == id;
 		});
 		if (it == _favorites.end())
 			return nullptr;
 		return *it;
 	}
-	virtual GUID CreateFavorite(std::shared_ptr<IToken> token, const tscrypto::tsCryptoData& headerData, const tscrypto::tsCryptoString& name)
+	virtual GUID CreateFavorite(std::shared_ptr<IToken> token, const tscrypto::tsCryptoData& headerData, const tscrypto::tsCryptoStringBase& name) override
 	{
 		return CreateFavorite(token->serialNumber(), headerData, name);
 	}
-	virtual GUID CreateFavorite(const GUID& tokenId, const tscrypto::tsCryptoData& headerData, const tscrypto::tsCryptoString& name)
+	virtual GUID CreateFavorite(const GUID& tokenId, const tscrypto::tsCryptoData& headerData, const tscrypto::tsCryptoStringBase& name) override
 	{
 		if (tokenId == GUID_NULL)
 			return CreateFavorite(tscrypto::tsCryptoData(), headerData, name);
@@ -565,13 +565,13 @@ public:
 			return GUID_NULL;
 		return CreateFavorite(tok->serialNumber(), headerData, name);
 	}
-	virtual GUID CreateFavorite(const tscrypto::tsCryptoData& tokenSerial, const tscrypto::tsCryptoData& headerData, const tscrypto::tsCryptoString& name)
+	virtual GUID CreateFavorite(const tscrypto::tsCryptoData& tokenSerial, const tscrypto::tsCryptoData& headerData, const tscrypto::tsCryptoStringBase& name) override
 	{
 		JSONObject params, result;
 		int status;
 		tscrypto::tsCryptoData outData;
 
-		tscrypto::AutoLocker lock(_channelLock);
+		TSAUTOLOCKER lock(_channelLock);
 		if (!this->isConnected())
 			return GUID_NULL;
 
@@ -580,7 +580,7 @@ public:
 			.add("serial", tokenSerial.ToBase64())
 			.add("name", name);
 
-		if (!runJsonCommand(_channel, _hdr.get(), "/bin/Favorite", "POST", [this, &status, &outData](const tscrypto::tsCryptoData& data, int code){
+		if (!runJsonCommand(_channel, _hdr.get(), "/bin/Favorite", "POST", [this, &status, &outData](const tscrypto::tsCryptoData& data, int code) {
 			LOG(FrameworkDevOnly, "Returned code " << code << " and data:" << tscrypto::endl << data.ToHexDump());
 			status = code;
 			if (data.size() > 0)
@@ -588,7 +588,7 @@ public:
 				outData = data;
 			}
 		},
-			[this, &status, &outData](const tscrypto::tsCryptoData& data, int code){
+			[this, &status, &outData](const tscrypto::tsCryptoData& data, int code) {
 			status = code;
 			outData = data;
 			LOG(FrameworkError, "Failed with code " << code << " and data: " << tscrypto::endl << data.ToHexDump());
@@ -604,24 +604,25 @@ public:
 
 		return ToGuid()(result.AsString("id"));
 	}
-	virtual bool DeleteFavorite(const GUID& id)
+	virtual bool DeleteFavorite(const GUID& id) override
 	{
 		tscrypto::tsCryptoData outData;
 		int status;
 
-		tscrypto::AutoLocker lock(_channelLock);
+		TSAUTOLOCKER lock(_channelLock);
 		if (!this->isConnected())
 			return false;
 
-		if (!runJsonCommand(_channel, _hdr.get(), "/bin/Favorite?favoriteId=" + ToString()(id), "DELETE", [this, &status, &outData](const tscrypto::tsCryptoData& data, int code){
+		if (!runJsonCommand(_channel, _hdr.get(), "/bin/Favorite?favoriteId=" + ToString()(id), "DELETE", [this, &status, &outData](const tscrypto::tsCryptoData& data, int code) {
 			LOG(FrameworkDevOnly, "Returned code " << code << " and data:" << tscrypto::endl << data.ToHexDump());
 			status = code;
 			if (data.size() > 0)
 			{
 				outData = data;
 			}
+			LoadFavorites();
 		},
-			[this, &status, &outData](const tscrypto::tsCryptoData& data, int code){
+			[this, &status, &outData](const tscrypto::tsCryptoData& data, int code) {
 			status = code;
 			outData = data;
 			LOG(FrameworkError, "Failed with code " << code << " and data: " << tscrypto::endl << data.ToHexDump());
@@ -633,26 +634,27 @@ public:
 
 		return (status < 400);
 	}
-	virtual bool UpdateFavoriteName(const GUID& id, const tscrypto::tsCryptoString& name)
+	virtual bool UpdateFavoriteName(const GUID& id, const tscrypto::tsCryptoStringBase& name) override
 	{
 		JSONObject params;
 		tscrypto::tsCryptoData outData;
 		int status;
 
-		tscrypto::AutoLocker lock(_channelLock);
+		TSAUTOLOCKER lock(_channelLock);
 		if (!this->isConnected())
 			return false;
 
 		params.add("favoriteId", ToString()(id)).add("name", name);
-		if (!runJsonCommand(_channel, _hdr.get(), "/bin/Favorite", "PUT", [this, &status, &outData](const tscrypto::tsCryptoData& data, int code){
+		if (!runJsonCommand(_channel, _hdr.get(), "/bin/Favorite", "PUT", [this, &status, &outData](const tscrypto::tsCryptoData& data, int code) {
 			LOG(FrameworkDevOnly, "Returned code " << code << " and data:" << tscrypto::endl << data.ToHexDump());
 			status = code;
 			if (data.size() > 0)
 			{
 				outData = data;
 			}
+			LoadFavorites();
 		},
-			[this, &status, &outData](const tscrypto::tsCryptoData& data, int code){
+			[this, &status, &outData](const tscrypto::tsCryptoData& data, int code) {
 			status = code;
 			outData = data;
 			LOG(FrameworkError, "Failed with code " << code << " and data: " << tscrypto::endl << data.ToHexDump());
@@ -664,26 +666,27 @@ public:
 
 		return (status < 400);
 	}
-	virtual bool UpdateFavorite(const GUID& id, const tscrypto::tsCryptoData& setTo)
+	virtual bool UpdateFavorite(const GUID& id, const tscrypto::tsCryptoData& setTo) override
 	{
 		JSONObject params;
 		tscrypto::tsCryptoData outData;
 		int status;
 
-		tscrypto::AutoLocker lock(_channelLock);
+		TSAUTOLOCKER lock(_channelLock);
 		if (!this->isConnected())
 			return false;
 
 		params.add("favoriteId", ToString()(id)).add("data", setTo.ToBase64());
-		if (!runJsonCommand(_channel, _hdr.get(), "/bin/Favorite", "PUT", [this, &status, &outData](const tscrypto::tsCryptoData& data, int code){
+		if (!runJsonCommand(_channel, _hdr.get(), "/bin/Favorite", "PUT", [this, &status, &outData](const tscrypto::tsCryptoData& data, int code) {
 			LOG(FrameworkDevOnly, "Returned code " << code << " and data:" << tscrypto::endl << data.ToHexDump());
 			status = code;
 			if (data.size() > 0)
 			{
 				outData = data;
 			}
+			LoadFavorites();
 		},
-			[this, &status, &outData](const tscrypto::tsCryptoData& data, int code){
+			[this, &status, &outData](const tscrypto::tsCryptoData& data, int code) {
 			status = code;
 			outData = data;
 			LOG(FrameworkError, "Failed with code " << code << " and data: " << tscrypto::endl << data.ToHexDump());
@@ -695,11 +698,11 @@ public:
 
 		return (status < 400);
 	}
-	virtual size_t tokenCountForEnterprise(const GUID& enterprise)
+	virtual size_t tokenCountForEnterprise(const GUID& enterprise) override
 	{
 		size_t count = tokenCount(); // Makes sure that the tokens are loaded
 
-		tscrypto::AutoLocker tokenLock(_tokenListLock);
+		TSAUTOLOCKER tokenLock(_tokenListLock);
 		for (auto token : _tokens)
 		{ 
 			if (token->enterpriseId() != enterprise) 
@@ -707,12 +710,12 @@ public:
 		}
 		return count;
 	}
-	virtual std::shared_ptr<IToken> tokenForEnterprise(const GUID& enterprise, size_t index)
+	virtual std::shared_ptr<IToken> tokenForEnterprise(const GUID& enterprise, size_t index) override
 	{
 		if (index >= tokenCountForEnterprise(enterprise))
 			return nullptr;
 
-		tscrypto::AutoLocker tokenLock(_tokenListLock);
+		TSAUTOLOCKER tokenLock(_tokenListLock);
 		auto it = std::find_if(_tokens.begin(), _tokens.end(), [&index, &enterprise](std::shared_ptr<IToken>& token) -> bool {
 			if (token->enterpriseId() == enterprise) 
 			{
@@ -726,11 +729,11 @@ public:
 			return nullptr;
 		return *it;
 	}
-	virtual size_t favoriteCountForEnterprise(const GUID& enterprise)
+	virtual size_t favoriteCountForEnterprise(const GUID& enterprise) override
 	{
 		size_t count = favoriteCount(); // Makes sure that the tokens are loaded
 
-		tscrypto::AutoLocker favLock(_favoriteListLock);
+		TSAUTOLOCKER favLock(_favoriteListLock);
 		for (auto fav : _favorites)
 		{ 
 			if (fav->enterpriseId() != enterprise) 
@@ -738,12 +741,12 @@ public:
 		}
 		return count;
 	}
-	virtual std::shared_ptr<IFavorite> favoriteForEnterprise(const GUID& enterprise, size_t index)
+	virtual std::shared_ptr<IFavorite> favoriteForEnterprise(const GUID& enterprise, size_t index) override
 	{
 		if (index >= favoriteCountForEnterprise(enterprise))
 			return nullptr;
 
-		tscrypto::AutoLocker favLock(_favoriteListLock);
+		TSAUTOLOCKER favLock(_favoriteListLock);
 		auto it = std::find_if(_favorites.begin(), _favorites.end(), [&index, &enterprise](std::shared_ptr<IFavorite>& fav) -> bool {
 			if (fav->enterpriseId() == enterprise)
 			{
@@ -758,33 +761,33 @@ public:
 		return *it;
 	}
 
-	virtual size_t AddKeyVEILChangeCallback(std::function<void(JSONObject& eventData)> func)
+	virtual size_t AddKeyVEILChangeCallback(std::function<void(JSONObject& eventData)> func) override
 	{
 		CallbackHolder holder;
 
 		holder.cookie = InterlockedIncrement(&_nextCallbackId);
 		holder.func = func;
-		tscrypto::AutoLocker lock(_callbackLock);
+		TSAUTOLOCKER lock(_callbackLock);
 		_callbacks.push_back(holder);
 		StartCallbackSystem();
 		return holder.cookie;
 	}
-	virtual size_t AddKeyVEILGeneralChangeCallback(std::function<void()> func)
+	virtual size_t AddKeyVEILGeneralChangeCallback(std::function<void()> func) override
 	{
 		CallbackHolder holder;
 
 		holder.cookie = InterlockedIncrement(&_nextCallbackId);
 		holder.generalFunc = func;
-		tscrypto::AutoLocker lock(_callbackLock);
+		TSAUTOLOCKER lock(_callbackLock);
 		_callbacks.push_back(holder);
 		StartCallbackSystem();
 		return holder.cookie;
 	}
-	virtual void RemoveKeyVEILChangeCallback(size_t cookie)
+	virtual void RemoveKeyVEILChangeCallback(size_t cookie) override
 	{
-		tscrypto::AutoLocker lock(_callbackLock);
+		TSAUTOLOCKER lock(_callbackLock);
 
-		_callbacks.erase(std::remove_if(_callbacks.begin(), _callbacks.end(), [&cookie](CallbackHolder& holder){ return holder.cookie == cookie; }), _callbacks.end());
+		_callbacks.erase(std::remove_if(_callbacks.begin(), _callbacks.end(), [&cookie](CallbackHolder& holder) { return holder.cookie == cookie; }), _callbacks.end());
 		if (_callbacks.size() == 0)
 		{
 			_callbackThread.Cancel();
@@ -814,7 +817,7 @@ protected:
 			}
 		}
 
-		tscrypto::AutoLocker lock(_threadControl);
+		TSAUTOLOCKER lock(_threadControl);
 
 		if (!_channel->Send(verb, cmd, data, "text/json"))
 		{
@@ -885,11 +888,11 @@ protected:
 		int iter = 0;
 		tscrypto::tsCryptoData pubKey;
 		tscrypto::tsCryptoData identity;
-		CkmAuthServerParameters authParams;
+		_POD_CkmAuthServerParameters authParams;
 		tscrypto::tsCryptoData bsAuthParams;
 		std::shared_ptr<AuthenticationInitiator> initiator;
-		CkmAuthInitiatorParameters initParams;
-		CkmAuthResponderParameters respParams;
+		_POD_CkmAuthInitiatorParameters initParams;
+		_POD_CkmAuthResponderParameters respParams;
 		tscrypto::tsCryptoData initiatorParams;
 		tscrypto::tsCryptoData responderParams;
 		tscrypto::tsCryptoData MITMProof;
@@ -904,7 +907,7 @@ protected:
 
 		tscrypto::tsCryptoStringList parts = params.AsString("msg").split(',');
 
-		auto it = std::find_if(parts->begin(), parts->end(), [&nonce, &salt, &iter, &pubKey, &identity](const tscrypto::tsCryptoString& str)->bool{
+		auto it = std::find_if(parts->begin(), parts->end(), [&nonce, &salt, &iter, &pubKey, &identity](const tscrypto::tsCryptoString& str)->bool {
 			tscrypto::tsCryptoData _pubKey(pubKey); // fix VC10 bug
 			tscrypto::tsCryptoData _identity(identity);
 
@@ -925,7 +928,7 @@ protected:
 			else if ((str)[0] == 'm')
 			{
 				tscrypto::tsCryptoStringList mParts = str.substring(2, str.size() - 2).Base64ToData().ToUtf8String().split(',');
-				auto it2 = std::find_if(mParts->begin(), mParts->end(), [&_pubKey, &_identity](const tscrypto::tsCryptoString& str)->bool{
+				auto it2 = std::find_if(mParts->begin(), mParts->end(), [&_pubKey, &_identity](const tscrypto::tsCryptoString& str)->bool {
 					if (str.size() < 2 || (str)[1] != '=')
 						return true;
 					if ((str)[0] == 'r')
@@ -963,10 +966,10 @@ protected:
 		}
 
 		authParams.clear();
-		authParams._params.selectedItem = CkmAuthServerParameters_params::Choice_Pbkdf;
-		authParams._params._Pbkdf._hmacAlgorithm._oid.oidString(RSADSI_HMAC_SHA512_OID);
-		authParams._params._Pbkdf._IterationCount = iter;
-		authParams._params._Pbkdf._Salt = salt;
+		authParams.get_params().set_selectedItem(_POD_CkmAuthServerParameters_params::Choice_Pbkdf);
+		authParams.get_params().get_Pbkdf().get_hmacAlgorithm().set_oid(RSADSI_HMAC_SHA512_OID);
+		authParams.get_params().get_Pbkdf().set_IterationCount(iter);
+		authParams.get_params().get_Pbkdf().set_Salt(salt);
 		authParams.Encode(bsAuthParams);
 
 		if (!(initiator = std::dynamic_pointer_cast<AuthenticationInitiator>(CryptoFactory("CKMAUTH"))))
@@ -974,11 +977,11 @@ protected:
 			return false;
 		}
 
-		initParams._authParameters = authParams;
-		initParams._keySizeInBits = 256;
-		initParams._oidInfo = identity;
-		initParams._responderPublicKey = pubKey;
-		initParams._nonce = nonce;
+		initParams.set_authParameters(authParams);
+		initParams.set_keySizeInBits(256);
+		initParams.set_oidInfo(identity);
+		initParams.set_responderPublicKey(pubKey);
+		initParams.set_nonce(nonce);
 		if (!initParams.Encode(initiatorParams))
 		{
 			return false;
@@ -995,10 +998,10 @@ protected:
 		tscrypto::tsCryptoString m, msg;
 		JSONObject obj;
 
-		m << "e=" << respParams._ephemeralPublic.ToBase64() << ",k=" << respParams._eKGK.ToBase64() << ",v=" << respParams._initiatorMITMProof.ToBase64();
+		m << "e=" << respParams.get_ephemeralPublic().ToBase64() << ",k=" << respParams.get_eKGK().ToBase64() << ",v=" << respParams.get_initiatorMITMProof().ToBase64();
 
 		msg << "c=biws,r=" + nonce.ToBase64();
-		msg << ",m=" + m.ToUTF8Data().ToBase64() << ",p=" << respParams._initiatorAuthProof.ToBase64();
+		msg << ",m=" + m.ToUTF8Data().ToBase64() << ",p=" << respParams.get_initiatorAuthProof().ToBase64();
 
 		obj.add("msg", msg);
 
@@ -1006,7 +1009,7 @@ protected:
 
 		sMITMProof << "v=" << MITMProof.ToBase64();
 
-		runJsonCommand(_channel, hdr, baseUri + "CkmAuth", "PUT", [&_channel, &retVal, &sMITMProof, &initiatorSessionKey,this](const tscrypto::tsCryptoData& data, int code){
+		runJsonCommand(_channel, hdr, baseUri + "CkmAuth", "PUT", [&_channel, &retVal, &sMITMProof, &initiatorSessionKey, this](const tscrypto::tsCryptoData& data, int code) {
 			MY_UNREFERENCED_PARAMETER(code);
 			retVal = LoginPart3(_channel, sMITMProof, initiatorSessionKey, data);
 		}, nullptr, obj.ToJSON().ToUTF8Data());
@@ -1031,7 +1034,7 @@ protected:
 			return false;
 		}
 
-		runJsonCommand(_channel, hdr, baseUri + "CkmAuth", "PUT", [&_channel, hdr, &baseUri, &retVal, &Pin, this](const tscrypto::tsCryptoData& data, int code){
+		runJsonCommand(_channel, hdr, baseUri + "CkmAuth", "PUT", [&_channel, hdr, &baseUri, &retVal, &Pin, this](const tscrypto::tsCryptoData& data, int code) {
 			MY_UNREFERENCED_PARAMETER(code);
 			retVal = LoginPart2(_channel, hdr, baseUri, Pin, data);
 		}, nullptr, obj.ToJSON().ToUTF8Data());
@@ -1054,7 +1057,7 @@ protected:
 		if (!downData.hasField("tokens") || downData.field("tokens").Type() != JSONField::jsonArray)
 			return false;
 
-		tscrypto::AutoLocker tokenLock(_tokenListLock);
+		TSAUTOLOCKER tokenLock(_tokenListLock);
 
 		JSONFieldList& ary = downData.field("tokens").AsArray();
 		std::vector<std::shared_ptr<IToken> > tmpAry = _tokens;
@@ -1065,7 +1068,7 @@ protected:
 				continue;
 			JSONObject& o = fld.AsObject();
 			GUID id = TSStringToGuid(o.AsString("id"));
-			auto it = std::find_if(tmpAry.begin(), tmpAry.end(), [&id](std::shared_ptr<IToken>& token)->bool{
+			auto it = std::find_if(tmpAry.begin(), tmpAry.end(), [&id](std::shared_ptr<IToken>& token)->bool {
 				return token->id() == id;
 			});
 			if (it == tmpAry.end())
@@ -1082,8 +1085,8 @@ protected:
 		if (tmpAry.size() > 0)
 		{
 			// Now remove the tokens that are no longer valid from the token list
-			_tokens.erase(std::remove_if(_tokens.begin(), _tokens.end(), [&tmpAry](std::shared_ptr<IToken>& token)->bool{
-				auto it = std::find_if(tmpAry.begin(), tmpAry.end(), [&token](std::shared_ptr<IToken>&tmpToken)->bool{ return token->id() == tmpToken->id(); });
+			_tokens.erase(std::remove_if(_tokens.begin(), _tokens.end(), [&tmpAry](std::shared_ptr<IToken>& token)->bool {
+				auto it = std::find_if(tmpAry.begin(), tmpAry.end(), [&token](std::shared_ptr<IToken>&tmpToken)->bool { return token->id() == tmpToken->id(); });
 				return it != tmpAry.end();
 			}), _tokens.end());
 		}
@@ -1102,7 +1105,7 @@ protected:
 		if (!downData.hasField("FavoriteCollection") || downData.field("FavoriteCollection").Type() != JSONField::jsonArray)
 			return false;
 
-		tscrypto::AutoLocker favLock(_favoriteListLock);
+		TSAUTOLOCKER favLock(_favoriteListLock);
 		JSONFieldList& ary = downData.field("FavoriteCollection").AsArray();
 		std::vector<std::shared_ptr<IFavorite> > tmpAry = _favorites;
 
@@ -1113,7 +1116,7 @@ protected:
 			JSONObject& o = fld.AsObject();
 			GUID id = TSStringToGuid(o.AsString("id"));
 
-			auto it = std::find_if(tmpAry.begin(), tmpAry.end(), [&id](std::shared_ptr<IFavorite>& fav)->bool{
+			auto it = std::find_if(tmpAry.begin(), tmpAry.end(), [&id](std::shared_ptr<IFavorite>& fav)->bool {
 				return fav->favoriteId() == id;
 			});
 			if (it == tmpAry.end())
@@ -1125,17 +1128,21 @@ protected:
 			{
 				// remove this token from the temporary list as it was found.
 				tmpAry.erase(it);
-			}
 
+				// Update the contents
+				(*it)->favoriteName(o.AsString("favoriteName"));
+				(*it)->tokenSerialNumber(o.AsString("tokenSerial").HexToData());
+				(*it)->headerData(o.AsString("data").Base64ToData());
+			}
+		}
 			if (tmpAry.size() > 0)
 			{
 				// Now remove the tokens that are no longer valid from the token list
-				_favorites.erase(std::remove_if(_favorites.begin(), _favorites.end(), [&tmpAry](std::shared_ptr<IFavorite>& fav)->bool{
-					auto it = std::find_if(tmpAry.begin(), tmpAry.end(), [&fav](std::shared_ptr<IFavorite>&tmpFav)->bool{ return fav->favoriteId() == tmpFav->favoriteId(); });
+			_favorites.erase(std::remove_if(_favorites.begin(), _favorites.end(), [&tmpAry](std::shared_ptr<IFavorite>& fav)->bool {
+				auto it = std::find_if(tmpAry.begin(), tmpAry.end(), [&fav](std::shared_ptr<IFavorite>&tmpFav)->bool { return fav->favoriteId() == tmpFav->favoriteId(); });
 					return it != tmpAry.end();
 				}), _favorites.end());
 			}
-		}
 		return true;
 	}
 	void StartCallbackSystem()
@@ -1148,7 +1155,7 @@ protected:
 			int timeout = prefs->getKVPollTime();
 			prefs.reset();
 
-			_callbackThread.SetWorker([this, timeout]()->int{
+			_callbackThread.SetWorker([this, timeout]()->int {
 
 				while (_callbackThread.Active())
 				{
@@ -1161,6 +1168,8 @@ protected:
 						return 0;
 					case tscrypto::CryptoEvent::Failed:
 						return 1;
+					default:
+						break;
 					}
 					// Now look for changes
 					if (!isConnected())
@@ -1183,7 +1192,7 @@ protected:
 							if (!outObj.AsBool("failure", false))
 							{
 								refresh();
-								tscrypto::AutoLocker lock(_callbackLock);
+								TSAUTOLOCKER lock(_callbackLock);
 								for (auto holder : _callbacks)
 								{ 
 									if (!!holder.generalFunc) 
@@ -1191,7 +1200,7 @@ protected:
 								}
 								if (outObj.hasField("events") && outObj.field("events").Type() == JSONField::jsonArray)
 								{
-									outObj.foreach("events", [this](JSONField& fld){
+									outObj.foreach("events", [this](JSONField& fld) {
 										if (fld.Type() == JSONField::jsonObject)
 										{
 											JSONObject& obj = fld.AsObject();

@@ -622,6 +622,18 @@ macro(CopySdkRteBinariesToWeb name folder)
 endmacro()
 
 macro(Minify source dest)
+if(APPLE)
+	GET_FILENAME_COMPONENT(__destFile ${dest} NAME)
+	GET_FILENAME_COMPONENT(__destPath ${dest} DIRECTORY)
+	ADD_CUSTOM_COMMAND(
+		OUTPUT
+			${dest}
+		DEPENDS
+			${source}
+		COMMAND
+			${CMAKE_COMMAND} -E copy_if_different ${source} ${dest}.js
+	)
+else()
 	GET_FILENAME_COMPONENT(__destFile ${dest} NAME)
 	GET_FILENAME_COMPONENT(__destPath ${dest} DIRECTORY)
 	ADD_CUSTOM_COMMAND(
@@ -638,6 +650,7 @@ macro(Minify source dest)
 		COMMAND
 			${CMAKE_COMMAND} -E remove ${dest}.tmp.js
 	)
+    endif(APPLE)
 endmacro()
 macro(add_uninstall)
     # add the uninstall support
@@ -666,6 +679,10 @@ if(TARGET ${target})
 	if(NOT "${_tmp}" STREQUAL "")
 		list(APPEND TS_MIDL_INCLUDES "-I" "${_tmp}")
 	endif(NOT "${_tmp}" STREQUAL "")
+    if(APPLE)
+    	get_property(_tmp TARGET ${target} PROPERTY INTERFACE_BIN_MODULES_${TS_CONFIG})
+        #  need something here
+    endif(APPLE)
 endif(TARGET ${target})
 endmacro()
 macro(CopyImportTargetBinaries target dest)
@@ -680,7 +697,7 @@ macro(CopyImportTargetBinariesToBuildFolder target dest)
             OUTPUT 
                 ${dest}/${__destFile}
             COMMAND 
-                cmake -E copy_if_different ${_file} ${dest}/${__destFile}
+                ${CMAKE_COMMAND} -E copy_if_different ${_file} ${dest}/${__destFile}
             DEPENDS
                 ${_file}
         )

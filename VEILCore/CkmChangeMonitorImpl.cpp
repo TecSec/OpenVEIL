@@ -79,7 +79,7 @@ class HIDDEN CkmChangeMonitorImpl : public tsmod::IObject, public ICkmChangeMoni
 public:
 	CkmChangeMonitorImpl(void) : gNextConsumer(0), gNextProducer(0)
 	{
-	tscrypto::AutoLocker locker(gThreadLock);
+	TSAUTOLOCKER locker(gThreadLock);
 
 	if (!gThreadConfigured)
 	{

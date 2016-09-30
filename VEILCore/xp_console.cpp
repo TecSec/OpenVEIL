@@ -33,7 +33,11 @@
 
 #ifdef _WIN32
 #else
+#ifdef MAC
+#include <termios.h>
+#else
 #include <termio.h>
+#endif
 //#include <stropts.h>
 
 static const char *BlackForeground = "\x1b[0;30m";
@@ -918,6 +922,19 @@ void xp_console::GetPin(tscrypto::tsCryptoString& enteredPin, uint32_t len, cons
 	enteredPin.resize(len + 5);
 
 	{  // declare a new code block so I can declare these variables, but keep the printf above them.
+#ifdef MAC
+        struct termios t;
+        
+        tcgetattr(0, &t);
+        t.c_lflag &= ~ECHO;
+        tcsetattr(0, TCSANOW, &t);
+        
+        fgets(enteredPin.rawData(), len, stdin);
+        
+        t.c_lflag |= ECHO;
+        tcsetattr(0, TCSANOW, &t);
+        
+#else
 		struct termio savetty, settty;
 
 		ioctl(0, TCGETA, &savetty);
@@ -928,6 +945,7 @@ void xp_console::GetPin(tscrypto::tsCryptoString& enteredPin, uint32_t len, cons
 		fgets(enteredPin.rawData(), len, stdin);
 
 		ioctl(0, TCSETAF, &savetty);
+#endif // MAC
 	}
 
 	printf("\n\n");

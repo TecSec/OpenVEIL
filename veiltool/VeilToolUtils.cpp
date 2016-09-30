@@ -35,7 +35,7 @@
 #include <stdexcept>
 #endif
 
-class CommandMenu : public IVeilToolCommand, public tsmod::IObject
+class CommandMenu : public tsmod::IVeilToolCommand, public tsmod::IObject
 {
 public:
 	CommandMenu(const tscrypto::tsCryptoString& description, const tscrypto::tsCryptoString& commandPrefix, const tscrypto::tsCryptoString& name, const tscrypto::tsCryptoString& menuHeader) : _description(description), _commandPrefix(commandPrefix), _name(name), _menuHeader(menuHeader)
@@ -44,12 +44,12 @@ public:
 	{}
 
 	// tsmod::IObject
-	virtual void OnConstructionFinished()
+	virtual void OnConstructionFinished() override
 	{
-		utils = ::TopServiceLocator()->get_instance<IVeilUtilities>("VeilUtilities");
+		utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
 	}
 
-	// Inherited via IVeilToolCommand
+	// Inherited via tsmod::IVeilToolCommand
 	virtual tscrypto::tsCryptoString getDescription() const override
 	{
 		return _description;
@@ -113,7 +113,7 @@ public:
 			}
 		}
 
-		std::shared_ptr<IVeilToolCommand> cmd = ::TopServiceLocator()->try_get_instance<IVeilToolCommand>(cmdName.c_str());
+		std::shared_ptr<tsmod::IVeilToolCommand> cmd = ::TopServiceLocator()->try_get_instance<tsmod::IVeilToolCommand>(cmdName.c_str());
 
 		if (!cmd)
 		{
@@ -141,11 +141,11 @@ protected:
 			return;
 		}
 			
-		std::vector<std::shared_ptr<IVeilToolCommand> > list = ::TopServiceLocator()->get_group<IVeilToolCommand>(_commandPrefix.c_str(), false);
+		std::vector<std::shared_ptr<tsmod::IVeilToolCommand> > list = ::TopServiceLocator()->get_group<tsmod::IVeilToolCommand>(_commandPrefix.c_str(), false);
 
 		if (list.size() > 1)
 		{
-			std::sort(list.begin(), list.end(), [](std::shared_ptr<IVeilToolCommand> left, std::shared_ptr<IVeilToolCommand> right) {
+			std::sort(list.begin(), list.end(), [](std::shared_ptr<tsmod::IVeilToolCommand> left, std::shared_ptr<tsmod::IVeilToolCommand> right) {
 				return TsStriCmp(left->getCommandName(), right->getCommandName()) < 0;
 			});
 		}
@@ -155,7 +155,7 @@ protected:
 		utils->console() << " " << ::endl;
 		utils->console() << BoldWhite << "VEIL "<< _menuHeader <<" Commands" << ::endl << "================================" << ::endl;
 
-		for (std::shared_ptr<IVeilToolCommand> option : list)
+		for (std::shared_ptr<tsmod::IVeilToolCommand> option : list)
 		{
 			tscrypto::tsCryptoString description = option->getDescription();
 			tscrypto::tsCryptoString name = option->getCommandName();
@@ -164,14 +164,14 @@ protected:
 		}
 	}
 protected:
-	std::shared_ptr<IVeilUtilities> utils;
+	std::shared_ptr<tsmod::IVeilUtilities> utils;
 	const tscrypto::tsCryptoString _description;
 	const tscrypto::tsCryptoString _commandPrefix;
 	const tscrypto::tsCryptoString _name;
 	const tscrypto::tsCryptoString _menuHeader;
 };
 
-class VeilUtilities : public IVeilUtilities, public tsmod::IObject 
+class VeilUtilities : public tsmod::IVeilUtilities, public tsmod::IObject
 {
 public:
 	VeilUtilities()
@@ -179,16 +179,16 @@ public:
 	virtual ~VeilUtilities()
 	{}
 
-	// Inherited via IVeilUtilities
+	// Inherited via tsmod::IVeilUtilities
 	virtual xp_console & console() override
 	{
 		return ts_out;
 	}
 	virtual void TopUsage() override
 	{
-		std::vector<std::shared_ptr<IVeilToolCommand> > list = ::TopServiceLocator()->get_group<IVeilToolCommand>("/COMMANDS/", false);
+		std::vector<std::shared_ptr<tsmod::IVeilToolCommand> > list = ::TopServiceLocator()->get_group<tsmod::IVeilToolCommand>("/COMMANDS/", false);
 
-		std::sort(list.begin(), list.end(), [](std::shared_ptr<IVeilToolCommand> left, std::shared_ptr<IVeilToolCommand> right) {
+		std::sort(list.begin(), list.end(), [](std::shared_ptr<tsmod::IVeilToolCommand> left, std::shared_ptr<tsmod::IVeilToolCommand> right) {
 			return TsStriCmp(left->getCommandName(), right->getCommandName()) < 0;
 		});
 
@@ -197,7 +197,7 @@ public:
 		ts_out << " " << ::endl;
 		ts_out << BoldWhite << "VEIL Tool Commands" << ::endl << "================================" << ::endl;
 
-		for (std::shared_ptr<IVeilToolCommand> option : list)
+		for (std::shared_ptr<tsmod::IVeilToolCommand> option : list)
 		{
 			tscrypto::tsCryptoString description = option->getDescription();
 			tscrypto::tsCryptoString name = option->getCommandName();
@@ -234,7 +234,7 @@ public:
 			} while (description.size() > 0);
 		}
 	}
-	virtual void Usage(const OptionList * list, size_t count) override
+	virtual void Usage(const tsmod::OptionList * list, size_t count) override
 	{
 		for (int i = 0; i < (int)count; i++)
 		{
@@ -269,7 +269,7 @@ tsmod::IObject* CreateVeilUtilities()
 }
 
 
-class PemOutputCollector : public IOutputCollector, public tsmod::IObject
+class PemOutputCollector : public tsmod::IOutputCollector, public tsmod::IObject
 {
 public:
 	PemOutputCollector()
@@ -281,9 +281,9 @@ public:
 	{}
 
 	// tsmod::IObject
-	virtual void OnConstructionFinished()
+	virtual void OnConstructionFinished() override
 	{
-		utils = ::TopServiceLocator()->get_instance<IVeilUtilities>("VeilUtilities");
+		utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
 	}
 
 	// Inherited via IOutputCollector
@@ -416,6 +416,15 @@ public:
 		else
 			return xp_WriteBytes(filename, str.ToUTF8Data());
 	}
+	virtual bool writeToString(tscrypto::tsCryptoString & str) override
+	{
+		if (!xp_WriteArmoredString(sections, str))
+		{
+			utils->console() << BoldRed << "ERROR:  " << BoldWhite << "Unable to format the data output." << ::endl << ::endl;
+			return false;
+		}
+		return true;
+	}
 
 protected:
 	bool _usePassword;
@@ -423,7 +432,7 @@ protected:
 	tscrypto::tsCryptoString _encryptionAlgName;
 	std::shared_ptr<Symmetric> _alg;
 	TSNamedBinarySectionList sections;
-	std::shared_ptr<IVeilUtilities> utils;
+	std::shared_ptr<tsmod::IVeilUtilities> utils;
 	std::shared_ptr<PbKdf> _pbkdf;
 };
 
@@ -432,7 +441,7 @@ tsmod::IObject* CreatePemOutputCollector()
 	return dynamic_cast<tsmod::IObject*>(new PemOutputCollector());
 }
 
-class HexOutputCollector : public IOutputCollector, public tsmod::IObject
+class HexOutputCollector : public tsmod::IOutputCollector, public tsmod::IObject
 {
 public:
 	HexOutputCollector()
@@ -442,9 +451,9 @@ public:
 	{}
 
 	// tsmod::IObject
-	virtual void OnConstructionFinished()
+	virtual void OnConstructionFinished() override
 	{
-		utils = ::TopServiceLocator()->get_instance<IVeilUtilities>("VeilUtilities");
+		utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
 	}
 
 	// Inherited via IOutputCollector
@@ -490,9 +499,14 @@ public:
 		else
 			return xp_WriteText(filename, data);
 	}
+	virtual bool writeToString(tscrypto::tsCryptoString & str) override
+	{
+		str = data;
+		return true;
+	}
 
 protected:
-	std::shared_ptr<IVeilUtilities> utils;
+	std::shared_ptr<tsmod::IVeilUtilities> utils;
 	tscrypto::tsCryptoString data;
 };
 

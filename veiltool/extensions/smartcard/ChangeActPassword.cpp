@@ -41,7 +41,7 @@ enum {
 #define MAX_PASSWORD_LEN 64
 const tscrypto::tsCryptoData gActivationAID("A0 00 00 04 45 00 0D 01 01 FF FF 01 00 00 00 02", tscrypto::tsCryptoData::HEX);
 
-static const struct OptionList options[] = {
+static const struct tsmod::OptionList options[] = {
 	{ "", "VEIL SMARTCARD CHANGE PASSWORD commands" },
 	{ "", "=======================================" },
 	{ "--help, -h, -?", "This help information." },
@@ -56,7 +56,7 @@ static const CSimpleOptA::SOption g_rgOptions1[] =
 	SO_END_OF_OPTIONS
 };
 
-class ChangeActPasswordTool : public IVeilToolCommand, public tsmod::IObject
+class ChangeActPasswordTool : public tsmod::IVeilToolCommand, public tsmod::IObject
 {
 public:
 	ChangeActPasswordTool() : gSmartCardDone(true, false)
@@ -65,12 +65,12 @@ public:
 	{}
 
 	// tsmod::IObject
-	virtual void OnConstructionFinished()
+	virtual void OnConstructionFinished() override
 	{
-		utils = ::TopServiceLocator()->get_instance<IVeilUtilities>("VeilUtilities");
+		utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
 	}
 
-	// Inherited via IVeilToolCommand
+	// Inherited via tsmod::IVeilToolCommand
 	virtual tscrypto::tsCryptoString getDescription() const override
 	{
 		return "Change the Server Activation smart card password";
@@ -473,7 +473,7 @@ protected:
 		return salt.size() == USER_SALT_LEN;
 	}
 protected:
-	std::shared_ptr<IVeilUtilities> utils;
+	std::shared_ptr<tsmod::IVeilUtilities> utils;
 	tscrypto::CryptoEvent gSmartCardDone;
 };
 

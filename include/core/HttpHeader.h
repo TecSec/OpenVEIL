@@ -32,7 +32,7 @@
 #pragma once
 
 #ifndef _WIN32
-struct __xp_socket{};
+struct __xp_socket {};
 typedef ID<__xp_socket, int, 0> SOCKET;
 #define INVALID_SOCKET SOCKET::invalid()
 inline void closesocket(SOCKET& sock) { close((int)sock); }
@@ -40,6 +40,15 @@ inline void closesocket(SOCKET& sock) { close((int)sock); }
 
 struct VEILCORE_API HttpAttribute
 {
+	static void *operator new(std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void *operator new[](std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
+	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
+
 	HttpAttribute() {};
 	HttpAttribute(LPCSTR name, LPCSTR value) : m_Name(name), m_Value(value) { }
 	HttpAttribute(const tscrypto::tsCryptoString& name, const tscrypto::tsCryptoString& value) : m_Name(name), m_Value(value) { }
@@ -48,9 +57,18 @@ struct VEILCORE_API HttpAttribute
 	bool operator==(const HttpAttribute& obj) const { return m_Name == obj.m_Name && m_Value == obj.m_Value; }
 };
 
-class IHttpResponse
+class VEILCORE_API IHttpResponse
 {
 public:
+	static void *operator new(std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void *operator new[](std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
+	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
+
 	virtual ~IHttpResponse(void) {}
 
 	virtual const tscrypto::tsCryptoString &Errors()const = 0;
@@ -67,7 +85,7 @@ public:
 	virtual void errorCode(WORD setTo) = 0;
 	virtual size_t attributeCount() const = 0;
 	virtual const HttpAttribute* attribute(size_t index) const = 0;
-	virtual const HttpAttribute* attributeByName(const tscrypto::tsCryptoString& index) const = 0;
+	virtual const HttpAttribute* attributeByName(const tscrypto::tsCryptoStringBase& index) const = 0;
 	virtual const HttpAttribute* attributeByName(const char *index) const = 0;
 	virtual tscrypto::tsCryptoData recreateResponse() const = 0;
 };

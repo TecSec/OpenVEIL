@@ -31,13 +31,13 @@
 
 #include "stdafx.h"
 
-static const uint8_t selectCmd[] = { 0x00, 0xa4, 0x04, 0x00, 0x0b, 0xa0, 0x00, 0x00, 0x03, 0x08, 0x00, 0x00, 0x10, 0x00, 0x01, 0x00 };
+//static const uint8_t selectCmd[] = { 0x00, 0xa4, 0x04, 0x00, 0x0b, 0xa0, 0x00, 0x00, 0x03, 0x08, 0x00, 0x00, 0x10, 0x00, 0x01, 0x00 };
 
 enum {
 	OPT_HELP = 0, 
 };
 
-static const struct OptionList options[] = {
+static const struct tsmod::OptionList options[] = {
 	{ "", "VEIL SMARTCARD MONITOR options" },
 	{ "", "=======================================" },
 	{ "--help, -h, -?", "This help information." },
@@ -85,7 +85,7 @@ public:
 private:
 };
 
-class SmartCardMonitorTool : public IVeilToolCommand, public tsmod::IObject
+class SmartCardMonitorTool : public tsmod::IVeilToolCommand, public tsmod::IObject
 {
 public:
 	SmartCardMonitorTool()
@@ -94,12 +94,12 @@ public:
 	{}
 
 	// tsmod::IObject
-	virtual void OnConstructionFinished()
+	virtual void OnConstructionFinished() override
 	{
-		utils = ::TopServiceLocator()->get_instance<IVeilUtilities>("VeilUtilities");
+		utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
 	}
 
-	// Inherited via IVeilToolCommand
+	// Inherited via tsmod::IVeilToolCommand
 	virtual tscrypto::tsCryptoString getDescription() const override
 	{
 		return "Monitor smart card insertion and removal";
@@ -184,7 +184,7 @@ protected:
 		utils->Usage(options, sizeof(options) / sizeof(options[0]));
 	}
 protected:
-	std::shared_ptr<IVeilUtilities> utils;
+	std::shared_ptr<tsmod::IVeilUtilities> utils;
 };
 
 tsmod::IObject* HIDDEN CreateSmartCardMonitorTool()

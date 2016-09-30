@@ -40,7 +40,7 @@ enum options { OPT_HELP = 1000, };
 
 static tsmod::IObject* CreateCTSTool()
 {
-	std::shared_ptr<IVeilUtilities> utils = ::TopServiceLocator()->get_instance<IVeilUtilities>("VeilUtilities");
+	std::shared_ptr<tsmod::IVeilUtilities> utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
 	return utils->buildCommandMenu("Perform file operations", "/CTS-COMMANDS/", "cts", "CTS");
 }
 

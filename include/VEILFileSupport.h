@@ -107,7 +107,7 @@ public:
     virtual bool GetFileName(DWORD index, tscrypto::tsCryptoString& name) = 0;
 };
 
-struct FileVEILFileOp_recoveredKey
+struct VEILFILESUPPORT_EXPORT FileVEILFileOp_recoveredKey
 {
     tscrypto::tsCryptoData signature;
     tscrypto::tsCryptoData key;
@@ -117,7 +117,7 @@ struct FileVEILFileOp_recoveredKey
 /// <summary>A callback interface used to update the caller on the status of long running
 /// operations.</summary>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-class IFileVEILOperationStatus
+class VEILFILESUPPORT_EXPORT IFileVEILOperationStatus
 {
 public:
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -142,7 +142,7 @@ public:
 /**
 * \brief Defines a callback to retrieve a session for the file operation.
 */
-class IFileVEILSessionCallback
+class VEILFILESUPPORT_EXPORT IFileVEILSessionCallback
 {
 public:
 	/**
@@ -456,7 +456,7 @@ public:
 /// to specify that a CKM header has been found and to allow the caller to perform some
 /// processing on the header.</summary>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-class ICryptoHelperDecryptCallback
+class VEILFILESUPPORT_EXPORT ICryptoHelperDecryptCallback
 {
 public:
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -478,7 +478,7 @@ public:
 };
 
 /// <summary>A higher level encryption/decryption/hash processing class.</summary>
-class ICryptoHelper
+class VEILFILESUPPORT_EXPORT ICryptoHelper
 {
 public:
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -703,7 +703,7 @@ typedef enum {
 *
 * This interface defines the common interface for the compression algorithms supported in the CKM Runtime
 */
-class ICompression
+class VEILFILESUPPORT_EXPORT ICompression
 {
 public:
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -767,7 +767,7 @@ public:
 };
 
 /// <summary>Represents a helper object used in the data decryption process for CKM 7.</summary>
-class IDecryptProcessor
+class VEILFILESUPPORT_EXPORT IDecryptProcessor
 {
 public:
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -850,7 +850,7 @@ typedef std::shared_ptr<IVEILFileSupportDllInterface> (*GetVEILFileSupportDllInt
 
 
 #if __GNUC__ >= 4
-extern "C"
+//extern "C"
 #endif
 std::shared_ptr<IVEILFileSupportDllInterface> VEILFILESUPPORT_EXPORT GetVEILFileSupportDllInterface();
 std::shared_ptr<ICryptoHelper> VEILFILESUPPORT_EXPORT CreateCryptoHelper(std::shared_ptr<IKeyVEILSession> session);

@@ -209,7 +209,7 @@ public:
 	///
 	/// <returns>null if it fails, else.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	nullptr_t returns(nullptr_t value)
+    std::nullptr_t returns(std::nullptr_t value)
 	{
 		m_outMessage.Replace("~~", "<<nullptr>>");
 		return value;
@@ -439,7 +439,7 @@ public:
 	///
 	/// <returns>null if it fails, else.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	nullptr_t returns(nullptr_t value)
+    std::nullptr_t returns(std::nullptr_t value)
 	{
 		m_outMessage.Replace("~~", "<<nullptr>>");
 		return value;

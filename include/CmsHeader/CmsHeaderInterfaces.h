@@ -1497,6 +1497,10 @@ public:
 	* This function sets the length in bytes (including padding) of the header byte stream.
 	*/
 	virtual void SetPaddedHeaderSize(uint32_t setTo) = 0;
+	// Added 7.0.35
+	virtual bool toBasicRecipe(Asn1::CTS::_POD_CkmRecipe& recipe) = 0;
+	virtual bool fromBasicRecipe(const Asn1::CTS::_POD_CkmRecipe& recipe) = 0;
+	virtual tscrypto::tsCryptoString toString(const tscrypto::tsCryptoString& type = "") = 0;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

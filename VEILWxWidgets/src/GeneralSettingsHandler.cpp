@@ -253,7 +253,7 @@ protected:
 		cmbEncryption->Clear();
 		for (int i = 0; i < (int)(sizeof(AlgNames) / sizeof(AlgNames[0])); i++)
 		{
-			cmbEncryption->Append(AlgNames[i], (void*)algIds[i]);
+			cmbEncryption->Append(AlgNames[i], (void*)(intptr_t)algIds[i]);
 		}
 		index = FindAlgByID(_Alg);
 		if (index != -1)
@@ -262,7 +262,7 @@ protected:
 		cmbHash->Clear();
 		for (int i = 0; i < (int)(sizeof(HashAlgNames) / sizeof(HashAlgNames[0])); i++)
 		{
-			cmbHash->Append(HashAlgNames[i], (void*)hashAlgIds[i]);
+			cmbHash->Append(HashAlgNames[i], (void*)(intptr_t)hashAlgIds[i]);
 		}
 		index = FindHashAlgByID(_HashAlg);
 		if (index != -1)
@@ -297,7 +297,7 @@ protected:
 			index = cmbEncryption->GetSelection();
 			if (index >= 0)
 			{
-				_Alg = (TS_ALG_ID)(int)cmbEncryption->GetClientData(index);
+				_Alg = (TS_ALG_ID)(int)(intptr_t)cmbEncryption->GetClientData(index);
 			}
 			else
 			{
@@ -306,7 +306,7 @@ protected:
 			index = cmbHash->GetSelection();
 			if (index >= 0)
 			{
-				_HashAlg = (TS_ALG_ID)(int)cmbHash->GetClientData(index);
+				_HashAlg = (TS_ALG_ID)(int)(intptr_t)cmbHash->GetClientData(index);
 			}
 			else
 			{
@@ -335,7 +335,7 @@ protected:
 
 		for (i = 0; i < count; i++)
 		{
-			if ((TS_ALG_ID)(int)cmbEncryption->GetClientData(i) == alg)
+			if ((TS_ALG_ID)(int)(intptr_t)cmbEncryption->GetClientData(i) == alg)
 				return i;
 		}
 		return -1;
@@ -347,18 +347,18 @@ protected:
 
 		for (i = 0; i < count; i++)
 		{
-			if ((TS_ALG_ID)(int)cmbHash->GetClientData(i) == alg)
+			if ((TS_ALG_ID)(int)(intptr_t)cmbHash->GetClientData(i) == alg)
 				return i;
 		}
 		return -1;
 	}
 	void SetModified(BOOL bChanged = TRUE)
 	{
-		_bDirty = bChanged;
+		_bDirty = bChanged != FALSE;
 		std::shared_ptr<IVEILPropertySheet> sheet = _parentSheet.lock();
 		if (!!sheet)
 		{
-			sheet->PageModified(bChanged);
+			sheet->PageModified(bChanged != FALSE);
 		}
 	}
 
@@ -495,7 +495,7 @@ protected:
 		if (index < 0)
 			return;
 
-		newAlg = (TS_ALG_ID)(int)cmbEncryption->GetClientData(index);
+		newAlg = (TS_ALG_ID)(int)(intptr_t)cmbEncryption->GetClientData(index);
 
 		if (newAlg == _Alg)
 			return;
@@ -535,7 +535,7 @@ protected:
 		if (index < 0)
 			return;
 
-		newAlg = (TS_ALG_ID)(int)cmbHash->GetClientData(index);
+		newAlg = (TS_ALG_ID)(int)(intptr_t)cmbHash->GetClientData(index);
 
 		if (newAlg == _HashAlg)
 			return;

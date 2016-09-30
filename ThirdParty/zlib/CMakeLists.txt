@@ -32,6 +32,8 @@
 cmake_minimum_required(VERSION 2.4.4)
 set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS ON)
 
+cmake_policy(SET CMP0005 NEW)
+
 if(NOT SuperProject)
 project(zlib C)
 endif()
@@ -109,6 +111,7 @@ IF(NOT SuperProject)
 	set(CMAKE_CXX_FLAGS_DEBUGSTATIC "${CMAKE_C_FLAGS_DEBUGSTATIC}")
 	set(CMAKE_CXX_FLAGS_RELEASESTATIC "${CMAKE_C_FLAGS_RELEASESTATIC}")
 ELSE(NOT SuperProject)
+	add_definitions(-Dverbose=-1)
 	set(SKIP_INSTALL_ALL ON)
 ENDIF(NOT SuperProject)
 endif()

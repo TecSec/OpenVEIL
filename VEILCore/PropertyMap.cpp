@@ -154,6 +154,53 @@ public:
 	{
 		_map.tag(name, setTo);
 	}
+	// Added 7.0.35
+	bool parseUrlQueryString(const tscrypto::tsCryptoString& queryString)
+	{
+		tscrypto::tsCryptoString str;
+		UrlParser parser;
+
+		ClearAll();
+		if (queryString.empty())
+			return false;
+		size_t pos = queryString.find('?');
+		if (pos > 0 && pos < tscrypto::tsCryptoString::npos)
+			return false;
+
+		if (queryString.front() != '?')
+		{
+			str = "http://dummy?" + queryString;
+		}
+		else
+		{
+			str = "http://dummy" + queryString;
+		}
+		if (!parser.ParseFullUrl(str))
+			return false;
+		for (auto& nv : *parser.getParameters())
+		{
+			this->AddItem(nv.name, nv.value);
+		}
+		return true;
+	}
+	tscrypto::tsCryptoString createUrlQueryString() const
+	{
+		UrlParser parser;
+		NameValueList list = CreateNameValueList();
+
+		_map.foreach([list](const __tsAttributeMapItem& item) {
+			list->push_back(NameValue(item.m_name, item.m_value));
+		});
+		parser.setParameters(list);
+		parser.setHash("");
+		parser.setScheme("");
+		parser.setServer("");
+		parser.setPath("");
+		tscrypto::tsCryptoString str = parser.BuildUrl();
+		if (str.front() == '/')
+			str.erase(0, 1);
+		return str;
+	}
 
 private:
 	tsAttributeMap _map;

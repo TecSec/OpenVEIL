@@ -48,14 +48,14 @@ class AudienceSelector : public IAudienceSelector, public tsmod::IObject
 public:
 	AudienceSelector(bool createFavorites) : _NeverShowPKI(true), _AlwaysShowPKI(false), _RequireEncCert(false), _CreateFavorites(createFavorites),
 		_PKIHidden(false), _hDlg(nullptr), _GroupCtrl(nullptr), _RichCertList(nullptr), _FavoriteCombo(nullptr), /*_CryptoGroupCombo(nullptr),*/ _TokenCombo(nullptr),
-		_CurFavIndex(0), _LastTokenSelection(0), _initialized(false), _cookie(0)
+		_CurFavIndex(0), _LastTokenSelection(0), _initialized(false), _cookie(0), _ActiveCryptoGroup(nullptr)
 	{
 	}
 	virtual ~AudienceSelector()
 	{
 		Destroy();
 	}
-	virtual void OnConstructionFinished()
+	virtual void OnConstructionFinished() override
 	{
 		if (!::TopServiceLocator()->CanCreate("/CmsHeader"))
 		{
@@ -65,12 +65,14 @@ public:
 	}
 
 	// IVEILUIBase
-	virtual void Destroy()
+	virtual void Destroy() override
 	{
 		try
 		{
 			_parent = XP_WINDOW_INVALID;
 			_session.reset();
+		_profile.reset();
+		_ActiveCryptoGroup = nullptr;
 			if (!!_connector && _cookie != 0)
 			{
 				_connector->RemoveKeyVEILChangeCallback(_cookie);
@@ -91,7 +93,6 @@ public:
 			//_CryptoGroupCombo = nullptr;
 			_TokenCombo = nullptr;
 			_CurFavIndex = 0;
-			_ActiveCryptoGroup.reset();
 			_LastTokenSelection = 0;
 			_initialized = false;
 		}
@@ -99,7 +100,7 @@ public:
 		{
 		}
 	}
-	virtual int  DisplayModal()
+	virtual int  DisplayModal() override
 	{
 		try
 		{
@@ -112,46 +113,69 @@ public:
 			return IDCANCEL;
 		}
 	}
-	virtual int  DisplayModal(XP_WINDOW wnd)
+	virtual int  DisplayModal(XP_WINDOW wnd) override
 	{
 		_parent = wnd;
 		return DisplayModal();
 	}
 
 	// IAudienceSelector
-	virtual std::shared_ptr<IKeyVEILConnector> Connector()
+	virtual std::shared_ptr<IKeyVEILConnector> Connector() override
 	{
 		return _connector;
 	}
-	virtual void Connector(std::shared_ptr<IKeyVEILConnector> setTo)
+	virtual void Connector(std::shared_ptr<IKeyVEILConnector> setTo) override
 	{
 		_connector.reset();
 		_session.reset();
+		_profile.reset();
+		_ActiveCryptoGroup = nullptr;
 		_connector = setTo;
 	}
-	virtual std::shared_ptr<IKeyVEILSession> Session()
+	virtual std::shared_ptr<IKeyVEILSession> Session() override
 	{
 		return _session;
 	}
-	virtual void Session(std::shared_ptr<IKeyVEILSession> setTo)
+	bool HasSession() const
+	{
+		return !!_session;
+	}
+	virtual void Session(std::shared_ptr<IKeyVEILSession> setTo) override
 	{
 		_session.reset();
+		_profile.reset();
+		_ActiveCryptoGroup = nullptr;
 		_session = setTo;
+			
 	}
-	virtual tscrypto::tsCryptoData HeaderData()
+	std::shared_ptr<Asn1::CTS::_POD_Profile> GetProfile()
+	{
+		if (!HasSession())
+			return nullptr;
+		if (!!_profile)
+			return _profile;
+		if (Session()->IsLoggedIn())
+			_profile = Session()->GetProfile();
+		return _profile;
+	}
+	bool HasProfile()
+	{
+		return !!GetProfile();
+	}
+	virtual tscrypto::tsCryptoData HeaderData() override
 	{
 		return _header->ToBytes();
 	}
-	virtual void HeaderData(const tscrypto::tsCryptoData& setTo)
+	virtual void HeaderData(const tscrypto::tsCryptoData& setTo) override
 	{
 		if (!_header->FromBytes(setTo))
 			_header->Clear();
 	}
-	virtual std::shared_ptr<ICmsHeader> Header()
+	virtual std::shared_ptr<ICmsHeader> Header() override
 	{
 		return _header;
 	}
-	virtual void Header(std::shared_ptr<ICmsHeader> setTo)
+	virtual void Header(std::shared_ptr<ICmsHeader> setTo) override
 	{
 		_header.reset();
 		_header = setTo;
@@ -224,13 +248,14 @@ protected:
 	//	HWND                                    _CryptoGroupCombo;
 	HWND                                    _TokenCombo;
 	int									    _CurFavIndex;
-	std::shared_ptr<Asn1::CTS::CryptoGroup> _ActiveCryptoGroup;
+	Asn1::CTS::_POD_CryptoGroup*				_ActiveCryptoGroup;
 	int										_LastTokenSelection;
 	std::shared_ptr<IFavorite>				_favorite;
 	bool                                    _initialized;
 	std::vector<tscrypto::tsCryptoData>                     _tokenSerialNumbers;
 	std::vector<GUID>						_guidMap;
 	size_t                                  _cookie;
+	std::shared_ptr<Asn1::CTS::_POD_Profile>	_profile;
 
 	static INT_PTR CALLBACK	AudienceSelectorProc(HWND _hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
@@ -704,7 +729,7 @@ protected:
 		}
 		else
 		{
-			if (!attrSel->Start(_session, (XP_WINDOW)_hDlg, _ActiveCryptoGroup->get_Id(), attrGroup, attrList) || attrSel->DisplayModal() != IDOK)
+			if (!attrSel->Start(Session(), (XP_WINDOW)_hDlg, _ActiveCryptoGroup->get_Id(), attrGroup, attrList) || attrSel->DisplayModal() != IDOK)
 			{
 				attrGroup.reset();
 				groupList->RemoveAccessGroup(groupList->GetAccessGroupCount() - 1);
@@ -908,7 +933,7 @@ protected:
 		{
 			return TRUE;
 		}
-		if (!attrSel->Start(_session, (XP_WINDOW)_hDlg, _ActiveCryptoGroup->get_Id(), attrGroup, attrsList) || attrSel->DisplayModal() != IDOK)
+		if (!attrSel->Start(Session(), (XP_WINDOW)_hDlg, _ActiveCryptoGroup->get_Id(), attrGroup, attrsList) || attrSel->DisplayModal() != IDOK)
 		{
 			return TRUE;
 		}
@@ -951,11 +976,11 @@ protected:
 			tscrypto::tsCryptoString favName;
 			std::shared_ptr<IFavoriteName> dlg = ::TopServiceLocator()->get_instance<IFavoriteName>("/WinAPI/FavoriteName");
 
-			if (!_session || !_session->IsValid() || !_connector || !dlg || !dlg->Start((XP_WINDOW)_hDlg) || dlg->DisplayModal() != IDOK)
+			if (!HasSession() || !Session()->IsValid() || !_connector || !dlg || !dlg->Start((XP_WINDOW)_hDlg) || dlg->DisplayModal() != IDOK)
 				return FALSE;
 
 			favName = dlg->Name();
-			id = _connector->CreateFavorite(_session->GetProfile()->get_SerialNumber(), _header->ToBytes(), favName);
+			id = _connector->CreateFavorite(GetProfile()->get_SerialNumber(), _header->ToBytes(), favName);
 			if (id == GUID_NULL)
 			{
 				MessageBoxA(_hDlg, "An error occurred while attempting to create the new favorite.", "Error", MB_ICONHAND | MB_OK);
@@ -1091,20 +1116,18 @@ protected:
 	//	return populateCryptoGroupList();
 	//}
 
-	std::shared_ptr<Asn1::CTS::CryptoGroup> GetCGbyGuid(const GUID& id)
+	Asn1::CTS::_POD_CryptoGroup* GetCGbyGuid(const GUID& id)
 	{
-		if (!_session || !_session->IsValid() || !_session->GetProfile())
+		if (!HasSession() || !Session()->IsValid() || !HasProfile())
 			return nullptr;
 
-		std::shared_ptr<Asn1::CTS::Profile> profile = _session->GetProfile();
-
-		if (!!profile && profile->exists_cryptoGroupList())
+		if (GetProfile()->exists_cryptoGroupList())
 		{
-			for (size_t i = 0; i < profile->get_cryptoGroupList()->size(); i++)
+			for (size_t i = 0; i < GetProfile()->get_cryptoGroupList()->size(); i++)
 			{
-				if (profile->get_cryptoGroupList()->get_at(i).get_Id() == id)
+				if (GetProfile()->get_cryptoGroupList()->get_at(i).get_Id() == id)
 				{
-					return profile->get_cryptoGroupList()->get_ptr_at(i);
+					return &GetProfile()->get_cryptoGroupList()->get_at(i);
 				}
 			}
 		}
@@ -1113,12 +1136,12 @@ protected:
 
 	int findCgByGuid(const GUID& id)
 	{
-		if (!_session || !_session->IsValid() || !_session->GetProfile() || !_session->GetProfile()->exists_cryptoGroupList() || _session->GetProfile()->get_cryptoGroupList()->size() == 0)
+		if (!HasSession() || !Session()->IsValid() || !HasProfile() || !GetProfile()->exists_cryptoGroupList() || GetProfile()->get_cryptoGroupList()->size() == 0)
 			return -1;
 
-		for (size_t i = 0; i < _session->GetProfile()->get_cryptoGroupList()->size(); i++)
+		for (size_t i = 0; i < GetProfile()->get_cryptoGroupList()->size(); i++)
 		{
-			if (_session->GetProfile()->get_cryptoGroupList()->get_at(i).get_Id() == id)
+			if (GetProfile()->get_cryptoGroupList()->get_at(i).get_Id() == id)
 				return (int)i;
 		}
 		return -1;
@@ -1130,7 +1153,7 @@ protected:
 		//    int count;
 
 		// get rid of the old CryptoGroup and token
-		_ActiveCryptoGroup.reset();
+		_ActiveCryptoGroup = nullptr;
 
 		// empty out the old attribute and cert lists
 		// Must loop through and delete all access groups in the grouplist control that we have stored
@@ -1139,24 +1162,24 @@ protected:
 		AddGroupText(AS_SEL_DOM_STR);
 		EnableWindow(_GroupCtrl, FALSE);
 
-		if (!_session)
+		if (!HasSession())
 		{
 			return false;
 		}
 
-		if (!_session->IsValid() || !_session->IsLoggedIn())
+		if (!Session()->IsValid() || !Session()->IsLoggedIn())
 		{
 			std::shared_ptr<ITokenLogin> login = ::TopServiceLocator()->try_get_instance<ITokenLogin>("/WinAPI/TokenLogIn");;
 
 			if (!!login)
 			{
-				if (!login->Start(_session, (XP_WINDOW)_hDlg) || login->DisplayModal() != IDOK)
+				if (!login->Start(Session(), (XP_WINDOW)_hDlg) || login->DisplayModal() != IDOK)
 					return false;
 			}
 			else
 				return false;
 		}
-		if (!_session || !_session->IsValid() || !_session->GetProfile() || fav->enterpriseId() != _session->GetProfile()->get_EnterpriseId())
+		if (!HasSession() || !Session()->IsValid() || !HasProfile() || fav->enterpriseId() != GetProfile()->get_EnterpriseId())
 		{
 			return false;
 		}
@@ -1165,7 +1188,7 @@ protected:
 
 		if (!!ops)
 		{
-			if (!ops->CanGenerateWorkingKey(_session))
+			if (!ops->CanGenerateWorkingKey(Session()))
 			{
 				return false;
 			}
@@ -1185,7 +1208,7 @@ protected:
 		// If there is a token in this favorite, login.  Otherwise, don't login.  
 		//if (fav->tokenSerialNumber().size() != '\0')
 		{
-			std::shared_ptr<Asn1::CTS::CryptoGroup> tempCG;
+			Asn1::CTS::_POD_CryptoGroup* tempCG = nullptr;
 			std::shared_ptr<ICmsHeaderCryptoGroup> hCG;
 			std::shared_ptr<ICmsHeader> fav_header;
 			GUID cgGuid;
@@ -1209,7 +1232,7 @@ protected:
 				SendMessage(_FavoriteCombo, CB_SETCURSEL, (WPARAM)(0), 0);
 				return FALSE;
 			}
-			if (!!hCG && !!_session)
+			if (!!hCG && HasSession())
 			{
 				cgGuid = hCG->GetCryptoGroupGuid();
 				// now we have to find the proper fiefdom
@@ -1314,7 +1337,7 @@ protected:
 
 	void LoginTokenPressed()
 	{
-		if (!_session)
+		if (!HasSession())
 		{
 			MessageBoxA(_hDlg, "Please select a token before pressing the log in button.", "Warning", MB_ICONHAND | MB_OK);
 			return;
@@ -1326,11 +1349,11 @@ protected:
 		//	return FALSE;
 		//}
 
-		if (!_session->IsValid() || !_session->IsLoggedIn())
+		if (!Session()->IsValid() || !Session()->IsLoggedIn())
 			CheckLogin();
-		EnableWindow(GetDlgItem(_hDlg, IDC_TOKEN_LOGIN), !!_session && !_session->IsLoggedIn());
+		EnableWindow(GetDlgItem(_hDlg, IDC_TOKEN_LOGIN), HasSession() && !Session()->IsLoggedIn());
 
-		if (_session->IsLoggedIn())
+		if (Session()->IsLoggedIn())
 		{
 			SendMessage(_GroupCtrl, LVM_DELETEALLITEMS, 0, 0);
 			EnableWindow(_GroupCtrl, TRUE);
@@ -1424,7 +1447,7 @@ protected:
 
 		// get rid of the old CryptoGroup and token
 		//    myActiveToken = NULL;
-		_ActiveCryptoGroup.reset();
+		_ActiveCryptoGroup = nullptr;
 		ClearAccessGroups();
 
 		// get a pointer to the favorite
@@ -1456,7 +1479,7 @@ protected:
 
 		if (ind != (UINT)CB_ERR)
 		{
-			if (!_session)
+			if (!HasSession())
 			{
 				// TODO:  I think something is needed here
 				//CryptoGroupPressLogin();
@@ -1485,11 +1508,11 @@ protected:
 		//if not matched, give the user the opportunity to select another Token
 		do
 		{
-			if (!_session || (bLoaded = LoadFavoriteForToken(fav, newHeader)) == 0)    // if the favorites cryptogroup and attributes do not match with Token's
+			if (!HasSession() || (bLoaded = LoadFavoriteForToken(fav, newHeader)) == 0)    // if the favorites cryptogroup and attributes do not match with Token's
 			{
 				UINT nResponse = IDYES;
 
-				if (!!_session)
+				if (HasSession())
 				{
 					nResponse = ::MessageBoxA(_hDlg, "The Token does not contain the proper CryptoGroup or Attributes needed for the Favorite.\nDo you want to select another Token? ", "Warning", MB_YESNO | MB_ICONQUESTION);
 				}
@@ -1517,8 +1540,7 @@ protected:
 									SendMessage(_TokenCombo, CB_SETCURSEL, tokIndex, 0);
 									//if (!!_session)
 									//	_session->Close();
-									_session.reset();
-									_session = sess;
+									Session(sess);
 								}
 								else
 								{
@@ -1685,7 +1707,7 @@ protected:
 		int index, idx;
 		int count;
 		GUID id;
-		std::shared_ptr<Asn1::CTS::Attribute> attr;
+		Asn1::CTS::_POD_Attribute* attr = nullptr;
 		std::shared_ptr<ICmsHeaderAttribute> headerAttr;
 		std::shared_ptr<ICmsHeaderAttributeListExtension> attrList;
 		std::shared_ptr<ICmsHeaderExtension> ext;
@@ -1701,7 +1723,7 @@ protected:
 		count = (int)attrs->GetAttributeCount();
 		for (index = 0; index < count; index++)
 		{
-			attr.reset();
+			attr = nullptr;
 			idx = attrs->GetAttributeIndex(index);
 			headerAttr.reset();
 			if (attrList->GetAttribute(idx, headerAttr))
@@ -1898,7 +1920,7 @@ protected:
 		// if the programmer has specified an initial token, and a reason
 		// not to change it, we won't allow the user to switch to a new token
 		//if (myInitialToken != NULL && myNoChangeTokenReason.GetLength()) {
-		if (!!_session && _session->IsValid() && !!_connector)
+		if (HasSession() && Session()->IsValid() && !!_connector)
 		{
 			int tokindex = 0;
 			std::shared_ptr<IKeyVEILSession> tempSession;
@@ -1932,11 +1954,11 @@ protected:
 						//SendMessage(_CryptoGroupCombo, CB_ADDSTRING, 0, (LPARAM)AS_SEL_DOM_STR);
 						//SendMessage(_CryptoGroupCombo, CB_SETCURSEL, 0, 0);
 
-						_ActiveCryptoGroup.reset();
+						_ActiveCryptoGroup = nullptr;
 
 						//if (!!_session)
 						//	_session->Close();
-						_session.reset();
+						Session(nullptr);
 						EnableWindow(GetDlgItem(_hDlg, IDC_TOKEN_LOGIN), FALSE);
 						UpdateDialogControls();
 						SetFocus(_TokenCombo);
@@ -1956,7 +1978,7 @@ protected:
 			//}
 
 			// if the selection has not changed, return
-			if (!!_session && _session->IsValid() && !!_session->GetProfile() && !!tempSession->GetProfile() && tempSession->GetProfile()->get_SerialNumber() == _session->GetProfile()->get_SerialNumber())
+			if (HasSession() && Session()->IsValid() && HasProfile() && !!tempSession->GetProfile() && tempSession->GetProfile()->get_SerialNumber() == GetProfile()->get_SerialNumber())
 			{
 				return FALSE;
 			}
@@ -2025,11 +2047,11 @@ protected:
 		//SendMessage(_CryptoGroupCombo, CB_ADDSTRING, 0, (LPARAM)AS_SEL_DOM_STR);
 		//SendMessage(_CryptoGroupCombo, CB_SETCURSEL, 0, 0);
 
-		_ActiveCryptoGroup.reset();
+		_ActiveCryptoGroup = nullptr;
 
 		//if (!!_session)
 		//	_session->Close();
-		_session.reset();
+		Session(nullptr);
 		_header.reset();
 
 		LRESULT idx = SendMessage(_TokenCombo, CB_GETITEMDATA, index, 0);
@@ -2039,7 +2061,17 @@ protected:
 		{
 			tok = _connector->token(_tokenSerialNumbers[idx]);
 		}
-		if (!tok || !(_session = tok->openSession()))
+		if (!tok)
+		{
+			char name[512];
+
+			SendMessage(_TokenCombo, CB_GETLBTEXT, index, (LPARAM)name);
+			TsStrCat(name, sizeof(name), "  Unable to change Token.");
+			MessageBoxA(_hDlg, name, "Error", MB_OK);
+			return FALSE;
+		}
+		Session(tok->openSession());
+		if (!HasSession())
 		{
 			char name[512];
 
@@ -2049,14 +2081,14 @@ protected:
 			return FALSE;
 		}
 
-		EnableWindow(GetDlgItem(_hDlg, IDC_TOKEN_LOGIN), !!_session && (!_session->IsValid() || !_session->IsLoggedIn()));
+		EnableWindow(GetDlgItem(_hDlg, IDC_TOKEN_LOGIN), HasSession() && (!Session()->IsValid() || !Session()->IsLoggedIn()));
 
-		if (!!_session && _session->IsValid() && _session->IsLoggedIn())
+		if (HasSession() && Session()->IsValid() && Session()->IsLoggedIn())
 		{
 			SendMessage(_GroupCtrl, LVM_DELETEALLITEMS, 0, 0);
 			EnableWindow(_GroupCtrl, TRUE);
 
-			GUID cgID = _session->GetProfile()->get_EnterpriseCryptoGroup();
+			GUID cgID = GetProfile()->get_EnterpriseCryptoGroup();
 
 			_ActiveCryptoGroup = GetCGbyGuid(cgID);
 			//if ( !header )
@@ -2076,11 +2108,10 @@ protected:
 				GUID memberGuid = GUID_NULL;
 
 				_header->Clear();
-				std::shared_ptr<Asn1::CTS::Profile> profile = _session->GetProfile();
-				if (!!profile)
+				if (HasProfile())
 				{
-					enterpriseGuid = profile->get_EnterpriseId();
-					memberGuid = profile->get_MemberId();
+					enterpriseGuid = GetProfile()->get_EnterpriseId();
+					memberGuid = GetProfile()->get_MemberId();
 				}
 				_header->SetEnterpriseGuid(enterpriseGuid);
 				_header->SetCreatorGuid(memberGuid);
@@ -2104,14 +2135,14 @@ protected:
 
 	int CheckLogin()
 	{
-		if (!_session)
+		if (!HasSession())
 			return FALSE;
 
-		if (_session->IsLoggedIn() && _session->IsValid() && !!_session->GetProfile())
+		if (Session()->IsLoggedIn() && Session()->IsValid() && HasProfile())
 		{
 			if (!_ActiveCryptoGroup)
 			{
-				GUID cgID = _session->GetProfile()->get_EnterpriseCryptoGroup();
+				GUID cgID = GetProfile()->get_EnterpriseCryptoGroup();
 
 				_ActiveCryptoGroup = GetCGbyGuid(cgID);
 			}
@@ -2120,13 +2151,13 @@ protected:
 
 		std::shared_ptr<ITokenLogin> login = ::TopServiceLocator()->try_get_instance<ITokenLogin>("/WinAPI/TokenLogIn");;
 
-		_ActiveCryptoGroup.reset();
+		_ActiveCryptoGroup = nullptr;
 		if (!!login)
 		{
-			if (!login->Start(_session, (XP_WINDOW)_hDlg) || login->DisplayModal() != IDOK)
+			if (!login->Start(Session(), (XP_WINDOW)_hDlg) || login->DisplayModal() != IDOK)
 				return FALSE;
 
-			GUID cgID = _session->GetProfile()->get_EnterpriseCryptoGroup();
+			GUID cgID = GetProfile()->get_EnterpriseCryptoGroup();
 
 			_ActiveCryptoGroup = GetCGbyGuid(cgID);
 			//if ( !header )
@@ -2146,11 +2177,10 @@ protected:
 				GUID memberGuid = GUID_NULL;
 
 				_header->Clear();
-				std::shared_ptr<Asn1::CTS::Profile> profile = _session->GetProfile();
-				if (!!profile)
+				if (HasProfile())
 				{
-					enterpriseGuid = profile->get_EnterpriseId();
-					memberGuid = profile->get_MemberId();
+					enterpriseGuid = GetProfile()->get_EnterpriseId();
+					memberGuid = GetProfile()->get_MemberId();
 				}
 				_header->SetEnterpriseGuid(enterpriseGuid);
 				_header->SetCreatorGuid(memberGuid);
@@ -2388,7 +2418,7 @@ protected:
 		{
 			EnableWindow(GetDlgItem(_hDlg, IDC_CERTDELETE), TRUE);
 		}
-		EnableWindow(GetDlgItem(_hDlg, IDC_TOKEN_LOGIN), !!_session && (!_session->IsValid() || !_session->IsLoggedIn()));
+		EnableWindow(GetDlgItem(_hDlg, IDC_TOKEN_LOGIN), HasSession() && (!Session()->IsValid() || !Session()->IsLoggedIn()));
 	}
 	INT_PTR InitSettings()
 	{
@@ -2413,7 +2443,7 @@ protected:
 		//SendMessage(_CryptoGroupCombo, CB_ADDSTRING, 0, (LPARAM)AS_SEL_DOM_STR);
 		//SendMessage(_CryptoGroupCombo, CB_ADDSTRING, 0, (LPARAM)AS_SEL_DOM_STR); // Add extra to ensure an ON_CBN_SELENDOK message is thrown
 		//SendMessage(_CryptoGroupCombo, CB_SETCURSEL, 0, 0);
-		EnableWindow(GetDlgItem(_hDlg, IDC_TOKEN_LOGIN), !!_session && (!_session->IsValid() || !_session->IsLoggedIn()));
+		EnableWindow(GetDlgItem(_hDlg, IDC_TOKEN_LOGIN), HasSession() && (!Session()->IsValid() || !Session()->IsLoggedIn()));
 
 		UpdateDialogControls();
 
@@ -2594,9 +2624,9 @@ protected:
 		std::shared_ptr<IToken> token;
 		tscrypto::tsCryptoData tokenSerial;
 
-		if (!!_session && _session->IsValid() && !!_session->GetProfile())
+		if (HasSession() && Session()->IsValid() && HasProfile())
 		{
-			tokenSerial = _session->GetProfile()->get_SerialNumber();
+			tokenSerial = GetProfile()->get_SerialNumber();
 		}
 
 		// Empty the  contents of the token combo

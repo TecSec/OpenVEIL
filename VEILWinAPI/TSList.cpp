@@ -784,7 +784,9 @@ static LRESULT __stdcall ControlProc (HWND hWin, UINT uMsg, WPARAM wParam,LPARAM
 
 		// Ok, DrawProress...
 		listPtr = (TSLIST*)HeapAlloc(GetProcessHeap(),HEAP_ZERO_MEMORY,sizeof (TSLIST));
-		SetWindowLongPtr(hWin,0,(LONG_PTR)listPtr);
+		if (listPtr != nullptr)
+		{
+			SetWindowLongPtr(hWin, 0, (LONG_PTR)listPtr);
 		listPtr->count = 50;
 		listPtr->maxi = 100;
 		listPtr->left = 5;
@@ -798,13 +800,15 @@ static LRESULT __stdcall ControlProc (HWND hWin, UINT uMsg, WPARAM wParam,LPARAM
 
 		rect.bottom -= 16;
 		rect.right -= 50;
-		listPtr->hListView = CreateWindowExA(WS_EX_CLIENTEDGE | WS_EX_RIGHTSCROLLBAR,szLView,0,WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_NOSCROLL | WS_BORDER | LVS_OWNERDATA,42,9,rect.right,rect.bottom,hWin,0,hInstance,0);
+			listPtr->hListView = CreateWindowExA(WS_EX_CLIENTEDGE | WS_EX_RIGHTSCROLLBAR, szLView, 0, WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_NOSCROLL | WS_BORDER | LVS_OWNERDATA, 42, 9, rect.right, rect.bottom, hWin, 0, hInstance, 0);
 		listPtr->hCursorB = 0;
 		listPtr->hCursorL = 0;
 		listPtr->noProgress = FALSE;
 		listPtr->no3dFrame = FALSE;
-
-		lpLstView = (WNDPROC)SetWindowLongPtr(listPtr->hListView,GWLP_WNDPROC,(LONG_PTR)ListViewProc);
+			lpLstView = (WNDPROC)SetWindowLongPtr(listPtr->hListView, GWLP_WNDPROC, (LONG_PTR)ListViewProc);
+		}
+		else
+			return FALSE;
 
 		GetClientRect(hWin, &rect);
 		if (rect.bottom > 150) // ; si fen�tre assez grande

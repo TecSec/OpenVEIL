@@ -790,7 +790,7 @@ bool  FileVEILOperationsImpl::DataStartsWithCmsHeader(const tscrypto::tsCryptoDa
 	std::shared_ptr<tsmod::IObject> iunk;
 	int headerLen = 0;
 
-	if (!ExtractHeaderFromStream(contents.c_str(), MIN(contents.size(), 20480), &headerLen, iunk) ||
+	if (!ExtractHeaderFromStream(contents.c_str(), MIN((int)contents.size(), 20480), &headerLen, iunk) ||
 		!(header = std::dynamic_pointer_cast<ICmsHeader>(iunk)) ||
 		headerLen == 0)
 	{
@@ -1335,7 +1335,7 @@ bool FileVEILOperationsImpl::RegenerateStreamKey(const tscrypto::tsCryptoString 
 bool  FileVEILOperationsImpl::RecoverKeys(const tscrypto::tsCryptoString& inputFile, FileVEILFileOp_recoveredKeyList& keys)
 {
 	tscrypto::tsCryptoStringList lStreams = CreateTsAsciiList();
-	bool retVal;
+	bool retVal = false;
 
 	keys = CreateFileVEILFileOp_recoveredKeyList();
 	// Enumerate all streams associated with given file.

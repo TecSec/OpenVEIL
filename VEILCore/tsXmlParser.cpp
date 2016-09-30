@@ -50,7 +50,7 @@ tsXmlParser::~tsXmlParser()
 //    return FrameworkDeallocator(ptr);
 //}
 #ifdef HAVE_BSTR
-bool tsXmlParser::Parse(const wchar_t * xml,	tsXmlParserCallback *callback, tscrypto::tsCryptoString &Results)
+bool tsXmlParser::Parse(const wchar_t * xml,	tsXmlParserCallback *callback, tscrypto::tsCryptoStringBase &Results)
 {
 	if ( xml == NULL || callback == NULL )
 		return false;
@@ -63,7 +63,7 @@ bool tsXmlParser::Parse(const wchar_t * xml,	tsXmlParserCallback *callback, tscr
 	return Parse(Results) != tsXmlParserCallback::rcAbort;
 }
 
-bool tsXmlParser::Parse(const wchar_t * xml, size_t len, tsXmlParserCallback *callback, tscrypto::tsCryptoString &Results)
+bool tsXmlParser::Parse(const wchar_t * xml, size_t len, tsXmlParserCallback *callback, tscrypto::tsCryptoStringBase &Results)
 {
 	if ( xml == NULL || callback == NULL )
 		return false;
@@ -77,7 +77,7 @@ bool tsXmlParser::Parse(const wchar_t * xml, size_t len, tsXmlParserCallback *ca
 }
 #endif // HAVE_BSTR
 
-bool tsXmlParser::Parse(const tscrypto::tsCryptoString &xml,	tsXmlParserCallback *callback, tscrypto::tsCryptoString &Results)
+bool tsXmlParser::Parse(const tscrypto::tsCryptoStringBase &xml,	tsXmlParserCallback *callback, tscrypto::tsCryptoStringBase &Results)
 {
 	if ( callback == NULL )
 		return false;
@@ -90,7 +90,7 @@ bool tsXmlParser::Parse(const tscrypto::tsCryptoString &xml,	tsXmlParserCallback
 	return Parse(Results) != tsXmlParserCallback::rcAbort;
 }
 
-bool tsXmlParser::Parse(const char *xml,	tsXmlParserCallback *callback, tscrypto::tsCryptoString &Results)
+bool tsXmlParser::Parse(const char *xml,	tsXmlParserCallback *callback, tscrypto::tsCryptoStringBase &Results)
 {
 	if ( xml == NULL || callback == NULL )
 		return false;
@@ -103,7 +103,7 @@ bool tsXmlParser::Parse(const char *xml,	tsXmlParserCallback *callback, tscrypto
 	return Parse(Results) != tsXmlParserCallback::rcAbort;
 }
 
-bool tsXmlParser::Parse(const char *xml, size_t len, tsXmlParserCallback *callback, tscrypto::tsCryptoString &Results)
+bool tsXmlParser::Parse(const char *xml, size_t len, tsXmlParserCallback *callback, tscrypto::tsCryptoStringBase &Results)
 {
 	if ( xml == NULL || callback == NULL )
 		return false;
@@ -120,7 +120,7 @@ bool tsXmlParser::Parse(const char *xml, size_t len, tsXmlParserCallback *callba
 // Process all the nodes until an error is detected or the callback says to stop or
 // the end of XML is reached.
 //
-tsXmlParserCallback::resultCodes tsXmlParser::Parse(tscrypto::tsCryptoString &Results)
+tsXmlParserCallback::resultCodes tsXmlParser::Parse(tscrypto::tsCryptoStringBase &Results)
 {
 	tsXmlParserCallback::resultCodes retVal = tsXmlParserCallback::rcAbort;
 
@@ -171,7 +171,7 @@ tsXmlParserCallback::resultCodes tsXmlParser::Parse(tscrypto::tsCryptoString &Re
 //
 // Eat all whitespace characters.  Return true unless the end of xml is detected.
 //
-bool tsXmlParser::EatWhitespace(tscrypto::tsCryptoString &Results)
+bool tsXmlParser::EatWhitespace(tscrypto::tsCryptoStringBase &Results)
 {
 	char c;
     char st[2];
@@ -197,7 +197,7 @@ bool tsXmlParser::EatWhitespace(tscrypto::tsCryptoString &Results)
 	return true;
 }
 
-bool tsXmlParser::EatWhitespaceQuiet(tscrypto::tsCryptoString & /*Results*/)
+bool tsXmlParser::EatWhitespaceQuiet(tscrypto::tsCryptoStringBase & /*Results*/)
 {
 	char c;
 
@@ -219,7 +219,7 @@ bool tsXmlParser::EatWhitespaceQuiet(tscrypto::tsCryptoString & /*Results*/)
 //
 // Parse a double quote delimited tscrypto::tsCryptoString out of the xml.
 //
-bool tsXmlParser::ParseQuotedString(const char **Start, tscrypto::tsCryptoString &Results)
+bool tsXmlParser::ParseQuotedString(const char **Start, tscrypto::tsCryptoStringBase &Results)
 {
 	char c;
 
@@ -268,7 +268,7 @@ bool tsXmlParser::IsNameChar(char c)
 //
 // Parse a node or attribute name out of the xml
 //
-bool tsXmlParser::ParseName(const char **Start, tscrypto::tsCryptoString &Results)
+bool tsXmlParser::ParseName(const char **Start, tscrypto::tsCryptoStringBase &Results)
 {
 	if ( Start == NULL )
 	{
@@ -293,7 +293,7 @@ bool tsXmlParser::ParseName(const char **Start, tscrypto::tsCryptoString &Result
 //
 // Parse one node out of the XML.
 //
-tsXmlParserCallback::resultCodes tsXmlParser::ParseNode(tscrypto::tsCryptoString &Results)
+tsXmlParserCallback::resultCodes tsXmlParser::ParseNode(tscrypto::tsCryptoStringBase &Results)
 {
 	char c;
 
@@ -417,7 +417,7 @@ tsXmlParserCallback::resultCodes tsXmlParser::ParseNode(tscrypto::tsCryptoString
 			{
 				size_t EndNodePosition;
 				size_t EndNodeEnd;
-				char c;
+				char c1;
 
 				// Now we need to find the end node, and process this node.
 				m_position++;
@@ -426,14 +426,14 @@ tsXmlParserCallback::resultCodes tsXmlParser::ParseNode(tscrypto::tsCryptoString
 					LogError(Results, 1, "Unable to find the end node.");
 					return tsXmlParserCallback::rcAbort;
 				}
-				c = m_xml.at(EndNodePosition);
+				c1 = m_xml.at(EndNodePosition);
 				m_xml.at(EndNodePosition) = 0;
 				m_nodeLevel++;
 				if ( m_nodeLevel == 1 )
 					m_regularNodeCountLevel1++;
 				m_xml.at(NameEnd) = 0;
 				retVal = m_callback->StartNode(Name,m_attributes, &m_xml.c_str()[m_position], false, Results);
-				m_xml.at(EndNodePosition) = c;
+				m_xml.at(EndNodePosition) = c1;
 				if ( retVal == tsXmlParserCallback::rcSkipInner )
 				{
 					m_position = EndNodePosition;
@@ -474,7 +474,7 @@ tsXmlParserCallback::resultCodes tsXmlParser::ParseNode(tscrypto::tsCryptoString
 // XML that exists between the open and close nodes in question.  We also check to make
 // sure that the detected close node is the proper node and is well formed.
 //
-bool tsXmlParser::FindEndNode(const char *Name, size_t &EndNodePosition, size_t &EndNodeEnd, tscrypto::tsCryptoString &Results)
+bool tsXmlParser::FindEndNode(const char *Name, size_t &EndNodePosition, size_t &EndNodeEnd, tscrypto::tsCryptoStringBase &Results)
 {
 	int32_t nodeLevel = 1;
 	size_t posi = m_position;
@@ -625,7 +625,7 @@ bool tsXmlParser::FindEndNode(const char *Name, size_t &EndNodePosition, size_t 
 // This routine parses one attribute from the xml.  If successful, the attribute is
 // added to m_attributes.
 //
-tsXmlParserCallback::resultCodes tsXmlParser::ParseAttribute(tscrypto::tsCryptoString &Results)
+tsXmlParserCallback::resultCodes tsXmlParser::ParseAttribute(tscrypto::tsCryptoStringBase &Results)
 {
 	const char *Name;
 	const char *Value;
@@ -655,7 +655,7 @@ tsXmlParserCallback::resultCodes tsXmlParser::ParseAttribute(tscrypto::tsCryptoS
 		LogError (Results, 1, ("Malformed attribute found."));
 		return tsXmlParserCallback::rcAbort;
 	}
-	TSPatchValueFromXML(tscrypto::tsCryptoString(Value), tmp);	// in xmlhelper.cpp
+	TSPatchValueFromXML(Value, tmp);	// in xmlhelper.cpp
 	m_attributes.AddItem(Name, tmp.c_str());
 
 	return tsXmlParserCallback::rcSuccess;
@@ -665,7 +665,7 @@ tsXmlParserCallback::resultCodes tsXmlParser::ParseAttribute(tscrypto::tsCryptoS
 // This routine is used to find the end of the detected metadata instruction.  It also
 // calls the callback system.
 //
-tsXmlParserCallback::resultCodes tsXmlParser::ParseMetadataInstruction(tscrypto::tsCryptoString &Results)
+tsXmlParserCallback::resultCodes tsXmlParser::ParseMetadataInstruction(tscrypto::tsCryptoStringBase &Results)
 {
 	size_t start = m_position;
 
@@ -684,7 +684,7 @@ tsXmlParserCallback::resultCodes tsXmlParser::ParseMetadataInstruction(tscrypto:
 // This routine is used to find the end of the detected processing instruction.  It also
 // calls the callback system.
 //
-tsXmlParserCallback::resultCodes tsXmlParser::ParseProcessingInstruction(tscrypto::tsCryptoString &Results)
+tsXmlParserCallback::resultCodes tsXmlParser::ParseProcessingInstruction(tscrypto::tsCryptoStringBase &Results)
 {
 	size_t start = m_position;
 
@@ -704,7 +704,7 @@ tsXmlParserCallback::resultCodes tsXmlParser::ParseProcessingInstruction(tscrypt
 // This routine is used to find the end of the detected text block.  It also
 // calls the callback system.
 //
-tsXmlParserCallback::resultCodes tsXmlParser::ParseTextNode (tscrypto::tsCryptoString &Results)
+tsXmlParserCallback::resultCodes tsXmlParser::ParseTextNode (tscrypto::tsCryptoStringBase &Results)
 {
 	size_t start = m_position;
 	tsXmlParserCallback::resultCodes retVal;
@@ -725,7 +725,7 @@ tsXmlParserCallback::resultCodes tsXmlParser::ParseTextNode (tscrypto::tsCryptoS
 // This routine is used to find the end of the detected comment.  It also
 // calls the callback system.
 //
-tsXmlParserCallback::resultCodes tsXmlParser::ParseComment(tscrypto::tsCryptoString &Results)
+tsXmlParserCallback::resultCodes tsXmlParser::ParseComment(tscrypto::tsCryptoStringBase &Results)
 {
 	size_t start = m_position;
 
@@ -746,7 +746,7 @@ tsXmlParserCallback::resultCodes tsXmlParser::ParseComment(tscrypto::tsCryptoStr
 // This routine is used to find the end of the detected CData section.  It also
 // calls the callback system.
 //
-tsXmlParserCallback::resultCodes tsXmlParser::ParseCData(tscrypto::tsCryptoString &Results)
+tsXmlParserCallback::resultCodes tsXmlParser::ParseCData(tscrypto::tsCryptoStringBase &Results)
 {
 	size_t start = m_position;
 
@@ -767,7 +767,7 @@ tsXmlParserCallback::resultCodes tsXmlParser::ParseCData(tscrypto::tsCryptoStrin
 //
 // This routine adds an error message to the Results variable.
 //
-void tsXmlParser::LogError(tscrypto::tsCryptoString &Results, int32_t number, const char *value)
+void tsXmlParser::LogError(tscrypto::tsCryptoStringBase &Results, int32_t number, const char *value)
 {
 	tscrypto::tsCryptoString tmp;
 

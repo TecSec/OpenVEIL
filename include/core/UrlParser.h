@@ -33,9 +33,18 @@
 
 struct VEILCORE_API NameValue
 {
+	static void *operator new(std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void *operator new[](std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
+	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
+
 	NameValue() {}
 	NameValue(const tscrypto::tsCryptoString& _name, const tscrypto::tsCryptoString& _value) : name(_name), value(_value) {}
-	~NameValue(){}
+	~NameValue() {}
 
 	tscrypto::tsCryptoString name;
 	tscrypto::tsCryptoString value;
@@ -57,6 +66,15 @@ extern VEILCORE_API NameValueList CreateNameValueList();
 class VEILCORE_API UrlParser
 {
 public:
+	static void *operator new(std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void *operator new[](std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
+	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
+
 	UrlParser();
 	~UrlParser();
 

@@ -33,7 +33,7 @@
 
 tsmod::IObject* CreateKeyGenerateTool()
 {
-	std::shared_ptr<IVeilUtilities> utils = ::TopServiceLocator()->get_instance<IVeilUtilities>("VeilUtilities");
+	std::shared_ptr<tsmod::IVeilUtilities> utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
 	return utils->buildCommandMenu("Generate keys", "/KVKEYGEN-COMMANDS/", "generate", "GENERATE");
 }
 
@@ -41,7 +41,7 @@ tsmod::IObject* CreateKeyGenerateTool()
 namespace eccoptions {
 	enum options { OPT_HELP, OPT_KEYSIZE, OPT_NAME, OPT_SERVER, OPT_USERNAME, OPT_PASSWORD, OPT_FORENCRYPTION, OPT_EXPORTABLE };
 
-	struct OptionList GenEccOptions[] = {
+	struct tsmod::OptionList GenEccOptions[] = {
 		{ "", "VEIL tool genecc options" },
 		{ "", "=================================" },
 		{ "--help, -h, -?", "This help information." },
@@ -77,7 +77,7 @@ namespace eccoptions {
 		SO_END_OF_OPTIONS
 	};
 }
-class genecc : public IVeilToolCommand, public tsmod::IObject
+class genecc : public tsmod::IVeilToolCommand, public tsmod::IObject
 {
 public:
 	genecc()
@@ -86,12 +86,12 @@ public:
 	{}
 
 	// tsmod::IObject
-	virtual void OnConstructionFinished()
+	virtual void OnConstructionFinished() override
 	{
-		utils = ::TopServiceLocator()->get_instance<IVeilUtilities>("VeilUtilities");
+		utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
 	}
 
-	// Inherited via IVeilToolCommand
+	// Inherited via tsmod::IVeilToolCommand
 	virtual tscrypto::tsCryptoString getDescription() const override
 	{
 		return "Generate ECC key";
@@ -173,7 +173,7 @@ public:
 
 		cmdData
 			.add("action", "CREATE")
-			.add("spec", forEncryption ? "Encrypt" : "Sign")
+			.add("spec", tsCryptoString(forEncryption ? "Encrypt" : "Sign"))
 			.add("type", "ECC")
 			.add("exportable", exportable)
 			.add("length", (int64_t)keysize);
@@ -217,7 +217,7 @@ protected:
 		utils->Usage(eccoptions::GenEccOptions, sizeof(eccoptions::GenEccOptions) / sizeof(eccoptions::GenEccOptions[0]));
 	}
 protected:
-	std::shared_ptr<IVeilUtilities> utils;
+	std::shared_ptr<tsmod::IVeilUtilities> utils;
 };
 
 tsmod::IObject* CreateGenerateEccTool()
@@ -228,7 +228,7 @@ tsmod::IObject* CreateGenerateEccTool()
 namespace rsaoptions {
 	enum options { OPT_HELP, OPT_KEYSIZE, OPT_NAME, OPT_SERVER, OPT_USERNAME, OPT_PASSWORD, OPT_FORENCRYPTION, OPT_EXPORTABLE };
 
-	struct OptionList GenRsaOptions[] = {
+	struct tsmod::OptionList GenRsaOptions[] = {
 		{ "", "VEIL tool genecc options" },
 		{ "", "=================================" },
 		{ "--help, -h, -?", "This help information." },
@@ -264,7 +264,7 @@ namespace rsaoptions {
 		SO_END_OF_OPTIONS
 	};
 }
-class genrsa : public IVeilToolCommand, public tsmod::IObject
+class genrsa : public tsmod::IVeilToolCommand, public tsmod::IObject
 {
 public:
 	genrsa()
@@ -273,12 +273,12 @@ public:
 	{}
 
 	// tsmod::IObject
-	virtual void OnConstructionFinished()
+	virtual void OnConstructionFinished() override
 	{
-		utils = ::TopServiceLocator()->get_instance<IVeilUtilities>("VeilUtilities");
+		utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
 	}
 
-	// Inherited via IVeilToolCommand
+	// Inherited via tsmod::IVeilToolCommand
 	virtual tscrypto::tsCryptoString getDescription() const override
 	{
 		return "Generate RSA key";
@@ -360,7 +360,7 @@ public:
 
 		cmdData
 			.add("action", "CREATE")
-			.add("spec", forEncryption ? "Encrypt" : "Sign")
+			.add("spec", tsCryptoString(forEncryption ? "Encrypt" : "Sign"))
 			.add("type", "RSA")
 			.add("exportable", exportable)
 			.add("length", (int64_t)keysize);
@@ -404,7 +404,7 @@ protected:
 		utils->Usage(rsaoptions::GenRsaOptions, sizeof(rsaoptions::GenRsaOptions) / sizeof(rsaoptions::GenRsaOptions[0]));
 	}
 protected:
-	std::shared_ptr<IVeilUtilities> utils;
+	std::shared_ptr<tsmod::IVeilUtilities> utils;
 };
 
 tsmod::IObject* CreateGenerateRsaTool()

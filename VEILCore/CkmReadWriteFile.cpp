@@ -83,9 +83,9 @@ std::shared_ptr<IDataIOBase> CreateReadWriteFile(const tscrypto::tsCryptoString&
 }
 
 CkmReadWriteFile::CkmReadWriteFile(const tscrypto::tsCryptoString& filename) :
-    m_filename(filename),
     m_file(NULL),
-    m_dataLength(0)
+    m_dataLength(0),
+    m_filename(filename)
 {
 #ifdef _WIN32
     m_file = _fsopen(filename.c_str(), ("wb+"), _SH_DENYNO);

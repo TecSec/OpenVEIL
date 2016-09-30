@@ -85,7 +85,6 @@ extern tsmod::IObject* CreateSqlServerDatabaseObject();
 extern tsmod::IObject* CreateSqliteDatabaseObject();
 extern tsmod::IObject* CreateNotifyPropertyChange();
 extern tsmod::IObject* CreatePropertyMap();
-extern tsmod::IObject* CreateSSM();
 #ifdef _WIN32
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \fn BOOL APIENTRY DllMain( HMODULE , DWORD ul_reason_for_call, LPVOID )
@@ -175,9 +174,6 @@ std::shared_ptr<tsmod::IServiceLocator> TopServiceLocator()
 		g_ServiceLocator->AddClass("NotifyPropertyChange", CreateNotifyPropertyChange);
 		g_ServiceLocator->AddClass("PropertyMap", CreatePropertyMap);
 		g_ServiceLocator->AddSingletonObject("Settings", g_ServiceLocator->FinishConstruction(CreatePropertyMap()));
-#ifndef _WIN32
-		g_ServiceLocator->AddClass("SSM", CreateSSM);
-#endif
 
 		AddSystemTerminationFunction([]() ->bool {
 			g_ServiceLocator->DeleteClass("AlgorithmListManager");
@@ -318,165 +314,6 @@ bool GCM_Decrypt(const tscrypto::tsCryptoData &key, const tscrypto::tsCryptoData
 	return true;
 }
 
-void TSGuidToString(const GUID &id, tscrypto::tsCryptoString &out)  // taken from RTE guid_functions.cpp
-{
-	unsigned char * pStr;
-
-	pStr = (unsigned char *)&id;
-	out.Format("{%02X%02X%02X%02X-%02X%02X-%02X%02X-%02X%02X-%02X%02X%02X%02X%02X%02X}",
-		pStr[3], pStr[2], pStr[1], pStr[0], pStr[5], pStr[4], pStr[7], pStr[6], pStr[8], pStr[9],
-		pStr[10], pStr[11], pStr[12], pStr[13], pStr[14], pStr[15]);
-	return;
-}
-
-tscrypto::tsCryptoString TSGuidToString(const GUID &id)
-{
-	tscrypto::tsCryptoString tmp;
-
-	TSGuidToString(id, tmp);
-	return tmp;
-}
-
-static bool HexToUint8(const char *str, int len, uint8_t &value)
-{
-	value = 0;
-
-	for (int i = 0; i < len; i++)
-	{
-		if (str[i] >= '0' && str[i] <= '9')
-		{
-			value = (uint8_t)((value << 4) | (str[i] - '0'));
-		}
-		else if (str[i] >= 'A' && str[i] <= 'F')
-		{
-			value = (uint8_t)((value << 4) | (str[i] - 'A' + 10));
-		}
-		else if (str[i] >= 'a' && str[i] <= 'f')
-		{
-			value = (uint8_t)((value << 4) | (str[i] - 'a' + 10));
-		}
-		else
-			return false;
-	}
-	return true;
-}
-
-static bool HexToUint16(const char *str, int len, uint16_t &value)
-{
-	uint8_t tmp;
-
-	value = 0;
-
-	switch (len)
-	{
-	case 4:
-		if (!HexToUint8(str, 2, tmp))
-			return false;
-		value = tmp;
-		str += 2;
-		if (!HexToUint8(str, 2, tmp))
-			return false;
-		value = (value << 8) | tmp;
-		break;
-	case 3:
-		if (!HexToUint8(str, 1, tmp))
-			return false;
-		value = tmp;
-		str += 1;
-		if (!HexToUint8(str, 2, tmp))
-			return false;
-		value = (value << 8) | tmp;
-		break;
-	case 2:
-		if (!HexToUint8(str, 2, tmp))
-			return false;
-		value = tmp;
-		break;
-	case 1:
-		if (!HexToUint8(str, 1, tmp))
-			return false;
-		value = tmp;
-		break;
-	default:
-		return false;
-	}
-	return true;
-}
-
-static bool HexToUint32(const char *str, int len, uint32_t &value)
-{
-	uint16_t tmp;
-	int sublen;
-
-	value = 0;
-
-	if (len > 8 || len < 1)
-		return false;
-
-	if (len > 4)
-	{
-		sublen = len - 4;
-
-		if (!HexToUint16(str, sublen, tmp))
-			return false;
-		value = tmp;
-		str += sublen;
-		len -= sublen;
-	}
-	if (!HexToUint16(str, len, tmp))
-		return false;
-	value = (value << 16) | tmp;
-	return true;
-}
-
-GUID TSStringToGuid(const tscrypto::tsCryptoString &strGuid)
-{
-	GUID id;
-
-	TSStringToGuid(strGuid, id);
-	return id;
-}
-
-void TSStringToGuid(const tscrypto::tsCryptoString &strGuid, GUID &id)
-{
-	const char *p;
-	uint32_t l1;
-	uint16_t w1, w2, w3;
-	uint8_t b1, b2, b3, b4, b5, b6;
-	static GUID nullGuid = { 0, };
-
-	id = nullGuid;
-	if (strGuid.size() < 38 || strGuid.c_at(0) != '{' || strGuid.c_at(37) != '}' ||
-		strGuid.c_at(9) != '-' || strGuid.c_at(14) != '-' || strGuid.c_at(19) != '-' ||
-		strGuid.c_at(24) != '-')
-	{
-		return;
-	}
-	p = strGuid.c_str();
-	if (!HexToUint32(&p[1], 8, l1) ||
-		!HexToUint16(&p[10], 4, w1) ||
-		!HexToUint16(&p[15], 4, w2) ||
-		!HexToUint16(&p[20], 4, w3) ||
-		!HexToUint8(&p[25], 2, b1) ||
-		!HexToUint8(&p[27], 2, b2) ||
-		!HexToUint8(&p[29], 2, b3) ||
-		!HexToUint8(&p[31], 2, b4) ||
-		!HexToUint8(&p[33], 2, b5) ||
-		!HexToUint8(&p[35], 2, b6))
-		return;
-	id.Data1 = l1;
-	id.Data2 = w1;
-	id.Data3 = w2;
-	id.Data4[0] = (unsigned char)(w3 >> 8);
-	id.Data4[1] = (unsigned char)(w3);
-	id.Data4[2] = b1;
-	id.Data4[3] = b2;
-	id.Data4[4] = b3;
-	id.Data4[5] = b4;
-	id.Data4[6] = b5;
-	id.Data4[7] = b6;
-}
-
 bool xp_CreateGuid(GUID &guid)
 {
 #ifdef _WIN32
@@ -497,7 +334,7 @@ bool xp_CreateGuid(GUID &guid)
 }
 
 //HIDDEN
-void TSPatchValueFromXML(const tscrypto::tsCryptoString &value, tscrypto::tsCryptoString &out)
+void TSPatchValueFromXML(const tscrypto::tsCryptoStringBase &value, tscrypto::tsCryptoStringBase &out)
 {
 	size_t count;
 	size_t i;
@@ -927,7 +764,7 @@ bool zlibDecompress(const uint8_t* src, size_t srcLen, tscrypto::tsCryptoData& o
 class __ResourceLoader :public tsmod::IResourceLoader, public tsmod::IObject, public tsmod::IAggregatableObject
 {
 public:
-	virtual bool LoadResourceFile(const char* filename) override
+	virtual bool LoadResourceFile(const tscrypto::tsCryptoStringBase& filename) override
 	{
 		tscrypto::tsCryptoData tmp;
 		tscrypto::tsCryptoData part;
@@ -954,16 +791,15 @@ public:
 	{
 		return _resources.size() > 0;
 	}
-	virtual bool HasResource(const char* resourceName) override
+	virtual bool HasResource(const tscrypto::tsCryptoStringBase& resourceName) override
 	{
 		if (resourceName == nullptr)
 			return false;
 
-		if (resourceName[0] == '/')
-			resourceName++;
-
 		tscrypto::tsCryptoString name(resourceName);
 		name.ToUpper();
+		if (name[0] == '/')
+			name.erase(0, 1);
 
 		const TecSecResources::NameEntry* entry = FindName(name.c_str());
 		if (entry == nullptr)
@@ -977,17 +813,16 @@ public:
 		}
 		return true;
 	}
-	virtual tscrypto::tsCryptoData LoadResource(const char* resourceName) override 
+	virtual tscrypto::tsCryptoData LoadResource(const tscrypto::tsCryptoStringBase& resourceName) override
 	{
 		tscrypto::tsCryptoData data;
 		if (resourceName == nullptr)
 			return data;
 
-		if (resourceName[0] == '/')
-			resourceName++;
-
 		tscrypto::tsCryptoString name(resourceName);
 		name.ToUpper();
+		if (name[0] == '/')
+			name.erase(0, 1);
 
 		const TecSecResources::NameEntry* entry = FindName(name.c_str());
 		if (entry == nullptr)
@@ -1002,7 +837,7 @@ public:
 		data.assign(_resources.c_str() + entry->dataOffset + ((const TecSecResources::ResourceHeader*)_resources.c_str())->DataTable, entry->dataSize);
 
 		const TecSecResources::ResourceHeader* header = (const TecSecResources::ResourceHeader*)_resources.c_str();
-		const TecSecResources::NameEntry* entries = (const TecSecResources::NameEntry*)(header + 1);
+		//const TecSecResources::NameEntry* entries = (const TecSecResources::NameEntry*)(header + 1);
 
 		name = (const char *)(_resources.c_str() + header->NameStringTable + entry->nameOffset);
 		bool encrypt = (name[0] == '`' || name[0] == '~');
@@ -1162,6 +997,7 @@ void TerminateVEILSystem()
 	if (!!g_ServiceLocator)
 		g_ServiceLocator->clear();
 	g_ServiceLocator.reset();
+    TerminateCryptoSystem();
 	LOG(FrameworkInfo1, "VEIL system terminated");
 }
 
@@ -1552,14 +1388,14 @@ static bool BuildSymmetricAlg(TS_ALG_ID alg, std::shared_ptr<Symmetric>& sym)
 	}
 	return true;
 }
-static bool BuildHMACAlg(TS_ALG_ID alg, std::shared_ptr<MAC>& mac)
-{
-	if (!(mac = std::dynamic_pointer_cast<MAC>(CryptoFactory(alg))))
-	{
-		return false;
-	}
-	return true;
-}
+//static bool BuildHMACAlg(TS_ALG_ID alg, std::shared_ptr<MessageAuthenticationCode>& mac)
+//{
+//	if (!(mac = std::dynamic_pointer_cast<MessageAuthenticationCode>(CryptoFactory(alg))))
+//	{
+//		return false;
+//	}
+//	return true;
+//}
 bool TSBytesToKey(const tscrypto::tsCryptoData &Bytes, tscrypto::tsCryptoData &Key, TS_ALG_ID AlgID)
 {
 	if (AlgID == 0)
@@ -1714,7 +1550,7 @@ tscrypto::tsCryptoString ToXml(const char* src, const char* nullValue)
 	TSPatchValueForXML(tscrypto::tsCryptoString(src), tmp);
 	return tmp;
 }
-tscrypto::tsCryptoString ToXml(const tscrypto::tsCryptoString &src, const char* nullValue)
+tscrypto::tsCryptoString ToXml(const tscrypto::tsCryptoStringBase &src, const char* nullValue)
 {
 	if (src.size() == 0)
 		return nullValue;
@@ -1758,7 +1594,7 @@ tscrypto::tsCryptoString ToXml(const tscrypto::tsCryptoDate &src, const char* nu
 //		return nullValue;
 //	return ToXml(src, nullValue);
 //}
-//tscrypto::tsCryptoString ToXml(bool exists, const tscrypto::tsCryptoString &src, const char* nullValue)
+//tscrypto::tsCryptoString ToXml(bool exists, const tscrypto::tsCryptoStringBase &src, const char* nullValue)
 //{
 //	if (!exists)
 //		return nullValue;
@@ -1798,7 +1634,7 @@ tscrypto::tsCryptoString ToXml(const tscrypto::tsCryptoDate &src, const char* nu
 /*
 * Get User Information
 */
-uint32_t xp_GetUserName(tscrypto::tsCryptoString& name)
+uint32_t xp_GetUserName(tscrypto::tsCryptoStringBase& name)
 {
 #ifdef _WIN32
 	DWORD len = 1024;
@@ -1832,7 +1668,7 @@ uint32_t xp_GetUserName(tscrypto::tsCryptoString& name)
 	return 0;
 }
 
-uint32_t xp_GetComputerName(tscrypto::tsCryptoString& name)
+uint32_t xp_GetComputerName(tscrypto::tsCryptoStringBase& name)
 {
 	DWORD len = 1024;
 
@@ -1847,10 +1683,11 @@ uint32_t xp_GetComputerName(tscrypto::tsCryptoString& name)
 	name.resize(len - 1);
 #else /* UNIX */
 	int outLen = gethostname(name.rawData(), len);
-
-	if (outLen < len)
-		len = outLen;
-	name.resize(len - 1);
+	if (outLen != 0)
+	{
+		name.clear();
+		return 0xffffffff;
+	}
 	name.resize(strlen(name.c_str()));
 #endif
 	return 0;

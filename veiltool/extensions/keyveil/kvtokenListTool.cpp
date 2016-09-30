@@ -33,7 +33,7 @@
 
 enum options { OPT_HELP, OPT_URL, OPT_PASSWORD, OPT_USERNAME };
 
-static const struct OptionList Options[] = {
+static const struct tsmod::OptionList Options[] = {
 	{ "", "VEIL KEYVEIL TOKEN LIST options" },
 	{ "", "=================================" },
 	{ "--help, -h, -?", "This help information." },
@@ -58,7 +58,7 @@ static const CSimpleOptA::SOption OptionList[] =
 	SO_END_OF_OPTIONS
 };
 
-class KeyVEILTokenListTool : public IVeilToolCommand, public tsmod::IObject
+class KeyVEILTokenListTool : public tsmod::IVeilToolCommand, public tsmod::IObject
 {
 public:
 	KeyVEILTokenListTool()
@@ -67,12 +67,12 @@ public:
 	{}
 
 	// tsmod::IObject
-	virtual void OnConstructionFinished()
+	virtual void OnConstructionFinished() override
 	{
-		utils = ::TopServiceLocator()->get_instance<IVeilUtilities>("VeilUtilities");
+		utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
 	}
 
-	// Inherited via IVeilToolCommand
+	// Inherited via tsmod::IVeilToolCommand
 	virtual tscrypto::tsCryptoString getDescription() const override
 	{
 		return "List tokens";
@@ -156,7 +156,7 @@ protected:
 		utils->Usage(Options, sizeof(Options) / sizeof(Options[0]));
 	}
 protected:
-	std::shared_ptr<IVeilUtilities> utils;
+	std::shared_ptr<tsmod::IVeilUtilities> utils;
 };
 
 tsmod::IObject* CreateKeyVEILTokenListTool()

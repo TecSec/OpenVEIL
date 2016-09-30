@@ -35,9 +35,14 @@ IF(WIN32)
 ELSE()
 	cmake_minimum_required(VERSION 3.2.0)
 ENDIF()
+cmake_policy(SET CMP0005 NEW)
 cmake_policy(SET CMP0048 NEW)
+cmake_policy(SET CMP0058 NEW)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmakemodules")
+
+set(DEBUG_VEILCRYPTO OFF)
+
 
 set(VEILCORENAME VEIL)
 string(TOUPPER ${VEILCORENAME} VEILCORENAME_U)
@@ -53,23 +58,21 @@ endif()
 ## Start Options
 #####################################################################
 
-if(WIN32)
+IF(WIN32)
 	if(NOT "$ENV{VEIL_ROOT}" STREQUAL "")
 		set(OPENVEIL_SDK_FOLDER "$ENV{VEIL_ROOT}" CACHE PATH "The install location for OpenVEIL")
 	else()
 		set(OPENVEIL_SDK_FOLDER "c:/TecSec/VEIL" CACHE PATH "The install location for OpenVEIL")
 	endif()
-else()
-	set(OPENVEIL_SDK_FOLDER "~/local/VEIL" CACHE PATH "The install location for OpenVEIL")
-endif()
+ELSE(WIN32)
+	set(OPENVEIL_SDK_FOLDER /usr/local)
+ENDIF(WIN32)
+
 
 set(${VEILCORENAME_U}_MAJOR_VERSION 7)
 set(${VEILCORENAME_U}_MINOR_VERSION 0)
-set(${VEILCORENAME_U}_REVISION_VERSION 34)
+set(${VEILCORENAME_U}_REVISION_VERSION 35)
 set(${VEILCORENAME_U}_BUILD_VERSION 0)
-
-option(TS_INTERNAL_SD_DAEMON "Enable the reference copy of sd_daemon code within VEIL (More portable)." ON)
-option(TS_SUPPORT_MESSAGE_QUEUE "Enable message queue support in the internal sd-daemon" ON)
 
 #####################################################################
 ## End Options
@@ -100,8 +103,13 @@ include(tecsec_ConfigureVEILCrypto)
 # get_filename_component(__tmp ${VEILCRYPTO_ROOT_DIR} DIRECTORY)
 # string(FIND ${__tmp} "/" __tmpPos REVERSE)
 # string(SUBSTRING ${__tmp} 0 ${__tmpPos} __tmp)
-set(SDK_FOLDER ${OPENVEIL_SDK_FOLDER})
-set(TS_INSTALL_PREFIX ${SDK_FOLDER}/${TS_TOOLSET})
+
+if(APPLE)
+	set(TS_INSTALL_PREFIX ${OPENVEIL_SDK_FOLDER})
+else()
+	set(TS_INSTALL_PREFIX ${OPENVEIL_SDK_FOLDER}/${TS_TOOLSET})
+endif(APPLE)
+set(CMAKE_INSTALL_PREFIX ${TS_INSTALL_PREFIX} CACHE STRING "Base install path" FORCE)
 include (tecsec_installdirs)
 include(tecsec_packages)
 IF(MSVC)
@@ -114,7 +122,6 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PUBLIC_BINARY_TOP_DIR}/lib")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PUBLIC_BINARY_TOP_DIR}/bin")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PUBLIC_BINARY_TOP_DIR}/bin")
 
-set(CMAKE_INSTALL_PREFIX ${TS_INSTALL_PREFIX} CACHE STRING "Base install path" FORCE)
 set(NO_PCH OFF)
 if(MINGW)
     set(NO_PCH ON)
@@ -128,7 +135,7 @@ endif()
 
 find_package(PCSC)
 
-if (PCSC_FOUND)
+if (PCSC_FOUND AND NOT APPLE)
 	get_property(_tmp TARGET pcsc PROPERTY INTERFACE_INCLUDE_DIRECTORIES)
 	if(NOT ("${_tmp}" STREQUAL ""))
 		include_directories(${_tmp})
@@ -248,7 +255,6 @@ set(VEILCoreHeaders
 	${CMAKE_CURRENT_SOURCE_DIR}/include/core/tsAppConfig.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/core/IPropertyMap.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/core/INotifyPropertyChange.h
-	# ${CMAKE_CURRENT_SOURCE_DIR}/include/core/sd-daemon.h
 	
 	${CMAKE_CURRENT_SOURCE_DIR}/include/core/IVeilUtilities.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/core/IOutputCollector.h
@@ -302,10 +308,12 @@ if (wxWidgets_FOUND)
 		)
 endif (wxWidgets_FOUND)
 
+if(NOT APPLE)
 CopyImportTargetBinaries(VEILCryptoCore ${BIN_DIR})
 if(TARGET VEILEnhancedCrypto)
 	CopyImportTargetBinaries(VEILEnhancedCrypto ${BIN_DIR})
 endif(TARGET VEILEnhancedCrypto)
+endif()
 
 CONFIGURE_FILE(VEILApiVersion.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/VEILApiVersion.cmake)
 
@@ -320,9 +328,9 @@ if(UNIX)
 	string(REPLACE ";" " " VEILCoreHeaders_str "${VEILCoreHeaders}")
 	string(REPLACE ";" " " VEILCmsHeaders_str "${VEILCmsHeaders}")
 	string(REPLACE ";" " " VEILSmartCardHeaders_str "${VEILSmartCardHeaders}")
-	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/stagesdk.sh.in ${CMAKE_CURRENT_BINARY_DIR}/stagesdk.sh @ONLY)
-	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/installsdk.sh.in ${CMAKE_CURRENT_BINARY_DIR}/installsdk.sh @ONLY)
-	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/install.sh ${CMAKE_CURRENT_BINARY_DIR}/installtools.sh ${CMAKE_CURRENT_BINARY_DIR}/installsdk.sh ${CMAKE_CURRENT_BINARY_DIR}/stage.sh ${CMAKE_CURRENT_BINARY_DIR}/stagesdk.sh DESTINATION ${BIN_DIR} PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)
+	# configure_file(${CMAKE_CURRENT_SOURCE_DIR}/stagesdk.sh.in ${CMAKE_CURRENT_BINARY_DIR}/stagesdk.sh @ONLY)
+	# configure_file(${CMAKE_CURRENT_SOURCE_DIR}/installsdk.sh.in ${CMAKE_CURRENT_BINARY_DIR}/installsdk.sh @ONLY)
+	# install(FILES ${CMAKE_CURRENT_BINARY_DIR}/install.sh ${CMAKE_CURRENT_BINARY_DIR}/installtools.sh ${CMAKE_CURRENT_BINARY_DIR}/installsdk.sh ${CMAKE_CURRENT_BINARY_DIR}/stage.sh ${CMAKE_CURRENT_BINARY_DIR}/stagesdk.sh DESTINATION ${BIN_DIR} PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)
 endif(UNIX)
 install(FILES ${VEILSmartCardHeaders} DESTINATION ${INCLUDE_DIR}/VEILSmartCard)
 IF(WIN32)

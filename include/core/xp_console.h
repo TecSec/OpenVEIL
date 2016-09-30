@@ -33,8 +33,8 @@
  * <summary>Trace logging classes, functions and variables</summary>
  */
  
- #ifndef __XP_CONSOLE_H__
- #define __XP_CONSOLE_H__
+#ifndef __XP_CONSOLE_H__
+#define __XP_CONSOLE_H__
  
 #pragma once
 
@@ -56,6 +56,15 @@ struct _TSConsolemanip
 class VEILCORE_API xp_console
 {
 public:
+	static void *operator new(std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void *operator new[](std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
+	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
+
 	xp_console();
 	/// <summary>Destructor.</summary>
 	~xp_console(void);

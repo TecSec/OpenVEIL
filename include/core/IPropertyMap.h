@@ -45,7 +45,7 @@
 
 #pragma once
 
-class IPropertyMap
+class VEILCORE_API IPropertyMap
 {
 public:
 	virtual ~IPropertyMap(){}
@@ -65,6 +65,9 @@ public:
 	virtual void tag(size_t index, const tscrypto::tsCryptoString& setTo) = 0;
 	virtual tscrypto::tsCryptoString tag(const tscrypto::tsCryptoString &name) const = 0;
 	virtual void tag(const tscrypto::tsCryptoString &name, const tscrypto::tsCryptoString& setTo) = 0;
+	// Added 7.0.35
+	virtual bool parseUrlQueryString(const tscrypto::tsCryptoString& queryString) = 0;
+	virtual tscrypto::tsCryptoString createUrlQueryString() const = 0;
 };
 
 

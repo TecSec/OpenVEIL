@@ -33,11 +33,11 @@
  * @{
  */
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-/// \file   tsThread.h
-///
-/// \brief  Thread management object that represents a single thread
-////////////////////////////////////////////////////////////////////////////////////////////////////
+ ////////////////////////////////////////////////////////////////////////////////////////////////////
+ /// \file   tsThread.h
+ ///
+ /// \brief  Thread management object that represents a single thread
+ ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifndef tsThread_H_INCLUDED
 #define tsThread_H_INCLUDED
@@ -52,6 +52,14 @@ template class VEILCORE_API std::function<int()>; ///< Constructs this templated
 template class VEILCORE_API std::function<void()>; ///< Constructs this templated object in the TSFramework dll
 #pragma warning(pop)
 #endif // _MSC_VER
+
+#ifdef HAVE_WINDOWS_H
+typedef unsigned int tsThreadIdType;
+typedef HANDLE tsThreadHandleType;
+#else
+typedef pthread_t tsThreadIdType;
+typedef pthread_t tsThreadHandleType;
+#endif // HAVE_WINDOWS_H
 
 class VEILCORE_API tsThread
 {
@@ -73,12 +81,8 @@ public:
 
 	const tscrypto::CryptoEvent& cancelEvent() const { return cancel; }
 	tscrypto::CryptoEvent& cancelEvent() { return cancel; }
-	unsigned int ThreadID() const { return threadId; }
-#ifdef HAVE_WINDOWS_H
-	HANDLE ThreadHandle() const { return hThread; }
-#else
-	pthread_t  ThreadHandle() const { return hThread; }
-#endif // HAVE_WINDOWS_H
+	tsThreadIdType ThreadID() const { return threadId; }
+	tsThreadHandleType ThreadHandle() const { return hThread; }
 
 private:
 #ifdef HAVE_WINDOWS_H
@@ -88,12 +92,8 @@ private:
 #endif // HAVE_WINDOWS_H
 
 protected:
-	unsigned int threadId;
-#ifdef HAVE_WINDOWS_H
-	HANDLE hThread;
-#else
-    pthread_t hThread;
-#endif // HAVE_WINDOWS_H
+	tsThreadIdType threadId;
+	tsThreadHandleType hThread;
 	tscrypto::CryptoEvent cancel;
 	std::function<int()> _worker;
 	std::function<void()> _onComplete;

@@ -32,4 +32,6 @@
 add_subdirectory(file)
 add_subdirectory(cts)
 add_subdirectory(keyveil)
+if(NOT APPLE)
 add_subdirectory(smartcard)
+endif(NOT APPLE)

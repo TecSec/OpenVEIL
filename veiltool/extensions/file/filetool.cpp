@@ -37,7 +37,7 @@ enum options { OPT_HELP = 1000, };
 
 static tsmod::IObject* CreateFileTool()
 {
-	std::shared_ptr<IVeilUtilities> utils = ::TopServiceLocator()->get_instance<IVeilUtilities>("VeilUtilities");
+	std::shared_ptr<tsmod::IVeilUtilities> utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
 	return utils->buildCommandMenu("Perform file operations", "/FILE-COMMANDS/", "file", "FILE");
 }
 

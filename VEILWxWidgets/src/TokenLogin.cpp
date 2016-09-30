@@ -95,7 +95,7 @@ public:
 		if (!session || !session->GetProfile())
 			return false;
 
-		Asn1::CTS::PasswordPolicy policy = session->GetProfile()->get_passwordPolicy();
+		Asn1::CTS::_POD_PasswordPolicy policy = session->GetProfile()->get_passwordPolicy();
 
 		_session = session;
 		_minLen = policy.get_minLength();

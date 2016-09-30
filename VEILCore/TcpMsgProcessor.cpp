@@ -207,7 +207,7 @@ static SSL_CIPHER gSupportedPkCiphers[] =
 class TcpMsgProcessor : public IMessageProcessorControl, public IHttpChannelProcessor, public authenticationInitiatorTunnelKeyHandler, public authenticationControlDataCommunications, public tsmod::IObject
 {
 public:
-	virtual bool WrapMessage(tscrypto::tsCryptoString& verb, tscrypto::tsCryptoString& destination, tscrypto::tsCryptoData &body, tscrypto::tsCryptoString& mimeType, HttpAttributeList headers)
+	virtual bool WrapMessage(tscrypto::tsCryptoString& verb, tscrypto::tsCryptoString& destination, tscrypto::tsCryptoData &body, tscrypto::tsCryptoString& mimeType, HttpAttributeList headers) override
 	{
 		MY_UNREFERENCED_PARAMETER(headers);
 
@@ -333,7 +333,7 @@ public:
 		destination = parser.BuildUrl();
 		return true;
 	}
-	virtual bool UnwrapMessage(IHttpResponse* header)
+	virtual bool UnwrapMessage(IHttpResponse* header) override
 	{
 		if (header->dataPartSize() > 0 && _msgKey.size() > 0 && _msgIv2.size() > 0)
 		{
@@ -586,7 +586,7 @@ public:
 				_httpsTunnel->RegisterClientPSK(_pskCallback);
 			_httpsTunnel->RegisterPasswordCallback([this](tscrypto::tsCryptoData& password) { password = _serverPin; return true; });
 			_httpsTunnel->setCkmAuthUsername(_username);
-			_httpsTunnel->RegisterMessageKeyCallback([this](const tscrypto::tsCryptoData& key, const tscrypto::AlgorithmIdentifier& encAlg, const tscrypto::AlgorithmIdentifier& macAlg) { return messageKeyCallback(key, encAlg, macAlg); });
+			_httpsTunnel->RegisterMessageKeyCallback([this](const tscrypto::tsCryptoData& key, const tscrypto::_POD_AlgorithmIdentifier& encAlg, const tscrypto::_POD_AlgorithmIdentifier& macAlg) { return messageKeyCallback(key, encAlg, macAlg); });
 			if (!_httpsTunnel->Connect())
 				return false;
 			return true;
@@ -607,7 +607,7 @@ public:
 	// authenticationInitiatorTunnelKeyHandler
 	virtual tscrypto::tsCryptoData getAuthenticationInformation(const tscrypto::tsCryptoData& serverRequirements) override
 	{
-		CkmAuthInitiatorParameters initParams;
+		_POD_CkmAuthInitiatorParameters initParams;
 		tscrypto::tsCryptoString password;
 
 		if (!initParams.Decode(serverRequirements))
@@ -615,7 +615,7 @@ public:
 			return tscrypto::tsCryptoData();
 		}
 
-		if (initParams._authParameters._params.selectedItem != CkmAuthServerParameters_params::Choice_Pbkdf)
+		if (initParams.get_authParameters().get_params().get_selectedItem() != _POD_CkmAuthServerParameters_params::Choice_Pbkdf)
 		{
 			return tscrypto::tsCryptoData();
 		}
@@ -642,8 +642,8 @@ public:
 				_sessionKey.resize(32);
 				_sequenceNumber = 0;
 
-				AlgorithmIdentifier encAlg;
-				AlgorithmIdentifier macAlg;
+				_POD_AlgorithmIdentifier encAlg;
+				_POD_AlgorithmIdentifier macAlg;
 
 				if (!_tunnel->GetMessageEncryptionAlg(encAlg) || !_tunnel->GetMessageHashAlg(macAlg))
 				{
@@ -656,20 +656,20 @@ public:
 				_MAC.reset();
 
 				// Use the alg parameter to specify the encryption alg for the message data
-				if (encAlg._oid.oid().size() > 0)
+				if (encAlg.get_oid().size() > 0)
 				{
-					std::shared_ptr<tscrypto::IObject> obj = CryptoFactory(encAlg._oid.oidString());
+					std::shared_ptr<tscrypto::IObject> obj = CryptoFactory(encAlg.get_oid().ToOIDString());
 					_AEAD = std::dynamic_pointer_cast<CCM_GCM>(obj);
 					_symm = std::dynamic_pointer_cast<Symmetric>(obj);
 
 					if (!!_symm)
 					{
-						if (macAlg._oid.oid().size() > 0)
+						if (macAlg.get_oid().size() > 0)
 						{
 							obj.reset();
-							obj = CryptoFactory(macAlg._oid.oidString());
+							obj = CryptoFactory(macAlg.get_oid().ToOIDString());
 							_hasher = std::dynamic_pointer_cast<Hash>(obj);
-							_MAC = std::dynamic_pointer_cast<MAC>(obj);
+							_MAC = std::dynamic_pointer_cast<MessageAuthenticationCode>(obj);
 						}
 					}
 				}
@@ -711,7 +711,7 @@ public:
 		return _failureReason;
 	}
 
-	TcpMsgProcessor() : _transportState(IHttpChannelProcessor::inactive), _sequenceNumber(0) {}
+	TcpMsgProcessor() : _sequenceNumber(0), _transportState(IHttpChannelProcessor::inactive) {}
 	~TcpMsgProcessor(){}
 protected:
 	SSL_AlertDescription CertificateVerifier(const tscrypto::tsCryptoDataList& certificate, SSL_CIPHER cipher)
@@ -737,7 +737,7 @@ protected:
 			//	_channel->Disconnect();
 		}
 	}
-	bool messageKeyCallback(const tscrypto::tsCryptoData& key, const tscrypto::AlgorithmIdentifier& encAlg, const tscrypto::AlgorithmIdentifier& macAlg)
+	bool messageKeyCallback(const tscrypto::tsCryptoData& key, const tscrypto::_POD_AlgorithmIdentifier& encAlg, const tscrypto::_POD_AlgorithmIdentifier& macAlg)
 	{
 		_sessionId = key.substring(32, key.size() - 32);
 		_sessionKey = key.substring(0, 32);
@@ -748,20 +748,20 @@ protected:
 		_MAC.reset();
 
 		// Use the alg parameter to specify the encryption alg for the message data
-		if (encAlg._oid.oid().size() > 0)
+		if (encAlg.get_oid().size() > 0)
 		{
-			std::shared_ptr<tscrypto::IObject> obj = CryptoFactory(encAlg._oid.oidString());
+			std::shared_ptr<tscrypto::IObject> obj = CryptoFactory(encAlg.get_oid().ToOIDString());
 			_AEAD = std::dynamic_pointer_cast<CCM_GCM>(obj);
 			_symm = std::dynamic_pointer_cast<Symmetric>(obj);
 			
 			if (!!_symm)
 			{
-				if (macAlg._oid.oid().size() > 0)
+				if (macAlg.get_oid().size() > 0)
 				{
 					obj.reset();
-					obj = CryptoFactory(macAlg._oid.oidString());
+					obj = CryptoFactory(macAlg.get_oid().ToOIDString());
 					_hasher = std::dynamic_pointer_cast<Hash>(obj);
-					_MAC = std::dynamic_pointer_cast<MAC>(obj);
+					_MAC = std::dynamic_pointer_cast<MessageAuthenticationCode>(obj);
 				}
 			}
 		}
@@ -794,7 +794,7 @@ protected:
 	std::shared_ptr<CCM_GCM> _AEAD;
 	std::shared_ptr<Symmetric> _symm;
 	std::shared_ptr<Hash> _hasher;
-	std::shared_ptr<MAC> _MAC;
+	std::shared_ptr<MessageAuthenticationCode> _MAC;
 
 	tscrypto::tsCryptoString _failureReason;
 };

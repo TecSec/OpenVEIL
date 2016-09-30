@@ -37,6 +37,10 @@ INCLUDE_DIRECTORIES(
 
 add_definitions(-DUNICODE -D_UNICODE)
 
+if(WIN32)
+	add_definitions(-D_CRT_SECURE_NO_WARNINGS=1)
+endif(WIN32)
+
 # source_group("Generated" FILES )
 set(CppSources
     stdafx.cpp

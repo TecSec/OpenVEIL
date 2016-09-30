@@ -31,11 +31,13 @@
 
 #pragma once
 
-class IVeilToolCommand
-{ 
-public:
+namespace tsmod {
+	class VEILCORE_API IVeilToolCommand
+	{
+	public:
 	virtual ~IVeilToolCommand() {}
 	virtual tscrypto::tsCryptoString getDescription() const = 0;
 	virtual int RunCommand(CSimpleOptA& opt) = 0;
 	virtual tscrypto::tsCryptoString getCommandName() const = 0;
-};
+	};
+}

@@ -43,7 +43,7 @@ class CmsHeaderExtensionImpl : public ICmsHeaderExtension, public ICmsHeaderIvec
 	public IHeaderPart
 {
 public:
-	CmsHeaderExtensionImpl(std::shared_ptr<ICmsHeader>& header, const Asn1::CMS::CmsExtension &data);
+	CmsHeaderExtensionImpl(std::shared_ptr<ICmsHeader>& header, const Asn1::CMS::_POD_CmsExtension &data);
 	virtual ~CmsHeaderExtensionImpl(void);
 
 	// ICmsHeaderExtension
@@ -122,7 +122,7 @@ public:
 
 	// IHeaderPart
 	virtual void Destroy();
-	virtual void PrepareForEncode(Asn1::CMS::CmsHeaderData &data, HeaderPartType type);
+	virtual void PrepareForEncode(Asn1::CMS::_POD_CmsHeaderData &data, HeaderPartType type);
 
 private:
 	std::weak_ptr<ICmsHeader> m_header;
@@ -149,13 +149,13 @@ private:
 	void fromAttributeList();
 };
 
-CmsHeaderExtensionImpl::CmsHeaderExtensionImpl(std::shared_ptr<ICmsHeader>& header, const Asn1::CMS::CmsExtension &data) :
-    m_isCritical(false),
-    m_header(header)
+CmsHeaderExtensionImpl::CmsHeaderExtensionImpl(std::shared_ptr<ICmsHeader>& header, const Asn1::CMS::_POD_CmsExtension &data) :
+	m_header(header),
+	m_isCritical(false)
 {
-	m_oid = data._OID.oid();
-	m_isCritical = data._Critical;
-	m_contents = data._Value;
+	m_oid = data.get_OID();
+	m_isCritical = data.get_Critical();
+	m_contents = data.get_Value();
 	evaluateData();
 }
 
@@ -233,7 +233,7 @@ bool CmsHeaderExtensionImpl::IsKnownExtension()
 
 tscrypto::tsCryptoData CmsHeaderExtensionImpl::ToBytes()
 {
-	Asn1::CMS::CmsExtension data;
+	Asn1::CMS::_POD_CmsExtension data;
 
 	if (m_oid == tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_FILEHASH_EXT_OID, tscrypto::tsCryptoData::OID))
 	{
@@ -288,9 +288,9 @@ tscrypto::tsCryptoData CmsHeaderExtensionImpl::ToBytes()
 		// No processing needed
 	}
 
-	data._Critical = m_isCritical;
-	data._OID.oid(m_oid);
-	data._Value = m_contents;
+	data.set_Critical(m_isCritical);
+	data.set_OID(m_oid);
+	data.set_Value(m_contents);
 
 	tscrypto::tsCryptoData output;
 
@@ -451,12 +451,12 @@ bool CmsHeaderExtensionImpl::SetHashAlgorithmOID(const tscrypto::tsCryptoData &o
 
 	tscrypto::tsCryptoData output;
 
-	Asn1::CMS::CmsHE_Hash data;
+	Asn1::CMS::_POD_CmsHE_Hash data;
 
 	data.clear();
-	data._Algorithm._oid.oid(oid);
-	data._Algorithm._Parameter.clear();
-	data._Hash = m_hash;
+	data.get_Algorithm().set_oid(oid);
+	data.get_Algorithm().clear_Parameter();
+	data.set_Hash(m_hash);
 	data.Encode(output);
 	SetContents(output);
 	return true;
@@ -470,11 +470,11 @@ bool CmsHeaderExtensionImpl::SetHash(const tscrypto::tsCryptoData &hash)
 	m_hash = hash;
 
 	tscrypto::tsCryptoData output;
-	Asn1::CMS::CmsHE_Hash data;
+	Asn1::CMS::_POD_CmsHE_Hash data;
 
 	data.clear();
-	data._Algorithm._oid.oid(m_hashOid);
-	data._Hash = m_hash;
+	data.get_Algorithm().set_oid(m_hashOid);
+	data.set_Hash(m_hash);
 	data.Encode(output);
 	SetContents(output);
 	return true;
@@ -698,7 +698,7 @@ void CmsHeaderExtensionImpl::clearEvaluatedData()
 
 void CmsHeaderExtensionImpl::toGroupList()
 {
-	Asn1::CMS::CmsHE_AccessGroups data;
+	Asn1::CMS::_POD_CmsHE_AccessGroups data;
 
 	if (data.Decode(m_contents))
 	{
@@ -706,27 +706,29 @@ void CmsHeaderExtensionImpl::toGroupList()
 
 		for (int i = 0; i < count; i++)
 		{
-			Asn1::CMS::CmsHE_AccessGroups_Item *ext = &data.get_at(i);
+			Asn1::CMS::_POD_CmsHE_AccessGroups_Item *ext = &data.get_at(i);
 			std::shared_ptr<ICmsHeaderAccessGroup> group;
 
 			AndGroupType groupType = ag_Attrs;
 
-			switch (ext->selectedItem)
+			switch (ext->get_selectedItem())
 			{
-			case Asn1::CMS::CmsHE_AccessGroups_Item::Choice_CertItem:
+			case Asn1::CMS::_POD_CmsHE_AccessGroups_Item::Choice_CertItem:
 				groupType = ag_FullCert;
 				break;
-			case Asn1::CMS::CmsHE_AccessGroups_Item::Choice_AttrItem:
+			case Asn1::CMS::_POD_CmsHE_AccessGroups_Item::Choice_AttrItem:
 				groupType = ag_Attrs;
 				break;
-			case Asn1::CMS::CmsHE_AccessGroups_Item::Choice_ExternalItem:
+			case Asn1::CMS::_POD_CmsHE_AccessGroups_Item::Choice_ExternalItem:
 				groupType = ag_ExternalCrypto;
 				break;
-			case Asn1::CMS::CmsHE_AccessGroups_Item::Choice_PartialItem:
+			case Asn1::CMS::_POD_CmsHE_AccessGroups_Item::Choice_PartialItem:
 				groupType = ag_PartialCert;
 				break;
-			case Asn1::CMS::CmsHE_AccessGroups_Item::Choice_PinItem:
+			case Asn1::CMS::_POD_CmsHE_AccessGroups_Item::Choice_PinItem:
 				groupType = ag_Pin;
+				break;
+			default:
 				break;
 			}
 
@@ -744,13 +746,15 @@ void CmsHeaderExtensionImpl::toGroupList()
 						return;
 					}
 
-					attr->SetEncryptedRandom(ext->_AttrItem._EncryptedRandom.value);
-					for (const int& i : *ext->_AttrItem._AttrIndices._list)
+					attr->SetEncryptedRandom(ext->get_AttrItem().get_EncryptedRandom());
+					for (size_t li = 0; li < ext->get_AttrItem().get_AttrIndices().size(); li++)
 					{
-						attr->AddAttributeIndex(i); 
+						attr->AddAttributeIndex(ext->get_AttrItem().get_AttrIndices().get_at(li));
 					}
 				}
 				break;
+				default:
+					break;
 				}
 				m_groupList.push_back(group);
 			}
@@ -760,7 +764,7 @@ void CmsHeaderExtensionImpl::toGroupList()
 
 void CmsHeaderExtensionImpl::fromGroupList()
 {
-	Asn1::CMS::CmsHE_AccessGroups data;
+	Asn1::CMS::_POD_CmsHE_AccessGroups data;
 	std::shared_ptr<ICmsHeaderAccessGroup> group;
 
 	data.clear();
@@ -779,16 +783,16 @@ void CmsHeaderExtensionImpl::fromGroupList()
 				std::shared_ptr<ICmsHeaderAttributeGroup> attrs;
 				if (!!(attrs = std::dynamic_pointer_cast<ICmsHeaderAttributeGroup>(group)))
 				{
-					Asn1::CMS::CmsHE_AccessGroups_Item item;
+					Asn1::CMS::_POD_CmsHE_AccessGroups_Item item;
 
-					item.selectedItem = Asn1::CMS::CmsHE_AccessGroups_Item::Choice_AttrItem;
-					item._AttrItem._EncryptedRandom.set(attrs->GetEncryptedRandom());
+					item.set_selectedItem(Asn1::CMS::_POD_CmsHE_AccessGroups_Item::Choice_AttrItem);
+					item.get_AttrItem().set_EncryptedRandom(attrs->GetEncryptedRandom());
 
 					size_t attributeCount = attrs->GetAttributeCount();
 					for (size_t index = 0; index < attributeCount; index++)
 					{
 						int tmp = attrs->GetAttributeIndex(index);
-						item._AttrItem._AttrIndices._list->push_back(tmp);
+						item.get_AttrItem().get_AttrIndices().add(tmp);
 					}
 					data.add(item);
 				}
@@ -804,20 +808,20 @@ void CmsHeaderExtensionImpl::fromGroupList()
 
 void CmsHeaderExtensionImpl::toCryptoGroupList()
 {
-	Asn1::CMS::CmsHE_CryptoGroupList data;
+	Asn1::CMS::_POD_CmsHE_CryptoGroupList data;
 
 	if (data.Decode(m_contents))
 	{
-		size_t count = data._CryptoGroup.size();
+		size_t count = data.get_CryptoGroup().size();
 
 		for (size_t i = 0; i < count; i++)
 		{
-			Asn1::CMS::CmsHE_CryptoGroup &cryptoGroupData = data._CryptoGroup.get_at(i);
+			Asn1::CMS::_POD_CmsHE_CryptoGroup &cryptoGroupData = data.get_CryptoGroup().get_at(i);
 
-			std::shared_ptr<ICmsHeaderCryptoGroup> cryptoGroup = CreateCryptoGroupHeaderObject(cryptoGroupData._CryptoGroupId);
+			std::shared_ptr<ICmsHeaderCryptoGroup> cryptoGroup = CreateCryptoGroupHeaderObject(cryptoGroupData.get_CryptoGroupId());
 
-			cryptoGroup->SetCurrentMaintenanceLevel(cryptoGroupData._CML);
-			cryptoGroup->SetEphemeralPublic(cryptoGroupData._EphemeralPublic.value);
+			cryptoGroup->SetCurrentMaintenanceLevel(cryptoGroupData.get_CML());
+			cryptoGroup->SetEphemeralPublic(cryptoGroupData.get_EphemeralPublic());
 			m_cryptoGroupList.push_back(cryptoGroup);
 			cryptoGroup.reset();
 		}
@@ -826,7 +830,7 @@ void CmsHeaderExtensionImpl::toCryptoGroupList()
 
 void CmsHeaderExtensionImpl::fromCryptoGroupList()
 {
-	Asn1::CMS::CmsHE_CryptoGroupList data;
+	Asn1::CMS::_POD_CmsHE_CryptoGroupList data;
 	std::shared_ptr<ICmsHeaderCryptoGroup> cg;
 
 	data.clear();
@@ -836,13 +840,15 @@ void CmsHeaderExtensionImpl::fromCryptoGroupList()
 		cg.reset();
 		if (!!(cg = std::dynamic_pointer_cast<ICmsHeaderCryptoGroup>(m_cryptoGroupList[i])))
 		{
-			Asn1::CMS::CmsHE_CryptoGroup cryptoGroupData;
+			Asn1::CMS::_POD_CmsHE_CryptoGroup cryptoGroupData;
 
-			cryptoGroupData._CML = cg->GetCurrentMaintenanceLevel();
-			cryptoGroupData._CryptoGroupId = cg->GetCryptoGroupGuid();
-			cryptoGroupData._EphemeralPublic.set(cg->GetEphemeralPublic());
-			cryptoGroupData._EphemeralPublic.exists = cryptoGroupData._EphemeralPublic.value.size() > 0;
-			data._CryptoGroup.add(cryptoGroupData);
+			cryptoGroupData.set_CML(cg->GetCurrentMaintenanceLevel());
+			cryptoGroupData.set_CryptoGroupId(cg->GetCryptoGroupGuid());
+			if (cg->GetEphemeralPublic().size() > 0)
+				cryptoGroupData.set_EphemeralPublic(cg->GetEphemeralPublic());
+			else
+				cryptoGroupData.clear_EphemeralPublic();
+			data.get_CryptoGroup().add(cryptoGroupData);
 		}
 	}
 	std::shared_ptr<TlvDocument> doc = TlvDocument::Create();
@@ -855,45 +861,45 @@ void CmsHeaderExtensionImpl::fromCryptoGroupList()
 
 void CmsHeaderExtensionImpl::toHash()
 {
-	Asn1::CMS::CmsHE_Hash data;
+	Asn1::CMS::_POD_CmsHE_Hash data;
 
 	if (data.Decode(m_contents))
 	{
-		m_hashOid = data._Algorithm._oid.oid();
-		m_hash = data._Hash;
+		m_hashOid = data.get_Algorithm().get_oid();
+		m_hash = data.get_Hash();
 	}
 }
 
 void CmsHeaderExtensionImpl::fromHash()
 {
-	Asn1::CMS::CmsHE_Hash data;
+	Asn1::CMS::_POD_CmsHE_Hash data;
 
 	data.clear();
-	data._Algorithm._oid.oid(m_hashOid);
-	data._Hash = m_hash;
+	data.get_Algorithm().set_oid(m_hashOid);
+	data.set_Hash(m_hash);
 	data.Encode(m_contents);
 }
 
 void CmsHeaderExtensionImpl::toAttributeList()
 {
-	Asn1::CMS::CmsHE_AttributeListExtension data;
+	Asn1::CMS::_POD_CmsHE_AttributeListExtension data;
 
 	if (data.Decode(m_contents))
 	{
-		size_t count = data._Attributes.size();
+		size_t count = data.get_Attributes().size();
 
 		for (size_t i = 0; i < count; i++)
 		{
 			std::shared_ptr<ICmsHeaderAttribute> myAttribute;
-			Asn1::CMS::CmsHE_Attribute &attr = data._Attributes.get_at(i);
+			Asn1::CMS::_POD_CmsHE_Attribute &attr = data.get_Attributes().get_at(i);
 
 			int attrIndex = AddAttribute();
 			if (GetAttribute(attrIndex, myAttribute))
 			{
-				myAttribute->SetAttributeGuid(attr._Id);
-				myAttribute->SetCryptoGroupNumber(attr._CryptoGroupNumber);
-				myAttribute->SetKeyVersion(attr._Version);
-				myAttribute->SetSignature(attr._Signature.value);
+				myAttribute->SetAttributeGuid(attr.get_Id());
+				myAttribute->SetCryptoGroupNumber(attr.get_CryptoGroupNumber());
+				myAttribute->SetKeyVersion(attr.get_Version());
+				myAttribute->SetSignature(attr.get_Signature());
 			}
 		}
 	}
@@ -901,7 +907,7 @@ void CmsHeaderExtensionImpl::toAttributeList()
 
 void CmsHeaderExtensionImpl::fromAttributeList()
 {
-	Asn1::CMS::CmsHE_AttributeListExtension data;
+	Asn1::CMS::_POD_CmsHE_AttributeListExtension data;
 	std::shared_ptr<ICmsHeaderAttribute> attr;
 
 	data.clear();
@@ -911,14 +917,16 @@ void CmsHeaderExtensionImpl::fromAttributeList()
 		attr.reset();
 		if (!!(attr = std::dynamic_pointer_cast<ICmsHeaderAttribute>(m_attributeList[i])))
 		{
-			Asn1::CMS::CmsHE_Attribute attributeData;
+			Asn1::CMS::_POD_CmsHE_Attribute attributeData;
 
-			attributeData._Id = attr->GetAttributeGUID();
-			attributeData._CryptoGroupNumber = attr->GetCryptoGroupNumber();
-			attributeData._Version = attr->GetKeyVersion();
-			attributeData._Signature.set(attr->GetSignature());
-			attributeData._Signature.exists = attributeData._Signature.value.size() > 0;
-			data._Attributes.add(attributeData);
+			attributeData.set_Id(attr->GetAttributeGUID());
+			attributeData.set_CryptoGroupNumber(attr->GetCryptoGroupNumber());
+			attributeData.set_Version(attr->GetKeyVersion());
+			if (attr->GetSignature().size() > 0)
+				attributeData.set_Signature(attr->GetSignature());
+			else
+				attributeData.clear_Signature();
+			data.get_Attributes().add(attributeData);
 		}
 	}
 	data.Encode(m_contents);
@@ -929,7 +937,7 @@ void CmsHeaderExtensionImpl::Destroy()
 	m_header.reset();
 }
 
-void CmsHeaderExtensionImpl::PrepareForEncode(Asn1::CMS::CmsHeaderData &data, HeaderPartType type)
+void CmsHeaderExtensionImpl::PrepareForEncode(Asn1::CMS::_POD_CmsHeaderData &data, HeaderPartType type)
 {
 	if (m_oid == tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_FILEHASH_EXT_OID, tscrypto::tsCryptoData::OID))
 	{
@@ -972,21 +980,21 @@ void CmsHeaderExtensionImpl::PrepareForEncode(Asn1::CMS::CmsHeaderData &data, He
 		// No processing needed
 	}
 
-	Asn1::CMS::CmsExtension ext;
+	Asn1::CMS::_POD_CmsExtension ext;
 
-	ext._OID.oid(m_oid);
-	ext._Critical = m_isCritical;
-	ext._Value = m_contents;
+	ext.set_OID(m_oid);
+	ext.set_Critical(m_isCritical);
+	ext.set_Value(m_contents);
 	switch (type)
 	{
 	case ProtectedExtension:
-		if (data._ProtectedExtensions.value == nullptr)
-			data._ProtectedExtensions.set(Asn1::CMS::CmsHeaderData_ProtectedExtensions());
+		if (!data.exists_ProtectedExtensions())
+			data.set_ProtectedExtensions();
 		data.get_ProtectedExtensions()->add(ext);
 		break;
 	case UnprotectedExtension:
-		if (data._UnprotectedExtensions.value == nullptr)
-			data._UnprotectedExtensions.set(Asn1::CMS::CmsHeaderData_ProtectedExtensions());
+		if (!data.exists_UnprotectedExtensions())
+			data.set_UnprotectedExtensions();
 		data.get_UnprotectedExtensions()->add(ext);
 		break;
 	default:
@@ -994,7 +1002,7 @@ void CmsHeaderExtensionImpl::PrepareForEncode(Asn1::CMS::CmsHeaderData &data, He
 	}
 }
 
-std::shared_ptr<ICmsHeaderExtension> CreateHeaderExtensionObject(std::shared_ptr<ICmsHeader> header, Asn1::CMS::CmsExtension& data)
+std::shared_ptr<ICmsHeaderExtension> CreateHeaderExtensionObject(std::shared_ptr<ICmsHeader> header, Asn1::CMS::_POD_CmsExtension& data)
 {
 	return ::TopServiceLocator()->Finish<ICmsHeaderExtension>(new CmsHeaderExtensionImpl(header, data));
 }

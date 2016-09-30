@@ -14,13 +14,18 @@ We use an out of source build process.  The project/make files and output
 can be found in the build folder that is created by the bootstrap.
 
 ### Requirements
-- VEIL Cryptographic Library (Contact TecSec, Inc.)
+- VEIL Cryptographic Library 7.0.2 or later (Contact TecSec, Inc.)
 - Windows
-  - CMake 3.2+
+  - CMake 3.3+
   - Visual Studio 2013 or Visual Studio 2015 or mingw-w64.
 - Linux
-  - CMake 3.2+
+  - CMake 3.3+
   - GCC 4.8.2+
+  - Ninja
+- OSX
+  - CLang
+  - CMake 3.3+
+  - XCode or Ninja
 	
 ### Windows
 	

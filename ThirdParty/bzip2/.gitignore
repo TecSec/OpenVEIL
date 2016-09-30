@@ -4,3 +4,6 @@ Release
 DebugCrypto
 ./Build
 *.bak
+*/.vscode/
+.vscode/
+.vscode

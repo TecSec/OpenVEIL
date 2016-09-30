@@ -37,7 +37,7 @@
 class AttributeSelectorGrid : public IAttributeSelector, public tsmod::IObject
 {
 public:
-	AttributeSelectorGrid() : _parent(nullptr), _cryptoGroupId(GUID_NULL), _himl(NULL), _selectedAttributeCount(0)
+	AttributeSelectorGrid() : _parent(nullptr), _cryptoGroupId(GUID_NULL), _himl(NULL), _selectedAttributeCount(0), _cryptoGroup(nullptr)
 	{}
 	virtual ~AttributeSelectorGrid(){}
 
@@ -50,24 +50,25 @@ public:
 		_ckm7group.reset();
 		_attrsList.reset();
 		_GuidMap.clear();
+		_cryptoGroup = nullptr;
 		_himl = NULL;
-		_cryptoGroup.reset();
+		_cryptoGroup = nullptr;
 		_selectedAttributeCount = 0;
 	}
-	virtual int  DisplayModal()
+	virtual int  DisplayModal() override
 	{
 		if (_parent == XP_WINDOW_INVALID)
 			_parent = (XP_WINDOW)GetActiveWindow();
 		return (int)DialogBoxParamA((HINSTANCE)hDllInstance, MAKEINTRESOURCEA(IDD_ATTRIBUTE_SELECTOR_GRID), (HWND)_parent, SelectAttributesGridProc, (LPARAM)this);
 	}
-	virtual int  DisplayModal(XP_WINDOW wnd)
+	virtual int  DisplayModal(XP_WINDOW wnd) override
 	{
 		_parent = wnd;
 		return DisplayModal();
 	}
 
 	// IAudienceSelector
-	virtual bool Start(std::shared_ptr<IKeyVEILSession> session, XP_WINDOW parent, const GUID& CryptoGroupId, std::shared_ptr<ICmsHeaderAttributeGroup> group, std::shared_ptr<ICmsHeaderAttributeListExtension> attrList)
+	virtual bool Start(std::shared_ptr<IKeyVEILSession> session, XP_WINDOW parent, const GUID& CryptoGroupId, std::shared_ptr<ICmsHeaderAttributeGroup> group, std::shared_ptr<ICmsHeaderAttributeListExtension> attrList) override
 	{
 		INITCOMMONCONTROLSEX icc;
 
@@ -97,8 +98,9 @@ protected:
 	std::shared_ptr<ICmsHeaderAttributeListExtension>	_attrsList;
 	std::vector<GUID>									_GuidMap;
 	HIMAGELIST											_himl;
-	std::shared_ptr<Asn1::CTS::CryptoGroup>				_cryptoGroup;
+	Asn1::CTS::_POD_CryptoGroup*						_cryptoGroup;
 	int													_selectedAttributeCount;
+	std::shared_ptr<Asn1::CTS::_POD_Profile>			_profile;
 
 
 	void MarkIncomingAttributes(HWND hWnd)
@@ -149,15 +151,15 @@ protected:
 		}
 	}
 
-	std::vector<Asn1::CTS::Category*> BuildCategoryList(std::shared_ptr<Asn1::CTS::CryptoGroup> cryptoGroup)
+	std::vector<Asn1::CTS::_POD_Category*> BuildCategoryList(Asn1::CTS::_POD_CryptoGroup* cryptoGroup)
 	{
-		std::vector<Asn1::CTS::Category*> tmp;
+		std::vector<Asn1::CTS::_POD_Category*> tmp;
 
 		if (cryptoGroup->exists_FiefdomList())
 		{
 			for (size_t i = 0; i < cryptoGroup->get_FiefdomList()->size(); i++)
 			{
-				Asn1::CTS::Fiefdom& fief = cryptoGroup->get_FiefdomList()->get_at(i);
+				Asn1::CTS::_POD_Fiefdom& fief = cryptoGroup->get_FiefdomList()->get_at(i);
 				if (fief.exists_CategoryList())
 				{
 					for (size_t j = 0; j < fief.get_CategoryList()->size(); j++)
@@ -170,12 +172,12 @@ protected:
 		return tmp;
 	}
 
-	void FillGrid(HWND hWnd, std::shared_ptr<Asn1::CTS::CryptoGroup> cryptoGroup)
+	void FillGrid(HWND hWnd, Asn1::CTS::_POD_CryptoGroup* cryptoGroup)
 	{
 		int count;
 		int i;
-		std::vector<Asn1::CTS::Category*> catList;
-		Asn1::CTS::Category* cat;
+		std::vector<Asn1::CTS::_POD_Category*> catList;
+		Asn1::CTS::_POD_Category* cat;
 		tscrypto::tsCryptoString name;
 		HWND hGrd = GetDlgItem(hWnd, IDC_SELECT_ATTRIBUTE_GRID);
 		COLUMN col;
@@ -226,8 +228,8 @@ protected:
 					int removeCount = 0;
 					for (int j = 0; j < attributeCount; j++)
 					{
-						Asn1::CTS::Attribute& attr = cat->get_AttributeList()->get_at(j);
-						if (!attr._hasWrite)
+						Asn1::CTS::_POD_Attribute& attr = cat->get_AttributeList()->get_at(j);
+						if (!attr.get_hasWrite())
 						{
 							removeCount++;
 						}
@@ -264,11 +266,11 @@ protected:
 							attributeCount = (int)cat->get_AttributeList()->size();
 							for (int j = 0; j < attributeCount; j++)
 							{
-								Asn1::CTS::Attribute& attr = cat->get_AttributeList()->get_at(j);
+								Asn1::CTS::_POD_Attribute& attr = cat->get_AttributeList()->get_at(j);
 								name = attr.get_Name();
 								name.prepend("-");
 
-								if (attr._hasWrite)
+								if (attr.get_hasWrite())
 								{
 									SendMessage(hGrd, GM_SETCELLDATA, (row << 16) | i, (LPARAM)name.c_str());
 
@@ -288,16 +290,14 @@ protected:
 			count = 0;
 	}
 
-	std::shared_ptr<Asn1::CTS::CryptoGroup> GetCryptoGroupById(std::shared_ptr<IKeyVEILSession> session, const GUID& id)
+	Asn1::CTS::_POD_CryptoGroup* GetCryptoGroupById(std::shared_ptr<IKeyVEILSession> session, const GUID& id)
 	{
-		std::shared_ptr<Asn1::CTS::Profile> profile = session->GetProfile();
-
-		if (!profile->exists_cryptoGroupList())
+		if (!_profile->exists_cryptoGroupList())
 			return nullptr;
 
-		for (size_t i = 0; i < profile->get_cryptoGroupList()->size(); i++)
+		for (size_t i = 0; i < _profile->get_cryptoGroupList()->size(); i++)
 		{
-			std::shared_ptr<Asn1::CTS::CryptoGroup> group = profile->get_cryptoGroupList()->get_ptr_at(i);
+			Asn1::CTS::_POD_CryptoGroup* group = &_profile->get_cryptoGroupList()->get_at(i);
 
 			if (!!group && group->get_Id() == id)
 				return group;
@@ -305,24 +305,22 @@ protected:
 		return nullptr;
 	}
 
-	std::shared_ptr<Asn1::CTS::CryptoGroup> GetCryptoGroup(std::shared_ptr<IKeyVEILSession> session, size_t index)
+	Asn1::CTS::_POD_CryptoGroup* GetCryptoGroup(std::shared_ptr<IKeyVEILSession> session, size_t index)
 	{
-		std::shared_ptr<Asn1::CTS::Profile> profile = session->GetProfile();
-
-		if (!profile->exists_cryptoGroupList())
+		if (!_profile->exists_cryptoGroupList())
 			return nullptr;
 
-		if (index >= profile->get_cryptoGroupList()->size())
+		if (index >= _profile->get_cryptoGroupList()->size())
 			return nullptr;
-		return profile->get_cryptoGroupList()->get_ptr_at(index);
+		return &_profile->get_cryptoGroupList()->get_at(index);
 	}
 
-	void GetCryptoGroup(HWND hWnd, std::shared_ptr<IKeyVEILSession> session, const GUID& cgId, std::shared_ptr<Asn1::CTS::CryptoGroup>& CryptoGroup)
+	Asn1::CTS::_POD_CryptoGroup* GetCryptoGroup(HWND hWnd, std::shared_ptr<IKeyVEILSession> session, const GUID& cgId)
 	{
 		//if (cgId == GUID_NULL)
 		//	CryptoGroup = GetCryptoGroup(_session, (int)SendDlgItemMessage(hWnd, IDC_CRYPTOGROUPS, CB_GETITEMDATA, (int)SendDlgItemMessage(hWnd, IDC_CRYPTOGROUPS, CB_GETCURSEL, 0, 0), 0));
 		//else
-			CryptoGroup = GetCryptoGroupById(session, cgId);
+			return GetCryptoGroupById(session, cgId);
 	}
 
 	int FindAttrIndex(std::shared_ptr<ICmsHeaderAttributeListExtension> attrList, const GUID &id)
@@ -352,6 +350,7 @@ protected:
 		case WM_INITDIALOG:
 			params = (AttributeSelectorGrid*)lParam;
 
+			params->_profile = params->_session->GetProfile();
 			SetWindowLongPtr(hWnd, DWLP_USER, lParam);
 			EnableWindow(GetDlgItem(hWnd, IDOK), FALSE);
 
@@ -406,7 +405,7 @@ protected:
 			}
 			else
 			{
-				std::shared_ptr<Asn1::CTS::CryptoGroup> CryptoGroup;
+				Asn1::CTS::_POD_CryptoGroup* CryptoGroup;
 				tscrypto::tsCryptoString name;
 
 				//EnableWindow(GetDlgItem(hWnd, IDC_CRYPTOGROUP_STATIC), TRUE);
@@ -433,7 +432,7 @@ protected:
 		case WM_COMMAND:
 			if (LOWORD(wParam) == IDOK && HIWORD(wParam) == BN_CLICKED)
 			{
-				std::shared_ptr<Asn1::CTS::CryptoGroup> CryptoGroup;
+				Asn1::CTS::_POD_CryptoGroup* CryptoGroup;
 				int rowCount;
 				int colCount;
 				HWND hGrd = GetDlgItem(hWnd, IDC_SELECT_ATTRIBUTE_GRID);
@@ -441,7 +440,7 @@ protected:
 
 				if (!!params->_ckm7group && !!params->_attrsList)
 				{
-					params->GetCryptoGroup(hWnd, params->_session, params->_cryptoGroupId, CryptoGroup);
+					CryptoGroup = params->GetCryptoGroup(hWnd, params->_session, params->_cryptoGroupId);
 					if (!CryptoGroup)
 					{
 						MessageBoxA(hWnd, "You must first select a cryptogroup.", "Error", MB_OK);

@@ -49,7 +49,7 @@ enum {
 	OPT_FAVORITE, OPT_VERBOSE
 };
 
-static const struct OptionList options[] = {
+static const struct tsmod::OptionList options[] = {
 	{ "", "VEIL tool FILE ENCRYPT commands" },
 	{ "", "=================================" },
 	{ "--help, -h, -?", "This help information." },
@@ -100,7 +100,7 @@ static const CSimpleOptA::SOption g_rgOptions1[] =
 	SO_END_OF_OPTIONS
 };
 
-class FileEncryptTool : public IVeilToolCommand, public tsmod::IObject
+class FileEncryptTool : public tsmod::IVeilToolCommand, public tsmod::IObject
 {
 public:
 	FileEncryptTool() : g_doStatus(false)
@@ -109,12 +109,12 @@ public:
 	{}
 
 	// tsmod::IObject
-	virtual void OnConstructionFinished()
+	virtual void OnConstructionFinished() override
 	{
-		utils = ::TopServiceLocator()->get_instance<IVeilUtilities>("VeilUtilities");
+		utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
 	}
 
-	// Inherited via IVeilToolCommand
+	// Inherited via tsmod::IVeilToolCommand
 	virtual tscrypto::tsCryptoString getDescription() const override
 	{
 		return "Perform file encryption operations";
@@ -124,7 +124,7 @@ public:
 		std::shared_ptr<IKeyVEILConnector> connector;
 		std::shared_ptr<IToken> token;
 		std::shared_ptr<IKeyVEILSession> session;
-		std::shared_ptr<Asn1::CTS::Profile> profile;
+		std::shared_ptr<Asn1::CTS::_POD_Profile> profile;
 		tscrypto::tsCryptoString enteredPin;
 		tscrypto::tsCryptoString pin;
 		tscrypto::tsCryptoString cgName;
@@ -151,7 +151,7 @@ public:
 			tscrypto::tsCryptoString overwriteFlag;
 			stringList attrNames;
 			std::vector<stringList> pAGList;
-			Asn1::CTS::CryptoGroup* pCG = nullptr;
+			Asn1::CTS::_POD_CryptoGroup* pCG = nullptr;
 			//OPT_URL, OPT_KVPIN, OPT_SERIAL, OPT_ID, OPT_NAME
 			tscrypto::tsCryptoString url;
 			tscrypto::tsCryptoString username;
@@ -544,7 +544,7 @@ protected:
 		// tsmod::IObject
 		virtual void OnConstructionFinished()
 		{
-			utils = ::TopServiceLocator()->get_instance<IVeilUtilities>("VeilUtilities");
+			utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
 		}
 
 		virtual bool Status(const tscrypto::tsCryptoString& taskName, int taskNumber, int ofTaskCount, int taskPercentageDone)
@@ -563,7 +563,7 @@ protected:
 	private:
 		virtual ~StatusClass() {}
 	protected:
-		std::shared_ptr<IVeilUtilities> utils;
+		std::shared_ptr<tsmod::IVeilUtilities> utils;
 		bool _doStatus;
 	};
 
@@ -671,9 +671,9 @@ protected:
 		utils->console().GetPin(password, 64, "Enter the password:  ");
 		return password;
 	}
-	bool attributeNameToGUID(Asn1::CTS::CryptoGroup* pCG, const tscrypto::tsCryptoString& name, GUID &id, bool &isAsym)
+	bool attributeNameToGUID(Asn1::CTS::_POD_CryptoGroup* pCG, const tscrypto::tsCryptoString& name, GUID &id, bool &isAsym)
 	{
-		std::shared_ptr<Asn1::CTS::Attribute> attr;
+		Asn1::CTS::_POD_Attribute* attr;
 
 		TSStringToGuid(name, id);
 
@@ -691,7 +691,7 @@ protected:
 		isAsym = !attr->get_SymOnly();
 		return true;
 	}
-	bool buildHeader(std::vector<stringList> &pAGList, Asn1::CTS::CryptoGroup* pCG, std::shared_ptr<IKeyVEILSession>& session, std::shared_ptr<ICmsHeader>& pVal)
+	bool buildHeader(std::vector<stringList> &pAGList, Asn1::CTS::_POD_CryptoGroup* pCG, std::shared_ptr<IKeyVEILSession>& session, std::shared_ptr<ICmsHeader>& pVal)
 	{
 		std::shared_ptr<ICmsHeaderCryptoGroupListExtension> cgList;
 		std::shared_ptr<ICmsHeaderAttributeListExtension> attrList;
@@ -703,7 +703,7 @@ protected:
 		std::shared_ptr<ICmsHeaderAccessGroup>  andGroup;
 		std::shared_ptr<ICmsHeaderAttributeGroup> attrs;
 		std::shared_ptr<ICmsHeader>         header;
-		std::shared_ptr<Asn1::CTS::Profile> profile;
+		std::shared_ptr<Asn1::CTS::_POD_Profile> profile;
 		GUID enterprise;
 		GUID cg;
 		GUID member;
@@ -831,7 +831,7 @@ protected:
 		const tscrypto::tsCryptoString &inputFile,
 		tscrypto::tsCryptoString &outputFile,
 		std::vector<stringList> &pAGList,
-		Asn1::CTS::CryptoGroup* pCG,
+		Asn1::CTS::_POD_CryptoGroup* pCG,
 		std::shared_ptr<IKeyVEILConnector>& connector,
 		bool compressFlag)
 	{
@@ -899,7 +899,7 @@ protected:
 		return 0;
 	}
 protected:
-	std::shared_ptr<IVeilUtilities> utils;
+	std::shared_ptr<tsmod::IVeilUtilities> utils;
 	bool g_doStatus;
 };
 

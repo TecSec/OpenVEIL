@@ -208,10 +208,12 @@ static HANDLE ExpandMem(HANDLE hMem1, DWORD nSize)
     void *dest = GlobalLock(hMem2);
     void *src = GlobalLock(hMem1);
 
+	if (src != nullptr && dest != nullptr)
     memcpy(dest, src, nSize);
 
     GlobalUnlock(hMem1);
     GlobalFree(hMem1);
+	if (dest != nullptr)
     memset(&((unsigned char*)dest)[nSize], 0, MEM_SIZE);
     GlobalUnlock(hMem2);
     return hMem2;
@@ -224,8 +226,11 @@ static void GridGetText (GRID *grid, DWORD rpData, char *lpData, int dataLen)
     {
         char *ptr = (char*)GlobalLock(grid->hstr);
 
+		if (ptr != nullptr)
+		{
         ptr += rpData;
         strcpy_s(lpData, dataLen, ptr);
+		}
         GlobalUnlock(grid->hstr);
     }
     else
@@ -241,8 +246,11 @@ static void GridGetFixed (GRID *grid, DWORD rpData, void *lpData, DWORD len)
     {
         unsigned char *ptr = (unsigned char*)GlobalLock(grid->hstr);
 
+		if (ptr != nullptr)
+		{
         ptr += rpData;
-        memcpy (lpData, ptr, len);
+			memcpy(lpData, ptr, len);
+		}
         GlobalUnlock(grid->hstr);
     }
     else
@@ -273,9 +281,12 @@ static DWORD GridAddText (GRID *grid, const char *lpData)
         }
         char *data = (char*)GlobalLock(grid->hstr);
 
+		if (data != nullptr)
+		{
         data += posi;
         
         strcpy_s(data, len, lpData);
+		}
         grid->rpstrfree += len;
         GlobalUnlock(grid->hstr);
         return posi;
@@ -301,13 +312,15 @@ static DWORD GridAddFixed (GRID *grid, const void *lpData, DWORD len)
     }
     unsigned char *data = (unsigned char*)GlobalLock(grid->hstr);
 
+	if (data != nullptr)
+	{
     data += posi;
 
     //
     // This function is used in the GridAddRowData function.  Each row data is up to 4 bytes per column.  For int32_ter data types the row data
     // contains the pointer to the actual data.
     //
-    if ( len <= 4 )
+		if (len <= 4)
     {
         // normal data
         memcpy(data, lpData, len);
@@ -317,6 +330,7 @@ static DWORD GridAddFixed (GRID *grid, const void *lpData, DWORD len)
         // pointer to the data
         memcpy(data, *((const void **)lpData), len);
     }
+	}
 
     grid->rpstrfree += len;
     GlobalUnlock(grid->hstr);
@@ -341,6 +355,7 @@ static void GridAddPtr (GRID *grid,DWORD nData)
     }
     unsigned char *data = (unsigned char *)GlobalLock(grid->hmem);
 
+	if (data != nullptr)
     memcpy(&data[posi], &nData, 4);
     grid->rpmemfree += 4;
     GlobalUnlock(grid->hmem);
@@ -406,12 +421,14 @@ static DWORD GridAddRowData (GRID *grid, void *lpData)
 static DWORD GridGetCellData (GRID *grid,DWORD rpData, DWORD nCol, void *lpData, int dataLen)
 {
     COLUMN *colPtr;
-    DWORD colType;
+    DWORD colType = 0;
     DWORD colData;
 
     unsigned char *dataPtr = (unsigned char *)GlobalLock(grid->hmem);
 
-    dataPtr += rpData + 2*4 + nCol * 8;
+	if (dataPtr != nullptr)
+	{
+		dataPtr += rpData + 2 * 4 + nCol * 8;
 
     colData = *(DWORD*)dataPtr;
 
@@ -428,7 +445,7 @@ static DWORD GridGetCellData (GRID *grid,DWORD rpData, DWORD nCol, void *lpData,
         break;
 
     case TYPE_USER:
-        if ( colPtr->ctextmax == 0 )
+			if (colPtr->ctextmax == 0)
         {
             GridGetText(grid, colData, (char*)lpData, dataLen);
         }
@@ -456,21 +473,22 @@ static DWORD GridGetCellData (GRID *grid,DWORD rpData, DWORD nCol, void *lpData,
         }
         break;
     }
-
+	}
     GlobalUnlock(grid->hmem);
     return colType;
 }
 
 static DWORD GridGetCellItemData (GRID *grid,DWORD rpData, DWORD nCol)
 {
-    DWORD itemData;
+    DWORD itemData = 0;
 
     unsigned char *dataPtr = (unsigned char *)GlobalLock(grid->hmem);
-
-    dataPtr += rpData + 2*4 + nCol * 8 + 4;
+	if (dataPtr != nullptr)
+	{
+		dataPtr += rpData + 2 * 4 + nCol * 8 + 4;
 
     itemData = *(DWORD*)dataPtr;
-
+	}
     GlobalUnlock(grid->hmem);
     return itemData;
 }
@@ -478,20 +496,24 @@ static DWORD GridGetCellItemData (GRID *grid,DWORD rpData, DWORD nCol)
 static void GridGetRowColor (GRID *grid, DWORD rpData, ROWCOLOR *lpROWCOLOR)
 {
     unsigned char *data = (unsigned char *)GlobalLock(grid->hmem);
-
+	if (data != nullptr)
+	{
     data += rpData;
 
     *lpROWCOLOR = *(ROWCOLOR*)data;
+	}
     GlobalUnlock(grid->hmem);
 }
 
 static void GridSetRowColor (GRID *grid, DWORD rpData, const ROWCOLOR *lpROWCOLOR)
 {
     unsigned char *data = (unsigned char *)GlobalLock(grid->hmem);
-
+	if (data != nullptr)
+	{
     data += rpData;
 
     *(ROWCOLOR*)data = *lpROWCOLOR;
+	}
     GlobalUnlock(grid->hmem);
 }
 
@@ -510,11 +532,12 @@ static void UpdateText(GRID *grid, DWORD *rpDest, void *source)
         }
 
         char *data = (char *)GlobalLock(grid->hstr);
-
+		if (data != nullptr)
+		{
         iTmp = *rpDest;
-        if ( iTmp != 0 )
+			if (iTmp != 0)
         {
-            iTmp = (int)strlen ((const char *)(data + iTmp)) + 1;
+				iTmp = (int)strlen((const char *)(data + iTmp)) + 1;
         }
         if (iTmp >= len)
         {
@@ -528,6 +551,7 @@ static void UpdateText(GRID *grid, DWORD *rpDest, void *source)
             grid->rpstrfree += len;
             strcpy_s((char *)(data + posi), len, (const char *)source);
         }
+		}
         GlobalUnlock(grid->hstr);
     }
     else
@@ -552,6 +576,7 @@ static void UpdateFixed(GRID *grid, DWORD *rpDest, void *source, int maxLen)
             }
         }
         unsigned char *data = (unsigned char *)GlobalLock(grid->hstr);
+		if (data != nullptr)
         memcpy((data + *rpDest), source, maxLen);
         GlobalUnlock(grid->hstr);
     }
@@ -575,6 +600,7 @@ static void Updateint32_t(GRID *grid, DWORD *rpDest, int32_t source)
         }
     }
     unsigned char *data = (unsigned char *)GlobalLock(grid->hstr);
+	if (data != nullptr)
     *(int32_t*)(data + *rpDest) = source;
     GlobalUnlock(grid->hstr);
 }
@@ -617,10 +643,12 @@ static void GridSetCellData (GRID *grid, DWORD rpData, DWORD nCol, void *lpData)
 static void GridSetCellItemData (GRID *grid, DWORD rpData, DWORD nCol, DWORD itemData)
 {
     unsigned char *data = (unsigned char *)GlobalLock(grid->hmem);
-
+	if (data != nullptr)
+	{
     data += rpData + 2 * 4 + 8 * nCol + 4;
 
     *(DWORD *)data = itemData;
+	}
     GlobalUnlock(grid->hmem);
 }
 
@@ -726,8 +754,11 @@ static void GridSort(GRID* grid, unsigned char* lpLBMem, DWORD nCol, int fString
 	lpLBMem;
 
     lpStrMem = (char*)GlobalLock(grid->hstr);
+	if (lpStrMem != nullptr)
+	{
     unsigned char *dataPtr = (unsigned char *)GlobalLock(grid->hmem);
-
+		if (dataPtr != nullptr)
+		{
     //CombSort(itemData,grid->rows,lpStrMem + 2 * 4 + nCol * 4,lpStrMem,fString,fDescending)
     char *left;
 	char *right;
@@ -773,6 +804,8 @@ static void GridSort(GRID* grid, unsigned char* lpLBMem, DWORD nCol, int fString
             }
         }
     }
+		}
+	}
     GlobalUnlock(grid->hmem);
     GlobalUnlock(grid->hstr);
 }
@@ -1008,11 +1041,13 @@ static LRESULT __stdcall LstProc (HWND hWin,UINT uMsg, WPARAM wParam, LPARAM lPa
             fCancelEdit = TRUE;
 
             grid = (GRID*)GlobalLock((HANDLE)GetWindowLongPtr((HWND)GetWindowLongPtr(hWin, GWLP_USERDATA), 0));
-
+			if (grid != nullptr)
+			{
             grid->ncol = grid->col;
             grid->nrow = grid->row;
+			}
             GlobalUnlock((HANDLE)GetWindowLongPtr((HWND)GetWindowLongPtr(hWin, GWLP_USERDATA), 0));
-
+			if (grid != nullptr)
             SendMessageA((HWND)GetWindowLongPtr(hWin, GWLP_USERDATA),GM_ENDEDIT,grid->edtrowcol,FALSE);
             fCancelEdit = FALSE;
         }
@@ -1997,7 +2032,7 @@ static LRESULT RAGridDrawItem(GRID *grid, HWND hWin, DRAWITEMSTRUCT *drawItem)
     RECT	rect2;
     COLUMN *colPtr = (COLUMN*)(grid + 1);
     DWORD	val = 0L;
-    BYTE	buffer[MAX_CELL_SIZE];
+	BYTE	buffer[MAX_CELL_SIZE] = { 0, };
     SYSTEMTIME	stime;
     FILETIME	ftime;
     GRIDNOTIFY	gn;

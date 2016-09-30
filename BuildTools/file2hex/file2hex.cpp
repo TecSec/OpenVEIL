@@ -53,7 +53,12 @@ int main(int argc, char* argv[])
         return 1;
     }
 
+#ifdef _WIN32
+	if (fopen_s(&f, argv[1], "r") != 0)
+		f = nullptr;
+#else
 	f = fopen(argv[1], "r");
+#endif
 	if (f == nullptr)
     {
         printf ("The specified file could not be opened.\n\n");

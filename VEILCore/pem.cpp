@@ -37,8 +37,8 @@ static bool processArmoredLines(tscrypto::tsCryptoStringList lines, TSNamedBinar
 {
 	tscrypto::tsCryptoString name;
 	tscrypto::tsCryptoString value;
-	bool processingAttributes = false;
-	bool beginningOfSection = false;
+	//bool processingAttributes = false;
+	//bool beginningOfSection = false;
 	tscrypto::tsCryptoString attrName, attrValue;
 	tsAttributeMap map;
 	tscrypto::tsCryptoString txt;

@@ -265,6 +265,8 @@ tsAppConfig::tsAppConfig(const tscrypto::tsCryptoString &appName, ConfigLocation
 		case ModuleFolder:
 			buildAndTestPath(ModuleFolder, appName, m_path);
 			break;
+        default:
+            break;
 		}
 	}
 	else
@@ -408,6 +410,8 @@ tsAppConfig::tsAppConfig(const tscrypto::tsCryptoString &appName, tsAppConfig::C
 		case ModuleFolder:
 			buildAndTestPath(ModuleFolder, appName, m_path);
 			break;
+        default:
+            break;
 		}
 	}
 	else

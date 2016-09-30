@@ -51,6 +51,109 @@
 //#endif
 //}
 
+#if 0
+void EnumStreams(char *strFilePath)
+{
+	PVOID streamContext = 0;
+	DWORD dwReadBytes, seek_high;
+	WIN32_STREAM_ID streamHeader;
+	WCHAR strStreamName[MAX_PATH];
+	char strBuffer[1024];
+
+	//Open the file for stream enumeration
+	HANDLE hFile = CreateFileA(strFilePath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
+
+	if (hFile == INVALID_HANDLE_VALUE)
+	{
+		printf("Failed to open the file %s, Error=0x%.8x", strFilePath, GetLastError());
+		return;
+	}
+	while (1)
+	{
+		//check if we have reached the end of file
+		if (FALSE == BackupRead(hFile, (LPBYTE)&streamHeader, (LPBYTE)&streamHeader.cStreamName - (LPBYTE)&streamHeader, &dwReadBytes, FALSE, FALSE, &streamContext))
+		{
+			break;
+		}
+
+		//check if we have read the stream header properly
+		if ((long)dwReadBytes != (LPBYTE)&streamHeader.cStreamName - (LPBYTE)&streamHeader)
+			break;
+
+		//we are interested only in alternate data streams
+		if (streamHeader.dwStreamId == BACKUP_ALTERNATE_DATA)
+		{
+			if (streamHeader.dwStreamNameSize != 0)
+			{
+				if (BackupRead(hFile, (LPBYTE)strStreamName, streamHeader.dwStreamNameSize, &dwReadBytes, FALSE, FALSE, &streamContext))
+				{
+					strStreamName[streamHeader.dwStreamNameSize / 2] = L'\0';
+					//
+					//Reformat the stream file name ... :stream.txt:$DATA
+					//
+					sprintf_s(strBuffer, 1024, "%S", &strStreamName[1]);
+					char *ptr = strchr(strBuffer, ':');
+					if (ptr != NULL)
+						*ptr = '\0';
+
+					printf("\n Found Stream - %s", strBuffer);
+				}
+			}
+		}
+
+		// jump to the next stream header
+		if (BackupSeek(hFile, 0, 0, &dwReadBytes, &seek_high, &streamContext) == FALSE)
+		{
+			//for any errors other than seek break out of loop
+			if (GetLastError() != ERROR_SEEK)
+			{
+				// terminate BackupRead() loop
+				BackupRead(hFile, 0, 0, &dwReadBytes, TRUE, FALSE, &streamContext);
+				break;
+			}
+
+			streamHeader.Size.QuadPart -= dwReadBytes;
+			streamHeader.Size.HighPart -= seek_high;
+
+			BYTE buffer[4096];
+
+			while (streamHeader.Size.QuadPart > 0)
+			{
+
+				if (dwReadBytes != sizeof(buffer) ||
+					!BackupRead(hFile,
+						buffer,
+						sizeof(buffer),
+						&dwReadBytes,
+						FALSE,
+
+						FALSE,
+						&streamContext))
+				{
+					break;
+				}
+
+				streamHeader.Size.QuadPart -= dwReadBytes;
+
+			} //end of inner while loop
+
+		} //end of 'jump to next stream' if loop
+
+
+	} //main while loop
+
+
+	  //Finally clean up the buffers used for seeking
+	if (streamContext)
+		BackupRead(hFile, 0, 0, &dwReadBytes, TRUE, FALSE, &streamContext);
+
+
+	CloseHandle(hFile);
+
+	return;
+}
+#endif // 0
+
 bool GetStreamNames (const tscrypto::tsCryptoString& filename, tscrypto::tsCryptoStringList &list)
 {
 	if (!list)
@@ -72,53 +175,38 @@ bool GetStreamNames (const tscrypto::tsCryptoString& filename, tscrypto::tsCrypt
     DWORD dwRead = 0;
     DWORD dwLowBytes = 0;
     DWORD dwHighBytes = 0;
-
+	tscrypto::CryptoUtf16 buffer;
 
     // Open the file whose streams we want to enumerate.
-    if ( INVALID_HANDLE_VALUE == ( hFile = CreateFileA ( filename.c_str(), GENERIC_READ,
-         0, NULL, OPEN_EXISTING, 0, 0 )))
+    if ( INVALID_HANDLE_VALUE == ( hFile = CreateFileA ( filename.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, 0 )))
     {
         //DebugError << "Unable to open the source file." << endl;
         return false;
     }
 
     // Read the first 20 bytes of the stream (all but the last field)
-    while ( (bContinue = ::BackupRead ( hFile, ( LPBYTE ) &Sid,
-            sizeof ( Sid ) - sizeof ( WCHAR* ), &dwRead, FALSE, FALSE,
-            &lpContext )) != FALSE )
+    while ( (bContinue = ::BackupRead ( hFile, ( LPBYTE ) &Sid, (DWORD)((LPBYTE)&Sid.cStreamName - (LPBYTE)&Sid), &dwRead, FALSE, FALSE, &lpContext )) != FALSE )
     {
         // If we are done or there was no data read, break out
-        if ( !bContinue || 0 == dwRead )
+        if ( !bContinue || 0 == dwRead || (long)dwRead != (LPBYTE)&Sid.cStreamName - (LPBYTE)&Sid)
             break;
 
         // If this stream is named Alternate Data, get it's name.
-        if ( BACKUP_ALTERNATE_DATA == Sid.dwStreamId &&
-             0 < Sid.dwStreamNameSize )
+        if ( BACKUP_ALTERNATE_DATA == Sid.dwStreamId && 0 < Sid.dwStreamNameSize )
         {
-            WCHAR* pStreamName;
-            pStreamName = ( WCHAR* ) malloc ( Sid.dwStreamNameSize * 3 );
-            memset(pStreamName, 0, Sid.dwStreamNameSize * 3);
+			buffer.clear();
+			buffer.resize(Sid.dwStreamNameSize / 2);
 
-            if ( NULL == pStreamName )
-                break;
+			::BackupRead ( hFile, ( byte* )buffer.data(), Sid.dwStreamNameSize, &dwRead, FALSE, FALSE, &lpContext );
 
-            ::BackupRead ( hFile, ( byte* ) pStreamName,
-                Sid.dwStreamNameSize, &dwRead, FALSE, FALSE, &lpContext );
+			if ( wcslen(buffer.data()) >= 6 && wcscmp(buffer.data() + (wcslen(buffer.data()) - 6), L":$DATA") == 0 )
+                buffer.erase(buffer.size() - 6, 6);
+			if (buffer == L":Zone.Identifier")
+				buffer.clear();
 
-			if (pStreamName[0] == ',' && pStreamName[1] == 0 && dwRead > 2)
-				pStreamName[0] = 0;
-            else if ( wcslen(pStreamName) >= 6 && wcscmp(&pStreamName[wcslen(pStreamName) - 6], L":$DATA") == 0 )
-                pStreamName[wcslen(pStreamName) - 6] = 0;
-
-            if ( pStreamName[0] )
+            if ( !buffer.empty() )
             {
-                list->push_back(CryptoUtf16(pStreamName).toUtf8());
-            }
-
-            if ( pStreamName )
-            {
-                free ( pStreamName );
-                pStreamName = NULL;
+                list->push_back(buffer.toUtf8());
             }
         }
 

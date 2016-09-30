@@ -42,7 +42,7 @@ public:
 
 	}
 	virtual ~KeyVEILSession(){}
-	virtual LoginStatus Login(const tscrypto::tsCryptoString& pin)
+	virtual LoginStatus Login(const tscrypto::tsCryptoStringBase& pin) override
 	{
 		std::shared_ptr<IKeyVEILConnector> conn = _connector.lock();
 		JSONObject obj, result;
@@ -52,7 +52,7 @@ public:
 
 		if (!conn)
 			return LoginStatus::loginStatus_NoServer;
-		obj.add("tokenId", TSGuidToString(_tokenId).c_str()).add("password", pin.c_str());
+		obj.add("tokenId", TSGuidToString(_tokenId)).add("password", pin);
 		if (!conn->sendJsonRequest("POST", "TokenAuth", obj, result, status))
 		{
 			if (status > 399)
@@ -72,7 +72,7 @@ public:
 		_profile.reset();
 		return LoginStatus::loginStatus_Connected;
 	}
-	virtual bool IsLoggedIn()
+	virtual bool IsLoggedIn() override
 	{
 		std::shared_ptr<IKeyVEILConnector> conn = _connector.lock();
 		JSONObject obj, result;
@@ -91,7 +91,7 @@ public:
 		}
 		return result.AsBool("authenticated", false);
 	}
-	virtual bool Logout()
+	virtual bool Logout() override
 	{
 		std::shared_ptr<IKeyVEILConnector> conn = _connector.lock();
 		JSONObject obj, result;
@@ -110,7 +110,7 @@ public:
 		}
 		return true;
 	}
-	virtual bool GenerateWorkingKey(Asn1::CTS::CkmCombineParameters& params, std::function<bool(Asn1::CTS::CkmCombineParameters&, tscrypto::tsCryptoData&)> headerCallback, tscrypto::tsCryptoData &WorkingKey)
+	virtual bool GenerateWorkingKey(Asn1::CTS::_POD_CkmCombineParameters& params, std::function<bool(Asn1::CTS::_POD_CkmCombineParameters&, tscrypto::tsCryptoData&)> headerCallback, tscrypto::tsCryptoData &WorkingKey) override
 	{
 		std::shared_ptr<IKeyVEILConnector> conn = _connector.lock();
 		JSONObject obj, result;
@@ -123,7 +123,7 @@ public:
         }
 
 		obj
-			.add("tokenId", TSGuidToString(_tokenId).c_str());
+			.add("tokenId", TSGuidToString(_tokenId));
 		obj.expand(params.toJSON());
 
 		if (!conn->sendJsonRequest("POST", "KeyGen", obj, result, status))
@@ -150,7 +150,7 @@ public:
 
 		return true;
 	}
-	virtual bool RegenerateWorkingKey(Asn1::CTS::CkmCombineParameters& params, tscrypto::tsCryptoData &WorkingKey)
+	virtual bool RegenerateWorkingKey(Asn1::CTS::_POD_CkmCombineParameters& params, tscrypto::tsCryptoData &WorkingKey) override
 	{
 		std::shared_ptr<IKeyVEILConnector> conn = _connector.lock();
 		JSONObject obj, result;
@@ -160,7 +160,7 @@ public:
 			return false;
 
 		obj
-			.add("tokenId", TSGuidToString(_tokenId).c_str());
+			.add("tokenId", TSGuidToString(_tokenId));
 		obj.expand(params.toJSON());
 
 		if (!conn->sendJsonRequest("PUT", "KeyGen", obj, result, status))
@@ -180,7 +180,7 @@ public:
 		return true;
 	}
 
-	virtual std::shared_ptr<Asn1::CTS::Profile> GetProfile()
+	virtual std::shared_ptr<Asn1::CTS::_POD_Profile> GetProfile() override
 	{
 		if (!_profile)
 		{
@@ -200,7 +200,7 @@ public:
 				return nullptr;
 			}
 
-			_profile = std::shared_ptr<Asn1::CTS::Profile>(new Asn1::CTS::Profile());
+			_profile = std::shared_ptr<Asn1::CTS::_POD_Profile>(new Asn1::CTS::_POD_Profile());
 			if (!_profile->fromJSON(result.AsObject("profile")))
 			{
 				_profile->clear();
@@ -208,13 +208,13 @@ public:
 		}
 		return _profile;
 	}
-	virtual bool Close(void)
+	virtual bool Close(void) override
 	{
 		_profile.reset();
 		_connector.reset();
 		return true;
 	}
-	virtual bool IsLocked()
+	virtual bool IsLocked() override
 	{
 		std::shared_ptr<IKeyVEILConnector> conn = _connector.lock();
 		JSONObject obj, result;
@@ -233,7 +233,7 @@ public:
 		}
 		return result.AsString("status") == "locked";
 	}
-	virtual size_t retriesLeft()
+	virtual size_t retriesLeft() override
 	{
 		std::shared_ptr<IKeyVEILConnector> conn = _connector.lock();
 		JSONObject obj, result;
@@ -257,7 +257,7 @@ public:
 			return 0;
 		return (15 - count);
 	}
-	virtual bool IsValid()
+	virtual bool IsValid() override
 	{
 		std::shared_ptr<IKeyVEILConnector> conn = _connector.lock();
 		JSONObject obj, result;
@@ -276,7 +276,7 @@ public:
 		}
 		return true;
 	}
-	virtual std::shared_ptr<IKeyVEILSession> Duplicate()
+	virtual std::shared_ptr<IKeyVEILSession> Duplicate() override
 	{
 		KeyVEILSession* newSession = new KeyVEILSession(_tokenId, _connector.lock());
 
@@ -285,12 +285,12 @@ public:
 
 		if (!!_profile)
 		{
-			newSession->_profile = std::shared_ptr<Asn1::CTS::Profile>(new Asn1::CTS::Profile(*_profile.get()));
+			newSession->_profile = std::shared_ptr<Asn1::CTS::_POD_Profile>(new Asn1::CTS::_POD_Profile(*_profile.get()));
 		}
 		newSession->_profile = _profile;
 		return ::TopServiceLocator()->Finish<IKeyVEILSession>(newSession);
 	}
-	virtual int LastKeyVEILStatus()
+	virtual int LastKeyVEILStatus() override
 	{
 		std::shared_ptr<IKeyVEILConnector> conn = Connector();
 
@@ -298,14 +298,14 @@ public:
 			return 0;
 		return conn->errorCode();
 	}
-	virtual std::shared_ptr<IKeyVEILConnector> Connector()
+	virtual std::shared_ptr<IKeyVEILConnector> Connector() override
 	{
 		return _connector.lock();
 	}
 
 protected:
 	GUID								_tokenId;
-	std::shared_ptr<Asn1::CTS::Profile> _profile;
+	std::shared_ptr<Asn1::CTS::_POD_Profile> _profile;
 	std::weak_ptr<IKeyVEILConnector>	_connector;
 };
 

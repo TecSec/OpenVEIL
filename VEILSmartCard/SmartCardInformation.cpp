@@ -162,6 +162,14 @@ public:
 	virtual tscrypto::tsCryptoData CIN() const { 
 		return _CIN; 
 	}
+	virtual void OverrideIIN(const tscrypto::tsCryptoData& setTo)
+	{
+		_IIN = setTo;
+	}
+	virtual void OverrideCIN(const tscrypto::tsCryptoData& setTo)
+	{
+		_CIN = setTo;
+	}
 
 	virtual void PopulateCardInformation(std::shared_ptr<ISmartCardConnection> connection)
 	{

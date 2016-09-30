@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #	Copyright (c) 2016, TecSec, Inc.
 #
 #	Redistribution and use in source and binary forms, with or without
@@ -29,39 +31,30 @@
 #
 # Written by Roger Butler
 
-INCLUDE_DIRECTORIES(
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    )
+processors=(X64)
+if [ "$1" == "" ]; then
+    configurations=(Release Debug)
+else
+    configurations=($1)
+fi
 
-set(CMAKE_DEBUG_POSTFIX "")
+if !([ -d ../../build ]); then mkdir ../../build; fi
 
-set(CppSources
-    ctstool.cpp
-    stdafx.cpp
-	getmyctstool.cpp
-    )
+cd ../..
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cts.rc.in ${CMAKE_CURRENT_BINARY_DIR}/cts.rc)
+for i in ${configurations[@]}; do
+    for j in ${processors[@]}; do
+        dir="$(echo ${i}-${j} | tr '[:upper:]' '[:lower:]')";
 
-add_library(cts SHARED
-    stdafx.h
+	if !([ -d build/ninja-${dir} ]); then mkdir build/ninja-${dir}; fi
 
-    ${CppSources}
-	${CMAKE_CURRENT_BINARY_DIR}/cts.rc
-	${CMAKE_CURRENT_SOURCE_DIR}/cts.rc.in
-    )
-add_precompiled_header(cts stdafx.h FORCEINCLUDE SOURCE_CXX stdafx.cpp)
-set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/cts.rc PROPERTIES COMPILE_DEFINITIONS RC_COMPILED)
-set_target_properties(cts PROPERTIES FOLDER "Tools/veilExtensions")
-TARGET_LINK_LIBRARIES(cts VEILCore)
-set_target_properties(cts PROPERTIES 
-	SUFFIX ".veil"  
-	)
-if(NOT MSVC)
-	set_target_properties(cts PROPERTIES PREFIX "")
-endif(NOT MSVC)
-if(WIN32)
-    install(TARGETS cts LIBRARY DESTINATION ${SHLIB_DIR} RUNTIME DESTINATION ${BIN_DIR})
-else()
-    install(TARGETS cts LIBRARY DESTINATION ${BIN_DIR} RUNTIME DESTINATION ${BIN_DIR})
-endif(WIN32)
+	cd build/ninja-${dir}
+	cmake -DFORCE_${j}=1 -DCMAKE_INSTALL_PREFIX:PATH=~/tecsec -DCMAKE_BUILD_TYPE=${i} -G "Ninja" ../../
+	cd ../..
+    done
+done
+
+#cd build/debug
+#make
+#cd ../..
+

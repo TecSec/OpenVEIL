@@ -29,7 +29,11 @@
 #
 # Written by Roger Butler
 
-add_definitions(-DUNICODE -D_UNICODE)
+add_definitions(-D_UNICODE)
+add_definitions(-DUNICODE)
+if(WIN32)
+	add_definitions(-D_CRT_SECURE_NO_WARNINGS=1)
+endif(WIN32)
 
 add_executable(VEILwxWinApiSample WIN32
 	stdafx.h

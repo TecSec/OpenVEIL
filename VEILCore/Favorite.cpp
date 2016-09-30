@@ -48,47 +48,47 @@ public:
 	{
 	}
 
-	virtual GUID favoriteId()
+	virtual GUID favoriteId() override
 	{
 		return _id;
 	}
-	virtual void favoriteId(const GUID& setTo)
+	virtual void favoriteId(const GUID& setTo) override
 	{
 		_id = setTo;
 	}
 
-	virtual GUID enterpriseId()
+	virtual GUID enterpriseId() override
 	{
 		return _enterpriseId;
 	}
-	virtual void enterpriseId(const GUID& setTo)
+	virtual void enterpriseId(const GUID& setTo) override
 	{
 		_enterpriseId = setTo;
 	}
 
-	virtual tscrypto::tsCryptoString favoriteName()
+	virtual tscrypto::tsCryptoString favoriteName() override
 	{
 		return _favoriteName;
 	}
-	virtual void favoriteName(const tscrypto::tsCryptoString& setTo)
+	virtual void favoriteName(const tscrypto::tsCryptoStringBase& setTo) override
 	{
 		_favoriteName = setTo;
 	}
 
-	virtual tscrypto::tsCryptoData tokenSerialNumber()
+	virtual tscrypto::tsCryptoData tokenSerialNumber() override
 	{
 		return _serialNumber;
 	}
-	virtual void tokenSerialNumber(const tscrypto::tsCryptoData& setTo)
+	virtual void tokenSerialNumber(const tscrypto::tsCryptoData& setTo) override
 	{
 		_serialNumber = setTo;
 	}
 
-	virtual tscrypto::tsCryptoData headerData()
+	virtual tscrypto::tsCryptoData headerData() override
 	{
 		return _headerData;
 	}
-	virtual void headerData(const tscrypto::tsCryptoData& setTo)
+	virtual void headerData(const tscrypto::tsCryptoData& setTo) override
 	{
 		_headerData = setTo;
 	}

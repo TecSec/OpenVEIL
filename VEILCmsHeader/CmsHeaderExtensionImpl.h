@@ -33,4 +33,4 @@
 
 #include "Asn1CkmHeader.h"
 
-std::shared_ptr<ICmsHeaderExtension> CreateHeaderExtensionObject(std::shared_ptr<ICmsHeader> header, Asn1::CMS::CmsExtension& data);
+std::shared_ptr<ICmsHeaderExtension> CreateHeaderExtensionObject(std::shared_ptr<ICmsHeader> header, Asn1::CMS::_POD_CmsExtension& data);

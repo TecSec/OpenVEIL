@@ -59,7 +59,7 @@ void SetErrorStringFunction(GetErrorStringFn fn)
 }
 
 //HIDDEN
-void TSAddToXML(tscrypto::tsCryptoString &xml, const tscrypto::tsCryptoString& AttrName, const tscrypto::tsCryptoString& value)
+void TSAddToXML(tscrypto::tsCryptoStringBase &xml, const tscrypto::tsCryptoStringBase& AttrName, const tscrypto::tsCryptoStringBase& value)
 {
 	tscrypto::tsCryptoString tmp;
 
@@ -79,7 +79,7 @@ void TSAddToXML(tscrypto::tsCryptoString &xml, const tscrypto::tsCryptoString& A
 }
 
 //HIDDEN
-void TSAddGuidToXML(tscrypto::tsCryptoString &xml, const tscrypto::tsCryptoString& AttrName, const GUID &id)
+void TSAddGuidToXML(tscrypto::tsCryptoStringBase &xml, const tscrypto::tsCryptoStringBase& AttrName, const GUID &id)
 {
 	tscrypto::tsCryptoString tmp;
 	tscrypto::tsCryptoString value;
@@ -98,7 +98,7 @@ void TSAddGuidToXML(tscrypto::tsCryptoString &xml, const tscrypto::tsCryptoStrin
 }
 
 //HIDDEN
-void TSAddXMLError(tscrypto::tsCryptoString &Results, const tscrypto::tsCryptoString &component, const tscrypto::tsCryptoString &NodeName, int32_t ErrorNumber, va_list vArg)
+void TSAddXMLError(tscrypto::tsCryptoStringBase &Results, const tscrypto::tsCryptoStringBase &component, const tscrypto::tsCryptoStringBase &NodeName, int32_t ErrorNumber, va_list vArg)
 {
 	tscrypto::tsCryptoString buffer;
 	tscrypto::tsCryptoString tmp;

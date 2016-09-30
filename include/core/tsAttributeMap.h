@@ -40,6 +40,15 @@
 /// <summary>name value pair for the tsAttributeMap class</summary>
 struct __tsAttributeMapItem
 {
+	static void *operator new(std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void *operator new[](std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
+	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
+
 	tscrypto::tsCryptoString m_name;
 	tscrypto::tsCryptoString m_value;
 	tscrypto::tsCryptoString m_tag;
@@ -61,6 +70,15 @@ typedef std::shared_ptr<tscrypto::ICryptoContainerWrapper<__tsAttributeMapItem>>
 class VEILCORE_API tsAttributeMap
 {
 public:
+	static void *operator new(std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void *operator new[](std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
+	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
+
 	/// <summary><para>Initializes an instance of the <see cref="tsAttributeMap" /> class.</para></summary>
 	tsAttributeMap();
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -87,7 +105,7 @@ public:
 	///
 	/// <returns>the number of name value pairs</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	size_t count () const;
+	size_t count() const;
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Returns the attribute value for the 'index' item.</summary>
 	///
@@ -159,7 +177,7 @@ public:
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Remove all attributes from the list.</summary>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	void ClearAll ();
+	void ClearAll();
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Removes the attribute at position 'index'.</summary>
 	///
@@ -233,7 +251,7 @@ public:
     //////////////////////////////////////////////////////////////////////////////////////////////////////
     //void operator delete(void *ptr);
 	tscrypto::tsCryptoString tag(size_t index) const;
-	void tag(size_t index,const tscrypto::tsCryptoString& setTo);
+	void tag(size_t index, const tscrypto::tsCryptoString& setTo);
 	tscrypto::tsCryptoString tag(const tscrypto::tsCryptoString &name) const;
 	void tag(const tscrypto::tsCryptoString &name, const tscrypto::tsCryptoString& setTo);
 protected:
@@ -242,7 +260,7 @@ protected:
 	///
 	/// <param name="obj">the list to copy</param>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	void copyFrom (const tsAttributeMap &obj);
+	void copyFrom(const tsAttributeMap &obj);
 
 protected:
 	tsAttributeMapItemList m_list;

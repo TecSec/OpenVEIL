@@ -120,7 +120,6 @@ set(VEILCoreSource
 	PluginModule.cpp
 	nargv.cpp
 
-
 )
 set(VEILCoreSource ${VEILCoreSource}
 
@@ -138,11 +137,6 @@ set(VEILCoreSource ${VEILCoreSource}
 	Asn1CkmHeader.xasn
 	TokenPacket.xasn
 	)
-if(UNIX)
-	set(VEILCoreSource ${VEILCoreSource}
-		sd-daemon.c
-	)
-endif(UNIX)
 
 set(GEN_HEADERS_XASN
 	${PUBLIC_BINARY_TOP_DIR}/Asn1CkmHeader.h
@@ -198,9 +192,6 @@ if(ANDROID)
 else(ANDROID)
 	TARGET_LINK_LIBRARIES(VEILCore zlib)
 endif(ANDROID)
-if(UNIX AND NOT ANDROID AND TS_SUPPORT_MESSAGE_QUEUE AND TS_INTERNAL_SD_DAEMON)
-    target_link_libraries(VEILCore rt)
-endif(UNIX AND NOT ANDROID AND TS_SUPPORT_MESSAGE_QUEUE AND TS_INTERNAL_SD_DAEMON)
 
 if(ANDROID)
 	set_target_properties(VEILCore PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)

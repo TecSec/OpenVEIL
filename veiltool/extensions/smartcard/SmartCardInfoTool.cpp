@@ -46,8 +46,8 @@ static const uint8_t gGetResetRamAvailable[] = { 0x00, 0x04, 0x00, 0x00, 0x00 };
 //static const uint8_t gSelectPiv[] = { 0x00, 0xA4, 0x04, 0x00, 0x0b, 0xA0, 0x00, 0x00, 0x03, 0x08, 0x00, 0x00, 0x10, 0x00, 0x01, 0x00 };
 
 static const uint8_t gIsdAid[] = { 0xA0, 0x00, 0x00, 0x01, 0x51, 0x00, 0x00 };
-static const uint8_t gSsdAid[] = { 0xA0, 0x00, 0x00, 0x04, 0x45, 0x00, 0x01, 0x01, 0x00 };
-static const uint8_t gDapAid[] = { 0xa0, 0x00, 0x00, 0x04, 0x45, 0xFF, 0x00, 0x01, 0x01, 0x00 };
+//static const uint8_t gSsdAid[] = { 0xA0, 0x00, 0x00, 0x04, 0x45, 0x00, 0x01, 0x01, 0x00 };
+//static const uint8_t gDapAid[] = { 0xa0, 0x00, 0x00, 0x04, 0x45, 0xFF, 0x00, 0x01, 0x01, 0x00 };
 static const uint8_t gPivAid[] = { 0xA0, 0x00, 0x00, 0x03, 0x08, 0x00, 0x00, 0x10, 0x00, 0x01, 0x00 };
 static const uint8_t gBmocAid[] = { 0xA0, 0x00, 0x00, 0x04, 0x45, 0x00, 0x0E, 0x01, 0x00 };
 static const uint8_t gCkmInfoAid[] = { 0xA0, 0x00, 0x00, 0x04, 0x45, 0x00, 0x03, 0x01, 0x00 };
@@ -56,7 +56,7 @@ enum {
 	OPT_HELP = 0, 
 };
 
-static const struct OptionList options[] = {
+static const struct tsmod::OptionList options[] = {
 	{ "", "VEIL SMARTCARD INFO commands" },
 	{ "", "=======================================" },
 	{ "--help, -h, -?", "This help information." },
@@ -71,7 +71,7 @@ static const CSimpleOptA::SOption g_rgOptions1[] =
 	SO_END_OF_OPTIONS
 };
 
-class SmartCardInfoTool : public IVeilToolCommand, public tsmod::IObject
+class SmartCardInfoTool : public tsmod::IVeilToolCommand, public tsmod::IObject
 {
 public:
 	SmartCardInfoTool() : gSmartCardDone(true, false)
@@ -80,12 +80,12 @@ public:
 	{}
 
 	// tsmod::IObject
-	virtual void OnConstructionFinished()
+	virtual void OnConstructionFinished() override
 	{
-		utils = ::TopServiceLocator()->get_instance<IVeilUtilities>("VeilUtilities");
+		utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
 	}
 
-	// Inherited via IVeilToolCommand
+	// Inherited via tsmod::IVeilToolCommand
 	virtual tscrypto::tsCryptoString getDescription() const override
 	{
 		return "Retrieve basic information about a smartcard.";
@@ -354,7 +354,7 @@ protected:
 								break;
 							}
 							_snprintf_s(buff, sizeof(buff), sizeof(buff), "%d.%03d", data[1], data[2]);
-							applet.add("Version", buff);
+							applet.add("Version", tsCryptoString(buff));
 							switch (data[3])
 							{
 							case 0:
@@ -570,7 +570,7 @@ protected:
 				tmp << (sw & 0x0f) << " tries left";
 				o.add("userLogin", tmp);
 			}
-			else if (sw = 0x6983)
+			else if (sw == 0x6983)
 			{
 				o.add("userLogin", "locked");
 			}
@@ -689,7 +689,7 @@ protected:
 		}
 	}
 protected:
-	std::shared_ptr<IVeilUtilities> utils;
+	std::shared_ptr<tsmod::IVeilUtilities> utils;
 	tscrypto::CryptoEvent gSmartCardDone;
 };
 

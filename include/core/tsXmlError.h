@@ -62,7 +62,7 @@ public:
     ///
     /// <param name="parameter1">The error description.</param>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    void Description(const tscrypto::tsCryptoString&);
+    void Description(const tscrypto::tsCryptoStringBase&);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Gets the component that produced the error.</summary>
     ///
@@ -74,7 +74,7 @@ public:
     ///
     /// <param name="parameter1">the component that produced the error.</param>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    void Component(const tscrypto::tsCryptoString&);
+    void Component(const tscrypto::tsCryptoStringBase&);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Gets the method that produced the error.</summary>
     ///
@@ -86,7 +86,7 @@ public:
     ///
     /// <param name="parameter1">the method that produced the error.</param>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    void Method(const tscrypto::tsCryptoString&);
+    void Method(const tscrypto::tsCryptoStringBase&);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Gets the error number.</summary>
     ///
@@ -105,7 +105,7 @@ public:
     ///
     /// <param name="appendToXML">[in,out] The string that is to have the XML error appended.</param>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    void ToXML(tscrypto::tsCryptoString &appendToXML, bool useAttributes) const;
+    void ToXML(tscrypto::tsCryptoStringBase &appendToXML, bool useAttributes) const;
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////
     ///// <summary>Object allocation operator.</summary>

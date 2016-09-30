@@ -59,7 +59,7 @@ int streamEncryptCkm7(std::shared_ptr<IKeyVEILSession>& pSession,
 	const tscrypto::tsCryptoString &inputFile,
 	tscrypto::tsCryptoString &outputFile,
 	std::vector<stringList> &pAGList,
-	Asn1::CTS::CryptoGroup* pCG,
+	Asn1::CTS::_POD_CryptoGroup* pCG,
 	std::shared_ptr<IKeyVEILConnector>& connector,
 	bool compressFlag = true);
 
@@ -79,12 +79,7 @@ int streamDelete(const tscrypto::tsCryptoString &inputFile);
 bool ReadFavorite(const tscrypto::tsCryptoString& favName, ICmsHeaderBase **outAudience);
 
 
-struct OptionList {
-	const char *option;
-	const char *description;
-};
-
-struct OptionList options[] = {
+struct tsmod::OptionList options[] = {
 	{ "", "FileVEIL options  file1 file2 ... fileN" },
 	{ "", "=======================================" },
 	{ "-o, --output=<name>", "The name of the output file or path." },
@@ -303,7 +298,7 @@ int main(int argc, char* argv[])
 	std::shared_ptr<IKeyVEILConnector> connector;
 	std::shared_ptr<IToken> token;
 	std::shared_ptr<IKeyVEILSession> session;
-	std::shared_ptr<Asn1::CTS::Profile> profile;
+	std::shared_ptr<Asn1::CTS::_POD_Profile> profile;
 	tscrypto::tsCryptoString enteredPin;
 	tscrypto::tsCryptoString pin;
 	//	uint32_t fiefLevel = 0;
@@ -338,7 +333,7 @@ int main(int argc, char* argv[])
 		tscrypto::tsCryptoString overwriteFlag;
 		stringList attrNames;
 		std::vector<stringList> pAGList;
-		Asn1::CTS::CryptoGroup* pCG = nullptr;
+		Asn1::CTS::_POD_CryptoGroup* pCG = nullptr;
 		//OPT_URL, OPT_KVPIN, OPT_SERIAL, OPT_ID, OPT_NAME
 		tscrypto::tsCryptoString url;
 		tscrypto::tsCryptoString username;
@@ -812,9 +807,9 @@ int streamDecrypt(std::shared_ptr<IKeyVEILSession>& pSession,
 }
 
 
-bool attributeNameToGUID(Asn1::CTS::CryptoGroup* pCG, const tscrypto::tsCryptoString& name, GUID &id, bool &isAsym)
+bool attributeNameToGUID(Asn1::CTS::_POD_CryptoGroup* pCG, const tscrypto::tsCryptoString& name, GUID &id, bool &isAsym)
 {
-	std::shared_ptr<Asn1::CTS::Attribute> attr;
+	Asn1::CTS::_POD_Attribute* attr;
 
 	TSStringToGuid(name, id);
 
@@ -836,7 +831,7 @@ bool attributeNameToGUID(Asn1::CTS::CryptoGroup* pCG, const tscrypto::tsCryptoSt
 template <class T>
 static bool ReleasePtr(std::shared_ptr<T> &ptr) { ptr.reset(); return true; }
 
-bool buildHeader(std::vector<stringList> &pAGList, Asn1::CTS::CryptoGroup* pCG, std::shared_ptr<IKeyVEILSession>& session, std::shared_ptr<ICmsHeader>& pVal)
+bool buildHeader(std::vector<stringList> &pAGList, Asn1::CTS::_POD_CryptoGroup* pCG, std::shared_ptr<IKeyVEILSession>& session, std::shared_ptr<ICmsHeader>& pVal)
 {
 	std::shared_ptr<ICmsHeaderCryptoGroupListExtension> cgList;
 	std::shared_ptr<ICmsHeaderAttributeListExtension> attrList;
@@ -848,7 +843,7 @@ bool buildHeader(std::vector<stringList> &pAGList, Asn1::CTS::CryptoGroup* pCG, 
 	std::shared_ptr<ICmsHeaderAccessGroup>  andGroup;
 	std::shared_ptr<ICmsHeaderAttributeGroup> attrs;
 	std::shared_ptr<ICmsHeader>         header;
-	std::shared_ptr<Asn1::CTS::Profile> profile;
+	std::shared_ptr<Asn1::CTS::_POD_Profile> profile;
 	GUID enterprise;
 	GUID cg;
 	GUID member;
@@ -977,7 +972,7 @@ int streamEncryptCkm7(std::shared_ptr<IKeyVEILSession>& pSession,
 	const tscrypto::tsCryptoString &inputFile,
 	tscrypto::tsCryptoString &outputFile,
 	std::vector<stringList> &pAGList,
-	Asn1::CTS::CryptoGroup* pCG,
+	Asn1::CTS::_POD_CryptoGroup* pCG,
 	std::shared_ptr<IKeyVEILConnector>& connector,
 	bool compressFlag)
 {

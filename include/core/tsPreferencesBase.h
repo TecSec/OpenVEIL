@@ -46,10 +46,19 @@ IGNORE_WARNING(TS_DEPRECATED_WARNING)
 struct DEPRECATED VEILCORE_API PreferenceItem
 {
 public:
+	static void *operator new(std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void *operator new[](std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
+	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
+
     /**
      * \brief Default constructor.
      */
-    PreferenceItem() : Location(tsAppConfig::NotFound){}
+		PreferenceItem() : Location(tsAppConfig::NotFound) {}
     /**
      * \brief Constructor.
      *
@@ -58,7 +67,7 @@ public:
      * \param location The location.
      */
     PreferenceItem(const tscrypto::tsCryptoString &path, const tscrypto::tsCryptoString &value, tsAppConfig::ConfigLocation location) :
-        Path(path), Value(value), Location(location){}
+		Path(path), Value(value), Location(location) {}
     /**
      * \brief Constructor.
      *
@@ -72,7 +81,7 @@ public:
      *
      * \return A shallow copy of this object.
      */
-    PreferenceItem &operator=(const PreferenceItem& obj){ if(&obj != this){Path=obj.Path;Value=obj.Value;Location=obj.Location;}return *this;}
+	PreferenceItem &operator=(const PreferenceItem& obj) { if (&obj != this) { Path = obj.Path;Value = obj.Value;Location = obj.Location; }return *this; }
 
     tscrypto::tsCryptoString Path; ///< Full pathname of the preference item
     tscrypto::tsCryptoString Value;	///< The value
@@ -188,6 +197,14 @@ protected:
 	 */
 	tsPreferencesBase(tsAppConfig::ConfigLocation location);
 public:
+  static void *operator new(std::size_t count) {
+	return tscrypto::cryptoNew(count);
+  }
+  static void *operator new[](std::size_t count) {
+	return tscrypto::cryptoNew(count);
+  }
+  static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
+  static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
 
     /// <summary>Scans for changes.</summary>
     virtual void ScanForChanges();
@@ -286,7 +303,7 @@ public:
 	virtual bool MonitorRunning() const;
     /// <summary>Starts the configuration change monitor.</summary>
 	void StartMonitor();
-protected:
+  protected:
     /// <summary>Destructor.</summary>
     virtual ~tsPreferencesBase(void);
 
@@ -392,23 +409,23 @@ protected:
 	 */
 	void FireGlobalChangeEvent();
 
-protected:
+  protected:
     long m_lRefCount;
     tscrypto::tsCryptoString m_policyFilename;  /*!< \brief Path and file name for the policy configuration file */
     tscrypto::tsCryptoString m_systemFilename;  /*!< \brief Path and file name for the system level configuration file */
     tscrypto::tsCryptoString m_publicFilename;  /*!< \brief Path and file name for the public level configuration file */
     tscrypto::tsCryptoString m_userFilename;    /*!< \brief Path and file name for the user level configuration file */
-#ifdef _WIN32
+  #ifdef _WIN32
     WIN32_FILE_ATTRIBUTE_DATA m_policyFileInfo;  /*!< \brief directory information for the policy configuration file that is used to detect changes */
     WIN32_FILE_ATTRIBUTE_DATA m_userFileInfo;    /*!< \brief directory information for the system level configuration file that is used to detect changes */
     WIN32_FILE_ATTRIBUTE_DATA m_publicFileInfo;  /*!< \brief directory information for the public level configuration file that is used to detect changes */
     WIN32_FILE_ATTRIBUTE_DATA m_systemFileInfo;  /*!< \brief directory information for the user level configuration file that is used to detect changes */
-#else
+  #else
     struct stat m_policyFileInfo;
     struct stat m_userFileInfo;
     struct stat m_publicFileInfo;
     struct stat m_systemFileInfo;
-#endif
+  #endif
 	PreferenceChangeNotifyList m_notifierList; /*!< \brief The list of objects that are to be notified when a change is detected */
     bool m_valuesLoaded;	/*!< \brief Indicates that the configuration values have been loaded */
 	PreferenceItemList _preferenceItems; ///< \brief The preference items found by this class
@@ -457,7 +474,7 @@ protected:
 	///
 	/// <returns>true if it succeeds, false if it fails.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual bool saveConfigurationChangesForLocation(tsAppConfig::ConfigLocation location){UNREFERENCED_PARAMETER(location); return true;}
+	virtual bool saveConfigurationChangesForLocation(tsAppConfig::ConfigLocation location) { UNREFERENCED_PARAMETER(location); return true; }
 	//virtual bool saveConfigurationChangesForLocation(tsAppConfig::ConfigLocation location);
 	/**
 	 * \brief Loads configuration values for the specified location.
@@ -467,7 +484,7 @@ protected:
 	 *
 	 * \return true if it succeeds, false if it fails.
 	 */
-	virtual bool loadValuesForLocation(tsAppConfig::ConfigLocation location, const tsAppConfig &config) {UNREFERENCED_PARAMETER(location); UNREFERENCED_PARAMETER(config); return true; }
+	virtual bool loadValuesForLocation(tsAppConfig::ConfigLocation location, const tsAppConfig &config) { UNREFERENCED_PARAMETER(location); UNREFERENCED_PARAMETER(config); return true; }
 	//virtual bool loadValuesForLocation(tsAppConfig::ConfigLocation location, const tsAppConfig &config);
 	/**
 	 * \brief Determines if we can use entries.

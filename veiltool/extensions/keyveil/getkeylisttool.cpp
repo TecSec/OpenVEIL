@@ -37,7 +37,7 @@ enum {
 
 //printf("USAGE: GetMyCTS <username> <ServerUrl>\n");
 
-static const struct OptionList options[] = {
+static const struct tsmod::OptionList options[] = {
 	{ "", "VEIL tool KEYVEIL KEYLIST options" },
 	{ "", "=================================" },
 	{ "--help, -h, -?", "This help information." },
@@ -60,7 +60,7 @@ static const CSimpleOptA::SOption g_rgOptions1[] =
 	SO_END_OF_OPTIONS
 };
 
-class GetKeyListTool : public IVeilToolCommand, public tsmod::IObject
+class GetKeyListTool : public tsmod::IVeilToolCommand, public tsmod::IObject
 {
 public:
 	GetKeyListTool()
@@ -69,12 +69,12 @@ public:
 	{}
 
 	// tsmod::IObject
-	virtual void OnConstructionFinished()
+	virtual void OnConstructionFinished() override
 	{
-		utils = ::TopServiceLocator()->get_instance<IVeilUtilities>("VeilUtilities");
+		utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
 	}
 
-	// Inherited via IVeilToolCommand
+	// Inherited via tsmod::IVeilToolCommand
 	virtual tscrypto::tsCryptoString getDescription() const override
 	{
 		return "Get the list of keys available.";
@@ -189,7 +189,7 @@ protected:
 		utils->Usage(options, sizeof(options) / sizeof(options[0]));
 	}
 protected:
-	std::shared_ptr<IVeilUtilities> utils;
+	std::shared_ptr<tsmod::IVeilUtilities> utils;
 };
 
 tsmod::IObject* HIDDEN CreateGetKeyListTool()

@@ -87,7 +87,7 @@ typedef enum {
 } WinscardChangeType;
 
 /// <summary>Represents the functions available for a smart card reader.</summary>
-class ICkmWinscardReader
+class VEILSMARTCARD_EXPORT ICkmWinscardReader
 {
 public:
 	/**
@@ -177,7 +177,7 @@ public:
 };
 
 /// <summary>Defines the interface that implements the server (not card) side of a Global Platform secure channel.</summary>
-class ServerSecureChannel
+class VEILSMARTCARD_EXPORT ServerSecureChannel
 {
 public:
 	virtual bool finish() = 0;
@@ -216,7 +216,7 @@ public:
 /**
 * \brief Defines the functionality for a connection to a smart card.
 */
-class ICkmWinscardConnection
+class VEILSMARTCARD_EXPORT ICkmWinscardConnection
 {
 public:
 	/**
@@ -323,7 +323,7 @@ public:
 /**
 * \brief Defines the functions available to a smart card context.
 */
-class ICkmWinscardContext 
+class VEILSMARTCARD_EXPORT ICkmWinscardContext
 {
 public:
 	/**
@@ -355,7 +355,7 @@ public:
 *
 * This is a low level interface and is not normally used.  See the ICkmWinscardMonitor interface for the current change monitoring system.
 */
-class ICkmWinscardChange
+class VEILSMARTCARD_EXPORT ICkmWinscardChange
 {
 public:
 	/**
@@ -387,7 +387,7 @@ public:
 /**
 * \brief Defines the information sent to consumers of the change monitoring system.
 */
-class ICkmWinscardEvent : public ICkmChangeEvent
+class VEILSMARTCARD_EXPORT ICkmWinscardEvent : public ICkmChangeEvent
 {
 public:
 	/**
@@ -420,7 +420,7 @@ extern VEILSMARTCARD_EXPORT ICkmWinscardReaderList CreateICkmWinscardReaderList(
 /**
 * \brief Defines the functionality of the internal change monitoring system for smart cards.
 */
-class ICkmWinscardMonitor
+class VEILSMARTCARD_EXPORT ICkmWinscardMonitor
 {
 public:
 	/**
@@ -482,7 +482,7 @@ typedef enum SmartCardCommand
 /**
 * \brief Smart card command and data that the server needs performed.
 */
-class SmartCardCommandResponse
+class VEILSMARTCARD_EXPORT SmartCardCommandResponse
 {
 public:
 	SmartCardCommand Command;   ///< \brief The command type to perform
@@ -491,7 +491,7 @@ public:
 /**
 * \brief Events triggered during the processing of a smart card
 */
-class ISmartCardLinkEvents
+class VEILSMARTCARD_EXPORT ISmartCardLinkEvents
 {
 public:
 	/**
@@ -566,7 +566,7 @@ public:
 *  calls the StartCardPump function.  During the operation this object will call the ISmartCardLinkEvents::RespondToServer function
 *  to report the last results and get the next command to process.  When the operation is finished the client must call CloseCardPump.
 */
-class ISmartCardLink
+class VEILSMARTCARD_EXPORT ISmartCardLink
 {
 public:
 	/**
@@ -667,7 +667,7 @@ public:
 	tscrypto::tsCryptoData Data;
 };
 
-class ISmartCardConnectionEvents
+class VEILSMARTCARD_EXPORT ISmartCardConnectionEvents
 {
 public:
 	virtual void CardUpdated(const tscrypto::tsCryptoString& msg) = 0;
@@ -675,7 +675,7 @@ public:
 	virtual void Status(const tscrypto::tsCryptoString& msg) = 0;
 };
 
-class ISmartCardConnection
+class VEILSMARTCARD_EXPORT ISmartCardConnection
 {
 public:
 	virtual bool IsInTransaction() = 0;
@@ -730,7 +730,7 @@ public:
 	virtual void PingCard() = 0;
 };
 
-class ISmartCardKeyInformation
+class VEILSMARTCARD_EXPORT ISmartCardKeyInformation
 {
 public:
 	virtual uint8_t KeyVersion() const = 0;
@@ -740,7 +740,7 @@ public:
 	virtual tscrypto::tsCryptoData OtherInfo() const = 0;
 };
 
-class ISmartCardInformation
+class VEILSMARTCARD_EXPORT ISmartCardInformation
 {
 public:
 	virtual tscrypto::tsCryptoString OSVersion() const = 0;
@@ -787,6 +787,10 @@ public:
 
 	// Added 7.0.33
 	virtual bool isTransportLocked() const = 0;
+
+	// Added 7.0.35
+	virtual void OverrideIIN(const tscrypto::tsCryptoData& setTo) = 0;
+	virtual void OverrideCIN(const tscrypto::tsCryptoData& setTo) = 0;
 };
 
 #endif // __VEILSMARTCARD_H__

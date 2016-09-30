@@ -58,8 +58,8 @@ public:
 		}
 	}
 
-	virtual tscrypto::tsCryptoString tokenName() { return _tokenName; }
-	virtual bool tokenName(const tscrypto::tsCryptoString& setTo)
+	virtual tscrypto::tsCryptoString tokenName() override { return _tokenName; }
+	virtual bool tokenName(const tscrypto::tsCryptoStringBase& setTo) override
 	{
 		JSONObject upData, downData;
 		int status;
@@ -81,20 +81,20 @@ public:
 		_tokenName = setTo;
 		return false;
 	}
-	virtual tscrypto::tsCryptoData serialNumber() { return _serialNumber; }
-	virtual GUID id() { return _id; }
-	virtual tscrypto::tsCryptoString enterpriseName() { return _enterpriseName; }
-	virtual tscrypto::tsCryptoString memberName() { return _memberName; }
-	virtual tscrypto::tsCryptoString tokenType() { return _tokenType; }
-	virtual GUID enterpriseId() { return _enterpriseId; }
-	virtual GUID memberId() { return _memberId; }
+	virtual tscrypto::tsCryptoData serialNumber() override { return _serialNumber; }
+	virtual GUID id() override { return _id; }
+	virtual tscrypto::tsCryptoString enterpriseName() override { return _enterpriseName; }
+	virtual tscrypto::tsCryptoString memberName() override { return _memberName; }
+	virtual tscrypto::tsCryptoString tokenType() override { return _tokenType; }
+	virtual GUID enterpriseId() override { return _enterpriseId; }
+	virtual GUID memberId() override { return _memberId; }
 
-	virtual std::shared_ptr<IKeyVEILSession> openSession()
+	virtual std::shared_ptr<IKeyVEILSession> openSession() override
 	{
 		if (_connector.use_count() == 0)
 			return nullptr;
 
-		tscrypto::AutoLocker lock(_sessionLock);
+		TSAUTOLOCKER lock(_sessionLock);
 
 		// Remove sessions that have been closed
 		_sessions.erase(std::remove_if(_sessions.begin(), _sessions.end(), [](std::weak_ptr<IKeyVEILSession>& sess) -> bool { return sess.expired(); }), _sessions.end());

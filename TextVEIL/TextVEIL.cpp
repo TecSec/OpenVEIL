@@ -45,14 +45,14 @@ bool TextVEIL::OnInit()
 	{
 		char *errorMsg = "Unable to initialize the VEIL wxWidgets.";
 		wxMessageBox(errorMsg, "Error", wxOK | wxICON_ERROR);
-		ERROR(errorMsg);
+		//ERROR(errorMsg);
 		return false;
 	}
 	if (!InitializeCmsHeader())
 	{
 		char *errorMsg = "Unable to initialize the CMS Header system.";
 		wxMessageBox(errorMsg, "Error", wxOK | wxICON_ERROR);
-		ERROR(errorMsg);
+		//ERROR(errorMsg);
 		return false;
 	}
 
@@ -149,7 +149,7 @@ void MainFrame::OnEncrypt(wxCommandEvent& event)
 	std::shared_ptr<IFileVEILOperations> fileOps = CreateFileVEILOperationsObject();
 	fileOps->SetSession(_session);
 
-	tscrypto::tsCryptoData dataToEnc(EditBox->GetValue());
+	tscrypto::tsCryptoData dataToEnc(EditBox->GetValue().data());
 	tscrypto::tsCryptoData encData;
 
 	if (!fileOps->EncryptCryptoData(dataToEnc, encData, header, ct_zLib,
@@ -158,7 +158,7 @@ void MainFrame::OnEncrypt(wxCommandEvent& event)
 	{
 		char *errorMsg = "Failed to encrypt.";
 		wxMessageBox(errorMsg, "Error", wxOK | wxICON_ERROR);
-		ERROR(errorMsg);
+		//ERROR(errorMsg);
 		return;
 	}
 	
@@ -174,7 +174,7 @@ void MainFrame::OnEncrypt(wxCommandEvent& event)
 	{
 		char *errorMsg = "Failed to create PEM encoded armored string.";
 		wxMessageBox(errorMsg, "Error", wxOK | wxICON_ERROR);
-		ERROR(errorMsg);
+		//ERROR(errorMsg);
 		return;
 	}
 
@@ -227,7 +227,7 @@ void MainFrame::OnDecrypt(wxCommandEvent& event)
 	{
 		char *errorMsg = "Failed to read PEM encoded armored string.";
 		wxMessageBox(errorMsg, "Error", wxOK | wxICON_ERROR);
-		ERROR(errorMsg);
+		//ERROR(errorMsg);
 		return;
 	}
 
@@ -237,7 +237,7 @@ void MainFrame::OnDecrypt(wxCommandEvent& event)
 	{
 		char *errorMsg = "Failed to decrypt.";
 		wxMessageBox(errorMsg, "Error", wxOK | wxICON_ERROR);
-		ERROR(errorMsg);
+		//ERROR(errorMsg);
 		return;
 	}
 

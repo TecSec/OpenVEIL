@@ -37,7 +37,7 @@ public:
 	PluginModule();
 	virtual ~PluginModule();
 
-	virtual bool connect(const char* path, tsmod::IReportError* log) override;
+	virtual bool connect(const tscrypto::tsCryptoStringBase& path, tsmod::IReportError* log) override;
 	virtual void disconnect() override;
 	virtual tscrypto::tsCryptoString Name() const override { return _name; }
 	XP_MODULE Handle() const { return _handle; }
@@ -59,31 +59,31 @@ public:
 	virtual ~RootedPluginModule(){}
 
 	// tsmod::IServiceLocator
-	virtual bool AddSingletonClass(const char *className, std::function<tsmod::IObject* ()> creator) override
+	virtual bool AddSingletonClass(const tscrypto::tsCryptoStringBase& className, std::function<tsmod::IObject* ()> creator) override
 	{
 		return myServices->AddSingletonClass(className, creator);
 	}
-	virtual bool AddSingletonObject(const char *className, std::shared_ptr<tsmod::IObject> object) override
+	virtual bool AddSingletonObject(const tscrypto::tsCryptoStringBase& className, std::shared_ptr<tsmod::IObject> object) override
 	{
 		return myServices->AddSingletonObject(className, object);
 	}
-	virtual bool AddClass(const char *className, std::function<tsmod::IObject* ()> creator) override
+	virtual bool AddClass(const tscrypto::tsCryptoStringBase& className, std::function<tsmod::IObject* ()> creator) override
 	{
 		return myServices->AddClass(className, creator);
 	}
-	virtual bool CopyClass(const char *className, tsmod::IServiceLocator* copyTo) const override
+	virtual bool CopyClass(const tscrypto::tsCryptoStringBase& className, tsmod::IServiceLocator* copyTo) const override
 	{
 		return myServices->CopyClass(className, copyTo);
 	}
-	virtual bool DeleteClass(const char *className) override
+	virtual bool DeleteClass(const tscrypto::tsCryptoStringBase& className) override
 	{
 		return myServices->DeleteClass(className);
 	}
-	virtual std::shared_ptr<tsmod::IObject> Create(const char* className) override
+	virtual std::shared_ptr<tsmod::IObject> Create(const tscrypto::tsCryptoStringBase& className) override
 	{
 		return myServices->Create(className);
 	}
-	virtual std::shared_ptr<tsmod::IObject> TryCreate(const char* className) override
+	virtual std::shared_ptr<tsmod::IObject> TryCreate(const tscrypto::tsCryptoStringBase& className) override
 	{
 		return myServices->TryCreate(className);
 	}
@@ -91,11 +91,11 @@ public:
 	{
 		return myServices->ObjectNames(onlyInstantiatedSingletons);
 	}
-	virtual tscrypto::tsCryptoStringList ObjectGroup(const char* prefix, bool onlyInstantiatedSingletons) const override
+	virtual tscrypto::tsCryptoStringList ObjectGroup(const tscrypto::tsCryptoStringBase& prefix, bool onlyInstantiatedSingletons) const override
 	{
 		return myServices->ObjectGroup(prefix, onlyInstantiatedSingletons);
 	}
-	virtual bool CanCreate(const char* className) const override
+	virtual bool CanCreate(const tscrypto::tsCryptoStringBase& className) const override
 	{
 		return myServices->CanCreate(className);
 	}
@@ -117,11 +117,11 @@ public:
 	}
 	virtual std::shared_ptr<tsmod::IObject> newInstance() const override { return nullptr; }
 
-	virtual std::shared_ptr<tsmod::IServiceLocator> resolvePath(tscrypto::tsCryptoString &path, bool createPaths) override
+	virtual std::shared_ptr<tsmod::IServiceLocator> resolvePath(tscrypto::tsCryptoStringBase &path, bool createPaths) override
 	{
 		return myServices->resolvePath(path, createPaths);
 	}
-	virtual std::shared_ptr<tsmod::IServiceLocator> resolvePath(tscrypto::tsCryptoString &path) const override
+	virtual std::shared_ptr<tsmod::IServiceLocator> resolvePath(tscrypto::tsCryptoStringBase &path) const override
 	{
 		return myServices->resolvePath(path);
 	}
@@ -129,12 +129,12 @@ public:
 	{
 		return myServices->findObjectName(obj);
 	}
-	virtual void BuildObjectPath(tscrypto::tsCryptoString& name) override
+	virtual void BuildObjectPath(tscrypto::tsCryptoStringBase& name) override
 	{
 		myServices->BuildObjectPath(name);
 	}
 
-	virtual void CleanEmptyCollections(const char *className) override
+	virtual void CleanEmptyCollections(const tscrypto::tsCryptoStringBase& className) override
 	{
 		myServices->CleanEmptyCollections(className);
 	}
@@ -150,13 +150,17 @@ public:
 	{
 		return myServices->IsRoot();
 	}
-	virtual std::shared_ptr<IObject> Create(const char* className, std::shared_ptr<tsmod::IServiceLocator> onService)
+	virtual std::shared_ptr<IObject> Create(const tscrypto::tsCryptoStringBase& className, std::shared_ptr<tsmod::IServiceLocator> onService) override
 	{
 		return myServices->Create(className, onService);
 	}
-	virtual std::shared_ptr<IObject> TryCreate(const char* className, std::shared_ptr<tsmod::IServiceLocator> onService)
+	virtual std::shared_ptr<IObject> TryCreate(const tscrypto::tsCryptoStringBase& className, std::shared_ptr<tsmod::IServiceLocator> onService) override
 	{
 		return myServices->TryCreate(className, onService);
+	}
+	virtual bool CopyClassDef(const tscrypto::tsCryptoStringBase& className, const tscrypto::tsCryptoStringBase& newName) override
+	{
+		return myServices->CopyClassDef(className, newName);
 	}
 
 	// tsmod::IObject
@@ -200,17 +204,24 @@ PluginModule::~PluginModule()
 //   PluginModule &operator=(PluginModule&& obj);
 //PluginModule &operator=(const PluginModule& obj) { UNREFERENCED_PARAMETER(obj); throw std::runtime_error("assignment not allowed"); }
 
-bool PluginModule::connect(const char* path, tsmod::IReportError* log)
+//extern "C" const char *GetLastDLError();
+
+bool PluginModule::connect(const tscrypto::tsCryptoStringBase& _path, tsmod::IReportError* log)
 {
-    tscrypto::tsCryptoString tmp1, tmp2;
+    tscrypto::tsCryptoString tmp1, tmp2, path;
  //   if (!localAuthenticateModule(path))
 	//{
 	//	log->SetFault("Server", "The specified module could not load because it has been modified.", "");
  //       return false;
 	//}
  //
+
+ 	xp_GetFullPathName(_path, path, nullptr);
+//printf("Loading module %s\n", path.c_str());
     if (xp_LoadSharedLib(path, &_handle) != 0)
     {
+//printf ("Module load returned %s\n", GetLastDLError());
+
 		if (log != nullptr)
 			log->SetJSONFault("SystemException", "The specified module is missing one or more dependent components.", "Server", "");
 		else
@@ -245,7 +256,7 @@ bool PluginModule::Initialize(tsmod::IReportError* log)
     typedef bool (*fn_t)(std::shared_ptr<tsmod::IServiceLocator>, tsmod::IReportError* log);
     fn_t fn = nullptr;
 
-	tscrypto::AutoLocker lock(_lock);
+	TSAUTOLOCKER lock(_lock);
     if (!isValid())
 	{
 		if (log != nullptr)
@@ -299,7 +310,7 @@ bool PluginModule::Terminate()
     typedef bool (*fn_t)(std::shared_ptr<tsmod::IServiceLocator>);
     fn_t fn = nullptr;
 
-	tscrypto::AutoLocker lock(_lock);
+	TSAUTOLOCKER lock(_lock);
     if (!isValid())
         return false;
 

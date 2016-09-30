@@ -111,9 +111,9 @@ std::shared_ptr<IDataIOBase> CreateReadAppendFile(const tscrypto::tsCryptoString
 }
 
 CkmReadAppendFile::CkmReadAppendFile(const tscrypto::tsCryptoString& filename) :
-    m_filename(filename),
     m_file(NULL),
     m_dataLength(0),
+    m_filename(filename),
     m_writerDone(false),
     m_writerDoneEvent(),
     m_callbackReturn(true),
@@ -162,7 +162,7 @@ bool CkmReadAppendFile::IsEndOfFile() const
 {
     TSDECLARE_METHODExt(raf_DebugFifoDetail);
 
-    AutoLocker locker(m_accessLock);
+    TSAUTOLOCKER locker(m_accessLock);
 
     if (m_file == NULL)
         return true;
@@ -184,7 +184,7 @@ int64_t CkmReadAppendFile::RemainingData() const
 {
     TSDECLARE_METHODExt(raf_DebugFifoDetail);
 
-    AutoLocker locker(m_accessLock);
+    TSAUTOLOCKER locker(m_accessLock);
 
 	if (raf_DebugFifoSummary) { LOG(FrameworkInfo1, m_dataLength - CurrentPosition() << " bytes remaining in " << m_filename); }
     return TSRETURN(("~~ bytes"),m_dataLength - CurrentPosition());
@@ -194,7 +194,7 @@ int64_t CkmReadAppendFile::DataLength() const
 {
     TSDECLARE_METHODExt(raf_DebugFifoDetail);
 
-    AutoLocker locker(m_accessLock);
+    TSAUTOLOCKER locker(m_accessLock);
 
 	if (raf_DebugFifoSummary) { LOG(FrameworkInfo1, m_dataLength << " bytes in " << m_filename); }
     return TSRETURN(("~~ bytes"),m_dataLength);
@@ -248,7 +248,7 @@ void CkmReadAppendFile::SetDataName(const tscrypto::tsCryptoString& setTo)
 
 void CkmReadAppendFile::Close()
 {
-    AutoLocker locker(m_accessLock);
+    TSAUTOLOCKER locker(m_accessLock);
 
     if (m_file != NULL)
         fclose(m_file);
@@ -259,7 +259,7 @@ void CkmReadAppendFile::Close()
 
 bool CkmReadAppendFile::GoToPosition(int64_t setTo)
 {
-    AutoLocker locker(m_accessLock);
+    TSAUTOLOCKER locker(m_accessLock);
 
     if (m_file == NULL)
         return false;
@@ -299,7 +299,7 @@ bool CkmReadAppendFile::WriteData(const tscrypto::tsCryptoData &data)
         return TSRETURN(("false"),false);
 
     {
-        AutoLocker locker(m_accessLock);
+        TSAUTOLOCKER locker(m_accessLock);
 
         if (m_writerDone)
             return TSRETURN(("false"),false);
@@ -351,7 +351,7 @@ bool CkmReadAppendFile::WriteData(const tscrypto::tsCryptoData &data, int offset
         return TSRETURN(("false"),false);
 
     {
-        AutoLocker locker(m_accessLock);
+        TSAUTOLOCKER locker(m_accessLock);
 
         if (m_writerDone)
             return TSRETURN(("false"),false);
@@ -462,7 +462,7 @@ bool CkmReadAppendFile::ReadData(int byteCount, tscrypto::tsCryptoData &data)
 {
     TSDECLARE_METHODExt(raf_DebugFifoIODetail);
 
-    AutoLocker locker(m_accessLock);
+    TSAUTOLOCKER locker(m_accessLock);
 
     if (m_file == NULL || byteCount < 0)
         return TSRETURN(("false"),false);
@@ -483,7 +483,7 @@ int CkmReadAppendFile::ReadData(int byteCount, int dataOffset, tscrypto::tsCrypt
 {
     TSDECLARE_METHODExt(raf_DebugFifoIODetail);
 
-    AutoLocker locker(m_accessLock);
+    TSAUTOLOCKER locker(m_accessLock);
 
     if (m_file == NULL || byteCount < 0)
         return TSRETURN(("0"),0);
@@ -514,7 +514,7 @@ void CkmReadAppendFile::WriterDone()
     std::shared_ptr<IFifoStreamReaderCallback> cb;
 
     {
-        AutoLocker locker(m_accessLock);
+        TSAUTOLOCKER locker(m_accessLock);
 
         if (!m_writerDone)
         {
@@ -540,7 +540,7 @@ void CkmReadAppendFile::WriterDone()
 
 bool CkmReadAppendFile::SetReaderCallback(std::shared_ptr<IFifoStreamReaderCallback> setTo)
 {
-    AutoLocker locker(m_accessLock);
+    TSAUTOLOCKER locker(m_accessLock);
 
     m_readerCallback.reset();
     if (setTo != NULL)
@@ -550,7 +550,7 @@ bool CkmReadAppendFile::SetReaderCallback(std::shared_ptr<IFifoStreamReaderCallb
 
 bool CkmReadAppendFile::SetWriterCallback(std::shared_ptr<IFifoStreamWriterCallback> setTo)
 {
-    AutoLocker locker(m_accessLock);
+    TSAUTOLOCKER locker(m_accessLock);
 
     m_writerCallback.reset();
     if (setTo != NULL)
@@ -600,6 +600,8 @@ bool CkmReadAppendFile::ProcessAllData()
                 return TSRETURN_ERROR(("E_FAIL"),false);
 			case CryptoEvent::Succeeded_Object1:
                 return TSRETURN(("Returns ~~"),m_callbackReturn);
+            default:
+                break;
             }
         }
         return TSRETURN(("Returns from callback ~~"),m_callbackReturn);
@@ -615,7 +617,7 @@ bool CkmReadAppendFile::PeekData(int byteCount, tscrypto::tsCryptoData &data)
 {
     TSDECLARE_METHODExt(raf_DebugFifoIODetail);
 
-    AutoLocker locker(m_accessLock);
+    TSAUTOLOCKER locker(m_accessLock);
 
     if (m_file == NULL || byteCount < 0)
         return TSRETURN(("false"),false);
@@ -637,7 +639,7 @@ int CkmReadAppendFile::PeekData(int byteCount, int dataOffset, tscrypto::tsCrypt
 {
     TSDECLARE_METHODExt(raf_DebugFifoIODetail);
 
-    AutoLocker locker(m_accessLock);
+    TSAUTOLOCKER locker(m_accessLock);
 
     if (m_file == NULL || byteCount < 0)
         return TSRETURN(("0"),0);
@@ -683,7 +685,7 @@ bool CkmReadAppendFile::WriteDataAndFinish(const tscrypto::tsCryptoData &data)
         return TSRETURN(("false"),false);
 
     {
-        AutoLocker locker(m_accessLock);
+        TSAUTOLOCKER locker(m_accessLock);
 
         if (m_writerDone)
             return TSRETURN(("false"),false);
@@ -736,7 +738,7 @@ bool CkmReadAppendFile::WriteDataAndFinish(const tscrypto::tsCryptoData &data, i
         return TSRETURN(("false"),false);
 
     {
-        AutoLocker locker(m_accessLock);
+        TSAUTOLOCKER locker(m_accessLock);
 
         if (m_writerDone)
             return TSRETURN(("false"),false);
@@ -808,7 +810,7 @@ void CkmReadAppendFile::Reset()
 {
     TSDECLARE_METHODExt(raf_DebugFifoDetail);
 
-    AutoLocker locker(m_accessLock);
+    TSAUTOLOCKER locker(m_accessLock);
 
     Close();
     m_filename = "";
@@ -824,7 +826,7 @@ void CkmReadAppendFile::Reset()
 }
 void CkmReadAppendFile::ResetWriter()
 {
-    AutoLocker locker(m_accessLock);
+    TSAUTOLOCKER locker(m_accessLock);
 
     m_writerDone = false;
     GoToPosition(0);

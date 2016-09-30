@@ -33,7 +33,7 @@
 
 enum options { OPT_HELP,  };
 
-static const struct OptionList options[] = {
+static const struct tsmod::OptionList options[] = {
 	{ "", "VEIL tool FOLDERS options" },
 	{ "", "=================================" },
 	{ "--help, -h, -?", "This help information." },
@@ -81,7 +81,7 @@ static struct {
 	{sft_UserConfigFolder,			 "User Config"},
 	{sft_UserSharesFolder,			 "User Shares"},
 };
-class FoldersTool : public IVeilToolCommand, public tsmod::IObject
+class FoldersTool : public tsmod::IVeilToolCommand, public tsmod::IObject
 {
 public:
 	FoldersTool()
@@ -90,12 +90,12 @@ public:
 	{}
 
 	// tsmod::IObject
-	virtual void OnConstructionFinished()
+	virtual void OnConstructionFinished() override
 	{
-		utils = ::TopServiceLocator()->get_instance<IVeilUtilities>("VeilUtilities");
+		utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
 	}
 
-	// Inherited via IVeilToolCommand
+	// Inherited via tsmod::IVeilToolCommand
 	virtual tscrypto::tsCryptoString getDescription() const override
 	{
 		return "Display important folders for the veil suite.";
@@ -147,7 +147,7 @@ protected:
 		utils->Usage(options, sizeof(options) / sizeof(options[0]));
 	}
 protected:
-	std::shared_ptr<IVeilUtilities> utils;
+	std::shared_ptr<tsmod::IVeilUtilities> utils;
 };
 
 tsmod::IObject* CreateFoldersTool()

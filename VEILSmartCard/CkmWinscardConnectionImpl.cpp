@@ -418,7 +418,7 @@ private:
 
 		if (!!m_channel && (m_channel->getSecurityLevel() & 0x30) != 0)
 		{
-			realSW = sw;
+			realSW = (int)sw;
 			if (sw == 0x6310)
 				sw = 0x9000;
 			if (!m_channel->Unwrap(dataToSend[0], dataToSend[1], dataToSend[2], dataToSend[3], dataToSend[4], dataToSend.substring(5, 9999), 0x00, dataReceived, sw))

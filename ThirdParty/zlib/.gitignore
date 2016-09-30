@@ -10,3 +10,6 @@ obj
 *.suo
 ./Build
 *~
+*/.vscode/
+.vscode/
+.vscode

@@ -31,9 +31,10 @@
 
 #pragma once
 
-class IOutputCollector
-{
-public:
+namespace tsmod {
+	class VEILCORE_API IOutputCollector
+	{
+	public:
 	virtual ~IOutputCollector() {}
 	virtual int AddOutputData(const tscrypto::tsCryptoData& outData, const tscrypto::tsCryptoString& dataType, bool sensitive = false, const tsAttributeMap& attrs = tsAttributeMap()) = 0;
 	virtual bool usePassword() const = 0;
@@ -44,4 +45,6 @@ public:
 	virtual bool encryptionAlgName(const tscrypto::tsCryptoString& setTo) = 0;
 	virtual bool writeToStdout() = 0;
 	virtual bool writeToFile(const tscrypto::tsCryptoString& filename) = 0;
-};
+		virtual bool writeToString(tscrypto::tsCryptoString& str) = 0;
+	};
+}

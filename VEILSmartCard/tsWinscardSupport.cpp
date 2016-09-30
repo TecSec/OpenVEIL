@@ -64,7 +64,7 @@ static LONG tsSCardListReaders(IN SCARDCONTEXT hContext, IN const char *mszGroup
 class WinscardMonitorThread : public CancelableTsThread
 {
 public:
-	WinscardMonitorThread() : _context(0), _accessEvent(0)
+	WinscardMonitorThread() : _context(0), _accessEvent(0), _initialized(true, false)
 	{
 		_consumers = CreateConsumerList();
 		LOG(scdebug, "Configuring smart card thread");
@@ -95,6 +95,17 @@ public:
 		}
 		_readers.clear();
 	}
+	virtual bool Start()
+	{
+		_initialized.Reset();
+		if (!CancelableTsThread::Start())
+		{
+			return false;
+		}
+		if (_initialized.WaitForEvent(3000) != tscrypto::CryptoEvent::Succeeded_Object1)
+			return false;
+		return true;
+	}
 	ReaderInfoList ReaderList()
 	{
 		ReaderInfoList infoList = CreateReaderInfoList();
@@ -104,7 +115,7 @@ public:
 			return infoList;
 		}
 
-		tscrypto::AutoLocker locker(_readerNameListLock);
+		TSAUTOLOCKER locker(_readerNameListLock);
 
 		for (size_t i = 1; i < _readers.size(); i++)
 		{
@@ -134,11 +145,11 @@ public:
 			cons.func = func;
 			cons.id = id;
 
-			tscrypto::AutoLocker locker(_consumerListLock);
+			TSAUTOLOCKER locker(_consumerListLock);
 			_consumers->push_back(cons);
 		}
 		{
-			tscrypto::AutoLocker locker(_readerNameListLock);
+			TSAUTOLOCKER locker(_readerNameListLock);
 
 			for (size_t i = 1; i < _readers.size(); i++)
 			{
@@ -165,7 +176,7 @@ public:
 	}
 	void RemoveConsumer(uint32_t consumerCookie)
 	{
-		tscrypto::AutoLocker locker(_consumerListLock);
+		TSAUTOLOCKER locker(_consumerListLock);
 
 		//FTRACE((program, ("Removing cookie %d"), consumerCookie));
 		auto it = std::find_if(_consumers->begin(), _consumers->end(), [consumerCookie](const Consumer& obj) -> bool { return obj.id == consumerCookie; });
@@ -221,6 +232,7 @@ protected:
 	ConsumerList _consumers;
 	tscrypto::AutoCriticalSection _consumerListLock;
 	HANDLE _accessEvent;
+	CryptoEvent _initialized;
 
 	int _monitor()
 	{
@@ -266,7 +278,7 @@ protected:
 					std::vector<SCARD_READERSTATE> tmpReaders;
 					{
 						// Duplicate the list
-						tscrypto::AutoLocker lock(_readerNameListLock);
+						TSAUTOLOCKER lock(_readerNameListLock);
 						for (auto reader : _readers)
 						{
 							tmpReaders.push_back(reader);
@@ -275,7 +287,7 @@ protected:
 					hadChange = (tsSCardGetStatusChange(_context, INFINITE, tmpReaders.data(), (DWORD)tmpReaders.size()) == SCARD_S_SUCCESS);
 					{
 						// sync up the lists
-						tscrypto::AutoLocker lock(_readerNameListLock);
+						TSAUTOLOCKER lock(_readerNameListLock);
 						for (auto reader : tmpReaders)
 						{
 							auto it = std::find_if(_readers.begin(), _readers.end(), [&reader](SCARD_READERSTATE& rdr) { return reader.szReader == rdr.szReader; });  // we can compare the szReader pointers as they are shallow copied above
@@ -294,7 +306,7 @@ protected:
 					bool haveReaderChanges = false;
 
 					{
-						tscrypto::AutoLocker lock(_readerNameListLock);
+						TSAUTOLOCKER lock(_readerNameListLock);
 						for (size_t i = 0; i < _readers.size(); i++)
 						{
 							SCARD_READERSTATE& readerState = _readers[i];
@@ -365,6 +377,7 @@ protected:
 					}
 				}
 			}
+			_initialized.Set();
 		}
 		return 0;
 	}
@@ -414,7 +427,7 @@ protected:
 
 	void _FireReaderAdd(const tscrypto::tsCryptoString &readerName)
 	{
-		tscrypto::AutoLocker locker(_consumerListLock);
+		TSAUTOLOCKER locker(_consumerListLock);
 		ConsumerList list = CreateConsumerList();
 
 		for (auto c : *_consumers)
@@ -437,7 +450,7 @@ protected:
 	}
 	void _FireReaderRemoved(const tscrypto::tsCryptoString &readerName)
 	{
-		tscrypto::AutoLocker locker(_consumerListLock);
+		TSAUTOLOCKER locker(_consumerListLock);
 		ConsumerList list = CreateConsumerList();
 
 		for (auto c : *_consumers)
@@ -458,7 +471,7 @@ protected:
 	}
 	void _FireCardInsert(const tscrypto::tsCryptoString &readerName)
 	{
-		tscrypto::AutoLocker locker(_consumerListLock);
+		TSAUTOLOCKER locker(_consumerListLock);
 		ConsumerList list = CreateConsumerList();
 
 		for (auto c : *_consumers)
@@ -479,7 +492,7 @@ protected:
 	}
 	void _FireCardRemoved(const tscrypto::tsCryptoString &readerName)
 	{
-		tscrypto::AutoLocker locker(_consumerListLock);
+		TSAUTOLOCKER locker(_consumerListLock);
 		ConsumerList list = CreateConsumerList();
 
 		for (auto c : *_consumers)
@@ -507,7 +520,7 @@ protected:
 		const char *p;
 
 		{
-			tscrypto::AutoLocker locker(_readerNameListLock);
+			TSAUTOLOCKER locker(_readerNameListLock);
 
 			for (size_t i = 1; i < _readers.size(); i++)
 			{

@@ -50,15 +50,15 @@ namespace tsmod
 
 	struct IServiceLocatorVisitor
 	{
-		virtual bool visitEnter(const char *name, IServiceLocator* locator) = 0;
-		virtual void visitLeave(const char *name, IServiceLocator* locator) = 0;
-		virtual void visit(const char *name, bool singleton, bool object) = 0;
+		virtual bool visitEnter(const tscrypto::tsCryptoStringBase& name, IServiceLocator* locator) = 0;
+		virtual void visitLeave(const tscrypto::tsCryptoStringBase& name, IServiceLocator* locator) = 0;
+		virtual void visit(const tscrypto::tsCryptoStringBase& name, bool singleton, bool object) = 0;
 	};
 	struct IConstServiceLocatorVisitor
 	{
-		virtual bool visitEnter(const char *name, const IServiceLocator* locator) const = 0;
-		virtual void visitLeave(const char *name, const IServiceLocator* locator) const = 0;
-		virtual void visit(const char *name, bool singleton, bool object) = 0;
+		virtual bool visitEnter(const tscrypto::tsCryptoStringBase& name, const IServiceLocator* locator) const = 0;
+		virtual void visitLeave(const tscrypto::tsCryptoStringBase& name, const IServiceLocator* locator) const = 0;
+		virtual void visit(const tscrypto::tsCryptoStringBase& name, bool singleton, bool object) = 0;
 	};
 
 	struct IObject;
@@ -79,6 +79,19 @@ namespace tsmod
 {
 	struct VEILCORE_API IObject
 	{
+		static void *operator new(std::size_t count) {
+			return tscrypto::cryptoNew(count);
+		}
+		static void *operator new[](std::size_t count) {
+			return tscrypto::cryptoNew(count);
+		}
+			static void operator delete(void *ptr) {
+			tscrypto::cryptoDelete(ptr);
+		}
+		static void operator delete[](void *ptr) {
+			tscrypto::cryptoDelete(ptr);
+		}
+
 		virtual ~IObject();
 		virtual std::shared_ptr<IServiceLocator> ServiceLocator() const
 		{
@@ -97,7 +110,7 @@ namespace tsmod
 	struct VEILCORE_API IInitializableObject
 	{
 		virtual ~IInitializableObject() {}
-		virtual bool InitializeWithFullName(const char* fullName) = 0;
+		virtual bool InitializeWithFullName(const tscrypto::tsCryptoStringBase& fullName) = 0;
 	};
 }
 
@@ -107,19 +120,19 @@ namespace tsmod
 {
 	struct VEILCORE_API IServiceLocator
 	{
-		virtual bool AddSingletonClass(const char *className, std::function<IObject* ()> creator) = 0;
-		virtual bool AddSingletonObject(const char *className, std::shared_ptr<IObject> object) = 0;
-		virtual bool AddClass(const char *className, std::function<IObject* ()> creator) = 0;
-		virtual bool CopyClass(const char *className, IServiceLocator* copyTo) const = 0;
-		virtual bool DeleteClass(const char *className) = 0;
+		virtual bool AddSingletonClass(const tscrypto::tsCryptoStringBase& className, std::function<IObject* ()> creator) = 0;
+		virtual bool AddSingletonObject(const tscrypto::tsCryptoStringBase& className, std::shared_ptr<IObject> object) = 0;
+		virtual bool AddClass(const tscrypto::tsCryptoStringBase& className, std::function<IObject* ()> creator) = 0;
+		virtual bool CopyClass(const tscrypto::tsCryptoStringBase& className, IServiceLocator* copyTo) const = 0;
+		virtual bool DeleteClass(const tscrypto::tsCryptoStringBase& className) = 0;
 
-		virtual std::shared_ptr<IObject> Create(const char* className) = 0;
-		virtual std::shared_ptr<IObject> TryCreate(const char* className) = 0;
+		virtual std::shared_ptr<IObject> Create(const tscrypto::tsCryptoStringBase& className) = 0;
+		virtual std::shared_ptr<IObject> TryCreate(const tscrypto::tsCryptoStringBase& className) = 0;
 
 		virtual tscrypto::tsCryptoStringList ObjectNames(bool onlyInstantiatedSingletons) const = 0;
-		virtual tscrypto::tsCryptoStringList ObjectGroup(const char* prefix, bool onlyInstantiatedSingletons) const = 0;
+		virtual tscrypto::tsCryptoStringList ObjectGroup(const tscrypto::tsCryptoStringBase& prefix, bool onlyInstantiatedSingletons) const = 0;
 
-		virtual bool CanCreate(const char* className) const = 0;
+		virtual bool CanCreate(const tscrypto::tsCryptoStringBase& className) const = 0;
 		virtual std::shared_ptr<IServiceLocator> Creator() const = 0;
 		virtual std::shared_ptr<IObject> FinishConstruction(IObject* obj) = 0;
 
@@ -129,7 +142,7 @@ namespace tsmod
 		virtual std::shared_ptr<IObject> newInstance() const = 0;
 
 		template <class T>
-		std::shared_ptr<T> get_instance(const char* className)
+		std::shared_ptr<T> get_instance(const tscrypto::tsCryptoStringBase& className)
 		{
 			std::shared_ptr<T> obj = std::dynamic_pointer_cast<T>(TryCreate(className));
 			if (!obj)
@@ -137,7 +150,7 @@ namespace tsmod
 			return obj;
 		}
 		template <class T>
-		std::shared_ptr<T> try_get_instance(const char* className)
+		std::shared_ptr<T> try_get_instance(const tscrypto::tsCryptoStringBase& className)
 		{
 			return std::dynamic_pointer_cast<T>(TryCreate(className));
 		}
@@ -147,7 +160,7 @@ namespace tsmod
 			return std::dynamic_pointer_cast<T>(FinishConstruction(obj));
 		}
 		template <class T>
-		std::vector<std::shared_ptr<T> > try_get_group(const char *prefix, bool onlyInstantiatedSingletons)
+		std::vector<std::shared_ptr<T> > try_get_group(const tscrypto::tsCryptoStringBase& prefix, bool onlyInstantiatedSingletons)
 		{
 			tscrypto::tsCryptoString id(prefix);
 			std::shared_ptr<tsmod::IServiceLocator> loc = resolvePath(id);
@@ -166,7 +179,7 @@ namespace tsmod
 			if (initializerList->size() > 0)
 			{
 				objList.reserve(initializerList->size());
-				std::find_if(initializerList->begin(), initializerList->end(), [this, &objList](tscrypto::tsCryptoString& name) -> bool {
+				std::find_if(initializerList->begin(), initializerList->end(), [this, &objList](tscrypto::tsCryptoStringBase& name) -> bool {
 					std::shared_ptr<T> obj = try_get_instance<T>(name.c_str());
 					if (!obj)
 						return true;
@@ -177,7 +190,7 @@ namespace tsmod
 			return objList;
 		}
 		template <class T>
-		std::vector<std::shared_ptr<T> > get_group(const char *prefix, bool onlyInstantiatedSingletons)
+		std::vector<std::shared_ptr<T> > get_group(const tscrypto::tsCryptoStringBase& prefix, bool onlyInstantiatedSingletons)
 		{
 			tscrypto::tsCryptoString id(prefix);
 			std::shared_ptr<tsmod::IServiceLocator> loc = resolvePath(id);
@@ -196,7 +209,7 @@ namespace tsmod
 			if (initializerList->size() > 0)
 			{
 				objList.reserve(initializerList->size());
-				auto it1 = std::find_if(initializerList->begin(), initializerList->end(), [this, &objList](tscrypto::tsCryptoString& name) -> bool {
+				auto it1 = std::find_if(initializerList->begin(), initializerList->end(), [this, &objList](tscrypto::tsCryptoStringBase& name) -> bool {
 					std::shared_ptr<T> obj = try_get_instance<T>(name.c_str());
 					if (!obj)
 						return true;
@@ -208,20 +221,20 @@ namespace tsmod
 			}
 			return objList;
 		}
-		virtual std::shared_ptr<tsmod::IServiceLocator> resolvePath(tscrypto::tsCryptoString &path, bool createPaths) = 0;
-		virtual std::shared_ptr<tsmod::IServiceLocator> resolvePath(tscrypto::tsCryptoString &path) const = 0;
+		virtual std::shared_ptr<tsmod::IServiceLocator> resolvePath(tscrypto::tsCryptoStringBase &path, bool createPaths) = 0;
+		virtual std::shared_ptr<tsmod::IServiceLocator> resolvePath(tscrypto::tsCryptoStringBase &path) const = 0;
 		virtual tscrypto::tsCryptoString findObjectName(tsmod::IObject* obj) = 0;
-		virtual void BuildObjectPath(tscrypto::tsCryptoString& name) = 0;
+		virtual void BuildObjectPath(tscrypto::tsCryptoStringBase& name) = 0;
 		virtual ~IServiceLocator() {}
-		virtual void CleanEmptyCollections(const char *className = nullptr) = 0;
+		virtual void CleanEmptyCollections(const tscrypto::tsCryptoStringBase& className = "") = 0;
 		virtual void clear() = 0;
 		// Added 7.0.33
 		virtual void SetAsRoot() = 0;
 		virtual bool IsRoot() const = 0;
-		virtual std::shared_ptr<IObject> Create(const char* className, std::shared_ptr<tsmod::IServiceLocator> onService) = 0;
-		virtual std::shared_ptr<IObject> TryCreate(const char* className, std::shared_ptr<tsmod::IServiceLocator> onService) = 0;
+		virtual std::shared_ptr<IObject> Create(const tscrypto::tsCryptoStringBase& className, std::shared_ptr<tsmod::IServiceLocator> onService) = 0;
+		virtual std::shared_ptr<IObject> TryCreate(const tscrypto::tsCryptoStringBase& className, std::shared_ptr<tsmod::IServiceLocator> onService) = 0;
 		template <class T>
-		std::shared_ptr<T> get_instance(const char* className, std::shared_ptr<tsmod::IServiceLocator> onService)
+		std::shared_ptr<T> get_instance(const tscrypto::tsCryptoStringBase& className, std::shared_ptr<tsmod::IServiceLocator> onService)
 		{
 			std::shared_ptr<T> obj = std::dynamic_pointer_cast<T>(TryCreate(className, onService));
 			if (!obj)
@@ -233,10 +246,12 @@ namespace tsmod
 			return obj;
 		}
 		template <class T>
-		std::shared_ptr<T> try_get_instance(const char* className, std::shared_ptr<tsmod::IServiceLocator> onService)
+		std::shared_ptr<T> try_get_instance(const tscrypto::tsCryptoStringBase& className, std::shared_ptr<tsmod::IServiceLocator> onService)
 		{
 			return std::dynamic_pointer_cast<T>(TryCreate(className, onService));
 		}
+		// Added 7.0.35
+		virtual bool CopyClassDef(const tscrypto::tsCryptoStringBase& className, const tscrypto::tsCryptoStringBase& newName) = 0;
 	};
 
 	VEILCORE_API std::shared_ptr<tsmod::IServiceLocator> CreateServiceLocator();
@@ -245,10 +260,10 @@ namespace tsmod
 	{
 	public:
 		virtual ~IResourceLoader() {}
-		virtual bool LoadResourceFile(const char* filename) = 0;
+		virtual bool LoadResourceFile(const tscrypto::tsCryptoStringBase& filename) = 0;
 		virtual bool IsValid() = 0;
-		virtual bool HasResource(const char* resourceName) = 0;
-		virtual tscrypto::tsCryptoData LoadResource(const char* resourceName) = 0;
+		virtual bool HasResource(const tscrypto::tsCryptoStringBase& resourceName) = 0;
+		virtual tscrypto::tsCryptoData LoadResource(const tscrypto::tsCryptoStringBase& resourceName) = 0;
 
 		// Added 7.0.21
 		virtual void SetResourcePin(const tscrypto::tsCryptoData& pin) = 0;
@@ -256,18 +271,32 @@ namespace tsmod
 	class VEILCORE_API IReportError
 	{
 	public:
-		virtual void SetJSONFault(const char *ExceptionName, const char* userMessage, const char* devMessage, const char*details) = 0;
-		// Removed as of 7.0.17
-		virtual void Reserved1(const char *Code, const char *Reason, const char *Role) = 0;
-		// Removed as of 7.0.17
-		virtual void Reserved2(const char *Code, const char *Reason, const char *Role, const char *DetailXML) = 0;
 		virtual ~IReportError() {}
+		virtual void SetJSONFault(const tscrypto::tsCryptoStringBase& ExceptionName, const tscrypto::tsCryptoStringBase& userMessage, const tscrypto::tsCryptoStringBase& devMessage, const tscrypto::tsCryptoStringBase& details) = 0;
+
+		// Added 7.0.35
+		typedef enum {
+			Connection,
+			Creation,
+			Deletion,
+			Move,
+			Retrieval,
+			Update,
+			System,
+			Argument,
+			NotAdmin,
+			NotAllowed,
+			DataAccess,
+			Protocol,
+			License
+		} FaultType;
+		virtual void SetJSONFault(FaultType fault, const tscrypto::tsCryptoStringBase& userMessage, const tscrypto::tsCryptoStringBase& devMessage, const tscrypto::tsCryptoStringBase& details) = 0;
 	};
 
 	class VEILCORE_API IPluginModule
 	{
 	public:
-		virtual bool connect(const char* path, tsmod::IReportError* log) = 0;
+		virtual bool connect(const tscrypto::tsCryptoStringBase& path, tsmod::IReportError* log) = 0;
 		virtual void disconnect() = 0;
 		virtual tscrypto::tsCryptoString Name() const = 0;
 		virtual bool isValid() const = 0;
@@ -279,17 +308,17 @@ namespace tsmod
 	class VEILCORE_API IPluginModuleManager
 	{
 	public:
-		virtual void LoadModule(const char *path, tsmod::IReportError* log, std::function<void(std::function<bool()>)> registerCleanup) = 0;
-		virtual std::shared_ptr<IPluginModule> FindModule(const char *path) = 0;
-		virtual void LoadModulesOfType(const char* pattern, tsmod::IReportError* log, std::function<void(std::function<bool()>)> registerCleanup) = 0;
+		virtual void LoadModule(const tscrypto::tsCryptoStringBase& path, tsmod::IReportError* log, std::function<void(std::function<bool()>)> registerCleanup) = 0;
+		virtual std::shared_ptr<IPluginModule> FindModule(const tscrypto::tsCryptoStringBase& path) = 0;
+		virtual void LoadModulesOfType(const tscrypto::tsCryptoStringBase& pattern, tsmod::IReportError* log, std::function<void(std::function<bool()>)> registerCleanup) = 0;
 		virtual bool UseRootedPlugins() const = 0;
 		virtual void UseRootedPlugins(bool setTo) = 0;
 		virtual void TerminateAllPlugins() = 0;
 		virtual ~IPluginModuleManager() {}
 
 		// Added 7.0.33
-		virtual void LoadModuleForService(const char *path, tsmod::IReportError* log, std::shared_ptr<tsmod::IServiceLocator> servLoc, std::function<void(std::function<bool()>)> registerCleanup) = 0;
-		virtual void LoadModulesOfTypeForService(const char* pattern, tsmod::IReportError* log, std::shared_ptr<tsmod::IServiceLocator> servLoc, std::function<void(std::function<bool()>)> registerCleanup) = 0;
+		virtual void LoadModuleForService(const tscrypto::tsCryptoStringBase& path, tsmod::IReportError* log, std::shared_ptr<tsmod::IServiceLocator> servLoc, std::function<void(std::function<bool()>)> registerCleanup) = 0;
+		virtual void LoadModulesOfTypeForService(const tscrypto::tsCryptoStringBase& pattern, tsmod::IReportError* log, std::shared_ptr<tsmod::IServiceLocator> servLoc, std::function<void(std::function<bool()>)> registerCleanup) = 0;
 	};
 
 	class VEILCORE_API ICleanup

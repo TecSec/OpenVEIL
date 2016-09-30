@@ -63,7 +63,7 @@ protected:
 	static void GetModuleVersion(HINSTANCE handle, char *versionString, int versionStringLen)
 	{
 		char path[MAX_PATH + 10];
-		DWORD tmp;
+		DWORD tmp = 0;
 		DWORD length;
 		unsigned char bytes[1024];
 		VS_FIXEDFILEINFO *ffInfo = NULL;
@@ -79,7 +79,7 @@ protected:
 		if (length > 1024)
 			length = 1024;
 
-		if (GetFileVersionInfoA(path, tmp, length, bytes))
+		if (GetFileVersionInfoA(path, 0, length, bytes))
 		{
 			ffLen = sizeof(VS_FIXEDFILEINFO);
 			if (VerQueryValueA(bytes, (char*)"\\", (void**)&ffInfo, &ffLen) && ffInfo != NULL)

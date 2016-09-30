@@ -40,7 +40,7 @@ enum options { OPT_HELP = 1000, };
 
 static tsmod::IObject* CreateKeyVEILTool()
 {
-	std::shared_ptr<IVeilUtilities> utils = ::TopServiceLocator()->get_instance<IVeilUtilities>("VeilUtilities");
+	std::shared_ptr<tsmod::IVeilUtilities> utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
 	return utils->buildCommandMenu("Perform KeyVEIL operations", "/KV-COMMANDS/", "kv", "KV");
 }
 
@@ -169,7 +169,7 @@ bool ConnectToKeyVEIL(std::shared_ptr<IKeyVEILConnector>& connector, const tscry
 	else
 		Username = username;
 
-	std::shared_ptr<IVeilUtilities> utils = ::TopServiceLocator()->get_instance<IVeilUtilities>("VeilUtilities");
+	std::shared_ptr<tsmod::IVeilUtilities> utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
 
 	if (password.size() == 0)
 	{
@@ -219,8 +219,6 @@ std::shared_ptr<IKeyVEILConnector> GetConnector(const tscrypto::tsCryptoString& 
 
 	if (!connector->isConnected())
 	{
-		int argc = 0;
-		const char **argv = nullptr;
 		if (!ConnectToKeyVEIL(connector, url, username, password))
 		{
 			return nullptr;

@@ -66,7 +66,7 @@ const tscrypto::tsCryptoString &tsXmlError::Description() const
     return m_description;
 }
 
-void tsXmlError::Description(const tscrypto::tsCryptoString &desc)
+void tsXmlError::Description(const tscrypto::tsCryptoStringBase &desc)
 {
     m_description = desc;
 }
@@ -76,7 +76,7 @@ const tscrypto::tsCryptoString &tsXmlError::Component() const
     return m_component;
 }
 
-void tsXmlError::Component(const tscrypto::tsCryptoString &comp)
+void tsXmlError::Component(const tscrypto::tsCryptoStringBase &comp)
 {
     m_component = comp;
 }
@@ -86,7 +86,7 @@ const tscrypto::tsCryptoString &tsXmlError::Method() const
     return m_method;
 }
 
-void tsXmlError::Method(const tscrypto::tsCryptoString &meth)
+void tsXmlError::Method(const tscrypto::tsCryptoStringBase &meth)
 {
     m_method = meth;
 }
@@ -101,7 +101,7 @@ void tsXmlError::Number(int32_t num)
     m_number = num;
 }
 
-void tsXmlError::ToXML(tscrypto::tsCryptoString &appendToXML, bool useAttributes) const
+void tsXmlError::ToXML(tscrypto::tsCryptoStringBase &appendToXML, bool useAttributes) const
 {
     if (useAttributes)
     {

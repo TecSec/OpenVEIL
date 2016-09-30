@@ -71,7 +71,7 @@ public:
     ///
     /// <returns>The parser error code for this tag.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual resultCodes ProcessInstruction (const tscrypto::tsCryptoString &contents, tscrypto::tsCryptoString &Results) PURE;
+    virtual resultCodes ProcessInstruction (const tscrypto::tsCryptoStringBase &contents, tscrypto::tsCryptoStringBase &Results) PURE;
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Called by the parser when a start node has been detected.</summary>
     ///
@@ -83,7 +83,7 @@ public:
     ///
     /// <returns>The parser error code for this tag.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual resultCodes StartNode (const tscrypto::tsCryptoString &NodeName, tsAttributeMap &attributes, const tscrypto::tsCryptoString &InnerXML, bool SingleNode, tscrypto::tsCryptoString &Results) PURE;
+    virtual resultCodes StartNode (const tscrypto::tsCryptoStringBase &NodeName, tsAttributeMap &attributes, const tscrypto::tsCryptoStringBase &InnerXML, bool SingleNode, tscrypto::tsCryptoStringBase &Results) PURE;
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Called by the parser when an end node has been detected.</summary>
     ///
@@ -92,7 +92,7 @@ public:
     ///
     /// <returns>The parser error code for this tag.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual resultCodes EndNode (const tscrypto::tsCryptoString &NodeName, tscrypto::tsCryptoString &Results) PURE;
+    virtual resultCodes EndNode (const tscrypto::tsCryptoStringBase &NodeName, tscrypto::tsCryptoStringBase &Results) PURE;
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Called by the parser when a comment has been detected.</summary>
     ///
@@ -101,7 +101,7 @@ public:
     ///
     /// <returns>The parser error code for this tag.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual resultCodes Comment (const tscrypto::tsCryptoString &Contents, tscrypto::tsCryptoString &Results) PURE;
+    virtual resultCodes Comment (const tscrypto::tsCryptoStringBase &Contents, tscrypto::tsCryptoStringBase &Results) PURE;
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Called by the parser when a CDATA section has been detected</summary>
     ///
@@ -110,7 +110,7 @@ public:
     ///
     /// <returns>The parser error code for this tag.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual resultCodes CData (const tscrypto::tsCryptoString &Contents, tscrypto::tsCryptoString &Results) PURE;
+    virtual resultCodes CData (const tscrypto::tsCryptoStringBase &Contents, tscrypto::tsCryptoStringBase &Results) PURE;
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Called by the parser when node text is detected.</summary>
     ///
@@ -119,21 +119,21 @@ public:
     ///
     /// <returns>The parser error code for this tag.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual resultCodes Text (const tscrypto::tsCryptoString &Contents, tscrypto::tsCryptoString &Results) PURE;
+    virtual resultCodes Text (const tscrypto::tsCryptoStringBase &Contents, tscrypto::tsCryptoStringBase &Results) PURE;
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Adds a parse error to 'Results'.</summary>
     ///
     /// <param name="ErrorStr">The error string.</param>
     /// <param name="Results"> [in,out] The error results.</param>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual void AddParseError (const tscrypto::tsCryptoString &ErrorStr, tscrypto::tsCryptoString &Results) PURE;
+    virtual void AddParseError (const tscrypto::tsCryptoStringBase &ErrorStr, tscrypto::tsCryptoStringBase &Results) PURE;
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Called by the parser when whitespace has bee detected.</summary>
     ///
     /// <param name="Whitespace">The whitespace detected by the parser/.</param>
     /// <param name="Results">   [in,out] The error results.</param>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual void WhiteSpace (const tscrypto::tsCryptoString &Whitespace, tscrypto::tsCryptoString &Results) {UNREFERENCED_PARAMETER(Whitespace); UNREFERENCED_PARAMETER(Results);};
+    virtual void WhiteSpace (const tscrypto::tsCryptoStringBase &Whitespace, tscrypto::tsCryptoStringBase &Results) {UNREFERENCED_PARAMETER(Whitespace); UNREFERENCED_PARAMETER(Results);};
 };
 
 #endif

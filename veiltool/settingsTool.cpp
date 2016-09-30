@@ -40,7 +40,7 @@ public:
 
 enum options { OPT_HELP, OPT_LIST, OPT_SET, OPT_POLICY, OPT_SYSTEM, OPT_USER, OPT_PUBLIC, OPT_CONFIGNAME, OPT_SECTION, };
 
-static const struct OptionList options[] = {
+static const struct tsmod::OptionList options[] = {
 	{ "", "VEIL tool settings options" },
 	{ "", "=================================" },
 	{ "--help, -h, -?", "This help information." },
@@ -87,7 +87,7 @@ static const CSimpleOptA::SOption optionList[] =
 	SO_END_OF_OPTIONS
 };
 
-class SettingsTool : public IVeilToolCommand, public tsmod::IObject
+class SettingsTool : public tsmod::IVeilToolCommand, public tsmod::IObject
 {
 public:
 	SettingsTool()
@@ -96,12 +96,12 @@ public:
 	{}
 
 	// tsmod::IObject
-	virtual void OnConstructionFinished()
+	virtual void OnConstructionFinished() override
 	{
-		utils = ::TopServiceLocator()->get_instance<IVeilUtilities>("VeilUtilities");
+		utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
 	}
 
-	// Inherited via IVeilToolCommand
+	// Inherited via tsmod::IVeilToolCommand
 	virtual tscrypto::tsCryptoString getDescription() const override
 	{
 		return "Display and set system properties";
@@ -464,6 +464,8 @@ protected:
 					case JsonElementType::jet_Object:
 						DumpObject(*dynamic_cast<const JSONObject*>(ele), argv[i], foundOne);
 						break;
+                    default:
+                        break;
 					}
 				}
 
@@ -483,7 +485,7 @@ protected:
 		}
 	}
 protected:
-	std::shared_ptr<IVeilUtilities> utils;
+	std::shared_ptr<tsmod::IVeilUtilities> utils;
 };
 
 tsmod::IObject* CreateSettingsTool()

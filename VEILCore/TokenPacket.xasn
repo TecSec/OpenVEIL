@@ -153,11 +153,15 @@
         </SequenceOf>
       </Sequence>
       
-      <Sequence Name="SmartCardCommand" ElementType="SmartCardCommand">
+      <Sequence Name="SmartCardCommandPart" ElementType="SmartCardCommandPart">
         <OctetString Name="command"/>
         <Bool Name="IgnoreError" Initializer="false" Default="false"/>
+      </Sequence>
+
+      <Sequence Name="SmartCardCommand" ElementType="SmartCardCommand">
+        <Sequence Name="SmartCardCommandPart" ElementType="SmartCardCommandPart"/>
         <SequenceOf Name="errorCommands" Optional="true" Tag="0" Type="Context" >
-          <Sequence Name="SmartCardCommand" ElementType="SmartCardCommand" Tag="Sequence" Type="Universal"/>
+          <Sequence Name="SmartCardCommandPart" ElementType="SmartCardCommandPart" Tag="Sequence" Type="Universal"/>
         </SequenceOf>
       </Sequence>
       
@@ -287,6 +291,7 @@
         <ID Name="TECSEC_DATA_CTS_COMBINE" Value="2.23.42.9.10.3.0.9.5.22.0"/>
         <ID Name="TECSEC_DATA_TOKEN_AUTH" Value="2.23.42.9.10.3.0.9.5.22.1"/>
         <ID Name="id_Favorite" Value="2.23.42.9.10.3.0.5.4"/>
+        <ID Name="TECSEC_DATA_CTS_RECIPE" Value="2.23.42.9.10.3.0.9.5.22.2"/>
 
         <Enum Name="CryptoGroupUsage">
           <ID Name="cgu_User" Value="0"/>
@@ -424,7 +429,7 @@
           <OctetString Name="EncryptedCrypto" Optional="true"/>
           <Int32 Name="FileID" Initializer="0" Optional="true"/>
           <Bool Name="cacheSmartCard" Initializer="false" Optional="true" Tag="1" Type="Context" JSONName="cacheSmartCard"/>
-          <Function ReturnType="std::shared_ptr&lt;Attribute&gt;" Name="get_AttributeById" Parameters="const GUID&amp; id">
+          <Function ReturnType="Asn1::CTS::_POD_Attribute*" Name="get_AttributeById" Parameters="const GUID&amp; id">
             <Description>
               <![CDATA[<Summary> This function searches the CryptoGroup for an attribute based on the attribute ID</Summary>
 ]]>
@@ -433,29 +438,29 @@
 size_t fiefdomCount;
 size_t categoryCount;
 size_t attributeCount;
-if (_FiefdomList.value == nullptr)
+if (!exists_FiefdomList())
   return nullptr;
 fiefdomCount = get_FiefdomList()->size();
 for (size_t i = 0; i < fiefdomCount; i++)
 {
-  Fiefdom& fief = get_FiefdomList()->get_at(i);
+  _POD_Fiefdom& fief = get_FiefdomList()->get_at(i);
   categoryCount = fief.get_CategoryList()->size();
   for (size_t j = 0; j < categoryCount; j++)
   {
-    Category& cat = fief.get_CategoryList()->get_at(j);
+	_POD_Category& cat = fief.get_CategoryList()->get_at(j);
     attributeCount = cat.get_AttributeList()->size();
     for (size_t k = 0; k < attributeCount; k++)
     {
-      Attribute& attr = cat.get_AttributeList()->get_at(k);
+	_POD_Attribute& attr = cat.get_AttributeList()->get_at(k);
       if (attr.get_Id() == id)
-      return std::dynamic_pointer_cast<Attribute>(cat.get_AttributeList()->_list->at(k));
+      return &cat.get_AttributeList()->get_at(k);
     }
   }
 }
 return nullptr;
 ]]>
           </Function>
-          <Function ReturnType="std::shared_ptr&lt;Attribute&gt;" Name="get_AttributeByName" Parameters="const tscrypto::tsCryptoString&amp; name">
+          <Function ReturnType="Asn1::CTS::_POD_Attribute*" Name="get_AttributeByName" Parameters="const tscrypto::tsCryptoString&amp; name">
             <Description>
               <![CDATA[<Summary> This function searches the CryptoGroup for an attribute based on the attribute name</Summary>
 ]]>
@@ -464,22 +469,22 @@ return nullptr;
 size_t fiefdomCount;
 size_t categoryCount;
 size_t attributeCount;
-if (_FiefdomList.value == nullptr)
+if (!exists_FiefdomList())
   return nullptr;
 fiefdomCount = get_FiefdomList()->size();
 for (size_t i = 0; i < fiefdomCount; i++)
 {
-  Fiefdom& fief = get_FiefdomList()->get_at(i);
+  _POD_Fiefdom& fief = get_FiefdomList()->get_at(i);
   categoryCount = fief.get_CategoryList()->size();
   for (size_t j = 0; j < categoryCount; j++)
   {
-    Category& cat = fief.get_CategoryList()->get_at(j);
+	_POD_Category& cat = fief.get_CategoryList()->get_at(j);
     attributeCount = cat.get_AttributeList()->size();
     for (size_t k = 0; k < attributeCount; k++)
     {
-      Attribute& attr = cat.get_AttributeList()->get_at(k);
+	_POD_Attribute& attr = cat.get_AttributeList()->get_at(k);
       if (attr.get_Name() == name)
-      return std::dynamic_pointer_cast<Attribute>(cat.get_AttributeList()->_list->at(k));
+      return &cat.get_AttributeList()->get_at(k);
     }
   }
 }
@@ -538,6 +543,31 @@ return nullptr;
           <Int32 Name="LockoutCount"/>
           <Date Name="LastLockout"/>
           <Date Name="NextPaswordChange"/>
+          <Function ReturnType="bool" Name="NeedsUpdating" Parameters="">
+            <Description>
+              <![CDATA[<Summary>Indicates that this data object needs to be updated due to version mismatch.</Summary>
+<Returns>true - update needed, otherwise false</Returns>
+]]>
+            </Description>
+            <![CDATA[
+return false;
+]]>
+          </Function>
+          <Function ReturnType="bool" Name="DoUpdate" Parameters="">
+            <Description>
+              <![CDATA[<Summary>Used to apply any required updates to this data object.</Summary>
+<Returns>true - update successful, otherwise false</Returns>
+]]>
+            </Description>
+            <![CDATA[
+if (!NeedsUpdating())
+    return true;
+//
+// Perform updates here
+//
+return true;
+]]>
+          </Function>
         </Sequence>
 
         <Sequence Name="Profile" OID="TECSEC_DATA_CTS" DefaultVersion="0" JSONName="profile">
@@ -563,7 +593,7 @@ return nullptr;
             <OctetString Name="PrivateData" />
             <Bool Name="AllowSingleSignOn" JSONName="allowSSO"/>
           </Version>
-          <Version Name="V0_Update" OID="TECSEC_TOKEN_UPDATE_OID" MinNumber="0" MaxNumber="0">
+          <Version Name="V0_Update" OID="tscrypto::TECSEC_TOKEN_UPDATE_OID" MinNumber="0" MaxNumber="0">
             <String Name="MemberName" JSONName="memberName"/>
             <Guid Name="MemberId" JSONName="memid"/>
             <String Name="EnterpriseName" JSONName="enterpriseName"/>
@@ -586,7 +616,7 @@ return nullptr;
             <Bool Name="AllowSingleSignOn" JSONName="allowSSO"/>
             <OctetString Name="Signature"/>
           </Version>
-          <Version Name="V0_Soft" OID="TECSEC_SOFT_TOKEN_OID" MinNumber="0" MaxNumber="0">
+          <Version Name="V0_Soft" OID="tscrypto::TECSEC_SOFT_TOKEN_OID" MinNumber="0" MaxNumber="0">
             <String Name="MemberName" JSONName="memberName"/>
             <Guid Name="MemberId" JSONName="memid"/>
             <String Name="EnterpriseName" JSONName="enterpriseName"/>
@@ -607,7 +637,7 @@ return nullptr;
             <Bool Name="AllowSingleSignOn" JSONName="allowSSO"/>
             <OctetString Name="Signature"/>
           </Version>
-          <Version Name="V0_SoftUnlock" OID="TECSEC_SOFT_TOKEN_UNLOCK_OID" MinNumber="0" MaxNumber="0">
+          <Version Name="V0_SoftUnlock" OID="tscrypto::TECSEC_SOFT_TOKEN_UNLOCK_OID" MinNumber="0" MaxNumber="0">
             <String Name="MemberName" JSONName="memberName"/>
             <Guid Name="MemberId" JSONName="memid"/>
             <String Name="EnterpriseName" JSONName="enterpriseName"/>
@@ -668,7 +698,7 @@ return nullptr;
               <OctetString Name="PrivateData" />
               <Bool Name="AllowSingleSignOn" JSONName="allowSSO"/>
             </Version>
-            <Version Name="V0_Update_signable" OID="TECSEC_TOKEN_UPDATE_OID" MinNumber="0" MaxNumber="0">
+            <Version Name="V0_Update_signable" OID="tscrypto::TECSEC_TOKEN_UPDATE_OID" MinNumber="0" MaxNumber="0">
               <String Name="MemberName" JSONName="memberName"/>
               <Guid Name="MemberId" JSONName="memid"/>
               <String Name="EnterpriseName" JSONName="enterpriseName"/>
@@ -690,7 +720,7 @@ return nullptr;
               <OctetString Name="PrivateData" />
               <Bool Name="AllowSingleSignOn" JSONName="allowSSO"/>
             </Version>
-            <Version Name="V0_Soft_signable" OID="TECSEC_SOFT_TOKEN_OID" MinNumber="0" MaxNumber="0">
+            <Version Name="V0_Soft_signable" OID="tscrypto::TECSEC_SOFT_TOKEN_OID" MinNumber="0" MaxNumber="0">
               <String Name="MemberName" JSONName="memberName"/>
               <Guid Name="MemberId" JSONName="memid"/>
               <String Name="EnterpriseName" JSONName="enterpriseName"/>
@@ -710,7 +740,7 @@ return nullptr;
               <OctetString Name="PrivateData" />
               <Bool Name="AllowSingleSignOn" JSONName="allowSSO"/>
             </Version>
-            <Version Name="V0_SoftUnlock_signable" OID="TECSEC_SOFT_TOKEN_UNLOCK_OID" MinNumber="0" MaxNumber="0">
+            <Version Name="V0_SoftUnlock_signable" OID="tscrypto::TECSEC_SOFT_TOKEN_UNLOCK_OID" MinNumber="0" MaxNumber="0">
               <String Name="MemberName" JSONName="memberName"/>
               <Guid Name="MemberId" JSONName="memid"/>
               <String Name="EnterpriseName" JSONName="enterpriseName"/>
@@ -770,6 +800,33 @@ return nullptr;
           <Bool Name="AllowSingleSignOn" Tag="9" Type="Context" Optional="true" Initializer="false" JSONName="allowSSO"/>
           
           <OctetString Name="Signature" Tag="8" Type="Context" Optional="true"/>
+
+          <Function ReturnType="bool" Name="NeedsUpdating" Parameters="">
+            <Description>
+              <![CDATA[<Summary>Indicates that this data object needs to be updated due to version mismatch.</Summary>
+<Returns>true - update needed, otherwise false</Returns>
+]]>
+            </Description>
+            <![CDATA[
+return false;
+]]>
+          </Function>
+          <Function ReturnType="bool" Name="DoUpdate" Parameters="">
+            <Description>
+              <![CDATA[<Summary>Used to apply any required updates to this data object.</Summary>
+<Returns>true - update successful, otherwise false</Returns>
+]]>
+            </Description>
+            <![CDATA[
+if (!NeedsUpdating())
+    return true;
+//
+// Perform updates here
+//
+return true;
+]]>
+          </Function>
+
         </Sequence>
 
 
@@ -916,6 +973,30 @@ return nullptr;
           <Guid Name="enterpriseId" JSONName="entid"/>
         </Sequence>
   
+        <Sequence Name="CkmRecipe" OID="TECSEC_DATA_CTS_RECIPE" DefaultVersion="0" JSONName="recipe">
+          <Version Name="V0" OID="TECSEC_DATA_CTS_RECIPE" MinNumber="0" MaxNumber="0">
+            <Int32 Name="ckmVersion" JSONName="ckmVersion"/>
+            <Guid Name="cryptoGroupId" JSONName="cgid"/>
+            <OctetString Name="publicKey" JSONName="pubKey"/>
+            <Int32 Name="bitSize" JSONName="bitsize"/>
+            <Bool Name="sign" JSONName="sign"/>
+            <SequenceOf Name="groups" JSONName="groups"/>
+            <Guid Name="objectId" JSONName="objectId"/>
+            <OID Name="keyUsage" JSONName="keyUsage"/>
+          </Version>
+
+          <Int32 Name="ckmVersion" JSONName="ckmVersion" Initializer="7"/>
+          <Guid Name="cryptoGroupId" JSONName="cgid"/>
+          <OctetString Name="publicKey" JSONName="pubKey"/>
+          <Int32 Name="bitSize" JSONName="bitsize"/>
+          <Bool Name="sign" JSONName="sign"/>
+          <SequenceOf Name="groups" Tag="0" Type="Context" JSONName="groups">
+            <Sequence Name="group" ElementType="AccessGroup" JSONName="group"/>
+          </SequenceOf>
+          <Guid Name="objectId" JSONName="objectId"/>
+          <OID Name="keyUsage" JSONName="keyUsage"/>
+        </Sequence>
+
       <Sequence Name="Favorite" OID="id_Favorite" DefaultVersion="0">
         <Version Name="V0" OID="id_Favorite" MinNumber="0" MaxNumber="0">
           <Guid Name="Id"/>

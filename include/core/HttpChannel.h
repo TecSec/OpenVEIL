@@ -33,7 +33,7 @@
 
 #include "HttpHeader.h"
 
-class IChannelProcessor
+class VEILCORE_API IChannelProcessor
 {
 public:
 	typedef enum {
@@ -74,7 +74,7 @@ VEILCORE_TEMPLATE_EXTERN template class VEILCORE_API std::shared_ptr<tscrypto::I
 typedef std::shared_ptr<tscrypto::ICryptoContainerWrapper<HttpAttribute>> HttpAttributeList;
 extern VEILCORE_API HttpAttributeList CreateHttpAttributeList();
 
-class IHttpChannelProcessor : public IChannelProcessor
+class VEILCORE_API IHttpChannelProcessor : public IChannelProcessor
 {
 public:
 	virtual bool WrapMessage(tscrypto::tsCryptoString& verb, tscrypto::tsCryptoString& destination, tscrypto::tsCryptoData &body, tscrypto::tsCryptoString& mimeType, HttpAttributeList headers) = 0;
@@ -83,7 +83,7 @@ public:
 	virtual ~IHttpChannelProcessor() {}
 };
 
-class ITcpConnection
+class VEILCORE_API ITcpConnection
 {
 public:
 	virtual ~ITcpConnection(void) {}
@@ -107,7 +107,7 @@ public:
 };
 
 
-class ITcpChannel : public ITcpConnection
+class VEILCORE_API ITcpChannel : public ITcpConnection
 {
 public:
 	virtual ~ITcpChannel(void) {}
@@ -125,7 +125,7 @@ public:
 	virtual bool processAuthenticationMessages() = 0;
 };
 
-class IWebSocket : public ITcpConnection
+class VEILCORE_API IWebSocket : public ITcpConnection
 {
 public:
 	typedef enum {
@@ -163,7 +163,7 @@ public:
 	virtual tscrypto::tsCryptoString extensionsSelected() const = 0;
 };
 
-class IHttpChannel : public ITcpChannel
+class VEILCORE_API IHttpChannel : public ITcpChannel
 {
 public:
 	virtual ~IHttpChannel(void) {}
@@ -174,9 +174,12 @@ public:
 
 	virtual std::shared_ptr<IHttpChannelProcessor> getHttpChannelProcessor() const = 0;
 	virtual std::shared_ptr<IWebSocket> UpgradeToWebSocket(const tscrypto::tsCryptoString& url, const tscrypto::tsCryptoString& protocols, const tscrypto::tsCryptoString& extensions) = 0;
+private:
+	using ITcpChannel::Send;
+	using ITcpChannel::Receive;
 };
 
-class IMessageProcessorControl
+class VEILCORE_API IMessageProcessorControl
 {
 public:
 	virtual ~IMessageProcessorControl() {}

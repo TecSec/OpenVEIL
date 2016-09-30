@@ -93,7 +93,7 @@ public:
 		}
 	}
 
-	virtual void OnConstructionFinished()
+	virtual void OnConstructionFinished() override
 	{
 		_receiver.SetWorker([this]()->int {
 			return OnLookForData();
@@ -524,6 +524,8 @@ protected:
 				return 0;
 			case CryptoEvent::Failed:
 				return 1;
+            default:
+                break;
 			}
 			// Now look for changes
 			if (!isConnected())

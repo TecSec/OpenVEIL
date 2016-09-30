@@ -35,12 +35,12 @@
  *
  */
  
- #ifndef __IPREFERENCECHANGENOTIFY_H__
- #define __IPREFERENCECHANGENOTIFY_H__
+#ifndef __IPREFERENCECHANGENOTIFY_H__
+#define __IPREFERENCECHANGENOTIFY_H__
  
 #pragma once
 
-/// <summary>Crypto preference change notification interface.</summary>
+ /// <summary>Crypto preference change notification interface.</summary>
 class VEILCORE_API IPreferenceChangeNotify
 {
 protected:

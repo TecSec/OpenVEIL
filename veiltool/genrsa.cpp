@@ -33,7 +33,7 @@
 
 enum options { OPT_HELP, OPT_KEYSIZE, OPT_OUTPUT, OPT_ALGORITHM, OPT_PASSWORD };
 
-struct OptionList GenRsaOptions[] = {
+struct tsmod::OptionList GenRsaOptions[] = {
 	{ "", "VEIL tool genrsa options" },
 	{ "", "=================================" },
 	{ "--help, -h, -?", "This help information." },
@@ -60,7 +60,7 @@ CSimpleOptA::SOption genRsaOptionList[] =
 	SO_END_OF_OPTIONS
 };
 
-class genrsa : public IVeilToolCommand, public tsmod::IObject
+class genrsa : public tsmod::IVeilToolCommand, public tsmod::IObject
 {
 public:
 	genrsa()
@@ -69,12 +69,12 @@ public:
 	{}
 
 	// tsmod::IObject
-	virtual void OnConstructionFinished()
+	virtual void OnConstructionFinished() override
 	{
-		utils = ::TopServiceLocator()->get_instance<IVeilUtilities>("VeilUtilities");
+		utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
 	}
 
-	// Inherited via IVeilToolCommand
+	// Inherited via tsmod::IVeilToolCommand
 	virtual tscrypto::tsCryptoString getDescription() const override
 	{
 		return "Generate RSA key";
@@ -128,7 +128,7 @@ public:
 		}
 		if (!output)
 		{
-			output = ::TopServiceLocator()->try_get_instance<IOutputCollector>("PemOutput");
+			output = ::TopServiceLocator()->try_get_instance<tsmod::IOutputCollector>("PemOutput");
 			if (!output)
 			{
 				utils->console() << BoldRed << "ERROR:  " << BoldWhite << "The specified output device is not accessible." << ::endl << ::endl;
@@ -195,7 +195,7 @@ protected:
 			Usage();
 			return 1;
 		}
-		Pkcs8RSAPrivateKey data;
+		_POD_Pkcs8RSAPrivateKey data;
 
 		data.set_modulus(rsa->get_PublicModulus());
 		data.set_publicExponent(rsa->get_PublicModulus());
@@ -216,8 +216,8 @@ protected:
 		return output->AddOutputData(outputData, "RSA PRIVATE KEY", true);
 	}
 protected:
-	std::shared_ptr<IOutputCollector> output;
-	std::shared_ptr<IVeilUtilities> utils;
+	std::shared_ptr<tsmod::IOutputCollector> output;
+	std::shared_ptr<tsmod::IVeilUtilities> utils;
 };
 
 tsmod::IObject* CreateGenRsa()

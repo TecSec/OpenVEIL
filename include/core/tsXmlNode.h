@@ -76,6 +76,15 @@ typedef std::shared_ptr<tscrypto::ICryptoContainerWrapper<std::shared_ptr<tsXmlE
 class VEILCORE_API NamespaceSupport
 {
 public:
+	static void *operator new(std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void *operator new[](std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
+	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
+
 	NamespaceSupport();
 	~NamespaceSupport();
 	virtual void extractNamespaceAttributes(tsAttributeMap &attrs);
@@ -84,7 +93,7 @@ public:
 	tscrypto::tsCryptoString getSoap12NamespaceName() const;
 	bool EbNamespaceIsDefault() const;
 	void addNamespacesToAttributeList(tsAttributeMap &attrs);
-	void addNamespace(const char *name, const char *value);
+	void addNamespace(const tscrypto::tsCryptoStringBase& name, const tscrypto::tsCryptoStringBase& value);
 	void removeDefaultNamespace();
 
 private:
@@ -133,7 +142,7 @@ public:
     ///
     /// <returns>null if it fails, else the newly created child node.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual std::shared_ptr<tsXmlNode> StartSubnode(const tscrypto::tsCryptoString &name, const tsAttributeMap &map);
+	virtual std::shared_ptr<tsXmlNode> StartSubnode(const tscrypto::tsCryptoStringBase &name, const tsAttributeMap &map);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Creates a child node in this node using the specified name.</summary>
     ///
@@ -141,7 +150,7 @@ public:
     ///
     /// <returns>null if it fails, else the newly created child node.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual std::shared_ptr<tsXmlNode> StartSubnode(const tscrypto::tsCryptoString &name);
+	virtual std::shared_ptr<tsXmlNode> StartSubnode(const tscrypto::tsCryptoStringBase &name);
     /**
      * \brief Starts text subnode.
      *
@@ -150,13 +159,13 @@ public:
      *
      * \return null if it fails, else a tsXmlNode*.
      */
-    virtual std::shared_ptr<tsXmlNode> StartTextSubnode(const tscrypto::tsCryptoString &name, const tscrypto::tsCryptoString& text);
-    virtual std::shared_ptr<tsXmlNode> StartTextSubnode(const tscrypto::tsCryptoString &name, bool setTo);
-    virtual std::shared_ptr<tsXmlNode> StartTextSubnode(const tscrypto::tsCryptoString &name, const char* setTo);
-    virtual std::shared_ptr<tsXmlNode> StartTextSubnode(const tscrypto::tsCryptoString &name, int setTo);
-    virtual std::shared_ptr<tsXmlNode> StartTextSubnode(const tscrypto::tsCryptoString &name, int64_t setTo);
-    virtual std::shared_ptr<tsXmlNode> StartTextSubnode(const tscrypto::tsCryptoString &name, size_t setTo);
-    virtual std::shared_ptr<tsXmlNode> StartTextSubnode(const tscrypto::tsCryptoString &name, const tscrypto::tsCryptoData& setTo);
+	virtual std::shared_ptr<tsXmlNode> StartTextSubnode(const tscrypto::tsCryptoStringBase &name, const tscrypto::tsCryptoStringBase& text);
+	virtual std::shared_ptr<tsXmlNode> StartTextSubnode(const tscrypto::tsCryptoStringBase &name, bool setTo);
+	virtual std::shared_ptr<tsXmlNode> StartTextSubnode(const tscrypto::tsCryptoStringBase &name, const char* setTo);
+	virtual std::shared_ptr<tsXmlNode> StartTextSubnode(const tscrypto::tsCryptoStringBase &name, int setTo);
+	virtual std::shared_ptr<tsXmlNode> StartTextSubnode(const tscrypto::tsCryptoStringBase &name, int64_t setTo);
+	virtual std::shared_ptr<tsXmlNode> StartTextSubnode(const tscrypto::tsCryptoStringBase &name, size_t setTo);
+	virtual std::shared_ptr<tsXmlNode> StartTextSubnode(const tscrypto::tsCryptoStringBase &name, const tscrypto::tsCryptoData& setTo);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Gets the parent XML node.</summary>
     ///
@@ -175,7 +184,7 @@ public:
     /// <summary>Sets the node name.</summary>
     ///
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    void NodeName(const tscrypto::tsCryptoString &);
+	void NodeName(const tscrypto::tsCryptoStringBase &);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Gets the node text.</summary>
     ///
@@ -226,7 +235,7 @@ public:
     ///
     /// <returns>true if it succeeds, false if it fails.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    bool NodeText(const tscrypto::tsCryptoString &setTo);
+	bool NodeText(const tscrypto::tsCryptoStringBase &setTo);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Appends text to this node.</summary>
     ///
@@ -234,7 +243,7 @@ public:
     ///
     /// <returns>true if it succeeds, false if it fails.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    bool AppendText(const tscrypto::tsCryptoString &setTo);
+	bool AppendText(const tscrypto::tsCryptoStringBase &setTo);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Copies the information and optionally the children from the specified object into this object.</summary>
     ///
@@ -262,7 +271,7 @@ public:
     ///
     /// <returns>true if it succeeds, false if it fails.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual bool Run(tscrypto::tsCryptoString &Results, bool useAttributesForErrors);
+	virtual bool Run(tscrypto::tsCryptoStringBase &Results, bool useAttributesForErrors);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Validate this node for its intended task.</summary>
     ///
@@ -271,7 +280,7 @@ public:
 	///
     /// <returns>true if it succeeds, false if it fails.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual bool Validate(tscrypto::tsCryptoString &Results, bool useAttributesForErrors);
+	virtual bool Validate(tscrypto::tsCryptoStringBase &Results, bool useAttributesForErrors);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Gets the list of children.</summary>
@@ -368,8 +377,8 @@ public:
     ////////////////////////////////////////////////////////////////////////////////////////////////////
 	void RemoveChild(std::shared_ptr<tsXmlNode> pChild);
 	void AddChild(std::shared_ptr<tsXmlNode> pChild);
-//	virtual bool RequiresHash();
-//	void RequiresHash(bool setTo);
+	//	virtual bool RequiresHash();
+	//	void RequiresHash(bool setTo);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Determines if this node requires protection.</summary>
@@ -383,7 +392,7 @@ public:
     /// <param name="setTo">true to set to.</param>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     void RequiresProtection(bool setTo);
-//    void HashValue(const tsByteString &hash);
+	//    void HashValue(const tsByteString &hash);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Sets a flag that causes this node to create a Document Object Model.</summary>
@@ -416,7 +425,7 @@ public:
     ///
     /// <returns>true if it succeeds, false if it fails.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    bool MigrateErrors(tscrypto::tsCryptoString&);
+	bool MigrateErrors(tscrypto::tsCryptoStringBase&);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Gets the warning count.</summary>
     ///
@@ -434,7 +443,7 @@ public:
     ///
     /// <returns>true if it succeeds, false if it fails.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    bool MigrateWarnings(tscrypto::tsCryptoString&);
+	bool MigrateWarnings(tscrypto::tsCryptoStringBase&);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Determines if this node wants any contained XML in the XMLContents property.</summary>
     ///
@@ -461,7 +470,7 @@ public:
     ///
     /// <returns>true if it succeeds, false if it fails.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    bool XMLContents(const tscrypto::tsCryptoString &setTo);
+	bool XMLContents(const tscrypto::tsCryptoStringBase &setTo);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Determines if this node wants text contents.</summary>
     ///
@@ -483,7 +492,7 @@ public:
     /// <param name="desc">The description.</param>
     /// <param name="num"> The error number.</param>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual void AddError(const tscrypto::tsCryptoString &comp, const tscrypto::tsCryptoString &meth, const tscrypto::tsCryptoString &desc, int32_t num = 2000);
+	virtual void AddError(const tscrypto::tsCryptoStringBase &comp, const tscrypto::tsCryptoStringBase &meth, const tscrypto::tsCryptoStringBase &desc, int32_t num = 2000);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Adds an error to the front of the error list for this node.</summary>
     ///
@@ -492,14 +501,14 @@ public:
     /// <param name="desc">The description.</param>
     /// <param name="num"> The error number.</param>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual void AddFirstError(const tscrypto::tsCryptoString &comp, const tscrypto::tsCryptoString &meth, const tscrypto::tsCryptoString &desc, int32_t num);
+	virtual void AddFirstError(const tscrypto::tsCryptoStringBase &comp, const tscrypto::tsCryptoStringBase &meth, const tscrypto::tsCryptoStringBase &desc, int32_t num);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Adds an error to the specified string.</summary>
     ///
     /// <param name="Results">[in,out] The string that shall have the error appended.</param>
     /// <param name="Number"> The error number.</param>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    void _AddError(tscrypto::tsCryptoString &Results, int32_t Number, ...);
+	void _AddError(tscrypto::tsCryptoStringBase &Results, int32_t Number, ...);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Sets the has errors flag.</summary>
     ///
@@ -521,7 +530,7 @@ public:
     ///
     /// <returns>null if not found, else the child</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-	std::shared_ptr<tsXmlNode> ChildByTSID(const tscrypto::tsCryptoString&) const;
+	std::shared_ptr<tsXmlNode> ChildByTSID(const tscrypto::tsCryptoStringBase&) const;
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Child by searching for the first child with a node name matching the indicated value.</summary>
     ///
@@ -529,8 +538,8 @@ public:
     ///
     /// <returns>null if not found, else the child</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-	std::shared_ptr<tsXmlNode> ChildByName(const tscrypto::tsCryptoString &name) const;
-	tsXmlNodeList ChildrenByName(const tscrypto::tsCryptoString &name) const;
+	std::shared_ptr<tsXmlNode> ChildByName(const tscrypto::tsCryptoStringBase &name) const;
+	tsXmlNodeList ChildrenByName(const tscrypto::tsCryptoStringBase &name) const;
 	/**
 	 * \brief Gets the text from the named child node.
 	 *
@@ -538,43 +547,14 @@ public:
 	 *
 	 * \return The named child node text.
 	 */
-	tscrypto::tsCryptoString GetNamedChildNodeText(const tscrypto::tsCryptoString &name) const;
-	/**
-	 * \brief Gets the text from the named child node.
-	 *
-	 * \param name The name.
-	 *
-	 * \return The named child node text.
-	 */
-	tscrypto::tsCryptoString GetNamedChildNodeText(const char* name) const;
+	tscrypto::tsCryptoString GetNamedChildNodeText(const tscrypto::tsCryptoStringBase &name) const;
 	/**
 	 * \brief Sets the text in the named child or creates a new child node.
 	 *
 	 * \param name  The name.
 	 * \param value The value.
 	 */
-	void SetNamedChildNodeText(const tscrypto::tsCryptoString& name, const tscrypto::tsCryptoString& value);
-	/**
-	 * \brief Sets the text in the named child or creates a new child node.
-	 *
-	 * \param name  The name.
-	 * \param value The value.
-	 */
-	void SetNamedChildNodeText(const tscrypto::tsCryptoString& name, const char* value);
-	/**
-	 * \brief Sets the text in the named child or creates a new child node.
-	 *
-	 * \param name  The name.
-	 * \param value The value.
-	 */
-	void SetNamedChildNodeText(const char* name, const tscrypto::tsCryptoString& value);
-	/**
-	 * \brief Sets the text in the named child or creates a new child node.
-	 *
-	 * \param name  The name.
-	 * \param value The value.
-	 */
-	void SetNamedChildNodeText(const char* name, const char* value);
+	void SetNamedChildNodeText(const tscrypto::tsCryptoStringBase& name, const tscrypto::tsCryptoStringBase& value);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Child by searching for the first child with a node name matching the indicated value
     /// and with a matching attribute name and value.</summary>
@@ -585,7 +565,7 @@ public:
     ///
     /// <returns>null if not found, else the child.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-	std::shared_ptr<tsXmlNode> ChildByNameWithAttributeValue(const tscrypto::tsCryptoString &name, const tscrypto::tsCryptoString &attributeName, const tscrypto::tsCryptoString &attributeValue) const;
+	std::shared_ptr<tsXmlNode> ChildByNameWithAttributeValue(const tscrypto::tsCryptoStringBase &name, const tscrypto::tsCryptoStringBase &attributeName, const tscrypto::tsCryptoStringBase &attributeValue) const;
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Child by searching for the first child with a node name matching the indicated value
     /// and with a matching attribute name and value.</summary>
@@ -596,7 +576,7 @@ public:
     ///
     /// <returns>null if not found, else the child.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-	std::shared_ptr<tsXmlNode> ChildByNameWithAttributeValueExact(const tscrypto::tsCryptoString &name, const tscrypto::tsCryptoString &attributeName, const tscrypto::tsCryptoString &attributeValue) const;
+	std::shared_ptr<tsXmlNode> ChildByNameWithAttributeValueExact(const tscrypto::tsCryptoStringBase &name, const tscrypto::tsCryptoStringBase &attributeName, const tscrypto::tsCryptoStringBase &attributeValue) const;
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Search for the first child whos name matches the specified name by searching all
     /// children and their children recursively.</summary>
@@ -605,14 +585,14 @@ public:
     ///
     /// <returns>null if it fails, else.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-	std::shared_ptr<tsXmlNode> ChildByNameRecursive(const tscrypto::tsCryptoString &name) const;
+	std::shared_ptr<tsXmlNode> ChildByNameRecursive(const tscrypto::tsCryptoStringBase &name) const;
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Child by searching for the first child with an attribute names 'TSID' containing the
     /// indicated value.</summary>
     ///
     /// <returns>null if not found, else the child.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-	std::shared_ptr<tsXmlNode> ChildByTSID(const tscrypto::tsCryptoString&);
+	std::shared_ptr<tsXmlNode> ChildByTSID(const tscrypto::tsCryptoStringBase&);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Child by searching for the first child with a node name matching the indicated value.</summary>
     ///
@@ -620,8 +600,8 @@ public:
     ///
     /// <returns>null if not found, else the child.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-	std::shared_ptr<tsXmlNode> ChildByName(const tscrypto::tsCryptoString &name);
-	tsXmlNodeList ChildrenByName(const tscrypto::tsCryptoString &name);
+	std::shared_ptr<tsXmlNode> ChildByName(const tscrypto::tsCryptoStringBase &name);
+	tsXmlNodeList ChildrenByName(const tscrypto::tsCryptoStringBase &name);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Child by searching for the first child with a node name matching the indicated value
     /// and with a matching attribute name and value.</summary>
@@ -632,7 +612,7 @@ public:
     ///
     /// <returns>null if not found, else the child.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-	std::shared_ptr<tsXmlNode> ChildByNameWithAttributeValue(const tscrypto::tsCryptoString &name, const tscrypto::tsCryptoString &attributeName, const tscrypto::tsCryptoString &attributeValue);
+	std::shared_ptr<tsXmlNode> ChildByNameWithAttributeValue(const tscrypto::tsCryptoStringBase &name, const tscrypto::tsCryptoStringBase &attributeName, const tscrypto::tsCryptoStringBase &attributeValue);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Child by searching for the first child with a node name matching the indicated value
     /// and with a matching attribute name and value.</summary>
@@ -643,7 +623,7 @@ public:
     ///
     /// <returns>null if not found, else the child.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-	std::shared_ptr<tsXmlNode> ChildByNameWithAttributeValueExact(const tscrypto::tsCryptoString &name, const tscrypto::tsCryptoString &attributeName, const tscrypto::tsCryptoString &attributeValue);
+	std::shared_ptr<tsXmlNode> ChildByNameWithAttributeValueExact(const tscrypto::tsCryptoStringBase &name, const tscrypto::tsCryptoStringBase &attributeName, const tscrypto::tsCryptoStringBase &attributeValue);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Search for the first child whos name matches the specified name by searching all
     /// children and their children recursively.</summary>
@@ -652,7 +632,7 @@ public:
     ///
     /// <returns>null if it fails, else.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-	std::shared_ptr<tsXmlNode> ChildByNameRecursive(const tscrypto::tsCryptoString &name);
+	std::shared_ptr<tsXmlNode> ChildByNameRecursive(const tscrypto::tsCryptoStringBase &name);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Called by the XML parser when a node start tag is detected.</summary>
@@ -663,7 +643,7 @@ public:
     ///
     /// <returns>The parser error code for this tag.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual tsXmlParserCallback::resultCodes StartResponse(const tscrypto::tsCryptoString &NodeName, const tscrypto::tsCryptoString &InnerXML, bool singleNode);
+	virtual tsXmlParserCallback::resultCodes StartResponse(const tscrypto::tsCryptoStringBase &NodeName, const tscrypto::tsCryptoStringBase &InnerXML, bool singleNode);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Called by the XML parser when node text is detected.</summary>
     ///
@@ -671,7 +651,7 @@ public:
     ///
     /// <returns>The parser error code for this tag.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual tsXmlParserCallback::resultCodes ResponseText(const tscrypto::tsCryptoString &newVal);
+	virtual tsXmlParserCallback::resultCodes ResponseText(const tscrypto::tsCryptoStringBase &newVal);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Called by the XML parser when the end node is detected.</summary>
     ///
@@ -679,7 +659,7 @@ public:
     ///
     /// <returns>The parser error code for this tag.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual tsXmlParserCallback::resultCodes EndResponse(const tscrypto::tsCryptoString &NodeName);
+	virtual tsXmlParserCallback::resultCodes EndResponse(const tscrypto::tsCryptoStringBase &NodeName);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Builds an XML string from this node and all of its children.</summary>
@@ -688,7 +668,7 @@ public:
     ///
     /// <returns>true if it succeeds, false if it fails.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    bool BuildXML(tscrypto::tsCryptoString &, bool useAttributesForErrors);
+	bool BuildXML(tscrypto::tsCryptoStringBase &, bool useAttributesForErrors);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Called by the parser when a process instruction is detected.</summary>
@@ -698,7 +678,7 @@ public:
     ///
     /// <returns>The parser error code for this tag.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual tsXmlParserCallback::resultCodes ProcessInstruction (const tscrypto::tsCryptoString &contents, tscrypto::tsCryptoString &Results);
+	virtual tsXmlParserCallback::resultCodes ProcessInstruction(const tscrypto::tsCryptoStringBase &contents, tscrypto::tsCryptoStringBase &Results);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Called by the XML parser to create a child node in this node.</summary>
     ///
@@ -710,11 +690,11 @@ public:
     ///
     /// <returns>The parser error code for this tag.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual tsXmlParserCallback::resultCodes StartNode (const tscrypto::tsCryptoString &NodeName,
+	virtual tsXmlParserCallback::resultCodes StartNode(const tscrypto::tsCryptoStringBase &NodeName,
                                     tsAttributeMap &attributes,
-                                    const tscrypto::tsCryptoString &InnerXML,
+		const tscrypto::tsCryptoStringBase &InnerXML,
                                     bool SingleNode,
-                                    tscrypto::tsCryptoString &Results);
+		tscrypto::tsCryptoStringBase &Results);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Called by the parser when a child end node is detected.</summary>
     ///
@@ -723,7 +703,7 @@ public:
     ///
     /// <returns>The parser error code for this tag.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual tsXmlParserCallback::resultCodes EndNode (const tscrypto::tsCryptoString &NodeName, tscrypto::tsCryptoString &Results);
+	virtual tsXmlParserCallback::resultCodes EndNode(const tscrypto::tsCryptoStringBase &NodeName, tscrypto::tsCryptoStringBase &Results);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Called by the XML parser when a comment is detected.</summary>
     ///
@@ -732,7 +712,7 @@ public:
     ///
     /// <returns>The parser error code for this tag.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual tsXmlParserCallback::resultCodes Comment (const tscrypto::tsCryptoString &Contents, tscrypto::tsCryptoString &Results);
+	virtual tsXmlParserCallback::resultCodes Comment(const tscrypto::tsCryptoStringBase &Contents, tscrypto::tsCryptoStringBase &Results);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Called by the XML parser when a CDATA element is detected.</summary>
     ///
@@ -741,7 +721,7 @@ public:
     ///
     /// <returns>The parser error code for this tag.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual tsXmlParserCallback::resultCodes CData (const tscrypto::tsCryptoString &Contents, tscrypto::tsCryptoString &Results);
+	virtual tsXmlParserCallback::resultCodes CData(const tscrypto::tsCryptoStringBase &Contents, tscrypto::tsCryptoStringBase &Results);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Called by the XML parser when a Node text is detected.</summary>
     ///
@@ -750,14 +730,14 @@ public:
     ///
     /// <returns>The parser error code for this tag.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual tsXmlParserCallback::resultCodes Text (const tscrypto::tsCryptoString &Contents, tscrypto::tsCryptoString &Results);
+	virtual tsXmlParserCallback::resultCodes Text(const tscrypto::tsCryptoStringBase &Contents, tscrypto::tsCryptoStringBase &Results);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Adds a parse error to the 'Results' string.</summary>
     ///
     /// <param name="ErrorStr">The error string.</param>
     /// <param name="Results"> [in,out] The results.</param>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual void AddParseError (const tscrypto::tsCryptoString &ErrorStr, tscrypto::tsCryptoString &Results);
+	virtual void AddParseError(const tscrypto::tsCryptoStringBase &ErrorStr, tscrypto::tsCryptoStringBase &Results);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Used to verify the hash value for a node.</summary>
@@ -768,7 +748,7 @@ public:
     ///
     /// <returns>The parser error code for this tag.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual tsXmlParserCallback::resultCodes VerifyHash(const tscrypto::tsCryptoString &, tsAttributeMap &, const tscrypto::tsCryptoString &);
+	virtual tsXmlParserCallback::resultCodes VerifyHash(const tscrypto::tsCryptoStringBase &, tsAttributeMap &, const tscrypto::tsCryptoStringBase &);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Sets a flag to force hash checks.</summary>
@@ -793,7 +773,7 @@ public:
     ///
     /// <returns>true if it succeeds, false if it fails.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    bool Parse(const tscrypto::tsCryptoString &sXML, tscrypto::tsCryptoString &Results, bool nodesToAttributes, bool processErrors);
+	bool Parse(const tscrypto::tsCryptoStringBase &sXML, tscrypto::tsCryptoStringBase &Results, bool nodesToAttributes, bool processErrors);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Returns true if this node's children shall have TSID attributes.</summary>
@@ -814,7 +794,7 @@ public:
     ///
     /// <returns>The found nodes.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-	tsXmlNodeList findNodes(const tscrypto::tsCryptoString &xpathQuery) const;
+	tsXmlNodeList findNodes(const tscrypto::tsCryptoStringBase &xpathQuery) const;
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Searches for the all nodes that are found using the xpath search.</summary>
     ///
@@ -822,7 +802,7 @@ public:
     ///
     /// <returns>The found nodes.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-	tsXmlNodeList findNodes(const tscrypto::tsCryptoString &xpathQuery) ;
+	tsXmlNodeList findNodes(const tscrypto::tsCryptoStringBase &xpathQuery);
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////
     ///// <summary>Object allocation operator.</summary>
@@ -864,7 +844,7 @@ protected:
 	 *
 	 * \return null if it fails, else the new node.
 	 */
-	virtual std::shared_ptr<tsXmlNode> CreateNode(const tscrypto::tsCryptoString &name, const tsAttributeMap &Attributes);
+	virtual std::shared_ptr<tsXmlNode> CreateNode(const tscrypto::tsCryptoStringBase &name, const tsAttributeMap &Attributes);
 	/**
 	 * \brief Creates an error node.
 	 *
@@ -882,7 +862,7 @@ protected:
     ///
     /// <returns>true if it succeeds, false if it fails.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual bool EncryptForChannel(tscrypto::tsCryptoString &contents, tscrypto::tsCryptoString &Results);
+	virtual bool EncryptForChannel(tscrypto::tsCryptoStringBase &contents, tscrypto::tsCryptoStringBase &Results);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Decrypt this data based on the authentication information in the EB client channel.</summary>
     ///
@@ -893,7 +873,7 @@ protected:
     ///
     /// <returns>true if it succeeds, false if it fails.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual bool DecryptForChannel(tscrypto::tsCryptoString &Results);
+	virtual bool DecryptForChannel(tscrypto::tsCryptoStringBase &Results);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Configures this node's parent and attributes.</summary>
@@ -917,31 +897,31 @@ protected:
     ///
     /// <param name="output">[in,out] The output.</param>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    void BuildStartNodeXML(tscrypto::tsCryptoString &output) const;
+	void BuildStartNodeXML(tscrypto::tsCryptoStringBase &output) const;
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Builds an end node string and returns it in 'output'.</summary>
     ///
     /// <param name="output">[in,out] The output.</param>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    void BuildEndNodeXML(tscrypto::tsCryptoString &output) const;
+	void BuildEndNodeXML(tscrypto::tsCryptoStringBase &output) const;
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Builds a start node string and appends it to 'output'.</summary>
     ///
     /// <param name="output">[in,out] The output.</param>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    void AppendStartNodeXML(tscrypto::tsCryptoString &output) const;
+	void AppendStartNodeXML(tscrypto::tsCryptoStringBase &output) const;
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Builds a single node string and appends it to 'output'.</summary>
     ///
     /// <param name="output">[in,out] The output.</param>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    void AppendSingleNodeXML(tscrypto::tsCryptoString &output) const;
+	void AppendSingleNodeXML(tscrypto::tsCryptoStringBase &output) const;
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Builds an end node string and appends it to 'output'.</summary>
     ///
     /// <param name="output">[in,out] The output.</param>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    void AppendEndNodeXML(tscrypto::tsCryptoString &output) const;
+	void AppendEndNodeXML(tscrypto::tsCryptoStringBase &output) const;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Validates all children nodes in this node.</summary>
@@ -950,7 +930,7 @@ protected:
     ///
     /// <returns>true if it succeeds, false if it fails.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    bool ValidateChildren(tscrypto::tsCryptoString &Results);
+	bool ValidateChildren(tscrypto::tsCryptoStringBase &Results);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Called during the Run function before the children nodes are run.</summary>
     ///
@@ -958,7 +938,7 @@ protected:
     ///
     /// <returns>true if it succeeds, false if it fails.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual bool InternalRunStart(tscrypto::tsCryptoString &Results);
+	virtual bool InternalRunStart(tscrypto::tsCryptoStringBase &Results);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Called during the Run function after the children nodes are run.</summary>
     ///
@@ -966,7 +946,7 @@ protected:
     ///
     /// <returns>true if it succeeds, false if it fails.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual bool InternalRunEnd(tscrypto::tsCryptoString &Results);
+	virtual bool InternalRunEnd(tscrypto::tsCryptoStringBase &Results);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Called by Validate to validate this node.</summary>
     ///
@@ -974,7 +954,7 @@ protected:
     ///
     /// <returns>true if it succeeds, false if it fails.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual bool InternalValidate(tscrypto::tsCryptoString &Results);
+	virtual bool InternalValidate(tscrypto::tsCryptoStringBase &Results);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Returns true if this node is runnable.</summary>
     ///
@@ -996,7 +976,7 @@ protected:
     ///
     /// <returns>0 to continue or 1 to fail.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-	static int __RunNodes(std::shared_ptr<tsXmlNode> node, tscrypto::tsCryptoString *params);
+	static int __RunNodes(std::shared_ptr<tsXmlNode> node, tscrypto::tsCryptoStringBase *params);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Helper function used to set the Make DOM flag in all child nodes.</summary>
     ///
@@ -1012,7 +992,7 @@ protected:
     ///
     /// <returns>.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-	static int __VerifyNodes(std::shared_ptr<tsXmlNode> node, tscrypto::tsCryptoString *params);
+	static int __VerifyNodes(std::shared_ptr<tsXmlNode> node, tscrypto::tsCryptoStringBase *params);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Performs a 'Run' operation on all child nodes.</summary>
@@ -1021,7 +1001,7 @@ protected:
     ///
     /// <returns>true if it succeeds, false if it fails.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    bool RunChildren(tscrypto::tsCryptoString &);
+	bool RunChildren(tscrypto::tsCryptoStringBase &);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Sets the Make DOM flag for all children.</summary>
     ///
@@ -1038,7 +1018,7 @@ protected:
     /// <param name="Number">   The error number.</param>
     /// <param name="Desc">		The description.</param>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    void AppendXMLError(tscrypto::tsCryptoString &Results, const tscrypto::tsCryptoString &Component, const tscrypto::tsCryptoString &Method, int32_t Number, const tscrypto::tsCryptoString &Desc);
+	void AppendXMLError(tscrypto::tsCryptoStringBase &Results, const tscrypto::tsCryptoStringBase &Component, const tscrypto::tsCryptoStringBase &Method, int32_t Number, const tscrypto::tsCryptoStringBase &Desc);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Sets the needs reauth flag in the topmost node.</summary>

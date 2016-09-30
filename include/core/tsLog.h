@@ -80,6 +80,15 @@
 class VEILCORE_API tsDebugConsumer : public tsmod::IObject
 {
 public:
+	static void *operator new(std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void *operator new[](std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
+	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Writes a line to the output.</summary>
     ///
@@ -87,7 +96,7 @@ public:
     /// <param name="priority">The priority.</param>
     /// <param name="message"> The message.</param>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual void WriteLine(const tscrypto::tsCryptoString &category, int priority, const tscrypto::tsCryptoString &message) = 0;
+	virtual void WriteLine(const tscrypto::tsCryptoStringBase &category, int priority, const tscrypto::tsCryptoStringBase &message) = 0;
 };
 
 
@@ -97,10 +106,19 @@ public:
 class VEILCORE_API tsLogOutput
 {
 public:
+	static void *operator new(std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void *operator new[](std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
+	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
+
     tsLogOutput();
     virtual ~tsLogOutput();
 
-    virtual void WriteToOutput(const char *msg){ UNREFERENCED_PARAMETER(msg); };
+	virtual void WriteToOutput(const char *msg) { UNREFERENCED_PARAMETER(msg); };
 
 #ifdef SUPPORT_XML_LOGGING
 	DEPRECATED virtual bool initialize(const tsXmlNode* node);
@@ -134,7 +152,7 @@ IGNORE_WARNING(TS_DEPRECATED_WARNING)
 /**
  * \brief The log writer
  */
-class VEILCORE_API tsLog
+	class VEILCORE_API tsLog
 {
 public:
     static void WriteToLog(const char *loggerName, int level, const char *msg);
@@ -163,15 +181,15 @@ public:
     static void Refresh();
     static void ClearMaps();
 
-    static void AddJsonMap(const tscrypto::tsCryptoString &json);
-    static void ConfigureJson(const tscrypto::tsCryptoString &json);
-    static void ConfigureJsonMaps(const tscrypto::tsCryptoString &mapjson);
+	static void AddJsonMap(const tscrypto::tsCryptoStringBase &json);
+	static void ConfigureJson(const tscrypto::tsCryptoStringBase &json);
+	static void ConfigureJsonMaps(const tscrypto::tsCryptoStringBase &mapjson);
     static void ConfigureMaps(const tscrypto::JSONField& mapsNode);
-    static void ConfigureJsonOutputs(const tscrypto::tsCryptoString &outputsjson);
+	static void ConfigureJsonOutputs(const tscrypto::tsCryptoStringBase &outputsjson);
     static void ConfigureOutputs(const tscrypto::JSONField& node);
-    static void ConfigureJsonBlacklist(const tscrypto::tsCryptoString &listjson);
+	static void ConfigureJsonBlacklist(const tscrypto::tsCryptoStringBase &listjson);
     static void ConfigureBlacklist(const tscrypto::JSONField& listNode);
-    static void ConfigureJsonWhitelist(const tscrypto::tsCryptoString &listjson);
+	static void ConfigureJsonWhitelist(const tscrypto::tsCryptoStringBase &listjson);
     static void ConfigureWhitelist(const tscrypto::JSONField& listNode);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -195,7 +213,7 @@ public:
     /// <param name="priority">The priority.</param>
     /// <param name="message"> The message.</param>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    static void WriteToConsumers(const tscrypto::tsCryptoString &category, int priority, const tscrypto::tsCryptoString &message);
+	static void WriteToConsumers(const tscrypto::tsCryptoStringBase &category, int priority, const tscrypto::tsCryptoStringBase &message);
     static void AllowLogs(const char *logList);
     static void DisallowLogs(const char *logList);
     static void indent(const char *loggerName, int level);
@@ -205,10 +223,10 @@ public:
 protected:
     static void CreateDefaultLoggerCreators();
 private:
-    tsLog(){}
+	tsLog() {}
     tsLog(const tsLog &) {}
     ~tsLog() {}
-    tsLog &operator=(const tsLog &) {return *this;}
+	tsLog &operator=(const tsLog &) { return *this; }
 };
 POP_WARNINGS
 

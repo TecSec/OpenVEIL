@@ -43,8 +43,6 @@
 
 #include "compilerconfig.h"
 
-#define _CRT_SECURE_NO_WARNINGS
-
 #include "VEIL.h"
 #include "VEILCmsHeader.h"
 #include "VEILFileSupport.h"

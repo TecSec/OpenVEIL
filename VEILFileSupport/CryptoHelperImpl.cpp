@@ -137,12 +137,12 @@ private:
 	tscrypto::tsCryptoData								m_key;
 	std::shared_ptr<Hash>				m_hasher;
 	std::shared_ptr<ICompression>       m_compressor;
-	bool                                m_decrypting;
-	bool                                m_finished;
-	uint64_t                            m_plaintextDataProcessed;
+	//bool                                m_decrypting;
+	//bool                                m_finished;
+	//uint64_t                            m_plaintextDataProcessed;
 	tscrypto::tsCryptoData								m_workingKey;
-	int									m_blockSize;
-	bool                                m_foundHeader;
+	//int									m_blockSize;
+	//bool                                m_foundHeader;
 	std::shared_ptr<IFileVEILOperationStatus>		m_status;
 	int									m_taskNumber;
 	int									m_taskCount;
@@ -162,7 +162,7 @@ private:
 	tscrypto::tsCryptoData								m_tmp;
 	tscrypto::tsCryptoData								m_tmp2;
 	tscrypto::tsCryptoData								m_finalHash;
-	std::shared_ptr<MAC>				m_fifoHasher;
+	std::shared_ptr<MessageAuthenticationCode>				m_fifoHasher;
 	std::shared_ptr<Symmetric>			m_symEnc;
 	std::shared_ptr<CCM_GCM>			m_gcm;
 	std::shared_ptr<KeyDerivationFunction> m_kdf;
@@ -209,8 +209,8 @@ std::shared_ptr<ICryptoHelper> CreateCryptoHelper(std::shared_ptr<IKeyVEILSessio
 CCKMCryptoHelperImpl::CCKMCryptoHelperImpl(std::shared_ptr<IKeyVEILSession> session)
 	:
 	m_session(session),
-	m_decrypting(false),
-	m_foundHeader(false),
+	//m_decrypting(false),
+	//m_foundHeader(false),
 	m_taskNumber(0),
 	m_taskCount(0),
 	m_reservedHeaderLength(0),
@@ -251,7 +251,7 @@ bool CCKMCryptoHelperImpl::HashData(const tscrypto::tsCryptoData &data, TS_ALG_I
 
 bool CCKMCryptoHelperImpl::HmacData(const tscrypto::tsCryptoData &data, const tscrypto::tsCryptoData &key, TS_ALG_ID algorithm, tscrypto::tsCryptoData &hash)
 {
-	std::shared_ptr<MAC> hasher = std::dynamic_pointer_cast<MAC>(CryptoFactory(algorithm));
+	std::shared_ptr<MessageAuthenticationCode> hasher = std::dynamic_pointer_cast<MessageAuthenticationCode>(CryptoFactory(algorithm));
 
 	if (!hasher || !hasher->initialize(key) || !hasher->update(data) || !hasher->finish(hash))
 		return false;
@@ -547,7 +547,7 @@ bool CCKMCryptoHelperImpl::DecryptStream(std::shared_ptr<ICmsHeaderBase> header,
 	}
 	else
 	{
-		Asn1::CTS::CkmCombineParameters params;
+		Asn1::CTS::_POD_CkmCombineParameters params;
 
 		if (header7->HasHeaderSigningPublicKey())
 		{
@@ -740,7 +740,7 @@ bool CCKMCryptoHelperImpl::DecryptEncAuthData(const tscrypto::tsCryptoData &_key
 
 	tscrypto::tsCryptoData key(_key);
 	tscrypto::tsCryptoData len, tmp, tmp2;
-	std::shared_ptr<MAC> hasher;
+	std::shared_ptr<MessageAuthenticationCode> hasher;
 	std::shared_ptr<CCM_GCM> enc;
 	SymmetricMode encMode;
 	std::shared_ptr<KeyDerivationFunction> kdf;
@@ -757,7 +757,7 @@ bool CCKMCryptoHelperImpl::DecryptEncAuthData(const tscrypto::tsCryptoData &_key
 
 	if (header->GetDataHash().size() != 0)
 	{
-		if (!(hasher = std::dynamic_pointer_cast<MAC>(CryptoFactory(header->GetDataHashOID().ToOIDString()))))
+		if (!(hasher = std::dynamic_pointer_cast<MessageAuthenticationCode>(CryptoFactory(header->GetDataHashOID().ToOIDString()))))
 			return TSRETURN_ERROR(("Unable to create the data hash algorithm."), false);
 	}
 
@@ -1013,7 +1013,7 @@ bool CCKMCryptoHelperImpl::DecryptHashed(const tscrypto::tsCryptoData &_key, std
 
 	tscrypto::tsCryptoData key(_key);
 	tscrypto::tsCryptoData tmp, tmp2;
-	std::shared_ptr<MAC> hasher;
+	std::shared_ptr<MessageAuthenticationCode> hasher;
 	std::shared_ptr<Symmetric> enc;
 	SymmetricMode encMode;
 	std::shared_ptr<ICompression> compressor;
@@ -1029,7 +1029,7 @@ bool CCKMCryptoHelperImpl::DecryptHashed(const tscrypto::tsCryptoData &_key, std
 
 	if (header->GetDataHash().size() != 0)
 	{
-		if (!(hasher = std::dynamic_pointer_cast<MAC>(CryptoFactory(header->GetDataHashOID().ToOIDString()))))
+		if (!(hasher = std::dynamic_pointer_cast<MessageAuthenticationCode>(CryptoFactory(header->GetDataHashOID().ToOIDString()))))
 			return TSRETURN_ERROR(("Unable to create the data hash algorithm."), false);
 	}
 
@@ -1662,7 +1662,7 @@ WaitableBool CCKMCryptoHelperImpl::InitializeDecryptHashed(std::shared_ptr<IFifo
 
 	if (finalHash.size() != 0)
 	{
-		if (!(m_fifoHasher = std::dynamic_pointer_cast<MAC>(CryptoFactory(hashOid.ToOIDString()))))
+		if (!(m_fifoHasher = std::dynamic_pointer_cast<MessageAuthenticationCode>(CryptoFactory(hashOid.ToOIDString()))))
 			return TSRETURN_ERROR(("Unable to create the data hash algorithm."), wait_false);
 	}
 
@@ -2005,7 +2005,7 @@ WaitableBool CCKMCryptoHelperImpl::InitializeDecryptEncAuth(std::shared_ptr<IFif
 
 	if (finalHash.size() != 0)
 	{
-		if (!(m_fifoHasher = std::dynamic_pointer_cast<MAC>(CryptoFactory(hashOid.ToOIDString()))))
+		if (!(m_fifoHasher = std::dynamic_pointer_cast<MessageAuthenticationCode>(CryptoFactory(hashOid.ToOIDString()))))
 			return TSRETURN_ERROR(("Unable to create the data hash algorithm."), wait_false);
 	}
 

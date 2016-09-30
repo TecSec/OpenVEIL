@@ -256,7 +256,7 @@ typedef ID<__XP_WINDOW, wxWindow*, nullptr> XP_WINDOW;
 
 //#include "htmlhelp.h"
 
-class IVEILWxUIBase
+class VEILWXWIDGETS_EXPORT IVEILWxUIBase
 {
 public:
 	virtual ~IVEILWxUIBase(){}
@@ -279,7 +279,7 @@ public:
 };
 
 // "/WinAPI/AudienceSelector"
-class IAudienceSelector : public IVEILWxUIBase
+class VEILWXWIDGETS_EXPORT IAudienceSelector : public IVEILWxUIBase
 {
 public:
 	virtual std::shared_ptr<IKeyVEILConnector> Connector() = 0;
@@ -298,14 +298,14 @@ public:
 #define TS_UI_CRYPTO_GROUP_ID_NOT_SPECIFIED GUID_NULL
 
 // "/WinAPI/AttributeSelectorGrid"
-class IAttributeSelector : public IVEILWxUIBase
+class VEILWXWIDGETS_EXPORT IAttributeSelector : public IVEILWxUIBase
 {
 public:
 	virtual bool Start(std::shared_ptr<IKeyVEILSession> session, XP_WINDOW parent, const GUID& CryptoGroupId, std::shared_ptr<ICmsHeaderAttributeGroup> group, std::shared_ptr<ICmsHeaderAttributeListExtension> attrList) = 0;
 };
 
 // "/WinAPI/TokenLogIn"
-class ITokenLogin : public IVEILWxUIBase
+class VEILWXWIDGETS_EXPORT ITokenLogin : public IVEILWxUIBase
 {
 public:
 	virtual bool Start(std::shared_ptr<IKeyVEILSession> session, XP_WINDOW parent) = 0;
@@ -314,7 +314,7 @@ public:
 };
 
 // "/WinAPI/KeyVEILLogIn"
-class IKeyVEILLogin : public IVEILWxUIBase
+class VEILWXWIDGETS_EXPORT IKeyVEILLogin : public IVEILWxUIBase
 {
 public:
 	virtual bool Start(std::shared_ptr<IKeyVEILConnector> connector, XP_WINDOW parent) = 0;
@@ -328,7 +328,7 @@ public:
 };
 
 // "/WinAPI/TokenSelector"
-class ITokenSelector : public IVEILWxUIBase
+class VEILWXWIDGETS_EXPORT ITokenSelector : public IVEILWxUIBase
 {
 public:
 	virtual bool Start(std::shared_ptr<IKeyVEILConnector> connector, const GUID& enterpriseId, const tscrypto::tsCryptoString& reason, XP_WINDOW parent) = 0;
@@ -336,7 +336,7 @@ public:
 };
 
 // "/WinAPI/FavoriteName"
-class IFavoriteName : public IVEILWxUIBase
+class VEILWXWIDGETS_EXPORT IFavoriteName : public IVEILWxUIBase
 {
 public:
 	virtual bool Start(XP_WINDOW parent) = 0;
@@ -345,7 +345,7 @@ public:
 };
 
 // "/WinAPI/ProgressDlg"
-class IProgressDlg : public IVEILWxUIBase
+class VEILWXWIDGETS_EXPORT IProgressDlg : public IVEILWxUIBase
 {
 public:
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -452,7 +452,7 @@ public:
 
 class IVEILPropertySheet;
 
-class IVEILPropertyPage 
+class VEILWXWIDGETS_EXPORT IVEILPropertyPage
 {
 public:
 	typedef enum { Invalid, Invalid_SamePage, NoError } PPResult;
@@ -483,7 +483,7 @@ public:
 };
 
 // "/WinAPI/PropertySheet"
-class IVEILPropertySheet
+class VEILWXWIDGETS_EXPORT IVEILPropertySheet
 {
 public:
 	typedef enum {VEILFileSettings, GeneralSettings} StandardPropPage;

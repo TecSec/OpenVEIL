@@ -33,6 +33,6 @@
 
 tsmod::IObject* CreateKvKeyTool()
 {
-	std::shared_ptr<IVeilUtilities> utils = ::TopServiceLocator()->get_instance<IVeilUtilities>("VeilUtilities");
+	std::shared_ptr<tsmod::IVeilUtilities> utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
 	return utils->buildCommandMenu("Perform KeyVEIL key operations", "/KVKEY-COMMANDS/", "key", "KEY");
 }

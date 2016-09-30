@@ -40,7 +40,7 @@ using namespace Asn1;
 using namespace Asn1::CMS;
 
 class HIDDEN CmsHeaderImpl :
-	public ICmsHeader, public ICkmPersistable, public tsmod::IObject, public TSHeaderControl, public ICkmOperations
+	public ICmsHeader, public ICkmPersistable, public tsmod::IObject, public TSHeaderControl, public ICkmOperations, public ICkmJsonPersistable
 {
 public:
 	CmsHeaderImpl(void) :
@@ -54,13 +54,13 @@ public:
 	}
 
 	// TSHeaderControl
-	virtual void ClearHMAC()
+	virtual void ClearHMAC() override
 	{
-		m_data._Signature.clear();
+		m_data.clear_Signature();
 	}
 
 	// ICmsCmsHeader
-	virtual bool IsProbableHeader(const uint8_t *data, size_t length)
+	virtual bool IsProbableHeader(const uint8_t *data, size_t length) override
 	{
 		if (data == nullptr)
 			return false;
@@ -92,7 +92,7 @@ public:
 		length = tagLength + dataLength;
 		return FromBytes(tscrypto::tsCryptoData(data, length));
 	}
-	virtual int GetProbableHeaderLength(const uint8_t *data, size_t length)
+	virtual int GetProbableHeaderLength(const uint8_t *data, size_t length) override
 	{
 		if (data == nullptr)
 			return 0;
@@ -112,67 +112,67 @@ public:
 
 		return (int)(tagLength + dataLength);
 	}
-	virtual void Clear();
-	virtual int GetHeaderVersion() const;
-	virtual void SetHeaderVersion(int setTo);
-	virtual int GetCombinerVersion() const;
-	virtual void SetCombinerVersion(int setTo);
-	virtual tscrypto::tsCryptoData GetCreatorId() const;
-	virtual void SetCreatorId(const tscrypto::tsCryptoData &data);
-	virtual GUID GetCreatorGuid() const;
-	virtual void SetCreatorGuid(const GUID &data);
-	virtual tscrypto::tsCryptoString GetCreationDate() const;
-	virtual void SetCreationDate(const tscrypto::tsCryptoString& date);
-	virtual TS_ALG_ID GetEncryptionAlgorithmID() const;
-	virtual void SetEncryptionAlgorithmID(TS_ALG_ID setTo);
-	virtual tscrypto::tsCryptoData GetEncryptionAlgorithmOID() const;
-	virtual void SetEncryptionAlgorithmOID(const tscrypto::tsCryptoData &setTo);
-	virtual CompressionType GetCompressionType() const;
-	virtual void SetCompressionType(CompressionType setTo);
-	virtual SymmetricPaddingType GetPaddingType() const;
-	virtual void SetPaddingType(SymmetricPaddingType setTo);
-	virtual TS_ALG_ID GetSignatureAlgorithmId() const;
-	virtual void SetSignatureAlgorithmId(TS_ALG_ID setTo);
-	virtual tscrypto::tsCryptoData GetSignatureAlgorithmOID() const;
-	virtual void SetSignatureAlgorithmOID(const tscrypto::tsCryptoData &setTo);
-	virtual tscrypto::tsCryptoData GetSignature() const;
-	virtual bool SetSignature(const tscrypto::tsCryptoData &setTo);
-	virtual bool SignatureIsMAC();
-	virtual bool GenerateMAC(const tscrypto::tsCryptoData &symmetricKey, const tscrypto::tsCryptoString& macName);
-	virtual bool ValidateSignature();
-	virtual bool ValidateMAC(const tscrypto::tsCryptoData &symmetricKey);
-	virtual bool GetExtension(const tscrypto::tsCryptoData &oid, std::shared_ptr<ICmsHeaderExtension>& pVal) const;
-	virtual bool RemoveExtension(const tscrypto::tsCryptoData &oid);
-	virtual size_t GetProtectedExtensionCount() const;
-	virtual bool GetProtectedExtension(size_t index, std::shared_ptr<ICmsHeaderExtension>& pVal) const;
-	virtual bool GetProtectedExtensionByOID(const tscrypto::tsCryptoData &oid, std::shared_ptr<ICmsHeaderExtension>& pVal) const;
-	virtual bool AddProtectedExtension(const tscrypto::tsCryptoData &oid, bool critical, std::shared_ptr<ICmsHeaderExtension>& pVal);
-	virtual bool RemoveProtectedExtension(std::shared_ptr<ICmsHeaderExtension> pVal);
-	virtual bool RemoveProtectedExtensionByIndex(size_t index);
-	virtual bool RemoveProtectedExtensionByOID(const tscrypto::tsCryptoData &oid);
-	virtual size_t GetUnprotectedExtensionCount() const;
-	virtual bool GetUnprotectedExtension(size_t index, std::shared_ptr<ICmsHeaderExtension>& pVal) const;
-	virtual bool GetUnprotectedExtensionByOID(const tscrypto::tsCryptoData &oid, std::shared_ptr<ICmsHeaderExtension>& pVal) const;
-	virtual bool AddUnprotectedExtension(const tscrypto::tsCryptoData &oid, bool critical, std::shared_ptr<ICmsHeaderExtension>& pVal);
-	virtual bool RemoveUnprotectedExtension(std::shared_ptr<ICmsHeaderExtension> pVal);
-	virtual bool RemoveUnprotectedExtensionByIndex(size_t index);
-	virtual bool RemoveUnprotectedExtensionByOID(const tscrypto::tsCryptoData &oid);
-	virtual tscrypto::tsCryptoData GetHeaderSigningPublicKey() const;
-	virtual bool SetHeaderSigningPublicKey(const tscrypto::tsCryptoData &encodedKey);
-	virtual bool ClearHeaderSigningPublicKey();
-	virtual tscrypto::tsCryptoData GetSignablePortion(bool toGenerate);
-	virtual tscrypto::tsCryptoData GetIVEC() const;
-	virtual bool SetIVEC(const tscrypto::tsCryptoData &setTo);
-	virtual bool ClearIVEC();
-	virtual uint64_t GetFileLength() const;
-	virtual bool SetFileLength(uint64_t setTo);
-	virtual bool ClearFileLength();
-	virtual bool GetEnterpriseGuid(GUID &data) const;
-	virtual bool SetEnterpriseGuid(const GUID &setTo);
-	virtual bool ClearEnterpriseGuid();
-	virtual tscrypto::tsCryptoData GetDataHash() const;
-	virtual bool SetDataHash(const tscrypto::tsCryptoData &setTo);
-	virtual tscrypto::tsCryptoData GetDataHashOID() const
+	virtual void Clear() override;
+	virtual int GetHeaderVersion() const override;
+	virtual void SetHeaderVersion(int setTo) override;
+	virtual int GetCombinerVersion() const override;
+	virtual void SetCombinerVersion(int setTo) override;
+	virtual tscrypto::tsCryptoData GetCreatorId() const override;
+	virtual void SetCreatorId(const tscrypto::tsCryptoData &data) override;
+	virtual GUID GetCreatorGuid() const override;
+	virtual void SetCreatorGuid(const GUID &data) override;
+	virtual tscrypto::tsCryptoString GetCreationDate() const override;
+	virtual void SetCreationDate(const tscrypto::tsCryptoString& date) override;
+	virtual TS_ALG_ID GetEncryptionAlgorithmID() const override;
+	virtual void SetEncryptionAlgorithmID(TS_ALG_ID setTo) override;
+	virtual tscrypto::tsCryptoData GetEncryptionAlgorithmOID() const override;
+	virtual void SetEncryptionAlgorithmOID(const tscrypto::tsCryptoData &setTo) override;
+	virtual CompressionType GetCompressionType() const override;
+	virtual void SetCompressionType(CompressionType setTo) override;
+	virtual SymmetricPaddingType GetPaddingType() const override;
+	virtual void SetPaddingType(SymmetricPaddingType setTo) override;
+	virtual TS_ALG_ID GetSignatureAlgorithmId() const override;
+	virtual void SetSignatureAlgorithmId(TS_ALG_ID setTo) override;
+	virtual tscrypto::tsCryptoData GetSignatureAlgorithmOID() const override;
+	virtual void SetSignatureAlgorithmOID(const tscrypto::tsCryptoData &setTo) override;
+	virtual tscrypto::tsCryptoData GetSignature() const override;
+	virtual bool SetSignature(const tscrypto::tsCryptoData &setTo) override;
+	virtual bool SignatureIsMAC() override;
+	virtual bool GenerateMAC(const tscrypto::tsCryptoData &symmetricKey, const tscrypto::tsCryptoString& macName) override;
+	virtual bool ValidateSignature() override;
+	virtual bool ValidateMAC(const tscrypto::tsCryptoData &symmetricKey) override;
+	virtual bool GetExtension(const tscrypto::tsCryptoData &oid, std::shared_ptr<ICmsHeaderExtension>& pVal) const override;
+	virtual bool RemoveExtension(const tscrypto::tsCryptoData &oid) override;
+	virtual size_t GetProtectedExtensionCount() const override;
+	virtual bool GetProtectedExtension(size_t index, std::shared_ptr<ICmsHeaderExtension>& pVal) const override;
+	virtual bool GetProtectedExtensionByOID(const tscrypto::tsCryptoData &oid, std::shared_ptr<ICmsHeaderExtension>& pVal) const override;
+	virtual bool AddProtectedExtension(const tscrypto::tsCryptoData &oid, bool critical, std::shared_ptr<ICmsHeaderExtension>& pVal) override;
+	virtual bool RemoveProtectedExtension(std::shared_ptr<ICmsHeaderExtension> pVal) override;
+	virtual bool RemoveProtectedExtensionByIndex(size_t index) override;
+	virtual bool RemoveProtectedExtensionByOID(const tscrypto::tsCryptoData &oid) override;
+	virtual size_t GetUnprotectedExtensionCount() const override;
+	virtual bool GetUnprotectedExtension(size_t index, std::shared_ptr<ICmsHeaderExtension>& pVal) const override;
+	virtual bool GetUnprotectedExtensionByOID(const tscrypto::tsCryptoData &oid, std::shared_ptr<ICmsHeaderExtension>& pVal) const override;
+	virtual bool AddUnprotectedExtension(const tscrypto::tsCryptoData &oid, bool critical, std::shared_ptr<ICmsHeaderExtension>& pVal) override;
+	virtual bool RemoveUnprotectedExtension(std::shared_ptr<ICmsHeaderExtension> pVal) override;
+	virtual bool RemoveUnprotectedExtensionByIndex(size_t index) override;
+	virtual bool RemoveUnprotectedExtensionByOID(const tscrypto::tsCryptoData &oid) override;
+	virtual tscrypto::tsCryptoData GetHeaderSigningPublicKey() const override;
+	virtual bool SetHeaderSigningPublicKey(const tscrypto::tsCryptoData &encodedKey) override;
+	virtual bool ClearHeaderSigningPublicKey() override;
+	virtual tscrypto::tsCryptoData GetSignablePortion(bool toGenerate) override;
+	virtual tscrypto::tsCryptoData GetIVEC() const override;
+	virtual bool SetIVEC(const tscrypto::tsCryptoData &setTo) override;
+	virtual bool ClearIVEC() override;
+	virtual uint64_t GetFileLength() const override;
+	virtual bool SetFileLength(uint64_t setTo) override;
+	virtual bool ClearFileLength() override;
+	virtual bool GetEnterpriseGuid(GUID &data) const override;
+	virtual bool SetEnterpriseGuid(const GUID &setTo) override;
+	virtual bool ClearEnterpriseGuid() override;
+	virtual tscrypto::tsCryptoData GetDataHash() const override;
+	virtual bool SetDataHash(const tscrypto::tsCryptoData &setTo) override;
+	virtual tscrypto::tsCryptoData GetDataHashOID() const override
 	{
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderHashExtension> hash;
@@ -184,7 +184,7 @@ public:
 		}
 		return hash->GetHashAlgorithmOID();
 	}
-	virtual bool SetDataHashOID(const tscrypto::tsCryptoData &setTo)
+	virtual bool SetDataHashOID(const tscrypto::tsCryptoData &setTo) override
 	{
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderHashExtension> hash;
@@ -204,11 +204,11 @@ public:
 		}
 		return hash->SetHashAlgorithmOID(setTo);
 	}
-	virtual bool ClearDataHash()
+	virtual bool ClearDataHash() override
 	{
 		return RemoveExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_FILEHASH_EXT_OID, tscrypto::tsCryptoData::OID));
 	}
-	virtual tscrypto::tsCryptoString GetDataName() const
+	virtual tscrypto::tsCryptoString GetDataName() const override
 	{
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderNameExtension> name;
@@ -220,7 +220,7 @@ public:
 		}
 		return name->GetName();
 	}
-	virtual bool SetDataName(const tscrypto::tsCryptoString& setTo)
+	virtual bool SetDataName(const tscrypto::tsCryptoString& setTo) override
 	{
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderNameExtension> name;
@@ -240,11 +240,11 @@ public:
 		}
 		return name->SetName(setTo);
 	}
-	virtual bool ClearDataName()
+	virtual bool ClearDataName() override
 	{
 		return RemoveExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_FILENAME_EXT_OID, tscrypto::tsCryptoData::OID));
 	}
-	virtual size_t GetCryptoGroupCount() const
+	virtual size_t GetCryptoGroupCount() const override
 	{
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderCryptoGroupListExtension> cgList;
@@ -256,7 +256,7 @@ public:
 		}
 		return cgList->GetCryptoGroupCount();
 	}
-	virtual bool AddCryptoGroup(const GUID &cryptoGroupGuid, int *pVal)
+	virtual bool AddCryptoGroup(const GUID &cryptoGroupGuid, int *pVal) override
 	{
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderCryptoGroupListExtension> cgList;
@@ -276,7 +276,7 @@ public:
 		}
 		return cgList->AddCryptoGroup(cryptoGroupGuid, pVal);
 	}
-	virtual bool GetCryptoGroup(size_t index, std::shared_ptr<ICmsHeaderCryptoGroup>& pVal)
+	virtual bool GetCryptoGroup(size_t index, std::shared_ptr<ICmsHeaderCryptoGroup>& pVal) override
 	{
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderCryptoGroupListExtension> cgList;
@@ -296,7 +296,7 @@ public:
 		}
 		return cgList->GetCryptoGroup(index, pVal);
 	}
-	virtual bool GetCryptoGroupByGuid(const GUID &cryptoGroupGuid, std::shared_ptr<ICmsHeaderCryptoGroup>& pVal)
+	virtual bool GetCryptoGroupByGuid(const GUID &cryptoGroupGuid, std::shared_ptr<ICmsHeaderCryptoGroup>& pVal) override
 	{
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderCryptoGroupListExtension> cgList;
@@ -326,7 +326,7 @@ public:
 		dom.reset();
 		return false;
 	}
-	virtual bool RemoveCryptoGroup(size_t index)
+	virtual bool RemoveCryptoGroup(size_t index) override
 	{
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderCryptoGroupListExtension> cgList;
@@ -346,7 +346,7 @@ public:
 		}
 		return cgList->RemoveCryptoGroup(index);
 	}
-	virtual bool RemoveCryptoGroupByGuid(const GUID &cryptoGroupGuid)
+	virtual bool RemoveCryptoGroupByGuid(const GUID &cryptoGroupGuid) override
 	{
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderCryptoGroupListExtension> cgList;
@@ -375,15 +375,15 @@ public:
 		dom.reset();
 		return false;
 	}
-	virtual bool ClearCryptoGroupList()
+	virtual bool ClearCryptoGroupList() override
 	{
 		return RemoveExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID));
 	}
-	virtual bool DuplicateHeader(std::shared_ptr<ICmsHeaderBase>& pVal);
-	virtual tscrypto::tsCryptoString GetDebugString();
-	virtual int OriginalHeaderSize() const;
-	virtual bool HasHeaderSigningPublicKey() const;
-	virtual tscrypto::tsCryptoData GetKeyUsageOID() const
+	virtual bool DuplicateHeader(std::shared_ptr<ICmsHeaderBase>& pVal) override;
+	virtual tscrypto::tsCryptoString GetDebugString() override;
+	virtual int OriginalHeaderSize() const override;
+	virtual bool HasHeaderSigningPublicKey() const override;
+	virtual tscrypto::tsCryptoData GetKeyUsageOID() const override
 	{
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderKeyUsageExtension> ku;
@@ -395,7 +395,7 @@ public:
 		}
 		return ku->GetKeyUsageOID();
 	}
-	virtual bool SetKeyUsageOID(const tscrypto::tsCryptoData &setTo)
+	virtual bool SetKeyUsageOID(const tscrypto::tsCryptoData &setTo) override
 	{
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderKeyUsageExtension> ku;
@@ -415,7 +415,7 @@ public:
 		}
 		return ku->SetKeyUsageOID(setTo);
 	}
-	virtual int GetKeySizeInBits() const
+	virtual int GetKeySizeInBits() const override
 	{
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderKeyUsageExtension> ku;
@@ -427,7 +427,7 @@ public:
 		}
 		return ku->GetKeySizeInBits();
 	}
-	virtual bool SetKeySizeInBits(int setTo)
+	virtual bool SetKeySizeInBits(int setTo) override
 	{
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderKeyUsageExtension> ku;
@@ -447,11 +447,11 @@ public:
 		}
 		return ku->SetKeySizeInBits(setTo);
 	}
-	virtual bool ClearDataFormat()
+	virtual bool ClearDataFormat() override
 	{
 		return RemoveExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_DATA_FORMAT_EXT_OID, tscrypto::tsCryptoData::OID));
 	}
-	virtual bool SetDataFormat(int blockSize, int algorithmId)
+	virtual bool SetDataFormat(int blockSize, int algorithmId) override
 	{
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderDataFormatExtension> df;
@@ -471,7 +471,7 @@ public:
 		}
 		return df->SetBlockSize(blockSize) && df->SetFormatAlgorithm(algorithmId);
 	}
-	virtual bool GetDataFormat(int &blockSize, int &algorithmId) const
+	virtual bool GetDataFormat(int &blockSize, int &algorithmId) const override
 	{
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderDataFormatExtension> df;
@@ -485,7 +485,7 @@ public:
 		algorithmId = df->GetFormatAlgorithm();
 		return true;
 	}
-	virtual tscrypto::tsCryptoString GetMimeType() const
+	virtual tscrypto::tsCryptoString GetMimeType() const override
 	{
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderMimeTypeExtension> mt;
@@ -497,7 +497,7 @@ public:
 		}
 		return mt->GetMimeType();
 	}
-	virtual bool SetMimeType(const tscrypto::tsCryptoString &setTo)
+	virtual bool SetMimeType(const tscrypto::tsCryptoString &setTo) override
 	{
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderMimeTypeExtension> mt;
@@ -518,7 +518,7 @@ public:
 		}
 		return mt->SetMimeType(setTo);
 	}
-	virtual bool NeedsSession()
+	virtual bool NeedsSession() override
 	{
 		if (GetSignature().size() > 0)
 		{
@@ -529,33 +529,272 @@ public:
 		// Probably doing Generate so if any group has a CKM attribute then a session is required
 		return GetCryptoGroupCount() > 0;
 	}
-	virtual bool WantsSession()
+	virtual bool WantsSession() override
 	{
 		return GetCryptoGroupCount() > 0;
 	}
-	virtual GUID GetObjectID();
-	virtual void SetObjectID(const GUID& setTo);
-	virtual uint32_t PaddedHeaderSize() const
+	virtual GUID GetObjectID() override;
+	virtual void SetObjectID(const GUID& setTo) override;
+	virtual uint32_t PaddedHeaderSize() const override
 	{
-		if (m_data._PaddedSize.exists)
-			return m_data._PaddedSize.value;
+		if (m_data.exists_PaddedSize())
+			return m_data.get_PaddedSize();
 		return OriginalHeaderSize();
 	}
-	virtual void SetPaddedHeaderSize(uint32_t setTo)
+	virtual void SetPaddedHeaderSize(uint32_t setTo) override
 	{
 		if (setTo == 0)
-			m_data._PaddedSize.clear();
+			m_data.clear_PaddedSize();
 		else
-			m_data._PaddedSize.set(setTo);
+			m_data.set_PaddedSize(setTo);
 	}
 	//CmsExtension *FindExtension(const tscrypto::tsCryptoData &oid);
+	// Added 7.0.35
+	virtual bool toBasicRecipe(Asn1::CTS::_POD_CkmRecipe& recipe) override
+	{
+		std::shared_ptr<ICmsHeaderExtension> headerExt;
+		std::shared_ptr<ICmsHeaderCryptoGroup> headerCryptoGroup;
+		std::shared_ptr<ICmsHeaderAccessGroupExtension> groupList;
+		std::shared_ptr<ICmsHeaderAccessGroup> andGroup;
+		std::shared_ptr<ICmsHeaderAttributeGroup> attributeGroup;
+		std::shared_ptr<ICmsHeaderAttributeListExtension> attrList;
+		std::shared_ptr<ICmsHeaderExtension> ext;
+		std::shared_ptr<ICmsHeaderKeyUsageExtension> ku;
+		GUID guidCryptoGroup;
+		tscrypto::tsCryptoString tmpStr;
+		int ulCKMVersion = 7;
+		std::shared_ptr<TlvDocument> otherAGs = TlvDocument::Create();
+
+		recipe.clear();
+		PrepareForEncode();
+
+		if (GetCryptoGroupCount() > 1)
+			return false;
+
+		if (!(GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_KEY_USAGE_EXT_OID, tscrypto::tsCryptoData::OID), ext)) || !(ku = std::dynamic_pointer_cast<ICmsHeaderKeyUsageExtension>(ext)))
+		{
+			SetKeyUsageOID(tscrypto::tsCryptoData(TECSEC_CKM7_SCP_KEYS_OID, tscrypto::tsCryptoData::OID));
+			SetKeySizeInBits(768);
+		}
+		recipe.set_bitSize(GetKeySizeInBits());
+		recipe.set_keyUsage(GetKeyUsageOID());
+
+		recipe.set_ckmVersion(ulCKMVersion);
+
+		if (GetCryptoGroupCount() > 0)
+			GetCryptoGroup(0, headerCryptoGroup);
+
+		if (!!headerCryptoGroup)
+		{
+			guidCryptoGroup = headerCryptoGroup->GetCryptoGroupGuid();
+			recipe.set_cryptoGroupId(guidCryptoGroup);
+		}
+		bool needsHeaderSigning = HasHeaderSigningPublicKey();
+		if (GetObjectID() == GUID_NULL)
+		{
+			recipe.set_objectId(GUID_NULL);
+		}
+		else
+		{
+			recipe.set_objectId(GetObjectID());
+		}
+		if (!PreprocessGroups())
+			return false;
+
+		tscrypto::tsCryptoData headerPub;
+		//		bool headerKeyProvided = false;
+
+		headerPub = GetHeaderSigningPublicKey();
+		if (headerPub.size() > 0 && headerPub[0] == 4)
+		{
+			needsHeaderSigning = false;
+			//			headerKeyProvided = true;
+		}
+		else if (headerPub.size() > 0)
+		{
+			needsHeaderSigning = true;
+		}
+		else
+		{
+			headerPub.clear();
+		}
+		//
+		// First initialize for the CKM operation
+		//
+		recipe.set_publicKey(headerPub);
+		recipe.set_sign(needsHeaderSigning);
+
+		if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), headerExt) ||
+			!(groupList = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(headerExt)))
+		{
+			return false;
+		}
+
+		//
+		// First process all Attribute groups
+		//
+		for (uint32_t i = 0; i < groupList->GetAccessGroupCount(); i++)
+		{
+			andGroup.reset();
+			if (!groupList->GetAccessGroup(i, andGroup))
+			{
+				return false;
+			}
+
+			attributeGroup.reset();
+
+			switch (andGroup->GetAndGroupType())
+			{
+			case ag_Attrs:
+				if (!!(attributeGroup = std::dynamic_pointer_cast<ICmsHeaderAttributeGroup>(andGroup)))
+				{
+					size_t attributeCount;
+					std::shared_ptr<ICmsHeaderAttribute> hAttribute;
+					Asn1::CTS::_POD_Attribute* attributeObj = nullptr;
+					Asn1::CTS::_POD_AccessGroup ctsGroup;
+
+					if (!attrList)
+					{
+						headerExt.reset();
+						if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), headerExt) ||
+							!(attrList = std::dynamic_pointer_cast<ICmsHeaderAttributeListExtension>(headerExt)))
+						{
+							return false;
+						}
+					}
+
+					attributeCount = attributeGroup->GetAttributeCount();
+					if (attributeCount < 1 || attributeCount > 128)
+					{
+						return false;
+					}
+
+					for (size_t k = 0; k < attributeCount; k++)
+					{
+						hAttribute.reset();
+						attributeObj = nullptr;
+						if (!attrList->GetAttribute(attributeGroup->GetAttributeIndex(k), hAttribute))
+							return false;
+						hAttribute->SetKeyVersion(0); // Forcing to 0 - Not needed in the recipe at this time
+
+						Asn1::CTS::_POD_AttributeIdentifier ctsAttrId;
+
+						ctsAttrId.set_id(hAttribute->GetAttributeGUID());
+						ctsAttrId.set_version(hAttribute->GetKeyVersion());
+						ctsGroup.get_attributes().add(ctsAttrId);
+					}
+					recipe.get_groups().add(std::move(ctsGroup));
+				}
+				else
+				{
+					return false;
+				}
+				break;
+			default:
+				return false;
+			}
+		}
+		return true;
+	}
+	virtual bool fromBasicRecipe(const Asn1::CTS::_POD_CkmRecipe& recipe) override
+	{
+		std::shared_ptr<ICmsHeaderCryptoGroup> headerCryptoGroup;
+		std::shared_ptr<ICmsHeaderExtension> headerExt;
+		std::shared_ptr<ICmsHeaderAccessGroupExtension> groupList;
+		std::shared_ptr<ICmsHeaderAccessGroup> andGroup;
+		std::shared_ptr<ICmsHeaderAttributeGroup> attributeGroup;
+		std::shared_ptr<ICmsHeaderAttributeListExtension> attrList;
+		//size_t groupIndex = 0;
+		int cgIndex = 0;
+
+		Clear();
+
+		BuildExtensionList(m_protectedExtensionList, true);
+		BuildExtensionList(m_unprotectedExtensionList, false);
+
+		SetCombinerVersion(recipe.get_ckmVersion());
+		if (recipe.get_cryptoGroupId() == GUID_NULL && recipe.get_groups().size() > 0)
+			return false;
+
+		if (recipe.get_cryptoGroupId() != GUID_NULL && !this->AddCryptoGroup(recipe.get_cryptoGroupId(), &cgIndex))
+			return false;
+
+		SetObjectID(recipe.get_objectId());
+		SetKeyUsageOID(recipe.get_keyUsage());
+		SetKeySizeInBits(recipe.get_bitSize());
+		if (recipe.get_publicKey().size() > 5)
+			SetHeaderSigningPublicKey(recipe.get_publicKey());
+
+		//		bool _sign;
+
+		const Asn1::CTS::_POD_CkmRecipe_groups& rGroups = recipe.get_groups();
+
+		if (rGroups.size() > 0)
+		{
+			if (!AddProtectedExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), true, headerExt))
+			{
+				if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), headerExt))
+					return false;
+			}
+			if (!(groupList = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(headerExt)))
+			{
+				return false;
+			}
+			headerExt.reset();
+
+			if (!AddProtectedExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), true, headerExt))
+			{
+				if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), headerExt))
+				{
+					return false;
+				}
+			}
+			if (!(attrList = std::dynamic_pointer_cast<ICmsHeaderAttributeListExtension>(headerExt)))
+			{
+				return false;
+			}
+
+			for (size_t i = 0; i < rGroups.size(); i++)
+			{
+				andGroup.reset();
+				attributeGroup.reset();
+
+				if (!groupList->AddAccessGroup(AndGroupType::ag_Attrs, andGroup) ||
+					!(attributeGroup = std::dynamic_pointer_cast<ICmsHeaderAttributeGroup>(andGroup)))
+					return false;
+
+				const Asn1::CTS::_POD_AccessGroup& ag = rGroups.get_at(i);
+				const Asn1::CTS::_POD_AccessGroup_attributes& attrs = ag.get_attributes();
+
+				for (size_t j = 0; j < attrs.size(); j++)
+				{
+					int idx = findAttributeIndex(attrList, attrs.get_at(j).get_id());
+
+					if (idx == -1)
+					{
+						std::shared_ptr<ICmsHeaderAttribute> attr;
+
+						idx = attrList->AddAttribute();
+						if (!attrList->GetAttribute(idx, attr))
+							return false;
+						attr->SetAttributeGuid(attrs.get_at(j).get_id());
+						attr->SetCryptoGroupNumber(cgIndex);
+					}
+					attributeGroup->AddAttributeIndex(idx);
+				}
+			}
+		}
+
+		return true;
+	}
+	virtual tscrypto::tsCryptoString toString(const tscrypto::tsCryptoString& type) override;
 
 	// ICkmPersistable
-	virtual tscrypto::tsCryptoData ToBytes();
-	virtual bool FromBytes(const tscrypto::tsCryptoData &setTo);
+	virtual tscrypto::tsCryptoData ToBytes() override;
+	virtual bool FromBytes(const tscrypto::tsCryptoData &setTo) override;
 
 	// ICkmOperations
-	virtual tscrypto::tsCryptoData ComputeHeaderIdentity()
+	virtual tscrypto::tsCryptoData ComputeHeaderIdentity() override
 	{
 		std::shared_ptr<Hash> hasher;
 		tscrypto::tsCryptoData Empty, hash;
@@ -615,7 +854,7 @@ public:
 			return Empty;
 		return hash;
 	}
-	virtual bool padHeaderToSize(DWORD size)
+	virtual bool padHeaderToSize(DWORD size) override
 	{
 		int headerLength;
 
@@ -632,7 +871,7 @@ public:
 		return true;
 	}
 	virtual bool PrepareHeader(CompressionType comp, TS_ALG_ID algorithm, TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData,
-		CMSFileFormatIds DataFormat, bool randomIvec, SymmetricPaddingType paddingType, int blockSize, int64_t fileSize)
+		CMSFileFormatIds DataFormat, bool randomIvec, SymmetricPaddingType paddingType, int blockSize, int64_t fileSize) override
 	{
 		TSDECLARE_FUNCTIONExt(true);
 
@@ -661,13 +900,13 @@ public:
 		keyBitSize = CryptoKeySize(algorithm);
 
 		// Now adjust for the data hash key size if needed
-		std::shared_ptr<MAC> mac;
+		std::shared_ptr<MessageAuthenticationCode> mac;
 
 		const char *keySizeOid = TECSEC_CKM7_KEY_AND_IVEC_OID;
 
 		if (hashAlgorithm != _TS_ALG_ID::TS_ALG_INVALID)
 		{
-			if (!(mac = std::dynamic_pointer_cast<MAC>(CryptoFactory(hashAlgorithm))))
+			if (!(mac = std::dynamic_pointer_cast<MessageAuthenticationCode>(CryptoFactory(hashAlgorithm))))
 			{
 				LOG(DebugError, "Invalid data hash detected.");
 				return TSRETURN_ERROR(("Returns ~~"), false);
@@ -728,10 +967,10 @@ public:
 		SetFileLength(fileSize);
 		return TSRETURN(("OK"), true);
 	}
-	virtual bool GenerateWorkingKey(std::shared_ptr<IKeyVEILSession>& session, std::shared_ptr<IKeyGenCallback> callback, tscrypto::tsCryptoData& workingKey)
+	virtual bool GenerateWorkingKey(std::shared_ptr<IKeyVEILSession>& session, std::shared_ptr<IKeyGenCallback> callback, tscrypto::tsCryptoData& workingKey) override
 	{
 		tscrypto::tsCryptoData wk;
-		Asn1::CTS::CkmCombineParameters params;
+		Asn1::CTS::_POD_CkmCombineParameters params;
 		std::shared_ptr<EccKey> headerSigning;
 
 		workingKey.clear();
@@ -746,7 +985,7 @@ public:
 			LOG(DebugError, "Unable to generate the working key and encrypted data - Cannot convert the header parameters.");
 			return false;
 		}
-		if (!(session->GenerateWorkingKey(params, [this, &callback](Asn1::CTS::CkmCombineParameters& params, tscrypto::tsCryptoData& wk)->bool{
+		if (!(session->GenerateWorkingKey(params, [this, &callback](Asn1::CTS::_POD_CkmCombineParameters& params, tscrypto::tsCryptoData& wk)->bool {
 			if (!CombinerParamsToHeader_Combine(params))
 			{
 				LOG(DebugError, "CombinerParamsToHeader_Combine failed");
@@ -768,7 +1007,7 @@ public:
 			return false;
 		}
 
-		if (params._sign || !!headerSigning)
+		if (params.get_sign() || !!headerSigning)
 		{
 			const char *oid = "";
 			tscrypto::tsCryptoData sig;
@@ -892,9 +1131,9 @@ public:
 		workingKey = wk;
 		return true;
 	}
-	virtual bool RegenerateWorkingKey(std::shared_ptr<IKeyVEILSession>& session, tscrypto::tsCryptoData& workingKey)
+	virtual bool RegenerateWorkingKey(std::shared_ptr<IKeyVEILSession>& session, tscrypto::tsCryptoData& workingKey) override
 	{
-		Asn1::CTS::CkmCombineParameters params;
+		Asn1::CTS::_POD_CkmCombineParameters params;
 		tscrypto::tsCryptoData wk;
 
 		if (!session)
@@ -932,9 +1171,9 @@ public:
 		workingKey = wk;
 		return true;
 	}
-	virtual bool CanGenerateWorkingKey(std::shared_ptr<IKeyVEILSession>& session)
+	virtual bool CanGenerateWorkingKey(std::shared_ptr<IKeyVEILSession>& session) override
 	{
-		Asn1::CTS::CkmCombineParameters params;
+		Asn1::CTS::_POD_CkmCombineParameters params;
 		std::shared_ptr<EccKey> headerSigning;
 
 		if (!session)
@@ -949,9 +1188,9 @@ public:
 		}
 		return true;
 	}
-	virtual bool CanRegenerateWorkingKey(std::shared_ptr<IKeyVEILSession>& session)
+	virtual bool CanRegenerateWorkingKey(std::shared_ptr<IKeyVEILSession>& session) override
 	{
-		Asn1::CTS::CkmCombineParameters params;
+		Asn1::CTS::_POD_CkmCombineParameters params;
 
 		if (!session)
 		{
@@ -975,7 +1214,7 @@ protected:
 	void FinalizeAndClearHeaderParts();
 	void BuildExtensionList(std::vector< std::shared_ptr< ICmsHeaderExtension> > &list, bool isProtected);
 
-	Asn1::CTS::Attribute* getAttribute(Asn1::CTS::CryptoGroup* cg, const GUID& id)
+	Asn1::CTS::_POD_Attribute* getAttribute(Asn1::CTS::_POD_CryptoGroup* cg, const GUID& id)
 	{
 		if (cg->exists_FiefdomList())
 		{
@@ -985,13 +1224,13 @@ protected:
 
 		for (size_t f = 0; f < fiefdomCount; f++)
 		{
-			Asn1::CTS::Fiefdom& fiefdom = cg->get_FiefdomList()->get_at(f);
+				Asn1::CTS::_POD_Fiefdom& fiefdom = cg->get_FiefdomList()->get_at(f);
 				if (fiefdom.exists_CategoryList())
 				{
 			categoryCount = fiefdom.get_CategoryList()->size();
 			for (size_t c = 0; c < categoryCount; c++)
 			{
-				Asn1::CTS::Category& category = fiefdom.get_CategoryList()->get_at(c);
+						Asn1::CTS::_POD_Category& category = fiefdom.get_CategoryList()->get_at(c);
 						if (category.exists_AttributeList())
 						{
 				attributeCount = category.get_AttributeList()->size();
@@ -1009,12 +1248,12 @@ protected:
 		return nullptr;
 	}
 
-	bool ComputeKeyVersions(Asn1::CTS::CryptoGroup *cryptogroup)
+	bool ComputeKeyVersions(Asn1::CTS::_POD_CryptoGroup *cryptogroup)
 	{
 		std::shared_ptr<ICmsHeaderAttributeListExtension> attrList;
 		std::shared_ptr<ICmsHeaderExtension> headerExt;
 		std::shared_ptr<ICmsHeaderAttribute> hAttribute;
-		Asn1::CTS::Attribute* attributeObj = nullptr;
+		Asn1::CTS::_POD_Attribute* attributeObj = nullptr;
 		size_t attributeCount;
 
 		if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), headerExt) || !(attrList = std::dynamic_pointer_cast<ICmsHeaderAttributeListExtension>(headerExt)))
@@ -1075,7 +1314,7 @@ protected:
 		return true;
 	}
 
-	bool HeaderToCombinerParams_Combine(std::shared_ptr<Asn1::CTS::Profile> profile, std::shared_ptr<EccKey>& localSigningKey, Asn1::CTS::CkmCombineParameters& parameters, bool onlyChecking = false)
+	bool HeaderToCombinerParams_Combine(std::shared_ptr<Asn1::CTS::_POD_Profile> profile, std::shared_ptr<EccKey>& localSigningKey, Asn1::CTS::_POD_CkmCombineParameters& parameters, bool onlyChecking = false)
 	{
 		std::shared_ptr<ICmsHeaderExtension> headerExt;
 		std::shared_ptr<ICmsHeaderCryptoGroup> headerCryptoGroup;
@@ -1085,7 +1324,7 @@ protected:
 		std::shared_ptr<ICmsHeaderAttributeListExtension> attrList;
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderKeyUsageExtension> ku;
-		Asn1::CTS::CryptoGroup *cg = nullptr;
+		Asn1::CTS::_POD_CryptoGroup *cg = nullptr;
 		GUID guidCryptoGroup;
 		GUID memberGuid = GUID_NULL;
 		GUID enterpriseGuid = GUID_NULL;
@@ -1104,16 +1343,16 @@ protected:
 			enterpriseGuid = profile->get_EnterpriseId();
 		}
 
-		parameters._enterpriseId = enterpriseGuid;
-		parameters._memberId = memberGuid;
+		parameters.set_enterpriseId(enterpriseGuid);
+		parameters.set_memberId(memberGuid);
 
 		if (!(GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_KEY_USAGE_EXT_OID, tscrypto::tsCryptoData::OID), ext)) || !(ku = std::dynamic_pointer_cast<ICmsHeaderKeyUsageExtension>(ext)))
 		{
 			SetKeyUsageOID(tscrypto::tsCryptoData(TECSEC_CKM7_SCP_KEYS_OID, tscrypto::tsCryptoData::OID));
 			SetKeySizeInBits(768);
 		}
-		parameters._bitSize = GetKeySizeInBits();
-		parameters._keyUsage.oid(GetKeyUsageOID());
+		parameters.set_bitSize(GetKeySizeInBits());
+		parameters.set_keyUsage(GetKeyUsageOID());
 
 		if (memberGuid != GUID_NULL)
 			SetCreatorGuid(memberGuid);
@@ -1124,10 +1363,9 @@ protected:
 			SetEnterpriseGuid(enterpriseGuid);
 
 		SetCombinerVersion(ulCKMVersion);
-		parameters._ckmVersion = ulCKMVersion;
-
-		parameters._creationDate = tscrypto::tsCryptoDate::Now();
-		parameters._creationDate.GetAsZuluTime(tmpStr);
+		parameters.set_ckmVersion(ulCKMVersion);
+		parameters.set_creationDate(tscrypto::tsCryptoDate::Now());
+		parameters.get_creationDate().GetAsZuluTime(tmpStr);
 		SetCreationDate(tmpStr);
 
 		if (GetCryptoGroupCount() > 0)
@@ -1139,7 +1377,7 @@ protected:
 				return false;
 
 			guidCryptoGroup = headerCryptoGroup->GetCryptoGroupGuid();
-			parameters._cryptoGroupId = guidCryptoGroup;
+			parameters.set_cryptoGroupId(guidCryptoGroup);
 			if (guidCryptoGroup != GUID_NULL)
 			{
 				if (profile->exists_cryptoGroupList())
@@ -1172,11 +1410,11 @@ protected:
 
 			xp_CreateGuid(tmp);
 			SetObjectID(tmp);
-			parameters._objectId = tmp;
+			parameters.set_objectId(tmp);
 		}
 		else
 		{
-			parameters._objectId = GetObjectID();
+			parameters.set_objectId(GetObjectID());
 		}
 		if (!PreprocessGroups())
 			return false;
@@ -1220,8 +1458,8 @@ protected:
 			//
 			// First initialize for the CKM operation
 			//
-			parameters._publicKey = headerPub;
-			parameters._sign = needsHeaderSigning;
+			parameters.set_publicKey(headerPub);
+			parameters.set_sign(needsHeaderSigning);
 		}
 		else
 		{
@@ -1254,8 +1492,8 @@ protected:
 				{
 					size_t attributeCount;
 					std::shared_ptr<ICmsHeaderAttribute> hAttribute;
-					Asn1::CTS::Attribute* attributeObj = nullptr;
-					Asn1::CTS::AccessGroup ctsGroup;
+					Asn1::CTS::_POD_Attribute* attributeObj = nullptr;
+					Asn1::CTS::_POD_AccessGroup ctsGroup;
 
 					if (!attrList)
 					{
@@ -1284,10 +1522,10 @@ protected:
 							return false;
 						hAttribute->SetKeyVersion(attributeObj->get_ForwardVersion());
 
-						Asn1::CTS::AttributeIdentifier ctsAttrId;
+						Asn1::CTS::_POD_AttributeIdentifier ctsAttrId;
 
-						ctsAttrId._id = hAttribute->GetAttributeGUID();
-						ctsAttrId._version = hAttribute->GetKeyVersion();
+						ctsAttrId.set_id(hAttribute->GetAttributeGUID());
+						ctsAttrId.set_version(hAttribute->GetKeyVersion());
 						ctsGroup.get_attributes().add(ctsAttrId);
 					}
 					parameters.get_groups().add(std::move(ctsGroup));
@@ -1302,11 +1540,11 @@ protected:
 			}
 		}
 		if (otherAGs->DocumentElement()->ChildCount() > 0)
-			parameters._appendHash = otherAGs->DocumentElement()->InnerData();
+			parameters.set_appendHash(otherAGs->DocumentElement()->InnerData());
 		return true;
 	}
 
-	bool HeaderToCombinerParams_Recombine(std::shared_ptr<Asn1::CTS::Profile> profile, Asn1::CTS::CkmCombineParameters& parameters)
+	bool HeaderToCombinerParams_Recombine(std::shared_ptr<Asn1::CTS::_POD_Profile> profile, Asn1::CTS::_POD_CkmCombineParameters& parameters)
 	{
 		//HRESULT hr;
 		std::shared_ptr<ICmsHeaderExtension> headerExt;
@@ -1322,36 +1560,36 @@ protected:
 		std::shared_ptr<TlvDocument> otherAGs = TlvDocument::Create();
 		bool foundAGoodGroup = false;
 		int attrCountFound;
-		Asn1::CTS::CryptoGroup *cg = nullptr;
+		Asn1::CTS::_POD_CryptoGroup *cg = nullptr;
 
 		parameters.clear();
 
 		GetEnterpriseGuid(enterpriseGuid);
-		parameters._enterpriseId = enterpriseGuid;
-		parameters._memberId = GetCreatorGuid();
+		parameters.set_enterpriseId(enterpriseGuid);
+		parameters.set_memberId(GetCreatorGuid());
 
 		if (GetCryptoGroupCount() > 1)
 			return false;
 
-		parameters._bitSize = GetKeySizeInBits();
-		parameters._keyUsage.oid(GetKeyUsageOID());
-		parameters._ckmVersion = GetCombinerVersion();
+		parameters.set_bitSize(GetKeySizeInBits());
+		parameters.set_keyUsage(GetKeyUsageOID());
+		parameters.set_ckmVersion(GetCombinerVersion());
 
 
-		parameters._creationDate = tscrypto::tsCryptoDate(GetCreationDate(), tscrypto::tsCryptoDate::Zulu);
+		parameters.set_creationDate(tscrypto::tsCryptoDate(GetCreationDate(), tscrypto::tsCryptoDate::Zulu));
 
 		if (GetCryptoGroupCount() > 0)
 			GetCryptoGroup(0, headerCryptoGroup);
 
 		if (!!headerCryptoGroup)
 		{
-			if (!profile || parameters._memberId == GUID_NULL || enterpriseGuid == GUID_NULL)
+			if (!profile || parameters.get_memberId() == GUID_NULL || enterpriseGuid == GUID_NULL)
 				return false;
 
 			guidCryptoGroup = headerCryptoGroup->GetCryptoGroupGuid();
-			parameters._cryptoGroupId = guidCryptoGroup;
-			parameters._currentVersion = headerCryptoGroup->GetCurrentMaintenanceLevel();
-			parameters._ephemeralPublic = headerCryptoGroup->GetEphemeralPublic();
+			parameters.set_cryptoGroupId(guidCryptoGroup);
+			parameters.set_currentVersion(headerCryptoGroup->GetCurrentMaintenanceLevel());
+			parameters.set_ephemeralPublic(headerCryptoGroup->GetEphemeralPublic());
 
 			if (guidCryptoGroup != GUID_NULL)
 			{
@@ -1371,9 +1609,9 @@ protected:
 			}
 		}
 		bool needsHeaderSigning = HasHeaderSigningPublicKey();
-		parameters._sign = needsHeaderSigning;
-		parameters._publicKey = GetHeaderSigningPublicKey();
-		parameters._objectId = GetObjectID();
+		parameters.set_sign(needsHeaderSigning);
+		parameters.set_publicKey(GetHeaderSigningPublicKey());
+		parameters.set_objectId(GetObjectID());
 
 		if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), headerExt) ||
 			!(groupList = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(headerExt)))
@@ -1397,10 +1635,10 @@ protected:
 			{
 				if (hAttribute->GetSignature().size() > 0)
 				{
-					Asn1::CTS::AttributeSignature sig;
-					sig._attributeId = hAttribute->GetAttributeGUID();
-					sig._version = hAttribute->GetKeyVersion();
-					sig._signature = hAttribute->GetSignature();
+					Asn1::CTS::_POD_AttributeSignature sig;
+					sig.set_attributeId(hAttribute->GetAttributeGUID());
+					sig.set_version(hAttribute->GetKeyVersion());
+					sig.set_signature(hAttribute->GetSignature());
 					if (!parameters.exists_signatures())
 						parameters.set_signatures();
 					parameters.get_signatures()->add(sig);
@@ -1428,7 +1666,7 @@ protected:
 				{
 					size_t attributeCount;
 					std::shared_ptr<ICmsHeaderAttribute> hAttribute;
-					Asn1::CTS::AccessGroup ctsGroup;
+					Asn1::CTS::_POD_AccessGroup ctsGroup;
 
 					attributeCount = attributeGroup->GetAttributeCount();
 					if (attributeCount < 1 || attributeCount > 128)
@@ -1436,7 +1674,7 @@ protected:
 						return false;
 					}
 
-					ctsGroup._encRand = attributeGroup->GetEncryptedRandom();
+					ctsGroup.set_encRand(attributeGroup->GetEncryptedRandom());
 
 					attrCountFound = 0;
 
@@ -1446,20 +1684,20 @@ protected:
 						if (!attrList->GetAttribute(attributeGroup->GetAttributeIndex(k), hAttribute))
 							return false;
 
-						Asn1::CTS::AttributeIdentifier ctsAttrId;
+						Asn1::CTS::_POD_AttributeIdentifier ctsAttrId;
 
-						ctsAttrId._id = hAttribute->GetAttributeGUID();
-						ctsAttrId._version = hAttribute->GetKeyVersion();
+						ctsAttrId.set_id(hAttribute->GetAttributeGUID());
+						ctsAttrId.set_version(hAttribute->GetKeyVersion());
 						ctsGroup.get_attributes().add(ctsAttrId);
 
 						if (!foundAGoodGroup)
 						{
-							Asn1::CTS::Attribute* attributeObj = nullptr;
+							Asn1::CTS::_POD_Attribute* attributeObj = nullptr;
 
 							attributeObj = getAttribute(cg, hAttribute->GetAttributeGUID());
 							if (attributeObj != nullptr)
 							{
-								if (ctsAttrId._version >= attributeObj->get_BackwardVersion() && ctsAttrId._version <= attributeObj->get_ForwardVersion())
+								if (ctsAttrId.get_version() >= attributeObj->get_BackwardVersion() && ctsAttrId.get_version() <= attributeObj->get_ForwardVersion())
 									attrCountFound++;
 							}
 						}
@@ -1479,11 +1717,11 @@ protected:
 		if (!foundAGoodGroup && cg != nullptr && groupList->GetAccessGroupCount() > 0)
 			return false;
 		if (otherAGs->DocumentElement()->ChildCount() > 0)
-			parameters._appendHash = otherAGs->DocumentElement()->InnerData();
+			parameters.set_appendHash(otherAGs->DocumentElement()->InnerData());
 		return true;
 	}
 
-	bool CombinerParamsToHeader_Combine(Asn1::CTS::CkmCombineParameters& parameters)
+	bool CombinerParamsToHeader_Combine(Asn1::CTS::_POD_CkmCombineParameters& parameters)
 	{
 		std::shared_ptr<ICmsHeaderCryptoGroup> headerCryptoGroup;
 		std::shared_ptr<ICmsHeaderExtension> headerExt;
@@ -1493,16 +1731,16 @@ protected:
 		std::shared_ptr<ICmsHeaderAttributeListExtension> attrList;
 		size_t groupIndex = 0;
 
-		SetCombinerVersion(parameters._ckmVersion);
+		SetCombinerVersion(parameters.get_ckmVersion());
 		if (!GetCryptoGroup(0, headerCryptoGroup))
 			return false;
 
-		headerCryptoGroup->SetCurrentMaintenanceLevel(parameters._currentVersion);
-		headerCryptoGroup->SetEphemeralPublic(parameters._ephemeralPublic);
-		SetCreationDate(parameters._creationDate.ToZuluTime());
-		SetEnterpriseGuid(parameters._enterpriseId);
-		SetCreatorGuid(parameters._memberId);
-		SetObjectID(parameters._objectId);
+		headerCryptoGroup->SetCurrentMaintenanceLevel(parameters.get_currentVersion());
+		headerCryptoGroup->SetEphemeralPublic(parameters.get_ephemeralPublic());
+		SetCreationDate(parameters.get_creationDate().ToZuluTime());
+		SetEnterpriseGuid(parameters.get_enterpriseId());
+		SetCreatorGuid(parameters.get_memberId());
+		SetObjectID(parameters.get_objectId());
 
 		if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), headerExt) ||
 			!(groupList = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(headerExt)))
@@ -1519,9 +1757,10 @@ protected:
 		// Transfer the attribute signatures to the header
 		if (parameters.exists_signatures())
 		{
-			for (std::shared_ptr<Asn1DataBaseClass>& s : *parameters.get_signatures()->_list)
+			for (size_t pi = 0; pi < parameters.get_signatures()->size(); pi++)
+				//			for (std::shared_ptr<Asn1DataBaseClass>& s : *parameters.get_signatures()->_list)
 			{
-				std::shared_ptr<Asn1::CTS::AttributeSignature> sig = std::dynamic_pointer_cast<Asn1::CTS::AttributeSignature>(s);
+				Asn1::CTS::_POD_AttributeSignature& sig = parameters.get_signatures()->get_at(pi);
 				size_t count = attrList->GetAttributeCount();
 				std::shared_ptr<ICmsHeaderAttribute> hAttribute;
 				for (size_t i = 0; i < count; i++)
@@ -1529,10 +1768,10 @@ protected:
 					hAttribute.reset();
 					if (attrList->GetAttribute(i, hAttribute))
 					{
-						if (hAttribute->GetAttributeGUID() == sig->_attributeId)
+						if (hAttribute->GetAttributeGUID() == sig.get_attributeId())
 						{
-							hAttribute->SetKeyVersion(sig->_version);
-							hAttribute->SetSignature(sig->_signature);
+							hAttribute->SetKeyVersion(sig.get_version());
+							hAttribute->SetSignature(sig.get_signature());
 							break;
 						}
 					}
@@ -1556,7 +1795,7 @@ protected:
 			case ag_Attrs:
 				if (!!(attributeGroup = std::dynamic_pointer_cast<ICmsHeaderAttributeGroup>(andGroup)))
 				{
-					attributeGroup->SetEncryptedRandom(parameters.get_groups().get_at(groupIndex++)._encRand);
+					attributeGroup->SetEncryptedRandom(parameters.get_groups().get_at(groupIndex++).get_encRand());
 				}
 				else
 				{
@@ -1570,13 +1809,60 @@ protected:
 		return true;
 	}
 
+	int findAttributeIndex(std::shared_ptr<ICmsHeaderAttributeListExtension> list, const GUID id)
+	{
+		std::shared_ptr<ICmsHeaderAttribute> attr;
+
+		for (size_t i = 0; i < list->GetAttributeCount(); i++)
+		{
+			attr.reset();
+			if (list->GetAttribute(i, attr))
+			{
+				if (attr->GetAttributeGUID() == id)
+					return (int)i;
+			}
+		}
+		return -1;
+	}
+	tscrypto::tsCryptoString GetDebugJsonString();
 
 private:
 	std::vector< std::shared_ptr< ICmsHeaderExtension > > m_protectedExtensionList;
 	std::vector< std::shared_ptr< ICmsHeaderExtension > > m_unprotectedExtensionList;
-	mutable CmsHeaderData m_data;
+	mutable _POD_CmsHeaderData m_data;
 	int m_originalSize;
 	std::shared_ptr<IKeyGenCallback>	m_keyGenCallback;
+
+	// Inherited via ICkmJsonPersistable
+	virtual tscrypto::tsCryptoString ToJSON() override
+	{
+		tscrypto::tsCryptoData output;
+
+		PrepareForEncode();
+
+		return m_data.toJSON().ToJSON();
+	}
+	virtual bool FromJSON(const tscrypto::tsCryptoString & setTo) override
+	{
+		Clear();
+		m_data.clear();
+
+		if (!m_data.fromJSON(setTo))
+			return false;
+
+		// TODO:  Json Not sure if this will work
+		if (m_data.get_OID().ToOIDString() != TECSEC_CMS_HEADER)
+		{
+			Clear();
+			return false;
+		}
+		BuildExtensionList(m_protectedExtensionList, true);
+		BuildExtensionList(m_unprotectedExtensionList, false);
+
+		m_originalSize = 0;
+
+		return true;
+	}
 };
 
 
@@ -1584,57 +1870,57 @@ void CmsHeaderImpl::Clear()
 {
 	FinalizeAndClearHeaderParts();
 	m_data.clear();
-	m_data._CreationDate = tscrypto::tsCryptoDate::GetCurrentTime();
-	m_data._CombinerVersion = 7;
+	m_data.set_CreationDate(tscrypto::tsCryptoDate::GetCurrentTime());
+	m_data.set_CombinerVersion(7);
 }
 
 int CmsHeaderImpl::GetHeaderVersion() const
 {
-	return m_data._Version;
+	return m_data.get_Version();
 }
 
 void CmsHeaderImpl::SetHeaderVersion(int setTo)
 {
 	ClearHMAC();
-	m_data._Version = setTo;
+	m_data.set_Version(setTo);
 }
 
 int CmsHeaderImpl::GetCombinerVersion() const
 {
-	return m_data._CombinerVersion;
+	return m_data.get_CombinerVersion();
 }
 
 void CmsHeaderImpl::SetCombinerVersion(int setTo)
 {
 	ClearHMAC();
-	m_data._CombinerVersion = setTo;
+	m_data.set_CombinerVersion(setTo);
 }
 
 tscrypto::tsCryptoData CmsHeaderImpl::GetCreatorId() const
 {
-	return m_data._WhoCreated._SubjectId;
+	return m_data.get_WhoCreated().get_SubjectId();
 }
 
 void CmsHeaderImpl::SetCreatorId(const tscrypto::tsCryptoData &data)
 {
-	m_data._WhoCreated.selectedItem = CmsHeaderData_WhoCreated::Choice_SubjectId;
-	m_data._WhoCreated._SubjectId = data;
+	m_data.get_WhoCreated().set_selectedItem(_POD_CmsHeaderData_WhoCreated::Choice_SubjectId);
+	m_data.get_WhoCreated().set_SubjectId(data);
 }
 
 GUID CmsHeaderImpl::GetCreatorGuid() const
 {
-	return m_data._WhoCreated._SubjectGuid;
+	return m_data.get_WhoCreated().get_SubjectGuid();
 }
 
 void CmsHeaderImpl::SetCreatorGuid(const GUID &data)
 {
-	m_data._WhoCreated.selectedItem = CmsHeaderData_WhoCreated::Choice_SubjectGuid;
-	m_data._WhoCreated._SubjectGuid = data;
+	m_data.get_WhoCreated().set_selectedItem(_POD_CmsHeaderData_WhoCreated::Choice_SubjectGuid);
+	m_data.get_WhoCreated().set_SubjectGuid(data);
 }
 
 tscrypto::tsCryptoString CmsHeaderImpl::GetCreationDate() const
 {
-	return m_data._CreationDate.ToZuluTime();
+	return m_data.get_CreationDate().ToZuluTime();
 }
 
 void CmsHeaderImpl::SetCreationDate(const tscrypto::tsCryptoString& date)
@@ -1642,51 +1928,51 @@ void CmsHeaderImpl::SetCreationDate(const tscrypto::tsCryptoString& date)
 	tscrypto::tsCryptoDate dt;
 
 	dt.SetDateTimeFromZulu(date);
-	m_data._CreationDate = dt;
+	m_data.set_CreationDate(dt);
 }
 
-static TS_ALG_ID getEncryptionAlgorithmAsId(CmsHeaderData& data)
+static TS_ALG_ID getEncryptionAlgorithmAsId(_POD_CmsHeaderData& data)
 {
-	switch (data._EncAlg.selectedItem)
+	switch (data.get_EncAlg().get_selectedItem())
 	{
-	case CmsHeaderData_EncAlg::Choice_EncryptionAlgorithmId: // ID
-		return data._EncAlg._EncryptionAlgorithmId;
-	case CmsHeaderData_EncAlg::Choice_EncryptionAlgorithm: // AlgorithmIdentifier
-		return OIDtoID(data._EncAlg._EncryptionAlgorithm._oid.oidString());
+	case _POD_CmsHeaderData_EncAlg::Choice_EncryptionAlgorithmId: // ID
+		return data.get_EncAlg().get_EncryptionAlgorithmId();
+	case _POD_CmsHeaderData_EncAlg::Choice_EncryptionAlgorithm: // AlgorithmIdentifier
+		return OIDtoID(data.get_EncAlg().get_EncryptionAlgorithm().get_oid().ToOIDString());
 	default:
 		return _TS_ALG_ID::TS_ALG_INVALID;
 	}
 }
-static tscrypto::tsCryptoData getEncryptionAlgorithmAsOID(CmsHeaderData& data)
+static tscrypto::tsCryptoData getEncryptionAlgorithmAsOID(_POD_CmsHeaderData& data)
 {
-	switch (data._EncAlg.selectedItem)
+	switch (data.get_EncAlg().get_selectedItem())
 	{
-	case CmsHeaderData_EncAlg::Choice_EncryptionAlgorithmId: // ID
-		return tscrypto::tsCryptoData(IDtoOID(data._EncAlg._EncryptionAlgorithmId), tscrypto::tsCryptoData::OID);
-	case CmsHeaderData_EncAlg::Choice_EncryptionAlgorithm: // AlgorithmIdentifier
-		return data._EncAlg._EncryptionAlgorithm._oid.oid();
+	case _POD_CmsHeaderData_EncAlg::Choice_EncryptionAlgorithmId: // ID
+		return tscrypto::tsCryptoData(IDtoOID(data.get_EncAlg().get_EncryptionAlgorithmId()), tscrypto::tsCryptoData::OID);
+	case _POD_CmsHeaderData_EncAlg::Choice_EncryptionAlgorithm: // AlgorithmIdentifier
+		return data.get_EncAlg().get_EncryptionAlgorithm().get_oid();
 	default:
 		return tscrypto::tsCryptoData();
 	}
 }
-static TS_ALG_ID getSignatureAlgorithmAsId(CmsHeaderData& data)
+static tscrypto::TS_ALG_ID getSignatureAlgorithmAsId(_POD_CmsHeaderData& data)
 {
-	if (data._SignatureAlgorithm.value == nullptr)
+	if (!data.exists_SignatureAlgorithm())
 		return _TS_ALG_ID::TS_ALG_INVALID;
 
-	return OIDtoID(dynamic_cast<AlgorithmIdentifier*>(data._SignatureAlgorithm.value)->_oid.oidString());
+	return OIDtoID(data.get_SignatureAlgorithm()->get_oid().ToOIDString());
 }
-static tscrypto::tsCryptoData getSignatureAlgorithmAsOID(CmsHeaderData& data)
+static tscrypto::tsCryptoData getSignatureAlgorithmAsOID(_POD_CmsHeaderData& data)
 {
-	if (data._SignatureAlgorithm.value != nullptr)
-		return dynamic_cast<AlgorithmIdentifier*>(data._SignatureAlgorithm.value)->_oid.oid();
+	if (data.exists_SignatureAlgorithm())
+		return data.get_SignatureAlgorithm()->get_oid();
 	return tscrypto::tsCryptoData();
 }
-static void setSignatureAlgorithmId(CmsHeaderData& data, TS_ALG_ID id)
+static void setSignatureAlgorithmId(_POD_CmsHeaderData& data, tscrypto::TS_ALG_ID id)
 {
-	AlgorithmIdentifier ai;
-	ai._oid.oidString(IDtoOID(id));
-	data._SignatureAlgorithm.set(ai);
+	_POD_AlgorithmIdentifier ai;
+	ai.set_oid(IDtoOID(id));
+	data.set_SignatureAlgorithm(ai);
 }
 TS_ALG_ID CmsHeaderImpl::GetEncryptionAlgorithmID() const
 {
@@ -1695,8 +1981,8 @@ TS_ALG_ID CmsHeaderImpl::GetEncryptionAlgorithmID() const
 
 void CmsHeaderImpl::SetEncryptionAlgorithmID(TS_ALG_ID setTo)
 {
-	m_data._EncAlg.selectedItem = CmsHeaderData_EncAlg::Choice_EncryptionAlgorithmId;
-	m_data._EncAlg._EncryptionAlgorithmId = setTo;
+	m_data.get_EncAlg().set_selectedItem(_POD_CmsHeaderData_EncAlg::Choice_EncryptionAlgorithmId);
+	m_data.get_EncAlg().set_EncryptionAlgorithmId(setTo);
 }
 
 tscrypto::tsCryptoData CmsHeaderImpl::GetEncryptionAlgorithmOID() const
@@ -1706,29 +1992,29 @@ tscrypto::tsCryptoData CmsHeaderImpl::GetEncryptionAlgorithmOID() const
 
 void CmsHeaderImpl::SetEncryptionAlgorithmOID(const tscrypto::tsCryptoData &setTo)
 {
-	m_data._EncAlg.selectedItem = CmsHeaderData_EncAlg::Choice_EncryptionAlgorithm;
-	m_data._EncAlg._EncryptionAlgorithm._oid.oid(setTo);
-	m_data._EncAlg._EncryptionAlgorithm._Parameter.clear();
+	m_data.get_EncAlg().set_selectedItem(_POD_CmsHeaderData_EncAlg::Choice_EncryptionAlgorithm);
+	m_data.get_EncAlg().get_EncryptionAlgorithm().set_oid(setTo);
+	m_data.get_EncAlg().get_EncryptionAlgorithm().clear_Parameter();
 }
 
 CompressionType CmsHeaderImpl::GetCompressionType() const
 {
-	return (CompressionType)m_data._Compression;
+	return (CompressionType)m_data.get_Compression();
 }
 
 void CmsHeaderImpl::SetCompressionType(CompressionType setTo)
 {
-	m_data._Compression = setTo;
+	m_data.set_Compression(setTo);
 }
 
 SymmetricPaddingType CmsHeaderImpl::GetPaddingType() const
 {
-	return (SymmetricPaddingType)m_data._Padding;
+	return (SymmetricPaddingType)m_data.get_Padding();
 }
 
 void CmsHeaderImpl::SetPaddingType(SymmetricPaddingType setTo)
 {
-	m_data._Padding = setTo;
+	m_data.set_Padding(setTo);
 }
 
 TS_ALG_ID CmsHeaderImpl::GetSignatureAlgorithmId() const
@@ -1748,21 +2034,21 @@ tscrypto::tsCryptoData CmsHeaderImpl::GetSignatureAlgorithmOID() const
 
 void CmsHeaderImpl::SetSignatureAlgorithmOID(const tscrypto::tsCryptoData &setTo)
 {
-	AlgorithmIdentifier alg;
+	_POD_AlgorithmIdentifier alg;
 
-	alg._oid.oid(setTo);
-	m_data._SignatureAlgorithm.clear();
-	m_data._SignatureAlgorithm.set(alg);
+	alg.set_oid(setTo);
+	m_data.clear_SignatureAlgorithm();
+	m_data.set_SignatureAlgorithm(alg);
 }
 
 tscrypto::tsCryptoData CmsHeaderImpl::GetSignature() const
 {
-	return m_data._Signature.value;
+	return m_data.get_Signature();
 }
 
 bool CmsHeaderImpl::SetSignature(const tscrypto::tsCryptoData &setTo)
 {
-	m_data._Signature.set(setTo);
+	m_data.set_Signature(setTo);
 	return true;
 }
 
@@ -1785,7 +2071,7 @@ bool CmsHeaderImpl::SignatureIsMAC()
 {
 	tscrypto::tsCryptoString oid;
 
-	if (m_data._SignatureAlgorithm.value != nullptr)
+	if (m_data.exists_SignatureAlgorithm())
 	{
 		oid = getSignatureAlgorithmAsOID(m_data).ToOIDString();
 	}
@@ -1794,10 +2080,10 @@ bool CmsHeaderImpl::SignatureIsMAC()
 		LOG(FrameworkError, "Header MAC algorithm is not set");
 		return false;
 	}
-	std::shared_ptr<MAC> mac;
+	std::shared_ptr<MessageAuthenticationCode> mac;
 	std::shared_ptr<AlgorithmInfo> info;
 
-	if (!(mac = std::dynamic_pointer_cast<MAC>(CryptoFactory(oid))) ||
+	if (!(mac = std::dynamic_pointer_cast<MessageAuthenticationCode>(CryptoFactory(oid))) ||
 		!(info = std::dynamic_pointer_cast<AlgorithmInfo>(mac)))
 	{
 		return false;
@@ -1813,10 +2099,10 @@ bool CmsHeaderImpl::GenerateMAC(const tscrypto::tsCryptoData &symmetricKey, cons
 		return false;
 	}
 
-	std::shared_ptr<MAC> mac;
+	std::shared_ptr<MessageAuthenticationCode> mac;
 	std::shared_ptr<AlgorithmInfo> info;
 
-	if (!(mac = std::dynamic_pointer_cast<MAC>(CryptoFactory(macName))) ||
+	if (!(mac = std::dynamic_pointer_cast<MessageAuthenticationCode>(CryptoFactory(macName))) ||
 		!(info = std::dynamic_pointer_cast<AlgorithmInfo>(mac)))
 	{
 		LOG(FrameworkError, "Unable to create the MAC algorithm.");
@@ -1854,7 +2140,7 @@ bool CmsHeaderImpl::GenerateMAC(const tscrypto::tsCryptoData &symmetricKey, cons
 		LOG(FrameworkError, "An error occurred while generating the MAC");
 		return false;
 	}
-	m_data._Signature.set(signature);
+	m_data.set_Signature(signature);
 	return true;
 }
 
@@ -1864,7 +2150,7 @@ bool CmsHeaderImpl::ValidateSignature()
 	std::shared_ptr<EccKey> key;
 	tscrypto::tsCryptoString oid;
 
-	if (m_data._SignatureAlgorithm.value != nullptr)
+	if (m_data.exists_SignatureAlgorithm())
 	{
 		oid = getSignatureAlgorithmAsOID(m_data).ToOIDString();
 	}
@@ -1939,7 +2225,7 @@ bool CmsHeaderImpl::ValidateMAC(const tscrypto::tsCryptoData &symmetricKey)
 {
 	tscrypto::tsCryptoString oid;
 
-	if (m_data._SignatureAlgorithm.value != nullptr)
+	if (m_data.exists_SignatureAlgorithm())
 	{
 		oid = getSignatureAlgorithmAsOID(m_data).ToOIDString();
 	}
@@ -1948,10 +2234,10 @@ bool CmsHeaderImpl::ValidateMAC(const tscrypto::tsCryptoData &symmetricKey)
 		LOG(FrameworkError, "Header MAC algorithm is not set");
 		return false;
 	}
-	std::shared_ptr<MAC> mac;
+	std::shared_ptr<MessageAuthenticationCode> mac;
 	std::shared_ptr<AlgorithmInfo> info;
 
-	if (!(mac = std::dynamic_pointer_cast<MAC>(CryptoFactory(oid))) ||
+	if (!(mac = std::dynamic_pointer_cast<MessageAuthenticationCode>(CryptoFactory(oid))) ||
 		!(info = std::dynamic_pointer_cast<AlgorithmInfo>(mac)))
 	{
 		LOG(FrameworkError, "Unable to create the MAC algorithm.");
@@ -2059,10 +2345,10 @@ bool CmsHeaderImpl::AddProtectedExtension(const tscrypto::tsCryptoData &oid, boo
 
 	ext.reset();
 
-	CmsExtension extData;
+	_POD_CmsExtension extData;
 
-	extData._OID = oid;
-	extData._Critical = critical;
+	extData.set_OID(oid);
+	extData.set_Critical(critical);
 
 	extImpl = CreateHeaderExtensionObject(std::dynamic_pointer_cast<ICmsHeader>(_me.lock()), extData);
 	m_protectedExtensionList.push_back(extImpl);
@@ -2078,7 +2364,7 @@ bool CmsHeaderImpl::RemoveProtectedExtension(std::shared_ptr<ICmsHeaderExtension
 
 	tscrypto::tsCryptoData oid = pVal->GetOID();
 
-	m_protectedExtensionList.erase(std::remove_if(m_protectedExtensionList.begin(), m_protectedExtensionList.end(), [&oid](std::shared_ptr<ICmsHeaderExtension>& ext)->bool{ return ext->GetOID() == oid; }), m_protectedExtensionList.end());
+	m_protectedExtensionList.erase(std::remove_if(m_protectedExtensionList.begin(), m_protectedExtensionList.end(), [&oid](std::shared_ptr<ICmsHeaderExtension>& ext)->bool { return ext->GetOID() == oid; }), m_protectedExtensionList.end());
 	return false;
 }
 
@@ -2097,7 +2383,7 @@ bool CmsHeaderImpl::RemoveProtectedExtensionByIndex(size_t index)
 
 bool CmsHeaderImpl::RemoveProtectedExtensionByOID(const tscrypto::tsCryptoData &oid)
 {
-	m_protectedExtensionList.erase(std::remove_if(m_protectedExtensionList.begin(), m_protectedExtensionList.end(), [&oid](std::shared_ptr<ICmsHeaderExtension>& ext)->bool{ return ext->GetOID() == oid; }), m_protectedExtensionList.end());
+	m_protectedExtensionList.erase(std::remove_if(m_protectedExtensionList.begin(), m_protectedExtensionList.end(), [&oid](std::shared_ptr<ICmsHeaderExtension>& ext)->bool { return ext->GetOID() == oid; }), m_protectedExtensionList.end());
 	return true;
 }
 
@@ -2148,10 +2434,10 @@ bool CmsHeaderImpl::AddUnprotectedExtension(const tscrypto::tsCryptoData &oid, b
 
 	ext.reset();
 
-	CmsExtension extData;
+	_POD_CmsExtension extData;
 
-	extData._OID = oid;
-	extData._Critical = critical;
+	extData.set_OID(oid);
+	extData.set_Critical(critical);
 
 	extImpl = CreateHeaderExtensionObject(std::dynamic_pointer_cast<ICmsHeader>(_me.lock()), extData);
 	m_unprotectedExtensionList.push_back(extImpl);
@@ -2197,7 +2483,7 @@ bool CmsHeaderImpl::RemoveUnprotectedExtensionByIndex(size_t index)
 
 bool CmsHeaderImpl::RemoveUnprotectedExtensionByOID(const tscrypto::tsCryptoData &oid)
 {
-	m_unprotectedExtensionList.erase(std::remove_if(m_unprotectedExtensionList.begin(), m_unprotectedExtensionList.end(), [&oid](std::shared_ptr<ICmsHeaderExtension>& ext)->bool{ return ext->GetOID() == oid; }), m_unprotectedExtensionList.end());
+	m_unprotectedExtensionList.erase(std::remove_if(m_unprotectedExtensionList.begin(), m_unprotectedExtensionList.end(), [&oid](std::shared_ptr<ICmsHeaderExtension>& ext)->bool { return ext->GetOID() == oid; }), m_unprotectedExtensionList.end());
 	return true;
 }
 
@@ -2215,7 +2501,7 @@ int CmsHeaderImpl::OriginalHeaderSize() const
 
 GUID CmsHeaderImpl::GetObjectID()
 {
-	return m_data._objectId.get();
+	return m_data.get_objectId();
 }
 
 void CmsHeaderImpl::SetObjectID(const GUID& setTo)
@@ -2230,8 +2516,8 @@ void CmsHeaderImpl::FinalizeAndClearHeaderParts()
 	size_t count = m_protectedExtensionList.size();
 	std::shared_ptr<IHeaderPart> part;
 
-	m_data._ProtectedExtensions.clear();
-	m_data._UnprotectedExtensions.clear();
+	m_data.clear_ProtectedExtensions();
+	m_data.clear_UnprotectedExtensions();
 
 	for (size_t i = 0; i < count; i++)
 	{
@@ -2264,16 +2550,16 @@ void CmsHeaderImpl::PrepareForEncode()
 	size_t count = m_protectedExtensionList.size();
 	std::shared_ptr<IHeaderPart> part;
 
-	m_data._ProtectedExtensions.clear();
-	m_data._UnprotectedExtensions.clear();
+	m_data.clear_ProtectedExtensions();
+	m_data.clear_UnprotectedExtensions();
 
 	std::shared_ptr<ICmsHeaderExtension> ext;
 	std::shared_ptr<ICmsHeaderKeyUsageExtension> ku;
 
-	if (m_data._WhoCreated.selectedItem == 0)
+	if (m_data.get_WhoCreated().get_selectedItem() == 0)
 		SetCreatorGuid(GUID_NULL);
 
-	if (m_data._EncAlg.selectedItem == 0)
+	if (m_data.get_EncAlg().get_selectedItem() == 0)
 		SetEncryptionAlgorithmID(_TS_ALG_ID::TS_ALG_AES_GCM_256);
 
 	if (!(GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_KEY_USAGE_EXT_OID, tscrypto::tsCryptoData::OID), ext)) ||
@@ -2284,16 +2570,16 @@ void CmsHeaderImpl::PrepareForEncode()
 	}
 	if (getEncryptionAlgorithmAsId(m_data) == _TS_ALG_ID::TS_ALG_INVALID)
 	{
-		m_data._EncAlg.selectedItem = CmsHeaderData_EncAlg::Choice_EncryptionAlgorithmId;
-		m_data._EncAlg._EncryptionAlgorithmId = _TS_ALG_ID::TS_ALG_AES_GCM_256;
+		m_data.get_EncAlg().set_selectedItem(_POD_CmsHeaderData_EncAlg::Choice_EncryptionAlgorithmId);
+		m_data.get_EncAlg().set_EncryptionAlgorithmId(_TS_ALG_ID::TS_ALG_AES_GCM_256);
 	}
 	//tscrypto::tsCryptoData oid = m_data.getEncryptionAlgorithmAsOID();
 	//if (oid.size() > 0)
 	//    SetEncryptionAlgorithmOID(oid);
-	m_data._OID.oidString(TECSEC_CMS_HEADER);
-	if (m_data._CreationDate.GetStatus() != tscrypto::tsCryptoDate::valid)
+	m_data.set_OID(TECSEC_CMS_HEADER);
+	if (m_data.get_CreationDate().GetStatus() != tscrypto::tsCryptoDate::valid)
 	{
-		m_data._CreationDate = tscrypto::tsCryptoDate::Now();
+		m_data.set_CreationDate(tscrypto::tsCryptoDate::Now());
 	}
 	for (size_t i = 0; i < count; i++)
 	{
@@ -2323,20 +2609,20 @@ void CmsHeaderImpl::PrepareForEncode()
 void CmsHeaderImpl::BuildExtensionList(std::vector< std::shared_ptr< ICmsHeaderExtension> > &list, bool isProtected)
 {
 	int count;
-	CmsExtension *ext;
+	_POD_CmsExtension *ext;
 
 	list.clear();
 
 	if (isProtected)
 	{
-		if (m_data._ProtectedExtensions.value == nullptr)
-			m_data._ProtectedExtensions.set(Asn1::CMS::CmsHeaderData_ProtectedExtensions());
+		if (!m_data.exists_ProtectedExtensions())
+			m_data.set_ProtectedExtensions();
 		count = (int)m_data.get_ProtectedExtensions()->size();
 	}
 	else
 	{
-		if (m_data._UnprotectedExtensions.value == nullptr)
-			m_data._UnprotectedExtensions.set(Asn1::CMS::CmsHeaderData_UnprotectedExtensions());
+		if (!m_data.exists_UnprotectedExtensions())
+			m_data.set_UnprotectedExtensions();
 		count = (int)m_data.get_UnprotectedExtensions()->size();
 	}
 	for (int i = 0; i < count; i++)
@@ -2374,7 +2660,7 @@ bool CmsHeaderImpl::FromBytes(const tscrypto::tsCryptoData &setTo)
 	{
 		return false;
 	}
-	if (m_data._OID != TECSEC_CMS_HEADER)
+	if (m_data.get_OID().ToOIDString() != TECSEC_CMS_HEADER)
 	{
 		Clear();
 		return false;
@@ -2582,13 +2868,13 @@ static const char *GetCompressionTypeString(int compressType)
 	switch (compressType)
 	{
 	case 0:
-		return "";
+		return "None";
 	case 1:
-		return " - zLib";
+		return "zLib";
 	case 2:
-		return " - BZ2";
+		return "BZ2";
 	default:
-		return " - unknown";
+		return "unknown";
 	}
 }
 
@@ -2702,17 +2988,17 @@ static const char *GetPaddingString(SymmetricPaddingType padType)
 	switch (padType)
 	{
 	case _SymmetricPaddingType::padding_None:
-		return " - None";
+		return "None";
 	case _SymmetricPaddingType::padding_Pkcs5:
-		return " - Pkcs #5";
+		return "Pkcs #5";
 	case _SymmetricPaddingType::padding_GP03:
-		return " - GlobalPlatform SCP03";
+		return "GlobalPlatform SCP03";
 	case _SymmetricPaddingType::padding_Zeros:
-		return " - 00's";
+		return "00's";
 	case _SymmetricPaddingType::padding_FFs:
-		return " - FF's";
+		return "FF's";
 	default:
-		return " - unknown";
+		return "unknown";
 	}
 }
 
@@ -2855,9 +3141,9 @@ tscrypto::tsCryptoString CmsHeaderImpl::GetDebugString()
 
 	TsSnPrintf(buff, sizeof(buff), "Algorithm:             %s\n", OIDtoAlgName(GetEncryptionAlgorithmOID().ToOIDString()).c_str());
 	output += buff;
-	TsSnPrintf(buff, sizeof(buff), "Compression:           %d%s\n", GetCompressionType(), GetCompressionTypeString(GetCompressionType()));
+	TsSnPrintf(buff, sizeof(buff), "Compression:           %d - %s\n", GetCompressionType(), GetCompressionTypeString(GetCompressionType()));
 	output += buff;
-	TsSnPrintf(buff, sizeof(buff), "Padding:               %d%s\n", GetPaddingType(), GetPaddingString(GetPaddingType()));
+	TsSnPrintf(buff, sizeof(buff), "Padding:               %d - %s\n", GetPaddingType(), GetPaddingString(GetPaddingType()));
 	output += buff;
 	if (GetMimeType().size() > 0)
 	{
@@ -3015,6 +3301,235 @@ tscrypto::tsCryptoString CmsHeaderImpl::GetDebugString()
 	}
 
 	return output;
+}
+tscrypto::tsCryptoString CmsHeaderImpl::GetDebugJsonString()
+{
+	std::shared_ptr<ICmsHeaderExtension> ext;
+	std::shared_ptr<ICmsHeaderExtension> ext2;
+	tscrypto::tsCryptoData value;
+	tscrypto::tsCryptoString tmp;
+	tscrypto::JSONObject output;
+	GUID guid;
+	size_t len;
+
+	uint64_t fileLen = GetFileLength();
+
+	if (fileLen > 0)
+	{
+		output.add("originalFileLength", (int64_t)fileLen);
+	}
+	output
+		.add("objectId", TSGuidToString(GetObjectID()))
+		.add("headerLength", (int64_t)OriginalHeaderSize())
+		.add("paddedHeaderLength", (int64_t)PaddedHeaderSize())
+		;
+
+	if (GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_SECRYPTM_EXT_OID, tscrypto::tsCryptoData::OID), ext) &&
+		GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_SECRYPTM_EXT_PAD2_OID, tscrypto::tsCryptoData::OID), ext2))
+	{
+	}
+	len = 0;
+	if (!!ext)
+		len = ext->ToBytes().size();
+	if (!!ext2)
+		len += ext2->ToBytes().size();
+	if (len > 0)
+	{
+		output.add("internalPaddingLength", (int64_t)len);
+	}
+
+	value = GetDataName();
+	if (value.size() > 0)
+	{
+		output.add("originalFileName", value.ToUtf8String());
+	}
+
+
+	int blocksize, dataFormat;
+	if (GetDataFormat(blocksize, dataFormat))
+	{
+		output
+			.add("blockSize", (int64_t)blocksize)
+			.add("dataFormat", tsCryptoString(DataFormatString(dataFormat)))
+			;
+	}
+
+	value = GetDataHashOID();
+	if (value.size() > 0)
+	{
+		output
+			.add("dataHashAlgorithm", OIDtoAlgName(value.ToOIDString()))
+			.add("fileHash", GetDataHash().ToHexStringWithSpaces())
+			;
+	}
+
+	if (!GetEnterpriseGuid(guid))
+		guid = GUID_NULL;
+
+	output
+		.add("headerType", "CKM 7")
+		.add("headerVersion", (int64_t)GetHeaderVersion())
+		.add("combinerVersion", (int64_t)GetCombinerVersion())
+		.add("enterpriseGuid", ToString()(guid))
+		;
+	guid = GetCreatorGuid();
+	output
+		.add("creatorGuid", ToString()(guid))
+		.add("creationDate", GetCreationDate())
+		.add("headerProtection", OIDtoAlgName(GetSignatureAlgorithmOID().ToOIDString()))
+		;
+
+	if (HasHeaderSigningPublicKey())
+	{
+		output.add("headerSigningPublic", GetHeaderSigningPublicKey().ToHexStringWithSpaces());
+	}
+
+	output
+		.add("algorithm", OIDtoAlgName(GetEncryptionAlgorithmOID().ToOIDString()))
+		.add("compression", tsCryptoString(GetCompressionTypeString(GetCompressionType())))
+		.add("padding", tsCryptoString(GetPaddingString(GetPaddingType())))
+		;
+	if (GetMimeType().size() > 0)
+	{
+		output.add("MIMEtype", GetMimeType());
+	}
+
+	std::shared_ptr<ICmsHeaderAccessGroupExtension> groupList;
+	std::shared_ptr<ICmsHeaderAttributeListExtension> attrList;
+	std::shared_ptr<ICmsHeaderCryptoGroupListExtension> cryptoGroupList;
+
+	ext.reset();
+	if (GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) &&
+		!!(cryptoGroupList = std::dynamic_pointer_cast<ICmsHeaderCryptoGroupListExtension>(ext)))
+	{
+		output.createArrayField("cryptoGroups");
+
+		for (uint32_t i = 0; i < GetCryptoGroupCount(); i++)
+		{
+			std::shared_ptr<ICmsHeaderCryptoGroup> hCg;
+
+			hCg.reset();
+			if (GetCryptoGroup(i, hCg))
+			{
+				tscrypto::JSONObject cg;
+
+				guid = hCg->GetCryptoGroupGuid();
+
+				cg
+					.add("number", (int64_t)i)
+					.add("maintenanceLevel", (int64_t)hCg->GetCurrentMaintenanceLevel())
+					.add("groupGuid", ToString()(guid))
+					;
+
+				if (hCg->GetEphemeralPublic().size() > 0)
+				{
+					cg.add("ephemeralPublic", hCg->GetEphemeralPublic().ToHexStringWithSpaces());
+				}
+				output.add("cryptoGroups", cg);
+			}
+		}
+	}
+	ext.reset();
+
+	if (GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) &&
+		!!(attrList = std::dynamic_pointer_cast<ICmsHeaderAttributeListExtension>(ext)))
+	{
+		std::shared_ptr<ICmsHeaderAttribute> attr;
+
+		output.createArrayField("attributes");
+
+		for (uint32_t i = 0; i < attrList->GetAttributeCount(); i++)
+		{
+			attr.reset();
+
+			if (attrList->GetAttribute(i, attr))
+			{
+				tscrypto::JSONObject jAttr;
+
+				guid = attr->GetAttributeGUID();
+
+				jAttr
+					.add("index", (int64_t)i)
+					.add("attributeId", ToString()(guid))
+					.add("cryptogroupNumber", (int64_t)attr->GetCryptoGroupNumber())
+					.add("keyVersion", (int64_t)attr->GetKeyVersion())
+					;
+				if (attr->GetSignature().size() > 0)
+				{
+					jAttr.add("signature", attr->GetSignature().ToHexStringWithSpaces());
+				}
+				output.add("attributes", jAttr);
+			}
+		}
+	}
+	ext.reset();
+	if (GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) &&
+		!!(groupList = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(ext)))
+	{
+		output.createArrayField("accessGroups");
+		for (uint32_t i = 0; i < groupList->GetAccessGroupCount(); i++)
+		{
+			std::shared_ptr<ICmsHeaderAccessGroup>	     group;
+			std::shared_ptr<ICmsHeaderAttributeGroup>   attrs;
+
+			group.reset();
+
+			if (groupList->GetAccessGroup(i, group))
+			{
+				JSONObject g;
+
+				g.add("groupNumber", (int64_t)i);
+
+				attrs.reset();
+
+				if (!!(attrs = std::dynamic_pointer_cast<ICmsHeaderAttributeGroup>(group)))
+				{
+					g.createArrayField("indexList");
+					g.add("type", "Attributes");
+
+					for (uint32_t k = 0; k < attrs->GetAttributeCount(); k++)
+					{
+						g.add("indexList", (int64_t)attrs->GetAttributeIndex(k));
+					}
+				}
+				else
+				{
+					g.add("type", "Unknown");
+				}
+				output.add("accessGroups", g);
+			}
+		}
+	}
+
+	if (HasHeaderSigningPublicKey())
+	{
+		if (ValidateSignature())
+			output.add("validity", "Signature valid");
+		else
+			output.add("validity", "Signature INVALID");
+	}
+
+	return output.ToJSON();
+}
+
+tscrypto::tsCryptoString CmsHeaderImpl::toString(const tscrypto::tsCryptoString& type)
+{
+	if (TsStriCmp(type, "JSONRECIPE") == 0)
+	{
+		Asn1::CTS::_POD_CkmRecipe recipe;
+
+		if (!toBasicRecipe(recipe))
+			return "";
+		return recipe.toJSON().ToJSON();
+	}
+	else if (TsStriCmp(type, "JSONDEBUG") == 0)
+	{
+		return GetDebugJsonString();
+	}
+	else
+	{
+		return GetDebugString();
+	}
 }
 
 tsmod::IObject* CreateCmsHeaderObject()

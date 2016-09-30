@@ -62,7 +62,7 @@ class IHeaderPart
 {
 public:
 	virtual void Destroy() = 0;
-	virtual void PrepareForEncode(Asn1::CMS::CmsHeaderData &data, HeaderPartType type) = 0;
+	virtual void PrepareForEncode(Asn1::CMS::_POD_CmsHeaderData &data, HeaderPartType type) = 0;
 };
 
 using namespace tscrypto;

@@ -40,7 +40,7 @@ public:
 
 enum options { OPT_HELP,  };
 
-static const struct OptionList options[] = {
+static const struct tsmod::OptionList options[] = {
 	{ "", "VEIL tool selftest options" },
 	{ "", "=================================" },
 	{ "--help, -h, -?", "This help information." },
@@ -56,7 +56,7 @@ static const CSimpleOptA::SOption optionList[] =
 	SO_END_OF_OPTIONS
 };
 
-class selftestTool : public IVeilToolCommand, public tsmod::IObject
+class selftestTool : public tsmod::IVeilToolCommand, public tsmod::IObject
 {
 public:
 	selftestTool()
@@ -65,12 +65,12 @@ public:
 	{}
 
 	// tsmod::IObject
-	virtual void OnConstructionFinished()
+	virtual void OnConstructionFinished() override
 	{
-		utils = ::TopServiceLocator()->get_instance<IVeilUtilities>("VeilUtilities");
+		utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
 	}
 
-	// Inherited via IVeilToolCommand
+	// Inherited via tsmod::IVeilToolCommand
 	virtual tscrypto::tsCryptoString getDescription() const override
 	{
 		return "Crypto Selftests";
@@ -160,7 +160,7 @@ protected:
 		utils->console() << BoldRed << results << BoldWhite << ::endl;
 	}
 protected:
-	std::shared_ptr<IVeilUtilities> utils;
+	std::shared_ptr<tsmod::IVeilUtilities> utils;
 };
 
 tsmod::IObject* CreateSelftestTool()

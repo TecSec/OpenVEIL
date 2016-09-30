@@ -44,7 +44,7 @@ enum {
 	OPT_HELP = 1, 
 };
 
-static const struct OptionList options[] = {
+static const struct tsmod::OptionList options[] = {
 	{ "", "VEIL tool FILE DELETE options" },
 	{ "", "=================================" },
 	{ "--help, -h, -?", "This help information." },
@@ -58,7 +58,7 @@ static const CSimpleOptA::SOption g_rgOptions1[] =
 	SO_END_OF_OPTIONS
 };
 
-class FileDeleteTool : public IVeilToolCommand, public tsmod::IObject
+class FileDeleteTool : public tsmod::IVeilToolCommand, public tsmod::IObject
 {
 public:
 	FileDeleteTool()
@@ -67,12 +67,12 @@ public:
 	{}
 
 	// tsmod::IObject
-	virtual void OnConstructionFinished()
+	virtual void OnConstructionFinished() override
 	{
-		utils = ::TopServiceLocator()->get_instance<IVeilUtilities>("VeilUtilities");
+		utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
 	}
 
-	// Inherited via IVeilToolCommand
+	// Inherited via tsmod::IVeilToolCommand
 	virtual tscrypto::tsCryptoString getDescription() const override
 	{
 		return "Perform secure file deletion - this is not recoverable";
@@ -190,7 +190,7 @@ protected:
 	}
 
 protected:
-	std::shared_ptr<IVeilUtilities> utils;
+	std::shared_ptr<tsmod::IVeilUtilities> utils;
 };
 
 tsmod::IObject* HIDDEN CreateFileDeleteTool()

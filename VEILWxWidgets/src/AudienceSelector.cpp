@@ -64,7 +64,7 @@ class AudienceSelector : public IAudienceSelector, public tsmod::IObject, public
 	DECLARE_EVENT_TABLE()
 
 public:
-	AudienceSelector(bool createFavorites) : _CreateFavorites(createFavorites), _CurFavIndex(0), _LastTokenSelection(0), _initialized(false), _cookie(0)
+	AudienceSelector(bool createFavorites) : _CreateFavorites(createFavorites), _CurFavIndex(0), _LastTokenSelection(0), _initialized(false), _cookie(0), _ActiveCryptoGroup(nullptr)
 	{
 		Init();
 	}
@@ -85,6 +85,8 @@ public:
 	{
 		_parent = XP_WINDOW_INVALID;
 		_session.reset();
+		_profile.reset();
+		_ActiveCryptoGroup = nullptr;
 		if (!!_connector && _cookie != 0)
 		{
 			_connector->RemoveKeyVEILChangeCallback(_cookie);
@@ -93,7 +95,6 @@ public:
 		_CreateFavorites = false;
 		_AppName.clear();
 		_CurFavIndex = 0;
-		_ActiveCryptoGroup.reset();
 		_LastTokenSelection = 0;
 		_initialized = false;
 		Me.reset();
@@ -133,16 +134,39 @@ public:
 	{
 		_connector.reset();
 		_session.reset();
+		_profile.reset();
+		_ActiveCryptoGroup = nullptr;
 		_connector = setTo;
 	}
 	virtual std::shared_ptr<IKeyVEILSession> Session() override
 	{
 		return _session;
 	}
+	bool HasSession() const
+	{
+		return !!_session;
+	}
 	virtual void Session(std::shared_ptr<IKeyVEILSession> setTo) override
 	{
 		_session.reset();
+		_profile.reset();
+		_ActiveCryptoGroup = nullptr;
 		_session = setTo;
+			
+	}
+	std::shared_ptr<Asn1::CTS::_POD_Profile> GetProfile()
+	{
+		if (!HasSession())
+			return nullptr;
+		if (!!_profile)
+			return _profile;
+		if (Session()->IsLoggedIn())
+			_profile = Session()->GetProfile();
+		return _profile;
+	}
+	bool HasProfile()
+	{
+		return !!GetProfile();
 	}
 	virtual tscrypto::tsCryptoData HeaderData() override
 	{
@@ -208,13 +232,14 @@ protected:
 	bool                                    _CreateFavorites;
 	tscrypto::tsCryptoString							        _AppName;
 	int									    _CurFavIndex;
-	std::shared_ptr<Asn1::CTS::CryptoGroup> _ActiveCryptoGroup;
+	Asn1::CTS::_POD_CryptoGroup*					_ActiveCryptoGroup;
 	int										_LastTokenSelection;
 	std::shared_ptr<IFavorite>				_favorite;
 	bool                                    _initialized;
 	std::vector<tscrypto::tsCryptoData>                     _tokenSerialNumbers;
 	std::vector<GUID>						_guidMap;
 	size_t                                  _cookie;
+	std::shared_ptr<Asn1::CTS::_POD_Profile>		_profile;
 
 	/// Creation
 	bool Create(wxWindow* parent, wxWindowID id = SYMBOL_AUDIENCESELECTOR_IDNAME, const wxString& caption = SYMBOL_AUDIENCESELECTOR_TITLE, const wxPoint& pos = SYMBOL_AUDIENCESELECTOR_POSITION, const wxSize& size = SYMBOL_AUDIENCESELECTOR_SIZE, long style = SYMBOL_AUDIENCESELECTOR_STYLE)
@@ -401,7 +426,7 @@ protected:
 			return;
 		}
 
-		idx = (int)cmbFavorites->GetClientData(favIndex);
+		idx = (int)(intptr_t)cmbFavorites->GetClientData(favIndex);
 		if (idx >= 0 && idx < (LRESULT)_guidMap.size())
 		{
 			id = _guidMap[idx];
@@ -452,7 +477,7 @@ protected:
 
 		// get rid of the old CryptoGroup and token
 		//    myActiveToken = NULL;
-		_ActiveCryptoGroup.reset();
+		_ActiveCryptoGroup = nullptr;
 		ClearAccessGroups();
 
 		// get a pointer to the favorite
@@ -483,7 +508,7 @@ protected:
 		int ind = cmbTokens->GetSelection();
 		if (ind >= 0)
 		{
-			if (!_session)
+			if (!Session())
 			{
 				CryptoGroupPressLogin();
 			}
@@ -511,11 +536,11 @@ protected:
 		//if not matched, give the user the opportunity to select another Token
 		do
 		{
-			if (!_session || (bLoaded = LoadFavoriteForToken(fav, newHeader)) == 0)    // if the favorites cryptogroup and attributes do not match with Token's
+			if (!HasSession() || (bLoaded = LoadFavoriteForToken(fav, newHeader)) == 0)    // if the favorites cryptogroup and attributes do not match with Token's
 			{
 				UINT nResponse = wxID_YES;
 
-				if (!!_session)
+				if (HasSession())
 				{
 					nResponse = ::wxMessageBox("The Token does not contain the proper CryptoGroup or Attributes needed for the Favorite.\nDo you want to select another Token? ", "Warning", MB_YESNO | MB_ICONQUESTION);
 				}
@@ -540,8 +565,7 @@ protected:
 
 								if (tokIndex >= 0)
 								{
-									_session.reset();
-									_session = sess;
+									Session(sess);
 									if (CheckLogin())
 									{
 										cmbTokens->SetSelection(tokIndex);
@@ -550,7 +574,7 @@ protected:
 									}
 									else
 									{
-										_session.reset();
+										Session(nullptr);
 									}
 								}
 								else
@@ -596,7 +620,7 @@ protected:
 		// if the programmer has specified an initial token, and a reason
 		// not to change it, we won't allow the user to switch to a new token
 		//if (myInitialToken != NULL && myNoChangeTokenReason.GetLength()) {
-		if (!!_session && _session->IsValid())
+		if (!!HasSession() && Session()->IsValid())
 		{
 			int tokindex = 0;
 			std::shared_ptr<IKeyVEILSession> tempSession;
@@ -606,7 +630,7 @@ protected:
 			tokindex = (int)cmbTokens->GetSelection();
 			if (CB_ERR != tokindex)
 			{
-				int index = (int)cmbTokens->GetClientData(tokindex);
+				int index = (int)(intptr_t)cmbTokens->GetClientData(tokindex);
 
 				if (index < 0 || index >= (LRESULT)_tokenSerialNumbers.size())
 				{
@@ -630,13 +654,13 @@ protected:
 						cmbCG->AppendString(AS_SEL_DOM_STR);
 						cmbCG->SetSelection(0);
 
-						_ActiveCryptoGroup.reset();
+						_ActiveCryptoGroup = nullptr;
 
 						//if (!!_session)
 						//	_session->Close();
-						_session.reset();
+						Session(nullptr);
 						cmbTokens->SetFocus();
-						return ;
+						return;
 					}
 					else
 					{
@@ -652,9 +676,9 @@ protected:
 			//}
 
 			// if the selection has not changed, return
-			if (!!_session && tempSession->GetProfile()->get_SerialNumber() == _session->GetProfile()->get_SerialNumber())
+			if (HasSession() && tempSession->GetProfile()->get_SerialNumber() == Session()->GetProfile()->get_SerialNumber())
 			{
-				return ;
+				return;
 			}
 
 			if (!tempSession->IsLoggedIn())
@@ -662,7 +686,7 @@ protected:
 				if (!CheckLogin())
 				{
 					cmbTokens->SetSelection(-1);
-					_session.reset();
+					Session(nullptr);
 					return;
 				}
 			}
@@ -671,13 +695,13 @@ protected:
 			// be lost by selecting a new token.
 			if (!QueryAndClearAccessGroups())
 			{
-				return ;
+				return;
 			}
 		}
 
 
 		if (!ChangeToken())
-			return ;
+			return;
 
 		if (cmbCG->GetCount() > 1)
 		{
@@ -692,41 +716,41 @@ protected:
 		}
 
 		UpdateDialogControls();
-		return ;
+		return;
 	}
 
 	/// wxEVT_COMMAND_CHOICE_SELECTED event handler for ID_CGLIST
 	void OnCglistSelected(wxCommandEvent& event)
 	{
 		int index;
-		std::shared_ptr<Asn1::CTS::CryptoGroup> tempCryptoGroup;
+		Asn1::CTS::_POD_CryptoGroup* tempCryptoGroup;
 
 		// return if no CryptoGroup is selected
 		index = (int)cmbCG->GetSelection();
 		if (-1 == index)
 		{
-			return ;
+			return;
 		}
 
-		if (!_session)
+		if (!HasSession() || !HasProfile())
 		{
 			wxMessageBox("Invalid Token! Unable to change CryptoGroups.", "Error", MB_ICONHAND | MB_OK);
-			return ;
+			return;
 		}
 
 		// get the selected CryptoGroup object
-		int itemIndex = (int)cmbCG->GetClientData(index);
-		if (itemIndex < 0 || itemIndex >= (int)_session->GetProfile()->get_cryptoGroupList()->size() ||
-			!(tempCryptoGroup = _session->GetProfile()->get_cryptoGroupList()->get_ptr_at(itemIndex)))
+		int itemIndex = (int)(intptr_t)cmbCG->GetClientData(index);
+		if (itemIndex < 0 || itemIndex >= (int)GetProfile()->get_cryptoGroupList()->size() ||
+			!(tempCryptoGroup = &GetProfile()->get_cryptoGroupList()->get_at(itemIndex)))
 		{
 			//        MessageBox(_hDlg, "Invalid CryptoGroup object! Unable to change Crypto Groups.", "Error", MB_ICONHAND | MB_OK);
-			return ;
+			return;
 		}
 
 		// If the cryptogroup has not actually changed, do nothing.
 		if (!!_ActiveCryptoGroup && (_ActiveCryptoGroup->get_Id() == tempCryptoGroup->get_Id()))
 		{
-			return ;
+			return;
 		}
 
 		/* Need to post warning telling user that the selected AGs will be lost if the CryptoGroup is changed.
@@ -734,7 +758,7 @@ protected:
 		post login window and continue with clearing of AG box and populating the CryptoGroup list. */
 		if (!QueryAndClearAccessGroups())
 		{
-			return ;
+			return;
 		}
 
 		// clear the group list
@@ -742,22 +766,20 @@ protected:
 		lstGroups->Enable(false);
 
 		// return if no token is selected
-		if (!_session)
-			return ;
+		if (!HasSession())
+			return;
 
 		/* Verify we are logged in or log in to the currently selected token. */
 		if (FALSE == CheckLogin())
 		{
 			cmbTokens->SetSelection(-1);
-			_session.reset();
+			Session(nullptr);
 			//myActiveToken = NULL;
 			AddGroupText(AS_SEL_DOM_STR);
-			return ;
+			return;
 		}
 
 		// store the CryptoGroup object
-		_ActiveCryptoGroup.reset();
-
 		_ActiveCryptoGroup = tempCryptoGroup;
 
 		//
@@ -766,7 +788,7 @@ protected:
 		GUID cryptoGroupGuid = { 0, };
 		GUID enterpriseGuid = { 0, };
 		GUID memberGuid = { 0, };
-		std::shared_ptr<Asn1::CTS::Profile> profile;
+		std::shared_ptr<Asn1::CTS::_POD_Profile> profile;
 
 		//if ( !header )
 		//{
@@ -774,7 +796,7 @@ protected:
 		if (!_header)
 		{
 			wxMessageBox("OnChangeCryptoGroup: Unable to create a CKM Header.", "Error", MB_ICONHAND | MB_OK);
-			return ;
+			return;
 		}
 		//	}
 
@@ -783,7 +805,7 @@ protected:
 			int domIndex;
 
 			_header->Clear();
-			profile = _session->GetProfile();
+			profile = GetProfile();
 			if (!!profile)
 			{
 				enterpriseGuid = profile->get_EnterpriseId();
@@ -853,7 +875,7 @@ protected:
 		}
 
 		UpdateDialogControls();
-		return ;
+		return;
 	}
 
     /// wxEVT_COMMAND_LISTBOX_SELECTED event handler for ID_LISTBOX
@@ -881,13 +903,13 @@ protected:
 		if (FALSE == CheckLogin())
 		{
 			cmbTokens->SetSelection(-1);
-			_session.reset();
+			Session(nullptr);
 			//myActiveToken = NULL;
 			return;
 		}
 
 		// make sure we have the CryptoGroup object
-		if (!_ActiveCryptoGroup)
+		if (_ActiveCryptoGroup == nullptr)
 		{
 			wxMessageBox("OnGroupAdd: No Crypto Group selected, or selected Crypto Group is invalid.", "Error", MB_ICONHAND | MB_OK);
 			return;
@@ -958,7 +980,7 @@ protected:
 		}
 		else
 		{
-			if (!attrSel->Start(_session, (XP_WINDOW)this, _ActiveCryptoGroup->get_Id(), attrGroup, attrList) || attrSel->DisplayModal() != wxID_OK)
+			if (!attrSel->Start(Session(), (XP_WINDOW)this, _ActiveCryptoGroup->get_Id(), attrGroup, attrList) || attrSel->DisplayModal() != wxID_OK)
 			{
 				attrGroup.reset();
 				groupList->RemoveAccessGroup(groupList->GetAccessGroupCount() - 1);
@@ -1062,7 +1084,7 @@ protected:
 		{
 			return;
 		}
-		if (!attrSel->Start(_session, (XP_WINDOW)this, _ActiveCryptoGroup->get_Id(), attrGroup, attrsList) || attrSel->DisplayModal() != wxID_OK)
+		if (!attrSel->Start(Session(), (XP_WINDOW)this, _ActiveCryptoGroup->get_Id(), attrGroup, attrsList) || attrSel->DisplayModal() != wxID_OK)
 		{
 			return;
 		}
@@ -1163,7 +1185,7 @@ protected:
 				return;
 
 			favName = dlg->Name();
-			id = _connector->CreateFavorite(_session->GetProfile()->get_SerialNumber(), _header->ToBytes(), favName);
+			id = _connector->CreateFavorite(GetProfile()->get_SerialNumber(), _header->ToBytes(), favName);
 			if (id == GUID_NULL)
 			{
 				wxMessageBox("An error occurred while attempting to create the new favorite.", "Error", MB_ICONHAND | MB_OK);
@@ -1171,13 +1193,13 @@ protected:
 			}
 			if (cmbFavorites->FindString(favName.c_str()) < 0)
 			{
-				cmbFavorites->Append(favName.c_str(), (void*)findGuidIndex(id, true));
+				cmbFavorites->Append(favName.c_str(), (void*)(intptr_t)findGuidIndex(id, true));
 			}
 			return;
 		}
 		else
 		{
-			int idx = (int)cmbFavorites->GetClientData(_CurFavIndex);
+			int idx = (int)(intptr_t)cmbFavorites->GetClientData(_CurFavIndex);
 
 			if (idx >= 0 && idx < (LRESULT)_guidMap.size())
 			{
@@ -1215,7 +1237,7 @@ protected:
 		}
 
 		GUID id = GUID_NULL;
-		int idx = (int)cmbFavorites->GetClientData(_CurFavIndex);
+		int idx = (int)(intptr_t)cmbFavorites->GetClientData(_CurFavIndex);
 
 		if (idx >= 0 && idx < (int)_guidMap.size())
 		{
@@ -1372,8 +1394,6 @@ protected:
 
 		// change controls based on settings of _CreateFavorites
 		if (_CreateFavorites) {
-			RECT rectOk, rectCreate;
-
 			this->SetTitle("Manage Favorites");
 			btnCancel->SetLabel("&Close");
 			btnCreateFavorite->SetLabel("Create &Favorite");
@@ -1518,30 +1538,28 @@ protected:
 		//if (!!con)
 		//	con->Disconnect();
 	}
-	std::shared_ptr<Asn1::CTS::CryptoGroup> GetCGbyGuid(const GUID& id)
+	Asn1::CTS::_POD_CryptoGroup* GetCGbyGuid(const GUID& id)
 	{
-		if (!_session || !_session->GetProfile())
+		if (!HasSession() || !HasProfile())
 			return nullptr;
 
-		std::shared_ptr<Asn1::CTS::Profile> profile = _session->GetProfile();
-
-		for (size_t i = 0; i < profile->get_cryptoGroupList()->size(); i++)
+		for (size_t i = 0; i < GetProfile()->get_cryptoGroupList()->size(); i++)
 		{
-			if (profile->get_cryptoGroupList()->get_at(i).get_Id() == id)
+			if (GetProfile()->get_cryptoGroupList()->get_at(i).get_Id() == id)
 			{
-				return profile->get_cryptoGroupList()->get_ptr_at(i);
+				return &GetProfile()->get_cryptoGroupList()->get_at(i);
 			}
 		}
 		return nullptr;
 	}
 	int findCgByGuid(const GUID& id)
 	{
-		if (!_session || !_session->GetProfile() || _session->GetProfile()->get_cryptoGroupList()->size() == 0)
+		if (!HasSession() || !HasProfile() || GetProfile()->get_cryptoGroupList()->size() == 0)
 			return -1;
 
-		for (size_t i = 0; i < _session->GetProfile()->get_cryptoGroupList()->size(); i++)
+		for (size_t i = 0; i < GetProfile()->get_cryptoGroupList()->size(); i++)
 		{
-			if (_session->GetProfile()->get_cryptoGroupList()->get_at(i).get_Id() == id)
+			if (GetProfile()->get_cryptoGroupList()->get_at(i).get_Id() == id)
 				return (int)i;
 		}
 		return -1;
@@ -1557,7 +1575,7 @@ protected:
 		//    int count;
 
 		// get rid of the old CryptoGroup and token
-		_ActiveCryptoGroup.reset();
+		_ActiveCryptoGroup = nullptr;
 
 		// empty out the old attribute and cert lists
 		// Must loop through and delete all access groups in the grouplist control that we have stored
@@ -1566,7 +1584,7 @@ protected:
 		lstGroups->Append(AS_SEL_DOM_STR);
 		lstGroups->Enable(false);
 
-		if (!_session || !_session->GetProfile() || fav->enterpriseId() != _session->GetProfile()->get_EnterpriseId())
+		if (!HasSession() || !HasProfile() || fav->enterpriseId() != GetProfile()->get_EnterpriseId())
 		{
 			return false;
 		}
@@ -1575,7 +1593,7 @@ protected:
 
 		if (!!ops)
 		{
-			if (!ops->CanGenerateWorkingKey(_session))
+			if (!ops->CanGenerateWorkingKey(Session()))
 			{
 				return false;
 			}
@@ -1595,7 +1613,7 @@ protected:
 		// If there is a token in this favorite, login.  Otherwise, don't login.  
 		//if (fav->tokenSerialNumber().size() != '\0')
 		{
-			std::shared_ptr<Asn1::CTS::CryptoGroup> tempCG;
+			Asn1::CTS::_POD_CryptoGroup* tempCG;
 			std::shared_ptr<ICmsHeaderCryptoGroup> hCG;
 			std::shared_ptr<ICmsHeader> fav_header;
 			GUID cgGuid;
@@ -1619,7 +1637,7 @@ protected:
 				cmbFavorites->SetSelection(0);
 				return FALSE;
 			}
-			if (!!hCG && !!_session)
+			if (!!hCG && HasSession())
 			{
 				cgGuid = hCG->GetCryptoGroupGuid();
 				// now we have to find the proper fiefdom
@@ -1632,7 +1650,7 @@ protected:
 					cgCount = cmbCG->GetCount();
 					for (cgIndex = 0; cgIndex < cgCount; cgIndex++)
 					{
-						if (index == (int)cmbCG->GetClientData(cgIndex))
+						if (index == (int)(intptr_t)cmbCG->GetClientData(cgIndex))
 						{
 							cmbCG->SetSelection(cgIndex);
 							break;
@@ -1650,7 +1668,7 @@ protected:
 				if (!CheckLogin())
 				{
 					cmbTokens->SetSelection(-1);
-					_session.reset();
+					Session(nullptr);
 					return FALSE;
 				}
 			}
@@ -1739,7 +1757,7 @@ protected:
 		int index, idx;
 		int count;
 		GUID id;
-		std::shared_ptr<Asn1::CTS::Attribute> attr;
+		Asn1::CTS::_POD_Attribute* attr;
 		std::shared_ptr<ICmsHeaderAttribute> headerAttr;
 		std::shared_ptr<ICmsHeaderAttributeListExtension> attrList;
 		std::shared_ptr<ICmsHeaderExtension> ext;
@@ -1755,7 +1773,7 @@ protected:
 		count = (int)attrs->GetAttributeCount();
 		for (index = 0; index < count; index++)
 		{
-			attr.reset();
+			attr = nullptr;
 			idx = attrs->GetAttributeIndex(index);
 			headerAttr.reset();
 			if (attrList->GetAttribute(idx, headerAttr))
@@ -1837,7 +1855,7 @@ protected:
 				}
 			}
 
-			if (sel < 0 || sel >= lstGroups->GetCount())
+			if (sel < 0 || sel >= (int)lstGroups->GetCount())
 			{
 				sel = (int)lstGroups->GetCount() - 1;
 			}
@@ -1921,21 +1939,31 @@ protected:
 		cmbCG->Append(AS_SEL_DOM_STR);
 		cmbCG->SetSelection(0);
 
-		_ActiveCryptoGroup.reset();
+		_ActiveCryptoGroup = nullptr;
 
 		//if (!!_session)
 		//	_session->Close();
-		_session.reset();
+		Session(nullptr);
 		_header.reset();
 
-		int idx = (int)cmbTokens->GetClientData(index);
+		int idx = (int)(intptr_t)cmbTokens->GetClientData(index);
 		std::shared_ptr<IToken> tok;
 
 		if (idx >= 0 && idx < (LRESULT)_tokenSerialNumbers.size())
 		{
 			tok = _connector->token(_tokenSerialNumbers[idx]);
 		}
-		if (!tok || !(_session = tok->openSession()))
+		if (!tok)
+		{
+			tscrypto::tsCryptoString name;
+
+			name = cmbTokens->GetString(index).mbc_str();
+			name << "  Unable to change Token.";
+			wxMessageBox(name.c_str(), "Error", MB_OK);
+			return FALSE;
+		}
+		Session(tok->openSession());
+		if (!HasSession())
 		{
 			tscrypto::tsCryptoString name;
 
@@ -1947,16 +1975,16 @@ protected:
 
 		EnableDisableOK();
 
-		if (!!_session)
+		if (HasSession())
 		{
 			if (!CheckLogin())
 			{
 				cmbTokens->SetSelection(-1);
-				_session.reset();
+				Session(nullptr);
 			}
 		}
 
-		if (!!_session && _session->IsLoggedIn())
+		if (HasSession() && Session()->IsLoggedIn())
 		{
 			// We can select the first CryptoGroup here
 			populateCryptoGroupList();
@@ -1983,7 +2011,7 @@ protected:
 		//}
 		//}
 
-		if (!_session)
+		if (!HasSession())
 		{
 			wxMessageBox("Please select a token before attempting to select the crypto group.", "Warning", MB_ICONHAND | MB_OK);
 			return;
@@ -1999,15 +2027,14 @@ protected:
 		if (FALSE == CheckLogin())
 		{
 			cmbTokens->SetSelection(-1);
-			_session.reset();
+			Session(nullptr);
 			return;
 		}
 
 		/* Populate Crypto Group combo box with list of CryptoGroups available on this token that aren't expired, etc. */
 		if (!_ActiveCryptoGroup)
 		{
-			std::shared_ptr<Asn1::CTS::CryptoGroup> cg;
-			std::shared_ptr<Asn1::CTS::Profile> profile = _session->GetProfile();
+			Asn1::CTS::_POD_CryptoGroup* cg;
 			size_t cgCount;
 
 			// TODO:  Not checking policy at this time.  Implement later
@@ -2041,13 +2068,13 @@ protected:
 				_CryptoGroupCombo.SetItemDataPtr(index, &*iter);
 			}
 #endif
-			cgCount = profile->get_cryptoGroupList()->size();
+			cgCount = GetProfile()->get_cryptoGroupList()->size();
 
 			cmbCG->Clear();
 			for (index = 0; index < cgCount; index++)
 			{
-				cg.reset();
-				cg = profile->get_cryptoGroupList()->get_ptr_at(index);
+				cg = nullptr;
+				cg = &GetProfile()->get_cryptoGroupList()->get_at(index);
 				if (!!cg)
 				{
 					tscrypto::tsCryptoString name;
@@ -2055,7 +2082,7 @@ protected:
 					// TODO:  Add expiration checking here
 
 					name = cg->get_Name();
-					cmbCG->Append(name.c_str(), (void*)index);
+					cmbCG->Append(name.c_str(), (void*)(intptr_t)index);
 				}
 			}
 			cmbCG->SetSelection(0);
@@ -2066,17 +2093,17 @@ protected:
 	}
 	int CheckLogin()
 	{
-		if (!_session)
+		if (!HasSession())
 			return FALSE;
 
-		if (_session->IsLoggedIn())
+		if (Session()->IsLoggedIn())
 			return TRUE;
 
 		std::shared_ptr<ITokenLogin> login = ::TopServiceLocator()->try_get_instance<ITokenLogin>("/WxWin/TokenLogIn");
 
 		if (!!login)
 		{
-			if (!login->Start(_session, (XP_WINDOW)this) || login->DisplayModal() != wxID_OK)
+			if (!login->Start(Session(), (XP_WINDOW)this) || login->DisplayModal() != wxID_OK)
 				return FALSE;
 		}
 		else
@@ -2156,8 +2183,8 @@ protected:
 		//        bEnableOK = TRUE;
 		//		bEnableFav = TRUE;
 		//	}
-		btnOK->Enable(bEnableOK);
-		btnCreateFavorite->Enable(bEnableFav);
+		btnOK->Enable(bEnableOK != FALSE);
+		btnCreateFavorite->Enable(bEnableFav != FALSE);
 		btnDeleteFavorite->Enable(_CreateFavorites && _CurFavIndex > 0);
 	}
 	bool InitTokenInfoList()
@@ -2171,15 +2198,15 @@ protected:
 	}
 	void InitTokenComboBox()
 	{
-		int index;
+		//int index;
 		size_t tokenCount;
 		tscrypto::tsCryptoString name;
 		std::shared_ptr<IToken> token;
 		tscrypto::tsCryptoData tokenSerial;
 
-		if (!!_session && !!_session->GetProfile())
+		if (HasSession() && HasProfile())
 		{
-			tokenSerial = _session->GetProfile()->get_SerialNumber();
+			tokenSerial = GetProfile()->get_SerialNumber();
 		}
 
 		// Empty the  contents of the token combo
@@ -2254,7 +2281,7 @@ protected:
 				cmbTokens->SetSelection(-1);
 			}
 
-			int serialIndex = (int)cmbTokens->GetClientData(curToken);
+			int serialIndex = (int)(intptr_t)cmbTokens->GetClientData(curToken);
 			name.clear();
 
 			if (serialIndex >= 0 && serialIndex < (int)_tokenSerialNumbers.size())
@@ -2271,7 +2298,7 @@ protected:
 					name.Format("%s%s", EMPTY_SLOT_PREFIX, EMPTY_SLOT_SUFFIX);
 				}
 				cmbTokens->Delete(curToken);
-				cmbTokens->Append(name.c_str(), (void*)serialIndex);
+				cmbTokens->Append(name.c_str(), (void*)(intptr_t)serialIndex);
 				if (isSelected)
 				{
 					cmbTokens->SetStringSelection(name.c_str());
@@ -2298,13 +2325,13 @@ protected:
 				cmbTokens->SetSelection(-1);
 			}
 
-			int serialIndex = (int)cmbTokens->GetClientData(curToken);
+			int serialIndex = (int)(intptr_t)cmbTokens->GetClientData(curToken);
 			name[0] = 0;
 			nameLen = sizeof(name);
 			TsSnPrintf(name, sizeof(name), "%s%s", EMPTY_SLOT_PREFIX, EMPTY_SLOT_SUFFIX);
 
 			cmbTokens->Delete(curToken);
-			cmbTokens->Append(name, (void*)serialIndex);
+			cmbTokens->Append(name, (void*)(intptr_t)serialIndex);
 			if (isSelected)
 			{
 				cmbTokens->SetStringSelection(name);
@@ -2500,7 +2527,7 @@ protected:
 				name = fav->favoriteName();
 				if (cmbFavorites->FindString(name.c_str()) < 0)
 				{
-					cmbFavorites->Append(name.c_str(), (void*)findGuidIndex(fav->favoriteId(), true));
+					cmbFavorites->Append(name.c_str(), (void*)(intptr_t)findGuidIndex(fav->favoriteId(), true));
 				}
 			}
 		}
@@ -2535,7 +2562,7 @@ protected:
 		count = cmbTokens->GetCount();
 		for (index = 0; index < count; index++)
 		{
-			ser = (int)cmbTokens->GetClientData(index);
+			ser = (int)(intptr_t)cmbTokens->GetClientData(index);
 			if (ser != -1)
 			{
 				if (ser == serialIndex)
@@ -2581,7 +2608,7 @@ private:
 	wxButton* btnCancel;
 	wxButton* btnHelp;
 	////@end AudienceSelector member variables
-		};
+};
 
 /*
  * AudienceSelector event table definition
@@ -2590,19 +2617,19 @@ private:
 BEGIN_EVENT_TABLE(AudienceSelector, wxDialog)
 
 ////@begin AudienceSelector event table entries
-    EVT_CHOICE( ID_FAVORITELIST, AudienceSelector::OnFavoritelistSelected )
-    EVT_CHOICE( ID_TOKENLIST, AudienceSelector::OnTokenlistSelected )
-    EVT_CHOICE( ID_CGLIST, AudienceSelector::OnCglistSelected )
-    EVT_LISTBOX( ID_LISTBOX, AudienceSelector::OnListboxSelected )
-    EVT_LISTBOX_DCLICK( ID_LISTBOX, AudienceSelector::OnListboxDoubleClicked )
-    EVT_BUTTON( ID_ADD, AudienceSelector::OnAddClick )
-    EVT_BUTTON( ID_EDIT, AudienceSelector::OnEditClick )
-    EVT_BUTTON( ID_DELETE, AudienceSelector::OnDeleteClick )
-    EVT_BUTTON( ID_CREATE_FAVORITE, AudienceSelector::OnCreateFavoriteClick )
-    EVT_BUTTON( ID_DELETE_FAVORITE, AudienceSelector::OnDeleteFavoriteClick )
-    EVT_BUTTON( wxID_OK, AudienceSelector::OnOkClick )
-    EVT_BUTTON( wxID_CANCEL, AudienceSelector::OnCancelClick )
-    EVT_BUTTON( wxID_HELP, AudienceSelector::OnHelpClick )
+EVT_CHOICE(ID_FAVORITELIST, AudienceSelector::OnFavoritelistSelected)
+EVT_CHOICE(ID_TOKENLIST, AudienceSelector::OnTokenlistSelected)
+EVT_CHOICE(ID_CGLIST, AudienceSelector::OnCglistSelected)
+EVT_LISTBOX(ID_LISTBOX, AudienceSelector::OnListboxSelected)
+EVT_LISTBOX_DCLICK(ID_LISTBOX, AudienceSelector::OnListboxDoubleClicked)
+EVT_BUTTON(ID_ADD, AudienceSelector::OnAddClick)
+EVT_BUTTON(ID_EDIT, AudienceSelector::OnEditClick)
+EVT_BUTTON(ID_DELETE, AudienceSelector::OnDeleteClick)
+EVT_BUTTON(ID_CREATE_FAVORITE, AudienceSelector::OnCreateFavoriteClick)
+EVT_BUTTON(ID_DELETE_FAVORITE, AudienceSelector::OnDeleteFavoriteClick)
+EVT_BUTTON(wxID_OK, AudienceSelector::OnOkClick)
+EVT_BUTTON(wxID_CANCEL, AudienceSelector::OnCancelClick)
+EVT_BUTTON(wxID_HELP, AudienceSelector::OnHelpClick)
 ////@end AudienceSelector event table entries
 
 END_EVENT_TABLE()

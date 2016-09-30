@@ -131,7 +131,7 @@ bool CkmMemoryFifoStream::IsEndOfFile() const
 {
 	TSDECLARE_METHODExt(DebugFifoDetail);
 
-	AutoLocker locker(m_accessLock);
+	TSAUTOLOCKER locker(m_accessLock);
 
 	if (m_writerDone && m_data.size() == 0)
 	{
@@ -151,7 +151,7 @@ int64_t CkmMemoryFifoStream::RemainingData() const
 {
 	TSDECLARE_METHODExt(DebugFifoDetail);
 
-	AutoLocker locker(m_accessLock);
+	TSAUTOLOCKER locker(m_accessLock);
 
 	if (DebugFifoSummary) { LOG(FrameworkInfo1, (int)m_data.size() << " bytes remaining in " << m_filename); }
 	return TSRETURN(("~~ bytes"),m_data.size());
@@ -161,7 +161,7 @@ int64_t CkmMemoryFifoStream::DataLength() const
 {
 	TSDECLARE_METHODExt(DebugFifoDetail);
 
-	AutoLocker locker(m_accessLock);
+	TSAUTOLOCKER locker(m_accessLock);
 
 	if (DebugFifoSummary) { LOG(FrameworkInfo1, (int)m_data.size() << " bytes remaining in " << m_filename); }
 	return TSRETURN(("~~ bytes"),m_data.size());
@@ -184,7 +184,7 @@ void CkmMemoryFifoStream::SetDataName(const tscrypto::tsCryptoString& setTo)
 
 void CkmMemoryFifoStream::Close()
 {
-	AutoLocker locker(m_accessLock);
+	TSAUTOLOCKER locker(m_accessLock);
 
 	m_data.clear();
 	WriterDone();
@@ -217,7 +217,7 @@ bool CkmMemoryFifoStream::WriteData(const tscrypto::tsCryptoData &data)
 	std::shared_ptr<IFifoStreamReaderCallback> cb;
 
 	{
-		AutoLocker locker(m_accessLock);
+		TSAUTOLOCKER locker(m_accessLock);
 
 		if (m_writerDone)
 			return TSRETURN(("false"),false);
@@ -246,7 +246,7 @@ bool CkmMemoryFifoStream::WriteData(const tscrypto::tsCryptoData &data, int offs
 	std::shared_ptr<IFifoStreamReaderCallback> cb;
 
 	{
-		AutoLocker locker(m_accessLock);
+		TSAUTOLOCKER locker(m_accessLock);
 
 		if (m_writerDone)
 			return TSRETURN(("false"),false);
@@ -319,7 +319,7 @@ bool CkmMemoryFifoStream::ReadData(int byteCount, tscrypto::tsCryptoData &data)
 {
 	TSDECLARE_METHODExt(DebugFifoIODetail);
 
-	AutoLocker locker(m_accessLock);
+	TSAUTOLOCKER locker(m_accessLock);
 
 	if (byteCount < 0)
 		return TSRETURN(("false"),false);
@@ -344,7 +344,7 @@ int CkmMemoryFifoStream::ReadData(int byteCount, int dataOffset, tscrypto::tsCry
 {
 	TSDECLARE_METHODExt(DebugFifoIODetail);
 
-	AutoLocker locker(m_accessLock);
+	TSAUTOLOCKER locker(m_accessLock);
 
 	if (dataOffset < 0 || byteCount < 0 || dataOffset + byteCount < 0)
 		return TSRETURN(("0"),0);
@@ -377,7 +377,7 @@ void CkmMemoryFifoStream::WriterDone()
 	std::shared_ptr<IFifoStreamReaderCallback> cb;
 
 	{
-		AutoLocker locker(m_accessLock);
+		TSAUTOLOCKER locker(m_accessLock);
 
 		if (!m_writerDone)
 		{
@@ -403,7 +403,7 @@ void CkmMemoryFifoStream::WriterDone()
 
 bool CkmMemoryFifoStream::SetReaderCallback(std::shared_ptr<IFifoStreamReaderCallback> setTo)
 {
-	AutoLocker locker(m_accessLock);
+	TSAUTOLOCKER locker(m_accessLock);
 
 	m_readerCallback.reset();
 	if (setTo != NULL)
@@ -413,7 +413,7 @@ bool CkmMemoryFifoStream::SetReaderCallback(std::shared_ptr<IFifoStreamReaderCal
 
 bool CkmMemoryFifoStream::SetWriterCallback(std::shared_ptr<IFifoStreamWriterCallback> setTo)
 {
-	AutoLocker locker(m_accessLock);
+	TSAUTOLOCKER locker(m_accessLock);
 
 	m_writerCallback.reset();
 	if (setTo != NULL)
@@ -484,6 +484,8 @@ bool CkmMemoryFifoStream::ProcessAllData()
 				return TSRETURN_ERROR(("E_FAIL"),false);
 			case CryptoEvent::Succeeded_Object1:
 				return TSRETURN(("Returns ~~"),m_callbackReturn);
+            default:
+                break;
 			}
 			if (!!m_readerCallback && IsEndOfFile())
 			{
@@ -506,7 +508,7 @@ bool CkmMemoryFifoStream::PeekData(int byteCount, tscrypto::tsCryptoData &data)
 {
 	TSDECLARE_METHODExt(DebugFifoIODetail);
 
-	AutoLocker locker(m_accessLock);
+	TSAUTOLOCKER locker(m_accessLock);
 
 	if (byteCount < 1)
 		return TSRETURN(("false"),false);
@@ -529,7 +531,7 @@ int CkmMemoryFifoStream::PeekData(int byteCount, int dataOffset, tscrypto::tsCry
 {
 	TSDECLARE_METHODExt(DebugFifoIODetail);
 
-	AutoLocker locker(m_accessLock);
+	TSAUTOLOCKER locker(m_accessLock);
 
 	if (dataOffset < 0 || byteCount < 1 || dataOffset + byteCount < 0)
 		return TSRETURN(("0"),0);
@@ -554,7 +556,7 @@ bool CkmMemoryFifoStream::UnreadData(const tscrypto::tsCryptoData &data)
 {
 	TSDECLARE_METHODExt(DebugFifoIODetail);
 
-	AutoLocker locker(m_accessLock);
+	TSAUTOLOCKER locker(m_accessLock);
 
 	if (m_writerDone)
 		return TSRETURN(("false"),false);
@@ -570,7 +572,7 @@ bool CkmMemoryFifoStream::UnreadData(const tscrypto::tsCryptoData &data, int off
 {
 	TSDECLARE_METHODExt(DebugFifoIODetail);
 
-	AutoLocker locker(m_accessLock);
+	TSAUTOLOCKER locker(m_accessLock);
 
 	if (m_writerDone)
 		return TSRETURN(("false"),false);
@@ -594,7 +596,7 @@ bool CkmMemoryFifoStream::WriteDataAndFinish(const tscrypto::tsCryptoData &data)
 	std::shared_ptr<IFifoStreamReaderCallback> cb;
 
 	{
-		AutoLocker locker(m_accessLock);
+		TSAUTOLOCKER locker(m_accessLock);
 
 		if (m_writerDone)
 			return TSRETURN(("false"),false);
@@ -624,7 +626,7 @@ bool CkmMemoryFifoStream::WriteDataAndFinish(const tscrypto::tsCryptoData &data,
 	std::shared_ptr<IFifoStreamReaderCallback> cb;
 
 	{
-		AutoLocker locker(m_accessLock);
+		TSAUTOLOCKER locker(m_accessLock);
 
 		if (m_writerDone)
 			return TSRETURN(("false"),false);
@@ -675,7 +677,7 @@ void CkmMemoryFifoStream::Reset()
 {
 	TSDECLARE_METHODExt(DebugFifoDetail);
 
-	AutoLocker locker(m_accessLock);
+	TSAUTOLOCKER locker(m_accessLock);
 
 	m_data.clear();
     m_filename = "Memory";
@@ -690,7 +692,7 @@ void CkmMemoryFifoStream::Reset()
 }
 void CkmMemoryFifoStream::ResetWriter()
 {
-	AutoLocker locker(m_accessLock);
+	TSAUTOLOCKER locker(m_accessLock);
 
 	m_data.clear();
 	m_writerDone = false;

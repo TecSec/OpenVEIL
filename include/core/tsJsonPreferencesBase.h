@@ -51,10 +51,19 @@ typedef enum {
 struct VEILCORE_API JsonPreferenceItem
 {
 public:
+	static void *operator new(std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void *operator new[](std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
+	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
+
     /**
      * \brief Default constructor.
      */
-	JsonPreferenceItem() : Location(jc_NotFound){}
+		JsonPreferenceItem() : Location(jc_NotFound) {}
     /**
      * \brief Constructor.
      *
@@ -62,8 +71,8 @@ public:
      * \param value    The value.
      * \param location The location.
      */
-	JsonPreferenceItem(const tscrypto::tsCryptoString &path, const tscrypto::tsCryptoString &value, JsonConfigLocation location) :
-        Path(path), Value(value), Location(location){}
+	JsonPreferenceItem(const tscrypto::tsCryptoStringBase &path, const tscrypto::tsCryptoStringBase &value, JsonConfigLocation location) :
+		Path(path), Value(value), Location(location) {}
     /**
      * \brief Constructor.
      *
@@ -77,7 +86,7 @@ public:
      *
      * \return A shallow copy of this object.
      */
-	JsonPreferenceItem &operator=(const JsonPreferenceItem& obj){ if (&obj != this){ Path = obj.Path; Value = obj.Value; Location = obj.Location; }return *this; }
+	JsonPreferenceItem &operator=(const JsonPreferenceItem& obj) { if (&obj != this) { Path = obj.Path; Value = obj.Value; Location = obj.Location; }return *this; }
 
     tscrypto::tsCryptoString Path; ///< Full pathname of the preference item
     tscrypto::tsCryptoString Value;	///< The value
@@ -181,6 +190,7 @@ protected:
 	tsJsonPreferencesBase(JsonConfigLocation location, JsonConfigLocation loc2 = jc_NotFound, JsonConfigLocation loc3 = jc_NotFound);
 public:
 
+
 	/// <summary>Scans for changes.</summary>
 	virtual void ScanForChanges();
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -242,7 +252,7 @@ public:
 	*
 	* \return The found preference item.
 	*/
-	virtual JsonPreferenceItem findPreferenceItem(const tscrypto::tsCryptoString &path) const;
+	virtual JsonPreferenceItem findPreferenceItem(const tscrypto::tsCryptoStringBase &path) const;
 	/**
 	* \brief Sets preference item.
 	*
@@ -281,17 +291,17 @@ public:
 
 	virtual tscrypto::tsCryptoString GetDebugSettingsName() { return "&$.Debug"; }
 
-	static void ReadValueAsBool(JsonConfigLocation& loc, bool& value, const char *name, const tscrypto::JSONObject& config, JsonConfigLocation lookingAtLoc, bool defaultValue = false);
-	static void ReadValueAsInt(JsonConfigLocation& loc, int& value, const char *name, const tscrypto::JSONObject& config, JsonConfigLocation lookingAtLoc, int defaultValue = 0);
-	static void ReadValueAsText(JsonConfigLocation& loc, tscrypto::tsCryptoString& value, const char *name, const tscrypto::JSONObject& config, JsonConfigLocation lookingAtLoc);
+	static void ReadValueAsBool(JsonConfigLocation& loc, bool& value, const tscrypto::tsCryptoStringBase& name, const tscrypto::JSONObject& config, JsonConfigLocation lookingAtLoc, bool defaultValue = false);
+	static void ReadValueAsInt(JsonConfigLocation& loc, int& value, const tscrypto::tsCryptoStringBase& name, const tscrypto::JSONObject& config, JsonConfigLocation lookingAtLoc, int defaultValue = 0);
+	static void ReadValueAsText(JsonConfigLocation& loc, tscrypto::tsCryptoStringBase& value, const tscrypto::tsCryptoStringBase& name, const tscrypto::JSONObject& config, JsonConfigLocation lookingAtLoc);
 
-	static bool SaveBoolValue(JsonConfigLocation &loc, bool& value, const char* name, tscrypto::JSONObject& config, JsonConfigLocation locationToProcess);
-	static bool SaveIntValue(JsonConfigLocation &loc, int& value, const char* name, tscrypto::JSONObject& config, JsonConfigLocation locationToProcess);
-	static bool SaveTextValue(JsonConfigLocation &loc, tscrypto::tsCryptoString& value, const char* name, tscrypto::JSONObject& config, JsonConfigLocation locationToProcess);
+	static bool SaveBoolValue(JsonConfigLocation &loc, bool& value, const tscrypto::tsCryptoStringBase& name, tscrypto::JSONObject& config, JsonConfigLocation locationToProcess);
+	static bool SaveIntValue(JsonConfigLocation &loc, int& value, const tscrypto::tsCryptoStringBase& name, tscrypto::JSONObject& config, JsonConfigLocation locationToProcess);
+	static bool SaveTextValue(JsonConfigLocation &loc, tscrypto::tsCryptoStringBase& value, const tscrypto::tsCryptoStringBase& name, tscrypto::JSONObject& config, JsonConfigLocation locationToProcess);
 
-	static bool buildAndTestPath(JsonConfigLocation location, const tscrypto::tsCryptoString &appName, tscrypto::tsCryptoString &pathStr);
-	static JsonConfigLocation configExistsHere(const tscrypto::tsCryptoString &appName, JsonConfigLocation location);
-	static tscrypto::tsCryptoString filePath(const tscrypto::tsCryptoString &appName, JsonConfigLocation location);
+	static bool buildAndTestPath(JsonConfigLocation location, const tscrypto::tsCryptoStringBase &appName, tscrypto::tsCryptoStringBase &pathStr);
+	static JsonConfigLocation configExistsHere(const tscrypto::tsCryptoStringBase &appName, JsonConfigLocation location);
+	static tscrypto::tsCryptoString filePath(const tscrypto::tsCryptoStringBase &appName, JsonConfigLocation location);
 
 protected:
 	/// <summary>Destructor.</summary>
@@ -387,7 +397,7 @@ protected:
 	*
 	* \return true if it succeeds, false if it fails.
 	*/
-	virtual bool OverwriteEntry(const tscrypto::tsCryptoString &entryName, JsonConfigLocation currentLocation, JsonConfigLocation newLocation) const;
+	virtual bool OverwriteEntry(const tscrypto::tsCryptoStringBase &entryName, JsonConfigLocation currentLocation, JsonConfigLocation newLocation) const;
 	/**
 	* \brief Determines if we must use entries.
 	*
@@ -399,8 +409,8 @@ protected:
 	*/
 	void FireGlobalChangeEvent();
 
-	static tscrypto::JSONObject ReadJSONObject(const tscrypto::tsCryptoString& configName, JsonConfigLocation location);
-	static bool WriteJSONObject(const tscrypto::tsCryptoString& configName, JsonConfigLocation location, const tscrypto::JSONObject& obj);
+	static tscrypto::JSONObject ReadJSONObject(const tscrypto::tsCryptoStringBase& configName, JsonConfigLocation location);
+	static bool WriteJSONObject(const tscrypto::tsCryptoStringBase& configName, JsonConfigLocation location, const tscrypto::JSONObject& obj);
 protected:
 	tscrypto::tsCryptoString m_policyFilename;  /*!< \brief Path and file name for the policy configuration file */
 	tscrypto::tsCryptoString m_firstFilename;    /*!< \brief Path and file name for the first level configuration file */
@@ -445,7 +455,7 @@ protected:
 
 #define DEFINE_TEXT_PREF_CODE(className,path,name,defaultValue) \
 	tscrypto::tsCryptoString className::get##name(){loadValues();JsonPreferenceItem item = this->findPreferenceItem(path);if (item.Location == jc_NotFound)return defaultValue;return item.Value;} \
-	void className::set##name(const tscrypto::tsCryptoString &setTo){loadValues();JsonPreferenceItem item = this->findPreferenceItem(path);if (item.Location != jc_Policy){item.Value = setTo;item.Location = DefaultSaveLocation();setPreferenceItem(item);}} \
+	void className::set##name(const tscrypto::tsCryptoStringBase &setTo){loadValues();JsonPreferenceItem item = this->findPreferenceItem(path);if (item.Location != jc_Policy){item.Value = setTo;item.Location = DefaultSaveLocation();setPreferenceItem(item);}} \
 	JsonConfigLocation className::name##Location(){loadValues();JsonPreferenceItem item = this->findPreferenceItem(path);return item.Location;}
 
 #define DEFINE_ENUM_PREF_CODE(className,path,name,enumName,defaultValue) \
@@ -477,7 +487,7 @@ protected:
 
 #define DECLARE_TEXT_PREF_CODE(name) \
 	tscrypto::tsCryptoString get##name(); \
-	void set##name(const tscrypto::tsCryptoString& setTo); \
+	void set##name(const tscrypto::tsCryptoStringBase& setTo); \
 	JsonConfigLocation name##Location();
 
 #define DECLARE_DATA_PREF_CODE(name) \
@@ -496,13 +506,13 @@ protected:
 class VEILCORE_API SimpleJsonDebugPreferences : public tsJsonPreferencesBase
 {
 public:
-	static std::shared_ptr<tsJsonPreferencesBase> Create(const tscrypto::tsCryptoString& configFileName, const char *root = "", JsonConfigLocation loc1 = jc_System, JsonConfigLocation loc2 = jc_NotFound, JsonConfigLocation loc3 = jc_NotFound);
+	static std::shared_ptr<tsJsonPreferencesBase> Create(const tscrypto::tsCryptoStringBase& configFileName, const tscrypto::tsCryptoStringBase& root = "", JsonConfigLocation loc1 = jc_System, JsonConfigLocation loc2 = jc_NotFound, JsonConfigLocation loc3 = jc_NotFound);
 	/// <summary>Destructor.</summary>
 	virtual ~SimpleJsonDebugPreferences(void);
 
 protected:
 	/// <summary>Default constructor.</summary>
-	SimpleJsonDebugPreferences(const tscrypto::tsCryptoString& configFileName, const char *root = "", JsonConfigLocation loc1 = jc_System, JsonConfigLocation loc2 = jc_NotFound, JsonConfigLocation loc3 = jc_NotFound);
+	SimpleJsonDebugPreferences(const tscrypto::tsCryptoStringBase& configFileName, const tscrypto::tsCryptoStringBase& root = "", JsonConfigLocation loc1 = jc_System, JsonConfigLocation loc2 = jc_NotFound, JsonConfigLocation loc3 = jc_NotFound);
 
 	/// <summary>Sets the default values for these options.</summary>
 	//virtual void setDefaultValues();
@@ -520,7 +530,7 @@ protected:
 	///
 	/// <returns>true if it succeeds, false if it fails.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual bool saveConfigurationChangesForLocation(JsonConfigLocation location){ MY_UNREFERENCED_PARAMETER(location); return true; }
+	virtual bool saveConfigurationChangesForLocation(JsonConfigLocation location) { MY_UNREFERENCED_PARAMETER(location); return true; }
 	//virtual bool saveConfigurationChangesForLocation(JsonConfigLocation location);
 	/**
 	 * \brief Loads configuration values for the specified location.

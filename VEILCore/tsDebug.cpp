@@ -281,9 +281,9 @@ _tsTraceFunctionExt &_tsTraceFunctionExt::returnCOM(HRESULT hr)
 #endif // def _WIN32
 
 _tsTraceMethodExt::_tsTraceMethodExt(const _tsTraceClassExt &info, const tscrypto::tsCryptoString& MethodName, const void *This) :
-m_method(MethodName),
 m_This(This),
 m_error(false),
+m_method(MethodName),
 enabled(info.m_TraceInfo.enabled),
 classInstance(info.m_classInstance)
 {

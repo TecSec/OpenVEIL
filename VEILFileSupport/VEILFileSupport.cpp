@@ -85,7 +85,7 @@ FileVEILFileOp_recoveredKeyList CreateFileVEILFileOp_recoveredKeyList()
 }
 
 #if __GNUC__ >= 4
-extern "C"
+//extern "C"
 #endif
 EXPORT_SYMBOL std::shared_ptr<IVEILFileSupportDllInterface> GetVEILFileSupportDllInterface()
 {

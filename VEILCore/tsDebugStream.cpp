@@ -32,7 +32,7 @@
 #include "stdafx.h"
 
 
-tsDebugStream::tsDebugStream(const tscrypto::tsCryptoString& name, int level) :
+tsDebugStream::tsDebugStream(const tscrypto::tsCryptoStringBase& name, int level) :
 	tsTraceStream(name, level)
 {
 }

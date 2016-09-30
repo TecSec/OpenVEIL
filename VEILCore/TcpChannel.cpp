@@ -110,7 +110,7 @@ bool TcpChannel::Send(const tscrypto::tsCryptoData& _data)
 				return false;
 			}
 
-			LOG(httpData, "Raw Sent:" << endl << data.ToHexDump());
+            LOG(httpData, "Raw Sent:" << tscrypto::endl << data.ToHexDump());
 
 			break;
 		default:
@@ -131,7 +131,7 @@ bool TcpChannel::Receive(tscrypto::tsCryptoData& _data, size_t size)
 {
 	int len;
 	tscrypto::tsCryptoData buff;
-	int requiredDataLength = 0;
+	//int requiredDataLength = 0;
 	int targetLength = (int)size;
 
 	_data.clear();

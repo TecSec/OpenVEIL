@@ -46,6 +46,15 @@
 class VEILCORE_API tsAppConfig
 {
 public:
+	static void *operator new(std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void *operator new[](std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
+	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
+
     /// <summary>Specifies the symbolic location(s) of the configuration file</summary>
     typedef enum {
 		System, ///< Stored in the system folder
@@ -231,7 +240,7 @@ public:
     ///
     /// <returns>true if it succeeds, false if it fails.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    bool setNodeItem (const tscrypto::tsCryptoString &nodeName, const tscrypto::tsCryptoString &itemName, const tscrypto::tsCryptoString &value);
+	bool setNodeItem(const tscrypto::tsCryptoString &nodeName, const tscrypto::tsCryptoString &itemName, const tscrypto::tsCryptoString &value);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Sets or creates an attribute in the named node and sets the integer value.</summary>
     ///
@@ -241,7 +250,7 @@ public:
     ///
     /// <returns>true if it succeeds, false if it fails.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    bool setNodeItemAsNumber (const tscrypto::tsCryptoString &nodeName, const tscrypto::tsCryptoString &itemName, int value);
+	bool setNodeItemAsNumber(const tscrypto::tsCryptoString &nodeName, const tscrypto::tsCryptoString &itemName, int value);
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Sets or creates an attribute in the named node and sets the boolean value.</summary>
     ///
@@ -251,7 +260,7 @@ public:
     ///
     /// <returns>true if it succeeds, false if it fails.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    bool setNodeItemAsBool (const tscrypto::tsCryptoString &nodeName, const tscrypto::tsCryptoString &itemName, bool value);
+	bool setNodeItemAsBool(const tscrypto::tsCryptoString &nodeName, const tscrypto::tsCryptoString &itemName, bool value);
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Sets the text value for the named node</summary>

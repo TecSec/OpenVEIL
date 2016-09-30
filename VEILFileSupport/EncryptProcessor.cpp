@@ -97,7 +97,7 @@ private:
 	// BEGIN - Stream callback variables
 	bool m_processingEncrypt;
 	CMSFileFormatIds m_format;
-	std::shared_ptr<tscrypto::MAC> m_hasher;
+	std::shared_ptr<tscrypto::MessageAuthenticationCode> m_hasher;
 	std::shared_ptr<ICompression> m_compressor;
 	int64_t m_fileSize;
 	bool m_hasFileSize;
@@ -118,7 +118,7 @@ private:
 	bool m_hashPlainText;
 	// END - Stream callback variables
 
-	EncryptProcessor& operator=(const EncryptProcessor&){}
+    EncryptProcessor& operator=(const EncryptProcessor&) = delete;
 };
 
 std::shared_ptr<IKeyGenCallback> CreateEncryptProcessor(DWORD taskCount, DWORD currentTask, std::shared_ptr<IFileVEILOperationStatus> status, std::shared_ptr<IDataReader> reader, std::shared_ptr<IDataWriter> writer, bool prependHeader)
@@ -455,7 +455,7 @@ bool EncryptProcessor::ProcessHashed(const tscrypto::tsCryptoData &_key, std::sh
 	encKeySize = CryptoKeySize(encAlg);
 	ivecSize = m_enc->getIVECSizeForMode(Alg2Mode(encAlg));
 	encBlocksize = m_enc->getBlockSize();
-	if (encKeySize = 0 || encBlocksize == 0)
+	if (encKeySize == 0 || encBlocksize == 0)
 	{
 		LogError("Unable to retrieve the required data encryption algorithm parameters.");
 		return TSRETURN_ERROR(("Unable to retrieve the required data encryption algorithm parameters."), false);
@@ -492,7 +492,7 @@ bool EncryptProcessor::ProcessHashed(const tscrypto::tsCryptoData &_key, std::sh
 	{
 		m_authHeader = computeHeaderIdentity(header7);
 
-		if (!(m_hasher = std::dynamic_pointer_cast<MAC>(CryptoFactory(header7->GetDataHashOID().ToOIDString()))))
+		if (!(m_hasher = std::dynamic_pointer_cast<MessageAuthenticationCode>(CryptoFactory(header7->GetDataHashOID().ToOIDString()))))
 		{
 			LogError("Unable to create the required data hash algorithm.");
 			return TSRETURN_ERROR(("Unable to create the required data hash algorithm"), false);
@@ -783,7 +783,7 @@ bool EncryptProcessor::ProcessHashed(const tscrypto::tsCryptoData &_key, int blo
 	{
 		m_authHeader = authData;
 
-		if (!(m_hasher = std::dynamic_pointer_cast<MAC>(CryptoFactory(hashOid.ToOIDString()))))
+		if (!(m_hasher = std::dynamic_pointer_cast<MessageAuthenticationCode>(CryptoFactory(hashOid.ToOIDString()))))
 		{
 			LogError("Unable to create the required data hash algorithm.");
 			return TSRETURN_ERROR(("Unable to create the required data hash algorithm"), false);
@@ -1209,7 +1209,7 @@ bool EncryptProcessor::ProcessEncAuthHashed(const tscrypto::tsCryptoData &_key, 
 
 	if (header7->GetDataHashOID().size() > 0)
 	{
-		if (!(m_hasher = std::dynamic_pointer_cast<MAC>(CryptoFactory(header7->GetDataHashOID().ToOIDString()))))
+		if (!(m_hasher = std::dynamic_pointer_cast<MessageAuthenticationCode>(CryptoFactory(header7->GetDataHashOID().ToOIDString()))))
 		{
 			LogError("Unable to create the required data hash algorithm.");
 			return TSRETURN_ERROR(("Unable to create the required data hash algorithm"), false);
@@ -1485,7 +1485,7 @@ bool EncryptProcessor::ProcessEncAuthHashed(const tscrypto::tsCryptoData &_key, 
 
 	if (hashOid.size() > 0)
 	{
-		if (!(m_hasher = std::dynamic_pointer_cast<MAC>(CryptoFactory(hashOid.ToOIDString()))))
+		if (!(m_hasher = std::dynamic_pointer_cast<MessageAuthenticationCode>(CryptoFactory(hashOid.ToOIDString()))))
 		{
 			LogError("Unable to create the required data hash algorithm.");
 			return TSRETURN_ERROR(("Unable to create the required data hash algorithm"), false);
@@ -1925,7 +1925,7 @@ bool EncryptProcessor::DecryptEncAuthData(const tscrypto::tsCryptoData &_key, st
 
 	if (header->GetDataHash().size() != 0)
 	{
-		if (!(m_hasher = std::dynamic_pointer_cast<MAC>(CryptoFactory(header->GetDataHashOID().ToOIDString()))))
+		if (!(m_hasher = std::dynamic_pointer_cast<MessageAuthenticationCode>(CryptoFactory(header->GetDataHashOID().ToOIDString()))))
 			return TSRETURN_ERROR(("Unable to create the data hash algorithm."), false);
 	}
 
@@ -2204,7 +2204,7 @@ bool EncryptProcessor::DecryptEncAuthData(const tscrypto::tsCryptoData &_key, in
 
 	if (hashOid.size() != 0)
 	{
-		if (!(m_hasher = std::dynamic_pointer_cast<MAC>(CryptoFactory(hashOid.ToOIDString()))))
+		if (!(m_hasher = std::dynamic_pointer_cast<MessageAuthenticationCode>(CryptoFactory(hashOid.ToOIDString()))))
 			return TSRETURN_ERROR(("Unable to create the data hash algorithm."), false);
 	}
 
@@ -2564,7 +2564,7 @@ bool EncryptProcessor::DecryptHashed(const tscrypto::tsCryptoData &_key, std::sh
 
 	if (header->GetDataHash().size() != 0)
 	{
-		if (!(m_hasher = std::dynamic_pointer_cast<MAC>(CryptoFactory(header->GetDataHashOID().ToOIDString()))))
+		if (!(m_hasher = std::dynamic_pointer_cast<MessageAuthenticationCode>(CryptoFactory(header->GetDataHashOID().ToOIDString()))))
 			return TSRETURN_ERROR(("Unable to create the data hash algorithm."), false);
 	}
 
@@ -2862,7 +2862,7 @@ bool EncryptProcessor::DecryptHashed(const tscrypto::tsCryptoData &_key, int blo
 
 	if (hashOid.size() != 0)
 	{
-		if (!(m_hasher = std::dynamic_pointer_cast<MAC>(CryptoFactory(hashOid.ToOIDString()))))
+		if (!(m_hasher = std::dynamic_pointer_cast<MessageAuthenticationCode>(CryptoFactory(hashOid.ToOIDString()))))
 			return TSRETURN_ERROR(("Unable to create the data hash algorithm."), false);
 	}
 
@@ -3232,7 +3232,7 @@ bool EncryptProcessor::PrevalidateDataHash(const tscrypto::tsCryptoData &finalHa
 bool EncryptProcessor::ValidateEncAuthFormat(std::shared_ptr<ICmsHeader> header, int64_t headerSize, int64_t fileSize)
 {
 	tscrypto::tsCryptoData tmp;
-	std::shared_ptr<MAC> hasher;
+	std::shared_ptr<MessageAuthenticationCode> hasher;
 
 	// Validate file data signature here
 
@@ -3242,7 +3242,7 @@ bool EncryptProcessor::ValidateEncAuthFormat(std::shared_ptr<ICmsHeader> header,
 	if (!m_reader->AllowsRandomAccess())
 		return true;
 
-	if (!(hasher = std::dynamic_pointer_cast<MAC>(CryptoFactory(header->GetDataHashOID().ToOIDString()))))
+	if (!(hasher = std::dynamic_pointer_cast<MessageAuthenticationCode>(CryptoFactory(header->GetDataHashOID().ToOIDString()))))
 		return false;
 
 	if (hasher->requiresKey())
@@ -3289,7 +3289,7 @@ bool EncryptProcessor::ValidateEncAuthFormat(const tscrypto::tsCryptoData &final
 	MY_UNREFERENCED_PARAMETER(authData);
 
 	tscrypto::tsCryptoData tmp;
-	std::shared_ptr<MAC> hasher;
+	std::shared_ptr<MessageAuthenticationCode> hasher;
 
 	// Validate file data signature here
 
@@ -3299,7 +3299,7 @@ bool EncryptProcessor::ValidateEncAuthFormat(const tscrypto::tsCryptoData &final
 	if (!m_reader->AllowsRandomAccess())
 		return true;
 
-	if (!(hasher = std::dynamic_pointer_cast<MAC>(CryptoFactory(hashOid.ToOIDString()))))
+	if (!(hasher = std::dynamic_pointer_cast<MessageAuthenticationCode>(CryptoFactory(hashOid.ToOIDString()))))
 		return false;
 
 	if (hasher->requiresKey())
@@ -3343,7 +3343,7 @@ bool EncryptProcessor::ValidateEncAuthFormat(const tscrypto::tsCryptoData &final
 bool EncryptProcessor::ValidateHashedFormat(std::shared_ptr<ICmsHeader> header, int64_t headerSize, int64_t fileSize, bool plaintext)
 {
 	tscrypto::tsCryptoData tmp;
-	std::shared_ptr<MAC> hasher;
+	std::shared_ptr<MessageAuthenticationCode> hasher;
 
 	// Validate file data signature here
 
@@ -3353,7 +3353,7 @@ bool EncryptProcessor::ValidateHashedFormat(std::shared_ptr<ICmsHeader> header, 
 	if (!m_reader->AllowsRandomAccess() || plaintext)
 		return true;
 
-	if (!(hasher = std::dynamic_pointer_cast<MAC>(CryptoFactory(header->GetDataHashOID().ToOIDString()))))
+	if (!(hasher = std::dynamic_pointer_cast<MessageAuthenticationCode>(CryptoFactory(header->GetDataHashOID().ToOIDString()))))
 		return false;
 
 	if (hasher->requiresKey())
@@ -3388,7 +3388,7 @@ bool EncryptProcessor::ValidateHashedFormat(std::shared_ptr<ICmsHeader> header, 
 bool EncryptProcessor::ValidateHashedFormat(const tscrypto::tsCryptoData &finalhash, const tscrypto::tsCryptoData &hashOid, const tscrypto::tsCryptoData &authData, int64_t fileSize, bool plaintext)
 {
 	tscrypto::tsCryptoData tmp;
-	std::shared_ptr<MAC> hasher;
+	std::shared_ptr<MessageAuthenticationCode> hasher;
 
 	// Validate file data signature here
 
@@ -3398,7 +3398,7 @@ bool EncryptProcessor::ValidateHashedFormat(const tscrypto::tsCryptoData &finalh
 	if (!m_reader->AllowsRandomAccess() || plaintext)
 		return true;
 
-	if (!(hasher = std::dynamic_pointer_cast<MAC>(CryptoFactory(hashOid.ToOIDString()))))
+	if (!(hasher = std::dynamic_pointer_cast<MessageAuthenticationCode>(CryptoFactory(hashOid.ToOIDString()))))
 		return false;
 
 	if (hasher->requiresKey())

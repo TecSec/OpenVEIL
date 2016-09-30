@@ -38,17 +38,17 @@ public:
 	PluginModuleManager();
 	virtual ~PluginModuleManager();
 
-	virtual void LoadModule(const char *path, tsmod::IReportError* log, std::function<void(std::function<bool()>)> registerCleanup);
-	virtual std::shared_ptr<tsmod::IPluginModule> FindModule(const char *path);
-	virtual void LoadModulesOfType(const char* pattern, tsmod::IReportError* log, std::function<void(std::function<bool()>)> registerCleanup);
-	virtual bool UseRootedPlugins() const;
-	virtual void UseRootedPlugins(bool setTo);
-	virtual void TerminateAllPlugins();
-	virtual void LoadModuleForService(const char *path, tsmod::IReportError* log, std::shared_ptr<tsmod::IServiceLocator> servLoc, std::function<void(std::function<bool()>)> registerCleanup);
-	virtual void LoadModulesOfTypeForService(const char* pattern, tsmod::IReportError* log, std::shared_ptr<tsmod::IServiceLocator> servLoc, std::function<void(std::function<bool()>)> registerCleanup);
+	virtual void LoadModule(const tscrypto::tsCryptoStringBase& path, tsmod::IReportError* log, std::function<void(std::function<bool()>)> registerCleanup) override;
+	virtual std::shared_ptr<tsmod::IPluginModule> FindModule(const tscrypto::tsCryptoStringBase& path) override;
+	virtual void LoadModulesOfType(const tscrypto::tsCryptoStringBase& pattern, tsmod::IReportError* log, std::function<void(std::function<bool()>)> registerCleanup) override;
+	virtual bool UseRootedPlugins() const override;
+	virtual void UseRootedPlugins(bool setTo) override;
+	virtual void TerminateAllPlugins() override;
+	virtual void LoadModuleForService(const tscrypto::tsCryptoStringBase& path, tsmod::IReportError* log, std::shared_ptr<tsmod::IServiceLocator> servLoc, std::function<void(std::function<bool()>)> registerCleanup) override;
+	virtual void LoadModulesOfTypeForService(const tscrypto::tsCryptoStringBase& pattern, tsmod::IReportError* log, std::shared_ptr<tsmod::IServiceLocator> servLoc, std::function<void(std::function<bool()>)> registerCleanup) override;
 
 	// IMakeNewInstance
-	virtual std::shared_ptr<tsmod::IObject> newInstance() const;
+	virtual std::shared_ptr<tsmod::IObject> newInstance() const override;
 private:
 	bool _useRootedPlugins;
 };
@@ -66,24 +66,22 @@ std::shared_ptr<tsmod::IObject> PluginModuleManager::newInstance() const
 	return ServiceLocator()->Finish<tsmod::IObject>(new PluginModuleManager);
 }
 
-void PluginModuleManager::LoadModule(const char *path, tsmod::IReportError* log, std::function<void(std::function<bool()>)> registerCleanup)
+void PluginModuleManager::LoadModule(const tscrypto::tsCryptoStringBase& path, tsmod::IReportError* log, std::function<void(std::function<bool()>)> registerCleanup)
 {
 	std::string dllPath;
 #ifdef _WIN32
-    char tmp[MAX_PATH + 1];
-    strcpy_s(tmp, sizeof(tmp), path);
-    tmp[sizeof(tmp) - 1] = 0;
+	tsCryptoString tmp(path);
 
-	dllPath = tmp;
+	dllPath = path.data();
 
-    _strupr_s(tmp, sizeof(tmp));
+	tmp.ToUpper();
 
-    std::string id(tmp);
+    std::string id(tmp.c_str());
 #else
-    std::string id(path);
+    std::string id(path.c_str());
 	dllPath = id;
 #endif
-	id.insert(0, "PLUGIN:");
+	id.insert(0, "PLUGIN_");
 
 	AutoWriterLock lock(*this);
 
@@ -113,24 +111,22 @@ void PluginModuleManager::LoadModule(const char *path, tsmod::IReportError* log,
 
 	ServiceLocator()->AddSingletonObject(id.c_str(), std::dynamic_pointer_cast<tsmod::IObject>(mod));
 }
-void PluginModuleManager::LoadModuleForService(const char *path, tsmod::IReportError* log, std::shared_ptr<tsmod::IServiceLocator> servLoc, std::function<void(std::function<bool()>)> registerCleanup)
+void PluginModuleManager::LoadModuleForService(const tscrypto::tsCryptoStringBase& path, tsmod::IReportError* log, std::shared_ptr<tsmod::IServiceLocator> servLoc, std::function<void(std::function<bool()>)> registerCleanup)
 {
 	std::string dllPath;
 #ifdef _WIN32
-    char tmp[MAX_PATH + 1];
-    strcpy_s(tmp, sizeof(tmp), path);
-    tmp[sizeof(tmp) - 1] = 0;
+	tsCryptoString tmp(path);
 
-	dllPath = tmp;
+	dllPath = path.data();
 
-    _strupr_s(tmp, sizeof(tmp));
+	tmp.ToUpper();
 
-    std::string id(tmp);
+	std::string id(tmp.c_str());
 #else
-    std::string id(path);
+    std::string id(path.c_str());
 	dllPath = id;
 #endif
-	id.insert(0, "PLUGIN:");
+	id.insert(0, "PLUGIN_");
 
 	AutoWriterLock lock(*this);
 
@@ -161,35 +157,35 @@ void PluginModuleManager::LoadModuleForService(const char *path, tsmod::IReportE
 	servLoc->AddSingletonObject(id.c_str(), std::dynamic_pointer_cast<tsmod::IObject>(mod));
 }
 
-std::shared_ptr<tsmod::IPluginModule> PluginModuleManager::FindModule(const char *path)
+std::shared_ptr<tsmod::IPluginModule> PluginModuleManager::FindModule(const tscrypto::tsCryptoStringBase& path)
 {
 #ifdef _WIN32
-    char tmp[MAX_PATH + 1];
-    strcpy_s(tmp, sizeof(tmp), path);
-    tmp[sizeof(tmp) - 1] = 0;
-    _strupr_s(tmp, sizeof(tmp));
+	tsCryptoString tmp(path);
 
-    std::string id(tmp);
+	tmp.ToUpper();
+
+	std::string id(tmp.c_str());
 #else
-    std::string id(path);
+    std::string id(path.c_str());
 #endif
 	std::string dllPath(id);
-	id.insert(0, "PLUGIN:");
+	id.insert(0, "PLUGIN_");
 
 	AutoReaderLock lock(*this);
 	return ServiceLocator()->try_get_instance<tsmod::IPluginModule>(id.c_str());
 }
 
-void PluginModuleManager::LoadModulesOfType(const char* pattern, tsmod::IReportError* log, std::function<void(std::function<bool()>)> registerCleanup)
+void PluginModuleManager::LoadModulesOfType(const tscrypto::tsCryptoStringBase& pattern, tsmod::IReportError* log, std::function<void(std::function<bool()>)> registerCleanup)
 {
 #ifndef ANDROID
+    tsCryptoString name;
+    
 // #ifdef _DEBUG
 // printf ("Searching for modules:  %s\n", pattern);
 // #endif
 
 	XP_FileListHandle files = xp_GetFileListHandle(pattern);
 	DWORD count;
-	tscrypto::tsCryptoString path, name, ext, tmp;
 
 	if (files == XP_FILELIST_INVALID)
 	{
@@ -201,11 +197,7 @@ void PluginModuleManager::LoadModulesOfType(const char* pattern, tsmod::IReportE
 
 	auto cleanup = finally([&files]() {xp_CloseFileList(files);});
 
-	count = xp_GetFileCount(files);
-
-	xp_SplitPath(pattern, path, name, ext);
-	if (path.size() > 0 && path[path.size() - 1] != XP_PATH_SEP_CHAR)
-		path << XP_PATH_SEP_STR;
+	count = (DWORD)xp_GetFileCount(files);
 
 	for (DWORD i = 0; i < count; i++)
 	{
@@ -214,38 +206,30 @@ void PluginModuleManager::LoadModulesOfType(const char* pattern, tsmod::IReportE
 // #ifdef _DEBUG
 // printf ("  found: %s\n", name.c_str());
 // #endif
-			tmp = path;
-			tmp << name;
-			LoadModule(tmp.c_str(), log, registerCleanup);
+			LoadModule(name.c_str(), log, registerCleanup);
 		}
 	}
 #endif // ANDROID
 }
-void PluginModuleManager::LoadModulesOfTypeForService(const char* pattern, tsmod::IReportError* log, std::shared_ptr<tsmod::IServiceLocator> servLoc, std::function<void(std::function<bool()>)> registerCleanup)
+void PluginModuleManager::LoadModulesOfTypeForService(const tscrypto::tsCryptoStringBase& pattern, tsmod::IReportError* log, std::shared_ptr<tsmod::IServiceLocator> servLoc, std::function<void(std::function<bool()>)> registerCleanup)
 {
 #ifndef ANDROID
 	XP_FileListHandle files = xp_GetFileListHandle(pattern);
 	DWORD count;
-	tscrypto::tsCryptoString path, name, ext, tmp;
+    tsCryptoString name;
 
 	if (files == XP_FILELIST_INVALID)
 		return;
 
 	auto cleanup = finally([&files]() {xp_CloseFileList(files);});
 
-	count = xp_GetFileCount(files);
-
-	xp_SplitPath(pattern, path, name, ext);
-	if (path.size() > 0 && path[path.size() - 1] != XP_PATH_SEP_CHAR)
-		path << XP_PATH_SEP_STR;
+	count = (DWORD)xp_GetFileCount(files);
 
 	for (DWORD i = 0; i < count; i++)
 	{
 		if (xp_GetFileName(files, i, name))
 		{
-			tmp = path;
-			tmp << name;
-			LoadModuleForService(tmp.c_str(), log, servLoc, registerCleanup);
+			LoadModuleForService(name.c_str(), log, servLoc, registerCleanup);
 		}
 	}
 #endif // ANDROID
@@ -269,7 +253,7 @@ tsmod::IObject* tsmod::CreatePluginModuleManager()
 void PluginModuleManager::TerminateAllPlugins()
 {
 	AutoReaderLock lock(*this);
-	tscrypto::tsCryptoStringList list = ServiceLocator()->ObjectGroup("PLUGIN:", true);
+	tscrypto::tsCryptoStringList list = ServiceLocator()->ObjectGroup("PLUGIN_", true);
 
 	for (auto name : *list)
 	{

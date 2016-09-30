@@ -37,7 +37,7 @@
 
 enum options { OPT_HELP, OPT_KEYSIZE, OPT_OUTPUT, OPT_ALGORITHM, OPT_PASSWORD, OPT_DSA_PARAMETERFILE };
 
-struct OptionList GenDhParamsOptions[] = {
+struct tsmod::OptionList GenDhParamsOptions[] = {
 	{ "", "VEIL tool gendsaparams options" },
 	{ "", "=================================" },
 	{ "--help, -h, -?", "This help information." },
@@ -57,7 +57,7 @@ CSimpleOptA::SOption genDhParamsOptionList[] =
 	SO_END_OF_OPTIONS
 };
 
-class gendhparameters : public IVeilToolCommand, public tsmod::IObject
+class gendhparameters : public tsmod::IVeilToolCommand, public tsmod::IObject
 {
 public:
 	gendhparameters()
@@ -66,12 +66,12 @@ public:
 	{}
 	
 	// tsmod::IObject
-	virtual void OnConstructionFinished()
+	virtual void OnConstructionFinished() override
 	{
-		utils = ::TopServiceLocator()->get_instance<IVeilUtilities>("VeilUtilities");
+		utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
 	}
 
-	// Inherited via IVeilToolCommand
+	// Inherited via tsmod::IVeilToolCommand
 	virtual tscrypto::tsCryptoString getDescription() const override
 	{
 		return "Generate Diffie-Hellman Parameterset";
@@ -115,7 +115,7 @@ public:
 		}
 		if (!output)
 		{
-			output = ::TopServiceLocator()->try_get_instance<IOutputCollector>("PemOutput");
+			output = ::TopServiceLocator()->try_get_instance<tsmod::IOutputCollector>("PemOutput");
 			if (!output)
 			{
 				utils->console() << BoldRed << "ERROR:  " << BoldWhite << "The specified output device is not accessible." << ::endl << ::endl;
@@ -167,7 +167,7 @@ protected:
 			Usage();
 			return 1;
 		}
-		PemDsaParameters data;
+		_POD_PemDsaParameters data;
 
 		data.set_p(params->get_prime());
 		data.set_q(params->get_subprime());
@@ -183,8 +183,8 @@ protected:
 		return output->AddOutputData(outputData, "DSA PARAMETERS", false);
 	}
 protected:
-	std::shared_ptr<IOutputCollector> output;
-	std::shared_ptr<IVeilUtilities> utils;
+	std::shared_ptr<tsmod::IOutputCollector> output;
+	std::shared_ptr<tsmod::IVeilUtilities> utils;
 };
 
 tsmod::IObject* CreateGenDsaParameters()
@@ -208,7 +208,7 @@ tsmod::IObject* CreateGenDsaParameters()
 
 
 
-struct OptionList GenDhKeyOptions[] = {
+struct tsmod::OptionList GenDhKeyOptions[] = {
 	{ "", "VEIL tool gendsa options" },
 	{ "", "=================================" },
 	{ "--help, -h, -?", "This help information." },
@@ -237,7 +237,7 @@ CSimpleOptA::SOption genDhKeyOptionList[] =
 
 	SO_END_OF_OPTIONS
 };
-class gendhkey : public IVeilToolCommand, public tsmod::IObject
+class gendhkey : public tsmod::IVeilToolCommand, public tsmod::IObject
 {
 public:
 	gendhkey()
@@ -246,12 +246,12 @@ public:
 	{}
 
 	// tsmod::IObject
-	virtual void OnConstructionFinished()
+	virtual void OnConstructionFinished() override
 	{
-		utils = ::TopServiceLocator()->get_instance<IVeilUtilities>("VeilUtilities");
+		utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
 	}
 
-	// Inherited via IVeilToolCommand
+	// Inherited via tsmod::IVeilToolCommand
 	virtual tscrypto::tsCryptoString getDescription() const override
 	{
 		return "Generate Diffie-Hellman Key";
@@ -314,7 +314,7 @@ public:
 		}
 		if (!output)
 		{
-			output = ::TopServiceLocator()->try_get_instance<IOutputCollector>("PemOutput");
+			output = ::TopServiceLocator()->try_get_instance<tsmod::IOutputCollector>("PemOutput");
 			if (!output)
 			{
 				utils->console() << BoldRed << "ERROR:  " << BoldWhite << "The specified output device is not accessible." << ::endl << ::endl;
@@ -361,7 +361,7 @@ protected:
 		if (it == sections->end())
 			return false;
 
-		PemDsaParameters params;
+		_POD_PemDsaParameters params;
 
 		if (!params.Decode(it->Contents))
 		{
@@ -420,7 +420,7 @@ protected:
 			return 1;
 		}
 
-		PemDsaPrivateKey data;
+		_POD_PemDsaPrivateKey data;
 
 		data.set_p(parameters->get_prime());
 		data.set_q(parameters->get_subprime());
@@ -438,9 +438,9 @@ protected:
 		return output->AddOutputData(outputData, "DSA PRIVATE KEY", false);
 	}
 protected:
-	std::shared_ptr<IOutputCollector> output;
+	std::shared_ptr<tsmod::IOutputCollector> output;
 	tscrypto::tsCryptoString dhParameterFile;
-	std::shared_ptr<IVeilUtilities> utils;
+	std::shared_ptr<tsmod::IVeilUtilities> utils;
 };
 tsmod::IObject* CreateGenDsaKey()
 {

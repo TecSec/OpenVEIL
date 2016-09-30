@@ -33,9 +33,9 @@
  * @{
  */
 
-/*! @file xp_file.h
-* @brief This file defines the cross platform file functions.
-*/
+ /*! @file xp_file.h
+ * @brief This file defines the cross platform file functions.
+ */
 
 #if !defined(__PEM_H__)
 #define __PEM_H__
@@ -45,12 +45,21 @@
 #endif // _MSC_VER > 1000
 
 
-/**
-* \brief Represents a named binary section of a PEM encoded object
-*/
+ /**
+ * \brief Represents a named binary section of a PEM encoded object
+ */
 class VEILCORE_API TSNamedBinarySection
 {
 public:
+	static void *operator new(std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void *operator new[](std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
+	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
+
 	/**
 	* \brief Default constructor.
 	*/
@@ -82,7 +91,7 @@ public:
 	*
 	* \return A shallow copy of this object.
 	*/
-	TSNamedBinarySection& operator=(TSNamedBinarySection&& obj) { if (&obj != this) { Name = std::move(obj.Name); Contents = std::move(obj.Contents); Attributes = std::move(Attributes); } return *this; }
+	TSNamedBinarySection& operator=(TSNamedBinarySection&& obj) { if (&obj != this) { Name = std::move(obj.Name); Contents = std::move(obj.Contents); Attributes = std::move(obj.Attributes); } return *this; }
 	/**
 	* \brief Equality operator.
 	*

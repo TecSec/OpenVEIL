@@ -37,7 +37,7 @@ enum {
 
 //printf("USAGE: GetMyCTS <username> <ServerUrl>\n");
 
-static const struct OptionList options[] = {
+static const struct tsmod::OptionList options[] = {
 	{ "", "VEIL tool CTS GET options" },
 	{ "", "=================================" },
 	{ "--help, -h, -?", "This help information." },
@@ -66,7 +66,7 @@ static const CSimpleOptA::SOption g_rgOptions1[] =
 
 #define ERROR(a) utils->console() << BoldRed << "ERROR:  " << BoldWhite << a << tscrypto::endl
 
-class GetMyCtsTool : public IVeilToolCommand, public tsmod::IObject
+class GetMyCtsTool : public tsmod::IVeilToolCommand, public tsmod::IObject
 {
 public:
 	GetMyCtsTool()
@@ -75,12 +75,12 @@ public:
 	{}
 
 	// tsmod::IObject
-	virtual void OnConstructionFinished()
+	virtual void OnConstructionFinished() override
 	{
-		utils = ::TopServiceLocator()->get_instance<IVeilUtilities>("VeilUtilities");
+		utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
 	}
 
-	// Inherited via IVeilToolCommand
+	// Inherited via tsmod::IVeilToolCommand
 	virtual tscrypto::tsCryptoString getDescription() const override
 	{
 		return "Get your lastest CTS token";
@@ -290,7 +290,7 @@ protected:
 		utils->Usage(options, sizeof(options) / sizeof(options[0]));
 	}
 protected:
-	std::shared_ptr<IVeilUtilities> utils;
+	std::shared_ptr<tsmod::IVeilUtilities> utils;
 };
 
 tsmod::IObject* HIDDEN CreateGetMyCtsTool()

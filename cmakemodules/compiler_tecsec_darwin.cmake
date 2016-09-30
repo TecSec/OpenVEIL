@@ -47,10 +47,13 @@ add_definitions(-DXP_UNIX)
 ## generated .o or exe to confirm.)
 ##
 if(OSX_64BIT)
-	SET(CMAKE_OSX_ARCHITECTURES "i386;x86_64")
+	SET(CMAKE_OSX_ARCHITECTURES "x86_64")
 else()
 	SET(CMAKE_OSX_ARCHITECTURES "i386")	
 endif()
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -msse -msse4.1 -maes")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG -DDEBUG")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D_RELEASE -O3")
 
 ## These are noise for now. Hide them from the basic display in the
 ## GUI tools.

@@ -53,14 +53,14 @@ extern tsmod::IObject* CreateVeilUtilities();
 
 enum { OPT_NOAESNI, OPT_NOSSE, OPT_NOSSE2 };
 
-static const struct OptionList sysoptions[] = {
-	{ "", "VEIL system options" },
-	{ "", "=================================" },
-	{ "--no-aesni", "Disable the AES-NI instructions." },
-	{ "--no-sse", "Disable the SSE instructions." },
-	{ "--no-sse2", "Disable the SSE2 instructions." },
-	{ "", "" },
-};
+//static const struct tsmod::OptionList sysoptions[] = {
+//	{ "", "VEIL system options" },
+//	{ "", "=================================" },
+//	{ "--no-aesni", "Disable the AES-NI instructions." },
+//	{ "--no-sse", "Disable the SSE instructions." },
+//	{ "--no-sse2", "Disable the SSE2 instructions." },
+//	{ "", "" },
+//};
 
 static const CSimpleOptA::SOption sysoptionList[] =
 {
@@ -73,9 +73,8 @@ static const CSimpleOptA::SOption sysoptionList[] =
 
 int main(int argc, const char* argv[])
 {
-	int retVal = 1;
 	tscrypto::tsCryptoString cmdName;
-	std::shared_ptr<IVeilUtilities> utils;
+	std::shared_ptr<tsmod::IVeilUtilities> utils;
 
 #if defined(DEBUG) && defined(linux)
 	std::set_terminate(__gnu_cxx::__verbose_terminate_handler);
@@ -128,7 +127,7 @@ int main(int argc, const char* argv[])
 	::TopServiceLocator()->AddClass("/COMMANDS/FOLDERS", CreateFoldersTool);
 
 	// Initialize the VeilUtilities class
-	utils = ::TopServiceLocator()->get_instance<IVeilUtilities>("VeilUtilities");
+	utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
 	utils->console() << Black_Background;
 
 	// Now load any extensions
@@ -183,7 +182,7 @@ int main(int argc, const char* argv[])
 		}
 	}
 
-	std::shared_ptr<IVeilToolCommand> cmd = ::TopServiceLocator()->try_get_instance<IVeilToolCommand>(cmdName.c_str());
+	std::shared_ptr<tsmod::IVeilToolCommand> cmd = ::TopServiceLocator()->try_get_instance<tsmod::IVeilToolCommand>(cmdName.c_str());
 
 	if (!cmd)
 	{

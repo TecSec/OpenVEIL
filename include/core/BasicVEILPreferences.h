@@ -45,6 +45,18 @@ class VEILCORE_API BasicVEILPreferences : public tsJsonPreferencesBase
 {
 public:
 	static std::shared_ptr<BasicVEILPreferences> Create(JsonConfigLocation location = jc_System, JsonConfigLocation loc2 = jc_User, JsonConfigLocation loc3 = jc_Public);
+	static void *operator new(std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void *operator new[](std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+		static void operator delete(void *ptr) {
+		tscrypto::cryptoDelete(ptr);
+	}
+	static void operator delete[](void *ptr) {
+		tscrypto::cryptoDelete(ptr);
+	}
 
 protected:
 	/// <summary>Default constructor.</summary>
@@ -118,7 +130,7 @@ protected:
 	///
 	/// <returns>true if it succeeds, false if it fails.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual bool saveConfigurationChangesForLocation(JsonConfigLocation location){MY_UNREFERENCED_PARAMETER(location); return true;}
+	virtual bool saveConfigurationChangesForLocation(JsonConfigLocation location) { MY_UNREFERENCED_PARAMETER(location); return true; }
 	//virtual bool saveConfigurationChangesForLocation(JsonConfigLocation location);
 	/**
 	 * \brief Loads configuration values for the specified location.
@@ -128,7 +140,7 @@ protected:
 	 *
 	 * \return true if it succeeds, false if it fails.
 	 */
-	virtual bool loadValuesForLocation(JsonConfigLocation location, const tscrypto::JSONObject &config) {MY_UNREFERENCED_PARAMETER(location); MY_UNREFERENCED_PARAMETER(config); return true; }
+	virtual bool loadValuesForLocation(JsonConfigLocation location, const tscrypto::JSONObject &config) { MY_UNREFERENCED_PARAMETER(location); MY_UNREFERENCED_PARAMETER(config); return true; }
 	//virtual bool loadValuesForLocation(JsonConfigLocation location, const tscrypto::JSONObject &config);
 	/**
 	 * \brief Determines if we can use entries.

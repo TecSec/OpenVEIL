@@ -51,7 +51,7 @@ protected:
 	uint32_t m_lRefCount;
 };
 
-bool CreatePropertyChangedEventArgs(const tscrypto::tsCryptoString& propertyName, std::shared_ptr<IPropertyChangedEventArgs>& pVal)
+bool CreatePropertyChangedEventArgs(const tscrypto::tsCryptoStringBase& propertyName, std::shared_ptr<IPropertyChangedEventArgs>& pVal)
 {
 	pVal = ::TopServiceLocator()->Finish<IPropertyChangedEventArgs>(new PropertyChangedEventArgs(propertyName));
 	return !!pVal;

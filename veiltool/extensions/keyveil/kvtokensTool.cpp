@@ -33,6 +33,6 @@
 
 tsmod::IObject* CreateKvTokensTool()
 {
-	std::shared_ptr<IVeilUtilities> utils = ::TopServiceLocator()->get_instance<IVeilUtilities>("VeilUtilities");
+	std::shared_ptr<tsmod::IVeilUtilities> utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
 	return utils->buildCommandMenu("Perform token operations", "/KVTOKEN-COMMANDS/", "token", "TOKEN");
 }

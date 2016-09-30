@@ -553,6 +553,8 @@ bool tsJsonPreferencesBase::saveConfigurationChanges()
 	case jc_User:
 		retVal = saveConfigurationChanges(jc_User) & retVal;
 		break;
+    default:
+        break;
 	}
 
 	if (SecondLocation() != jc_NotFound)
@@ -585,7 +587,7 @@ bool tsJsonPreferencesBase::areValuesLoaded() const
 	return m_valuesLoaded;
 }
 
-bool tsJsonPreferencesBase::OverwriteEntry(const tscrypto::tsCryptoString &entryName, JsonConfigLocation currentLocation, JsonConfigLocation newLocation) const
+bool tsJsonPreferencesBase::OverwriteEntry(const tscrypto::tsCryptoStringBase &entryName, JsonConfigLocation currentLocation, JsonConfigLocation newLocation) const
 {
 	MY_UNREFERENCED_PARAMETER(entryName);
 
@@ -619,7 +621,7 @@ JsonPreferenceItem tsJsonPreferencesBase::getPreferenceItem(int index) const
 	return _preferenceItems->at(index);
 }
 
-JsonPreferenceItem tsJsonPreferencesBase::findPreferenceItem(const tscrypto::tsCryptoString &path) const
+JsonPreferenceItem tsJsonPreferencesBase::findPreferenceItem(const tscrypto::tsCryptoStringBase &path) const
 {
 	int count = getPreferenceItemCount();
 
@@ -690,7 +692,7 @@ bool tsJsonPreferencesBase::loadPreferencesForLocation(JsonConfigLocation locati
 	return true;
 }
 
-bool tsJsonPreferencesBase::buildAndTestPath(JsonConfigLocation location, const tscrypto::tsCryptoString &appName, tscrypto::tsCryptoString &pathStr)
+bool tsJsonPreferencesBase::buildAndTestPath(JsonConfigLocation location, const tscrypto::tsCryptoStringBase &appName, tscrypto::tsCryptoStringBase &pathStr)
 {
 	tscrypto::tsCryptoString path;
 
@@ -765,7 +767,7 @@ bool tsJsonPreferencesBase::buildAndTestPath(JsonConfigLocation location, const 
 	return (xp_FileExists(path) != FALSE);
 }
 
-JsonConfigLocation tsJsonPreferencesBase::configExistsHere(const tscrypto::tsCryptoString &appName, JsonConfigLocation location)
+JsonConfigLocation tsJsonPreferencesBase::configExistsHere(const tscrypto::tsCryptoStringBase &appName, JsonConfigLocation location)
 {
 	tscrypto::tsCryptoString path;
 
@@ -797,7 +799,7 @@ JsonConfigLocation tsJsonPreferencesBase::configExistsHere(const tscrypto::tsCry
 	return jc_NotFound;
 }
 
-tscrypto::tsCryptoString tsJsonPreferencesBase::filePath(const tscrypto::tsCryptoString &appName, JsonConfigLocation location)
+tscrypto::tsCryptoString tsJsonPreferencesBase::filePath(const tscrypto::tsCryptoStringBase &appName, JsonConfigLocation location)
 {
 	tscrypto::tsCryptoString path;
 
@@ -825,7 +827,7 @@ tscrypto::tsCryptoString tsJsonPreferencesBase::filePath(const tscrypto::tsCrypt
 	return path;
 }
 
-JSONObject tsJsonPreferencesBase::ReadJSONObject(const tscrypto::tsCryptoString& configName, JsonConfigLocation location)
+JSONObject tsJsonPreferencesBase::ReadJSONObject(const tscrypto::tsCryptoStringBase& configName, JsonConfigLocation location)
 {
 	JSONObject tmp;
 	tscrypto::tsCryptoData contents;
@@ -853,6 +855,8 @@ JSONObject tsJsonPreferencesBase::ReadJSONObject(const tscrypto::tsCryptoString&
 		case jc_ModuleFolder:
 			buildAndTestPath(jc_ModuleFolder, configName, path);
 			break;
+        default:
+            break;
 		}
 	}
 	else
@@ -939,7 +943,7 @@ JSONObject tsJsonPreferencesBase::ReadJSONObject(const tscrypto::tsCryptoString&
 	}
 	return tmp;
 }
-bool tsJsonPreferencesBase::WriteJSONObject(const tscrypto::tsCryptoString& configName, JsonConfigLocation location, const JSONObject& obj)
+bool tsJsonPreferencesBase::WriteJSONObject(const tscrypto::tsCryptoStringBase& configName, JsonConfigLocation location, const JSONObject& obj)
 {
 	tscrypto::tsCryptoString path;
 
@@ -968,7 +972,7 @@ bool tsJsonPreferencesBase::WriteJSONObject(const tscrypto::tsCryptoString& conf
 	return xp_WriteText(path, obj.ToJSON());
 }
 
-void tsJsonPreferencesBase::ReadValueAsBool(JsonConfigLocation& loc, bool& value, const char *name, const JSONObject& config, JsonConfigLocation lookingAtLoc, bool defaultValue)
+void tsJsonPreferencesBase::ReadValueAsBool(JsonConfigLocation& loc, bool& value, const tscrypto::tsCryptoStringBase& name, const JSONObject& config, JsonConfigLocation lookingAtLoc, bool defaultValue)
 {
 	if (loc == jc_Policy)
 		return;
@@ -982,7 +986,7 @@ void tsJsonPreferencesBase::ReadValueAsBool(JsonConfigLocation& loc, bool& value
 	value = (reinterpret_cast<const JSONField*>(item))->AsBool(defaultValue);
 }
 
-void tsJsonPreferencesBase::ReadValueAsInt(JsonConfigLocation& loc, int& value, const char *name, const JSONObject& config, JsonConfigLocation lookingAtLoc, int defaultValue)
+void tsJsonPreferencesBase::ReadValueAsInt(JsonConfigLocation& loc, int& value, const tscrypto::tsCryptoStringBase& name, const JSONObject& config, JsonConfigLocation lookingAtLoc, int defaultValue)
 {
 	if (loc == jc_Policy)
 		return;
@@ -995,7 +999,7 @@ void tsJsonPreferencesBase::ReadValueAsInt(JsonConfigLocation& loc, int& value, 
 	loc = lookingAtLoc;
 	value = (int)(reinterpret_cast<const JSONField*>(item))->AsNumber(defaultValue);
 }
-void tsJsonPreferencesBase::ReadValueAsText(JsonConfigLocation& loc, tscrypto::tsCryptoString& value, const char *name, const JSONObject& config, JsonConfigLocation lookingAtLoc)
+void tsJsonPreferencesBase::ReadValueAsText(JsonConfigLocation& loc, tscrypto::tsCryptoStringBase& value, const tscrypto::tsCryptoStringBase& name, const JSONObject& config, JsonConfigLocation lookingAtLoc)
 {
 	if (loc == jc_Policy)
 		return;
@@ -1008,7 +1012,7 @@ void tsJsonPreferencesBase::ReadValueAsText(JsonConfigLocation& loc, tscrypto::t
 }
 
 
-bool tsJsonPreferencesBase::SaveBoolValue(JsonConfigLocation &loc, bool& value, const char* name, JSONObject& config, JsonConfigLocation locationToProcess)
+bool tsJsonPreferencesBase::SaveBoolValue(JsonConfigLocation &loc, bool& value, const tscrypto::tsCryptoStringBase& name, JSONObject& config, JsonConfigLocation locationToProcess)
 {
 	if (loc == locationToProcess)
 	{
@@ -1021,7 +1025,7 @@ bool tsJsonPreferencesBase::SaveBoolValue(JsonConfigLocation &loc, bool& value, 
 	return true;
 }
 
-bool tsJsonPreferencesBase::SaveIntValue(JsonConfigLocation &loc, int& value, const char* name, JSONObject& config, JsonConfigLocation locationToProcess)
+bool tsJsonPreferencesBase::SaveIntValue(JsonConfigLocation &loc, int& value, const tscrypto::tsCryptoStringBase&name, JSONObject& config, JsonConfigLocation locationToProcess)
 {
 	if (loc == locationToProcess)
 	{
@@ -1034,7 +1038,7 @@ bool tsJsonPreferencesBase::SaveIntValue(JsonConfigLocation &loc, int& value, co
 	return true;
 }
 
-bool tsJsonPreferencesBase::SaveTextValue(JsonConfigLocation &loc, tscrypto::tsCryptoString& value, const char* name, JSONObject& config, JsonConfigLocation locationToProcess)
+bool tsJsonPreferencesBase::SaveTextValue(JsonConfigLocation &loc, tscrypto::tsCryptoStringBase& value, const tscrypto::tsCryptoStringBase& name, JSONObject& config, JsonConfigLocation locationToProcess)
 {
 	if (loc == locationToProcess)
 	{
@@ -1077,9 +1081,9 @@ bool tsJsonPreferencesBase::SaveTextValue(JsonConfigLocation &loc, tscrypto::tsC
 }
 
 #pragma region SimpleJsonDebugPreferences
-SimpleJsonDebugPreferences::SimpleJsonDebugPreferences(const tscrypto::tsCryptoString& configFileName, const char *root, JsonConfigLocation loc1, JsonConfigLocation loc2, JsonConfigLocation loc3) :
-_configName(configFileName),
+SimpleJsonDebugPreferences::SimpleJsonDebugPreferences(const tscrypto::tsCryptoStringBase& configFileName, const tscrypto::tsCryptoStringBase& root, JsonConfigLocation loc1, JsonConfigLocation loc2, JsonConfigLocation loc3) :
 tsJsonPreferencesBase(loc1),
+_configName(configFileName),
 _root(root)
 {
 	if (loc2 != jc_NotFound)
@@ -1118,7 +1122,7 @@ tscrypto::tsCryptoString SimpleJsonDebugPreferences::GetDebugSettingsName()
 
 DEFINE_TEXT_PREF_CODE(SimpleJsonDebugPreferences, GetDebugSettingsName(), Debug, "")
 
-std::shared_ptr<tsJsonPreferencesBase> SimpleJsonDebugPreferences::Create(const tscrypto::tsCryptoString& configFileName, const char *root, JsonConfigLocation loc1, JsonConfigLocation loc2, JsonConfigLocation loc3)
+std::shared_ptr<tsJsonPreferencesBase> SimpleJsonDebugPreferences::Create(const tscrypto::tsCryptoStringBase& configFileName, const tscrypto::tsCryptoStringBase& root, JsonConfigLocation loc1, JsonConfigLocation loc2, JsonConfigLocation loc3)
 {
 	std::shared_ptr<tsJsonPreferencesBase> obj = std::shared_ptr<tsJsonPreferencesBase>(new SimpleJsonDebugPreferences(configFileName, root, loc1, loc2, loc3));
 

@@ -21,9 +21,11 @@
 
 #ifndef __STRNICMP_LOCAL
 #ifdef WIN32
-#define __STRNICMP_LOCAL strnicmp
+#define __STRNICMP_LOCAL _strnicmp
+#define TsStrCat(a,b,c) strcat_s(a,b,c)
 #else
 #define __STRNICMP_LOCAL strncasecmp
+#define TsStrCat(a,b,c) strcat(a,c)
 #endif
 #endif
 
@@ -140,10 +142,10 @@ int main( int argc, char **argv )
 				fprintf(stderr,"Command line too long.\n");
 				return 2;
 			}
-			strcat( abCommandLine, argv[n] );
+			TsStrCat( abCommandLine, sizeof(abCommandLine),  argv[n] );
 			if( n != argc - 1 && nMode != 1 )
 			{
-				strcat( abCommandLine, "." );
+				TsStrCat( abCommandLine, sizeof(abCommandLine), "." );
 			}
 		}
 		n++;
@@ -151,9 +153,16 @@ int main( int argc, char **argv )
 
 	if( fInName != NULL && nMode == 1 )
 	{
-		FILE *fIn = fopen( fInName, "rb" );
+		FILE *fIn = nullptr;
+		
+#ifdef _WIN32
+		if (fopen_s(&fIn, fInName, "rb") != 0)
+			fIn = nullptr;
+#else
+		fIn = fopen(fInName, "rb");
+#endif
 		size_t nRead = 0;
-		if( fIn == NULL )
+		if( fIn == nullptr )
 		{
 			fprintf(stderr,"Unable to open input file %s.\n", fInName );
 			return 11;
@@ -164,8 +173,15 @@ int main( int argc, char **argv )
 	}
 	else if( fInName != NULL && nMode == 0 )
 	{
-		FILE *fIn = fopen( fInName, "rt" );
-		if( fIn == NULL )
+		FILE *fIn = nullptr;
+
+#ifdef _WIN32
+		if (fopen_s(&fIn, fInName, "rt") != 0)
+			fIn = nullptr;
+#else
+		fIn = fopen(fInName, "rt");
+#endif
+		if( fIn == nullptr )
 		{
 			fprintf(stderr,"Unable to open input file %s.\n", fInName );
 			return 11;
@@ -257,7 +273,12 @@ int main( int argc, char **argv )
 
 		if( fOutName != NULL )
 		{
-			fOut = fopen( fOutName, "wt" );
+#ifdef _WIN32
+			if (fopen_s(&fOut, fOutName, "wt") != 0)
+				fOut = nullptr;
+#else
+			fOut = fopen(fOutName, "wt");
+#endif
 			if( fOut == NULL )
 			{
 				fprintf(stderr,"Unable to open output file %s\n", fOutName );
@@ -438,10 +459,16 @@ int main( int argc, char **argv )
 			n++;
 		}
 
-		if( fOutName != NULL )
+		if( fOutName != nullptr )
 		{
-			fOut = fopen( fOutName, "wt" );
-			if( fOut == NULL )
+#ifdef _WIN32
+			if (fopen_s(&fOut, fOutName, "wt") != 0)
+				fOut = nullptr;
+#else
+			fOut = fopen(fOutName, "wt");
+#endif
+
+			if( fOut == nullptr )
 			{
 				fprintf(stderr,"Unable to open output file %s\n", fOutName );
 				return 33;

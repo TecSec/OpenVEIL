@@ -42,42 +42,42 @@ public:
 	HttpHeader();
 	~HttpHeader(void);
 
-	virtual const tscrypto::tsCryptoString &Errors()const;
-	virtual void ClearErrors();
-	virtual tscrypto::tsCryptoString status() const;
-	virtual tscrypto::tsCryptoString reason() const;
-	virtual tscrypto::tsCryptoString version() const;
-	virtual size_t dataPartSize() const;
-	virtual const tscrypto::tsCryptoData& dataPart() const;
-	virtual void dataPart(const tscrypto::tsCryptoString& setTo);
-	virtual void dataPart(const tscrypto::tsCryptoData& setTo);
-	virtual WORD errorCode() const;
-	virtual void errorCode(WORD setTo);
-	virtual size_t attributeCount() const
+	virtual const tscrypto::tsCryptoString &Errors()const override;
+	virtual void ClearErrors() override;
+	virtual tscrypto::tsCryptoString status() const override;
+	virtual tscrypto::tsCryptoString reason() const override;
+	virtual tscrypto::tsCryptoString version() const override;
+	virtual size_t dataPartSize() const override;
+	virtual const tscrypto::tsCryptoData& dataPart() const override;
+	virtual void dataPart(const tscrypto::tsCryptoString& setTo) override;
+	virtual void dataPart(const tscrypto::tsCryptoData& setTo) override;
+	virtual WORD errorCode() const override;
+	virtual void errorCode(WORD setTo) override;
+	virtual size_t attributeCount() const override
 	{
 		return m_attributes.size();
 	}
-	virtual const HttpAttribute* attribute(size_t index) const
+	virtual const HttpAttribute* attribute(size_t index) const override
 	{
 		if (index >= attributeCount())
 			return nullptr;
 		return &m_attributes[index];
 	}
-	virtual const HttpAttribute* attributeByName(const tscrypto::tsCryptoString& index) const
+	virtual const HttpAttribute* attributeByName(const tscrypto::tsCryptoStringBase& index) const override
 	{
 		return attributeByName(index.c_str());
 	}
-	virtual const HttpAttribute* attributeByName(const char *index) const
+	virtual const HttpAttribute* attributeByName(const char *index) const override
 	{
 		auto it = std::find_if(m_attributes.begin(), m_attributes.end(), [&index](const HttpAttribute& attr)->bool{ return TsStriCmp(index, attr.m_Name) == 0; });
 		if (it == m_attributes.end())
 			return nullptr;
 		return &*it;
 	}
-	virtual tscrypto::tsCryptoData recreateResponse() const;
+	virtual tscrypto::tsCryptoData recreateResponse() const override;
 
-	virtual ReadCode ReadStream(SOCKET msgsock, const tscrypto::tsCryptoData& leadin, std::shared_ptr<IHttpChannelProcessor>& processor);
-	virtual void clear();
+	virtual ReadCode ReadStream(SOCKET msgsock, const tscrypto::tsCryptoData& leadin, std::shared_ptr<IHttpChannelProcessor>& processor) override;
+	virtual void clear() override;
 
 private:
 	typedef enum {

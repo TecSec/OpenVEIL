@@ -51,10 +51,12 @@ set(CppSources
 	genx25519.cpp
 	)
 
-CopyImportTargetBinariesToBuildFolder(VEILCryptoCore ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${TS_VS_CONFIG})
-if(TARGET VEILEnhancedCrypto)
+if(NOT APPLE)
+	CopyImportTargetBinariesToBuildFolder(VEILCryptoCore ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${TS_VS_CONFIG})
+	if(TARGET VEILEnhancedCrypto)
 	CopyImportTargetBinariesToBuildFolder(VEILEnhancedCrypto ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${TS_VS_CONFIG})
-endif(TARGET VEILEnhancedCrypto)
+	endif(TARGET VEILEnhancedCrypto)
+endif()
 
 add_executable(veiltool 
 	targetver.h 

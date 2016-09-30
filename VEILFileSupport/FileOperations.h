@@ -64,7 +64,7 @@ public:
     virtual bool RecoverKeys(const tscrypto::tsCryptoString& inputFile, FileVEILFileOp_recoveredKeyList& keys) override;
 	virtual bool DecryptCryptoData(const tscrypto::tsCryptoData &inputData, tscrypto::tsCryptoData &outputData) override;
 	virtual bool DecryptCryptoDataWithHeader(const tscrypto::tsCryptoData &inputData, tscrypto::tsCryptoData &outputData, std::shared_ptr<ICmsHeaderBase>& header) override;
-	virtual bool  DataStartsWithCmsHeader(const tscrypto::tsCryptoData& contents, std::shared_ptr<ICmsHeaderBase>& pVal);
+	virtual bool  DataStartsWithCmsHeader(const tscrypto::tsCryptoData& contents, std::shared_ptr<ICmsHeaderBase>& pVal) override;
 
 private:
 	virtual ~FileVEILOperationsImpl();

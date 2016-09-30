@@ -60,7 +60,7 @@ public:
      * \param name  true to link to master loggers.
      * \param level The debug level for this stream.
      */
-    tsDebugStream(const tscrypto::tsCryptoString& name, int level);
+    tsDebugStream(const tscrypto::tsCryptoStringBase& name, int level);
     /// <summary>Destructor.</summary>
     ~tsDebugStream(void);
 
@@ -91,7 +91,7 @@ public:
     ///
     /// <returns>A reference to this object.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual tsDebugStream &setPrefix(const tscrypto::tsCryptoString& prfx)
+    virtual tsDebugStream &setPrefix(const tscrypto::tsCryptoStringBase& prfx)
 	{
 		DBOUT( tsTraceStream::setPrefix(prfx); )
 		RELOUT( UNREFERENCED_PARAMETER(prfx); )
@@ -348,7 +348,7 @@ public:
     /// <param name="strm">[in,out] The stream.</param>
     /// <param name="name">The name of this section.</param>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    tsDebugStreamSection(tsDebugStream &strm, const tscrypto::tsCryptoString& name) :
+    tsDebugStreamSection(tsDebugStream &strm, const tscrypto::tsCryptoStringBase& name) :
         m_stream(strm),
         m_name(name)
     {

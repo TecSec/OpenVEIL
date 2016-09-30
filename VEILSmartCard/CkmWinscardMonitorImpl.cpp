@@ -92,7 +92,7 @@ int CkmWinscardMonitorImpl::RegisterChangeReceiver(std::shared_ptr<ICkmWinscardC
 	cs.func = pObj;
 	cs.id = InterlockedIncrement(&gNextChangeStruct);
 	{
-		tscrypto::AutoLocker lock(m_notifierListLock);
+		TSAUTOLOCKER lock(m_notifierListLock);
 		m_notifiers.push_back(cs);
 		registerConsumer = (m_notifiers.size() == 1);
 	}
@@ -109,7 +109,7 @@ bool CkmWinscardMonitorImpl::UnregisterChangeReceiver(int cookie)
 	if (cookie == 0)
 		return true;
 
-	tscrypto::AutoLocker lock(m_notifierListLock);
+	TSAUTOLOCKER lock(m_notifierListLock);
 	m_notifiers.erase(std::remove_if(m_notifiers.begin(), m_notifiers.end(), [cookie](ChangeStruct& obj)->bool { return obj.id == cookie; }), m_notifiers.end());
 	if (_cookie != 0 && m_notifiers.size() == 0)
 	{
@@ -153,7 +153,7 @@ void CkmWinscardMonitorImpl::ReaderAdded(const tscrypto::tsCryptoString& readerN
 	std::vector<ChangeStruct> tmpList;
 
 	{
-		tscrypto::AutoLocker lock(m_notifierListLock);
+		TSAUTOLOCKER lock(m_notifierListLock);
 		tmpList = m_notifiers;
 	}
 
@@ -168,7 +168,7 @@ void CkmWinscardMonitorImpl::ReaderRemoved(const tscrypto::tsCryptoString& reade
 	std::vector<ChangeStruct> tmpList;
 
 	{
-		tscrypto::AutoLocker lock(m_notifierListLock);
+		TSAUTOLOCKER lock(m_notifierListLock);
 		tmpList = m_notifiers;
 	}
 
@@ -183,7 +183,7 @@ void CkmWinscardMonitorImpl::CardInserted(const tscrypto::tsCryptoString& reader
 	std::vector<ChangeStruct> tmpList;
 
 	{
-		tscrypto::AutoLocker lock(m_notifierListLock);
+		TSAUTOLOCKER lock(m_notifierListLock);
 		tmpList = m_notifiers;
 	}
 
@@ -198,7 +198,7 @@ void CkmWinscardMonitorImpl::CardRemoved(const tscrypto::tsCryptoString& readerN
 	std::vector<ChangeStruct> tmpList;
 
 	{
-		tscrypto::AutoLocker lock(m_notifierListLock);
+		TSAUTOLOCKER lock(m_notifierListLock);
 		tmpList = m_notifiers;
 	}
 

@@ -197,7 +197,7 @@ class tsLogToFile : public tsLogOutput
 {
 public:
 	tsLogToFile() :
-		_firstInit(true),
+		//_firstInit(true),
 	    _file(XP_FILE_INVALID)
 	{
 	}
@@ -212,7 +212,7 @@ public:
 		if (_file == XP_FILE_INVALID)
 			return;
 
-		tscrypto::AutoLocker locker(_lock);
+		TSAUTOLOCKER locker(_lock);
 
 		uint32_t count;
 		tscrypto::tsCryptoString tmp(msg);
@@ -275,7 +275,7 @@ public:
 	}
 private:
 	tscrypto::tsCryptoString _filename;
-	bool _firstInit;
+	//bool _firstInit;
 	XP_FILE _file;
 	tscrypto::AutoCriticalSection _lock;
 };
@@ -288,7 +288,7 @@ public:
 		tscrypto::tsCryptoString thread;
 		tscrypto::tsCryptoString time;
 		tscrypto::tsCryptoString timestamp;
-		DWORD threadId;
+		tsThreadIdType threadId;
 
 #ifdef HAVE_WINDOWS_H
 		threadId = GetCurrentThreadId();
@@ -297,7 +297,7 @@ public:
 #else
         threadId = gettid();
 #endif
-		thread.Format("t%08x", threadId);
+		thread.Format("t%08x", (DWORD)(intptr_t)threadId);
 		time.Format("%16llx", highResClock());
 		timestamp = tscrypto::tsCryptoDate::Now().ToLocal().ToString();
 
@@ -358,7 +358,7 @@ void tsLogOutput::WriteToLog(const char *loggerName, int level, const char *msg)
 	tscrypto::tsCryptoString thread;
 	tscrypto::tsCryptoString time;
 	tscrypto::tsCryptoString timestamp;
-    DWORD threadId;
+    tsThreadIdType threadId;
 
 	Configure();
 #ifdef HAVE_WINDOWS_H
@@ -368,7 +368,7 @@ void tsLogOutput::WriteToLog(const char *loggerName, int level, const char *msg)
 #else
     threadId = gettid();
 #endif
-	thread.Format("t%08x", threadId);
+	thread.Format("t%08x", (DWORD)(intptr_t)threadId);
 
 	tscrypto::tsCryptoString tmpMsg;
 	tmpMsg << IndentData() << msg;
@@ -531,7 +531,7 @@ void tsLog::RegisterLoggerCreator(const char *typeName, std::function<tsLogOutpu
 	::Configure();
 	UnregisterLoggerCreator(typeName);
 
-	tscrypto::AutoLocker locker(tsLogConfig->_lock);
+	TSAUTOLOCKER locker(tsLogConfig->_lock);
 	tsLogConfig->_loggerCreators.push_back(std::shared_ptr<tsLogOutputCreator>(new tsLogOutputCreator(typeName, creator)));
 }
 #endif
@@ -541,14 +541,14 @@ void tsLog::RegisterLoggerCreator(const char *typeName, tsLogOutput *(*creator)(
 	::Configure();
 	UnregisterLoggerCreator(typeName);
 
-	tscrypto::AutoLocker locker(tsLogConfig->_lock);
+	TSAUTOLOCKER locker(tsLogConfig->_lock);
 	tsLogConfig->_loggerCreators.push_back(std::shared_ptr<tsLogOutputCreator>(new tsLogOutputCreator(typeName, creator)));
 }
 
 void tsLog::UnregisterLoggerCreator(const char *typeName)
 {
 	::Configure();
-	tscrypto::AutoLocker locker(tsLogConfig->_lock);
+	TSAUTOLOCKER locker(tsLogConfig->_lock);
 	auto it = std::find_if(tsLogConfig->_loggerCreators.begin(), tsLogConfig->_loggerCreators.end(), [typeName](std::shared_ptr<tsLogOutputCreator> &creator) { return (TsStriCmp(creator->getTypeName(), typeName) == 0); });
 	if (it != tsLogConfig->_loggerCreators.end())
 		tsLogConfig->_loggerCreators.erase(it);
@@ -557,7 +557,7 @@ void tsLog::UnregisterLoggerCreator(const char *typeName)
 void tsLog::UnregisterAllLoggerCreators()
 {
 	::Configure();
-	tscrypto::AutoLocker locker(tsLogConfig->_lock);
+	TSAUTOLOCKER locker(tsLogConfig->_lock);
 
 	tsLogConfig->_loggerCreators.clear();
 }
@@ -567,12 +567,12 @@ void tsLog::WriteToLog(const char *loggerName, int level, const char *msg)
 	if (!WillLog(loggerName, level))
 		return;
 	::Configure();
-	tscrypto::AutoLocker locker(tsLogConfig->_lock);
+	TSAUTOLOCKER locker(tsLogConfig->_lock);
 	if (tsLogConfig->_loggers.size() == 0)
 	{
 		return;
 	}
-	std::vector<std::shared_ptr<tsLogMap> >::iterator mapIter = std::find_if(tsLogConfig->_maps.begin(), tsLogConfig->_maps.end(), [&](std::shared_ptr<tsLogMap> &map) ->bool {
+	std::find_if(tsLogConfig->_maps.begin(), tsLogConfig->_maps.end(), [&](std::shared_ptr<tsLogMap> &map) ->bool {
 		std::shared_ptr<tsLogOutput> outputter;
 
 		if (!map->UseThisOne(loggerName, level))
@@ -617,7 +617,7 @@ void tsLog::WriteToLog(const char *loggerName, int level, const char *msg)
 void tsLog::CreateDefaultLoggerCreators()
 {
 	::Configure();
-	tscrypto::AutoLocker locker(tsLogConfig->_lock);
+	TSAUTOLOCKER locker(tsLogConfig->_lock);
 	if (tsLogConfig->_loggerCreators.size() == 0)
 	{
 		tsLogConfig->_loggerCreators.push_back(std::shared_ptr<tsLogOutputCreator>(new tsLogOutputCreator("DebugString",
@@ -703,7 +703,7 @@ void tsLog::ConfigureMaps(std::shared_ptr<tsXmlNode> mapsNode)
 	::Configure();
 	if (!!mapsNode)
 	{
-		tscrypto::AutoLocker locker(tsLogConfig->_lock);
+		TSAUTOLOCKER locker(tsLogConfig->_lock);
 		tscrypto::tsCryptoString Results;
 
 		tsLogConfig->_maps.clear();
@@ -715,7 +715,7 @@ void tsLog::ConfigureMaps(std::shared_ptr<tsXmlNode> mapsNode)
 void tsLog::ConfigureOutputs(const tscrypto::tsCryptoString &outputsXml)
 {
 	::Configure();
-	tscrypto::AutoLocker locker(tsLogConfig->_lock);
+	TSAUTOLOCKER locker(tsLogConfig->_lock);
 
 	if (outputsXml.size() > 0)
 	{
@@ -734,7 +734,7 @@ void tsLog::ConfigureOutputs(std::shared_ptr<tsXmlNode> outputsNode)
 	CreateDefaultLoggerCreators();
 
 	::Configure();
-	tscrypto::AutoLocker locker(tsLogConfig->_lock);
+	TSAUTOLOCKER locker(tsLogConfig->_lock);
 
 	if (outputsNode != nullptr)
 	{
@@ -839,7 +839,7 @@ void tsLog::SetApplicationJsonPreferences(std::shared_ptr<tsJsonPreferencesBase>
 }
 std::shared_ptr<tsJsonPreferencesBase> tsLog::GetApplicationJsonPreferences() { ::Configure(); return tsLogConfig->_JsonPrefs; }
 
-void tsLog::ConfigureJson(const tscrypto::tsCryptoString &json)
+void tsLog::ConfigureJson(const tscrypto::tsCryptoStringBase &json)
 {
 	JSONObject node;
 
@@ -873,7 +873,7 @@ void tsLog::ConfigureJson(const tscrypto::tsCryptoString &json)
 	}
 }
 
-void tsLog::ConfigureJsonMaps(const tscrypto::tsCryptoString &mapJson)
+void tsLog::ConfigureJsonMaps(const tscrypto::tsCryptoStringBase &mapJson)
 {
 	::Configure();
 	if (mapJson.size() > 0)
@@ -890,7 +890,7 @@ void tsLog::ConfigureJsonMaps(const tscrypto::tsCryptoString &mapJson)
 void tsLog::ConfigureMaps(const JSONField& mapsNode)
 {
 	::Configure();
-	tscrypto::AutoLocker locker(tsLogConfig->_lock);
+	TSAUTOLOCKER locker(tsLogConfig->_lock);
 	tscrypto::tsCryptoString Results;
 
 	if (mapsNode.Type() != JSONField::jsonArray)
@@ -906,10 +906,10 @@ void tsLog::ConfigureMaps(const JSONField& mapsNode)
 	});
 }
 
-void tsLog::ConfigureJsonOutputs(const tscrypto::tsCryptoString &outputsJson)
+void tsLog::ConfigureJsonOutputs(const tscrypto::tsCryptoStringBase &outputsJson)
 {
 	::Configure();
-	tscrypto::AutoLocker locker(tsLogConfig->_lock);
+	TSAUTOLOCKER locker(tsLogConfig->_lock);
 
 	if (outputsJson.size() > 0)
 	{
@@ -927,7 +927,7 @@ void tsLog::ConfigureOutputs(const JSONField& outputsNode)
 	CreateDefaultLoggerCreators();
 
 	::Configure();
-	tscrypto::AutoLocker locker(tsLogConfig->_lock);
+	TSAUTOLOCKER locker(tsLogConfig->_lock);
 
 	tscrypto::tsCryptoString Results;
 
@@ -973,7 +973,7 @@ void tsLog::ConfigureOutputs(const JSONField& outputsNode)
 	}
 }
 
-void tsLog::ConfigureJsonBlacklist(const tscrypto::tsCryptoString &listJson)
+void tsLog::ConfigureJsonBlacklist(const tscrypto::tsCryptoStringBase &listJson)
 {
 	if (listJson.size() > 0)
 	{
@@ -991,7 +991,7 @@ void tsLog::ConfigureBlacklist(const JSONField& listNode)
 	DisallowLogs(listNode.AsString().c_str());
 }
 
-void tsLog::ConfigureJsonWhitelist(const tscrypto::tsCryptoString &listJson)
+void tsLog::ConfigureJsonWhitelist(const tscrypto::tsCryptoStringBase &listJson)
 {
 	if (listJson.size() > 0)
 	{
@@ -1076,7 +1076,7 @@ void tsLog::ClearMasterConsumers()
 	tsLogConfig->m_consumerList.clear();
 }
 
-void tsLog::WriteToConsumers(const tscrypto::tsCryptoString &category, int priority, const tscrypto::tsCryptoString &message)
+void tsLog::WriteToConsumers(const tscrypto::tsCryptoStringBase &category, int priority, const tscrypto::tsCryptoStringBase &message)
 {
 	::Configure();
 	for (size_t i = 0; i < tsLogConfig->m_consumerList.size(); i++)
@@ -1098,7 +1098,7 @@ void tsLog::WriteToConsumers(const tscrypto::tsCryptoString &category, int prior
 void tsLog::AddMap(const tscrypto::tsCryptoString &xml)
 {
 	::Configure();
-	tscrypto::AutoLocker locker(tsLogConfig->_lock);
+	TSAUTOLOCKER locker(tsLogConfig->_lock);
 
 	std::shared_ptr<tsXmlNode> node = tsXmlNode::Create();
 	tscrypto::tsCryptoString Results;
@@ -1113,10 +1113,10 @@ void tsLog::AddMap(const tscrypto::tsCryptoString &xml)
 #endif
 #endif // SUPPORT_XML_LOGGING
 
-void tsLog::AddJsonMap(const tscrypto::tsCryptoString &Json)
+void tsLog::AddJsonMap(const tscrypto::tsCryptoStringBase &Json)
 {
 	::Configure();
-	tscrypto::AutoLocker locker(tsLogConfig->_lock);
+	TSAUTOLOCKER locker(tsLogConfig->_lock);
 
 	JSONObject o;
 
@@ -1129,7 +1129,7 @@ void tsLog::AddJsonMap(const tscrypto::tsCryptoString &Json)
 void tsLog::ClearMaps()
 {
 	::Configure();
-	tscrypto::AutoLocker locker(tsLogConfig->_lock);
+	TSAUTOLOCKER locker(tsLogConfig->_lock);
 
 	tsLogConfig->_maps.clear();
 }
@@ -1137,7 +1137,7 @@ void tsLog::ClearMaps()
 void tsLog::AllowLogs(const char *logList)
 {
 	::Configure();
-	tscrypto::AutoLocker locker(tsLogConfig->_lock);
+	TSAUTOLOCKER locker(tsLogConfig->_lock);
 
 	tscrypto::tsCryptoString tmp(logList);
 	tmp.Trim();
@@ -1152,7 +1152,7 @@ void tsLog::AllowLogs(const char *logList)
 void tsLog::DisallowLogs(const char *logList)
 {
 	::Configure();
-	tscrypto::AutoLocker locker(tsLogConfig->_lock);
+	TSAUTOLOCKER locker(tsLogConfig->_lock);
 
 	tscrypto::tsCryptoString tmp(logList);
 	tmp.Trim();
@@ -1175,7 +1175,7 @@ bool tsLog::WillLog(const char *loggerName, int level)
 		return false;
 
 	::Configure();
-	tscrypto::AutoLocker locker(tsLogConfig->_lock);
+	TSAUTOLOCKER locker(tsLogConfig->_lock);
 	if (tsLogConfig->_loggers.size() == 0)
 	{
 		return false;
@@ -1201,12 +1201,12 @@ void tsLog::indent(const char *loggerName, int level)
 		return;
 
 	::Configure();
-	tscrypto::AutoLocker locker(tsLogConfig->_lock);
+	TSAUTOLOCKER locker(tsLogConfig->_lock);
 	if (tsLogConfig->_loggers.size() == 0)
 	{
 		return;
 	}
-	std::vector<std::shared_ptr<tsLogMap> >::iterator mapIter = std::find_if(tsLogConfig->_maps.begin(), tsLogConfig->_maps.end(), [&](std::shared_ptr<tsLogMap> &map) ->bool {
+	std::find_if(tsLogConfig->_maps.begin(), tsLogConfig->_maps.end(), [&](std::shared_ptr<tsLogMap> &map) ->bool {
 		std::shared_ptr<tsLogOutput> outputter;
 
 		if (!map->UseThisOne(loggerName, level))
@@ -1250,12 +1250,12 @@ void tsLog::outdent(const char *loggerName, int level)
 		return;
 
 	::Configure();
-	tscrypto::AutoLocker locker(tsLogConfig->_lock);
+	TSAUTOLOCKER locker(tsLogConfig->_lock);
 	if (tsLogConfig->_loggers.size() == 0)
 	{
 		return;
 	}
-	std::vector<std::shared_ptr<tsLogMap> >::iterator mapIter = std::find_if(tsLogConfig->_maps.begin(), tsLogConfig->_maps.end(), [&](std::shared_ptr<tsLogMap> &map) ->bool {
+	std::find_if(tsLogConfig->_maps.begin(), tsLogConfig->_maps.end(), [&](std::shared_ptr<tsLogMap> &map) ->bool {
 		std::shared_ptr<tsLogOutput> outputter;
 
 		if (!map->UseThisOne(loggerName, level))

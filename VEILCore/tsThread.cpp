@@ -32,13 +32,13 @@
 #include "stdafx.h"
 
 tsThread::tsThread() :
-	cancel(true, false),
 	threadId(0),
 #ifdef HAVE_WINDOWS_H
-	hThread(nullptr)
+	hThread(nullptr),
 #else
-	hThread(0)
+	hThread(0),
 #endif // HAVE_WINDOWS_H
+	cancel(true, false)
 {
 }
 tsThread::tsThread(tsThread&& obj)
@@ -129,6 +129,24 @@ bool tsThread::WaitForThread(DWORD timeToWait)
 #elif defined(ANDROID)
 	if (pthread_join(hThread, nullptr) == 0)
 		return true;
+#elif defined(MAC)
+    // TODO:  Implement me for timed thread shutdown
+    //if (timeToWait == INFINITE)
+    {
+        if (pthread_join(hThread, nullptr) == 0)
+            return true;
+    }
+    //else
+    //{
+    //    struct timespec ts;
+    //
+    //    clock_gettime(CLOCK_REALTIME, &ts);
+    //    ts.tv_sec += (timeToWait / 1000);
+    //    ts.tv_nsec += (timeToWait % 1000) * 1000000;
+    //    if (pthread_timedjoin_np(hThread, nullptr, &ts) == 0)
+    //        return true;
+    //}
+    return false;
 #else
 	if (timeToWait == INFINITE)
 	{

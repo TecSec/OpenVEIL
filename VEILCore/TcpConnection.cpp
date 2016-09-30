@@ -309,7 +309,7 @@ bool TcpConnection::RawSend(const tscrypto::tsCryptoData& data)
 				return false;
 			}
 
-			LOG(httpData, "Raw Sent:" << endl << data.ToHexDump());
+            LOG(httpData, "Raw Sent:" << tscrypto::endl << data.ToHexDump());
 
 			break;
 		default:
@@ -329,7 +329,7 @@ bool TcpConnection::RawReceive(tscrypto::tsCryptoData& _data, size_t size)
 {
 	int len;
 	tscrypto::tsCryptoData buff;
-	int requiredDataLength = 0;
+	//int requiredDataLength = 0;
 	int targetLength = (int)size;
 
 	_data.clear();
@@ -511,7 +511,7 @@ bool TcpConnection::Connect()
 #ifdef _WIN32
 				LOG(FrameworkInfo1, "Unable to connect to the socket [" << WSAGetLastError() << " - " << ipstr << ":" << portStr << "]");
 #else
-				LOG(FrameworkInfo1, "Unable to connect to the socket [" << hex << errno << " - " << m_server << " - " << m_port << "]");
+				LOG(FrameworkInfo1, "Unable to connect to the socket [" << errno << " - " << m_server << " - " << m_port << "]");
 #endif
 				if (m_socket != INVALID_SOCKET)
 					closesocket(m_socket);

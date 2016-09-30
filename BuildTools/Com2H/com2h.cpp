@@ -38,6 +38,20 @@
 #define strcpy_s(a,b,c) strcpy(a,c)
 #endif
 
+#ifdef _WIN32
+#define TsStrCat(a,b,c) strcat_s(a,b,c)
+#define TsStrCpy(a,b,c) strcpy_s(a,b,c)
+#define TsStrDup(a) _strdup(a)
+#define TsStrUpr(a,b) _strupr_s(a,b)
+#define TsStrniCmp(a,b,c) _strnicmp(a,b,c)
+#else
+#define TsStrCat(a,b,c) strcat(a,c)
+#define TsStrCpy(a,b,c) strcpy(a,c)
+#define TsStrDup(a) strdup(a)
+#define TsStrUpr(a,b) strupr(a)
+#define TsStrniCmp(a,b,c) strnicmp(a,b,c)
+#endif
+
 //#define PARAMFLAG_NONE  ( 0 )
 //#define PARAMFLAG_FIN   ( 0x1 )
 //#define PARAMFLAG_FOUT  ( 0x2 )
@@ -89,13 +103,16 @@ LPCTSTR ToStr (BSTR val)
 
 BSTR ToBstr (LPCTSTR val)
 {
-    int i, count = strlen (val);
+    int i, count = (int)strlen (val);
     BSTR buff = SysAllocStringLen (NULL, count+1);
 
+	if (buff != nullptr)
+	{
     for (i = 0; i <= count; i++)
     {
         buff[i] = val[i];
     }
+	}
     return buff;
 }
 
@@ -115,7 +132,7 @@ void Separate ()
     printf ("//----------------------------------------------------------------------\n");
 }
 
-void DumpTypeDesc (TYPEDESC *td, ITypeInfo *ti, bool forFunctionPrototype, char *postfix)
+void DumpTypeDesc (TYPEDESC *td, ITypeInfo *ti, bool forFunctionPrototype, char *postfix, size_t postFixSize)
 {
     ITypeInfo *ti1;
     BSTR name = NULL;
@@ -129,7 +146,7 @@ void DumpTypeDesc (TYPEDESC *td, ITypeInfo *ti, bool forFunctionPrototype, char 
                 break;
             case VT_PTR :
     //            printf ("pointer");
-                DumpTypeDesc (td->lptdesc, ti, forFunctionPrototype, postfix);
+                DumpTypeDesc (td->lptdesc, ti, forFunctionPrototype, postfix, postFixSize);
                 printf ("*");
                 break;
             case VT_EMPTY:
@@ -206,7 +223,7 @@ void DumpTypeDesc (TYPEDESC *td, ITypeInfo *ti, bool forFunctionPrototype, char 
                 break;
             case VT_CARRAY:
                 if (td->lptdesc != nullptr)
-                    DumpTypeDesc(td->lptdesc, ti, forFunctionPrototype, postfix);
+                    DumpTypeDesc(td->lptdesc, ti, forFunctionPrototype, postfix, postFixSize);
                 
                 if (td->lpadesc != nullptr)
                 {
@@ -214,8 +231,8 @@ void DumpTypeDesc (TYPEDESC *td, ITypeInfo *ti, bool forFunctionPrototype, char 
                     {
                         char buff[15];
 
-                        sprintf (buff, "[%d]", td->lpadesc->rgbounds[i].cElements);
-                        strcat(postfix, buff);
+                        sprintf_s (buff, sizeof(buff), "[%d]", td->lpadesc->rgbounds[i].cElements);
+                        TsStrCat(postfix, postFixSize, buff);
                     }
                 }
                 break;
@@ -528,7 +545,7 @@ void DumpAlias(ITypeInfo *ti, TYPEATTR *ta)
 
 
 
-            DumpTypeDesc (&ta->tdescAlias, ti, false, postfix);
+            DumpTypeDesc (&ta->tdescAlias, ti, false, postfix, sizeof(postfix));
             printf (" %s%s;\n#endif\n", ClassName, postfix);
             delete [] (void*)ClassName;
             SysFreeString (name);
@@ -697,7 +714,7 @@ void DumpRecord(ITypeInfo *ti, TYPEATTR *ta)
                 const char *p = ToStr(name);
                 const char *p1 = nullptr;
 
-                DumpTypeDesc(&vd->elemdescVar.tdesc, ti, true, postfix);
+                DumpTypeDesc(&vd->elemdescVar.tdesc, ti, true, postfix, sizeof(postfix));
                 printf("    %s%s;\n", p, postfix);
 
                 delete [] (void*)p;
@@ -751,7 +768,7 @@ void DumpUnion(ITypeInfo *ti, TYPEATTR *ta)
                 const char *p = ToStr(name);
                 const char *p1 = nullptr;
 
-                DumpTypeDesc(&vd->elemdescVar.tdesc, ti, true, postfix);
+                DumpTypeDesc(&vd->elemdescVar.tdesc, ti, true, postfix, sizeof(postfix));
                 printf("    %s%s;\n", p, postfix);
 
                 delete [] (void*)p;
@@ -863,7 +880,7 @@ void DumpInterfaceFunction (ITypeInfo *ti, TYPEATTR *ta, FUNCDESC *fd, bool IsIn
                 printf ("/// \\brief %s\n", doc);
 
             printf ("    %s", kind);
-            DumpTypeDesc(&fd->elemdescFunc.tdesc, ti, true, postfix);
+            DumpTypeDesc(&fd->elemdescFunc.tdesc, ti, true, postfix, sizeof(postfix));
             printf ("%s%s%s%s(", convention, prefix, p1, postfix);
             strcpy_s(funcName, sizeof(funcName), p1);
 
@@ -887,13 +904,13 @@ void DumpInterfaceFunction (ITypeInfo *ti, TYPEATTR *ta, FUNCDESC *fd, bool IsIn
             if (names[i+1])
                 p = ToStr (names[i+1]);
             else
-                p = strdup("Value");
+                p = TsStrDup("Value");
 
             if ( i > 0 )
             {
                 printf(",");
             }
-            DumpTypeDesc (&fd->lprgelemdescParam[i].tdesc, ti, true, postfix);
+            DumpTypeDesc (&fd->lprgelemdescParam[i].tdesc, ti, true, postfix, sizeof(postfix));
             printf (" %s%s", p, postfix);
             delete [] (void*)p;
 
@@ -1395,7 +1412,7 @@ void PutHeaderBlock (void)
     {
         wsprintf (buff, "__%sci_H__", LibName);
     }
-    strupr (buff);
+    TsStrUpr (buff, sizeof(buff));
     printf ("#if !defined(%s)\n#define  %s\n\n", buff, buff);
 }
 
@@ -1408,7 +1425,7 @@ void PutTrailerBlock (void)
         wsprintf (buff, "__%s_H__", LibName);
     else
         wsprintf (buff, "__%sci_H__", LibName);
-    strupr (buff);
+    TsStrUpr (buff, sizeof(buff));
     printf ("#endif // %s\n\n", buff);
 }
 
@@ -1572,16 +1589,16 @@ int main (int argc, const char **argv)
 
     if ( strrchr(filename, '\\') != NULL )
     {
-        strcpy (DllName, strrchr(filename, '\\') + 1);
+        TsStrCpy (DllName, sizeof(DllName), strrchr(filename, '\\') + 1);
     }
     else
     {
-        strcpy (DllName, filename);
+        TsStrCpy (DllName, sizeof(DllName), filename);
     }
     if ( strrchr(DllName, '.') != NULL )
         *strrchr(DllName, '.') = 0;
 
-    if (strnicmp(filename, "Typelib\\{", 9) == 0)
+    if (TsStrniCmp(filename, "Typelib\\{", 9) == 0)
     {
         HKEY key;
         char path[MAX_PATH + 1];

@@ -36,7 +36,7 @@
 
 enum options { OPT_HELP, OPT_OUTPUT, OPT_ALGORITHM, OPT_PASSWORD, OPT_SIGNATURE, OPT_HEX };
 
-static struct OptionList GenEccOptions[] = {
+static struct tsmod::OptionList GenEccOptions[] = {
 	{ "", "VEIL tool genecc options" },
 	{ "", "=================================" },
 	{ "--help, -h, -?", "This help information." },
@@ -66,7 +66,7 @@ static CSimpleOptA::SOption genEccOptionList[] =
 	SO_END_OF_OPTIONS
 };
 
-class genx25519 : public IVeilToolCommand, public tsmod::IObject
+class genx25519 : public tsmod::IVeilToolCommand, public tsmod::IObject
 {
 public:
 	genx25519()
@@ -75,12 +75,12 @@ public:
 	{}
 
 	// tsmod::IObject
-	virtual void OnConstructionFinished()
+	virtual void OnConstructionFinished() override
 	{
-		utils = ::TopServiceLocator()->get_instance<IVeilUtilities>("VeilUtilities");
+		utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
 	}
 
-	// Inherited via IVeilToolCommand
+	// Inherited via tsmod::IVeilToolCommand
 	virtual tscrypto::tsCryptoString getDescription() const override
 	{
 		return "Generate X25519 or Ed25519 key";
@@ -141,10 +141,10 @@ public:
 		{
 			if (useHex)
 			{
-				output = ::TopServiceLocator()->try_get_instance<IOutputCollector>("HexOutput");
+				output = ::TopServiceLocator()->try_get_instance<tsmod::IOutputCollector>("HexOutput");
 			}
 			else
-				output = ::TopServiceLocator()->try_get_instance<IOutputCollector>("PemOutput");
+				output = ::TopServiceLocator()->try_get_instance<tsmod::IOutputCollector>("PemOutput");
 			if (!output)
 			{
 				utils->console() << BoldRed << "ERROR:  " << BoldWhite << "The specified output device is not accessible." << ::endl << ::endl;
@@ -193,17 +193,17 @@ protected:
 		}
 
 		std::shared_ptr<TlvDocument> doc = TlvDocument::Create();
-		Pkcs8EccPrivateKey data;
-		Pkcs8EccCurve curve;
-		Pkcs8EccPubKeyPart pub;
+		_POD_Pkcs8EccPrivateKey data;
+		_POD_Pkcs8EccCurve curve;
+		_POD_Pkcs8EccPubKeyPart pub;
 		std::shared_ptr<AlgorithmInfo> info = std::dynamic_pointer_cast<AlgorithmInfo>(ecc);
 
 		doc->DocumentElement()->AppendChild(doc->CreateOIDNode(tscrypto::tsCryptoData(info->AlgorithmOID(), tscrypto::tsCryptoData::OID)));
 
-		curve._parameters.oidString(info->AlgorithmOID());
+		curve.set_parameters(info->AlgorithmOID());
 		data.set_curve(curve);
 		data.set_privateKey(ecc->get_PrivateValue());
-		pub._value.bits(ecc->get_Point());
+		pub.get_value().bits(ecc->get_Point());
 		data.set_publicKey(pub);
 
 		if (!data.Encode(outputData))
@@ -220,8 +220,8 @@ protected:
 		return output->AddOutputData(outputData, "EC PRIVATE KEY", true);
 	}
 protected:
-	std::shared_ptr<IOutputCollector> output;
-	std::shared_ptr<IVeilUtilities> utils;
+	std::shared_ptr<tsmod::IOutputCollector> output;
+	std::shared_ptr<tsmod::IVeilUtilities> utils;
 };
 
 tsmod::IObject* CreateGenX25519()

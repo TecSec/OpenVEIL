@@ -34,23 +34,23 @@
 
 static tsmod::IObject* CreateSmartCardTool()
 {
-	std::shared_ptr<IVeilUtilities> utils = ::TopServiceLocator()->get_instance<IVeilUtilities>("VeilUtilities");
+	std::shared_ptr<tsmod::IVeilUtilities> utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
 	return utils->buildCommandMenu("Perform smart card operations", "/SMARTCARD-COMMANDS/", "smartcard", "SMARTCARD");
 }
 
 static tsmod::IObject* CreateSmartCardAIDTool()
 {
-	std::shared_ptr<IVeilUtilities> utils = ::TopServiceLocator()->get_instance<IVeilUtilities>("VeilUtilities");
+	std::shared_ptr<tsmod::IVeilUtilities> utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
 	return utils->buildCommandMenu("Perform smart card AID operations", "/SMARTCARDAID-COMMANDS/", "aid", "SMARTCARD AID");
 }
 static tsmod::IObject* CreateSmartCardChangeTool()
 {
-	std::shared_ptr<IVeilUtilities> utils = ::TopServiceLocator()->get_instance<IVeilUtilities>("VeilUtilities");
+	std::shared_ptr<tsmod::IVeilUtilities> utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
 	return utils->buildCommandMenu("Perform smart card CHANGE operations", "/SMARTCARDCHANGE-COMMANDS/", "change", "SMARTCARD CHANGE");
 }
 static tsmod::IObject* CreateSmartCardChangePasswordTool()
 {
-	std::shared_ptr<IVeilUtilities> utils = ::TopServiceLocator()->get_instance<IVeilUtilities>("VeilUtilities");
+	std::shared_ptr<tsmod::IVeilUtilities> utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
 	return utils->buildCommandMenu("Perform smart card CHANGE PASSWORD operations", "/SMARTCARDCHANGEPASSWORD-COMMANDS/", "password", "SMARTCARD CHANGE PASSWORD");
 }
 

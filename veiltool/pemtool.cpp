@@ -40,7 +40,7 @@ public:
 
 enum options { OPT_HELP, OPT_TOPEM, OPT_FROMPEM, OPT_INPUT, OPT_TYPE, OPT_OUTPUT, OPT_DISPLAY_ATTRIBUTES };
 
-static const struct OptionList options[] = {
+static const struct tsmod::OptionList options[] = {
 	{ "", "VEIL tool pem options" },
 	{ "", "=================================" },
 	{ "--help, -h, -?", "This help information." },
@@ -68,7 +68,7 @@ static const CSimpleOptA::SOption optionList[] =
 	SO_END_OF_OPTIONS
 };
 
-class pemtool : public IVeilToolCommand, public tsmod::IObject
+class pemtool : public tsmod::IVeilToolCommand, public tsmod::IObject
 {
 public:
 	pemtool()
@@ -77,12 +77,12 @@ public:
 	{}
 
 	// tsmod::IObject
-	virtual void OnConstructionFinished()
+	virtual void OnConstructionFinished() override
 	{
-		utils = ::TopServiceLocator()->get_instance<IVeilUtilities>("VeilUtilities");
+		utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
 	}
 
-	// Inherited via IVeilToolCommand
+	// Inherited via tsmod::IVeilToolCommand
 	virtual tscrypto::tsCryptoString getDescription() const override
 	{
 		return "Convert PEM files";
@@ -269,7 +269,7 @@ protected:
 	{
 		utils->Usage(options, sizeof(options) / sizeof(options[0]));
 	}
-	void OutputError(char *msg, ...)
+	void OutputError(const char *msg, ...)
 	{
 		tscrypto::tsCryptoString results;
 		va_list args;
@@ -281,7 +281,7 @@ protected:
 		utils->console() << BoldRed << results << BoldWhite << ::endl;
 	}
 protected:
-	std::shared_ptr<IVeilUtilities> utils;
+	std::shared_ptr<tsmod::IVeilUtilities> utils;
 };
 
 tsmod::IObject* CreatePemTool()

@@ -47,7 +47,7 @@ NamespaceSupport::~NamespaceSupport()
 
 void NamespaceSupport::extractNamespaceAttributes(tsAttributeMap &attrs)
 {
-	for (size_t i = attrs.count() - 1; i >= 0; i--)
+	for (ptrdiff_t i = attrs.count() - 1; i >= 0; i--)
 	{
 		tscrypto::tsCryptoString name = attrs.name(i);
 		if (strcmp(name.c_str(), "xmlns") == 0)
@@ -121,7 +121,7 @@ tscrypto::tsCryptoString NamespaceSupport::getSoap12NamespaceName() const
 	return "";
 }
 
-void NamespaceSupport::addNamespace(const char *name, const char *value)
+void NamespaceSupport::addNamespace(const tscrypto::tsCryptoStringBase& name, const tscrypto::tsCryptoStringBase& value)
 {
 	m_namespaces.RemoveItem(name);
 	if (value != NULL && value[0] != 0)
@@ -200,14 +200,14 @@ bool tsXmlNode::StartNode(std::shared_ptr<tsXmlNode> parent, const tsAttributeMa
 	return true;
 }
 
-std::shared_ptr<tsXmlNode> tsXmlNode::StartSubnode(const tscrypto::tsCryptoString &name)
+std::shared_ptr<tsXmlNode> tsXmlNode::StartSubnode(const tscrypto::tsCryptoStringBase &name)
 {
 	tsAttributeMap map;
 
 	return StartSubnode(name, map);
 }
 
-std::shared_ptr<tsXmlNode> tsXmlNode::StartTextSubnode(const tscrypto::tsCryptoString &name, const tscrypto::tsCryptoString& text)
+std::shared_ptr<tsXmlNode> tsXmlNode::StartTextSubnode(const tscrypto::tsCryptoStringBase &name, const tscrypto::tsCryptoStringBase& text)
 {
 	std::shared_ptr<tsXmlNode> node = StartSubnode(name);
 
@@ -216,43 +216,43 @@ std::shared_ptr<tsXmlNode> tsXmlNode::StartTextSubnode(const tscrypto::tsCryptoS
 	return node;
 }
 
-std::shared_ptr<tsXmlNode> tsXmlNode::StartTextSubnode(const tscrypto::tsCryptoString &name, bool setTo)
+std::shared_ptr<tsXmlNode> tsXmlNode::StartTextSubnode(const tscrypto::tsCryptoStringBase &name, bool setTo)
 {
 	return StartTextSubnode(name, tscrypto::tsCryptoString(setTo ? "true" : "false"));
 }
 
-std::shared_ptr<tsXmlNode> tsXmlNode::StartTextSubnode(const tscrypto::tsCryptoString &name, const char* setTo)
+std::shared_ptr<tsXmlNode> tsXmlNode::StartTextSubnode(const tscrypto::tsCryptoStringBase &name, const char* setTo)
 {
 	return StartTextSubnode(name, tscrypto::tsCryptoString(setTo));
 }
 
-std::shared_ptr<tsXmlNode> tsXmlNode::StartTextSubnode(const tscrypto::tsCryptoString &name, int setTo)
+std::shared_ptr<tsXmlNode> tsXmlNode::StartTextSubnode(const tscrypto::tsCryptoStringBase &name, int setTo)
 {
 	return StartTextSubnode(name, (tscrypto::tsCryptoString().append(setTo)));
 }
 
-std::shared_ptr<tsXmlNode> tsXmlNode::StartTextSubnode(const tscrypto::tsCryptoString &name, int64_t setTo)
+std::shared_ptr<tsXmlNode> tsXmlNode::StartTextSubnode(const tscrypto::tsCryptoStringBase &name, int64_t setTo)
 {
 	char buffer[100];
 
-	_i64toa_s(setTo, buffer, sizeof(buffer), 10);
+	_i64toa_s(setTo, buffer, sizeof(buffer), (int64_t)10);
 	return StartTextSubnode(name, buffer);
 }
 
-std::shared_ptr<tsXmlNode> tsXmlNode::StartTextSubnode(const tscrypto::tsCryptoString &name, size_t setTo)
+std::shared_ptr<tsXmlNode> tsXmlNode::StartTextSubnode(const tscrypto::tsCryptoStringBase &name, size_t setTo)
 {
 	char buffer[100];
 
-	_i64toa_s(setTo, buffer, sizeof(buffer), 10);
+	_i64toa_s(setTo, buffer, sizeof(buffer), (int64_t)10);
 	return StartTextSubnode(name, buffer);
 }
 
-std::shared_ptr<tsXmlNode> tsXmlNode::StartTextSubnode(const tscrypto::tsCryptoString &name, const tscrypto::tsCryptoData& setTo)
+std::shared_ptr<tsXmlNode> tsXmlNode::StartTextSubnode(const tscrypto::tsCryptoStringBase &name, const tscrypto::tsCryptoData& setTo)
 {
 	return StartTextSubnode(name, setTo.ToBase64());
 }
 
-std::shared_ptr<tsXmlNode> tsXmlNode::CreateNode(const tscrypto::tsCryptoString &name, const tsAttributeMap &Attributes)
+std::shared_ptr<tsXmlNode> tsXmlNode::CreateNode(const tscrypto::tsCryptoStringBase &name, const tsAttributeMap &Attributes)
 {
 	UNREFERENCED_PARAMETER(name);
 	UNREFERENCED_PARAMETER(Attributes);
@@ -260,7 +260,7 @@ std::shared_ptr<tsXmlNode> tsXmlNode::CreateNode(const tscrypto::tsCryptoString 
 	return tsXmlNode::Create();
 }
 
-std::shared_ptr<tsXmlNode> tsXmlNode::StartSubnode(const tscrypto::tsCryptoString &name, const tsAttributeMap &Attributes)
+std::shared_ptr<tsXmlNode> tsXmlNode::StartSubnode(const tscrypto::tsCryptoStringBase &name, const tsAttributeMap &Attributes)
 {
 	std::shared_ptr<tsXmlNode> pNode;
 
@@ -305,7 +305,7 @@ const tscrypto::tsCryptoString &tsXmlNode::NodeName() const
 	return m_NodeName;
 }
 
-void tsXmlNode::NodeName(const tscrypto::tsCryptoString &name)
+void tsXmlNode::NodeName(const tscrypto::tsCryptoStringBase &name)
 {
 	m_NodeName = name;
 }
@@ -335,7 +335,7 @@ tscrypto::tsCryptoString tsXmlNode::NodeText() const
 	return m_Text;
 }
 
-bool tsXmlNode::NodeText(const tscrypto::tsCryptoString &setTo)
+bool tsXmlNode::NodeText(const tscrypto::tsCryptoStringBase &setTo)
 {
 	if (!WantsTextContents())
 		return false;
@@ -363,7 +363,7 @@ void tsXmlNode::NodeTextAsBool(bool setTo)
 	NodeText(setTo ? "1" : "0");
 }
 
-bool tsXmlNode::AppendText(const tscrypto::tsCryptoString &setTo)
+bool tsXmlNode::AppendText(const tscrypto::tsCryptoStringBase &setTo)
 {
 	if (!WantsTextContents())
 		return false;
@@ -478,7 +478,7 @@ void tsXmlNode::ClearChildren()
 
 std::shared_ptr<tsXmlNode> tsXmlNode::ExtractChild(const size_t idx)
 {
-	if (idx >= 0 && idx < m_Children->size())
+	if (idx < m_Children->size())
 	{
 		std::shared_ptr<tsXmlNode> node = m_Children->at(idx);
 
@@ -536,7 +536,7 @@ std::shared_ptr<tsXmlError> tsXmlNode::CreateErrorNode()
 	return ::TopServiceLocator()->Finish<tsXmlError>(new tsXmlError);
 }
 
-void tsXmlNode::AddError(const tscrypto::tsCryptoString &comp, const tscrypto::tsCryptoString &meth, const tscrypto::tsCryptoString &desc, int32_t num)
+void tsXmlNode::AddError(const tscrypto::tsCryptoStringBase &comp, const tscrypto::tsCryptoStringBase &meth, const tscrypto::tsCryptoStringBase &desc, int32_t num)
 {
 	std::shared_ptr<tsXmlError> err = CreateErrorNode();
 	if (err) {
@@ -557,7 +557,7 @@ void tsXmlNode::AddError(const tscrypto::tsCryptoString &comp, const tscrypto::t
 	}
 }
 
-void tsXmlNode::AddFirstError(const tscrypto::tsCryptoString &comp, const tscrypto::tsCryptoString &meth, const tscrypto::tsCryptoString &desc, int32_t num)
+void tsXmlNode::AddFirstError(const tscrypto::tsCryptoStringBase &comp, const tscrypto::tsCryptoStringBase &meth, const tscrypto::tsCryptoStringBase &desc, int32_t num)
 {
 	std::shared_ptr<tsXmlError> err = CreateErrorNode();
 	if (err) {
@@ -578,7 +578,7 @@ void tsXmlNode::AddFirstError(const tscrypto::tsCryptoString &comp, const tscryp
 	}
 }
 
-void tsXmlNode::_AddError(tscrypto::tsCryptoString &Results, int32_t Number, ...)
+void tsXmlNode::_AddError(tscrypto::tsCryptoStringBase &Results, int32_t Number, ...)
 {
 	va_list vArg;
 	va_start(vArg, Number);
@@ -586,7 +586,7 @@ void tsXmlNode::_AddError(tscrypto::tsCryptoString &Results, int32_t Number, ...
 	va_end(vArg);
 }
 
-std::shared_ptr<tsXmlNode> tsXmlNode::ChildByTSID(const tscrypto::tsCryptoString &tsid)
+std::shared_ptr<tsXmlNode> tsXmlNode::ChildByTSID(const tscrypto::tsCryptoStringBase &tsid)
 {
 	tscrypto::tsCryptoString value;
 
@@ -603,7 +603,7 @@ std::shared_ptr<tsXmlNode> tsXmlNode::ChildByTSID(const tscrypto::tsCryptoString
 	return NULL;
 }
 
-std::shared_ptr<tsXmlNode> tsXmlNode::ChildByTSID(const tscrypto::tsCryptoString &tsid) const
+std::shared_ptr<tsXmlNode> tsXmlNode::ChildByTSID(const tscrypto::tsCryptoStringBase &tsid) const
 {
 	for (size_t i = 0; i < ChildrenCount(); i++)
 	{
@@ -674,7 +674,7 @@ void tsXmlNode::CopyFrom(std::shared_ptr<tsXmlNode> srcNode, bool bDoChildren)
 
 }
 
-void tsXmlNode::BuildStartNodeXML(tscrypto::tsCryptoString &output) const
+void tsXmlNode::BuildStartNodeXML(tscrypto::tsCryptoStringBase &output) const
 {
 	tscrypto::tsCryptoString tmp;
 
@@ -689,14 +689,14 @@ void tsXmlNode::BuildStartNodeXML(tscrypto::tsCryptoString &output) const
 	output += ">";
 }
 
-void tsXmlNode::BuildEndNodeXML(tscrypto::tsCryptoString &output) const
+void tsXmlNode::BuildEndNodeXML(tscrypto::tsCryptoStringBase &output) const
 {
 	output = "</";
 	output += NodeName();
 	output += ">";
 }
 
-void tsXmlNode::AppendStartNodeXML(tscrypto::tsCryptoString &output) const
+void tsXmlNode::AppendStartNodeXML(tscrypto::tsCryptoStringBase &output) const
 {
 	tscrypto::tsCryptoString tmp;
 
@@ -711,7 +711,7 @@ void tsXmlNode::AppendStartNodeXML(tscrypto::tsCryptoString &output) const
 	output += ">";
 }
 
-void tsXmlNode::AppendSingleNodeXML(tscrypto::tsCryptoString &output) const
+void tsXmlNode::AppendSingleNodeXML(tscrypto::tsCryptoStringBase &output) const
 {
 	tscrypto::tsCryptoString tmp;
 
@@ -726,7 +726,7 @@ void tsXmlNode::AppendSingleNodeXML(tscrypto::tsCryptoString &output) const
 	output += "/>";
 }
 
-void tsXmlNode::AppendEndNodeXML(tscrypto::tsCryptoString &output) const
+void tsXmlNode::AppendEndNodeXML(tscrypto::tsCryptoStringBase &output) const
 {
 	output += "</";
 	output += NodeName();
@@ -802,7 +802,7 @@ tsXmlErrorList tsXmlNode::GetWarningList(bool recursive) const
 	return tmp;
 }
 
-bool tsXmlNode::BuildXML(tscrypto::tsCryptoString &Results, bool useAttributesForErrors)
+bool tsXmlNode::BuildXML(tscrypto::tsCryptoStringBase &Results, bool useAttributesForErrors)
 {
 	bool retVal = true;
 	tscrypto::tsCryptoString tmp, tmp1;
@@ -970,7 +970,7 @@ bool tsXmlNode::BuildXML(tscrypto::tsCryptoString &Results, bool useAttributesFo
 ////
 ////}
 
-int tsXmlNode::__RunNodes(std::shared_ptr<tsXmlNode> node, tscrypto::tsCryptoString *params)
+int tsXmlNode::__RunNodes(std::shared_ptr<tsXmlNode> node, tscrypto::tsCryptoStringBase *params)
 {
 	if (!node->Run(*params, true)) // TODO:  Review this
 	{
@@ -981,7 +981,7 @@ int tsXmlNode::__RunNodes(std::shared_ptr<tsXmlNode> node, tscrypto::tsCryptoStr
 	return 0;
 }
 
-bool tsXmlNode::MigrateErrors(tscrypto::tsCryptoString &Results)
+bool tsXmlNode::MigrateErrors(tscrypto::tsCryptoStringBase &Results)
 {
 	size_t i = 0;
 	std::shared_ptr<tsXmlError> err;
@@ -1008,7 +1008,7 @@ bool tsXmlNode::MigrateErrors(tscrypto::tsCryptoString &Results)
 	return retVal;
 }
 
-bool tsXmlNode::MigrateWarnings(tscrypto::tsCryptoString &Results)
+bool tsXmlNode::MigrateWarnings(tscrypto::tsCryptoStringBase &Results)
 {
 	size_t i = 0;
 	std::shared_ptr<tsXmlError> err;
@@ -1060,7 +1060,7 @@ bool tsXmlNode::MakeDOM() const
 	return m_bMakeDom;
 }
 
-void tsXmlNode::AppendXMLError(tscrypto::tsCryptoString &Results, const tscrypto::tsCryptoString &Component, const tscrypto::tsCryptoString &Method, int32_t Number, const tscrypto::tsCryptoString &Desc)
+void tsXmlNode::AppendXMLError(tscrypto::tsCryptoStringBase &Results, const tscrypto::tsCryptoStringBase &Component, const tscrypto::tsCryptoStringBase &Method, int32_t Number, const tscrypto::tsCryptoStringBase &Desc)
 {
 	Results += "<Error><NumberAtt>";
 	Results.append(Number);
@@ -1088,7 +1088,7 @@ const tscrypto::tsCryptoString &tsXmlNode::XMLContents() const
 	return m_xmlContents;
 }
 
-bool tsXmlNode::XMLContents(const tscrypto::tsCryptoString &setTo)
+bool tsXmlNode::XMLContents(const tscrypto::tsCryptoStringBase &setTo)
 {
 	if (!WantsXMLContents())
 		return false;
@@ -1098,13 +1098,13 @@ bool tsXmlNode::XMLContents(const tscrypto::tsCryptoString &setTo)
 
 /* These methods are used for reintegration of responses */
 
-tsXmlParserCallback::resultCodes tsXmlNode::StartResponse(const tscrypto::tsCryptoString &/*NodeName*/, const tscrypto::tsCryptoString &/*InnerXML*/, bool /*singleNode*/)
+tsXmlParserCallback::resultCodes tsXmlNode::StartResponse(const tscrypto::tsCryptoStringBase &/*NodeName*/, const tscrypto::tsCryptoStringBase &/*InnerXML*/, bool /*singleNode*/)
 {
 	// Start the response.
 	return tsXmlParserCallback::rcSuccess;
 }
 
-tsXmlParserCallback::resultCodes tsXmlNode::EndResponse(const tscrypto::tsCryptoString &/*NodeName*/)
+tsXmlParserCallback::resultCodes tsXmlNode::EndResponse(const tscrypto::tsCryptoStringBase &/*NodeName*/)
 {
 	// the response has been parsed.  set this nodes
 	// processed flag to true.
@@ -1112,7 +1112,7 @@ tsXmlParserCallback::resultCodes tsXmlNode::EndResponse(const tscrypto::tsCrypto
 	return tsXmlParserCallback::rcSuccess;
 }
 
-tsXmlParserCallback::resultCodes tsXmlNode::ResponseText(const tscrypto::tsCryptoString &newVal)
+tsXmlParserCallback::resultCodes tsXmlNode::ResponseText(const tscrypto::tsCryptoStringBase &newVal)
 {
 	// dump the response text into this nodes XML
 	m_Text = newVal;
@@ -1129,7 +1129,7 @@ void tsXmlNode::WantsTextContents(bool setTo)
 	m_wantsTextContents = setTo;
 }
 
-bool tsXmlNode::RunChildren(tscrypto::tsCryptoString &Results)
+bool tsXmlNode::RunChildren(tscrypto::tsCryptoStringBase &Results)
 {
 	auto it = std::find_if(m_Children->begin(), m_Children->end(), [&Results, this](std::shared_ptr<tsXmlNode>& node)->bool { return __RunNodes(node, &Results) != 0; });
 	return it == m_Children->end();
@@ -1140,7 +1140,7 @@ bool tsXmlNode::RunnableNode()
 	return true;
 }
 
-bool tsXmlNode::Run(tscrypto::tsCryptoString &Results, bool useAttributesForErrors)
+bool tsXmlNode::Run(tscrypto::tsCryptoStringBase &Results, bool useAttributesForErrors)
 {
 	bool retVal = true;
 	tscrypto::tsCryptoString tmp;
@@ -1254,17 +1254,17 @@ bool tsXmlNode::Run(tscrypto::tsCryptoString &Results, bool useAttributesForErro
 	return retVal;
 }
 
-bool tsXmlNode::InternalRunStart(tscrypto::tsCryptoString &/*Results*/)
+bool tsXmlNode::InternalRunStart(tscrypto::tsCryptoStringBase &/*Results*/)
 {
 	return true;
 }
 
-bool tsXmlNode::InternalRunEnd(tscrypto::tsCryptoString &/*Results*/)
+bool tsXmlNode::InternalRunEnd(tscrypto::tsCryptoStringBase &/*Results*/)
 {
 	return true;
 }
 
-bool tsXmlNode::Validate(tscrypto::tsCryptoString &Results, bool useAttributesForErrors)
+bool tsXmlNode::Validate(tscrypto::tsCryptoStringBase &Results, bool useAttributesForErrors)
 {
 	tscrypto::tsCryptoString tmpResults;
 	tscrypto::tsCryptoString tmp;
@@ -1330,20 +1330,20 @@ bool tsXmlNode::Validate(tscrypto::tsCryptoString &Results, bool useAttributesFo
 	return true;
 }
 
-int tsXmlNode::__VerifyNodes(std::shared_ptr<tsXmlNode> node, tscrypto::tsCryptoString *params)
+int tsXmlNode::__VerifyNodes(std::shared_ptr<tsXmlNode> node, tscrypto::tsCryptoStringBase *params)
 {
 	if (!node->Validate(*params, true)) // TODO:  Review this
 		return 1;
 	return 0;
 }
 
-bool tsXmlNode::ValidateChildren(tscrypto::tsCryptoString &Results)
+bool tsXmlNode::ValidateChildren(tscrypto::tsCryptoStringBase &Results)
 {
 	auto it = std::find_if(m_Children->begin(), m_Children->end(), [&Results, this](std::shared_ptr<tsXmlNode>& node)->bool {return __VerifyNodes(node, &Results) != 0; });
 	return it == m_Children->end();
 }
 
-bool tsXmlNode::InternalValidate(tscrypto::tsCryptoString & /*Results*/)
+bool tsXmlNode::InternalValidate(tscrypto::tsCryptoStringBase & /*Results*/)
 {
 	return true;
 }
@@ -1367,7 +1367,7 @@ bool tsXmlNode::ForceHashChecks(void) const
 / tsXMLParserCallback
 / **************************************************************************/
 
-tsXmlParserCallback::resultCodes tsXmlNode::ProcessInstruction(const tscrypto::tsCryptoString & /*contents*/, tscrypto::tsCryptoString &/*Results*/)
+tsXmlParserCallback::resultCodes tsXmlNode::ProcessInstruction(const tscrypto::tsCryptoStringBase & /*contents*/, tscrypto::tsCryptoStringBase &/*Results*/)
 {
 	return tsXmlParserCallback::rcSuccess;
 }
@@ -1377,9 +1377,9 @@ tsXmlParserCallback::resultCodes tsXmlNode::ProcessInstruction(const tscrypto::t
  * Not actually a callback method.  Used by submit class
  * to check hashes.
  */
-tsXmlParserCallback::resultCodes tsXmlNode::VerifyHash(const tscrypto::tsCryptoString &NodeName,
+tsXmlParserCallback::resultCodes tsXmlNode::VerifyHash(const tscrypto::tsCryptoStringBase &NodeName,
 	tsAttributeMap &attributes,
-	const tscrypto::tsCryptoString &InnerXML)
+	const tscrypto::tsCryptoStringBase &InnerXML)
 {
 	UNREFERENCED_PARAMETER(NodeName);
 	UNREFERENCED_PARAMETER(attributes);
@@ -1388,21 +1388,21 @@ tsXmlParserCallback::resultCodes tsXmlNode::VerifyHash(const tscrypto::tsCryptoS
 	return tsXmlParserCallback::rcSuccess;
 }
 
-bool tsXmlNode::EncryptForChannel(tscrypto::tsCryptoString &/*contents*/, tscrypto::tsCryptoString &/*Results*/)
+bool tsXmlNode::EncryptForChannel(tscrypto::tsCryptoStringBase &/*contents*/, tscrypto::tsCryptoStringBase &/*Results*/)
 {
 	return false;
 }
 
-bool tsXmlNode::DecryptForChannel(tscrypto::tsCryptoString &/*Results*/)
+bool tsXmlNode::DecryptForChannel(tscrypto::tsCryptoStringBase &/*Results*/)
 {
 	return false;
 }
 
-tsXmlParserCallback::resultCodes tsXmlNode::StartNode(const tscrypto::tsCryptoString &NodeName,
+tsXmlParserCallback::resultCodes tsXmlNode::StartNode(const tscrypto::tsCryptoStringBase &NodeName,
 	tsAttributeMap &attributes,
-	const tscrypto::tsCryptoString &InnerXML,
+	const tscrypto::tsCryptoStringBase &InnerXML,
 	bool SingleNode,
-	tscrypto::tsCryptoString &Results)
+	tscrypto::tsCryptoStringBase &Results)
 {
 
 	if (NodeName == NULL)
@@ -1497,7 +1497,7 @@ tsXmlParserCallback::resultCodes tsXmlNode::StartNode(const tscrypto::tsCryptoSt
 
 
 tsXmlParserCallback::resultCodes
-tsXmlNode::EndNode(const tscrypto::tsCryptoString &NodeName, tscrypto::tsCryptoString &/*Results*/)
+tsXmlNode::EndNode(const tscrypto::tsCryptoStringBase &NodeName, tscrypto::tsCryptoStringBase &/*Results*/)
 {
 	std::shared_ptr<tsXmlNode> pNode;
 	size_t lCount, i;
@@ -1541,22 +1541,22 @@ tsXmlNode::EndNode(const tscrypto::tsCryptoString &NodeName, tscrypto::tsCryptoS
 }
 
 tsXmlParserCallback::resultCodes
-tsXmlNode::Comment(const tscrypto::tsCryptoString & /*Contents*/,
-	tscrypto::tsCryptoString &/*Results*/)
+tsXmlNode::Comment(const tscrypto::tsCryptoStringBase & /*Contents*/,
+	tscrypto::tsCryptoStringBase &/*Results*/)
 {
 	return tsXmlParserCallback::rcSuccess;
 }
 
 tsXmlParserCallback::resultCodes
-tsXmlNode::CData(const tscrypto::tsCryptoString & /*Contents*/,
-	tscrypto::tsCryptoString &/*Results*/)
+tsXmlNode::CData(const tscrypto::tsCryptoStringBase & /*Contents*/,
+	tscrypto::tsCryptoStringBase &/*Results*/)
 {
 	return tsXmlParserCallback::rcSuccess;
 }
 
 tsXmlParserCallback::resultCodes
-tsXmlNode::Text(const tscrypto::tsCryptoString &Contents,
-	tscrypto::tsCryptoString &/*Results*/)
+tsXmlNode::Text(const tscrypto::tsCryptoStringBase &Contents,
+	tscrypto::tsCryptoStringBase &/*Results*/)
 {
 	if (Contents == NULL)
 	{
@@ -1573,13 +1573,13 @@ tsXmlNode::Text(const tscrypto::tsCryptoString &Contents,
 	return tsXmlParserCallback::rcSuccess;
 }
 
-void tsXmlNode::AddParseError(const tscrypto::tsCryptoString &ErrorStr, tscrypto::tsCryptoString &/*Results*/)
+void tsXmlNode::AddParseError(const tscrypto::tsCryptoStringBase &ErrorStr, tscrypto::tsCryptoStringBase &/*Results*/)
 {
 	// signals that the parser had an error.
 	AddError("AgentRequestor", "CARNodeSubmit Parser Error", tscrypto::tsCryptoString(ErrorStr), IDS_E_XML_GENERAL_ERROR);
 }
 
-bool tsXmlNode::Parse(const tscrypto::tsCryptoString &sXML, tscrypto::tsCryptoString &Results, bool nodesToAttributes, bool processErrors)
+bool tsXmlNode::Parse(const tscrypto::tsCryptoStringBase &sXML, tscrypto::tsCryptoStringBase &Results, bool nodesToAttributes, bool processErrors)
 {
 	tsXmlParser Parser;
 
@@ -1701,7 +1701,7 @@ void tsXmlNode::SetNeedsReauth(bool setTo)
 	node->m_needsReauth = setTo;
 }
 
-std::shared_ptr<tsXmlNode> tsXmlNode::ChildByName(const tscrypto::tsCryptoString &_name)
+std::shared_ptr<tsXmlNode> tsXmlNode::ChildByName(const tscrypto::tsCryptoStringBase &_name)
 {
 	const char *ptr = NULL;
 	tscrypto::tsCryptoString name(_name);
@@ -1717,7 +1717,7 @@ std::shared_ptr<tsXmlNode> tsXmlNode::ChildByName(const tscrypto::tsCryptoString
 	return NULL;
 }
 
-tsXmlNodeList tsXmlNode::ChildrenByName(const tscrypto::tsCryptoString &_name)
+tsXmlNodeList tsXmlNode::ChildrenByName(const tscrypto::tsCryptoStringBase &_name)
 {
 	const char *ptr = NULL;
 	tscrypto::tsCryptoString name(_name);
@@ -1734,7 +1734,7 @@ tsXmlNodeList tsXmlNode::ChildrenByName(const tscrypto::tsCryptoString &_name)
 	return list;
 }
 
-tsXmlNodeList tsXmlNode::ChildrenByName(const tscrypto::tsCryptoString &_name) const
+tsXmlNodeList tsXmlNode::ChildrenByName(const tscrypto::tsCryptoStringBase &_name) const
 {
 	const char *ptr = NULL;
 	tscrypto::tsCryptoString name(_name);
@@ -1751,7 +1751,7 @@ tsXmlNodeList tsXmlNode::ChildrenByName(const tscrypto::tsCryptoString &_name) c
 	return list;
 }
 
-std::shared_ptr<tsXmlNode> tsXmlNode::ChildByName(const tscrypto::tsCryptoString &_name) const
+std::shared_ptr<tsXmlNode> tsXmlNode::ChildByName(const tscrypto::tsCryptoStringBase &_name) const
 {
 	const char *ptr = NULL;
 	tscrypto::tsCryptoString name(_name);
@@ -1767,7 +1767,7 @@ std::shared_ptr<tsXmlNode> tsXmlNode::ChildByName(const tscrypto::tsCryptoString
 	return nullptr;
 }
 
-std::shared_ptr<tsXmlNode> tsXmlNode::ChildByNameWithAttributeValue(const tscrypto::tsCryptoString &_name, const tscrypto::tsCryptoString &attributeName, const tscrypto::tsCryptoString &attributeValue)
+std::shared_ptr<tsXmlNode> tsXmlNode::ChildByNameWithAttributeValue(const tscrypto::tsCryptoStringBase &_name, const tscrypto::tsCryptoStringBase &attributeName, const tscrypto::tsCryptoStringBase &attributeValue)
 {
 	for (size_t i = 0; i < ChildrenCount(); i++)
 	{
@@ -1784,7 +1784,7 @@ std::shared_ptr<tsXmlNode> tsXmlNode::ChildByNameWithAttributeValue(const tscryp
 	return nullptr;
 }
 
-std::shared_ptr<tsXmlNode> tsXmlNode::ChildByNameWithAttributeValue(const tscrypto::tsCryptoString &_name, const tscrypto::tsCryptoString &attributeName, const tscrypto::tsCryptoString &attributeValue) const
+std::shared_ptr<tsXmlNode> tsXmlNode::ChildByNameWithAttributeValue(const tscrypto::tsCryptoStringBase &_name, const tscrypto::tsCryptoStringBase &attributeName, const tscrypto::tsCryptoStringBase &attributeValue) const
 {
 	for (size_t i = 0; i < ChildrenCount(); i++)
 	{
@@ -1801,7 +1801,7 @@ std::shared_ptr<tsXmlNode> tsXmlNode::ChildByNameWithAttributeValue(const tscryp
 	return nullptr;
 }
 
-std::shared_ptr<tsXmlNode> tsXmlNode::ChildByNameWithAttributeValueExact(const tscrypto::tsCryptoString &_name, const tscrypto::tsCryptoString &attributeName, const tscrypto::tsCryptoString &attributeValue)
+std::shared_ptr<tsXmlNode> tsXmlNode::ChildByNameWithAttributeValueExact(const tscrypto::tsCryptoStringBase &_name, const tscrypto::tsCryptoStringBase &attributeName, const tscrypto::tsCryptoStringBase &attributeValue)
 {
 	for (size_t i = 0; i < ChildrenCount(); i++)
 	{
@@ -1818,7 +1818,7 @@ std::shared_ptr<tsXmlNode> tsXmlNode::ChildByNameWithAttributeValueExact(const t
 	return nullptr;
 }
 
-std::shared_ptr<tsXmlNode> tsXmlNode::ChildByNameWithAttributeValueExact(const tscrypto::tsCryptoString &_name, const tscrypto::tsCryptoString &attributeName, const tscrypto::tsCryptoString &attributeValue) const
+std::shared_ptr<tsXmlNode> tsXmlNode::ChildByNameWithAttributeValueExact(const tscrypto::tsCryptoStringBase &_name, const tscrypto::tsCryptoStringBase &attributeName, const tscrypto::tsCryptoStringBase &attributeValue) const
 {
 	for (size_t i = 0; i < ChildrenCount(); i++)
 	{
@@ -1835,7 +1835,7 @@ std::shared_ptr<tsXmlNode> tsXmlNode::ChildByNameWithAttributeValueExact(const t
 	return NULL;
 }
 
-std::shared_ptr<tsXmlNode> tsXmlNode::ChildByNameRecursive(const tscrypto::tsCryptoString &name)
+std::shared_ptr<tsXmlNode> tsXmlNode::ChildByNameRecursive(const tscrypto::tsCryptoStringBase &name)
 {
 	std::shared_ptr<tsXmlNode> found;
 
@@ -1853,7 +1853,7 @@ std::shared_ptr<tsXmlNode> tsXmlNode::ChildByNameRecursive(const tscrypto::tsCry
 	return nullptr;
 }
 
-std::shared_ptr<tsXmlNode> tsXmlNode::ChildByNameRecursive(const tscrypto::tsCryptoString &name) const
+std::shared_ptr<tsXmlNode> tsXmlNode::ChildByNameRecursive(const tscrypto::tsCryptoStringBase &name) const
 {
 	std::shared_ptr<tsXmlNode> found;
 
@@ -2360,9 +2360,9 @@ static void processNode(std::shared_ptr<tsXmlNode> startNode, const char *posi, 
 	if (*posi == 0 || *posi == '|')
 	{
 		count = nodesToTest->size();
-		for (size_t i = 0; i < count; i++)
+		for (size_t j = 0; j < count; j++)
 		{
-			list->push_back(nodesToTest->at(i));
+			list->push_back(nodesToTest->at(j));
 		}
 		return;
 	}
@@ -2375,9 +2375,9 @@ static void processNode(std::shared_ptr<tsXmlNode> startNode, const char *posi, 
 	if (*posi == 0 || *posi == '|')
 	{
 		count = nodesToTest->size();
-		for (size_t i = 0; i < count; i++)
+		for (size_t j = 0; j < count; j++)
 		{
-			list->push_back(nodesToTest->at(i));
+			list->push_back(nodesToTest->at(j));
 		}
 		return;
 	}
@@ -2385,9 +2385,9 @@ static void processNode(std::shared_ptr<tsXmlNode> startNode, const char *posi, 
 	{
 		posi++;
 		count = nodesToTest->size();
-		for (size_t i = 0; i < count; i++)
+		for (size_t j = 0; j < count; j++)
 		{
-			processNode(nodesToTest->at(i), posi, list);
+			processNode(nodesToTest->at(j), posi, list);
 		}
 		return;
 	}
@@ -2524,7 +2524,7 @@ static const char *processStartNode(std::shared_ptr<tsXmlNode> startNode, const 
 	return posi;
 }
 
-tsXmlNodeList tsXmlNode::findNodes(const tscrypto::tsCryptoString &xpathQuery)
+tsXmlNodeList tsXmlNode::findNodes(const tscrypto::tsCryptoStringBase &xpathQuery)
 {
 	tsXmlNodeList list = CreateContainer<std::shared_ptr<tsXmlNode>>();
 	tsXmlNodeList nodesToTest = CreateContainer<std::shared_ptr<tsXmlNode>>();
@@ -2556,7 +2556,7 @@ tsXmlNodeList tsXmlNode::findNodes(const tscrypto::tsCryptoString &xpathQuery)
 	return list;
 }
 
-tsXmlNodeList tsXmlNode::findNodes(const tscrypto::tsCryptoString &xpathQuery) const
+tsXmlNodeList tsXmlNode::findNodes(const tscrypto::tsCryptoStringBase &xpathQuery) const
 {
 	tsXmlNodeList list = CreateContainer<std::shared_ptr<tsXmlNode>>();
 	tsXmlNodeList nodesToTest = CreateContainer<std::shared_ptr<tsXmlNode>>();
@@ -2608,7 +2608,7 @@ void tsXmlNode::AttributeNodeType(tsXmlNode::attributeNodeType setTo)
 	m_attrNodeType = setTo;
 }
 
-tscrypto::tsCryptoString tsXmlNode::GetNamedChildNodeText(const tscrypto::tsCryptoString &name) const
+tscrypto::tsCryptoString tsXmlNode::GetNamedChildNodeText(const tscrypto::tsCryptoStringBase &name) const
 {
 	std::shared_ptr<tsXmlNode> child = ChildByName(name);
 
@@ -2617,52 +2617,7 @@ tscrypto::tsCryptoString tsXmlNode::GetNamedChildNodeText(const tscrypto::tsCryp
 	return child->NodeText();
 }
 
-tscrypto::tsCryptoString tsXmlNode::GetNamedChildNodeText(const char* name) const
-{
-	std::shared_ptr<tsXmlNode> child = ChildByName(name);
-
-	if (child == nullptr)
-		return "";
-	return child->NodeText();
-}
-
-void tsXmlNode::SetNamedChildNodeText(const tscrypto::tsCryptoString& name, const tscrypto::tsCryptoString& value)
-{
-	std::shared_ptr<tsXmlNode> child = ChildByName(name);
-
-	if (child == nullptr)
-	{
-		StartTextSubnode(name, value);
-	}
-	else
-		child->NodeText(value);
-}
-
-void tsXmlNode::SetNamedChildNodeText(const tscrypto::tsCryptoString& name, const char* value)
-{
-	std::shared_ptr<tsXmlNode> child = ChildByName(name);
-
-	if (child == nullptr)
-	{
-		StartTextSubnode(name, value);
-	}
-	else
-		child->NodeText(value);
-}
-
-void tsXmlNode::SetNamedChildNodeText(const char* name, const tscrypto::tsCryptoString& value)
-{
-	std::shared_ptr<tsXmlNode> child = ChildByName(name);
-
-	if (child == nullptr)
-	{
-		StartTextSubnode(name, value);
-	}
-	else
-		child->NodeText(value);
-}
-
-void tsXmlNode::SetNamedChildNodeText(const char* name, const char* value)
+void tsXmlNode::SetNamedChildNodeText(const tscrypto::tsCryptoStringBase& name, const tscrypto::tsCryptoStringBase& value)
 {
 	std::shared_ptr<tsXmlNode> child = ChildByName(name);
 

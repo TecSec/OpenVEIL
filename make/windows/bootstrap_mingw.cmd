@@ -47,7 +47,7 @@ echo ===========================================================================
   pushd release-mingw-%PROCESSOR%-%COMPILERVERSION%
   echo call usegcc%COMPILERVERSION% > resetenv.cmd
   call resetenv
-  cmake -DTS_VS_CONFIG=Release -DFORCE_%PROCESSOR%=1 -G "MinGW Makefiles" ..\..
+  cmake -DTS_VS_CONFIG=Release -DFORCE_%PROCESSOR%=1 -G "Ninja" ..\..
   echo @echo off > build.cmd
   echo call resetenv >> build.cmd
   echo call cmake --build . -- -j8 >> build.cmd
@@ -64,7 +64,7 @@ echo ===========================================================================
   pushd debug-mingw-%PROCESSOR%-%COMPILERVERSION%
   echo call usegcc%COMPILERVERSION% > resetenv.cmd
   call resetenv
-  cmake -DTS_VS_CONFIG=Debug -DFORCE_%PROCESSOR%=1 -G "MinGW Makefiles" ..\..
+  cmake -DTS_VS_CONFIG=Debug -DFORCE_%PROCESSOR%=1 -G "Ninja" ..\..
   echo @echo off > build.cmd
   echo call resetenv >> build.cmd
   echo call cmake --build . -- -j8 >> build.cmd
@@ -97,6 +97,25 @@ echo 	 ) >> buildall-mingw-%PROCESSOR%-%COMPILERVERSION%.cmd
 echo    ) >> buildall-mingw-%PROCESSOR%-%COMPILERVERSION%.cmd
 echo ) >> buildall-mingw-%PROCESSOR%-%COMPILERVERSION%.cmd
   
+echo @echo off > buildrelease-mingw-%PROCESSOR%-%COMPILERVERSION%.cmd
+echo SETLOCAL ENABLEEXTENSIONS > buildrelease-mingw-%PROCESSOR%-%COMPILERVERSION%.cmd
+echo for %%%%i in (release) do ( >> buildrelease-mingw-%PROCESSOR%-%COMPILERVERSION%.cmd
+echo    for %%%%j in (mingw) do ( >> buildrelease-mingw-%PROCESSOR%-%COMPILERVERSION%.cmd
+echo      for %%%%k in (%PROCESSOR%) do ( >> buildrelease-mingw-%PROCESSOR%-%COMPILERVERSION%.cmd
+echo 		pushd %%%%i-%%%%j-%%%%k-%COMPILERVERSION% >> buildrelease-mingw-%PROCESSOR%-%COMPILERVERSION%.cmd
+echo        call install.cmd >> buildrelease-mingw-%PROCESSOR%-%COMPILERVERSION%.cmd
+echo        if errorlevel 1 ( >> buildrelease-mingw-%PROCESSOR%-%COMPILERVERSION%.cmd
+echo           popd  >> buildrelease-mingw-%PROCESSOR%-%COMPILERVERSION%.cmd
+echo		   goto :eof >> buildrelease-mingw-%PROCESSOR%-%COMPILERVERSION%.cmd
+echo		)  >> buildrelease-mingw-%PROCESSOR%-%COMPILERVERSION%.cmd
+echo        if not errorlevel 0 ( >> buildrelease-mingw-%PROCESSOR%-%COMPILERVERSION%.cmd
+echo           popd  >> buildrelease-mingw-%PROCESSOR%-%COMPILERVERSION%.cmd
+echo		   goto :eof >> buildrelease-mingw-%PROCESSOR%-%COMPILERVERSION%.cmd
+echo		)  >> buildrelease-mingw-%PROCESSOR%-%COMPILERVERSION%.cmd
+echo 		popd >> buildrelease-mingw-%PROCESSOR%-%COMPILERVERSION%.cmd
+echo 	 ) >> buildrelease-mingw-%PROCESSOR%-%COMPILERVERSION%.cmd
+echo    ) >> buildrelease-mingw-%PROCESSOR%-%COMPILERVERSION%.cmd
+echo ) >> buildrelease-mingw-%PROCESSOR%-%COMPILERVERSION%.cmd
 
 REM echo SETLOCAL ENABLEEXTENSIONS > buildrelease.cmd
 REM echo    for %%%%j in (vc12) do ( >> buildrelease.cmd

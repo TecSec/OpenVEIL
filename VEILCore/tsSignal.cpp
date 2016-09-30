@@ -45,7 +45,7 @@ tsStringSignal::~tsStringSignal()
 	contents = nullptr;
 }
 
-size_t tsStringSignal::Add(std::function<void(const tscrypto::tsCryptoString&)> func)
+size_t tsStringSignal::Add(std::function<void(const tscrypto::tsCryptoStringBase&)> func)
 {
 	if (contents == nullptr)
 		return 0;
@@ -67,7 +67,7 @@ void tsStringSignal::Remove(size_t cookie)
 		((tsStringSignalList*)contents)->erase(it);
 }
 
-void tsStringSignal::Fire(const tscrypto::tsCryptoString& param) const
+void tsStringSignal::Fire(const tscrypto::tsCryptoStringBase& param) const
 {
 	if (contents == nullptr)
 		return;
@@ -84,7 +84,7 @@ void tsStringSignal::Fire(const tscrypto::tsCryptoString& param) const
 struct tsIObjStringSignalItem
 {
 	int cookie;
-	std::function<void(const tsmod::IObject*, const tscrypto::tsCryptoString&)> func;
+	std::function<void(const tsmod::IObject*, const tscrypto::tsCryptoStringBase&)> func;
 };
 typedef std::vector<tsIObjStringSignalItem> tsIObjStringSignalList;
 static uint32_t tsIObjStringSignalCookie = 1;
@@ -100,7 +100,7 @@ tsIObjStringSignal::~tsIObjStringSignal()
 	contents = nullptr;
 }
 
-size_t tsIObjStringSignal::Add(std::function<void(const tsmod::IObject*, const tscrypto::tsCryptoString&)> func)
+size_t tsIObjStringSignal::Add(std::function<void(const tsmod::IObject*, const tscrypto::tsCryptoStringBase&)> func)
 {
 	if (contents == nullptr)
 		return 0;
@@ -122,7 +122,7 @@ void tsIObjStringSignal::Remove(size_t cookie)
 		((tsIObjStringSignalList*)contents)->erase(it);
 }
 
-void tsIObjStringSignal::Fire(const tsmod::IObject* object, const tscrypto::tsCryptoString& param) const
+void tsIObjStringSignal::Fire(const tsmod::IObject* object, const tscrypto::tsCryptoStringBase& param) const
 {
 	if (contents == nullptr)
 		return;
