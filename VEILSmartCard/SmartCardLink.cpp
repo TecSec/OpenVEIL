@@ -445,6 +445,8 @@ private:
 				case scc_GetTransactionStatus:
 					_sw = (IsInTransaction() ? 1 : 0);
 					break;
+                default:
+                    break;
 				}
 			}
 			catch (tsstd::Exception &ex)

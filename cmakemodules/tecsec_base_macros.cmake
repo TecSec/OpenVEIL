@@ -631,7 +631,7 @@ if(APPLE)
 		DEPENDS
 			${source}
 		COMMAND
-			${CMAKE_COMMAND} -E copy_if_different ${source} ${dest}.js
+			${CMAKE_COMMAND} -E copy_if_different ${source} ${dest}
 	)
 else()
 	GET_FILENAME_COMPONENT(__destFile ${dest} NAME)

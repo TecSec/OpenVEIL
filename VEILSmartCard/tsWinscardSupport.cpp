@@ -32,28 +32,9 @@
 #include "stdafx.h"
 #include "tsWinscardSupport.h"
 
-static volatile long checkingForChanges = 0;
+//static volatile long checkingForChanges = 0;
 //static uint32_t gNextReaderName = 0;
 static uint32_t gNextConsumer = 0;
-
-static fnSCardEstablishContext    m__EstablishContext = nullptr;
-static fnSCardReleaseContext	  m__ReleaseContext = nullptr;
-static fnSCardListReaders		  m__ListReaders = nullptr;
-static fnSCardConnect			  m__Connect = nullptr;
-static fnSCardDisconnect		  m__Disconnect = nullptr;
-static fnSCardTransmit			  m__Transmit = nullptr;
-static fnSCardGetStatusChange     m__GetStatusChange = nullptr;
-static fnSCardReconnect           m__Reconnect = nullptr;
-static fnSCardGetAttrib           m__GetAttrib = nullptr;
-static fnSCardBeginTransaction    m__BeginTransaction = nullptr;
-static fnSCardEndTransaction      m__EndTransaction = nullptr;
-static fnSCardStatus              m__Status = nullptr;
-static fnSCardAccessStartedEvent  m__AccessStartedEvent = nullptr;
-static fnSCardReleaseStartedEvent m__ReleaseStartedEvent = nullptr;
-static fnSCardCancel              m__Cancel = nullptr;
-static fnSCardFreeMemory          m__FreeMemory = nullptr;
-static fnSCardIsValidContext      m__isValidContext = nullptr;
-static XP_MODULE                  m_hLib = XP_MODULE_INVALID;
 
 //static int gPolling = 250000;
 
@@ -64,7 +45,11 @@ static LONG tsSCardListReaders(IN SCARDCONTEXT hContext, IN const char *mszGroup
 class WinscardMonitorThread : public CancelableTsThread
 {
 public:
-	WinscardMonitorThread() : _context(0), _accessEvent(0), _initialized(true, false)
+	WinscardMonitorThread() : _context(0), 
+#ifdef _WIN32
+		_accessEvent(0), 
+#endif // _WIN32
+		_initialized(true, false)
 	{
 		_consumers = CreateConsumerList();
 		LOG(scdebug, "Configuring smart card thread");
@@ -74,11 +59,13 @@ public:
 	virtual ~WinscardMonitorThread()
 	{
 		LOG(scdebug, "Shutting down smart card thread");
+#ifdef _WIN32
 		if (_accessEvent != 0)
 		{
 			tsSCardReleaseStartedEvent();
 			_accessEvent = 0;
 		}
+#endif // _WIN32
 		if (Active())
 		{
 			Cancel();
@@ -231,13 +218,19 @@ protected:
 	tscrypto::AutoCriticalSection _readerNameListLock;
 	ConsumerList _consumers;
 	tscrypto::AutoCriticalSection _consumerListLock;
+#ifdef _WIN32
 	HANDLE _accessEvent;
+#endif // _WIN32
 	CryptoEvent _initialized;
 
 	int _monitor()
 	{
 		LOG(scdebug, "In the inner monitor loop");
+#ifdef _WIN32
 		while ((_accessEvent != 0 || (_context != 0 && _readers.size() > 0)) && cancel.WaitForEvent(0) == tscrypto::CryptoEvent::Timeout)
+#else
+		while ((_context != 0 && _readers.size() > 0) && cancel.WaitForEvent(0) == tscrypto::CryptoEvent::Timeout)
+#endif // _WIN32
 		{
 #ifdef _WIN32
 			if (_accessEvent != nullptr && _context == 0)
@@ -387,12 +380,17 @@ protected:
 
 		if (tsSCardEstablishContext(SCARD_SCOPE_USER, NULL, NULL, &_context) != SCARD_S_SUCCESS)
 		{
+#ifdef _WIN32
 			_accessEvent = tsSCardAccessStartedEvent();
 			if (_accessEvent == 0)
 			{
 				LOG(scdebug, "access event is NULL");
 				return 1;
 			}
+#else
+			LOG(scdebug, "access event is NULL");
+			return 1;
+#endif // _WIN32
 		}
 		// Build the initial list of readers
 		if (_context != 0)
@@ -408,9 +406,12 @@ protected:
 		if (_context != 0)
 			tsSCardReleaseContext(_context);
 		_context = 0;
+
+#ifdef _WIN32
 		if (_accessEvent != 0)
 			tsSCardReleaseStartedEvent();
 		_accessEvent = 0;
+#endif // _WIN32
 
 		return retVal;
 	}
@@ -527,10 +528,6 @@ protected:
 				_readers[i].pvUserData = nullptr;
 			}
 
-			if (m_hLib == XP_MODULE_INVALID)
-			{
-				return;
-			}
 			switch (tsSCardListReaders(_context, NULL, NULL, &cch))
 			{
 			case SCARD_S_SUCCESS:
@@ -550,13 +547,13 @@ protected:
 					}
 				}
 				break;
-			case SCARD_E_NO_READERS_AVAILABLE:
+			case (int32_t)SCARD_E_NO_READERS_AVAILABLE:
 				buffer = new char[2];
 				memcpy(buffer, ("\0"), 2);
 				cch = 2;
 				break;
 			default:
-				m__ReleaseContext(_context);
+				tsSCardReleaseContext(_context);
 				_context = 0;
 				// TODO:  Review me				BsiReader::ShutdownAllReaders();
 				return;
@@ -675,22 +672,22 @@ static LONG Result(const char *name, LONG retVal)
 #pragma region Basic Winscard functions
 LONG tsSCardEstablishContext(IN  DWORD dwScope, IN  LPCVOID pvReserved1, IN  LPCVOID pvReserved2, OUT LPSCARDCONTEXT phContext)
 {
-	return Result("EstablishContext", m__EstablishContext(dwScope, pvReserved1, pvReserved2, phContext));
+	return Result("EstablishContext", SCardEstablishContext(dwScope, pvReserved1, pvReserved2, phContext));
 }
 
 LONG tsSCardReleaseContext(IN SCARDCONTEXT hContext)
 {
-	return Result("ReleaseContext", m__ReleaseContext(hContext));
+	return Result("ReleaseContext", SCardReleaseContext(hContext));
 }
 
 static LONG tsSCardListReaders(IN SCARDCONTEXT hContext, IN const char *mszGroup, OUT char *mszReaders, IN OUT LPDWORD pcchReaders)
 {
-	return Result("ListReaders", m__ListReaders(hContext, mszGroup, mszReaders, pcchReaders));
+	return Result("ListReaders", SCardListReaders(hContext, mszGroup, mszReaders, pcchReaders));
 }
 
 LONG tsSCardConnect(IN SCARDCONTEXT hContext, IN const char *szReader, IN DWORD dwShareMode, IN DWORD dwPreferredProtocols, OUT LPSCARDHANDLE phCard, OUT LPDWORD pdwActiveProtocol)
 {
-	return Result("Connect", m__Connect(hContext, szReader, dwShareMode, dwPreferredProtocols, phCard, pdwActiveProtocol));
+	return Result("Connect", SCardConnect(hContext, szReader, dwShareMode, dwPreferredProtocols, phCard, pdwActiveProtocol));
 }
 
 ReaderInfoList tsSCardReaderList()
@@ -706,30 +703,30 @@ LONG tsSCardDisconnect(IN SCARDHANDLE hCard, IN DWORD dwDisposition)
 {
 	LOG(scdebug, "Disconnecting from card -> " << GetDisposition(dwDisposition));
 
-	return Result("Disconnect", m__Disconnect(hCard, dwDisposition));
+	return Result("Disconnect", SCardDisconnect(hCard, dwDisposition));
 }
 
 LONG tsSCardTransmit(IN SCARDHANDLE hCard, IN LPCSCARD_IO_REQUEST pioSendPci, IN LPCBYTE pbSendBuffer, IN DWORD cbSendLength,
 	IN OUT LPSCARD_IO_REQUEST pioRecvPci, OUT LPBYTE pbRecvBuffer, IN OUT LPDWORD pcbRecvLength)
 {
-	return Result("Transmit", m__Transmit(hCard, pioSendPci, pbSendBuffer, cbSendLength, pioRecvPci, pbRecvBuffer, pcbRecvLength));
+	return Result("Transmit", SCardTransmit(hCard, pioSendPci, pbSendBuffer, cbSendLength, pioRecvPci, pbRecvBuffer, pcbRecvLength));
 }
 
-LONG tsSCardGetStatusChange(IN SCARDCONTEXT hContext, IN DWORD dwTimeout, IN OUT LPSCARD_READERSTATE rgReaderStates, IN DWORD cReaders)
+LONG tsSCardGetStatusChange(IN SCARDCONTEXT hContext, IN DWORD dwTimeout, IN OUT LPSCARD_READERSTATE_A rgReaderStates, IN DWORD cReaders)
 {
-	return Result("GetStatusChange", m__GetStatusChange(hContext, dwTimeout, rgReaderStates, cReaders));
+	return Result("GetStatusChange", SCardGetStatusChange(hContext, dwTimeout, rgReaderStates, cReaders));
 }
 
 LONG tsSCardReconnect(IN SCARDHANDLE hCard, IN DWORD dwShareMode, IN DWORD dwPreferredProtocols, IN DWORD dwInitialization, OUT LPDWORD pdwActiveProtocol)
 {
 	LOG(scdebug, "Reconnect to card");
 
-	return Result("Reconnect", m__Reconnect(hCard, dwShareMode, dwPreferredProtocols, dwInitialization, pdwActiveProtocol));
+	return Result("Reconnect", SCardReconnect(hCard, dwShareMode, dwPreferredProtocols, dwInitialization, pdwActiveProtocol));
 }
 
 LONG tsSCardGetAttrib(SCARDHANDLE hCard, DWORD dwAttrId, LPBYTE pbAttr, LPDWORD pcbAttrLen)
 {
-	return Result("GetAttrib", m__GetAttrib(hCard, dwAttrId, pbAttr, pcbAttrLen));
+	return Result("GetAttrib", SCardGetAttrib(hCard, dwAttrId, pbAttr, pcbAttrLen));
 }
 
 LONG tsSCardBeginTransaction(IN SCARDHANDLE hCard)
@@ -740,7 +737,7 @@ LONG tsSCardBeginTransaction(IN SCARDHANDLE hCard)
 	int retryCount = 0;
 
 	do {
-		retVal = m__BeginTransaction(hCard);
+		retVal = SCardBeginTransaction(hCard);
 
 		if (retVal == SCARD_E_SERVER_TOO_BUSY || retVal == SCARD_E_SHARING_VIOLATION)
 		{
@@ -765,47 +762,47 @@ LONG tsSCardEndTransaction(IN SCARDHANDLE hCard, IN DWORD dwDisposition)
 {
 	LOG(scdebug, "End Transaction -> " << GetDisposition(dwDisposition));
 
-	return Result("EndTransaction", m__EndTransaction(hCard, dwDisposition));
+	return Result("EndTransaction", SCardEndTransaction(hCard, dwDisposition));
 }
 
+#ifdef _WIN32
 HANDLE tsSCardAccessStartedEvent(void)
 {
-	if (m__AccessStartedEvent != nullptr)
-	{
-		HANDLE retVal = m__AccessStartedEvent();
+	HANDLE retVal = SCardAccessStartedEvent();
 		LOG(scdebug, "AccessStartedEvent -> " << ToHex()((void*)retVal));
 		return retVal;
-	}
-	return 0;
 }
 void tsSCardReleaseStartedEvent(void)
 {
-	if (m__ReleaseStartedEvent != nullptr)
-	{
 		LOG(scdebug, "ReleaseStartedEvent");
-		m__ReleaseStartedEvent();
-	}
+	SCardReleaseStartedEvent();
 }
+#endif
 
 LONG tsSCardCancel(IN SCARDCONTEXT hContext)
 {
 	LOG(scdebug, "Cancel card");
 
-	return Result("Cancel", m__Cancel(hContext));
+	return Result("Cancel", SCardCancel(hContext));
 }
 
 LONG tsSCardFreeMemory(IN SCARDCONTEXT hContext, IN LPCVOID pvMem)
 {
-	return Result("FreeMemory", m__FreeMemory(hContext, pvMem));
+#ifdef SCARD_AUTOALLOCATE
+	return Result("FreeMemory", SCardFreeMemory(hContext, pvMem));
+#else
+    free ((void*)pvMem);
+    return 0;
+#endif
 }
 
 LONG tsSCardIsValidContext(IN SCARDCONTEXT hContext)
 {
-	return Result("isValidContext", m__isValidContext(hContext));
+	return Result("isValidContext", SCardIsValidContext(hContext));
 }
 LONG tsSCardStatus(IN SCARDHANDLE hCard, OUT LPSTR mszReaderNames, IN OUT LPDWORD pcchReaderLen, OUT LPDWORD pdwState, OUT LPDWORD pdwProtocol, OUT LPBYTE pbAtr, OUT LPDWORD pcbAtrLen)
 {
-	return m__Status(hCard, mszReaderNames, pcchReaderLen, pdwState, pdwProtocol, pbAtr, pcbAtrLen);
+	return SCardStatus(hCard, mszReaderNames, pcchReaderLen, pdwState, pdwProtocol, pbAtr, pcbAtrLen);
 }
 #pragma endregion
 
@@ -817,49 +814,6 @@ bool tsWinscardInit(void)
 {
 	if (InterlockedIncrement(&gWinscardInitCount) > 1)
 		return true;
-
-	if (xp_LoadSharedLib(PCSC_DLL_NAME, &m_hLib))
-	{
-		InterlockedDecrement(&gWinscardInitCount);
-		//		MessageBox(NULL, "LoadLibrary failed", "Status", MB_OK);
-		return false;
-	}
-
-#ifdef _WIN32
-	m__ListReaders = (fnSCardListReaders)xp_GetProcAddress(m_hLib, "SCardListReadersA");
-	m__Connect = (fnSCardConnect)xp_GetProcAddress(m_hLib, "SCardConnectA");
-	m__GetStatusChange = (fnSCardGetStatusChange)xp_GetProcAddress(m_hLib, "SCardGetStatusChangeA");
-	m__Status = (fnSCardStatus)xp_GetProcAddress(m_hLib, "SCardStatusA");
-#else
-	m__ListReaders = (fnSCardListReaders)xp_GetProcAddress(m_hLib, "SCardListReaders");
-	m__Connect = (fnSCardConnect)xp_GetProcAddress(m_hLib, "SCardConnect");
-	m__GetStatusChange = (fnSCardGetStatusChange)xp_GetProcAddress(m_hLib, "SCardGetStatusChange");
-#endif // _WIN32
-	m__EstablishContext = (fnSCardEstablishContext)xp_GetProcAddress(m_hLib, "SCardEstablishContext");
-	m__ReleaseContext = (fnSCardReleaseContext)xp_GetProcAddress(m_hLib, "SCardReleaseContext");
-	m__Disconnect = (fnSCardDisconnect)xp_GetProcAddress(m_hLib, "SCardDisconnect");
-	m__Transmit = (fnSCardTransmit)xp_GetProcAddress(m_hLib, "SCardTransmit");
-	m__Reconnect = (fnSCardReconnect)xp_GetProcAddress(m_hLib, "SCardReconnect");
-	m__GetAttrib = (fnSCardGetAttrib)xp_GetProcAddress(m_hLib, "SCardGetAttrib");
-	m__BeginTransaction = (fnSCardBeginTransaction)xp_GetProcAddress(m_hLib, "SCardBeginTransaction");
-	m__EndTransaction = (fnSCardEndTransaction)xp_GetProcAddress(m_hLib, "SCardEndTransaction");
-	m__AccessStartedEvent = (fnSCardAccessStartedEvent)xp_GetProcAddress(m_hLib, "SCardAccessStartedEvent");
-	m__ReleaseStartedEvent = (fnSCardReleaseStartedEvent)xp_GetProcAddress(m_hLib, "SCardReleaseStartedEvent");
-	m__FreeMemory = (fnSCardFreeMemory)xp_GetProcAddress(m_hLib, "SCardFreeMemory");
-	m__Cancel = (fnSCardCancel)xp_GetProcAddress(m_hLib, "SCardCancel");
-	m__isValidContext = (fnSCardIsValidContext)xp_GetProcAddress(m_hLib, "SCardIsValidContext");
-
-	if (m__EstablishContext == NULL || m__ReleaseContext == NULL || m__ListReaders == NULL ||
-		m__Connect == NULL || m__Disconnect == NULL || m__Transmit == NULL ||
-		m__GetStatusChange == NULL || m__Reconnect == NULL || m__GetAttrib == NULL ||
-		m__BeginTransaction == NULL || m__EndTransaction == NULL || //m__AccessStartedEvent == NULL ||
-		/*m__ReleaseStartedEvent == NULL ||*/ m__Cancel == NULL || m__FreeMemory == NULL ||
-		m__isValidContext == NULL || m__Status == NULL)
-	{
-		//		MessageBox(NULL, "Winscard function pointers failed", "Status", MB_OK);
-		tsWinscardRelease();
-		return false;
-	}
 
 	gWinscardMonitorThread = std::shared_ptr<WinscardMonitorThread>(new WinscardMonitorThread());
 	if (!gWinscardMonitorThread)
@@ -890,28 +844,6 @@ bool tsWinscardRelease(void)
 		gWinscardMonitorThread.reset();
 	}
 
-	m__EstablishContext = NULL;
-	m__ReleaseContext = NULL;
-	m__ListReaders = NULL;
-	m__Connect = NULL;
-	m__Disconnect = NULL;
-	m__Transmit = NULL;
-	m__GetStatusChange = NULL;
-	m__Reconnect = NULL;
-	m__GetAttrib = NULL;
-	m__BeginTransaction = NULL;
-	m__EndTransaction = NULL;
-	m__AccessStartedEvent = NULL;
-	m__ReleaseStartedEvent = NULL;
-	m__FreeMemory = NULL;
-	m__Cancel = NULL;
-	m__isValidContext = NULL;
-	m__Status = NULL;
-
-	if (m_hLib != XP_MODULE_INVALID)
-		xp_FreeSharedLib(m_hLib);
-
-	m_hLib = XP_MODULE_INVALID;
 	return true;
 }
 #pragma endregion

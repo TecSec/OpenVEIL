@@ -71,7 +71,7 @@ ENDIF(WIN32)
 
 set(${VEILCORENAME_U}_MAJOR_VERSION 7)
 set(${VEILCORENAME_U}_MINOR_VERSION 0)
-set(${VEILCORENAME_U}_REVISION_VERSION 35)
+set(${VEILCORENAME_U}_REVISION_VERSION 38)
 set(${VEILCORENAME_U}_BUILD_VERSION 0)
 
 #####################################################################
@@ -143,7 +143,7 @@ if (PCSC_FOUND AND NOT APPLE)
 	endif(NOT ("${_tmp}" STREQUAL ""))
 	get_property(_tmp TARGET pcsc PROPERTY DLOPEN_SONAME)
 	set(PCSC_SO_NAME, ${_tmp})
-message(STATUS 	"set(PCSC_SO_NAME, ${_tmp})")
+	message(STATUS 	"set(PCSC_SO_NAME, ${_tmp})")
 endif()
 
 INCLUDE(CheckIncludeFiles)
@@ -170,6 +170,8 @@ set(HAVE_SMARTCARD 0)
 if(HAVE_WINDOWS_H)
     set(HAVE_SMARTCARD 1)
 elseif(TARGET pcsc)
+    set(HAVE_SMARTCARD 1)
+elseif(APPLE)
     set(HAVE_SMARTCARD 1)
 endif(HAVE_WINDOWS_H)
 

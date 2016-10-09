@@ -666,7 +666,7 @@ protected:
 class LocalSmartCardConnection : public SmartCardConnection, public SmartCardChangeReceiver, public tsmod::IObject
 {
 public:
-	LocalSmartCardConnection() : cookie(0), m_lRefCount(0) {}
+	LocalSmartCardConnection() : cookie(0) {}
 	virtual ~LocalSmartCardConnection()
 	{
 		if (!!_card)
@@ -873,6 +873,8 @@ protected:
 		case SmartCardCommand::scc_GetTransactionStatus:
 			m_responseSw = (_card_IsInTransaction() ? 1 : 0);
 			break;
+        default:
+            break;
 		}
 		return true;
 	}
@@ -1026,7 +1028,6 @@ private:
 	std::shared_ptr<ICkmWinscardConnection> _card;
 	tscrypto::tsCryptoString m_readerName;
 	int cookie;
-	uint32_t m_lRefCount;
 };
 
 tsmod::IObject* CreateLocalSmartCardConnectionObject()

@@ -151,7 +151,7 @@ LONG tsSCardTransmit(
 LONG tsSCardGetStatusChange(
     IN SCARDCONTEXT	hContext,
     IN DWORD		dwTimeout,
-    IN OUT			LPSCARD_READERSTATE	rgReaderStates,
+    IN OUT			LPSCARD_READERSTATE_A	rgReaderStates,
     IN DWORD		cReaders);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -259,9 +259,10 @@ typedef struct ReaderInfo
 } ReaderInfo;
 
 
-HANDLE tsSCardAccessStartedEvent(void);
-void tsSCardReleaseStartedEvent(void);
-
+#ifdef _WIN32
+    HANDLE tsSCardAccessStartedEvent(void);
+    void tsSCardReleaseStartedEvent(void);
+#endif // _WIN32
 
 
 /* ! @brief This type defines the different notification events that can be raised by the ::TS_ScanForChanges function */

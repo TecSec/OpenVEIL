@@ -82,7 +82,7 @@ class SmartCardKeyInformation : public ISmartCardKeyInformation, public tsmod::I
 {
 public:
 	SmartCardKeyInformation(uint8_t version, uint8_t number, uint8_t type, int length, const tscrypto::tsCryptoData &info) :
-		m_lRefCount(0), _KeyVersion(version), _KeyNumber(number), _KeyType(type), _KeyLength(length), _OtherInfo(info)
+		_KeyVersion(version), _KeyNumber(number), _KeyType(type), _KeyLength(length), _OtherInfo(info)
 	{}
 	virtual ~SmartCardKeyInformation() {}
 
@@ -94,7 +94,6 @@ public:
 	virtual tscrypto::tsCryptoData OtherInfo() const { return _OtherInfo; }
 
 private:
-	uint32_t m_lRefCount;
 	uint8_t _KeyVersion;
 	uint8_t _KeyNumber;
 	uint8_t _KeyType;
@@ -105,9 +104,8 @@ private:
 class SmartCardInformation : public ISmartCardInformation, public tsmod::IObject
 {
 public:
-	SmartCardInformation() : m_lRefCount(0), _chipId(0), _isdKeyLength(0), _isdKeyType(0), _ssdKeyLength(0), _ssdKeyType(0), _dapKeyLength(0), _dapKeyType(0),
-		_IsdSCPNumber(0), _SsdSCPNumber(0), _DapSCPNumber(0), _IsdSCPParameter(0), _SsdSCPParameter(0), _DapSCPParameter(0),
-		_IsdKeyVersion(0), _SsdKeyVersion(0), _DapKeyVersion(0), _transportLocked(false) {}
+	SmartCardInformation() : _chipId(0), _transportLocked(false),
+		_IsdKeyVersion(0), _isdKeyLength(0), _isdKeyType(0), _SsdKeyVersion(0), _ssdKeyLength(0), _ssdKeyType(0), _DapKeyVersion(0), _dapKeyLength(0), _dapKeyType(0), _IsdSCPNumber(0), _IsdSCPParameter(0), _SsdSCPNumber(0), _SsdSCPParameter(0),_DapSCPNumber(0), _DapSCPParameter(0) {}
 	virtual ~SmartCardInformation() {}
 
 	// ISmartCardInformation
@@ -527,7 +525,6 @@ public:
 		return _transportLocked;
 	}
 private:
-	uint32_t m_lRefCount;
 	int _chipId;
 	bool _transportLocked;
 	tscrypto::tsCryptoData _IIN, _CIN;

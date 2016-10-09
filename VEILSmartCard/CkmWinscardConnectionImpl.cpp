@@ -203,8 +203,8 @@ private:
 
 		switch (errorCode)
 		{
-		case 0x80100067: //SCARD_W_UNPOWERED_CARD:
-		case 0x8010002F: //SCARD_E_COMM_DATA_LOST:
+		case (int32_t)0x80100067: //SCARD_W_UNPOWERED_CARD:
+		case (int32_t)0x8010002F: //SCARD_E_COMM_DATA_LOST:
 			if (tsSCardReconnect(m_handle, SCARD_SHARE_SHARED, m_protocol, SCardResetCard, &m_protocol) != ERROR_SUCCESS)
 			{
 				return false;
@@ -216,7 +216,7 @@ private:
 			}
 			LOG(debug, "Retrying command - reconnected");
 			return true;
-		case 0x80100068: //SCARD_W_RESET_CARD:
+		case (int32_t)0x80100068: //SCARD_W_RESET_CARD:
 			if (tsSCardReconnect(m_handle, SCARD_SHARE_SHARED, m_protocol, SCardResetCard, &m_protocol) != ERROR_SUCCESS)
 			{
 				return false;
@@ -228,7 +228,7 @@ private:
 			}
 			LOG(debug, "Retrying command - card was reset");
 			return true;
-		case 0x80100069: //SCARD_W_REMOVED_CARD:
+		case (int32_t)0x80100069: //SCARD_W_REMOVED_CARD:
 			state.dwCurrentState = 0;
 			state.cbAtr = 0;
 			state.dwEventState = SCARD_STATE_UNKNOWN;
