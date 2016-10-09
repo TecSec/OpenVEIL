@@ -316,8 +316,8 @@ IDB_TECSECLOGO          BITMAP                  "tecseclogo.bmp"
 STRINGTABLE
 BEGIN
 IDS_APPTITLE            "CKM�"
-IDS_VERSION             "Version 7.00"
-IDS_COPYRIGHT           "� 2000-2015 TecSec Inc."
+IDS_VERSION             "Version @VEILCORE_VERSION@"
+IDS_COPYRIGHT           "@VEIL_COPYRIGHT@"
 IDS_TRADEMARK           "VEIL, CKM and Constructive Key Management are registered trademarks of TecSec, Inc."
 IDS_WARNING             "Warning: All VEIL and CKM programs are protected by copyright law and international treaties. Unauthorized reproduction or distribution of these programs or any portion of them may result in civil and criminal penalties, and will be prosecuted to the fullest extent possible under law."
 IDS_PARTOF              "The VEIL suite includes KEyVEIL, OpenVEIL, OpaqueVEIL and more."

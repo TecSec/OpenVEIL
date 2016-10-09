@@ -69,7 +69,7 @@ BEGIN
             VALUE "FileDescription", "GetMyCTS application"
 			VALUE "FileVersion", "@VEILCORE_VERSION@.0"
             VALUE "InternalName", "GetMyCTS"
-            VALUE "LegalCopyright", "Copyright (C) 2014 - 2016 TecSec, Inc.  All Rights Reserved Worldwide."
+            VALUE "LegalCopyright", "@VEIL_COPYRIGHT@"
             VALUE "OriginalFilename", "GetMyCts.exe"
             VALUE "ProductName", " GetMyCts application"
 			VALUE "ProductVersion", "@VEILCORE_VERSION@.0"

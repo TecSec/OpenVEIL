@@ -70,7 +70,7 @@ BEGIN
             VALUE "FileDescription", "Hex 2 file tool"
 			VALUE "FileVersion", "@VEILTOOLS_FULL_VERSION@"
             VALUE "InternalName", "hex2file"
-            VALUE "LegalCopyright", "Copyright (C) 2015 TecSec, Inc.  All Rights Reserved Worldwide."
+            VALUE "LegalCopyright", "@VEIL_COPYRIGHT@"
             VALUE "OriginalFilename", "hex2file.exe"
             VALUE "ProductName", " hex2file"
 			VALUE "ProductVersion", "@VEILTOOLS_FULL_VERSION@"

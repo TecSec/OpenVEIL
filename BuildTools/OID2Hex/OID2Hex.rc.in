@@ -71,7 +71,7 @@ BEGIN
             VALUE "FileDescription", "OID 2 Hex converter"
 			VALUE "FileVersion", "@VEILTOOLS_FULL_VERSION@"
             VALUE "InternalName", "OID2Hex"
-            VALUE "LegalCopyright", "Copyright (C) 2015 TecSec, Inc.  All Rights Reserved Worldwide."
+            VALUE "LegalCopyright", "@VEIL_COPYRIGHT@"
             VALUE "OriginalFilename", "OID2Hex.exe"
             VALUE "ProductName", " OID2Hex"
 			VALUE "ProductVersion", "@VEILTOOLS_FULL_VERSION@"
