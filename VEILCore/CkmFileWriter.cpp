@@ -494,7 +494,7 @@ tsStreamWriter &tsStreamWriter::hexDump(tscrypto::tsCryptoData& data)
 	return *this;
 }
 
-//tsStreamWriter &tsStreamWriter::operator<< (const wchar_t *value)
+//tsStreamWriter &tsStreamWriter::operator<< (const ts_wchar *value)
 //{
 //	tscrypto::tsCryptoString data;
 //	data << value;

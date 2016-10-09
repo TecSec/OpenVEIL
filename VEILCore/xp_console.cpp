@@ -300,7 +300,7 @@ xp_console &xp_console::hexDump(tscrypto::tsCryptoData& data)
 	return *this;
 }
 
-//xp_console &xp_console::operator<< (const wchar_t *value)
+//xp_console &xp_console::operator<< (const ts_wchar *value)
 //{
 //	tscrypto::tsCryptoString data;
 //	data << value;

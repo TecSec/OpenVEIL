@@ -70,7 +70,7 @@ public:
 	///
 	/// <returns>true if it succeeds, false if it fails.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	bool Parse(const wchar_t * xml, tsXmlParserCallback *callback, tscrypto::tsCryptoStringBase &Results);
+	bool Parse(const ts_wchar * xml, tsXmlParserCallback *callback, tscrypto::tsCryptoStringBase &Results);
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Parses the specified XML using the callback interface.</summary>
 	///
@@ -81,7 +81,7 @@ public:
 	///
 	/// <returns>true if it succeeds, false if it fails.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	bool Parse(const wchar_t * xml, size_t len, tsXmlParserCallback *callback, tscrypto::tsCryptoStringBase &Results);
+	bool Parse(const ts_wchar * xml, size_t len, tsXmlParserCallback *callback, tscrypto::tsCryptoStringBase &Results);
 #endif // HAVE_BSTR
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Parses the specified XML using the callback interface.</summary>

@@ -378,7 +378,7 @@ bool FileVEILOperationsImpl::secureDeleteStreams(const tscrypto::tsCryptoString&
 		{
 			// get the name of the stream (Wide-Char format)
 			streamName.clear();
-			streamName.resize(sid.dwStreamNameSize / sizeof(wchar_t));
+			streamName.resize(sid.dwStreamNameSize / sizeof(ts_wchar));
 
 			BackupRead(hFile, (byte *)streamName.data(), sid.dwStreamNameSize, &dwRead, FALSE, FALSE, &ctx);
 

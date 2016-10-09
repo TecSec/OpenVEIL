@@ -39,8 +39,6 @@
 using namespace BigNum;
 
 static std::shared_ptr<tsmod::IServiceLocator> g_ServiceLocator;
-static std::shared_ptr<tsmod::IServiceLocator> g_CryptoServiceLocator;
-static std::shared_ptr<tsmod::IServiceLocator> g_CryptoTestServiceLocator;
 std::shared_ptr < ICkmChangeMonitor> gChangeMonitor;
 static std::vector<std::function<bool()> > gInitializers;
 static std::deque<std::function<bool()> > gTerminators;
@@ -160,13 +158,6 @@ std::shared_ptr<tsmod::IServiceLocator> TopServiceLocator()
 				mgr->UseRootedPlugins(false);
 			}
 		}
-		g_CryptoServiceLocator = std::dynamic_pointer_cast<tsmod::IServiceLocator>(g_ServiceLocator->newInstance());
-		g_ServiceLocator->AddSingletonObject("Crypto", std::dynamic_pointer_cast<tsmod::IObject>(g_CryptoServiceLocator));
-
-		//g_CryptoServiceLocator->AddClass("RSA-OAEP-SHA3", []()->tsmod::IObject* {return CreateRsaOAEP("RSA-OAEP-SHA3"); });
-
-		g_CryptoTestServiceLocator = std::dynamic_pointer_cast<tsmod::IServiceLocator>(g_ServiceLocator->newInstance());
-		g_ServiceLocator->AddSingletonObject("CryptoTest", std::dynamic_pointer_cast<tsmod::IObject>(g_CryptoTestServiceLocator));
 
 		g_ServiceLocator->AddClass("ResourceLoader", CreateResourceLoader);
 		g_ServiceLocator->AddClass("TcpMessageProcessor", CreateTcpMsgProcessor);
@@ -176,14 +167,7 @@ std::shared_ptr<tsmod::IServiceLocator> TopServiceLocator()
 		g_ServiceLocator->AddSingletonObject("Settings", g_ServiceLocator->FinishConstruction(CreatePropertyMap()));
 
 		AddSystemTerminationFunction([]() ->bool {
-			g_ServiceLocator->DeleteClass("AlgorithmListManager");
 			g_ServiceLocator->DeleteClass("KeyVEILConnector");
-			g_ServiceLocator->DeleteClass("CkmEntropy");
-			g_ServiceLocator->DeleteClass("Crypto");
-			g_ServiceLocator->DeleteClass("CryptoTest");
-
-			g_CryptoServiceLocator.reset();
-			g_CryptoTestServiceLocator.reset();
 
 			std::shared_ptr<tsmod::IPluginModuleManager> mgr = g_ServiceLocator->try_get_instance<tsmod::IPluginModuleManager>("/PluginManager");
 			if (!!mgr)
@@ -198,9 +182,6 @@ std::shared_ptr<tsmod::IServiceLocator> TopServiceLocator()
 			g_ServiceLocator->DeleteClass("Settings");
 			g_ServiceLocator->DeleteClass("ResourceLoader");
 			g_ServiceLocator->DeleteClass("TcpMessageProcessor");
-#ifndef _WIN32
-			g_ServiceLocator->DeleteClass("SSM");
-#endif
 			return true;
 		});
 		// Now run the crypto self-tests
@@ -986,8 +967,6 @@ void TerminateVEILSystem()
 	//		func(); 
 	//});
 	//gTerminators.clear();
-	g_CryptoServiceLocator.reset();
-	g_CryptoTestServiceLocator.reset();
 	if (!!gChangeMonitor)
 	{
 		gChangeMonitor->StartChangeMonitorThread();

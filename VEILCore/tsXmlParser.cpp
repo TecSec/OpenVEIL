@@ -50,7 +50,7 @@ tsXmlParser::~tsXmlParser()
 //    return FrameworkDeallocator(ptr);
 //}
 #ifdef HAVE_BSTR
-bool tsXmlParser::Parse(const wchar_t * xml,	tsXmlParserCallback *callback, tscrypto::tsCryptoStringBase &Results)
+bool tsXmlParser::Parse(const ts_wchar * xml,	tsXmlParserCallback *callback, tscrypto::tsCryptoStringBase &Results)
 {
 	if ( xml == NULL || callback == NULL )
 		return false;
@@ -63,7 +63,7 @@ bool tsXmlParser::Parse(const wchar_t * xml,	tsXmlParserCallback *callback, tscr
 	return Parse(Results) != tsXmlParserCallback::rcAbort;
 }
 
-bool tsXmlParser::Parse(const wchar_t * xml, size_t len, tsXmlParserCallback *callback, tscrypto::tsCryptoStringBase &Results)
+bool tsXmlParser::Parse(const ts_wchar * xml, size_t len, tsXmlParserCallback *callback, tscrypto::tsCryptoStringBase &Results)
 {
 	if ( xml == NULL || callback == NULL )
 		return false;

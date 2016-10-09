@@ -262,7 +262,7 @@ tsTraceStream &tsTraceStream::hexDump(tscrypto::tsCryptoData& data)
 	return *this;
 }
 
-//tsTraceStream &tsTraceStream::operator<< (const wchar_t *value)
+//tsTraceStream &tsTraceStream::operator<< (const ts_wchar *value)
 //{
 //    tscrypto::tsCryptoString data;
 //	data << value;
