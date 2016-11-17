@@ -40,6 +40,7 @@ extern tsmod::IObject* CreateGenDsaKey();
 extern tsmod::IObject* CreateGenRsa();
 extern tsmod::IObject* CreateGenEcc();
 extern tsmod::IObject* CreateGenX25519();
+extern tsmod::IObject* CreateGenNums();
 extern tsmod::IObject* CreatePemTool();
 extern tsmod::IObject* CreateSelftestTool();
 extern tsmod::IObject* CreateSettingsTool();
@@ -121,6 +122,7 @@ int main(int argc, const char* argv[])
 	::TopServiceLocator()->AddClass("/COMMANDS/GENRSA", CreateGenRsa);
 	::TopServiceLocator()->AddClass("/COMMANDS/GENECC", CreateGenEcc);
 	::TopServiceLocator()->AddClass("/COMMANDS/GENX25519", CreateGenX25519);
+	::TopServiceLocator()->AddClass("/COMMANDS/GENNUMS", CreateGenNums);
 	::TopServiceLocator()->AddClass("/COMMANDS/PEM", CreatePemTool);
 	::TopServiceLocator()->AddClass("/COMMANDS/SELFTEST", CreateSelftestTool);
 	::TopServiceLocator()->AddClass("/COMMANDS/SETTINGS", CreateSettingsTool);

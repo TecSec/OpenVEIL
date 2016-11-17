@@ -78,6 +78,10 @@ void tsStringSignal::Fire(const tscrypto::tsCryptoStringBase& param) const
 			item.func(param); 
 	}
 }
+void tsStringSignal::clear()
+{
+	((tsStringSignalList*)contents)->clear();
+}
 
 //===================================================================================
 
@@ -132,6 +136,10 @@ void tsIObjStringSignal::Fire(const tsmod::IObject* object, const tscrypto::tsCr
 		if (!!item.func) 
 			item.func(object, param); 
 	}
+}
+void tsIObjStringSignal::clear()
+{
+	((tsIObjStringSignalList*)contents)->clear();
 }
 
 
@@ -190,6 +198,10 @@ void tsVoidSignal::Fire() const
 			item.func(); 
 	}
 }
+void tsVoidSignal::clear()
+{
+	((tsVoidSignalList*)contents)->clear();
+}
 
 
 //===================================================================================
@@ -247,6 +259,10 @@ void tsSignal::Fire(const tsmod::IObject* object, ISignalArgs*args) const
 			item.func(object, args); 
 	}
 }
+void tsSignal::clear()
+{
+	((tsSignalList*)contents)->clear();
+}
 
 
 //===================================================================================
@@ -303,5 +319,9 @@ void tsPropChangeSignal::Fire(const tsmod::IObject* object, IPropertyChangedEven
 		if (!!item.func) 
 			item.func(object, args); 
 	}
+}
+void tsPropChangeSignal::clear()
+{
+	((tsPropChangeSignalList*)contents)->clear();
 }
 

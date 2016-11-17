@@ -150,11 +150,11 @@ public:
 	{
 		return myServices->IsRoot();
 	}
-	virtual std::shared_ptr<IObject> Create(const tscrypto::tsCryptoStringBase& className, std::shared_ptr<tsmod::IServiceLocator> onService) override
+	virtual std::shared_ptr<tsmod::IObject> Create(const tscrypto::tsCryptoStringBase& className, std::shared_ptr<tsmod::IServiceLocator> onService) override
 	{
 		return myServices->Create(className, onService);
 	}
-	virtual std::shared_ptr<IObject> TryCreate(const tscrypto::tsCryptoStringBase& className, std::shared_ptr<tsmod::IServiceLocator> onService) override
+	virtual std::shared_ptr<tsmod::IObject> TryCreate(const tscrypto::tsCryptoStringBase& className, std::shared_ptr<tsmod::IServiceLocator> onService) override
 	{
 		return myServices->TryCreate(className, onService);
 	}
@@ -279,7 +279,7 @@ bool PluginModule::Initialize(tsmod::IReportError* log)
 		}
 		if (fn == nullptr)
 		{
-			fn = (fn_t)xp_GetProcAddress(_handle, ("Initialize" + _baseName + "d").c_str());
+			fn = (fn_t)xp_GetProcAddress(_handle, ("Initialize" + _baseName + "_d").c_str());
 		}
 		if (fn == nullptr)
 		{

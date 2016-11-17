@@ -34,8 +34,6 @@
 
 #pragma once
 
-#include "compilerconfig.h"
-
 #include "VEIL.h"
 
 #ifdef _WIN32

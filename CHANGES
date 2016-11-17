@@ -35,3 +35,7 @@ Changes for 1/27/2016
  * Changed smart card support to static link (was dynamic link)
  * improved the logic for locating the TecSec VEIL Crypto SDK
  * OSX sets wchar_t to int.  Windows uses unsigned short.  Created ts_wchar to make this consistent for CryptoUTF16
+
+ Changes for 7.0.39
+ * Updated for VEILCrypto 7.0.5
+ * More work on the port to OSX

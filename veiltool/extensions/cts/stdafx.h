@@ -42,8 +42,6 @@
 #include "targetver.h"
 #endif // _WIN32
 
-#include "compilerconfig.h"
-
 #include "VEIL.h"
 using namespace tscrypto;
 

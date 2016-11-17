@@ -33,7 +33,7 @@
 //
 
 #include "StdAfx.h"
-#include "VEILCryptoCore.h"
+#include "VEILCrypto.h"
 
 
 static void usage ()

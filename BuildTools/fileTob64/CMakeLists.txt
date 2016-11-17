@@ -50,7 +50,7 @@ add_executable(fileTob64
 set_target_properties(fileTob64 PROPERTIES FOLDER "GeneralTools")
 set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/fileTob64.rc PROPERTIES COMPILE_DEFINITIONS RC_COMPILED)
 TARGET_LINK_LIBRARIES(fileTob64 
-	VEILCryptoCore
+	VEILCrypto
 	zlib
 )
 

@@ -51,7 +51,7 @@ add_executable(b64Tofile
 set_target_properties(b64Tofile PROPERTIES FOLDER "GeneralTools")
 set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/b64Tofile.rc PROPERTIES COMPILE_DEFINITIONS RC_COMPILED)
 TARGET_LINK_LIBRARIES(b64Tofile 
-	VEILCryptoCore
+	VEILCrypto
 	zlib
 )
 

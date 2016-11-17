@@ -34,8 +34,6 @@
 
 #define VEILFILESUPPORTDEF
 
-#include "compilerconfig.h"
-
 #include "VEIL.h"
 #include "VEILCmsHeader.h"
 #include "VEILFileSupport.h"
@@ -43,9 +41,11 @@
 extern bool GetStreamNames (const tscrypto::tsCryptoString& filename, tscrypto::tsCryptoStringList& list);
 
 namespace tscrypto {
-	template <typename baseType>
-	class CryptoContainerWrapper : public ICryptoContainerWrapper<baseType>/*, public tscrypto::IObject*/
-	{
+template <typename baseType>
+class CryptoContainerWrapper
+    : public ICryptoContainerWrapper<baseType> /*, public
+                                                  tscrypto::ICryptoObject*/
+{
 	public:
 		typedef typename std::vector<baseType> listType;
 		typedef size_t size_type;

@@ -50,9 +50,11 @@ extern HIDDEN bool gTimeCommands;
 extern HIDDEN bool gLogDecryptedInfo;
 
 namespace tscrypto {
-	template <typename baseType>
-	class CryptoContainerWrapper : public ICryptoContainerWrapper<baseType>/*, public tscrypto::IObject*/
-	{
+template <typename baseType>
+class CryptoContainerWrapper
+    : public ICryptoContainerWrapper<baseType> /*, public
+                                                  tscrypto::ICryptoObject*/
+{
 	public:
 		typedef typename std::vector<baseType> listType;
 		typedef size_t size_type;

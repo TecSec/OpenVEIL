@@ -33,7 +33,7 @@
 //
 
 #include "stdafx.h"
-#include "VEILCryptoCore.h"
+#include "VEILCrypto.h"
 
 using namespace tscrypto;
 

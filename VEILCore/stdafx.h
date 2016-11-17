@@ -75,9 +75,11 @@ private:
 };
 
 namespace tscrypto {
-	template <typename baseType>
-	class CryptoContainerWrapper : public ICryptoContainerWrapper<baseType>/*, public tscrypto::IObject*/
-	{
+template <typename baseType>
+class CryptoContainerWrapper
+    : public ICryptoContainerWrapper<baseType> /*, public
+                                                  tscrypto::ICryptoObject*/
+{
 	public:
 		typedef typename std::vector<baseType> listType;
 		typedef size_t size_type;
@@ -396,12 +398,12 @@ private:
 };
 
 
-bool IsSmallPrimeComposite(const RsaNumber &number);
-int InnerJacobi(const RsaNumber &n, RsaNumber &A);
-int FindNegOneJacobi(const RsaNumber &n);
-int MRComposite(size_t rounds, const RsaNumber &w); // 0 not composite, 1 Composite with factor, 2 composite and not a power of a prime, -1 RNG failure
-bool IsPerfectSquare(const RsaNumber &C);
-bool JacobiComposite(int jacobi, const RsaNumber &C);
+//bool IsSmallPrimeComposite(const RsaNumber &number);
+//int InnerJacobi(const RsaNumber &n, RsaNumber &A);
+//int FindNegOneJacobi(const RsaNumber &n);
+//int MRComposite(size_t rounds, const RsaNumber &w); // 0 not composite, 1 Composite with factor, 2 composite and not a power of a prime, -1 RNG failure
+//bool IsPerfectSquare(const RsaNumber &C);
+//bool JacobiComposite(int jacobi, const RsaNumber &C);
 
 void FixTDESParityBits(tscrypto::tsCryptoData &value);
 bool CheckTDESParityBits(const tscrypto::tsCryptoData &value);
@@ -461,6 +463,6 @@ extern tsTraceStream gSslState;
 #endif // NO_LOGGING
 
 // from EccCurve.cpp
-extern std::vector<std::shared_ptr<BigNum::EccCurve> > gDomains;
+//extern std::vector<std::shared_ptr<BigNum::EccCurve> > gDomains;
 
 using namespace tscrypto;

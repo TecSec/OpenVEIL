@@ -41,9 +41,29 @@ public:
 		{
 			_monitor->ScanForChanges();
 		}
+		_watchdog.SetWorker([this]()->int {
+			bool done = false;
+			while (!done)
+			{
+				switch (_watchdog.cancelEvent().WaitForEvent(3000)) // 3 second timer until cancelled
+				{
+				case tscrypto::CryptoEvent::Succeeded_Object1:
+				case tscrypto::CryptoEvent::AlreadyLocked:
+					done = true;
+					break;
+				case tscrypto::CryptoEvent::Failed:
+					return 1;
+				case tscrypto::CryptoEvent::Timeout:
+					GetCardStatus();
+					break;
+				}
+			}
+			return 0;
+		});
 	}
 	virtual ~SmartCardLink()
 	{
+		StopWatchdog();
 		if (!!_card)
 			_card->Disconnect(SCardLeaveCard);
 		_card.reset();
@@ -91,6 +111,8 @@ public:
 		if (_worker.Active())
 			return false;
 
+		StopWatchdog();
+
 		_runnable = true;
 		_worker.SetWorker([this]()->int{ return DoWork(); });
 		_worker.SetCompletion([this](){ _runnable = false; });
@@ -100,6 +122,7 @@ public:
 	virtual void CloseCardPump()
 	{
 		_runnable = false;
+		StopWatchdog();
 		if (_worker.Active())
 		{
 			_worker.Cancel();
@@ -256,6 +279,8 @@ private:
 	}
 	void Disconnect(bool reset)
 	{
+		StopWatchdog();
+
 		if (!!_card)
 		{
 			_card->Disconnect(reset ? SCardResetCard : SCardLeaveCard);
@@ -325,6 +350,8 @@ private:
 			throw tsstd::Exception("No card in reader " + GetReaderName());
 		}
 		_card->BeginTransaction();
+		if (!_watchdog.Active())
+			_watchdog.Start();
 	}
 
 	tscrypto::tsCryptoData GetCardAtr()
@@ -460,6 +487,15 @@ private:
 		_changeCookie = 0;
 		return 0;
 	}
+	void StopWatchdog()
+	{
+		if (_watchdog.Active())
+		{
+			_watchdog.Cancel();
+			if (!_watchdog.WaitForThread(30000))
+				_watchdog.Kill();
+		}
+	}
 
 protected:
 	std::shared_ptr<ISmartCardLinkEvents>   _events;
@@ -472,6 +508,7 @@ protected:
 	tscrypto::tsCryptoData                            _responseData;
 	int                               _changeCookie;
 	tsThread                          _worker;
+	tsThread                                _watchdog;
 };
 
 tsmod::IObject* CreateSmartCardLink()

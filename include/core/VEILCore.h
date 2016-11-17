@@ -39,7 +39,7 @@
 #include <stdlib.h>
 #include <crtdbg.h>
 #endif 
-#include "VEILCryptoCore.h"
+#include "VEILCrypto.h"
 
 
 #ifdef NO_LOGGING
@@ -434,13 +434,8 @@ extern bool VEILCORE_API xp_CreateGuid(GUID &guid);
 #define XP_PATHLIST_SEPARATOR ':'
 #endif
 
-#include "CryptoAsn1.h"
 #include "TokenPacket.h"
 #include "CTSProfile.h"
-
-#include "PKIX.h"
-#include "PKIX_Cert.h"
-#include "PKIX_OCSP.h"
 
 typedef enum LoginStatus
 {
@@ -1429,6 +1424,8 @@ public:
 	size_t Add(std::function<void(const tscrypto::tsCryptoStringBase&)> func);
 	void Remove(size_t cookie);
 	void Fire(const tscrypto::tsCryptoStringBase& param) const;
+	void clear();
+
 protected:
 	void *contents;
 };
@@ -1449,6 +1446,8 @@ public:
 	size_t Add(std::function<void(const tsmod::IObject*, const tscrypto::tsCryptoStringBase&)> func);
 	void Remove(size_t cookie);
 	void Fire(const tsmod::IObject* object, const tscrypto::tsCryptoStringBase& param) const;
+	void clear();
+
 protected:
 	void *contents;
 };
@@ -1469,6 +1468,8 @@ public:
 	size_t Add(std::function<void()> func);
 	void Remove(size_t cookie);
 	void Fire() const;
+	void clear();
+
 protected:
 	void *contents;
 };
@@ -1489,6 +1490,7 @@ public:
 	size_t Add(std::function<void(const tsmod::IObject*, ISignalArgs*)> func);
 	void Remove(size_t cookie);
 	void Fire(const tsmod::IObject*object, ISignalArgs*args) const;
+	void clear();
 protected:
 	void *contents;
 };
@@ -1509,6 +1511,7 @@ public:
 	size_t Add(std::function<void(const tsmod::IObject*, IPropertyChangedEventArgs*)> func);
 	void Remove(size_t cookie);
 	void Fire(const tsmod::IObject*object, IPropertyChangedEventArgs*args) const;
+	void clear();
 protected:
 	void *contents;
 };

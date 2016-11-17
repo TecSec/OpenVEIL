@@ -36,7 +36,7 @@
 #endif // _WIN32
 #include "zlib.h"
 
-using namespace BigNum;
+//using namespace BigNum;
 
 static std::shared_ptr<tsmod::IServiceLocator> g_ServiceLocator;
 std::shared_ptr < ICkmChangeMonitor> gChangeMonitor;
@@ -64,7 +64,7 @@ const char *gLastDLError = NULL;
 
 
 // from EccCurve.cpp
-std::vector<std::shared_ptr<BigNum::EccCurve> > gDomains;
+//std::vector<std::shared_ptr<BigNum::EccCurve> > gDomains;
 
 
 
@@ -980,49 +980,49 @@ void TerminateVEILSystem()
 	LOG(FrameworkInfo1, "VEIL system terminated");
 }
 
-bool ComputeRandomNumber(RsaNumber& num, size_t len, bool predictionResistant, const tscrypto::tsCryptoData &additionalInput)
-{
-	tscrypto::tsCryptoData rng;
-
-	SetZero(num);
-
-	std::shared_ptr<Random> prng = std::dynamic_pointer_cast<Random>(CryptoFactory("Random"));
-
-	if (!prng || !prng->Initialize(256, true, tscrypto::tsCryptoData(), tscrypto::tsCryptoData()) || !prng->Generate(len, 256, predictionResistant, additionalInput, rng))
-		return false;
-
-	SetNum(num, rng);
-	if (BitLength(num) > len)
-	{
-		ShiftRight(num, (unsigned short)(BitLength(num) - len));
-	}
-	return true;
-}
-
-bool GenerateOddNumber(RsaNumber& num, size_t bitLengthRequested, bool predictionResistant, const tscrypto::tsCryptoData &additionalInput)
-{
-	if (!gFipsState.operational())
-		return false;
-	tscrypto::tsCryptoData tmp;
-
-	std::shared_ptr<Random> prng = std::dynamic_pointer_cast<Random>(CryptoFactory("Random"));
-
-	if (!prng || !prng->Initialize(256, true, tscrypto::tsCryptoData(), tscrypto::tsCryptoData()) || !prng->Generate(bitLengthRequested, 256, predictionResistant, additionalInput, tmp))
-		return false;
-
-	tmp[0] |= 0x80;
-	if ((bitLengthRequested & 7) != 0)
-	{
-		Number t(tmp);
-		ShiftRight(t, 8 - (bitLengthRequested & 7));
-
-		tmp = t.toByteArray();
-	}
-	tmp[tmp.size() - 1] |= 1;
-
-	SetNum(num, tmp);
-	return true;
-}
+//bool ComputeRandomNumber(RsaNumber& num, size_t len, bool predictionResistant, const tscrypto::tsCryptoData &additionalInput)
+//{
+//	tscrypto::tsCryptoData rng;
+//
+//	SetZero(num);
+//
+//	std::shared_ptr<Random> prng = std::dynamic_pointer_cast<Random>(CryptoFactory("Random"));
+//
+//	if (!prng || !prng->Initialize(256, true, tscrypto::tsCryptoData(), tscrypto::tsCryptoData()) || !prng->Generate(len, 256, predictionResistant, additionalInput, rng))
+//		return false;
+//
+//	SetNum(num, rng);
+//	if (BitLength(num) > len)
+//	{
+//		ShiftRight(num, (unsigned short)(BitLength(num) - len));
+//	}
+//	return true;
+//}
+//
+//bool GenerateOddNumber(RsaNumber& num, size_t bitLengthRequested, bool predictionResistant, const tscrypto::tsCryptoData &additionalInput)
+//{
+//	if (!gFipsState.operational())
+//		return false;
+//	tscrypto::tsCryptoData tmp;
+//
+//	std::shared_ptr<Random> prng = std::dynamic_pointer_cast<Random>(CryptoFactory("Random"));
+//
+//	if (!prng || !prng->Initialize(256, true, tscrypto::tsCryptoData(), tscrypto::tsCryptoData()) || !prng->Generate(bitLengthRequested, 256, predictionResistant, additionalInput, tmp))
+//		return false;
+//
+//	tmp[0] |= 0x80;
+//	if ((bitLengthRequested & 7) != 0)
+//	{
+//		Number t(tmp);
+//		ShiftRight(t, 8 - (bitLengthRequested & 7));
+//
+//		tmp = t.toByteArray();
+//	}
+//	tmp[tmp.size() - 1] |= 1;
+//
+//	SetNum(num, tmp);
+//	return true;
+//}
 
 bool CryptoOperational()
 {
@@ -1162,7 +1162,7 @@ bool TSEncryptInit(const tscrypto::tsCryptoData &Key, const tscrypto::tsCryptoDa
 	if (!(symAlg = std::dynamic_pointer_cast<Symmetric>(CryptoFactory(algorithm))))
 		return false;
 
-	Context = std::dynamic_pointer_cast<tscrypto::IObject>(symAlg);
+	Context = std::dynamic_pointer_cast<tscrypto::ICryptoObject>(symAlg);
 
 	tscrypto::tsCryptoData tmpKey;
 	size_t KeySize;
@@ -1231,7 +1231,7 @@ bool TSDecryptInit(const tscrypto::tsCryptoData &Key, const tscrypto::tsCryptoDa
 	if (!(symAlg = std::dynamic_pointer_cast<Symmetric>(CryptoFactory(algorithm))))
 		return false;
 
-	Context = std::dynamic_pointer_cast<tscrypto::IObject>(symAlg);
+	Context = std::dynamic_pointer_cast<tscrypto::ICryptoObject>(symAlg);
 
 	tscrypto::tsCryptoData tmpKey;
 	size_t KeySize;
@@ -1285,80 +1285,80 @@ bool CheckTDESParityBits(const tscrypto::tsCryptoData &value)
 }
 
 
-void TSModExp(const tscrypto::tsCryptoData &prime, const tscrypto::tsCryptoData &y, const tscrypto::tsCryptoData &x, tscrypto::tsCryptoData &result)
-{
-	Number Y, work1, work2, work3;
-
-	ModExp(Y, Number(y), Number(x), Number(prime), work1, work2, work3);
-
-	result = Y.toByteArray();
-}
-void TSModAdd(const tscrypto::tsCryptoData &prime, const tscrypto::tsCryptoData &a, const tscrypto::tsCryptoData &b, tscrypto::tsCryptoData &result)
-{
-	Number left(a), p(prime);
-
-	Add(left, Number(b));
-	if (!IsLess(left, p))
-		Sub(left, p);
-
-	result = left.toByteArray();
-}
-
-void TSModSub(const tscrypto::tsCryptoData &prime, const tscrypto::tsCryptoData &_a, const tscrypto::tsCryptoData &_b, tscrypto::tsCryptoData &result)
-{
-	Number left(_a);
-
-	Sub(left, Number(_b));
-	if (isNegative(left))
-		Add(left, Number(prime));
-
-	result = left.toByteArray();
-}
-
-void TSModMul(const tscrypto::tsCryptoData &prime, const tscrypto::tsCryptoData &a, const tscrypto::tsCryptoData &b, tscrypto::tsCryptoData &result)
-{
-	Number left, work1;
-
-	ModMul(left, Number(a), Number(b), Number(prime), work1);
-
-	result = left.toByteArray();
-}
-
-void TSAdd(const tscrypto::tsCryptoData &a, const tscrypto::tsCryptoData &b, tscrypto::tsCryptoData &result)
-{
-	Number left(a);
-
-	Add(left, Number(b));
-
-	result = left.toByteArray();
-}
-
-void TSSub(const tscrypto::tsCryptoData &a, const tscrypto::tsCryptoData &b, tscrypto::tsCryptoData &result)
-{
-	Number left(a);
-
-	Sub(left, Number(b));
-
-	result = left.toByteArray();
-}
-
-void TSMul(const tscrypto::tsCryptoData &a, const tscrypto::tsCryptoData &b, tscrypto::tsCryptoData &result)
-{
-	Number left(a);
-
-	Mul(left, Number(b));
-
-	result = left.toByteArray();
-}
-void TSDiv(const tscrypto::tsCryptoData &a, const tscrypto::tsCryptoData &b, tscrypto::tsCryptoData &quotient, tscrypto::tsCryptoData& remainder)
-{
-	Number quot, rem(a);
-
-	Div(quot, rem, Number(b));
-
-	quotient = quot.toByteArray();
-	remainder = rem.toByteArray();
-}
+//void TSModExp(const tscrypto::tsCryptoData &prime, const tscrypto::tsCryptoData &y, const tscrypto::tsCryptoData &x, tscrypto::tsCryptoData &result)
+//{
+//	Number Y, work1, work2, work3;
+//
+//	ModExp(Y, Number(y), Number(x), Number(prime), work1, work2, work3);
+//
+//	result = Y.toByteArray();
+//}
+//void TSModAdd(const tscrypto::tsCryptoData &prime, const tscrypto::tsCryptoData &a, const tscrypto::tsCryptoData &b, tscrypto::tsCryptoData &result)
+//{
+//	Number left(a), p(prime);
+//
+//	Add(left, Number(b));
+//	if (!IsLess(left, p))
+//		Sub(left, p);
+//
+//	result = left.toByteArray();
+//}
+//
+//void TSModSub(const tscrypto::tsCryptoData &prime, const tscrypto::tsCryptoData &_a, const tscrypto::tsCryptoData &_b, tscrypto::tsCryptoData &result)
+//{
+//	Number left(_a);
+//
+//	Sub(left, Number(_b));
+//	if (isNegative(left))
+//		Add(left, Number(prime));
+//
+//	result = left.toByteArray();
+//}
+//
+//void TSModMul(const tscrypto::tsCryptoData &prime, const tscrypto::tsCryptoData &a, const tscrypto::tsCryptoData &b, tscrypto::tsCryptoData &result)
+//{
+//	Number left, work1;
+//
+//	ModMul(left, Number(a), Number(b), Number(prime), work1);
+//
+//	result = left.toByteArray();
+//}
+//
+//void TSAdd(const tscrypto::tsCryptoData &a, const tscrypto::tsCryptoData &b, tscrypto::tsCryptoData &result)
+//{
+//	Number left(a);
+//
+//	Add(left, Number(b));
+//
+//	result = left.toByteArray();
+//}
+//
+//void TSSub(const tscrypto::tsCryptoData &a, const tscrypto::tsCryptoData &b, tscrypto::tsCryptoData &result)
+//{
+//	Number left(a);
+//
+//	Sub(left, Number(b));
+//
+//	result = left.toByteArray();
+//}
+//
+//void TSMul(const tscrypto::tsCryptoData &a, const tscrypto::tsCryptoData &b, tscrypto::tsCryptoData &result)
+//{
+//	Number left(a);
+//
+//	Mul(left, Number(b));
+//
+//	result = left.toByteArray();
+//}
+//void TSDiv(const tscrypto::tsCryptoData &a, const tscrypto::tsCryptoData &b, tscrypto::tsCryptoData &quotient, tscrypto::tsCryptoData& remainder)
+//{
+//	Number quot, rem(a);
+//
+//	Div(quot, rem, Number(b));
+//
+//	quotient = quot.toByteArray();
+//	remainder = rem.toByteArray();
+//}
 static bool BuildSymmetricAlg(TS_ALG_ID alg, std::shared_ptr<Symmetric>& sym)
 {
 	if (!(sym = std::dynamic_pointer_cast<Symmetric>(CryptoFactory(alg))))

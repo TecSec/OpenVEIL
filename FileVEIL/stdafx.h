@@ -41,8 +41,6 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "compilerconfig.h"
-
 #include "VEIL.h"
 #include "VEILCmsHeader.h"
 #include "VEILFileSupport.h"

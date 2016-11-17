@@ -94,6 +94,8 @@ public:
 		m_command.Clear();
 
 		LOG(debugSmartCard, "  " << ((m_responseSw != 0) ? "true" : "false"));
+		if (!!_detailLogger)
+			_detailLogger(tsCryptoString("    ;+ Get Transaction Status -> ") + ((m_responseSw != 0) ? "true" : "false"));
 
 		return (m_responseSw != 0);
 	}
@@ -103,6 +105,8 @@ public:
 		m_command.Data = (uint8_t)(reset ? 255 : 0);
 
 		LOG(debugSmartCard, "Disconnect from card" << (reset ? " with reset" : ""));
+		if (!!_detailLogger)
+			_detailLogger(tsCryptoString("    ;+ Disconnect from card") + (reset ? " with reset" : ""));
 
 		PrepareForCommand();
 
@@ -117,6 +121,8 @@ public:
 		m_command.Data = (uint8_t)(reset ? 255 : 0);
 
 		LOG(debugSmartCard, "Finish Transaction" << (reset ? " with reset" : ""));
+		if (!!_detailLogger)
+			_detailLogger(tsCryptoString("    ;+ Finish Transaction") + (reset ? " with reset" : ""));
 
 		PrepareForCommand();
 
@@ -131,6 +137,8 @@ public:
 		m_command.Data.clear();
 
 		LOG(debugSmartCard, "Unpower card");
+		if (!!_detailLogger)
+			_detailLogger("    ;+ Unpower card");
 
 		PrepareForCommand();
 
@@ -145,6 +153,8 @@ public:
 		m_command.Data = (uint8_t)(reset ? 255 : 0);
 
 		LOG(debugSmartCard, "Reconnect to card" << (reset ? " with reset" : ""));
+		if (!!_detailLogger)
+			_detailLogger(tsCryptoString("    ;+ Reconnect to card") + (reset ? " with reset" : ""));
 
 		PrepareForCommand();
 
@@ -159,6 +169,8 @@ public:
 		m_command.Data.clear();
 
 		LOG(debugSmartCard, "Start transaction");
+		if (!!_detailLogger)
+			_detailLogger("    ;+ Start transaction");
 
 		PrepareForCommand();
 
@@ -173,6 +185,9 @@ public:
 		m_command.Data = message.ToUTF8Data();
 
 		LOG(debugSmartCard, "Operation failed with message '" << message << "'");
+		if (!!_detailLogger)
+			_detailLogger(tsCryptoString("    ;+ Operation failed with message '") + message + "'");
+
 		_stillProcessing = false;
 
 		PrepareForCommand();
@@ -187,6 +202,8 @@ public:
 		m_command.Data = message.ToUTF8Data();
 
 		LOG(debugSmartCard, "Status with message '" << message << "'");
+		if (!!_detailLogger)
+			_detailLogger(tsCryptoString("    ;+ Status with message '") + message + "'");
 
 		PrepareForCommand();
 
@@ -202,6 +219,8 @@ public:
 		m_command.Data = message.ToUTF8Data();
 
 		LOG(debugSmartCard, "Card updated");
+		if (!!_detailLogger)
+			_detailLogger("    ;+ Card updated");
 
 		_stillProcessing = false;
 
@@ -225,6 +244,8 @@ public:
 			end = GetTicks();
 
 			LOG(debugSmartCard, "; Total Time " << ToString()((end - start) / 1000.0) << " ms");
+			if (!!_detailLogger)
+				_detailLogger("    ;+ Total Time " + ToString()((end - start) / 1000.0) + " ms");
 #endif
 			return false;
 		}
@@ -239,6 +260,8 @@ public:
 				end = GetTicks();
 
 				LOG(debugSmartCard, "; Total Time " << ToString()((end - start) / 1000.0) << " ms");
+				if (!!_detailLogger)
+					_detailLogger("    ;+ Total Time " + ToString()((end - start) / 1000.0) + " ms");
 #endif
 				return false;
 			}
@@ -247,6 +270,8 @@ public:
 		end = GetTicks();
 
 		LOG(debugSmartCard, "; Total Time " << ToString()((end - start) / 1000.0) << " ms");
+		if (!!_detailLogger)
+			_detailLogger("    ;+ Total Time " + ToString()((end - start) / 1000.0) + " ms");
 #endif
 		return (sw & 0xFF00) == 0x9000;
 	}
@@ -278,6 +303,8 @@ public:
 		m_command.Clear();
 
 		LOG(debugSmartCard, "  returned '" << m_responseData.ToHexStringWithSpaces() << "'");
+		if (!!_detailLogger)
+			_detailLogger(tsCryptoString("    ;+ GetCardAtr  returned '") + m_responseData.ToHexStringWithSpaces() + "'");
 
 		return m_responseData;
 	}
@@ -296,6 +323,8 @@ public:
 		m_command.Clear();
 
 		LOG(debugSmartCard, "  returned " << ((m_responseSw != 0) ? "true" : "false"));
+		if (!!_detailLogger)
+			_detailLogger(tsCryptoString("    ;+ Card in reader -> ") + ((m_responseSw != 0) ? "true" : "false") + "");
 
 		return m_responseSw != 0;
 	}
@@ -395,6 +424,8 @@ public:
 		m_command.Data.clear();
 
 		LOG(debugSmartCard, "Ping Card");
+		if (!!_detailLogger)
+			_detailLogger("    ;+ Ping Card");
 
 		_stillProcessing = false;
 
@@ -422,6 +453,8 @@ protected:
 			{
 #if _DEBUG
 				LOG(debugSmartCard, "; Command to wrap -> " << dataToSend.ToHexStringWithSpaces());
+				if (!!_detailLogger)
+					_detailLogger("    ;+ Command to wrap -> " + dataToSend.ToHexStringWithSpaces());
 #endif
 				//debug << "; Command to wrap:  " << dataToSend << endl;
 			}
@@ -475,6 +508,8 @@ protected:
 				sw = realSW;
 #if _DEBUG
 			LOG(debugSmartCard, "; Response -> " << dataReceived.ToHexStringWithSpaces());
+			if (!!_detailLogger)
+				_detailLogger("    ;+     Response -> " + dataReceived.ToHexStringWithSpaces());
 #endif
 		}
 		else if (multiPartResponseCount > 1)
@@ -508,6 +543,8 @@ protected:
 				start = GetTicks();
 
 				LOG(debugSmartCard, "SEND " << data.ToHexStringWithSpaces());
+				if (!!_detailLogger)
+					_detailLogger("    ;+ SEND " + data.ToHexStringWithSpaces());
 
 				m_command.Command = SmartCardCommand::scc_CardCommand;
 				m_command.Data = data;
@@ -521,9 +558,13 @@ protected:
 				sw = m_responseSw;
 
 				LOG(debugSmartCard, "; SW " << ToHex()((uint16_t)sw));
+				if (!!_detailLogger)
+					_detailLogger("    ;+     SW " + ToHex()((uint16_t)sw));
 				if (outBuff.size() > 0)
 				{
 					LOG(debugSmartCard, "; RECV " << outBuff.ToHexStringWithSpaces());
+					if (!!_detailLogger)
+						_detailLogger("    ;+     RECV " + outBuff.ToHexStringWithSpaces());
 				}
 
 				end = GetTicks();
@@ -531,6 +572,8 @@ protected:
 				//if (gTimeCommands)
 				//{
 				LOG(debugSmartCard, "; " << ToString()((end - start) / 1000.0) << " ms");
+				if (!!_detailLogger)
+					_detailLogger("    ;+     " + ToString()((end - start) / 1000.0) + " ms");
 				//}
 
 				//if (errNo != 0)
@@ -622,6 +665,10 @@ protected:
 	virtual void PrepareForCommand() = 0;
 	virtual bool DoCommand() = 0;
 	virtual void ClearCommandQueue() = 0;
+	virtual void setDetailMessageLogger(std::function<void(const tsCryptoStringBase& msg)> func) override
+	{
+		_detailLogger = func;
+	}
 
 protected:
 	std::shared_ptr<ServerSecureChannel> m_channel;
@@ -637,6 +684,7 @@ protected:
 	tscrypto::tsCryptoString _readerName;
 	std::vector<std::shared_ptr<ISmartCardConnectionEvents> > _eventHandlers;
 	bool _stillProcessing;
+	std::function<void(const tsCryptoStringBase& msg)> _detailLogger;
 
 
 	void FireOnCardUpdated(const tscrypto::tsCryptoString& message)
@@ -666,9 +714,30 @@ protected:
 class LocalSmartCardConnection : public SmartCardConnection, public SmartCardChangeReceiver, public tsmod::IObject
 {
 public:
-	LocalSmartCardConnection() : cookie(0) {}
+	LocalSmartCardConnection() : cookie(0) {
+		_watchdog.SetWorker([this]()->int {
+			bool done = false;
+			while (!done)
+			{
+				switch (_watchdog.cancelEvent().WaitForEvent(3000)) // 3 second timer until cancelled
+				{
+				case tscrypto::CryptoEvent::Succeeded_Object1:
+				case tscrypto::CryptoEvent::AlreadyLocked:
+					done = true;
+					break;
+				case tscrypto::CryptoEvent::Failed:
+					return 1;
+				case tscrypto::CryptoEvent::Timeout:
+					GetCardStatus();
+					break;
+				}
+			}
+			return 0;
+		});
+	}
 	virtual ~LocalSmartCardConnection()
 	{
+		StopWatchdog();
 		if (!!_card)
 			_card->Disconnect(SCardLeaveCard);
 		_card.reset();
@@ -727,6 +796,7 @@ public:
 
 	virtual bool Start()
 	{
+		StopWatchdog();
 		if (!!_card)
 			_card->Disconnect(SCardLeaveCard);
 		_card.reset();
@@ -775,12 +845,16 @@ public:
 				return false;
 
 			_context->Connect(ReaderName(), 3, _card);
+			if (!!_card && !!_detailLogger)
+				_card->setDetailMessageLogger(_detailLogger);
+
 			// TODO:  Review me _card->SetProxyMode(true);
 		}
 		return !!_card;
 	}
 	virtual bool disconnectFromReader()
 	{
+		StopWatchdog();
 		if (!!_card)
 			_card->Disconnect(SCardLeaveCard);
 		_card.reset();
@@ -805,7 +879,6 @@ public:
 			return 0;
 		return _card->Status();
 	}
-
 
 protected:
 	// If we are doing single threaded communications then these three functions have the following use:
@@ -873,6 +946,10 @@ protected:
 		case SmartCardCommand::scc_GetTransactionStatus:
 			m_responseSw = (_card_IsInTransaction() ? 1 : 0);
 			break;
+		case SmartCardCommand::scc_PingCard:
+			GetCardStatus();
+			m_responseSw = 1;
+			break;
         default:
             break;
 		}
@@ -928,6 +1005,7 @@ protected:
 	}
 	void   _card_Disconnect(bool reset)
 	{
+		StopWatchdog();
 		if (!!_card)
 		{
 			_card->Disconnect(reset ? SCardResetCard : SCardLeaveCard);
@@ -977,6 +1055,7 @@ protected:
 	}
 	void   _card_Reconnect(bool reset)
 	{
+		StopWatchdog();
 		if (!_card && CardInReader())
 		{
 			connectToReader();
@@ -997,9 +1076,12 @@ protected:
 			return;
 		}
 		_card->BeginTransaction();
+		if (!_watchdog.Active())
+			_watchdog.Start();
 	}
 	void   _card_Unpower()
 	{
+		StopWatchdog();
 		if (!_card && CardInReader())
 		{
 			connectToReader();
@@ -1022,12 +1104,23 @@ protected:
 	//event_Message OnReaderAdded;
 	//event_Message OnReaderRemoved;
 
+	void StopWatchdog()
+	{
+		if (_watchdog.Active())
+		{
+			_watchdog.Cancel();
+			if (!_watchdog.WaitForThread(30000))
+				_watchdog.Kill();
+		}
+	}
+
 private:
 	std::shared_ptr<ICkmWinscardMonitor> _monitor;
 	std::shared_ptr<ICkmWinscardContext> _context;
 	std::shared_ptr<ICkmWinscardConnection> _card;
 	tscrypto::tsCryptoString m_readerName;
 	int cookie;
+	tsThread                                _watchdog;
 };
 
 tsmod::IObject* CreateLocalSmartCardConnectionObject()

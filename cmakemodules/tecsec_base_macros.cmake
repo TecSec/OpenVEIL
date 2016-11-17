@@ -30,7 +30,7 @@
 # Written by Roger Butler
 
 macro(ConfigureExe target)
-    set_target_properties(${target} PROPERTIES DEBUG_POSTFIX "d")
+    set_target_properties(${target} PROPERTIES DEBUG_POSTFIX "_d")
 endmacro()
 macro(CopyFile source dest)
     ADD_CUSTOM_COMMAND(

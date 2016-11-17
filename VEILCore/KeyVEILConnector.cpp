@@ -108,7 +108,7 @@ public:
 			return connStatus_NoServer;
 		}
 
-		if (_scheme == "ckm-http" || _scheme == "httpv" || _scheme == "https")
+		if (_scheme == "httpv" || _scheme == "https")
 		{
 			_channel->SendLogout();
 			if (password.size() == 0)
@@ -198,7 +198,7 @@ public:
 			return connStatus_NoServer;
 		}
 
-		if (_scheme == "ckm-http" || _scheme == "httpv" || _scheme == "https")
+		if (_scheme == "httpv" || _scheme == "https")
 		{
 			_channel->SendLogout();
 			if (password.size() == 0)
@@ -307,7 +307,7 @@ public:
 		}
 		if (!_channel->isAuthenticated())
 		{
-			if (_scheme == "ckm-http" || _scheme == "httpv" || _scheme == "https")
+			if (_scheme == "httpv" || _scheme == "https")
 			{
 				_channel->SendLogout();
 				if (!_msgProcessor->startTunnel(_scheme, _channel, _username, _password.ToUTF8Data()))

@@ -40,8 +40,6 @@
 
 #define CMSHEADERDEF
 
-#include "compilerconfig.h"
-
 #include "VEIL.h"
 #include "VEILCmsHeader.h"
 #include "Asn1CkmHeader.h"

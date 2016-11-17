@@ -47,12 +47,16 @@ public:
 
 	virtual bool Disconnect(SCardDisposition disposition)
 	{
+		LONG error;
+
 		if (m_handle == 0)
 			return false;
 
 		m_hasTransaction = false;
-		if (tsSCardDisconnect(m_handle, disposition) != ERROR_SUCCESS)
+		if ((error = tsSCardDisconnect(m_handle, disposition)) != ERROR_SUCCESS)
 		{
+			if (!!_detailLogger)
+				_detailLogger(tsCryptoString("    ;+   Disconnect returned ").append(error));
 			m_handle = 0;
 			return false;
 		}
@@ -61,12 +65,18 @@ public:
 	}
 	virtual bool Reconnect(SCardDisposition disposition, uint32_t protocolsToAllow)
 	{
+		LONG error;
+
 		if (m_handle == 0)
 			return false;
 
 		m_hasTransaction = false;
-		if (tsSCardReconnect(m_handle, SCARD_SHARE_SHARED, protocolsToAllow, disposition, &m_protocol) != ERROR_SUCCESS)
+		if ((error = tsSCardReconnect(m_handle, SCARD_SHARE_SHARED, protocolsToAllow, disposition, &m_protocol)) != ERROR_SUCCESS)
+		{
+			if (!!_detailLogger)
+				_detailLogger(tsCryptoString("    ;+   Reconnect returned ").append(error));
 			return false;
+		}
 		return true;
 	}
 	virtual bool Transmit(const tscrypto::tsCryptoData &dataToSend, int Le, tscrypto::tsCryptoData &dataReceived, size_t &sw)
@@ -91,17 +101,26 @@ public:
 	virtual bool GetAttribute(uint32_t attributeId, tscrypto::tsCryptoData &value)
 	{
 		DWORD len = 0;
+		LONG error;
 
 		if (m_handle == 0)
 			return false;
 
-		if (tsSCardGetAttrib(m_handle, attributeId, NULL, &len) != ERROR_SUCCESS)
+		if ((error = tsSCardGetAttrib(m_handle, attributeId, NULL, &len)) != ERROR_SUCCESS)
+		{
+			if (!!_detailLogger)
+				_detailLogger(tsCryptoString("    ;+   GetAttribute returned ").append(error));
 			return false;
+		}
 
 		value.resize(len);
 
-		if (tsSCardGetAttrib(m_handle, attributeId, value.rawData(), &len) != ERROR_SUCCESS)
+		if ((error = tsSCardGetAttrib(m_handle, attributeId, value.rawData(), &len)) != ERROR_SUCCESS)
+		{
+			if (!!_detailLogger)
+				_detailLogger(tsCryptoString("    ;+   GetAttribute returned ").append(error));
 			return false;
+		}
 		return true;
 	}
 	virtual bool BeginTransaction()
@@ -125,18 +144,28 @@ public:
 					return false;
 			}
 			else
+			{
+				if (!!_detailLogger)
+					_detailLogger(tsCryptoString("    ;+   BeginTransaction returned ").append(retVal));
 				return false;
+		}
 		}
 		m_hasTransaction = true;
 		return true;
 	}
 	virtual bool EndTransaction(SCardDisposition disposition)
 	{
+		LONG error;
+
 		if (m_handle == 0)
 			return false;
 
-		if (tsSCardEndTransaction(m_handle, disposition) != ERROR_SUCCESS)
+		if ((error = tsSCardEndTransaction(m_handle, disposition)) != ERROR_SUCCESS)
+		{
+			if (!!_detailLogger)
+				_detailLogger(tsCryptoString("    ;+   EndTransaction returned ").append(error));
 			return false;
+		}
 		m_hasTransaction = false;
 		return true;
 	}
@@ -183,8 +212,16 @@ public:
 
 		lReturn = tsSCardStatus(m_handle, readerNames, &cch, &dwState, &dwProtocol, bAtr, &cByte);
 		if (lReturn != SCARD_S_SUCCESS)
+		{
+			if (!!_detailLogger)
+				_detailLogger(tsCryptoString("    ;+   Status returned ").append(lReturn));
 			return 0;
+		}
 		return (int)dwState;
+	}
+	virtual void setDetailMessageLogger(std::function<void(const tsCryptoStringBase& msg)> func) override
+	{
+		_detailLogger = func;
 	}
 
 private:
@@ -195,18 +232,22 @@ private:
 	tscrypto::tsCryptoString m_readerName;
 	std::shared_ptr<ServerSecureChannel> m_channel;
 	bool m_proxyMode;
+	std::function<void(const tsCryptoStringBase& msg)> _detailLogger;
 
 	bool ShouldRetryCommand(int32_t errorCode)
 	{
 		//    int eventState;
 		SCARD_READERSTATE state;
+		LONG error;
 
 		switch (errorCode)
 		{
 		case (int32_t)0x80100067: //SCARD_W_UNPOWERED_CARD:
 		case (int32_t)0x8010002F: //SCARD_E_COMM_DATA_LOST:
-			if (tsSCardReconnect(m_handle, SCARD_SHARE_SHARED, m_protocol, SCardResetCard, &m_protocol) != ERROR_SUCCESS)
+			if ((error = tsSCardReconnect(m_handle, SCARD_SHARE_SHARED, m_protocol, SCardResetCard, &m_protocol)) != ERROR_SUCCESS)
 			{
+				if (!!_detailLogger)
+					_detailLogger(tsCryptoString("    ;+   Reconnect returned ").append(error));
 				return false;
 			}
 			if (m_hasTransaction)
@@ -217,8 +258,10 @@ private:
 			LOG(debug, "Retrying command - reconnected");
 			return true;
 		case (int32_t)0x80100068: //SCARD_W_RESET_CARD:
-			if (tsSCardReconnect(m_handle, SCARD_SHARE_SHARED, m_protocol, SCardResetCard, &m_protocol) != ERROR_SUCCESS)
+			if ((error = tsSCardReconnect(m_handle, SCARD_SHARE_SHARED, m_protocol, SCardResetCard, &m_protocol)) != ERROR_SUCCESS)
 			{
+				if (!!_detailLogger)
+					_detailLogger(tsCryptoString("    ;+   Reconnect returned ").append(error));
 				return false;
 			}
 			if (m_hasTransaction)
@@ -241,8 +284,10 @@ private:
 				if (tsSCardGetStatusChange(handleAccessor->GetHandle(), 0, &state, 1) == ERROR_SUCCESS &&
 					(state.dwEventState & SCARD_STATE_PRESENT) != 0)
 				{
-					if (tsSCardReconnect(m_handle, SCARD_SHARE_SHARED, m_protocol, SCardResetCard, &m_protocol) != ERROR_SUCCESS)
+					if ((error = tsSCardReconnect(m_handle, SCARD_SHARE_SHARED, m_protocol, SCardResetCard, &m_protocol)) != ERROR_SUCCESS)
 					{
+						if (!!_detailLogger)
+							_detailLogger(tsCryptoString("    ;+   Reconnect returned ").append(error));
 						return false;
 					}
 					if (m_hasTransaction)
@@ -316,6 +361,8 @@ private:
 						repeat = true;
 						continue;
 					}
+					if (!!_detailLogger)
+						_detailLogger(tsCryptoString("    ;+   Transmit returned ").append(errNo));
 					return false;
 				}
 			} while (repeat);

@@ -47,7 +47,7 @@ else()
 endif()
 
 set(TECSEC_TOOLS_DIR ${PUBLIC_SOURCE_TOP_DIR}/../utils)
-set(CMAKE_DEBUG_POSTFIX "d")
+set(CMAKE_DEBUG_POSTFIX "_d")
 
 if(APPLE)
   set(CMAKE_MACOSX_RPATH 1)

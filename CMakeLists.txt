@@ -71,7 +71,7 @@ ENDIF(WIN32)
 
 set(${VEILCORENAME_U}_MAJOR_VERSION 7)
 set(${VEILCORENAME_U}_MINOR_VERSION 0)
-set(${VEILCORENAME_U}_REVISION_VERSION 38)
+set(${VEILCORENAME_U}_REVISION_VERSION 39)
 set(${VEILCORENAME_U}_BUILD_VERSION 0)
 
 #####################################################################
@@ -121,6 +121,12 @@ include(precompiled.header)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PUBLIC_BINARY_TOP_DIR}/lib")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PUBLIC_BINARY_TOP_DIR}/bin")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PUBLIC_BINARY_TOP_DIR}/bin")
+set(CMAKE_PDB_OUTPUT_DIRECTORY "${PUBLIC_BINARY_TOP_DIR}/pdb")
+
+set(EXTRA_FILE_OUTPUT ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+if (MSVC_IDE)
+	set(EXTRA_FILE_OUTPUT ${EXTRA_FILE_OUTPUT}/${CMAKE_BUILD_TYPE})
+endif(MSVC_IDE)
 
 set(NO_PCH OFF)
 if(MINGW)
@@ -175,10 +181,7 @@ elseif(APPLE)
     set(HAVE_SMARTCARD 1)
 endif(HAVE_WINDOWS_H)
 
-ImportTarget(VEILCryptoCore)
-if(TARGET VEILEnhancedCrypto)
-	ImportTarget(VEILEnhancedCrypto)
-endif(TARGET VEILEnhancedCrypto)
+ImportTarget(VEILCrypto)
 
 include_directories(
 	${CMAKE_CURRENT_BINARY_DIR} 
@@ -311,10 +314,7 @@ if (wxWidgets_FOUND)
 endif (wxWidgets_FOUND)
 
 if(NOT APPLE)
-CopyImportTargetBinaries(VEILCryptoCore ${BIN_DIR})
-if(TARGET VEILEnhancedCrypto)
-	CopyImportTargetBinaries(VEILEnhancedCrypto ${BIN_DIR})
-endif(TARGET VEILEnhancedCrypto)
+	CopyImportTargetBinaries(VEILCrypto ${BIN_DIR})
 endif()
 
 CONFIGURE_FILE(VEILApiVersion.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/VEILApiVersion.cmake)

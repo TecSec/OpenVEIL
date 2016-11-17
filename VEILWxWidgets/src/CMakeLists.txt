@@ -66,7 +66,7 @@ CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/VEILWxWidgets.rc.in ${CMAKE_CURRENT_B
 
 set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/VEILWxWidgets.rc PROPERTIES COMPILE_DEFINITIONS RC_COMPILED)
 
-CopyImportTargetBinariesToBuildFolder(WxWidgets ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${TS_VS_CONFIG})
+CopyImportTargetBinariesToBuildFolder(WxWidgets ${EXTRA_FILE_OUTPUT})
 
 add_library(VEILWxWidgets SHARED
     VEILWxWidgets.rc.in

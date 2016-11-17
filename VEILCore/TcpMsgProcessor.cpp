@@ -591,7 +591,7 @@ public:
 				return false;
 			return true;
 		}
-		else if (TsStriCmp(scheme, "httpv") == 0 || TsStriCmp(scheme, "ckm-http") == 0)
+		else if (TsStriCmp(scheme, "httpv") == 0)
 		{
 			_transportState = IHttpChannelProcessor::login;
 			if (!(_tunnel = std::dynamic_pointer_cast<CkmAuthenticationTunnelInitiator>(CryptoFactory("TUNNEL-INITIATOR"))))
@@ -658,7 +658,7 @@ public:
 				// Use the alg parameter to specify the encryption alg for the message data
 				if (encAlg.get_oid().size() > 0)
 				{
-					std::shared_ptr<tscrypto::IObject> obj = CryptoFactory(encAlg.get_oid().ToOIDString());
+					std::shared_ptr<tscrypto::ICryptoObject> obj = CryptoFactory(encAlg.get_oid().ToOIDString());
 					_AEAD = std::dynamic_pointer_cast<CCM_GCM>(obj);
 					_symm = std::dynamic_pointer_cast<Symmetric>(obj);
 
@@ -750,7 +750,7 @@ protected:
 		// Use the alg parameter to specify the encryption alg for the message data
 		if (encAlg.get_oid().size() > 0)
 		{
-			std::shared_ptr<tscrypto::IObject> obj = CryptoFactory(encAlg.get_oid().ToOIDString());
+			std::shared_ptr<tscrypto::ICryptoObject> obj = CryptoFactory(encAlg.get_oid().ToOIDString());
 			_AEAD = std::dynamic_pointer_cast<CCM_GCM>(obj);
 			_symm = std::dynamic_pointer_cast<Symmetric>(obj);
 			

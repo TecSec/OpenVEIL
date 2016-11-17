@@ -41,8 +41,6 @@
 #include "targetver.h"
 #endif // _WIN32
 
-#include "compilerconfig.h"
-
 #include "VEIL.h"
 #include "core/SimpleOpt.h"
 #include <iostream>

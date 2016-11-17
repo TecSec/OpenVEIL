@@ -49,13 +49,11 @@ set(CppSources
 	settingsTool.cpp
 	foldersTool.cpp
 	genx25519.cpp
+	genNums.cpp
 	)
 
 if(NOT APPLE)
-	CopyImportTargetBinariesToBuildFolder(VEILCryptoCore ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${TS_VS_CONFIG})
-	if(TARGET VEILEnhancedCrypto)
-	CopyImportTargetBinariesToBuildFolder(VEILEnhancedCrypto ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${TS_VS_CONFIG})
-	endif(TARGET VEILEnhancedCrypto)
+	CopyImportTargetBinariesToBuildFolder(VEILCrypto ${EXTRA_FILE_OUTPUT})
 endif()
 
 add_executable(veiltool 
@@ -80,6 +78,7 @@ Source_Group(Commands FILES
 	settingsTool.cpp
 	foldersTool.cpp
 	genx25519.cpp
+	genNums.cpp
 	)
 	
 set_target_properties(veiltool PROPERTIES FOLDER "Tools")

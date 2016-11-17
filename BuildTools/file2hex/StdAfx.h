@@ -41,7 +41,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "compilerconfig.h"
+#include "VEILCrypto.h"
 //#include <windows.h>
 #include <stdio.h>
 

@@ -318,6 +318,8 @@ public:
 	virtual void SetProxyMode(bool setTo) = 0;
 	// Added 7.0.4
 	virtual int Status() = 0; // Added to help with MS 5 sec timeout issue.  Returns the status of the current reader and resets the 5 sec timer.
+	// Added 7.0.39
+	virtual void setDetailMessageLogger(std::function<void(const tscrypto::tsCryptoStringBase& msg)> func) = 0;
 };
 
 /**
@@ -728,6 +730,9 @@ public:
 	virtual bool Start() = 0; // Used in local connection to start the change monitors...
 	virtual int GetCardStatus() = 0; // Used in local connection to poll card for status change and can be used to keep a transaction alive.  MS Winscard will time out after 5 sec of inactivity.
 	virtual void PingCard() = 0;
+
+	// Added 7.0.39
+	virtual void setDetailMessageLogger(std::function<void(const tscrypto::tsCryptoStringBase& msg)> func) = 0;
 };
 
 class VEILSMARTCARD_EXPORT ISmartCardKeyInformation

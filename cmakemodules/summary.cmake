@@ -92,13 +92,6 @@ Install Paths:
    MAN_DIR:                        ${MAN_DIR}
 
 Optional libraries:")
-if(TARGET VEILEnhancedCrypto)
-set(_output_results "${_output_results}
-   VEILEnhancedCrypto FOUND ${CRYPTO_VERSION}")
-else()
-set(_output_results "${_output_results}
-   VEILEnhancedCrypto missing")
-endif(TARGET VEILEnhancedCrypto)
 if (BZ2_FOUND)
 set(_output_results "${_output_results}
    BZ2                FOUND ${BZ2_VERSION_STRING}")

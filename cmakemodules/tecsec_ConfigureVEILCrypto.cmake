@@ -29,7 +29,40 @@
 #
 # Written by Roger Butler
 
-set(__path_suffixes 
+if(APPLE)
+
+  set(VEILCRYPTO_NAME "VEILCrypto")
+	FIND_LIBRARY(VEILCRYPTO_LIBRARY ${VEILCRYPTO_NAME})
+	MARK_AS_ADVANCED(VEILCRYPTO_LIBRARY)
+  if (NOT VEILCRYPTO_LIBRARY)
+  	message(FATAL "VEILCrypto not found")
+  else()
+  	message(STATUS "VEILCrypto at ${VEILCRYPTO_LIBRARY}")
+  endif()
+
+	FIND_LIBRARY(VEILCRYPTO_D_LIBRARY ${VEILCRYPTO_NAME}_d)
+  if (NOT VEILCRYPTO_D_LIBRARY)
+  	set(VEILCRYPTO_D_LIBRARY ${VEILCRYPTO_LIBRARY})
+  endif()
+	MARK_AS_ADVANCED(VEILCRYPTO_D_LIBRARY)
+	message(STATUS "VEILCrypto_d at ${VEILCRYPTO_D_LIBRARY}")
+
+  set(VEILCRYPTO_ROOT_DIR ${VEILCRYPTO_LIBRARY})
+
+
+  if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    set(VEILCRYPTO_TARGET ${VEILCRYPTO_D_LIBRARY})
+  else()
+    set(VEILCRYPTO_TARGET ${VEILCRYPTO_LIBRARY})
+  endif()
+
+  message(STATUS "Crypto target:  ${VEILCRYPTO_TARGET}")
+  #add_definitions(-framework ${VEILCRYPTO_NAME})
+
+  #  TODO:  Need lots of stuff here
+
+else()
+  set(__path_suffixes 
 	TecSec/CRYPTO_7-0/${TS_TOOLSET}
 	TecSec/CRYPTO_7/${TS_TOOLSET}
 	TecSec/CRYPTO/${TS_TOOLSET}
@@ -43,8 +76,8 @@ set(__path_suffixes
 	CRYPTO_7-0
 	CRYPTO_7
 	CRYPTO
-)
-if(WIN32)
+  )
+  if(WIN32)
   set(__paths 
       ENV VEILCrypto_ROOT
       ENV VEILCrypto
@@ -53,7 +86,7 @@ if(WIN32)
       ENV ProgramFiles\(x86\)
       ENV ProgramFiles
   )
-elseif(APPLE)
+  elseif(APPLE)
   set(__paths
       ENV VEILCrypto_ROOT
       ENV VEILCrypto
@@ -61,19 +94,19 @@ elseif(APPLE)
       /usr
       ~/work/local
   )
-else()
+  else()
   message(FATAL_ERROR "The search process for VEILCrypto for this environment has not been configured.")
-endif(WIN32)
+  endif(WIN32)
 
-if(UNIX)
+  if(UNIX)
   set(INCLUDE_PART include/TecSec)
-else()
+  else()
   set(INCLUDE_PART include)
-endif()
+  endif()
 
   find_path(VEILCRYPTO_ROOT_DIR
     NAMES 
-      ${INCLUDE_PART}/VEILCryptoCore.h
+      ${INCLUDE_PART}/VEILCrypto.h
     PATHS
       ${__paths}
     PATH_SUFFIXES
@@ -87,7 +120,7 @@ endif()
       unset(VEILCRYPTO_ROOT_DIR CACHE)
       find_path(VEILCRYPTO_ROOT_DIR
         NAMES 
-          ${INCLUDE_PART}/VEILCryptoCore.h
+            ${INCLUDE_PART}/VEILCrypto.h
         PATHS
           ${__paths}
     PATH_SUFFIXES
@@ -98,24 +131,19 @@ endif()
     endif()
   endif()    
 
-if(APPLE)
+  if(APPLE)
   set(BIN_PART bin)
   set(LIB_PART lib)
-elseif(WIN32)
+  elseif(WIN32)
   set(BIN_PART bin${TS_LIB_DIR_SUFFIX})
   set(LIB_PART lib${TS_LIB_DIR_SUFFIX})
-else()
+  else()
   set(BIN_PART bin${TS_LIB_DIR_SUFFIX})
   set(LIB_PART lib${TS_LIB_DIR_SUFFIX})
-endif(APPLE)
-
-if(DEBUG_VEILCRYPTO)
-  message(STATUS "BIN_PART:  ${BIN_PART}")
-  message(STATUS "LIB_PART:  ${LIB_PART}")
-endif()
+  endif(APPLE)
 
 
-if (VEILCRYPTO_ROOT_DIR)
+  if (VEILCRYPTO_ROOT_DIR)
 
   if(DEBUG_VEILCRYPTO)
     message(STATUS "Looking for VEILCrypto at:  ${VEILCRYPTO_ROOT_DIR}/${BIN_PART}/VEILCrypto.cmake")
@@ -131,40 +159,25 @@ if (VEILCRYPTO_ROOT_DIR)
     set(VEILCRYPTO_ROOT_LIB_DEBUG "")
 
     if(UNIX)
-      if (EXISTS "${VEILCRYPTO_ROOT_DIR}/${LIB_PART}d/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCryptoCored${CMAKE_SHARED_LIBRARY_SUFFIX}")
-        if(DEBUG_VEILCRYPTO)
-          message(STATUS "Found:  ${VEILCRYPTO_ROOT_DIR}/${LIB_PART}d/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCryptoCored${CMAKE_SHARED_LIBRARY_SUFFIX}")
-        endif()
+        if (EXISTS "${VEILCRYPTO_ROOT_DIR}/${LIB_PART}d/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCrypto_d${CMAKE_SHARED_LIBRARY_SUFFIX}")
         set(VEILCRYPTO_ROOT_LIB_DEBUG "${VEILCRYPTO_ROOT_DIR}/${LIB_PART}d")
         set(VEILCRYPTO_ROOT_BIN_DEBUG "${VEILCRYPTO_ROOT_DIR}/${BIN_PART}d")
-        set(__debugSuffix "d")
-      elseif(EXISTS "${VEILCRYPTO_ROOT_DIR}/${LIB_PART}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCryptoCored${CMAKE_SHARED_LIBRARY_SUFFIX}")
-        if(DEBUG_VEILCRYPTO)
-          message(STATUS "Found:  ${VEILCRYPTO_ROOT_DIR}/${LIB_PART}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCryptoCored${CMAKE_SHARED_LIBRARY_SUFFIX}")
-        endif()
+        set(__debugSuffix "_d")
+        elseif(EXISTS "${VEILCRYPTO_ROOT_DIR}/${LIB_PART}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCrypto_d${CMAKE_SHARED_LIBRARY_SUFFIX}")
         set(VEILCRYPTO_ROOT_LIB_DEBUG "${VEILCRYPTO_ROOT_DIR}/${LIB_PART}")
         set(VEILCRYPTO_ROOT_BIN_DEBUG "${VEILCRYPTO_ROOT_DIR}/${BIN_PART}")
-        set(__debugSuffix "d")
+        set(__debugSuffix "_d")
       else()
-        if(DEBUG_VEILCRYPTO)
-          message(STATUS "Debug defaulting to release settings")
-        endif()
         set(__debugSuffix "")
         set(VEILCRYPTO_ROOT_LIB_DEBUG "${VEILCRYPTO_ROOT_DIR}/${LIB_PART}")
         set(VEILCRYPTO_ROOT_BIN_DEBUG "${VEILCRYPTO_ROOT_DIR}/${BIN_PART}")
     endif()
 
-      if(EXISTS "${VEILCRYPTO_ROOT_DIR}/${LIB_PART}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCryptoCore${CMAKE_SHARED_LIBRARY_SUFFIX}")
-        if(DEBUG_VEILCRYPTO)
-          message(STATUS "Release Found:  ${VEILCRYPTO_ROOT_DIR}/${LIB_PART}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCryptoCore${CMAKE_SHARED_LIBRARY_SUFFIX}")
-        endif()
+        if(EXISTS "${VEILCRYPTO_ROOT_DIR}/${LIB_PART}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCrypto${CMAKE_SHARED_LIBRARY_SUFFIX}")
         set(VEILCRYPTO_ROOT_LIB_RELEASE "${VEILCRYPTO_ROOT_DIR}/${LIB_PART}")
         set(VEILCRYPTO_ROOT_BIN_RELEASE "${VEILCRYPTO_ROOT_DIR}/${BIN_PART}")
         set(__releaseSuffix "")
       else()
-        if(DEBUG_VEILCRYPTO)
-          message(STATUS "Release defaulting to debug settings")
-        endif()
         set(__releaseSuffix "${__debugSuffix}")
         set(VEILCRYPTO_ROOT_LIB_RELEASE "${VEILCRYPTO_ROOT_LIB_DEBUG}")
         set(VEILCRYPTO_ROOT_BIN_RELEASE "${VEILCRYPTO_ROOT_BIN_DEBUG}")
@@ -173,40 +186,25 @@ if (VEILCRYPTO_ROOT_DIR)
       set(VEILCRYPTO_SHLIB_DEBUG ${VEILCRYPTO_ROOT_LIB_DEBUG})
       set(VEILCRYPTO_SHLIB_RELEASE ${VEILCRYPTO_ROOT_LIB_RELEASE})
     else()
-      if (EXISTS "${VEILCRYPTO_ROOT_DIR}/${BIN_PART}d/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCryptoCored${CMAKE_SHARED_LIBRARY_SUFFIX}")
-        if(DEBUG_VEILCRYPTO)
-          message(STATUS "Found:  ${VEILCRYPTO_ROOT_DIR}/${BIN_PART}d/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCryptoCored${CMAKE_SHARED_LIBRARY_SUFFIX}")
-        endif()
+        if (EXISTS "${VEILCRYPTO_ROOT_DIR}/${BIN_PART}d/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCrypto_d${CMAKE_SHARED_LIBRARY_SUFFIX}")
         set(VEILCRYPTO_ROOT_BIN_DEBUG "${VEILCRYPTO_ROOT_DIR}/${BIN_PART}d")
         set(VEILCRYPTO_ROOT_LIB_DEBUG "${VEILCRYPTO_ROOT_DIR}/${LIB_PART}d")
-        set(__debugSuffix "d")
-      elseif(EXISTS "${VEILCRYPTO_ROOT_DIR}/${BIN_PART}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCryptoCored${CMAKE_SHARED_LIBRARY_SUFFIX}")
-        if(DEBUG_VEILCRYPTO)
-          message(STATUS "Found:  ${VEILCRYPTO_ROOT_DIR}/${BIN_PART}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCryptoCored${CMAKE_SHARED_LIBRARY_SUFFIX}")
-        endif()
+        set(__debugSuffix "_d")
+        elseif(EXISTS "${VEILCRYPTO_ROOT_DIR}/${BIN_PART}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCrypto_d${CMAKE_SHARED_LIBRARY_SUFFIX}")
         set(VEILCRYPTO_ROOT_BIN_DEBUG "${VEILCRYPTO_ROOT_DIR}/${BIN_PART}")
         set(VEILCRYPTO_ROOT_LIB_DEBUG "${VEILCRYPTO_ROOT_DIR}/${LIB_PART}")
-        set(__debugSuffix "d")
+        set(__debugSuffix "_d")
       else()
-        if(DEBUG_VEILCRYPTO)
-          message(STATUS "Debug defaulting to release settings")
-        endif()
         set(__debugSuffix "")
         set(VEILCRYPTO_ROOT_BIN_DEBUG "${VEILCRYPTO_ROOT_DIR}/${BIN_PART}")
         set(VEILCRYPTO_ROOT_LIB_DEBUG "${VEILCRYPTO_ROOT_DIR}/${LIB_PART}")
       endif()
 
-      if(EXISTS "${VEILCRYPTO_ROOT_DIR}/${BIN_PART}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCryptoCore${CMAKE_SHARED_LIBRARY_SUFFIX}")
-        if(DEBUG_VEILCRYPTO)
-          message(STATUS "Found:  ${VEILCRYPTO_ROOT_DIR}/${BIN_PART}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCryptoCore${CMAKE_SHARED_LIBRARY_SUFFIX}")
-        endif()
+        if(EXISTS "${VEILCRYPTO_ROOT_DIR}/${BIN_PART}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCrypto${CMAKE_SHARED_LIBRARY_SUFFIX}")
         set(VEILCRYPTO_ROOT_BIN_RELEASE "${VEILCRYPTO_ROOT_DIR}/${BIN_PART}")
         set(VEILCRYPTO_ROOT_LIB_RELEASE "${VEILCRYPTO_ROOT_DIR}/${LIB_PART}")
         set(__releaseSuffix "")
       else()
-        if(DEBUG_VEILCRYPTO)
-          message(STATUS "Release defaulting to debug settings")
-        endif()
         set(__releaseSuffix "${__debugSuffix}")
         set(VEILCRYPTO_ROOT_LIB_RELEASE "${VEILCRYPTO_ROOT_LIB_DEBUG}")
         set(VEILCRYPTO_ROOT_BIN_RELEASE "${VEILCRYPTO_ROOT_BIN_DEBUG}")
@@ -250,47 +248,28 @@ if (VEILCRYPTO_ROOT_DIR)
 
 
     IF(${TS_X_PLATFORM} STREQUAL "x86")
-      set(BIGNUM_INCLUDE_DIR ${CRYPTO_INCLUDE_DIR}/VEILCryptoCore/base32Library)
+        set(BIGNUM_INCLUDE_DIR ${CRYPTO_INCLUDE_DIR}/VEILCrypto/base32Library)
     ELSE(${TS_X_PLATFORM} STREQUAL "x86")
-      set(BIGNUM_INCLUDE_DIR ${CRYPTO_INCLUDE_DIR}/VEILCryptoCore/base64Library)
+        set(BIGNUM_INCLUDE_DIR ${CRYPTO_INCLUDE_DIR}/VEILCrypto/base64Library)
     ENDIF(${TS_X_PLATFORM} STREQUAL "x86")
 
 
-    if(NOT TARGET VEILCryptoCore)
-	  if(EXISTS ${VEILCRYPTO_SHLIB_RELEASE}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCryptoCore${__releaseSuffix}${CMAKE_SHARED_LIBRARY_SUFFIX})
-      add_library(VEILCryptoCore SHARED IMPORTED)
-      set_target_properties(VEILCryptoCore PROPERTIES
-        IMPORTED_LOCATION_DEBUG "${VEILCRYPTO_SHLIB_DEBUG}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCryptoCore${__debugSuffix}${CMAKE_SHARED_LIBRARY_SUFFIX}"
-        IMPORTED_LOCATION_RELEASE "${VEILCRYPTO_SHLIB_RELEASE}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCryptoCore${__releaseSuffix}${CMAKE_SHARED_LIBRARY_SUFFIX}"
-        IMPORTED_IMPLIB_DEBUG "${VEILCRYPTO_ROOT_LIB_DEBUG}/${CMAKE_STATIC_LIBRARY_PREFIX}VEILCryptoCore${__debugSuffix}${CMAKE_STATIC_LIBRARY_SUFFIX}"
-        IMPORTED_IMPLIB_RELEASE "${VEILCRYPTO_ROOT_LIB_RELEASE}/${CMAKE_STATIC_LIBRARY_PREFIX}VEILCryptoCore${__releaseSuffix}${CMAKE_STATIC_LIBRARY_SUFFIX}"
+      if(NOT TARGET VEILCrypto)
+      if(EXISTS ${VEILCRYPTO_SHLIB_RELEASE}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCrypto${__releaseSuffix}${CMAKE_SHARED_LIBRARY_SUFFIX})
+        add_library(VEILCrypto SHARED IMPORTED)
+        set_target_properties(VEILCrypto PROPERTIES
+        IMPORTED_LOCATION_DEBUG "${VEILCRYPTO_SHLIB_DEBUG}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCrypto${__debugSuffix}${CMAKE_SHARED_LIBRARY_SUFFIX}"
+        IMPORTED_LOCATION_RELEASE "${VEILCRYPTO_SHLIB_RELEASE}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCrypto${__releaseSuffix}${CMAKE_SHARED_LIBRARY_SUFFIX}"
+        IMPORTED_IMPLIB_DEBUG "${VEILCRYPTO_ROOT_LIB_DEBUG}/${CMAKE_STATIC_LIBRARY_PREFIX}VEILCrypto${__debugSuffix}${CMAKE_STATIC_LIBRARY_SUFFIX}"
+        IMPORTED_IMPLIB_RELEASE "${VEILCRYPTO_ROOT_LIB_RELEASE}/${CMAKE_STATIC_LIBRARY_PREFIX}VEILCrypto${__releaseSuffix}${CMAKE_STATIC_LIBRARY_SUFFIX}"
         INTERFACE_INCLUDE_DIRECTORIES "${CRYPTO_INCLUDE_DIR};${BIGNUM_INCLUDE_DIR}"
         INTERFACE_INCLUDE_DIRECTORIES_DEBUG "${CRYPTO_INCLUDE_DIR};${BIGNUM_INCLUDE_DIR}"
         INTERFACE_INCLUDE_DIRECTORIES_RELEASE "${CRYPTO_INCLUDE_DIR};${BIGNUM_INCLUDE_DIR}"
-        INTERFACE_BIN_MODULES_DEBUG "${VEILCRYPTO_SHLIB_DEBUG}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCryptoCore${__debugSuffix}${CMAKE_SHARED_LIBRARY_SUFFIX}"
-        INTERFACE_BIN_MODULES_RELEASE "${VEILCRYPTO_SHLIB_RELEASE}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCryptoCore${__releaseSuffix}${CMAKE_SHARED_LIBRARY_SUFFIX}"
+        INTERFACE_BIN_MODULES_DEBUG "${VEILCRYPTO_SHLIB_DEBUG}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCrypto${__debugSuffix}${CMAKE_SHARED_LIBRARY_SUFFIX}"
+        INTERFACE_BIN_MODULES_RELEASE "${VEILCRYPTO_SHLIB_RELEASE}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILCrypto${__releaseSuffix}${CMAKE_SHARED_LIBRARY_SUFFIX}"
       )
     else()
-      message(FATAL_ERROR "VEILCryptoCore not found")
-    endif()
-    endif()
-        
-    if(NOT TARGET VEILEnhancedCrypto)
-      if(EXISTS ${VEILCRYPTO_SHLIB_RELEASE}/VEILEnhancedCrypto${__releaseSuffix}.crypto)
-      add_library(VEILEnhancedCrypto SHARED IMPORTED)
-      set_target_properties(VEILEnhancedCrypto PROPERTIES
-          IMPORTED_LOCATION_DEBUG "${VEILCRYPTO_SHLIB_DEBUG}/VEILEnhancedCrypto${__debugSuffix}.crypto"
-          IMPORTED_LOCATION_RELEASE "${VEILCRYPTO_SHLIB_RELEASE}/VEILEnhancedCrypto${__releaseSuffix}.crypto"
-          INTERFACE_INCLUDE_DIRECTORIES "${CRYPTO_INCLUDE_DIR};${BIGNUM_INCLUDE_DIR}"
-          INTERFACE_INCLUDE_DIRECTORIES_DEBUG "${CRYPTO_INCLUDE_DIR};${BIGNUM_INCLUDE_DIR}"
-          INTERFACE_INCLUDE_DIRECTORIES_RELEASE "${CRYPTO_INCLUDE_DIR};${BIGNUM_INCLUDE_DIR}"
-          INTERFACE_BIN_MODULES_DEBUG "${VEILCRYPTO_SHLIB_DEBUG}/VEILEnhancedCrypto${__debugSuffix}.crypto"
-          INTERFACE_BIN_MODULES_RELEASE "${VEILCRYPTO_SHLIB_RELEASE}/VEILEnhancedCrypto${__releaseSuffix}.crypto"
-      )
-      else()
-        if(DEBUG_VEILCRYPTO)
-          message(STATUS "Unable to find Enhanced Crypto")
-        endif()
+        message(FATAL_ERROR "VEILCrypto not found")
       endif()
     endif()
         
@@ -337,8 +316,8 @@ if (VEILCRYPTO_ROOT_DIR)
     message(FATAL_ERROR "VEILCrypto.cmake could not be found.")
   endif()
 
-else ()
+  else ()
   message(FATAL_ERROR "VEILCrypto could not be found.")
-endif(VEILCRYPTO_ROOT_DIR)
-
+  endif(VEILCRYPTO_ROOT_DIR)
+endif(APPLE)
 
