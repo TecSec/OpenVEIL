@@ -1578,10 +1578,10 @@ public:
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	virtual bool PrepareHeader(CompressionType comp, tscrypto::TS_ALG_ID algorithm, tscrypto::TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData,
 		CMSFileFormatIds DataFormat, bool randomIvec, tscrypto::SymmetricPaddingType paddingType, int blockSize, int64_t fileSize) = 0;
-	virtual bool GenerateWorkingKey(std::shared_ptr<IKeyVEILSession>& session, std::shared_ptr<IKeyGenCallback> callback, tscrypto::tsCryptoData& workingKey) = 0;
-	virtual bool RegenerateWorkingKey(std::shared_ptr<IKeyVEILSession>& session, tscrypto::tsCryptoData& workingKey) = 0;
-	virtual bool CanGenerateWorkingKey(std::shared_ptr<IKeyVEILSession>& session) = 0;
-	virtual bool CanRegenerateWorkingKey(std::shared_ptr<IKeyVEILSession>& session) = 0;
+	virtual bool GenerateWorkingKey(std::shared_ptr<IKeyVEILSession> session, std::shared_ptr<IKeyGenCallback> callback, tscrypto::tsCryptoData& workingKey) = 0;
+	virtual bool RegenerateWorkingKey(std::shared_ptr<IKeyVEILSession> session, tscrypto::tsCryptoData& workingKey) = 0;
+	virtual bool CanGenerateWorkingKey(std::shared_ptr<IKeyVEILSession> session) = 0;
+	virtual bool CanRegenerateWorkingKey(std::shared_ptr<IKeyVEILSession> session) = 0;
 };
 
 /*! \endcond */

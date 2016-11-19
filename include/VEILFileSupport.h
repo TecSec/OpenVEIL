@@ -850,7 +850,7 @@ typedef std::shared_ptr<IVEILFileSupportDllInterface> (*GetVEILFileSupportDllInt
 
 
 #if __GNUC__ >= 4
-//extern "C"
+extern "C"
 #endif
 std::shared_ptr<IVEILFileSupportDllInterface> VEILFILESUPPORT_EXPORT GetVEILFileSupportDllInterface();
 std::shared_ptr<ICryptoHelper> VEILFILESUPPORT_EXPORT CreateCryptoHelper(std::shared_ptr<IKeyVEILSession> session);

@@ -967,7 +967,7 @@ public:
 		SetFileLength(fileSize);
 		return TSRETURN(("OK"), true);
 	}
-	virtual bool GenerateWorkingKey(std::shared_ptr<IKeyVEILSession>& session, std::shared_ptr<IKeyGenCallback> callback, tscrypto::tsCryptoData& workingKey) override
+	virtual bool GenerateWorkingKey(std::shared_ptr<IKeyVEILSession> session, std::shared_ptr<IKeyGenCallback> callback, tscrypto::tsCryptoData& workingKey) override
 	{
 		tscrypto::tsCryptoData wk;
 		Asn1::CTS::_POD_CkmCombineParameters params;
@@ -1131,7 +1131,7 @@ public:
 		workingKey = wk;
 		return true;
 	}
-	virtual bool RegenerateWorkingKey(std::shared_ptr<IKeyVEILSession>& session, tscrypto::tsCryptoData& workingKey) override
+	virtual bool RegenerateWorkingKey(std::shared_ptr<IKeyVEILSession> session, tscrypto::tsCryptoData& workingKey) override
 	{
 		Asn1::CTS::_POD_CkmCombineParameters params;
 		tscrypto::tsCryptoData wk;
@@ -1171,7 +1171,7 @@ public:
 		workingKey = wk;
 		return true;
 	}
-	virtual bool CanGenerateWorkingKey(std::shared_ptr<IKeyVEILSession>& session) override
+	virtual bool CanGenerateWorkingKey(std::shared_ptr<IKeyVEILSession> session) override
 	{
 		Asn1::CTS::_POD_CkmCombineParameters params;
 		std::shared_ptr<EccKey> headerSigning;
@@ -1188,7 +1188,7 @@ public:
 		}
 		return true;
 	}
-	virtual bool CanRegenerateWorkingKey(std::shared_ptr<IKeyVEILSession>& session) override
+	virtual bool CanRegenerateWorkingKey(std::shared_ptr<IKeyVEILSession> session) override
 	{
 		Asn1::CTS::_POD_CkmCombineParameters params;
 

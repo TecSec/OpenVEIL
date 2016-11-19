@@ -147,8 +147,10 @@ namespace tsmod
 			std::shared_ptr<T> obj = std::dynamic_pointer_cast<T>(TryCreate(className));
 			if (!obj)
 			{
+				#ifdef _MSC_VER
 				if (FrameworkDevOnly.WillLog())
 					FrameworkDevOnly << "FAILED get_instance<" << typeid(T).name() << ">(" << className << ")" << tscrypto::endl;
+				#endif
 				throw std::runtime_error((tscrypto::tsCryptoString().append("Object not supported:  ").append(className)).c_str());
 			}
 			return obj;
@@ -159,8 +161,10 @@ namespace tsmod
 			std::shared_ptr<T> p = std::dynamic_pointer_cast<T>(TryCreate(className));
 			if (!p)
 			{
+				#ifdef _MSC_VER
 				if (FrameworkDevOnly.WillLog())
 					FrameworkDevOnly << "FAILED try_get_instance<" << typeid(T).name() << ">(" << className << ")" << tscrypto::endl;
+				#endif
 			}
 			return p;
 		}
@@ -170,8 +174,10 @@ namespace tsmod
 			std::shared_ptr<T> p = std::dynamic_pointer_cast<T>(FinishConstruction(obj));
 			if (!p)
 			{
+				#ifdef _MSC_VER
 				if (FrameworkDevOnly.WillLog())
 					FrameworkDevOnly << "FAILED finish<" << typeid(T).name() << ">()" << tscrypto::endl;
+				#endif
 			}
 			return p;
 		}
@@ -257,8 +263,10 @@ namespace tsmod
 			{
 				tscrypto::tsCryptoString tmp;
 				tmp << "Object not supported:  " << className;
+				#ifdef _MSC_VER
 				if (FrameworkDevOnly.WillLog())
 					FrameworkDevOnly << "FAILED get_instance<" << typeid(T).name() << ">(" << className << ", onService)" << tscrypto::endl;
+				#endif
 				throw std::runtime_error(tmp.c_str());
 			}
 			return obj;
@@ -269,8 +277,10 @@ namespace tsmod
 			std::shared_ptr<T> p = std::dynamic_pointer_cast<T>(TryCreate(className, onService));
 			if (!p)
 			{
+				#ifdef _MSC_VER			
 				if (FrameworkDevOnly.WillLog())
 					FrameworkDevOnly << "FAILED try_get_instance<" << typeid(T).name() << ">(" << className << ", onService)" << tscrypto::endl;
+				#endif
 			}
 			return p;
 		}
