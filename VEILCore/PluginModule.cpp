@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -234,8 +234,8 @@ bool PluginModule::connect(const tscrypto::tsCryptoStringBase& _path, tsmod::IRe
     xp_SplitPath(path, tmp1, _baseName, tmp2);
     _baseName.Replace(".", "_");
 #ifdef _DEBUG
-    if (_baseName[_baseName.size() - 1] == 'd')
-        _baseName.resize(_baseName.size() - 1);
+    if (_baseName[_baseName.size() - 1] == 'd' && _baseName[_baseName.size() - 2] == '_')
+        _baseName.resize(_baseName.size() - 2);
 #endif // _DEBUG
     _name = path;
     return true;

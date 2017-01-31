@@ -1,4 +1,4 @@
-#	Copyright (c) 2016, TecSec, Inc.
+#	Copyright (c) 2017, TecSec, Inc.
 #
 #	Redistribution and use in source and binary forms, with or without
 #	modification, are permitted provided that the following conditions are met:
@@ -32,9 +32,9 @@
 add_definitions(-DWINDOWS)
 add_definitions(-DXP_WIN)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Zi -nologo -Gm- -Gd -fp:precise -Zc:wchar_t -Zc:forScope -Zm300 -EHa -bigobj ")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Zi -nologo -Gm- -Gd -fp:precise -Zc:wchar_t -Zc:forScope ")
 set(CMAKE_C_FLAGS_DEBUG         "${CMAKE_C_FLAGS_DEBUG} -MDd -RTC1 -Od -GS -D_DEBUG")
-set(CMAKE_C_FLAGS_RELEASE       "${CMAKE_C_FLAGS_RELEASE} -MD -O2 -GL -GS- -D_RELEASE")
+set(CMAKE_C_FLAGS_RELEASE       "${CMAKE_C_FLAGS_RELEASE} -MD -Ox -GL -GS- -D_RELEASE -Oi -Ot -Ob2")
 set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -MD -Ox -Oi -Ot -GL -GS- -Gy -D_RELEASE")
 set(CMAKE_C_FLAGS_DEBUGSTATIC   "${CMAKE_C_FLAGS_DEBUGSTATIC} -MTd -RTC1 -Od -GS -D_DEBUG -D_STATIC_MSVCRT -D_STATIC_TSFRAMEWORK")
 set(CMAKE_C_FLAGS_RELEASESTATIC "${CMAKE_C_FLAGS_RELEASESTATIC} -MT -O2 -GL -GS- -D_RELEASE -D_STATIC_MSVCRT -D_STATIC_TSFRAMEWORK")
@@ -46,7 +46,7 @@ endif()
 # #IF(MSVC_IDE)
 # #set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -W4 /Yu\"StdAfx.h\"")
 # #ELSE()
-set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Zm300 -EHa -bigobj ")
 # set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -W4")
 # #ENDIF()
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")

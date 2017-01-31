@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<Root xmlns="http://schemas.tecsec.com/xml2asn1codegen/2015">
+  <File Name="Asn1ParserTestImport" SourceFile="Asn1ParserTestImport.inl" HeaderFile="Asn1ParserTestImport.h">
+    <Import Name="Asn1ParserTest.export"/>
+
+    <Namespace Name="Asn1TestImport">
+     <ID Name="id_test1a_unittest" Value="1.2.3.5"/>
+    <ID Name="id_test1b_unittest" Value="1.2.3.6"/>
+     <Sequence Name="Test1" JSONName="Test1">
+        <Int32 Name="data1" JSONName="data1"/>
+        <String Name="data2" JSONName="data2"/>
+        <Int8 Name="data3" JSONName="data3"/>
+        <Int16 Name="data4" JSONName="data4"/>
+        <OctetString Name="data5" JSONName="data5"/>
+        <Int64 Name="data6" JSONName="data6"/>
+        <Bool Name="data7" JSONName="data7"/>
+        <Sequence Name="data8" ElementType="Test2" Tag="1" Type="Context" JSONName="data8"/>
+        <Guid Name="data9" Tag="2" Type="Context" JSONName="data9"/>
+        <Date Name="data10" JSONName="data10"/>
+        <Null Name="nullFld" JSONName="nullfld"/>
+        <Any Name="data11" Optional="true" JSONName="data11"/>
+        <SequenceOf Name="data12" Tag="3" Type="Context" JSONName="data12" ElementType="Test1_data12"/>
+        <SequenceOf Name="data13" Tag="4" Type="Context" JSONName="data13">
+          <OctetString Name="data13" JSONName="item"/>
+        </SequenceOf>
+        <Choice Name="choice1" JSONName="choice1" ElementType="Test1_choice1"/>
+        <Bitstring Name="data14" JSONName="data14"/>
+        <SequenceOf Name="data15" Tag="5" Type="Context" JSONName="data15">
+          <Any Name="data15" JSONName="item"/>
+        </SequenceOf>
+        <!--<SequenceOf Name="data16" Tag="6" Type="Context">
+                    <Null Name="data16"/>
+                </SequenceOf>-->
+        <SequenceOf Name="data17" Tag="7" Type="Context" JSONName="data17">
+          <Choice Name="AryChoice" JSONName="aryChoice">
+            <Int32 Name="Data1" JSONName="data1"/>
+            <Int32 Name="Data2" Tag="0" Type="Context" JSONName="data2"/>
+          </Choice>
+        </SequenceOf>
+        <SequenceOf Name="data18" Tag="7" Type="Application" Optional="true" JSONName="data18">
+          <Choice Name="AryChoice2" JSONName="aryChoice">
+            <Int32 Name="Data1"  JSONName="data1"/>
+            <Int32 Name="Data2" Tag="0" Type="Context" JSONName="data2"/>
+          </Choice>
+        </SequenceOf>
+        <SequenceOf Name="data19" Tag="8" Type="Context" Optional="true" JSONName="data19">
+          <Any Name="data19" JSONName="item"/>
+        </SequenceOf>
+        <SequenceOf Name="data20" Tag="9" Type="Context" Optional="true" JSONName="data20">
+          <Int8 Name="data20" Tag="5" Type="Private" JSONName="item"/>
+        </SequenceOf>
+        <!--<SequenceOf Name="data18" ElementType="Int32" Tag="18" Type="Context" Optional="true"/>-->
+        <Part Name="BasicParts" Tag="0" Type="Context">
+          <Int32 Name="data1" JSONName="data1"/>
+          <Int8 Name="data3" JSONName="data3"/>
+          <Int16 Name="data4" JSONName="data4"/>
+          <OctetString Name="data5" JSONName="data5"/>
+          <Int64 Name="data6" JSONName="data6"/>
+          <Bool Name="data7" JSONName="data7"/>
+          <Null Name="nullFld" JSONName="nullfld"/>
+        </Part>
+      </Sequence>
+
+      <Sequence Name="ArrayOfInt">
+        <SequenceOf Name="attributeIndices" Tag="12" Type="Context">
+          <Int32 Name="index" Tag="Number" Type="Universal"/>
+        </SequenceOf>
+      </Sequence>
+      <Sequence Name="OptArrayOfInt">
+        <SequenceOf Name="attributeIndices" Tag="12" Type="Context" Optional="true">
+          <Int32 Name="index" Tag="5" Type="Application"/>
+        </SequenceOf>
+      </Sequence>
+      <Sequence Name="OptArrayOfAny">
+        <SequenceOf Name="attributeIndices" Tag="1" Type="Context" Optional="true">
+          <Any Name="index"/>
+        </SequenceOf>
+      </Sequence>
+      <Sequence Name="OptArrayOfBits">
+        <SequenceOf Name="attributeIndices" Tag="1" Type="Context" Optional="true">
+          <Bitstring Name="index"/>
+        </SequenceOf>
+      </Sequence>
+      <Sequence Name="OptArrayOfDate">
+        <SequenceOf Name="attributeIndices" Tag="1" Type="Context" Optional="true">
+          <Date Name="index"/>
+        </SequenceOf>
+      </Sequence>
+      <Sequence Name="OptArrayOfGuid">
+        <SequenceOf Name="attributeIndices" Tag="1" Type="Context" Optional="true">
+          <Guid Name="index"/>
+        </SequenceOf>
+      </Sequence>
+      <Sequence Name="OptArrayOfOctets">
+        <SequenceOf Name="attributeIndices" Tag="1" Type="Context" Optional="true">
+          <OctetString Name="index"/>
+        </SequenceOf>
+      </Sequence>
+      <Sequence Name="OptArrayOfOID">
+        <SequenceOf Name="attributeIndices" Tag="1" Type="Context" Optional="true">
+          <OID Name="index"/>
+        </SequenceOf>
+      </Sequence>
+
+      <!--<Sequence Name="ArrayOfSeq" >
+                <SequenceOf Name="attributeIndices" Tag="12" Type="Context" Optional="true">
+                    <Sequence Name="index" ElementType="ArrayOfInt" Tag="Sequence" Type="Universal"/>
+                </SequenceOf>
+            </Sequence>-->
+
+
+      <Sequence Name="TP_Attr" >
+        <Guid Name="attributeId"/>
+        <Int32 Name="keyVersion" Initializer="0"/>
+        <OctetString Name="signature" Optional="true" Tag="0" Type="Context"/>
+      </Sequence>
+      <Sequence Name="OptArrayOfStruct">
+        <SequenceOf Name="attributeIndices" Tag="1" Type="Context" Optional="true">
+          <Sequence Name="index" ElementType="TP_Attr"/>
+        </SequenceOf>
+      </Sequence>
+      <Sequence Name="OptStruct">
+        <Sequence Name="index" ElementType="TP_Attr" Optional="true"/>
+      </Sequence>
+
+
+      <Sequence Name="TP_AttrGroup">
+        <SequenceOf Name="attributes" Tag="3" Type="Context">
+          <Sequence Name="TP_Attr" ElementType="TP_Attr" Tag="Sequence" Type="Universal"/>
+        </SequenceOf>
+        <OctetString Name="encryptedRandom"/>
+      </Sequence>
+      <Sequence Name="TP_MiniHeader">
+        <Part Name="TestPart" Tag="0" Type="Context">
+          <Int32 Name="ckmVersion"/>
+          <Int32 Name="currentKgkLevel"/>
+          <Guid Name="fiefdom"/>
+          <Date Name="creationDate"/>
+          <OctetString Name="EphemeralPublic"/>
+          <Bool Name="allowAsymetric"/>
+          <Bool Name="needsHeaderSignature"/>
+          <Int32 Name="keySizeInBits"/>
+          <OctetString Name="oidInfo"/>
+        </Part>
+        <Part Name="TestPart2" Tag="0" Type="Context" DontWrap="true">
+          <Int32 Name="ckmVersion"/>
+          <Int32 Name="currentKgkLevel"/>
+          <Guid Name="fiefdom"/>
+          <Date Name="creationDate"/>
+          <OctetString Name="EphemeralPublic"/>
+          <Bool Name="allowAsymetric"/>
+          <Bool Name="needsHeaderSignature"/>
+          <Int32 Name="keySizeInBits"/>
+          <OctetString Name="oidInfo"/>
+        </Part>
+        <Part Name="TestPart3">
+          <Int32 Name="ckmVersion"/>
+          <Int32 Name="currentKgkLevel"/>
+          <Guid Name="fiefdom"/>
+          <Date Name="creationDate"/>
+          <OctetString Name="EphemeralPublic"/>
+          <Bool Name="allowAsymetric"/>
+          <Bool Name="needsHeaderSignature"/>
+          <Int32 Name="keySizeInBits"/>
+          <OctetString Name="oidInfo"/>
+        </Part>
+        <Part Name="TestPart4" DontWrap="true">
+          <Int32 Name="ckmVersion"/>
+        </Part>
+        <Int32 Name="ckmVersion" Initializer="7"/>
+        <Int32 Name="currentKgkLevel" Initializer="0"/>
+        <Guid Name="fiefdom"/>
+        <Date Name="creationDate"/>
+        <OctetString Name="EphemeralPublic" Optional="true" Tag="0" Type="Context"/>
+        <Bool Name="allowAsymetric" Initializer="false"/>
+        <Bool Name="needsHeaderSignature" Initializer="false"/>
+        <Int32 Name="keySizeInBits" Initializer="512"/>
+        <OctetString Name="oidInfo"/>
+        <OctetString Name="headerPublic" Optional="true" Tag="1" Type="Context"/>
+        <SequenceOf Name="attributeGroups" Tag="2" Type="Context">
+          <Sequence Name="TP_AttrGroup" ElementType="TP_AttrGroup" Tag="Sequence" Type="Universal"/>
+        </SequenceOf>
+      </Sequence>
+    </Namespace>
+  </File>
+</Root>

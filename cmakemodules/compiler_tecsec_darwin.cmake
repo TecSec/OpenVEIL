@@ -1,4 +1,4 @@
-#	Copyright (c) 2016, TecSec, Inc.
+#	Copyright (c) 2017, TecSec, Inc.
 #
 #	Redistribution and use in source and binary forms, with or without
 #	modification, are permitted provided that the following conditions are met:
@@ -52,6 +52,8 @@ if(OSX_64BIT)
 else()
 	SET(CMAKE_OSX_ARCHITECTURES "i386")	
 endif()
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -fvisibility=hidden -msse4.1 -maes -Wall -Wextra -Wdeclaration-after-statement -std=c11 -Wno-unused-parameter -fno-strict-aliasing")
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -msse -msse4.1 -maes -fvisibility-ms-compat")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG -DDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D_RELEASE -O3")

@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -304,9 +304,9 @@ public:
 	}
 
 protected:
-	GUID								_tokenId;
+	GUID									 _tokenId;
 	std::shared_ptr<Asn1::CTS::_POD_Profile> _profile;
-	std::weak_ptr<IKeyVEILConnector>	_connector;
+	std::weak_ptr<IKeyVEILConnector>		 _connector;
 };
 
 std::shared_ptr<IKeyVEILSession> CreateKeyVEILSession(const GUID& tokenId, std::shared_ptr<IKeyVEILConnector> connector)

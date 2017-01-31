@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -520,7 +520,7 @@ public:
 	}
 protected:
 	XP_WINDOW											_parent;
-	std::shared_ptr<AttributeSelectorGrid> Me; // Keep me alive until Destroy is called
+	std::shared_ptr<AttributeSelectorGrid>				Me; // Keep me alive until Destroy is called
 	std::shared_ptr<IKeyVEILSession>					_session;
 	GUID												_cryptoGroupId;
 	std::shared_ptr<ICmsHeaderAttributeGroup>			_ckm7group;

@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -34,10 +34,10 @@
  * \brief defines the interface for change notifications in the configuration preferences classes
  *
  */
- 
+
 #ifndef __IPREFERENCECHANGENOTIFY_H__
 #define __IPREFERENCECHANGENOTIFY_H__
- 
+
 #pragma once
 
  /// <summary>Crypto preference change notification interface.</summary>

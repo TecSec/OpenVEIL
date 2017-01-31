@@ -1,0 +1,838 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<!--
+	Copyright (c) 2017, TecSec, Inc.
+
+	Redistribution and use in source and binary forms, with or without
+	modification, are permitted provided that the following conditions are met:
+	
+		* Redistributions of source code must retain the above copyright
+		  notice, this list of conditions and the following disclaimer.
+		* Redistributions in binary form must reproduce the above copyright
+		  notice, this list of conditions and the following disclaimer in the
+		  documentation and/or other materials provided with the distribution.
+		* Neither the name of TecSec nor the names of the contributors may be
+		  used to endorse or promote products derived from this software 
+		  without specific prior written permission.
+		 
+	ALTERNATIVELY, provided that this notice is retained in full, this product
+	may be distributed under the terms of the GNU General Public License (GPL),
+	in which case the provisions of the GPL apply INSTEAD OF those given above.
+		 
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+	DISCLAIMED.  IN NO EVENT SHALL TECSEC BE LIABLE FOR ANY 
+	DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+	(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+	LOSS OF USE, DATA OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+	ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+ Written by Roger Butler
+-->
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+       targetNamespace= "http://schemas.tecsec.com/xml2asn1codegen/2015"
+           xmlns ="http://schemas.tecsec.com/xml2asn1codegen/2015">
+
+  <xs:complexType name="ChoiceRef">
+    <xs:attribute name="Name" type="xs:string" use="required" />
+    <xs:attribute name="ElementType" type="xs:string" use="optional" />
+  </xs:complexType>
+
+  <xs:complexType name="Sequence">
+    <xs:sequence>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element name="Version" type="Version"/>
+        <xs:element name="Part" type="Part"/>
+        <xs:group ref="FieldTypeDef" maxOccurs="unbounded"/>
+        <xs:element name="Function">
+          <xs:complexType mixed="true">
+            <xs:sequence minOccurs="0">
+              <xs:element name="Description" type="xs:string" />
+            </xs:sequence>
+            <xs:attribute name="ReturnType" type="xs:string" use="required" />
+            <xs:attribute name="Name" type="xs:string" use="required" />
+            <xs:attribute name="Parameters" type="xs:string" use="required" />
+            <xs:attribute name="suffix" type="xs:string" use="optional" />
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Choice" type="ChoiceDef"/>
+      </xs:choice>
+    </xs:sequence>
+    <xs:attributeGroup ref="TaggedElementAttributes"/>
+    <xs:attribute name="ElementType" type="xs:string" use="optional" />
+    <xs:attribute name="OID" type="xs:string" use="optional" />
+    <xs:attribute name="DefaultVersion" type="xs:unsignedByte" use="optional" />
+    <xs:attribute name="Exported" type="xs:boolean" use="optional" />
+    <xs:attribute name="Final" type="xs:boolean" use="optional" />
+    <xs:attribute name="DontWrap" type="xs:boolean" use="optional" />
+    <xs:attribute name="ParentType" type="xs:string" use="optional" />
+  </xs:complexType>
+
+  <xs:complexType name="SequenceOf">
+    <xs:sequence>
+      <xs:choice maxOccurs="unbounded">
+        <xs:group ref="FieldTypeDef" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="Function">
+          <xs:complexType mixed="true">
+            <xs:sequence minOccurs="0">
+              <xs:element name="Description" type="xs:string" />
+            </xs:sequence>
+            <xs:attribute name="ReturnType" type="xs:string" use="required" />
+            <xs:attribute name="Name" type="xs:string" use="required" />
+            <xs:attribute name="Parameters" type="xs:string" use="required" />
+            <xs:attribute name="suffix" type="xs:string" use="optional" />
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Choice" type="ChoiceDef"/>
+      </xs:choice>
+    </xs:sequence>
+    <xs:attributeGroup ref="TaggedElementAttributes"/>
+    <xs:attribute name="ElementType" type="xs:string" use="optional" />
+    <xs:attribute name="Exported" type="xs:boolean" use="optional" />
+    <xs:attribute name="Final" type="xs:boolean" use="optional" />
+    <xs:attribute name="DontWrap" type="xs:boolean" use="optional" />
+    <xs:attribute name="ParentType" type="xs:string" use="optional" />
+  </xs:complexType>
+
+  <xs:attributeGroup name="ElementAttributes">
+    <xs:attribute name="Name" type="xs:string" use="required" />
+    <xs:attribute name="JSONName" type="xs:string" use="optional" />
+    <xs:attribute name="Optional" type="xs:boolean" use="optional" />
+    <xs:attribute name="Default" type="xs:string" use="optional" />
+    <xs:attribute name="Initializer" type="xs:string" use="optional" />
+  </xs:attributeGroup>
+
+  <xs:attributeGroup name="TaggedElementAttributes">
+    <xs:attributeGroup ref="ElementAttributes"/>
+    <xs:attribute name="Tag" type="xs:string"/>
+    <xs:attribute name="Type" type="xs:string"/>
+  </xs:attributeGroup>
+
+  <xs:simpleType name="Description">
+    <xs:restriction base="xs:string">
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="SequenceFieldRef">
+    <xs:attribute name="Name" type="xs:string" use="required" />
+    <xs:attribute name="ElementType" type="xs:string" use="optional" />
+    <xs:attribute name="JSONName" type="xs:string" use="optional" />
+  </xs:complexType>
+
+  <xs:complexType name="SequenceFieldDef">
+    <xs:all>
+      <xs:element type="Description" name="Description" minOccurs="0" maxOccurs="1"/>
+    </xs:all>
+    <xs:attributeGroup ref="TaggedElementAttributes"/>
+    <xs:attribute name="ElementType" type="xs:string" use="required" />
+  </xs:complexType>
+  <xs:complexType name="ChoiceDef">
+    <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:group ref="FieldTypeDef" maxOccurs="unbounded"/>
+        <xs:element name="Function">
+          <xs:complexType mixed="true">
+            <xs:sequence minOccurs="0">
+              <xs:element name="Description" type="xs:string" />
+            </xs:sequence>
+            <xs:attribute name="ReturnType" type="xs:string" use="required" />
+            <xs:attribute name="Name" type="xs:string" use="required" />
+            <xs:attribute name="Parameters" type="xs:string" use="required" />
+            <xs:attribute name="suffix" type="xs:string" use="optional" />
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:sequence>
+    <xs:attributeGroup ref="TaggedElementAttributes"/>
+    <xs:attribute name="Exported" type="xs:boolean" use="optional" />
+    <xs:attribute name="Final" type="xs:boolean" use="optional" />
+    <xs:attribute name="ElementType" type="xs:string" use="optional" />
+  </xs:complexType>
+
+  <xs:complexType name="SetFieldRef">
+    <xs:attribute name="Name" type="xs:string" use="required" />
+    <xs:attribute name="JSONName" type="xs:string" use="optional" />
+  </xs:complexType>
+  <xs:complexType name="SetFieldDef">
+    <xs:all>
+      <xs:element type="Description" name="Description" minOccurs="0" maxOccurs="1"/>
+    </xs:all>
+    <xs:attributeGroup ref="TaggedElementAttributes"/>
+    <xs:attribute name="ElementType" type="xs:string" use="required" />
+  </xs:complexType>
+
+  <xs:attributeGroup name="FieldTypeRefAttributes">
+    <xs:attribute name="Name" type="xs:string" use="required" />
+    <xs:attribute name="JSONName" type="xs:string" use="optional" />
+    <xs:attribute name="Tag" type="xs:string"/>
+    <xs:attribute name="Type" type="xs:string"/>
+  </xs:attributeGroup>
+
+  <xs:group name="FieldTypeRef">
+    <xs:choice>
+      <xs:element name="OctetString">
+        <xs:complexType>
+          <xs:attributeGroup ref="FieldTypeRefAttributes"/>
+          <xs:attribute name="EncodedType" type="xs:string" use="optional" />
+          <xs:attribute name="EncodedAccessor" type="xs:string" use="optional" />
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Guid">
+        <xs:complexType>
+          <xs:attributeGroup ref="FieldTypeRefAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="String">
+        <xs:complexType>
+          <xs:attributeGroup ref="FieldTypeRefAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="UTF8String">
+        <xs:complexType>
+          <xs:attributeGroup ref="FieldTypeRefAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="VisibleString">
+        <xs:complexType>
+          <xs:attributeGroup ref="FieldTypeRefAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="UniversalString">
+        <xs:complexType>
+          <xs:attributeGroup ref="FieldTypeRefAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="BMPString">
+        <xs:complexType>
+          <xs:attributeGroup ref="FieldTypeRefAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="IA5String">
+        <xs:complexType>
+          <xs:attributeGroup ref="FieldTypeRefAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="T61String">
+        <xs:complexType>
+          <xs:attributeGroup ref="FieldTypeRefAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="PrintableString">
+        <xs:complexType>
+          <xs:attributeGroup ref="FieldTypeRefAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Int64">
+        <xs:complexType>
+          <xs:attributeGroup ref="FieldTypeRefAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Int32">
+        <xs:complexType>
+          <xs:attributeGroup ref="FieldTypeRefAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Int16">
+        <xs:complexType>
+          <xs:attributeGroup ref="FieldTypeRefAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Int8">
+        <xs:complexType>
+          <xs:attributeGroup ref="FieldTypeRefAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Enum">
+        <xs:complexType>
+          <xs:attributeGroup ref="FieldTypeRefAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="NamedInt">
+        <xs:complexType>
+          <xs:attributeGroup ref="FieldTypeRefAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Date">
+        <xs:complexType>
+          <xs:attributeGroup ref="FieldTypeRefAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="UTCTime">
+        <xs:complexType>
+          <xs:attributeGroup ref="FieldTypeRefAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GeneralizedTime">
+        <xs:complexType>
+          <xs:attributeGroup ref="FieldTypeRefAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Bool">
+        <xs:complexType>
+          <xs:attributeGroup ref="FieldTypeRefAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Char">
+        <xs:complexType>
+          <xs:attributeGroup ref="FieldTypeRefAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Any">
+        <xs:complexType>
+          <xs:attributeGroup ref="FieldTypeRefAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="OID">
+        <xs:complexType>
+          <xs:attributeGroup ref="FieldTypeRefAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Bitstring">
+        <xs:complexType>
+          <xs:attributeGroup ref="FieldTypeRefAttributes"/>
+          <xs:attribute name="EncodedType" type="xs:string" use="optional" />
+          <xs:attribute name="EncodedAccessor" type="xs:string" use="optional" />
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Null">
+        <xs:complexType>
+          <xs:attributeGroup ref="FieldTypeRefAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Number">
+        <xs:complexType>
+          <xs:attributeGroup ref="FieldTypeRefAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="SequenceOf">
+        <xs:complexType>
+          <xs:attribute name="ElementType" type="xs:string" use="optional" />
+          <xs:attributeGroup ref="TaggedElementAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Sequence" type="SequenceFieldRef"/>
+      <xs:element name="Set" type="SetFieldRef"/>
+    </xs:choice>
+  </xs:group>
+  <xs:group name="FieldTypeDef">
+    <xs:choice>
+      <xs:element name="OctetString">
+        <xs:complexType>
+          <xs:all>
+            <xs:element type="Description" name="Description" minOccurs="0" maxOccurs="1"/>
+          </xs:all>
+          <xs:attributeGroup ref="TaggedElementAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Guid">
+        <xs:complexType>
+          <xs:all>
+            <xs:element type="Description" name="Description" minOccurs="0" maxOccurs="1"/>
+          </xs:all>
+          <xs:attributeGroup ref="TaggedElementAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="String">
+        <xs:complexType>
+          <xs:all>
+            <xs:element type="Description" name="Description" minOccurs="0" maxOccurs="1"/>
+          </xs:all>
+          <xs:attributeGroup ref="TaggedElementAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="UTF8String">
+        <xs:complexType>
+          <xs:all>
+            <xs:element type="Description" name="Description" minOccurs="0" maxOccurs="1"/>
+          </xs:all>
+          <xs:attributeGroup ref="TaggedElementAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="VisibleString">
+        <xs:complexType>
+          <xs:all>
+            <xs:element type="Description" name="Description" minOccurs="0" maxOccurs="1"/>
+          </xs:all>
+          <xs:attributeGroup ref="TaggedElementAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="UniversalString">
+        <xs:complexType>
+          <xs:all>
+            <xs:element type="Description" name="Description" minOccurs="0" maxOccurs="1"/>
+          </xs:all>
+          <xs:attributeGroup ref="TaggedElementAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="BMPString">
+        <xs:complexType>
+          <xs:all>
+            <xs:element type="Description" name="Description" minOccurs="0" maxOccurs="1"/>
+          </xs:all>
+          <xs:attributeGroup ref="TaggedElementAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="IA5String">
+        <xs:complexType>
+          <xs:all>
+            <xs:element type="Description" name="Description" minOccurs="0" maxOccurs="1"/>
+          </xs:all>
+          <xs:attributeGroup ref="TaggedElementAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="PrintableString">
+        <xs:complexType>
+          <xs:all>
+            <xs:element type="Description" name="Description" minOccurs="0" maxOccurs="1"/>
+          </xs:all>
+          <xs:attributeGroup ref="TaggedElementAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="T61String">
+        <xs:complexType>
+          <xs:all>
+            <xs:element type="Description" name="Description" minOccurs="0" maxOccurs="1"/>
+          </xs:all>
+          <xs:attributeGroup ref="TaggedElementAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Int64">
+        <xs:complexType>
+          <xs:all>
+            <xs:element type="Description" name="Description" minOccurs="0" maxOccurs="1"/>
+          </xs:all>
+          <xs:attributeGroup ref="TaggedElementAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Int32">
+        <xs:complexType>
+          <xs:all>
+            <xs:element type="Description" name="Description" minOccurs="0" maxOccurs="1"/>
+          </xs:all>
+          <xs:attributeGroup ref="TaggedElementAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Int16">
+        <xs:complexType>
+          <xs:all>
+            <xs:element type="Description" name="Description" minOccurs="0" maxOccurs="1"/>
+          </xs:all>
+          <xs:attributeGroup ref="TaggedElementAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Int8">
+        <xs:complexType>
+          <xs:all>
+            <xs:element type="Description" name="Description" minOccurs="0" maxOccurs="1"/>
+          </xs:all>
+          <xs:attributeGroup ref="TaggedElementAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Enum">
+        <xs:complexType>
+          <xs:all>
+            <xs:element type="Description" name="Description" minOccurs="0" maxOccurs="1"/>
+          </xs:all>
+          <xs:attributeGroup ref="TaggedElementAttributes"/>
+          <xs:attribute name="ElementType" type="xs:string" use="required" />
+          <xs:attribute name="BaseType" type="xs:string" use="optional" />
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="NamedInt">
+        <xs:complexType>
+          <xs:all>
+            <xs:element type="Description" name="Description" minOccurs="0" maxOccurs="1"/>
+          </xs:all>
+          <xs:attributeGroup ref="TaggedElementAttributes"/>
+          <xs:attribute name="ElementType" type="xs:string" use="required" />
+          <xs:attribute name="BaseType" type="xs:string" use="optional" />
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Date">
+        <xs:complexType>
+          <xs:all>
+            <xs:element type="Description" name="Description" minOccurs="0" maxOccurs="1"/>
+          </xs:all>
+          <xs:attributeGroup ref="TaggedElementAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="UTCTime">
+        <xs:complexType>
+          <xs:all>
+            <xs:element type="Description" name="Description" minOccurs="0" maxOccurs="1"/>
+          </xs:all>
+          <xs:attributeGroup ref="TaggedElementAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="GeneralizedTime">
+        <xs:complexType>
+          <xs:all>
+            <xs:element type="Description" name="Description" minOccurs="0" maxOccurs="1"/>
+          </xs:all>
+          <xs:attributeGroup ref="TaggedElementAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Bool">
+        <xs:complexType>
+          <xs:all>
+            <xs:element type="Description" name="Description" minOccurs="0" maxOccurs="1"/>
+          </xs:all>
+          <xs:attributeGroup ref="TaggedElementAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Char">
+        <xs:complexType>
+          <xs:all>
+            <xs:element type="Description" name="Description" minOccurs="0" maxOccurs="1"/>
+          </xs:all>
+          <xs:attributeGroup ref="TaggedElementAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Any">
+        <xs:complexType>
+          <xs:all>
+            <xs:element type="Description" name="Description" minOccurs="0" maxOccurs="1"/>
+          </xs:all>
+          <xs:attributeGroup ref="TaggedElementAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="OID">
+        <xs:complexType>
+          <xs:all>
+            <xs:element type="Description" name="Description" minOccurs="0" maxOccurs="1"/>
+          </xs:all>
+          <xs:attributeGroup ref="TaggedElementAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Bitstring">
+        <xs:complexType>
+          <xs:all>
+            <xs:element type="Description" name="Description" minOccurs="0" maxOccurs="1"/>
+          </xs:all>
+          <xs:attributeGroup ref="TaggedElementAttributes"/>
+          <xs:attribute name="ElementType" type="xs:string" use="optional" />
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Null">
+        <xs:complexType>
+          <xs:all>
+            <xs:element type="Description" name="Description" minOccurs="0" maxOccurs="1"/>
+          </xs:all>
+          <xs:attributeGroup ref="TaggedElementAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Number">
+        <xs:complexType>
+          <xs:all>
+            <xs:element type="Description" name="Description" minOccurs="0" maxOccurs="1"/>
+          </xs:all>
+          <xs:attributeGroup ref="TaggedElementAttributes"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Sequence" type="SequenceFieldDef"/>
+      <xs:element name="SequenceOf" type="SequenceOf"/>
+      <xs:element name="Set" type="SetFieldDef"/>
+    </xs:choice>
+  </xs:group>
+
+  <xs:complexType name="Version">
+    <xs:sequence>
+      <xs:choice maxOccurs="unbounded" minOccurs="0">
+        <xs:group ref="FieldTypeRef" maxOccurs="unbounded"/>
+        <xs:element type="ChoiceRef" name="Choice"/>
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute name="Name" type="xs:string" use="required" />
+    <xs:attribute name="OID" type="xs:string" use="optional" />
+    <xs:attribute name="MinNumber" type="xs:unsignedByte" use="optional" />
+    <xs:attribute name="MaxNumber" type="xs:unsignedByte" use="optional" />
+  </xs:complexType>
+
+  <xs:complexType name="Part">
+    <xs:sequence>
+      <xs:choice maxOccurs="unbounded">
+        <xs:group ref="FieldTypeRef" maxOccurs="unbounded"/>
+        <xs:element type="ChoiceRef" name="Choice"/>
+        <xs:element type="Version" name="Version"/>
+      </xs:choice>
+    </xs:sequence>
+    <xs:attributeGroup ref="TaggedElementAttributes"/>
+    <xs:attribute name="Export" type="xs:boolean" use="optional" />
+    <xs:attribute name="DontWrap" type="xs:boolean" use="optional" />
+    <xs:attribute name="ParentType" type="xs:string" use="optional" />
+    <xs:attribute name="DefaultVersion" type="xs:integer" use="optional" />
+    <xs:attribute name="DefaultOID" type="xs:string" use="optional" />
+
+    <!--<xs:attribute name="OID" type="xs:string" use="optional" />
+    <xs:attribute name="MinNumber" type="xs:integer" use="optional" />
+    <xs:attribute name="MaxNumber" type="xs:integer" use="optional" />-->
+  </xs:complexType>
+
+  <xs:complexType name="EnumDef">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" name="ID">
+        <xs:complexType>
+          <xs:attribute name="Name" type="xs:string" use="required" />
+          <xs:attribute name="Value" type="xs:integer" use="optional" />
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="Name" type="xs:string" use="required" />
+    <xs:attribute name="Exported" type="xs:boolean" use="optional" />
+  </xs:complexType>
+
+  <xs:complexType name="IntDef">        
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Description" type="xs:string" />
+      <xs:element maxOccurs="unbounded" name="ID">
+        <xs:complexType>
+          <xs:all>
+            <xs:element type="Description" name="Description" minOccurs="0" maxOccurs="1"/>
+          </xs:all>
+          <xs:attribute name="Name" type="xs:string" use="required" />
+          <xs:attribute name="Value" type="xs:string" use="optional" />
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="Name" type="xs:string" use="required" />
+    <xs:attribute name="Extends" type="xs:string" use="optional" />
+    <xs:attribute name="BaseType" type="xs:string" use="optional" />
+    <xs:attribute name="Exported" type="xs:boolean" use="optional" />
+  </xs:complexType>
+
+  <xs:complexType name="BitstringDef">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" name="ID">
+        <xs:complexType>
+          <xs:attribute name="Name" type="xs:string" use="required" />
+          <xs:attribute name="Value" type="xs:integer" use="required" />
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="Name" type="xs:string" use="required" />
+    <xs:attribute name="Exported" type="xs:boolean" use="optional" />
+  </xs:complexType>
+
+  <xs:complexType name="Alias">
+    <xs:attribute name="Name" type="xs:string" use="required" />
+    <xs:attribute name="BaseType" type="xs:string" use="required" />
+    <!--<xs:attribute name="Exported" type="xs:boolean" use="optional" />-->
+  </xs:complexType>
+
+  <xs:complexType name="Namespace">
+    <xs:sequence>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element type="Namespace" name="Namespace"/>
+        <xs:element type="Sequence" name="Sequence"/>
+        <xs:element type="Sequence" name="Set"/>
+        <xs:element type="SequenceOf" name="SequenceOf"/>
+        <xs:element type="ChoiceDef" name="Choice"/>
+        <xs:element name="Enum" type="EnumDef"/>
+        <xs:element name="NamedInt" type="IntDef"/>
+        <xs:element name="Bitstring" type="BitstringDef"/>
+        <xs:element name="Alias" type="Alias"/>
+        <xs:element name="ID" type="OID_Definition" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute name="Name" type="xs:string" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="OID_Definition">
+    <xs:attribute name="Name" type="xs:string" use="required" />
+    <xs:attribute name="Value" type="xs:string" use="required" />
+    <xs:attribute name="Exported" type="xs:boolean" use="optional" />
+  </xs:complexType>
+
+  <xs:complexType name="OID_Import">
+    <xs:attribute name="Name" type="xs:string" use="required" />
+    <xs:attribute name="Value" type="xs:string" use="required" />
+    <xs:attribute name="Imported" type="xs:boolean" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="SequenceImport">
+    <xs:sequence>
+      <!--<xs:choice maxOccurs="unbounded">
+        <xs:element name="Version" type="Version"/>
+        <xs:element name="Part" type="Part"/>
+        <xs:group ref="FieldTypeDef" maxOccurs="unbounded"/>
+        <xs:element name="Function">
+          <xs:complexType mixed="true">
+            <xs:sequence minOccurs="0">
+              <xs:element name="Description" type="xs:string" />
+            </xs:sequence>
+            <xs:attribute name="ReturnType" type="xs:string" use="required" />
+            <xs:attribute name="Name" type="xs:string" use="required" />
+            <xs:attribute name="Parameters" type="xs:string" use="required" />
+            <xs:attribute name="suffix" type="xs:string" use="optional" />
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Choice" type="ChoiceDef"/>
+      </xs:choice>-->
+    </xs:sequence>
+    <xs:attributeGroup ref="TaggedElementAttributes"/>
+    <xs:attribute name="HasOID" type="xs:boolean" use="optional" />
+    <xs:attribute name="HasVersion" type="xs:boolean" use="optional" />
+    <xs:attribute name="Imported" type="xs:boolean" use="required" />
+    <xs:attribute name="Final" type="xs:boolean" use="optional" />
+    <xs:attribute name="DontWrap" type="xs:boolean" use="optional" />
+  </xs:complexType>
+
+  <xs:complexType name="SequenceOfImport">
+    <xs:sequence>
+      <!--<xs:choice maxOccurs="unbounded">
+        <xs:group ref="FieldTypeDef" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="Function">
+          <xs:complexType mixed="true">
+            <xs:sequence minOccurs="0">
+              <xs:element name="Description" type="xs:string" />
+            </xs:sequence>
+            <xs:attribute name="ReturnType" type="xs:string" use="required" />
+            <xs:attribute name="Name" type="xs:string" use="required" />
+            <xs:attribute name="Parameters" type="xs:string" use="required" />
+            <xs:attribute name="suffix" type="xs:string" use="optional" />
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Choice" type="ChoiceDef"/>
+      </xs:choice>-->
+    </xs:sequence>
+    <xs:attributeGroup ref="TaggedElementAttributes"/>
+    <xs:attribute name="Imported" type="xs:boolean" use="required" />
+    <xs:attribute name="Final" type="xs:boolean" use="optional" />
+    <xs:attribute name="DontWrap" type="xs:boolean" use="optional" />
+    <xs:attribute name="ParentType" type="xs:string" use="optional" />
+  </xs:complexType>
+
+  <xs:complexType name="ChoiceImport">
+    <xs:sequence>
+      <!--<xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:group ref="FieldTypeDef" maxOccurs="unbounded"/>
+        <xs:element name="Function">
+          <xs:complexType mixed="true">
+            <xs:sequence minOccurs="0">
+              <xs:element name="Description" type="xs:string" />
+            </xs:sequence>
+            <xs:attribute name="ReturnType" type="xs:string" use="required" />
+            <xs:attribute name="Name" type="xs:string" use="required" />
+            <xs:attribute name="Parameters" type="xs:string" use="required" />
+            <xs:attribute name="suffix" type="xs:string" use="optional" />
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>-->
+    </xs:sequence>
+    <xs:attributeGroup ref="TaggedElementAttributes"/>
+    <xs:attribute name="Imported" type="xs:boolean" use="required" />
+    <xs:attribute name="Final" type="xs:boolean" use="optional" />
+  </xs:complexType>
+
+  <xs:complexType name="EnumImport">
+    <xs:sequence>
+      <!--<xs:element maxOccurs="unbounded" name="ID">
+        <xs:complexType>
+          <xs:attribute name="Name" type="xs:string" use="required" />
+          <xs:attribute name="Value" type="xs:integer" use="optional" />
+        </xs:complexType>
+      </xs:element>-->
+    </xs:sequence>
+    <xs:attribute name="Name" type="xs:string" use="required" />
+    <xs:attribute name="Imported" type="xs:boolean" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="BitstringImport">
+    <xs:sequence>
+      <!--<xs:element maxOccurs="unbounded" name="ID">
+        <xs:complexType>
+          <xs:attribute name="Name" type="xs:string" use="required" />
+          <xs:attribute name="Value" type="xs:integer" use="optional" />
+        </xs:complexType>
+      </xs:element>-->
+    </xs:sequence>
+    <xs:attribute name="Name" type="xs:string" use="required" />
+    <xs:attribute name="Imported" type="xs:boolean" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="NamespaceImport">
+    <xs:sequence>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element type="NamespaceImport" name="Namespace"/>
+        <xs:element type="SequenceImport" name="Sequence"/>
+        <xs:element type="SequenceImport" name="Set"/>
+        <xs:element type="SequenceOfImport" name="SequenceOf"/>
+        <xs:element type="ChoiceImport" name="Choice"/>
+        <xs:element name="Enum" type="EnumImport"/>
+        <xs:element name="Bitstring" type="BitstringImport"/>
+        <!--<xs:element name="Alias" type="Alias"/>-->
+        <xs:element name="ID" type="OID_Import" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute name="Name" type="xs:string" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="Import">
+    <xs:sequence>
+    </xs:sequence>
+    <xs:attribute name="Name" type="xs:string" use="required" />
+  </xs:complexType>
+
+  <xs:element name="Asn1Export">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Include" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:attribute name="Name" type="xs:string" use="required" />
+          </xs:complexType>
+        </xs:element>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element name="ID" type="OID_Import"/>
+          <xs:element type="SequenceImport" name="Sequence"/>
+          <xs:element type="SequenceImport" name="Set"/>
+          <xs:element type="SequenceOfImport" name="SequenceOf"/>
+          <xs:element type="ChoiceImport" name="Choice"/>
+          <xs:element name="Enum" type="EnumImport"/>
+          <xs:element name="Bitstring" type="BitstringImport"/>
+          <!--<xs:element name="Alias" type="AliasImport"/>-->
+          <xs:element name="Namespace" type="NamespaceImport"/>
+        </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Root">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="File" minOccurs="1" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Import" type="Import" minOccurs="0" maxOccurs="unbounded"/>
+              <xs:element name="Include" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:attribute name="Name" type="xs:string" use="required" />
+                </xs:complexType>
+              </xs:element>
+              <xs:choice maxOccurs="unbounded">
+                <xs:element name="ID" type="OID_Definition" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element type="Sequence" name="Sequence"/>
+                <xs:element type="Sequence" name="Set"/>
+                <xs:element type="SequenceOf" name="SequenceOf"/>
+                <xs:element type="ChoiceDef" name="Choice"/>
+                <xs:element name="Enum" type="EnumDef"/>
+                <xs:element name="NamedInt" type="IntDef"/>
+                <xs:element name="Alias" type="Alias"/>
+                <xs:element name="Namespace" type="Namespace"/>
+              </xs:choice>
+            </xs:sequence>
+            <xs:attribute name="Name" type="xs:string" use="required" />
+            <xs:attribute name="ExportSymbol" type="xs:string" use="optional" />
+            <xs:attribute name="SourceFile" type="xs:string" use="optional" />
+            <xs:attribute name="ExportFile" type="xs:string" use="optional" />
+            <xs:attribute name="HeaderFile" type="xs:string" use="optional" />
+            <xs:attribute name="HeaderPrefix" type="xs:string" use="optional" />
+            <xs:attribute name="TemplateExternSymbol" type="xs:string" use="optional" />
+            <xs:attribute name="LibraryNamespace" type="xs:string" use="optional" />
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

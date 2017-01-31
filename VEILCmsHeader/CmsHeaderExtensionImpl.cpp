@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -746,7 +746,8 @@ void CmsHeaderExtensionImpl::toGroupList()
 						return;
 					}
 
-					attr->SetEncryptedRandom(ext->get_AttrItem().get_EncryptedRandom());
+					if (ext->get_AttrItem().exists_EncryptedRandom())
+						attr->SetEncryptedRandom(*ext->get_AttrItem().get_EncryptedRandom());
 					for (size_t li = 0; li < ext->get_AttrItem().get_AttrIndices().size(); li++)
 					{
 						attr->AddAttributeIndex(ext->get_AttrItem().get_AttrIndices().get_at(li));
@@ -821,7 +822,8 @@ void CmsHeaderExtensionImpl::toCryptoGroupList()
 			std::shared_ptr<ICmsHeaderCryptoGroup> cryptoGroup = CreateCryptoGroupHeaderObject(cryptoGroupData.get_CryptoGroupId());
 
 			cryptoGroup->SetCurrentMaintenanceLevel(cryptoGroupData.get_CML());
-			cryptoGroup->SetEphemeralPublic(cryptoGroupData.get_EphemeralPublic());
+			if (cryptoGroupData.exists_EphemeralPublic())
+				cryptoGroup->SetEphemeralPublic(*cryptoGroupData.get_EphemeralPublic());
 			m_cryptoGroupList.push_back(cryptoGroup);
 			cryptoGroup.reset();
 		}
@@ -899,7 +901,8 @@ void CmsHeaderExtensionImpl::toAttributeList()
 				myAttribute->SetAttributeGuid(attr.get_Id());
 				myAttribute->SetCryptoGroupNumber(attr.get_CryptoGroupNumber());
 				myAttribute->SetKeyVersion(attr.get_Version());
-				myAttribute->SetSignature(attr.get_Signature());
+				if (attr.exists_Signature())
+					myAttribute->SetSignature(*attr.get_Signature());
 			}
 		}
 	}

@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -88,7 +88,7 @@ private:
 #ifdef HAVE_WINDOWS_H
 	static unsigned __stdcall taskStart(void * params);
 #else
-    static void* taskStart(void* params);
+	static void* taskStart(void* params);
 #endif // HAVE_WINDOWS_H
 
 protected:

@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -224,21 +224,21 @@ public:
 	}
 
 protected:
-	XP_WINDOW                               _parent;
-	std::shared_ptr<AudienceSelector> Me; // Keep me alive until Destroy is called
-	std::shared_ptr<IKeyVEILSession>	    _session;
-	std::shared_ptr<IKeyVEILConnector>	    _connector;
-	std::shared_ptr<ICmsHeader>             _header;
-	bool                                    _CreateFavorites;
-	tscrypto::tsCryptoString							        _AppName;
-	int									    _CurFavIndex;
+	XP_WINDOW										_parent;
+	std::shared_ptr<AudienceSelector>				Me; // Keep me alive until Destroy is called
+	std::shared_ptr<IKeyVEILSession>				_session;
+	std::shared_ptr<IKeyVEILConnector>				_connector;
+	std::shared_ptr<ICmsHeader>						_header;
+	bool											_CreateFavorites;
+	tscrypto::tsCryptoString						_AppName;
+	int												_CurFavIndex;
 	Asn1::CTS::_POD_CryptoGroup*					_ActiveCryptoGroup;
-	int										_LastTokenSelection;
-	std::shared_ptr<IFavorite>				_favorite;
-	bool                                    _initialized;
-	std::vector<tscrypto::tsCryptoData>                     _tokenSerialNumbers;
-	std::vector<GUID>						_guidMap;
-	size_t                                  _cookie;
+	int												_LastTokenSelection;
+	std::shared_ptr<IFavorite>						_favorite;
+	bool											_initialized;
+	std::vector<tscrypto::tsCryptoData>				_tokenSerialNumbers;
+	std::vector<GUID>								_guidMap;
+	size_t											_cookie;
 	std::shared_ptr<Asn1::CTS::_POD_Profile>		_profile;
 
 	/// Creation
@@ -561,7 +561,10 @@ protected:
 
 							if (tokSel->Start(_connector, enterpriseOid, "Select a token for the favorite", (XP_WINDOW)this) && tokSel->DisplayModal() == wxID_OK && !!(sess = tokSel->Session()))
 							{
-								int tokIndex = FindTokenOnComboBox(sess->GetProfile()->get_SerialNumber());
+								int tokIndex = -1;
+								
+								if (sess->GetProfile()->exists_SerialNumber())
+									tokIndex = FindTokenOnComboBox(*sess->GetProfile()->get_SerialNumber());
 
 								if (tokIndex >= 0)
 								{
@@ -878,7 +881,7 @@ protected:
 		return;
 	}
 
-    /// wxEVT_COMMAND_LISTBOX_SELECTED event handler for ID_LISTBOX
+	/// wxEVT_COMMAND_LISTBOX_SELECTED event handler for ID_LISTBOX
 	void OnListboxSelected(wxCommandEvent& event)
 	{
 		UpdateDialogControls();
@@ -1185,7 +1188,8 @@ protected:
 				return;
 
 			favName = dlg->Name();
-			id = _connector->CreateFavorite(GetProfile()->get_SerialNumber(), _header->ToBytes(), favName);
+			if (GetProfile()->exists_SerialNumber())
+				id = _connector->CreateFavorite(*GetProfile()->get_SerialNumber(), _header->ToBytes(), favName);
 			if (id == GUID_NULL)
 			{
 				wxMessageBox("An error occurred while attempting to create the new favorite.", "Error", MB_ICONHAND | MB_OK);
@@ -2204,9 +2208,9 @@ protected:
 		std::shared_ptr<IToken> token;
 		tscrypto::tsCryptoData tokenSerial;
 
-		if (HasSession() && HasProfile())
+		if (HasSession() && HasProfile() && GetProfile()->exists_SerialNumber())
 		{
-			tokenSerial = GetProfile()->get_SerialNumber();
+			tokenSerial = *GetProfile()->get_SerialNumber();
 		}
 
 		// Empty the  contents of the token combo

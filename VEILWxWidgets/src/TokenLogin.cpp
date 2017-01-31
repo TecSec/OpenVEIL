@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -325,7 +325,8 @@ protected:
 			wxMessageBox("You must call Start before displaying this dialog.");
 		}
 
-		buff = _session->GetProfile()->get_tokenName();
+		if (_session->GetProfile()->exists_tokenName())
+			buff = *_session->GetProfile()->get_tokenName();
 		if (buff.size() > 0)
 		{
 			lblTokenName->SetLabel(buff.c_str());

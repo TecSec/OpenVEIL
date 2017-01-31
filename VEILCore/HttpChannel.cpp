@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -67,7 +67,7 @@ typedef struct FrameHeader {
 	uint8_t maskingKey[4];
 } FrameHeader;
 
-class WebSocket : public IWebSocket, public tsmod::IObject
+class WebSocket : public IWebSocket, public tsmod::IObject, INetworkConnectionEvents
 {
 public:
 	WebSocket(std::shared_ptr<ITcpChannel> channel, const tscrypto::tsCryptoString& protocol, const tscrypto::tsCryptoString& extensions) : 
@@ -215,6 +215,7 @@ public:
 
 		_sentClose = true;
 		SendError(code, otherData);
+		_disconnectSignals.Fire(this);
 		return true;
 	}
 	virtual bool Ping(const tscrypto::tsCryptoData & otherData) override
@@ -284,6 +285,9 @@ protected:
 	std::function<bool(bool finalBlock, const tscrypto::tsCryptoString&data)> OnTextFrameReceived;
 	std::function<bool()> OnPongReceived;
 	std::function<bool()> OnCloseReceived;
+	tsIObjectSignal _connectSignals;
+	tsIObjStringSignal _errorSignals;
+	tsIObjectSignal _disconnectSignals;
 
 	bool SendFrame(bool fin, uint8_t opcode, const tscrypto::tsCryptoData& data)
 	{
@@ -469,6 +473,7 @@ protected:
 						{
 							OnCloseReceived();
 						}
+						_disconnectSignals.Fire(this);
 						return true;
 					case WebSocketOpcode::Ping: // ping
 						SendFrame(true, WebSocketOpcode::Pong, fragment);
@@ -549,6 +554,32 @@ protected:
 			}
 		}
 		return 0;
+	}
+
+	// Inherited via INetworkConnectionEvents
+	virtual size_t AddOnConnect(std::function<void(const tsmod::IObject*)> func) override
+	{
+		return _connectSignals.Add(func);
+	}
+	virtual void RemoveOnConnect(size_t cookie) override
+	{
+		_connectSignals.Remove(cookie);
+	}
+	virtual size_t AddOnError(std::function<void(const tsmod::IObject*, const tscrypto::tsCryptoStringBase&)> func) override
+	{
+		return _errorSignals.Add(func);
+	}
+	virtual void RemoveOnError(size_t cookie) override
+	{
+		_errorSignals.Remove(cookie);
+	}
+	virtual size_t AddOnDisconnect(std::function<void(const tsmod::IObject*)> func) override
+	{
+		return _disconnectSignals.Add(func);
+	}
+	virtual void RemoveOnDisconnect(size_t cookie) override
+	{
+		_disconnectSignals.Remove(cookie);
 	}
 };
 
@@ -742,6 +773,7 @@ public:
 		if (!WrapMessage(_verb, _destination, _body, _mimeType, _headers))
 		{
 			m_errors += "Message wrapping failed\n";
+			_errorSignals.Fire(this, m_errors);
 			return false;
 		}
 
@@ -761,17 +793,20 @@ public:
 		if (!WSAInitialize())
 		{
 			m_errors += "Unable to initialize the socket system.\n";
+			_errorSignals.Fire(this, m_errors);
 			return false;
 		}
 		// And that we can connect to the server
 		if (!Connect())
 		{
 			m_errors += "Unable to connect to the server\n";
+			_errorSignals.Fire(this, m_errors);
 			return false;
 		}
 		if (!WrapTransport(message))
 		{
 			m_errors += "Transport wrapping failed\n";
+			_errorSignals.Fire(this, m_errors);
 			return false;
 		}
 
@@ -797,6 +832,7 @@ public:
 		case IHttpHeader::hh_Failure:
 			m_errors += hdr->Errors();
 			hdr->ClearErrors();
+			_errorSignals.Fire(this, m_errors);
 			return false;
 		case IHttpHeader::hh_CloseSocket:
 #ifdef _WIN32
@@ -824,6 +860,7 @@ public:
 			case IHttpHeader::hh_Failure:
 				m_errors += hdr->Errors();
 				hdr->ClearErrors();
+				_errorSignals.Fire(this, m_errors);
 				return false;
 			case IHttpHeader::hh_CloseSocket:
 #ifdef _WIN32
@@ -841,6 +878,7 @@ public:
 		if (!UnwrapMessage(header))
 		{
 			m_errors += "Unable to unwrap the received message.\n";
+			_errorSignals.Fire(this, m_errors);
 			return false;
 		}
 		//LOG(httpLog, "Processed Receive in " << (GetTicks() - start) / 1000.0 << " ms");

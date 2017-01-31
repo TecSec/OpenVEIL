@@ -1,0 +1,586 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<Root xmlns="http://schemas.tecsec.com/xml2asn1codegen/2015">
+  <File Name="Asn1ParserTest" SourceFile="Asn1ParserTest.inl" HeaderFile="Asn1ParserTest.h">
+
+    <Namespace Name="Asn1Test">
+      <ID Name="id_test1_unittest" Value="1.2.3.4" Exported="true"/>
+      <ID Name="id_test1a_unittest" Value="1.2.3.5"/>
+      <ID Name="id_test1b_unittest" Value="1.2.3.6"/>
+      <Enum Name="TestEnum" Exported="true">
+        <ID Name="Val1"/>
+        <ID Name="Val2"/>
+      </Enum>
+      <Sequence Name="AEAD_Parameters" JSONName="aeadParam">
+        <OctetString Name="iv" JSONName="iv"/>
+        <Number Name="tagLength" Default="12" Initializer="12" JSONName="tagLen"/>
+      </Sequence>
+
+      <Sequence Name="JSONTestOidOpt" JSONName="OptOidTest">
+        <OID Name="oid" Optional="true" JSONName="oid"/>
+        <Sequence Name="SignatureAlgorithm" ElementType="AEAD_Parameters" Tag="3" Type="Context" Optional="true" JSONName="sigAlg"/>
+        <Choice Name="EncAlg" JSONName="encAlg">
+          <Enum Name="EncryptionAlgorithmId" ElementType="TestEnum" BaseType="Int32" Tag="Number" Initializer="Val1" JSONName="algId"/>
+          <Sequence Name="EncryptionAlgorithm" ElementType="AEAD_Parameters" JSONName="algorithm"/>
+        </Choice>
+      </Sequence>
+      <Bitstring Name="TestBitstring" Exported="true">
+        <ID Name="bit1" Value="0"/>
+        <ID Name="bit2" Value="1"/>
+      </Bitstring>
+      <Set Name="TestSet" Exported="true" JSONName="test">
+        <OID Name="oid" JSONName="oid"/>
+        <Number Name="value" JSONName="value"/>
+      </Set>
+      <Sequence Name="Test2" JSONName="test2" Exported="true">
+        <OID Name="oid" JSONName="oid"/>
+        <Number Name="value" JSONName="value"/>
+      </Sequence>
+      <SequenceOf Name="Test2List" Exported="true">
+        <Sequence Name="item" ElementType="Test2"/>
+      </SequenceOf>
+      <Sequence Name="Test1" JSONName="Test1">
+        <Int32 Name="data1" JSONName="data1"/>
+        <String Name="data2" JSONName="data2"/>
+        <Int8 Name="data3" JSONName="data3"/>
+        <Int16 Name="data4" JSONName="data4"/>
+        <OctetString Name="data5" JSONName="data5"/>
+        <Int64 Name="data6" JSONName="data6"/>
+        <Bool Name="data7" JSONName="data7"/>
+        <Sequence Name="data8" ElementType="Test2" Tag="1" Type="Context" JSONName="data8"/>
+        <Guid Name="data9" Tag="2" Type="Context" JSONName="data9"/>
+        <Date Name="data10" JSONName="data10"/>
+        <Null Name="nullFld" JSONName="nullfld"/>
+        <Any Name="data11" Optional="true" JSONName="data11"/>
+        <SequenceOf Name="data12" Tag="3" Type="Context" JSONName="data12" Exported="true">
+          <Int32 Name="data12" JSONName="item"/>
+        </SequenceOf>
+        <SequenceOf Name="data13" Tag="4" Type="Context" JSONName="data13">
+          <OctetString Name="data13" JSONName="item"/>
+        </SequenceOf>
+        <Choice Name="choice1" JSONName="choice1" Exported="true">
+          <OID Name="oid" JSONName="oid"/>
+          <Int32 Name="alg" JSONName="alg"/>
+        </Choice>
+        <Bitstring Name="data14" JSONName="data14"/>
+        <SequenceOf Name="data15" Tag="5" Type="Context" JSONName="data15">
+          <Any Name="data15" JSONName="item"/>
+        </SequenceOf>
+        <!--<SequenceOf Name="data16" Tag="6" Type="Context">
+                    <Null Name="data16"/>
+                </SequenceOf>-->
+        <SequenceOf Name="data17" Tag="7" Type="Context" JSONName="data17">
+          <Choice Name="AryChoice" JSONName="aryChoice">
+            <Int32 Name="Data1" JSONName="data1"/>
+            <Int32 Name="Data2" Tag="0" Type="Context" JSONName="data2"/>
+          </Choice>
+        </SequenceOf>
+        <SequenceOf Name="data18" Tag="7" Type="Application" Optional="true" JSONName="data18">
+          <Choice Name="AryChoice2" JSONName="data18Choice">
+            <Int32 Name="Data1"  JSONName="data1"/>
+            <Int32 Name="Data2" Tag="0" Type="Context" JSONName="data2"/>
+          </Choice>
+        </SequenceOf>
+        <SequenceOf Name="data19" Tag="8" Type="Context" Optional="true" JSONName="data19">
+          <Any Name="data19" JSONName="item"/>
+        </SequenceOf>
+        <SequenceOf Name="data20" Tag="9" Type="Context" Optional="true" JSONName="data20">
+          <Int8 Name="data20" Tag="5" Type="Private" JSONName="item"/>
+        </SequenceOf>
+        <!--<SequenceOf Name="data18" ElementType="Int32" Tag="18" Type="Context" Optional="true"/>-->
+        <Part Name="BasicParts" Tag="0" Type="Context">
+          <Int32 Name="data1" JSONName="data1"/>
+          <Int8 Name="data3" JSONName="data3"/>
+          <Int16 Name="data4" JSONName="data4"/>
+          <OctetString Name="data5" JSONName="data5"/>
+          <Int64 Name="data6" JSONName="data6"/>
+          <Bool Name="data7" JSONName="data7"/>
+          <Null Name="nullFld" JSONName="nullfld"/>
+        </Part>
+      </Sequence>
+
+      <Sequence Name="testOIDVersion" Exported="true" DefaultVersion="1" OID="id_test1b_unittest">
+        <Int32 Name="data1" Default="0"/>
+        <Int32 Name="data2" Optional="true"/>
+        <Version Name="V4" OID="id_test1b_unittest" MinNumber="0" MaxNumber="0">
+          <Int32 Name="data1"/>
+        </Version>
+        <Version Name="V5" OID="id_test1b_unittest" MinNumber="1" MaxNumber="1">
+          <Int32 Name="data2"/>
+        </Version>
+        <Part Name="NumberVersion">
+          <Version Name="V2" MinNumber="0" MaxNumber="0">
+            <Int32 Name="data1"/>
+          </Version>
+          <Version Name="V3" MinNumber="1" MaxNumber="1">
+            <Int32 Name="data2"/>
+          </Version>
+          <Int32 Name="data1"/>
+          <Int32 Name="data2"/>
+        </Part>
+        <Part Name="OIDVersion">
+          <Version Name="V0" OID="id_test1_unittest">
+            <Int32 Name="data1"/>
+          </Version>
+          <Version Name="V1" OID="id_test1a_unittest">
+            <Int32 Name="data2"/>
+          </Version>
+          <Int32 Name="data1"/>
+          <Int32 Name="data2"/>
+        </Part>
+      </Sequence>
+
+      <Sequence Name="ArrayOfInt">
+        <SequenceOf Name="attributeIndices" Tag="12" Type="Context">
+          <Int32 Name="index" Tag="Number" Type="Universal"/>
+        </SequenceOf>
+      </Sequence>
+      <Sequence Name="OptArrayOfInt">
+        <SequenceOf Name="attributeIndices" Tag="12" Type="Context" Optional="true">
+          <Int32 Name="index" Tag="5" Type="Application"/>
+        </SequenceOf>
+      </Sequence>
+      <Sequence Name="OptArrayOfAny">
+        <SequenceOf Name="attributeIndices" Tag="1" Type="Context" Optional="true">
+          <Any Name="index"/>
+        </SequenceOf>
+      </Sequence>
+      <Sequence Name="OptArrayOfBits">
+        <SequenceOf Name="attributeIndices" Tag="1" Type="Context" Optional="true">
+          <Bitstring Name="index"/>
+        </SequenceOf>
+      </Sequence>
+      <Sequence Name="OptArrayOfDate">
+        <SequenceOf Name="attributeIndices" Tag="1" Type="Context" Optional="true">
+          <Date Name="index"/>
+        </SequenceOf>
+      </Sequence>
+      <Sequence Name="OptArrayOfGuid">
+        <SequenceOf Name="attributeIndices" Tag="1" Type="Context" Optional="true">
+          <Guid Name="index"/>
+        </SequenceOf>
+      </Sequence>
+      <Sequence Name="OptArrayOfOctets">
+        <SequenceOf Name="attributeIndices" Tag="1" Type="Context" Optional="true">
+          <OctetString Name="index"/>
+        </SequenceOf>
+      </Sequence>
+      <Sequence Name="OptArrayOfOID">
+        <SequenceOf Name="attributeIndices" Tag="1" Type="Context" Optional="true">
+          <OID Name="index"/>
+        </SequenceOf>
+      </Sequence>
+
+      <!--<Sequence Name="ArrayOfSeq" >
+                <SequenceOf Name="attributeIndices" Tag="12" Type="Context" Optional="true">
+                    <Sequence Name="index" ElementType="ArrayOfInt" Tag="Sequence" Type="Universal"/>
+                </SequenceOf>
+            </Sequence>-->
+
+
+      <Sequence Name="TP_Attr" >
+        <Guid Name="attributeId"/>
+        <Int32 Name="keyVersion" Initializer="0"/>
+        <OctetString Name="signature" Optional="true" Tag="0" Type="Context"/>
+      </Sequence>
+      <Sequence Name="OptArrayOfStruct">
+        <SequenceOf Name="attributeIndices" Tag="1" Type="Context" Optional="true">
+          <Sequence Name="index" ElementType="TP_Attr"/>
+        </SequenceOf>
+      </Sequence>
+      <Sequence Name="OptStruct">
+        <Sequence Name="index" ElementType="TP_Attr" Optional="true"/>
+      </Sequence>
+
+
+      <Sequence Name="TP_AttrGroup">
+        <SequenceOf Name="attributes" Tag="3" Type="Context">
+          <Sequence Name="TP_Attr" ElementType="TP_Attr" Tag="Sequence" Type="Universal"/>
+        </SequenceOf>
+        <OctetString Name="encryptedRandom"/>
+      </Sequence>
+      <Sequence Name="TP_MiniHeader">
+        <Part Name="TestPart" Tag="0" Type="Context">
+          <Int32 Name="ckmVersion"/>
+          <Int32 Name="currentKgkLevel"/>
+          <Guid Name="fiefdom"/>
+          <Date Name="creationDate"/>
+          <OctetString Name="EphemeralPublic"/>
+          <Bool Name="allowAsymetric"/>
+          <Bool Name="needsHeaderSignature"/>
+          <Int32 Name="keySizeInBits"/>
+          <OctetString Name="oidInfo"/>
+        </Part>
+        <Part Name="TestPart2" Tag="0" Type="Context" DontWrap="true">
+          <Int32 Name="ckmVersion"/>
+          <Int32 Name="currentKgkLevel"/>
+          <Guid Name="fiefdom"/>
+          <Date Name="creationDate"/>
+          <OctetString Name="EphemeralPublic"/>
+          <Bool Name="allowAsymetric"/>
+          <Bool Name="needsHeaderSignature"/>
+          <Int32 Name="keySizeInBits"/>
+          <OctetString Name="oidInfo"/>
+        </Part>
+        <Part Name="TestPart3">
+          <Int32 Name="ckmVersion"/>
+          <Int32 Name="currentKgkLevel"/>
+          <Guid Name="fiefdom"/>
+          <Date Name="creationDate"/>
+          <OctetString Name="EphemeralPublic"/>
+          <Bool Name="allowAsymetric"/>
+          <Bool Name="needsHeaderSignature"/>
+          <Int32 Name="keySizeInBits"/>
+          <OctetString Name="oidInfo"/>
+        </Part>
+        <Part Name="TestPart4" DontWrap="true">
+          <Int32 Name="ckmVersion"/>
+        </Part>
+        <Int32 Name="ckmVersion" Initializer="7"/>
+        <Int32 Name="currentKgkLevel" Initializer="0"/>
+        <Guid Name="fiefdom"/>
+        <Date Name="creationDate"/>
+        <OctetString Name="EphemeralPublic" Optional="true" Tag="0" Type="Context"/>
+        <Bool Name="allowAsymetric" Initializer="false"/>
+        <Bool Name="needsHeaderSignature" Initializer="false"/>
+        <Int32 Name="keySizeInBits" Initializer="512"/>
+        <OctetString Name="oidInfo"/>
+        <OctetString Name="headerPublic" Optional="true" Tag="1" Type="Context"/>
+        <SequenceOf Name="attributeGroups" Tag="2" Type="Context">
+          <Sequence Name="TP_AttrGroup" ElementType="TP_AttrGroup" Tag="Sequence" Type="Universal"/>
+        </SequenceOf>
+      </Sequence>
+    </Namespace>
+  </File>
+  <File Name="ParserTest2" SourceFile="ParserTest2.inl" HeaderFile="ParserTest2.h">
+    <ID Name="id_pkcs7" Value="1.2.840.113549.1.7"/>
+    <ID Name="id_pkcs9" Value="1.2.840.113549.1.9"/>
+    <ID Name="id_data" Value="1.2.840.113549.1.7.1"/>
+    <ID Name="id_signedData" Value="1.2.840.113549.1.7.2"/>
+    <ID Name="id_envelopedData" Value="1.2.840.113549.1.7.3"/>
+    <ID Name="id_digestedData" Value="1.2.840.113549.1.7.5"/>
+    <ID Name="id_encryptedData" Value="1.2.840.113549.1.7.6"/>
+
+    <ID Name="id_smime" Value="1.2.840.113549.1.9.16"/>
+    <ID Name="id_ct_authData" Value="1.2.840.113549.1.9.16.1.2"/>
+
+    <ID Name="id_contentType" Value="1.2.840.113549.1.9.3"/>
+    <ID Name="id_messageDigest" Value="1.2.840.113549.1.9.4"/>
+
+    <ID Name="id_macValue" Value="1.2.840.113549.1.9.16.2.8"/>
+
+    <ID Name="id_ckm_recip_info" Value="1.2.840.10060.2.1"/>
+    <ID Name="id_ckm_algorithms" Value="1.2.840.10060.3"/>
+    <ID Name="id_ckm_symmetric" Value="1.2.840.10060.3.1"/>
+    <ID Name="id_ckm_key_transport" Value="1.2.840.10060.3.2"/>
+    <ID Name="id_ckm_key_agree_multiple_encrypt" Value="1.2.840.10060.3.3"/>
+    <ID Name="id_ckm_key_agree_hash" Value="1.2.840.10060.3.4"/>
+    <ID Name="id_ckm_header" Value="1.2.840.10060.4"/>
+
+    <ID Name="id_cms_attributes" Value="1.3.133.16.840.9.73.1"/>
+    <ID Name="id_xmlMarkup" Value="1.3.133.16.840.9.73.1.0"/>
+    <ID Name="id_cms_SAML" Value="1.3.133.16.840.9.73.1.0.1"/>
+    <ID Name="id_cms_XKMS" Value="1.3.133.16.840.9.73.1.0.2"/>
+
+    <ID Name="id_cms_namespaces" Value="1.3.133.16.840.9.73.2"/>
+    <ID Name="id_cms" Value="1.3.133.16.840.9.73.2.0"/>
+
+    <ID Name="id_alg_PWRI_KEK" Value="1.2.840.113549.1.9.16.3.9"/>
+    <ID Name="testTECSEC_DATA_KEY_STORAGE_MASTER" Value="2.23.42.9.10.3.0.9.5.16.0"/>
+
+    <Namespace Name="Asn1Test">
+
+      <Sequence Name="MasterKeyBlob" OID="testTECSEC_DATA_KEY_STORAGE_MASTER" DefaultVersion="0">
+        <Version Name="V0" OID="testTECSEC_DATA_KEY_STORAGE_MASTER" MinNumber="0" MaxNumber="0">
+          <String Name="ProviderName"/>
+          <String Name="ContainerName"/>
+          <String Name="AlgorithmName"/>
+          <Int32 Name="KeySpec"/>
+          <OctetString Name="PublicKey"/>
+          <OctetString Name="EDEK"/>
+        </Version>
+
+        <String Name="ProviderName"/>
+        <String Name="ContainerName"/>
+        <String Name="AlgorithmName"/>
+        <Int32 Name="KeySpec"/>
+        <OctetString Name="PublicKey"/>
+        <OctetString Name="EDEK"/>
+      </Sequence>
+
+
+      <Sequence  Name="AlgorithmIdentifier">
+        <OID Name="oid"/>
+        <Any Name="Parameter"/>
+      </Sequence>
+
+
+      <SequenceOf  Name="ContextValue">
+        <Any Name="value"/>
+      </SequenceOf>
+      <Sequence  Name="Context">
+        <OID Name="contextType"/>
+        <SequenceOf Name="contextValues" ElementType="ContextValue" Tag="Set" Type="Universal"/>
+        <Bool Name="fallback" Initializer="false"/>
+      </Sequence>
+      <SequenceOf  Name="ContextList">
+        <Sequence Name="value" ElementType="Context"/>
+      </SequenceOf>
+
+      <Sequence  Name="ValueWithContext">
+        <Any Name="distingAttrValue"/>
+        <SequenceOf Name="contextList" ElementType="ContextList" Tag="Set" Type="Universal" Optional="true"/>
+      </Sequence>
+      <SequenceOf Name="ValueWithContextList">
+        <Sequence Name="value" ElementType="ValueWithContext"/>
+      </SequenceOf>
+      <Sequence  Name="rdnNamePart">
+        <OID Name="type"/>
+        <Any Name="value"/>
+        <Bool Name="primaryDistinguished" Initializer="true"/>
+        <SequenceOf Name="valuesWithContext" ElementType="ValueWithContextList" Tag="Set" Type="Universal" Optional="true"/>
+      </Sequence>
+      <SequenceOf Name="rdnNamePartList">
+        <Sequence Name="value" ElementType="rdnNamePart"/>
+      </SequenceOf>
+      <Sequence  Name="RdnSequence">
+        <SequenceOf Name="rdnPart" ElementType="rdnNamePartList" Tag="Sequence" Type="Universal"/>
+      </Sequence>
+      <Sequence  Name="IssuerAndSerialNumber">
+        <Choice Name="issuer">
+          <Sequence Name="issuerName" ElementType="RdnSequence"/>
+        </Choice>
+        <Int64 Name="serialNumber" Initializer="0"/>
+      </Sequence>
+      <Sequence Name="HashAlgAndDigest">
+        <Sequence Name="hashAlgorithm" ElementType="AlgorithmIdentifier"/>
+        <OctetString Name="digest"/>
+      </Sequence>
+
+      <Namespace Name="CMS">
+        <Sequence Name="CmsAttribute">
+          <OID Name="oid"/>
+          <Any Name="value"/>
+        </Sequence>
+        <Sequence Name="EncapsulatedContentInfo">
+          <OID Name="eContentType"/>
+          <OctetString Name="eContent" Tag="0" Type="Context" Optional="true"/>
+        </Sequence>
+        <Sequence Name="OriginatorInfo">
+          <String Name="base64Certs" Tag="0" Type="Context" Optional="true"/>
+          <String Name="base64Crls" Tag="1" Type="Context" Optional="true"/>
+        </Sequence>
+        <Sequence Name="EncryptedContentInfo">
+          <OID Name="contentType"/>
+          <Sequence Name="contentEncryptionAlgorithm" ElementType="AlgorithmIdentifier"/>
+          <OctetString Name="encryptedContent" Tag="0" Type="Context" Optional="true"/>
+        </Sequence>
+        <Sequence Name="OtherKeyAttribute">
+          <OID Name="keyAttrId"/>
+          <Any Name="keyAttr" Optional="true"/>
+        </Sequence>
+        <Sequence Name="KeyEncryptionKeyIdentifier">
+          <OctetString Name="keyIdentifier"/>
+          <Date Name="date"/>
+          <Sequence Name="other" ElementType="OtherKeyAttribute" Optional="true" />
+        </Sequence>
+        <Sequence Name="OtherRecipientInfo">
+          <OID Name="oriType"/>
+          <Any Name="oriValue" Optional="true" />
+        </Sequence>
+        <Sequence Name="OriginatorPublicKey">
+          <Sequence Name="algorithm" ElementType="AlgorithmIdentifier"/>
+          <Bitstring Name="publicKey"/>
+        </Sequence>
+        <Sequence Name="UserKeyingMaterial">
+          <OctetString Name="userKeyingMaterial"/>
+        </Sequence>
+        <Sequence Name="RecipientKeyIdentifier">
+          <OctetString Name="subjectKeyIdentifer"/>
+          <Date Name="date" Optional="true"/>
+          <Sequence Name="other" ElementType="OtherKeyAttribute" Optional="true"/>
+        </Sequence>
+        <Sequence Name="RecipientKeyIdHash">
+          <Sequence Name="certHash" ElementType="HashAlgAndDigest"/>
+          <Date Name="date" Optional="true"/>
+          <Sequence Name="other" ElementType="OtherKeyAttribute" Optional="true"/>
+        </Sequence>
+        <Sequence Name="OriginatorIdentifierOrKey">
+          <Choice Name="idInfo">
+            <Sequence Name="issuer" ElementType="IssuerAndSerialNumber"/>
+            <OctetString Name="subjectKeyIdentifer" Tag="0" Type="Context"/>
+            <Sequence Name="originatorKey" ElementType="OriginatorPublicKey" Tag="1" Type="Context"/>
+            <Sequence Name="certHash" ElementType="HashAlgAndDigest" Tag="2" Type="Context"/>
+          </Choice>
+        </Sequence>
+        <Sequence Name="KeyTransportRecipientInfo" DefaultVersion="0">
+          <Version Name="V0" MinNumber="0" MaxNumber="0">
+            <Choice Name="rid"/>
+            <Sequence Name="keyEncryptionAlgorithm" ElementType="AlgorithmIdentifier"/>
+            <OctetString Name="encryptedKey"/>
+          </Version>
+          <Choice Name="rid">
+            <Sequence Name="issuerAndSerialNumber" ElementType="IssuerAndSerialNumber"/>
+            <OctetString Name="subjectKeyIdentifier" Tag="0" Type="Context"/>
+            <Sequence Name="certHash" ElementType="HashAlgAndDigest" Tag="1" Type="Context"/>
+          </Choice>
+          <Sequence Name="keyEncryptionAlgorithm" ElementType="AlgorithmIdentifier"/>
+          <OctetString Name="encryptedKey"/>
+        </Sequence>
+        <Sequence Name="KekRecipientInfo" DefaultVersion="0">
+          <Version Name="V0" MinNumber="0" MaxNumber="0">
+            <Sequence Name="kekid" ElementType="KeyEncryptionKeyIdentifier"/>
+            <Sequence Name="keyEncryptionAlgorithm" ElementType="AlgorithmIdentifier"/>
+            <OctetString Name="encryptedKey"/>
+          </Version>
+          <Sequence Name="kekid" ElementType="KeyEncryptionKeyIdentifier"/>
+          <Sequence Name="keyEncryptionAlgorithm" ElementType="AlgorithmIdentifier"/>
+          <OctetString Name="encryptedKey"/>
+        </Sequence>
+        <Sequence Name="PasswordRecipientInfo" DefaultVersion="0">
+          <Version Name="V0" MinNumber="0" MaxNumber="0">
+            <Sequence Name="keyDerivationAlgorithm" ElementType="AlgorithmIdentifier"/>
+            <Sequence Name="keyEncryptionAlgorithm" ElementType="AlgorithmIdentifier"/>
+            <OctetString Name="encryptedKey"/>
+          </Version>
+          <Sequence Name="keyDerivationAlgorithm" ElementType="AlgorithmIdentifier" Tag="0" Type="Context" Optional="true"/>
+          <Sequence Name="keyEncryptionAlgorithm" ElementType="AlgorithmIdentifier"/>
+          <OctetString Name="encryptedKey"/>
+        </Sequence>
+        <Sequence Name="RecipientEncryptedKey">
+          <Choice Name="rid">
+            <Sequence Name="issuerAndSerialNumber" ElementType="IssuerAndSerialNumber"/>
+            <Sequence Name="rKeyId" ElementType="RecipientKeyIdentifier"/>
+            <Sequence Name="rKeyIdHash" ElementType="RecipientKeyIdHash"/>
+          </Choice>
+          <OctetString Name="encryptedKey"/>
+        </Sequence>
+        <SequenceOf Name="RecipientEncryptedKeyList">
+          <Sequence Name="value" ElementType="RecipientEncryptedKey"/>
+        </SequenceOf>
+
+        <Sequence Name="KeyAgreementRecipientInfo" DefaultVersion="0">
+          <Version Name="V0" MinNumber="0" MaxNumber="0">
+            <Sequence Name="originator" ElementType="OriginatorIdentifierOrKey" />
+            <Sequence Name="ukm" ElementType="UserKeyingMaterial"/>
+            <Sequence Name="keyEncryptionAlgorithm" ElementType="AlgorithmIdentifier"/>
+            <SequenceOf Name="recipientEncryptedKeys"/>
+          </Version>
+          <Sequence Name="originator" ElementType="OriginatorIdentifierOrKey" Tag="0" Type="Context"/>
+          <Sequence Name="ukm" ElementType="UserKeyingMaterial" Tag="1" Type="Context" Optional="true"/>
+          <Sequence Name="keyEncryptionAlgorithm" ElementType="AlgorithmIdentifier"/>
+          <SequenceOf Name="recipientEncryptedKeys" ElementType="RecipientEncryptedKeyList" Tag="Sequence" Type="Universal"/>
+        </Sequence>
+        <Sequence Name="RecipientInfo">
+          <Choice Name="recipientChoice">
+            <Sequence Name="ktri" ElementType="KeyTransportRecipientInfo"/>
+            <Sequence Name="kari" ElementType="KeyAgreementRecipientInfo" Tag="1" Type="Context"/>
+            <Sequence Name="kekri" ElementType="KekRecipientInfo" Tag="2" Type="Context"/>
+            <Sequence Name="pwri" ElementType="PasswordRecipientInfo" Tag="3" Type="Context"/>
+            <Sequence Name="ori" ElementType="OtherRecipientInfo" Tag="4" Type="Context"/>
+          </Choice>
+        </Sequence>
+        <SequenceOf Name="CmsAttributeList">
+          <Sequence Name="value" ElementType="CmsAttribute"/>
+        </SequenceOf>
+        <Sequence Name="SignerInfo" DefaultVersion="0">
+          <Version Name="V0" MinNumber="0" MaxNumber="0">
+            <Choice Name="signerId"/>
+            <Sequence Name="digestAlgorithm" ElementType="AlgorithmIdentifier"/>
+            <SequenceOf Name="signedAttributes"/>
+            <Sequence Name="signatureAlgorithm" ElementType="AlgorithmIdentifier" />
+            <OctetString Name="signature"/>
+            <SequenceOf Name="unsignedAttributes"/>
+          </Version>
+          <Choice Name="signerId">
+            <Sequence Name="issuerAndSerialNumber" ElementType="IssuerAndSerialNumber"/>
+            <OctetString Name="subjectKeyIdentifier" Tag="0" Type="Context"/>
+            <Sequence Name="certHash" ElementType="HashAlgAndDigest" Tag="1" Type="Context"/>
+          </Choice>
+          <Sequence Name="digestAlgorithm" ElementType="AlgorithmIdentifier"/>
+          <SequenceOf Name="signedAttributes" ElementType="CmsAttributeList" Tag="0" Type="Context" Optional="true"/>
+          <Sequence Name="signatureAlgorithm" ElementType="AlgorithmIdentifier" />
+          <OctetString Name="signature"/>
+          <SequenceOf Name="unsignedAttributes" ElementType="CmsAttributeList" Tag="1" Type="Context" Optional="true"/>
+        </Sequence>
+        <SequenceOf Name="AlgorithmIdentifierList">
+          <Sequence Name="value" ElementType="AlgorithmIdentifier"/>
+        </SequenceOf>
+        <SequenceOf Name="SignerInfoList">
+          <Sequence Name="value" ElementType="SignerInfo"/>
+        </SequenceOf>
+        <Sequence Name="SignedData" DefaultVersion="0">
+          <Version Name="V0" MinNumber="0" MaxNumber="0">
+            <SequenceOf Name="DigestAlgorithms"/>
+            <Sequence Name="EncapContentInfo" ElementType="EncapsulatedContentInfo"/>
+            <String Name="base64Certificates"/>
+            <String Name="base64Crls"/>
+            <SequenceOf Name="SignerInfos"/>
+          </Version>
+          <SequenceOf Name="DigestAlgorithms" ElementType="AlgorithmIdentifierList" Tag="Set" Type="Universal"/>
+          <Sequence Name="EncapContentInfo" ElementType="EncapsulatedContentInfo"/>
+          <String Name="base64Certificates" Tag="0" Type="Context" Optional="true"/>
+          <String Name="base64Crls" Tag="1" Type="Context" Optional="true"/>
+          <SequenceOf Name="SignerInfos" ElementType="SignerInfoList" Tag="Set" Type="Universal"/>
+        </Sequence>
+        <SequenceOf Name="RecipientInfoList">
+          <Sequence Name="value" ElementType="RecipientInfo"/>
+        </SequenceOf>
+        <Sequence Name="EnvelopedData" DefaultVersion="0">
+          <Version Name="Env0" OID="id_signedData" MinNumber="0" MaxNumber="0">
+            <Sequence Name="originatorInfo" ElementType="OriginatorInfo"/>
+            <SequenceOf Name="recipientInfos"/>
+            <Sequence Name="encryptedContentInfo" ElementType="EncryptedContentInfo"/>
+            <SequenceOf Name="unprotectedAttributes"/>
+          </Version>
+          <Sequence Name="originatorInfo" ElementType="OriginatorInfo" Tag="0" Type="Context" Optional="true"/>
+          <SequenceOf Name="recipientInfos" ElementType="RecipientInfoList" Tag="Set" Type="Universal"/>
+          <Sequence Name="encryptedContentInfo" ElementType="EncryptedContentInfo" Tag="Sequence" Type="Universal"/>
+          <SequenceOf Name="unprotectedAttributes" ElementType="CmsAttributeList" Tag="1" Type="Context" Optional="true"/>
+        </Sequence>
+
+        <Sequence Name="ContentInfo" OID="id_signedData" DefaultVersion="0">
+          <Version Name="Env0" OID="id_envelopedData" MinNumber="0" MaxNumber="3">
+            <Sequence Name="originatorInfo" ElementType="OriginatorInfo"/>
+            <SequenceOf Name="recipientInfos"/>
+            <Sequence Name="encryptedContentInfo" ElementType="EncryptedContentInfo"/>
+            <SequenceOf Name="unprotectedAttributes"/>
+          </Version>
+          <Version Name="Sign0" OID="id_signedData" MinNumber="0" MaxNumber="3">
+            <SequenceOf Name="DigestAlgorithms"/>
+            <Sequence Name="EncapContentInfo" ElementType="EncapsulatedContentInfo"/>
+            <String Name="base64Certificates"/>
+            <String Name="base64Crls"/>
+            <SequenceOf Name="SignerInfos"/>
+          </Version>
+
+
+          <!--<VersionSubObject Name="signedData" OID="id_signedData"/>
+          <VersionSubObject Name="envelopedData" OID="id_envelopedData" ElementType="EnvelopedData"/>-->
+          <Sequence Name="signedData" ElementType="SignedData"/>
+          <Sequence Name="envelopedData" ElementType="EnvelopedData"/>
+
+
+          <Sequence Name="originatorInfo" ElementType="OriginatorInfo" Tag="0" Type="Context" Optional="true"/>
+          <SequenceOf Name="recipientInfos" ElementType="RecipientInfoList" Tag="Set" Type="Universal"/>
+          <Sequence Name="encryptedContentInfo" ElementType="EncryptedContentInfo" Tag="Sequence" Type="Universal"/>
+          <SequenceOf Name="unprotectedAttributes" ElementType="CmsAttributeList" Tag="1" Type="Context" Optional="true"/>
+
+
+          <SequenceOf Name="DigestAlgorithms" ElementType="AlgorithmIdentifierList" Tag="Set" Type="Universal"/>
+          <Sequence Name="EncapContentInfo" ElementType="EncapsulatedContentInfo"/>
+          <String Name="base64Certificates" Tag="0" Type="Context" Optional="true"/>
+          <String Name="base64Crls" Tag="1" Type="Context" Optional="true"/>
+          <SequenceOf Name="SignerInfos" ElementType="SignerInfoList" Tag="Set" Type="Universal"/>
+
+        </Sequence>
+
+        <Sequence Name="ChoiceWithSequence">
+          <Choice Name="testMe">
+            <Int32 Name="number"/>
+            <Sequence Name="Algorithm" ElementType="AlgorithmIdentifier" Tag="3" Type="Application"/>
+          </Choice>
+        </Sequence>
+      </Namespace>
+    </Namespace>
+  </File>
+</Root>

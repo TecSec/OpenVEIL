@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -89,13 +89,13 @@ public:
 	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
 	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>Writes a line to the output.</summary>
-    ///
-    /// <param name="category">The category.</param>
-    /// <param name="priority">The priority.</param>
-    /// <param name="message"> The message.</param>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// <summary>Writes a line to the output.</summary>
+		///
+		/// <param name="category">The category.</param>
+		/// <param name="priority">The priority.</param>
+		/// <param name="message"> The message.</param>
+		////////////////////////////////////////////////////////////////////////////////////////////////////
 	virtual void WriteLine(const tscrypto::tsCryptoStringBase &category, int priority, const tscrypto::tsCryptoStringBase &message) = 0;
 };
 
@@ -115,8 +115,8 @@ public:
 	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
 	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
 
-    tsLogOutput();
-    virtual ~tsLogOutput();
+	tsLogOutput();
+	virtual ~tsLogOutput();
 
 	virtual void WriteToOutput(const char *msg) { UNREFERENCED_PARAMETER(msg); };
 
@@ -124,25 +124,25 @@ public:
 	DEPRECATED virtual bool initialize(const tsXmlNode* node);
 #endif // SUPPORT_XML_LOGGING
 
-    virtual void WriteToLog(const char *loggerName, int level, const char *msg);
-    void setFormatString(const char *formatter);
-    tscrypto::tsCryptoString getFormatString() const { return _formatter; }
-    tscrypto::tsCryptoString getName() const;
-    virtual void indent();
-    virtual void outdent();
+	virtual void WriteToLog(const char *loggerName, int level, const char *msg);
+	void setFormatString(const char *formatter);
+	tscrypto::tsCryptoString getFormatString() const { return _formatter; }
+	tscrypto::tsCryptoString getName() const;
+	virtual void indent();
+	virtual void outdent();
 
-    // Added 7.0.8
-    virtual bool initialize(const tscrypto::JSONObject& node);
-
-protected:
-    tsLogOutput(const tsLogOutput &obj);
-    virtual tsLogOutput &operator=(const tsLogOutput &obj);
-    tscrypto::tsCryptoString &IndentData();
+	// Added 7.0.8
+	virtual bool initialize(const tscrypto::JSONObject& node);
 
 protected:
-    tscrypto::tsCryptoString _formatter;
-    tscrypto::tsCryptoString _name;
-    tscrypto::tsCryptoString _indent;
+	tsLogOutput(const tsLogOutput &obj);
+	virtual tsLogOutput &operator=(const tsLogOutput &obj);
+	tscrypto::tsCryptoString &IndentData();
+
+protected:
+	tscrypto::tsCryptoString _formatter;
+	tscrypto::tsCryptoString _name;
+	tscrypto::tsCryptoString _indent;
 };
 
 
@@ -155,11 +155,11 @@ IGNORE_WARNING(TS_DEPRECATED_WARNING)
 	class VEILCORE_API tsLog
 {
 public:
-    static void WriteToLog(const char *loggerName, int level, const char *msg);
+	static void WriteToLog(const char *loggerName, int level, const char *msg);
 #ifdef SUPPORT_XML_LOGGING
 	DEPRECATED static void SetApplicationPreferences(std::shared_ptr<tsPreferencesBase> prefs);
 	DEPRECATED static std::shared_ptr<tsPreferencesBase> GetApplicationPreferences();
-    DEPRECATED static void AddMap(const tscrypto::tsCryptoString &xml);
+	DEPRECATED static void AddMap(const tscrypto::tsCryptoString &xml);
 	DEPRECATED static void Configure(const tscrypto::tsCryptoString &xml);
 	DEPRECATED static void ConfigureMaps(const tscrypto::tsCryptoString &mapXml);
 	DEPRECATED static void ConfigureMaps(std::shared_ptr<tsXmlNode> mapsNode);
@@ -170,62 +170,62 @@ public:
 	DEPRECATED static void ConfigureWhitelist(const tscrypto::tsCryptoString &listXml);
 	DEPRECATED static void ConfigureWhitelist(std::shared_ptr<tsXmlNode> listNode);
 #endif // SUPPORT_XML_LOGGING
-    static void SetApplicationJsonPreferences(std::shared_ptr<tsJsonPreferencesBase> prefs);
-    static std::shared_ptr<tsJsonPreferencesBase> GetApplicationJsonPreferences();
+	static void SetApplicationJsonPreferences(std::shared_ptr<tsJsonPreferencesBase> prefs);
+	static std::shared_ptr<tsJsonPreferencesBase> GetApplicationJsonPreferences();
 #if (_MSC_VER >= 1700)
-    static void RegisterLoggerCreator(const char *typeName, std::function<tsLogOutput *()> creator);
+	static void RegisterLoggerCreator(const char *typeName, std::function<tsLogOutput *()> creator);
 #endif
-    static void RegisterLoggerCreator(const char *typeName, tsLogOutput *(*creator)());
-    static void UnregisterLoggerCreator(const char *typeName);
-    static void UnregisterAllLoggerCreators();
-    static void Refresh();
-    static void ClearMaps();
+	static void RegisterLoggerCreator(const char *typeName, tsLogOutput *(*creator)());
+	static void UnregisterLoggerCreator(const char *typeName);
+	static void UnregisterAllLoggerCreators();
+	static void Refresh();
+	static void ClearMaps();
 
 	static void AddJsonMap(const tscrypto::tsCryptoStringBase &json);
 	static void ConfigureJson(const tscrypto::tsCryptoStringBase &json);
 	static void ConfigureJsonMaps(const tscrypto::tsCryptoStringBase &mapjson);
-    static void ConfigureMaps(const tscrypto::JSONField& mapsNode);
+	static void ConfigureMaps(const tscrypto::JSONField& mapsNode);
 	static void ConfigureJsonOutputs(const tscrypto::tsCryptoStringBase &outputsjson);
-    static void ConfigureOutputs(const tscrypto::JSONField& node);
+	static void ConfigureOutputs(const tscrypto::JSONField& node);
 	static void ConfigureJsonBlacklist(const tscrypto::tsCryptoStringBase &listjson);
-    static void ConfigureBlacklist(const tscrypto::JSONField& listNode);
+	static void ConfigureBlacklist(const tscrypto::JSONField& listNode);
 	static void ConfigureJsonWhitelist(const tscrypto::tsCryptoStringBase &listjson);
-    static void ConfigureWhitelist(const tscrypto::JSONField& listNode);
+	static void ConfigureWhitelist(const tscrypto::JSONField& listNode);
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>Adds a consumer to all instances of this class.</summary>
-    ///
-    /// <param name="consumer">[in] The consumer.</param>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    static void AddMasterConsumer(tsDebugConsumer *consumer);
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>Removes a consumer from all instance of this class.</summary>
-    ///
-    /// <param name="consumer">[in] The consumer.</param>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    static void RemoveMasterConsumer(tsDebugConsumer *consumer);
-    /// <summary>Remove all consumers from all instances of this class.</summary>
-    static void ClearMasterConsumers();
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>Writes a message to all consumers.</summary>
-    ///
-    /// <param name="category">The category.</param>
-    /// <param name="priority">The priority.</param>
-    /// <param name="message"> The message.</param>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// <summary>Adds a consumer to all instances of this class.</summary>
+	///
+	/// <param name="consumer">[in] The consumer.</param>
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	static void AddMasterConsumer(tsDebugConsumer *consumer);
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// <summary>Removes a consumer from all instance of this class.</summary>
+	///
+	/// <param name="consumer">[in] The consumer.</param>
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	static void RemoveMasterConsumer(tsDebugConsumer *consumer);
+	/// <summary>Remove all consumers from all instances of this class.</summary>
+	static void ClearMasterConsumers();
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// <summary>Writes a message to all consumers.</summary>
+	///
+	/// <param name="category">The category.</param>
+	/// <param name="priority">The priority.</param>
+	/// <param name="message"> The message.</param>
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	static void WriteToConsumers(const tscrypto::tsCryptoStringBase &category, int priority, const tscrypto::tsCryptoStringBase &message);
-    static void AllowLogs(const char *logList);
-    static void DisallowLogs(const char *logList);
-    static void indent(const char *loggerName, int level);
-    static void outdent(const char *loggerName, int level);
-    static bool WillLog(const char *loggerName, int level);
+	static void AllowLogs(const char *logList);
+	static void DisallowLogs(const char *logList);
+	static void indent(const char *loggerName, int level);
+	static void outdent(const char *loggerName, int level);
+	static bool WillLog(const char *loggerName, int level);
 
 protected:
-    static void CreateDefaultLoggerCreators();
+	static void CreateDefaultLoggerCreators();
 private:
 	tsLog() {}
-    tsLog(const tsLog &) {}
-    ~tsLog() {}
+	tsLog(const tsLog &) {}
+	~tsLog() {}
 	tsLog &operator=(const tsLog &) { return *this; }
 };
 POP_WARNINGS

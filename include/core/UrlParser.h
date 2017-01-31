@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -42,7 +42,7 @@ struct VEILCORE_API NameValue
 	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
 	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
 
-	NameValue() {}
+		NameValue() {}
 	NameValue(const tscrypto::tsCryptoString& _name, const tscrypto::tsCryptoString& _value) : name(_name), value(_value) {}
 	~NameValue() {}
 

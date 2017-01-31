@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -305,7 +305,7 @@ public:
 		pVal.reset();
 		if (!(GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext)) ||
 			!(cgList = std::dynamic_pointer_cast<ICmsHeaderCryptoGroupListExtension>(ext)))
-			{
+		{
 			return false;
 		}
 		size_t count = cgList->GetCryptoGroupCount();
@@ -938,12 +938,12 @@ public:
 		{
 			if (ivecSize > 0)
 			{
-				std::shared_ptr<Random> prng = std::dynamic_pointer_cast<Random>(CryptoFactory("Random"));
+				buff.resize(ivecSize);
 
-				if (!prng || !prng->Initialize(256, true, tscrypto::tsCryptoData(), tscrypto::tsCryptoData()) || !prng->Generate(ivecSize * 8, 256, true, tscrypto::tsCryptoData(), buff))
+				if (internalGenerateRandomBits(buff.rawData(), (uint32_t)(ivecSize * 8), true, nullptr, 0))
 				{
+					SetIVEC(buff);
 				}
-				SetIVEC(buff);
 				buff.clear();
 			}
 		}
@@ -1218,30 +1218,30 @@ protected:
 	{
 		if (cg->exists_FiefdomList())
 		{
-		size_t fiefdomCount = cg->get_FiefdomList()->size();
-		size_t categoryCount;
-		size_t attributeCount;
+			size_t fiefdomCount = cg->get_FiefdomList()->size();
+			size_t categoryCount;
+			size_t attributeCount;
 
-		for (size_t f = 0; f < fiefdomCount; f++)
-		{
+			for (size_t f = 0; f < fiefdomCount; f++)
+			{
 				Asn1::CTS::_POD_Fiefdom& fiefdom = cg->get_FiefdomList()->get_at(f);
 				if (fiefdom.exists_CategoryList())
 				{
-			categoryCount = fiefdom.get_CategoryList()->size();
-			for (size_t c = 0; c < categoryCount; c++)
-			{
+					categoryCount = fiefdom.get_CategoryList()->size();
+					for (size_t c = 0; c < categoryCount; c++)
+					{
 						Asn1::CTS::_POD_Category& category = fiefdom.get_CategoryList()->get_at(c);
 						if (category.exists_AttributeList())
 						{
-				attributeCount = category.get_AttributeList()->size();
+							attributeCount = category.get_AttributeList()->size();
 
-				for (size_t a = 0; a < attributeCount; a++)
-				{
-					if (category.get_AttributeList()->get_at(a).get_Id() == id)
-						return &category.get_AttributeList()->get_at(a);
-				}
-			}
-		}
+							for (size_t a = 0; a < attributeCount; a++)
+							{
+								if (category.get_AttributeList()->get_at(a).get_Id() == id)
+									return &category.get_AttributeList()->get_at(a);
+							}
+						}
+					}
 				}
 			}
 		}
@@ -1382,14 +1382,14 @@ protected:
 			{
 				if (profile->exists_cryptoGroupList())
 				{
-				size_t count = profile->get_cryptoGroupList()->size();
-				for (size_t i = 0; i < count; i++)
-				{
-					cg = &profile->get_cryptoGroupList()->get_at(i);
-					if (cg->get_Id() == guidCryptoGroup)
-						break;
-					cg = nullptr;
-				}
+					size_t count = profile->get_cryptoGroupList()->size();
+					for (size_t i = 0; i < count; i++)
+					{
+						cg = &profile->get_cryptoGroupList()->get_at(i);
+						if (cg->get_Id() == guidCryptoGroup)
+							break;
+						cg = nullptr;
+					}
 				}
 				if (cg == nullptr)
 					return false;
@@ -1441,7 +1441,7 @@ protected:
 					if (alg.size() == 0)
 						alg = "KEY-P256";
 
-					if (!(localSigningKey = std::dynamic_pointer_cast<EccKey>(CryptoFactory(alg))) || 
+					if (!(localSigningKey = std::dynamic_pointer_cast<EccKey>(CryptoFactory(alg))) ||
 						!localSigningKey->generateKeyPair())
 					{
 						return false;
@@ -1595,14 +1595,14 @@ protected:
 			{
 				if (profile->exists_cryptoGroupList())
 				{
-				size_t count = profile->get_cryptoGroupList()->size();
-				for (size_t i = 0; i < count; i++)
-				{
-					cg = &profile->get_cryptoGroupList()->get_at(i);
-					if (cg->get_Id() == guidCryptoGroup)
-						break;
-					cg = nullptr;
-				}
+					size_t count = profile->get_cryptoGroupList()->size();
+					for (size_t i = 0; i < count; i++)
+					{
+						cg = &profile->get_cryptoGroupList()->get_at(i);
+						if (cg->get_Id() == guidCryptoGroup)
+							break;
+						cg = nullptr;
+					}
 				}
 				if (cg == nullptr)
 					return false;
@@ -2043,7 +2043,9 @@ void CmsHeaderImpl::SetSignatureAlgorithmOID(const tscrypto::tsCryptoData &setTo
 
 tscrypto::tsCryptoData CmsHeaderImpl::GetSignature() const
 {
-	return m_data.get_Signature();
+	if (!m_data.exists_Signature())
+		return tsCryptoData();
+	return *m_data.get_Signature();
 }
 
 bool CmsHeaderImpl::SetSignature(const tscrypto::tsCryptoData &setTo)

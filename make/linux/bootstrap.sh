@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#	Copyright (c) 2016, TecSec, Inc.
+#	Copyright (c) 2017, TecSec, Inc.
 #
 #	Redistribution and use in source and binary forms, with or without
 #	modification, are permitted provided that the following conditions are met:

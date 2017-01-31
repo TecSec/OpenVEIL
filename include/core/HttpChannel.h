@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -55,12 +55,39 @@ public:
 
 	// TLS 1.2 control - Added 7.0.23 
 	virtual void ClearTlsCipherList() = 0;
-	virtual void SetCipherList(tscrypto::SSL_CIPHER* list, size_t count) = 0;
-	virtual void AddCipher(tscrypto::SSL_CIPHER cipher) = 0;
-	virtual void RegisterCertificateVerifier(std::function<tscrypto::SSL_AlertDescription(const tscrypto::tsCryptoDataList& certificate, tscrypto::SSL_CIPHER cipher)> func) = 0;
+	virtual void SetCipherList(SSL_CIPHER* list, size_t count) = 0;
+	virtual void AddCipher(SSL_CIPHER cipher) = 0;
+	virtual void RegisterCertificateVerifier(std::function<SSL_AlertDescription(const tscrypto::tsCryptoDataList& certificate, SSL_CIPHER cipher)> func) = 0;
 	virtual void RegisterPSKCallback(std::function<bool(const tscrypto::tsCryptoData& hint, tscrypto::tsCryptoData& identity, tscrypto::tsCryptoData& psk)> func) = 0;
 	virtual tscrypto::tsCryptoString CkmAuthUsername() const = 0;
 	virtual void CkmAuthUsername(const tscrypto::tsCryptoString& setTo) = 0;
+	// Added 7.0.40
+	virtual bool shouldCloseAfterTransmit() = 0;
+};
+
+class VEILCORE_API IChannelProcessorEvents
+{
+public:
+	virtual ~IChannelProcessorEvents()
+	{
+	}
+	virtual size_t AddOnLogin(std::function<void(const tsmod::IObject*)> func) = 0;
+	virtual void RemoveOnLogin(size_t cookie) = 0;
+
+	virtual size_t AddOnLogout(std::function<void(const tsmod::IObject*)> func) = 0;
+	virtual void RemoveOnLogout(size_t cookie) = 0;
+
+	virtual size_t AddOnStateChanged(std::function<void(const tsmod::IObject*, uint32_t currentState)> func) = 0;
+	virtual void RemoveOnStateChanged(size_t cookie) = 0;
+
+	virtual size_t AddOnFailure(std::function<void(const tsmod::IObject*, const tscrypto::tsCryptoStringBase&)> func) = 0;
+	virtual void RemoveOnFailure(size_t cookie) = 0;
+
+	virtual size_t AddOnPacketReceived(std::function<void(const tsmod::IObject*, uint8_t packetType, const uint8_t* data, uint32_t dataLen)> func) = 0;
+	virtual void RemoveOnPacketReceived(size_t cookie) = 0;
+
+	virtual size_t AddOnPacketSent(std::function<void(const tsmod::IObject*, uint8_t packetType, const uint8_t* data, uint32_t dataLen)> func) = 0;
+	virtual void RemoveOnPacketSent(size_t cookie) = 0;
 };
 
 #ifdef _MSC_VER
@@ -81,6 +108,22 @@ public:
 	virtual bool UnwrapMessage(IHttpResponse *header) = 0;
 
 	virtual ~IHttpChannelProcessor() {}
+};
+
+class VEILCORE_API INetworkConnectionEvents
+{
+public:
+	virtual ~INetworkConnectionEvents()
+	{
+	}
+	virtual size_t AddOnConnect(std::function<void(const tsmod::IObject*)> func) = 0;
+	virtual void RemoveOnConnect(size_t cookie) = 0;
+
+	virtual size_t AddOnError(std::function<void(const tsmod::IObject*, const tscrypto::tsCryptoStringBase&)> func) = 0;
+	virtual void RemoveOnError(size_t cookie) = 0;
+
+	virtual size_t AddOnDisconnect(std::function<void(const tsmod::IObject*)> func) = 0;
+	virtual void RemoveOnDisconnect(size_t cookie) = 0;
 };
 
 class VEILCORE_API ITcpConnection

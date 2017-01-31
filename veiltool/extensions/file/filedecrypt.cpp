@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -336,7 +336,7 @@ public:
 					memberName = "Unknown";
 				}
 
-				if (!profile || (tokenName = profile->get_tokenName()).size() == 0)
+				if (!profile || !profile->exists_tokenName() || (tokenName = *profile->get_tokenName()).size() == 0)
 				{
 					tokenName = "Unknown";
 				}

@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -280,9 +280,9 @@ public:
 
 				TSAUTOLOCKER lock(_callbackLock);
 				for (auto holder : _callbacks)
-				{ 
-					if (!!holder.generalFunc) 
-						holder.generalFunc(); 
+				{
+					if (!!holder.generalFunc)
+						holder.generalFunc();
 				}
 			}
 		}
@@ -405,7 +405,7 @@ public:
 			}
 		},
 			[this, &status, &outData](const tscrypto::tsCryptoData& data, int code) {
-			
+
 			JSONObject obj;
 
 			if (!obj.FromJSON(data.ToUtf8String().c_str()))
@@ -704,9 +704,9 @@ public:
 
 		TSAUTOLOCKER tokenLock(_tokenListLock);
 		for (auto token : _tokens)
-		{ 
-			if (token->enterpriseId() != enterprise) 
-				count--; 
+		{
+			if (token->enterpriseId() != enterprise)
+				count--;
 		}
 		return count;
 	}
@@ -717,7 +717,7 @@ public:
 
 		TSAUTOLOCKER tokenLock(_tokenListLock);
 		auto it = std::find_if(_tokens.begin(), _tokens.end(), [&index, &enterprise](std::shared_ptr<IToken>& token) -> bool {
-			if (token->enterpriseId() == enterprise) 
+			if (token->enterpriseId() == enterprise)
 			{
 				if (index == 0)
 					return true;
@@ -735,9 +735,9 @@ public:
 
 		TSAUTOLOCKER favLock(_favoriteListLock);
 		for (auto fav : _favorites)
-		{ 
-			if (fav->enterpriseId() != enterprise) 
-				count--; 
+		{
+			if (fav->enterpriseId() != enterprise)
+				count--;
 		}
 		return count;
 	}
@@ -1135,14 +1135,14 @@ protected:
 				(*it)->headerData(o.AsString("data").Base64ToData());
 			}
 		}
-			if (tmpAry.size() > 0)
-			{
-				// Now remove the tokens that are no longer valid from the token list
+		if (tmpAry.size() > 0)
+		{
+			// Now remove the tokens that are no longer valid from the token list
 			_favorites.erase(std::remove_if(_favorites.begin(), _favorites.end(), [&tmpAry](std::shared_ptr<IFavorite>& fav)->bool {
 				auto it = std::find_if(tmpAry.begin(), tmpAry.end(), [&fav](std::shared_ptr<IFavorite>&tmpFav)->bool { return fav->favoriteId() == tmpFav->favoriteId(); });
-					return it != tmpAry.end();
-				}), _favorites.end());
-			}
+				return it != tmpAry.end();
+			}), _favorites.end());
+		}
 		return true;
 	}
 	void StartCallbackSystem()
@@ -1183,7 +1183,7 @@ protected:
 
 						tscrypto::tsCryptoString tmp;
 						tmp << "Events?timeout=10&since=" << _lastEvent;
-						if (sendJsonRequest("GET",  tmp, JSONObject(), outObj, status) && status >= 200 && status <= 399)
+						if (sendJsonRequest("GET", tmp, JSONObject(), outObj, status) && status >= 200 && status <= 399)
 						{
 							if (outObj.hasField("lastEvent"))
 							{
@@ -1194,9 +1194,9 @@ protected:
 								refresh();
 								TSAUTOLOCKER lock(_callbackLock);
 								for (auto holder : _callbacks)
-								{ 
-									if (!!holder.generalFunc) 
-										holder.generalFunc(); 
+								{
+									if (!!holder.generalFunc)
+										holder.generalFunc();
 								}
 								if (outObj.hasField("events") && outObj.field("events").Type() == JSONField::jsonArray)
 								{
@@ -1205,9 +1205,9 @@ protected:
 										{
 											JSONObject& obj = fld.AsObject();
 											for (auto holder : _callbacks)
-											{ 
-												if (!!holder.func) 
-													holder.func(obj); 
+											{
+												if (!!holder.func)
+													holder.func(obj);
 											}
 										}
 									});

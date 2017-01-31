@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -47,84 +47,19 @@ void TcpChannel::SendLogout()
 bool TcpChannel::Send(const tscrypto::tsCryptoData& _data)
 {
 	tscrypto::tsCryptoData data(_data);
-	//	int64_t start = GetTicks();
+	bool retVal = true;
 
 	if (!WrapTransport(data))
 		return false;
 
+	if (!data.empty())
+		retVal = RawSend(data);
 
-#ifdef _WIN32
-	if (send(m_socket, (const char *)data.c_str(), (int)data.size(), 0) == SOCKET_ERROR)
-#else
-	if (send((int)m_socket, (const char *)data.c_str(), (int)data.size(), 0) == SOCKET_ERROR)
-#endif
+	if (m_processor != nullptr && m_processor->shouldCloseAfterTransmit())
 	{
-#ifdef _WIN32
-		switch (WSAGetLastError())
-		{
-		case WSAENOTSOCK:
-		case WSAENOTCONN:
-		case WSAECONNRESET:
-		case WSAECONNABORTED:
-			closesocket(m_socket);
-			m_socket = 0;
-			m_isConnected = false;
-			if (!TcpConnection::Connect() ||
-				send(m_socket, (const char *)data.c_str(), (int)data.size(), 0) == SOCKET_ERROR)
-			{
-				m_errors += "Unable to reconnect and send the request\n";
-				return false;
-			}
-			break;
-		default:
-			m_errors += "Error ";
-			m_errors += WSAGetLastError();
-			m_errors += " occurred while attempting to send the request\n";
-			return false;
-		}
-#else
-		switch (errno)
-		{
-		case ENOTSOCK:
-		case ENOTCONN:
-		case ECONNRESET:
-		case ECONNABORTED:
-#ifdef _WIN32
-			closesocket(m_socket);
-			m_socket = 0;
-#else
-			if (m_socket != SOCKET::invalid())
-				close((int)m_socket);
-			m_socket = SOCKET::invalid();
-#endif
-			m_isConnected = false;
-#ifdef _WIN32
-			if (!Connect() ||
-				send(m_socket, data.c_str(), data.size(), 0) == SOCKET_ERROR)
-#else
-			if (!Connect() ||
-				send((int)m_socket, data.c_str(), data.size(), 0) == SOCKET_ERROR)
-#endif // _WIN32
-			{
-				m_errors += "Unable to reconnect and send the request\n";
-				return false;
-			}
-
-            LOG(httpData, "Raw Sent:" << tscrypto::endl << data.ToHexDump());
-
-			break;
-		default:
-			m_errors += "Error ";
-			m_errors << errno;
-			m_errors += " occurred while attempting to send the request\n";
-			return false;
-		}
-#endif
+		Disconnect();
 	}
-
-	//LOG(httpLog, "Send in " << (GetTicks() - start) / 1000.0 << " ms");
-	LOG(httpData, "Sent:\n" << data.ToHexDump());
-	return true;
+	return retVal;
 }
 
 bool TcpChannel::Receive(tscrypto::tsCryptoData& _data, size_t size)
@@ -135,61 +70,70 @@ bool TcpChannel::Receive(tscrypto::tsCryptoData& _data, size_t size)
 	int targetLength = (int)size;
 
 	_data.clear();
-	buff.resize(size);
+	while (true)
+	{
+		buff.resize(size);
 #ifdef _WIN32
-	len = recv(m_socket, (char*)buff.rawData(), targetLength, MSG_PEEK);
+		len = recv(m_socket, (char*)buff.rawData(), targetLength, MSG_PEEK);
 #else
-	len = recv((int)m_socket, (char*)buff.rawData(), targetLength, MSG_PEEK);
+		len = recv((int)m_socket, (char*)buff.rawData(), targetLength, MSG_PEEK);
 #endif
 
-	//
-	// Is there data in the buffer?
-	//
-	if (len > 0)
-	{
 		//
-		// Get it
+		// Is there data in the buffer?
 		//
-#ifdef _WIN32
-		len = recv(m_socket, (char*)buff.rawData(), len, 0);
-#else
-		len = recv((int)m_socket, (char*)buff.rawData(), len, 0);
-#endif
 		if (len > 0)
 		{
-			buff.resize(len);
-
-			LOG(httpData, "recv'd" << tscrypto::endl << buff.ToHexDump());
-
-			if (m_processor != nullptr)
+			//
+			// Get it
+			//
+#ifdef _WIN32
+			len = recv(m_socket, (char*)buff.rawData(), len, 0);
+#else
+			len = recv((int)m_socket, (char*)buff.rawData(), len, 0);
+#endif
+			if (len > 0)
 			{
-				if (!m_processor->UnwrapTransport(buff))
+				buff.resize(len);
+
+				LOG(httpData, "recv'd" << tscrypto::endl << buff.ToHexDump());
+
+				if (m_processor != nullptr)
 				{
-					m_errors += "Malformed response - Transport failed\n";
-					return false;
+					if (!m_processor->UnwrapTransport(buff))
+					{
+						m_errors += "Malformed response - Transport failed\n";
+						_errorSignals.Fire(this, m_errors);
+						return false;
+					}
 				}
-			}
 
-			if (buff.size() > 0)
-			{
-				_data += buff.ToUtf8String();
+				if (buff.size() > 0)
+				{
+					_data += buff;
+				}
+				else
+				{
+					continue;
+				}
+				return true;
 			}
-			return true;
+			else if (len == SOCKET_ERROR)
+				return false;
+			else
+			{
+				m_errors += "Unable to read the data from the socket\n";
+				_errorSignals.Fire(this, m_errors);
+				//
+				// Data retrieval error (should never happen)
+				//
+				return false;
+			}
 		}
-		else if (len == SOCKET_ERROR)
-			return false;
 		else
 		{
-			m_errors += "Unable to read the data from the socket\n";
-			//
-			// Data retrieval error (should never happen)
-			//
 			return false;
 		}
-	}
-	else
-	{
-		return false;
 	}
 }
 
@@ -242,6 +186,12 @@ bool TcpChannel::processAuthenticationMessages()
 							return false;
 						if (buff.size() > 0)
 							m_bufferedData << buff;
+
+						if (!!m_processor && m_processor->shouldCloseAfterTransmit())
+						{
+							Disconnect();
+							return false;
+						}
 					}
 					else if (len == SOCKET_ERROR)
 						return false;
@@ -284,6 +234,7 @@ bool TcpChannel::UnwrapTransport(tscrypto::tsCryptoData& content)
 
 	return true;
 }
+
 
 
 std::shared_ptr<ITcpChannel> CreateTcpChannel()

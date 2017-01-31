@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -55,106 +55,106 @@ public:
 	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
 	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
 
-    /**
-     * \brief Default constructor.
-     */
+		/**
+		 * \brief Default constructor.
+		 */
 		PreferenceItem() : Location(tsAppConfig::NotFound) {}
-    /**
-     * \brief Constructor.
-     *
-     * \param path	   Full pathname of the file.
-     * \param value    The value.
-     * \param location The location.
-     */
-    PreferenceItem(const tscrypto::tsCryptoString &path, const tscrypto::tsCryptoString &value, tsAppConfig::ConfigLocation location) :
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param path	   Full pathname of the file.
+	 * \param value    The value.
+	 * \param location The location.
+	 */
+	PreferenceItem(const tscrypto::tsCryptoString &path, const tscrypto::tsCryptoString &value, tsAppConfig::ConfigLocation location) :
 		Path(path), Value(value), Location(location) {}
-    /**
-     * \brief Constructor.
-     *
-     * \param obj The object.
-     */
-    PreferenceItem(const PreferenceItem& obj) : Path(obj.Path), Value(obj.Value), Location(obj.Location) {}
-    /**
-     * \brief Assignment operator.
-     *
-     * \param obj The object.
-     *
-     * \return A shallow copy of this object.
-     */
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param obj The object.
+	 */
+	PreferenceItem(const PreferenceItem& obj) : Path(obj.Path), Value(obj.Value), Location(obj.Location) {}
+	/**
+	 * \brief Assignment operator.
+	 *
+	 * \param obj The object.
+	 *
+	 * \return A shallow copy of this object.
+	 */
 	PreferenceItem &operator=(const PreferenceItem& obj) { if (&obj != this) { Path = obj.Path;Value = obj.Value;Location = obj.Location; }return *this; }
 
-    tscrypto::tsCryptoString Path; ///< Full pathname of the preference item
-    tscrypto::tsCryptoString Value;	///< The value
-    tsAppConfig::ConfigLocation Location; ///< The location
+	tscrypto::tsCryptoString Path; ///< Full pathname of the preference item
+	tscrypto::tsCryptoString Value;	///< The value
+	tsAppConfig::ConfigLocation Location; ///< The location
 
-    /**
-     * \brief Query if this object is attribute.
-     *
-     * \return true if attribute, false if not.
-     */
-    bool isAttribute() const { return Path.find(']') == (int)Path.size() - 1 && Path.find('[') != tsCryptoString:npos && Path.find(']') > Path.find('['); }
+	/**
+	 * \brief Query if this object is attribute.
+	 *
+	 * \return true if attribute, false if not.
+	 */
+	bool isAttribute() const { return Path.find(']') == (int)Path.size() - 1 && Path.find('[') != tsCryptoString:npos && Path.find(']') > Path.find('['); }
 	/**
 	 * \brief Query if this object references a node as an XML string.
 	 *
 	 * \return true if node, false if not.
 	 */
 	bool isNode() const { return Path[0] == '&'; }
-    /**
-     * \brief Query if this object is entry.
-     *
-     * \return true if entry, false if not.
-     */
-    bool isEntry() const { return !isAttribute() && !isNode() && Path.size() > 0; }
-    /**
-     * \brief Gets the attribute path.
-     *
-     * \return .
-     */
-    tscrypto::tsCryptoString AttributePath() const {
-        if (isEntry()) return Path;
+	/**
+	 * \brief Query if this object is entry.
+	 *
+	 * \return true if entry, false if not.
+	 */
+	bool isEntry() const { return !isAttribute() && !isNode() && Path.size() > 0; }
+	/**
+	 * \brief Gets the attribute path.
+	 *
+	 * \return .
+	 */
+	tscrypto::tsCryptoString AttributePath() const {
+		if (isEntry()) return Path;
 		if (isNode()) return &Path.c_str()[1];
-        return (*Path.split("["))[0];
-    }
-    tscrypto::tsCryptoString AttributeName() const {
-        if (isEntry() || isNode()) return "";
-        return (*(*Path.split("["))[1].split("]"))[0];
-    }
-    /**
-     * \brief Gets the value as number.
-     *
-     * \return .
-     */
-    int valueAsNumber() const { return TsStrToInt(Value); }
-    /**
-     * \brief Gets the value as int 64.
-     *
-     * \return .
-     */
-    int64_t valueAsInt64() const { return TsStrToInt64(Value); }
-    /**
-     * \brief Determines if we can value as bool.
-     *
-     * \return true if it succeeds, false if it fails.
-     */
-    bool valueAsBool() const { return TsStrToInt64(Value) != 0; }
-    /**
-     * \brief Sets value as number.
-     *
-     * \param setTo The set to.
-     */
-    void setValueAsNumber(int setTo) { 	char buff[20]; Value.clear(); TsSnPrintf(buff, sizeof(buff) / sizeof(char), ("%d"), setTo); Value = buff; }
-    /**
-     * \brief Sets value as int 64.
-     *
-     * \param setTo The set to.
-     */
-    void setValueAsInt64(int64_t setTo) { 	char buff[60]; Value.clear(); TsSnPrintf(buff, sizeof(buff) / sizeof(char), ("%lld"), setTo); Value = buff; }
-    /**
-     * \brief Sets value as bool.
-     *
-     * \param setTo true to set to.
-     */
-    void setValueAsBool(bool setTo) { 	Value = setTo ? "1" : "0"; }
+		return (*Path.split("["))[0];
+	}
+	tscrypto::tsCryptoString AttributeName() const {
+		if (isEntry() || isNode()) return "";
+		return (*(*Path.split("["))[1].split("]"))[0];
+	}
+	/**
+	 * \brief Gets the value as number.
+	 *
+	 * \return .
+	 */
+	int valueAsNumber() const { return TsStrToInt(Value); }
+	/**
+	 * \brief Gets the value as int 64.
+	 *
+	 * \return .
+	 */
+	int64_t valueAsInt64() const { return TsStrToInt64(Value); }
+	/**
+	 * \brief Determines if we can value as bool.
+	 *
+	 * \return true if it succeeds, false if it fails.
+	 */
+	bool valueAsBool() const { return TsStrToInt64(Value) != 0; }
+	/**
+	 * \brief Sets value as number.
+	 *
+	 * \param setTo The set to.
+	 */
+	void setValueAsNumber(int setTo) { char buff[20]; Value.clear(); TsSnPrintf(buff, sizeof(buff) / sizeof(char), ("%d"), setTo); Value = buff; }
+	/**
+	 * \brief Sets value as int 64.
+	 *
+	 * \param setTo The set to.
+	 */
+	void setValueAsInt64(int64_t setTo) { char buff[60]; Value.clear(); TsSnPrintf(buff, sizeof(buff) / sizeof(char), ("%lld"), setTo); Value = buff; }
+	/**
+	 * \brief Sets value as bool.
+	 *
+	 * \param setTo true to set to.
+	 */
+	void setValueAsBool(bool setTo) { Value = setTo ? "1" : "0"; }
 	bool operator==(const PreferenceItem& obj) const { return TsStrCmp(Path, obj.Path) == 0; }
 };
 
@@ -206,239 +206,239 @@ public:
   static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
   static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
 
-    /// <summary>Scans for changes.</summary>
-    virtual void ScanForChanges();
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>Registers the preferences change notification interface passed into handler.</summary>
-    ///
-    /// <param name="handler">[in] the notification handler.</param>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual void registerPrefsChangeNotification(std::shared_ptr<IPreferenceChangeNotify> handler);
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>Unregisters the preferences change notification interface passed into handler.</summary>
-    ///
-    /// <param name="handler">[in,out] the notification handler.</param>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual void unregisterPrefsChangeNotification(std::shared_ptr<IPreferenceChangeNotify> handler);
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>Saves the configuration changes.</summary>
-    ///
-    /// <returns>true if it succeeds, false if it fails.</returns>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual bool saveConfigurationChanges();
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>Determine if the configuration information is loaded.</summary>
-    ///
-    /// <returns>true if values loaded, false if not.</returns>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual bool areValuesLoaded() const;
-    /**
-    * \brief Gets attribute entry search count.
-    *
-    * \return true if it succeeds, false if it fails.
-    */
-    virtual int getEntrySearchCount() const;
-    /**
-    * \brief Gets attribute entry search.
-    *
-    * \param index Zero-based index of the.
-    *
-    * \return The attribute entry search.
-    */
-    virtual tscrypto::tsCryptoString getEntrySearch(int index) const;
-    /**
-    * \brief Gets preference item count.
-    *
-    * \return The preference item count.
-    */
-    virtual int getPreferenceItemCount() const;
-    /**
-    * \brief Gets preference item.
-    *
-    * \param index Zero-based index of the item to retrieve.
-    *
-    * \return The preference item.
-    */
-    virtual PreferenceItem getPreferenceItem(int index) const;
-    /**
-    * \brief Searches for the first preference item that matches the specified path.
-    *
-    * \param path Full pathname of the file.
-    *
-    * \return The found preference item.
-    */
-    virtual PreferenceItem findPreferenceItem(const tscrypto::tsCryptoString &path) const;
-    /**
-    * \brief Sets preference item.
-    *
-    * \param item  The item.
-    *
-    * \return true if it succeeds, false if it fails.
-    */
-    virtual bool setPreferenceItem(const PreferenceItem &item);
-    /**
-    * \brief Location level.
-    *
-    * \param location The location.
-    *
-    * \return .
-    */
-    virtual int LocationLevel(tsAppConfig::ConfigLocation location) const;
-    /**
-     * \brief Loads the values.
-     *
-     * \return this object instance.
-     *
-     * This function controls the loading of the different configuration files. Normally this
-     * function should not be overloaded.  Overload the loadValuesForLocation function instead.
-     *
-     * Make sure that when this function is overloaded that you call the base class.
-     */
-    virtual tsPreferencesBase *loadValues();
-	/**
-	 * \brief Determines if the monitor is running.
-	 *
-	 * \return true if it succeeds, false if it fails.
-	 */
-	virtual bool MonitorRunning() const;
-    /// <summary>Starts the configuration change monitor.</summary>
-	void StartMonitor();
+	  /// <summary>Scans for changes.</summary>
+	  virtual void ScanForChanges();
+	  ////////////////////////////////////////////////////////////////////////////////////////////////////
+	  /// <summary>Registers the preferences change notification interface passed into handler.</summary>
+	  ///
+	  /// <param name="handler">[in] the notification handler.</param>
+	  ////////////////////////////////////////////////////////////////////////////////////////////////////
+	  virtual void registerPrefsChangeNotification(std::shared_ptr<IPreferenceChangeNotify> handler);
+	  ////////////////////////////////////////////////////////////////////////////////////////////////////
+	  /// <summary>Unregisters the preferences change notification interface passed into handler.</summary>
+	  ///
+	  /// <param name="handler">[in,out] the notification handler.</param>
+	  ////////////////////////////////////////////////////////////////////////////////////////////////////
+	  virtual void unregisterPrefsChangeNotification(std::shared_ptr<IPreferenceChangeNotify> handler);
+	  ////////////////////////////////////////////////////////////////////////////////////////////////////
+	  /// <summary>Saves the configuration changes.</summary>
+	  ///
+	  /// <returns>true if it succeeds, false if it fails.</returns>
+	  ////////////////////////////////////////////////////////////////////////////////////////////////////
+	  virtual bool saveConfigurationChanges();
+	  ////////////////////////////////////////////////////////////////////////////////////////////////////
+	  /// <summary>Determine if the configuration information is loaded.</summary>
+	  ///
+	  /// <returns>true if values loaded, false if not.</returns>
+	  ////////////////////////////////////////////////////////////////////////////////////////////////////
+	  virtual bool areValuesLoaded() const;
+	  /**
+	  * \brief Gets attribute entry search count.
+	  *
+	  * \return true if it succeeds, false if it fails.
+	  */
+	  virtual int getEntrySearchCount() const;
+	  /**
+	  * \brief Gets attribute entry search.
+	  *
+	  * \param index Zero-based index of the.
+	  *
+	  * \return The attribute entry search.
+	  */
+	  virtual tscrypto::tsCryptoString getEntrySearch(int index) const;
+	  /**
+	  * \brief Gets preference item count.
+	  *
+	  * \return The preference item count.
+	  */
+	  virtual int getPreferenceItemCount() const;
+	  /**
+	  * \brief Gets preference item.
+	  *
+	  * \param index Zero-based index of the item to retrieve.
+	  *
+	  * \return The preference item.
+	  */
+	  virtual PreferenceItem getPreferenceItem(int index) const;
+	  /**
+	  * \brief Searches for the first preference item that matches the specified path.
+	  *
+	  * \param path Full pathname of the file.
+	  *
+	  * \return The found preference item.
+	  */
+	  virtual PreferenceItem findPreferenceItem(const tscrypto::tsCryptoString &path) const;
+	  /**
+	  * \brief Sets preference item.
+	  *
+	  * \param item  The item.
+	  *
+	  * \return true if it succeeds, false if it fails.
+	  */
+	  virtual bool setPreferenceItem(const PreferenceItem &item);
+	  /**
+	  * \brief Location level.
+	  *
+	  * \param location The location.
+	  *
+	  * \return .
+	  */
+	  virtual int LocationLevel(tsAppConfig::ConfigLocation location) const;
+	  /**
+	   * \brief Loads the values.
+	   *
+	   * \return this object instance.
+	   *
+	   * This function controls the loading of the different configuration files. Normally this
+	   * function should not be overloaded.  Overload the loadValuesForLocation function instead.
+	   *
+	   * Make sure that when this function is overloaded that you call the base class.
+	   */
+	  virtual tsPreferencesBase *loadValues();
+	  /**
+	   * \brief Determines if the monitor is running.
+	   *
+	   * \return true if it succeeds, false if it fails.
+	   */
+	  virtual bool MonitorRunning() const;
+	  /// <summary>Starts the configuration change monitor.</summary>
+	  void StartMonitor();
   protected:
-    /// <summary>Destructor.</summary>
-    virtual ~tsPreferencesBase(void);
+	  /// <summary>Destructor.</summary>
+	  virtual ~tsPreferencesBase(void);
 
-    /// <summary>Sets default values.</summary> <remarks>Make sure that when this function is overloaded that you call the base class.</remarks>
-    virtual void setDefaultValues() { m_valuesLoaded = false; };
+	  /// <summary>Sets default values.</summary> <remarks>Make sure that when this function is overloaded that you call the base class.</remarks>
+	  virtual void setDefaultValues() { m_valuesLoaded = false; };
 
-    /**
-     * \brief Loads values for the given configuration location.
-     *
-     * \param location The configuration location to check.
-     * \param config   The configuration.
-     *
-     * \return true if it succeeds, false if it fails.
-     */
-    virtual bool loadValuesForLocation(tsAppConfig::ConfigLocation location, const tsAppConfig &config) = 0;
-    /**
-     * \brief Loads the values.
-     *
-     * \param location The location.
-     * \param config   The configuration.
-     *
-     * \return true if it succeeds, false if it fails.
-     */
-    bool loadValues(tsAppConfig::ConfigLocation location);
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>Gets the base configuration file name.</summary>
-    ///
-    /// <returns>the configuration file name</returns>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual tscrypto::tsCryptoString ConfigName() = 0;
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>Gets the location of the primary configuration file</summary>
-    ///
-    /// <returns>primary configuration file location</returns>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual tsAppConfig::ConfigLocation Location() const { return _location1; }
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>Gets the second configuration file location</summary>
-    ///
-    /// <returns>second configuration file location</returns>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual tsAppConfig::ConfigLocation SecondLocation() const { return _location2; }
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>Gets the third location.</summary>
-    ///
-    /// <returns>third configuration file location</returns>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual tsAppConfig::ConfigLocation ThirdLocation() const { return _location2; }
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>Saves the configuration changes for the given location.</summary>
-    ///
-    /// <param name="location">The location to save.</param>
-    ///
-    /// <returns>true if it succeeds, false if it fails.</returns>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual bool saveConfigurationChangesForLocation(tsAppConfig::ConfigLocation location) = 0;
-    /**
-     * \brief Saves the configuration changes.
-     *
-     * \param location The location.
-     *
-     * \return true if it succeeds, false if it fails.
-     */
-    bool saveConfigurationChanges(tsAppConfig::ConfigLocation location);
-    /**
-     * \brief Loads preferences for location.
-     *
-     * \param location The location.
-     * \param config   The configuration.
-     *
-     * \return true if it succeeds, false if it fails.
-     */
-    bool loadPreferencesForLocation(tsAppConfig::ConfigLocation location, tsAppConfig &config);
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>Gets the location that will be used for new entries in the .</summary>
-    ///
-    /// <returns>the default save location</returns>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual tsAppConfig::ConfigLocation DefaultSaveLocation() const;
+	  /**
+	   * \brief Loads values for the given configuration location.
+	   *
+	   * \param location The configuration location to check.
+	   * \param config   The configuration.
+	   *
+	   * \return true if it succeeds, false if it fails.
+	   */
+	  virtual bool loadValuesForLocation(tsAppConfig::ConfigLocation location, const tsAppConfig &config) = 0;
+	  /**
+	   * \brief Loads the values.
+	   *
+	   * \param location The location.
+	   * \param config   The configuration.
+	   *
+	   * \return true if it succeeds, false if it fails.
+	   */
+	  bool loadValues(tsAppConfig::ConfigLocation location);
+	  ////////////////////////////////////////////////////////////////////////////////////////////////////
+	  /// <summary>Gets the base configuration file name.</summary>
+	  ///
+	  /// <returns>the configuration file name</returns>
+	  ////////////////////////////////////////////////////////////////////////////////////////////////////
+	  virtual tscrypto::tsCryptoString ConfigName() = 0;
+	  ////////////////////////////////////////////////////////////////////////////////////////////////////
+	  /// <summary>Gets the location of the primary configuration file</summary>
+	  ///
+	  /// <returns>primary configuration file location</returns>
+	  ////////////////////////////////////////////////////////////////////////////////////////////////////
+	  virtual tsAppConfig::ConfigLocation Location() const { return _location1; }
+	  ////////////////////////////////////////////////////////////////////////////////////////////////////
+	  /// <summary>Gets the second configuration file location</summary>
+	  ///
+	  /// <returns>second configuration file location</returns>
+	  ////////////////////////////////////////////////////////////////////////////////////////////////////
+	  virtual tsAppConfig::ConfigLocation SecondLocation() const { return _location2; }
+	  ////////////////////////////////////////////////////////////////////////////////////////////////////
+	  /// <summary>Gets the third location.</summary>
+	  ///
+	  /// <returns>third configuration file location</returns>
+	  ////////////////////////////////////////////////////////////////////////////////////////////////////
+	  virtual tsAppConfig::ConfigLocation ThirdLocation() const { return _location2; }
+	  ////////////////////////////////////////////////////////////////////////////////////////////////////
+	  /// <summary>Saves the configuration changes for the given location.</summary>
+	  ///
+	  /// <param name="location">The location to save.</param>
+	  ///
+	  /// <returns>true if it succeeds, false if it fails.</returns>
+	  ////////////////////////////////////////////////////////////////////////////////////////////////////
+	  virtual bool saveConfigurationChangesForLocation(tsAppConfig::ConfigLocation location) = 0;
+	  /**
+	   * \brief Saves the configuration changes.
+	   *
+	   * \param location The location.
+	   *
+	   * \return true if it succeeds, false if it fails.
+	   */
+	  bool saveConfigurationChanges(tsAppConfig::ConfigLocation location);
+	  /**
+	   * \brief Loads preferences for location.
+	   *
+	   * \param location The location.
+	   * \param config   The configuration.
+	   *
+	   * \return true if it succeeds, false if it fails.
+	   */
+	  bool loadPreferencesForLocation(tsAppConfig::ConfigLocation location, tsAppConfig &config);
+	  ////////////////////////////////////////////////////////////////////////////////////////////////////
+	  /// <summary>Gets the location that will be used for new entries in the .</summary>
+	  ///
+	  /// <returns>the default save location</returns>
+	  ////////////////////////////////////////////////////////////////////////////////////////////////////
+	  virtual tsAppConfig::ConfigLocation DefaultSaveLocation() const;
 
-    /// <summary>Disconnects this object.</summary>
-    virtual void Disconnect();
-    /// <summary>Configures this object for change monitoring.</summary>
-    virtual void prepareForMonitoring();
-    /**
-    * \brief Overwrite entry.
-    *
-    * \param entryName		  Name of the entry.
-    * \param currentLocation The current location.
-    * \param newLocation	  The new location.
-    *
-    * \return true if it succeeds, false if it fails.
-    */
-    virtual bool OverwriteEntry(const tscrypto::tsCryptoString &entryName, tsAppConfig::ConfigLocation currentLocation, tsAppConfig::ConfigLocation newLocation) const;
-    /**
-    * \brief Determines if we must use entries.
-    *
-    * \return true if entries are to be automatically used, false if not.
-    */
-    virtual bool UseEntries() const = 0;
-	/**
-	 * \brief Raises the global change event.
-	 */
-	void FireGlobalChangeEvent();
+	  /// <summary>Disconnects this object.</summary>
+	  virtual void Disconnect();
+	  /// <summary>Configures this object for change monitoring.</summary>
+	  virtual void prepareForMonitoring();
+	  /**
+	  * \brief Overwrite entry.
+	  *
+	  * \param entryName		  Name of the entry.
+	  * \param currentLocation The current location.
+	  * \param newLocation	  The new location.
+	  *
+	  * \return true if it succeeds, false if it fails.
+	  */
+	  virtual bool OverwriteEntry(const tscrypto::tsCryptoString &entryName, tsAppConfig::ConfigLocation currentLocation, tsAppConfig::ConfigLocation newLocation) const;
+	  /**
+	  * \brief Determines if we must use entries.
+	  *
+	  * \return true if entries are to be automatically used, false if not.
+	  */
+	  virtual bool UseEntries() const = 0;
+	  /**
+	   * \brief Raises the global change event.
+	   */
+	  void FireGlobalChangeEvent();
 
   protected:
-    long m_lRefCount;
-    tscrypto::tsCryptoString m_policyFilename;  /*!< \brief Path and file name for the policy configuration file */
-    tscrypto::tsCryptoString m_systemFilename;  /*!< \brief Path and file name for the system level configuration file */
-    tscrypto::tsCryptoString m_publicFilename;  /*!< \brief Path and file name for the public level configuration file */
-    tscrypto::tsCryptoString m_userFilename;    /*!< \brief Path and file name for the user level configuration file */
+	  long m_lRefCount;
+	  tscrypto::tsCryptoString m_policyFilename;  /*!< \brief Path and file name for the policy configuration file */
+	  tscrypto::tsCryptoString m_systemFilename;  /*!< \brief Path and file name for the system level configuration file */
+	  tscrypto::tsCryptoString m_publicFilename;  /*!< \brief Path and file name for the public level configuration file */
+	  tscrypto::tsCryptoString m_userFilename;    /*!< \brief Path and file name for the user level configuration file */
   #ifdef _WIN32
-    WIN32_FILE_ATTRIBUTE_DATA m_policyFileInfo;  /*!< \brief directory information for the policy configuration file that is used to detect changes */
-    WIN32_FILE_ATTRIBUTE_DATA m_userFileInfo;    /*!< \brief directory information for the system level configuration file that is used to detect changes */
-    WIN32_FILE_ATTRIBUTE_DATA m_publicFileInfo;  /*!< \brief directory information for the public level configuration file that is used to detect changes */
-    WIN32_FILE_ATTRIBUTE_DATA m_systemFileInfo;  /*!< \brief directory information for the user level configuration file that is used to detect changes */
+	  WIN32_FILE_ATTRIBUTE_DATA m_policyFileInfo;  /*!< \brief directory information for the policy configuration file that is used to detect changes */
+	  WIN32_FILE_ATTRIBUTE_DATA m_userFileInfo;    /*!< \brief directory information for the system level configuration file that is used to detect changes */
+	  WIN32_FILE_ATTRIBUTE_DATA m_publicFileInfo;  /*!< \brief directory information for the public level configuration file that is used to detect changes */
+	  WIN32_FILE_ATTRIBUTE_DATA m_systemFileInfo;  /*!< \brief directory information for the user level configuration file that is used to detect changes */
   #else
-    struct stat m_policyFileInfo;
-    struct stat m_userFileInfo;
-    struct stat m_publicFileInfo;
-    struct stat m_systemFileInfo;
+	  struct stat m_policyFileInfo;
+	  struct stat m_userFileInfo;
+	  struct stat m_publicFileInfo;
+	  struct stat m_systemFileInfo;
   #endif
-	PreferenceChangeNotifyList m_notifierList; /*!< \brief The list of objects that are to be notified when a change is detected */
-    bool m_valuesLoaded;	/*!< \brief Indicates that the configuration values have been loaded */
-	PreferenceItemList _preferenceItems; ///< \brief The preference items found by this class
-	tsAppConfig::ConfigLocation _location1;
-	tsAppConfig::ConfigLocation _location2;
-	tsAppConfig::ConfigLocation _location3;
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>Holds the change scanner.</summary>
-    ///
-    /// <value>The change scanner.</value>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    std::shared_ptr<ChangeTracker> m_changeScanner;
-	std::weak_ptr<tsPreferencesBase> Me;
+	  PreferenceChangeNotifyList m_notifierList; /*!< \brief The list of objects that are to be notified when a change is detected */
+	  bool m_valuesLoaded;	/*!< \brief Indicates that the configuration values have been loaded */
+	  PreferenceItemList _preferenceItems; ///< \brief The preference items found by this class
+	  tsAppConfig::ConfigLocation _location1;
+	  tsAppConfig::ConfigLocation _location2;
+	  tsAppConfig::ConfigLocation _location3;
+	  ////////////////////////////////////////////////////////////////////////////////////////////////////
+	  /// <summary>Holds the change scanner.</summary>
+	  ///
+	  /// <value>The change scanner.</value>
+	  ////////////////////////////////////////////////////////////////////////////////////////////////////
+	  std::shared_ptr<ChangeTracker> m_changeScanner;
+	  std::weak_ptr<tsPreferencesBase> Me;
 };
 
 
@@ -465,7 +465,7 @@ protected:
 	///
 	/// <returns>the configuration name..</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual tscrypto::tsCryptoString ConfigName() { return _configName; }
+	virtual tscrypto::tsCryptoString ConfigName() { return _configName; }
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Saves the configuration changes for the specified location.</summary>
@@ -494,7 +494,7 @@ protected:
 	virtual bool UseEntries(void) const { return true; }
 
 protected:
-    tscrypto::tsCryptoString _configName;
+	tscrypto::tsCryptoString _configName;
 };
 
 /*! @brief Reports the Ckm Enabled Application that was changed */

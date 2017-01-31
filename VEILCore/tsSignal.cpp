@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -140,6 +140,246 @@ void tsIObjStringSignal::Fire(const tsmod::IObject* object, const tscrypto::tsCr
 void tsIObjStringSignal::clear()
 {
 	((tsIObjStringSignalList*)contents)->clear();
+}
+
+
+//===================================================================================
+
+struct tsIObjStringVarStringSignalItem
+{
+	int cookie;
+	std::function<void(const tsmod::IObject*, const tscrypto::tsCryptoStringBase&, tscrypto::tsCryptoStringBase&)> func;
+};
+typedef std::vector<tsIObjStringVarStringSignalItem> tsIObjStringVarStringSignalList;
+static uint32_t tsIObjStringVarStringSignalCookie = 1;
+
+tsIObjStringVarStringSignal::tsIObjStringVarStringSignal()
+{
+	contents = new tsIObjStringVarStringSignalList();
+}
+tsIObjStringVarStringSignal::~tsIObjStringVarStringSignal()
+{
+	if (contents != nullptr)
+		delete (tsIObjStringVarStringSignalList*)contents;
+	contents = nullptr;
+}
+
+size_t tsIObjStringVarStringSignal::Add(std::function<void(const tsmod::IObject*, const tscrypto::tsCryptoStringBase&, tscrypto::tsCryptoStringBase&)> func)
+{
+	if (contents == nullptr)
+		return 0;
+
+	tsIObjStringVarStringSignalItem item;
+	item.cookie = InterlockedIncrement(&tsIObjStringVarStringSignalCookie);
+	item.func = func;
+	((tsIObjStringVarStringSignalList*)contents)->push_back(item);
+	return item.cookie;
+}
+
+void tsIObjStringVarStringSignal::Remove(size_t cookie)
+{
+	if (contents == nullptr)
+		return;
+
+	auto it = std::find_if(((tsIObjStringVarStringSignalList*)contents)->begin(), ((tsIObjStringVarStringSignalList*)contents)->end(), [cookie](tsIObjStringVarStringSignalItem& item)->bool { return item.cookie == (int)cookie; });
+	if (it != ((tsIObjStringVarStringSignalList*)contents)->end())
+		((tsIObjStringVarStringSignalList*)contents)->erase(it);
+}
+
+void tsIObjStringVarStringSignal::Fire(const tsmod::IObject* object, const tscrypto::tsCryptoStringBase& param, tscrypto::tsCryptoStringBase& varString) const
+{
+	if (contents == nullptr)
+		return;
+
+	for (tsIObjStringVarStringSignalItem& item : *((tsIObjStringVarStringSignalList*)contents))
+	{
+		if (!!item.func)
+			item.func(object, param, varString);
+	}
+}
+void tsIObjStringVarStringSignal::clear()
+{
+	((tsIObjStringVarStringSignalList*)contents)->clear();
+}
+
+
+//===================================================================================
+
+struct tsIObjPacketSignalItem
+{
+	int cookie;
+	std::function<void(const tsmod::IObject*, uint8_t packetType, const uint8_t* data, uint32_t dataLen)> func;
+};
+typedef std::vector<tsIObjPacketSignalItem> tsIObjPacketSignalList;
+static uint32_t tsIObjPacketSignalCookie = 1;
+
+tsIObjPacketSignal::tsIObjPacketSignal()
+{
+	contents = new tsIObjPacketSignalList();
+}
+tsIObjPacketSignal::~tsIObjPacketSignal()
+{
+	if (contents != nullptr)
+		delete (tsIObjPacketSignalList*)contents;
+	contents = nullptr;
+}
+
+size_t tsIObjPacketSignal::Add(std::function<void(const tsmod::IObject*, uint8_t packetType, const uint8_t* data, uint32_t dataLen)> func)
+{
+	if (contents == nullptr)
+		return 0;
+
+	tsIObjPacketSignalItem item;
+	item.cookie = InterlockedIncrement(&tsIObjPacketSignalCookie);
+	item.func = func;
+	((tsIObjPacketSignalList*)contents)->push_back(item);
+	return item.cookie;
+}
+
+void tsIObjPacketSignal::Remove(size_t cookie)
+{
+	if (contents == nullptr)
+		return;
+
+	auto it = std::find_if(((tsIObjPacketSignalList*)contents)->begin(), ((tsIObjPacketSignalList*)contents)->end(), [cookie](tsIObjPacketSignalItem& item)->bool{ return item.cookie == (int)cookie; });
+	if (it != ((tsIObjPacketSignalList*)contents)->end())
+		((tsIObjPacketSignalList*)contents)->erase(it);
+}
+
+void tsIObjPacketSignal::Fire(const tsmod::IObject* object, uint8_t packetType, const uint8_t* data, uint32_t dataLen) const
+{
+	if (contents == nullptr)
+		return;
+
+	for (tsIObjPacketSignalItem& item : *((tsIObjPacketSignalList*)contents))
+	{
+		if (!!item.func) 
+			item.func(object, packetType, data, dataLen); 
+	}
+}
+void tsIObjPacketSignal::clear()
+{
+	((tsIObjPacketSignalList*)contents)->clear();
+}
+
+
+//===================================================================================
+
+struct tsIObjectSignalItem
+{
+	int cookie;
+	std::function<void(const tsmod::IObject*)> func;
+};
+typedef std::vector<tsIObjectSignalItem> tsIObjectSignalList;
+static uint32_t tsIObjectSignalCookie = 1;
+
+tsIObjectSignal::tsIObjectSignal()
+{
+	contents = new tsIObjectSignalList();
+}
+tsIObjectSignal::~tsIObjectSignal()
+{
+	if (contents != nullptr)
+		delete (tsIObjectSignalList*)contents;
+	contents = nullptr;
+}
+
+size_t tsIObjectSignal::Add(std::function<void(const tsmod::IObject*)> func)
+{
+	if (contents == nullptr)
+		return 0;
+
+	tsIObjectSignalItem item;
+	item.cookie = InterlockedIncrement(&tsIObjectSignalCookie);
+	item.func = func;
+	((tsIObjectSignalList*)contents)->push_back(item);
+	return item.cookie;
+}
+
+void tsIObjectSignal::Remove(size_t cookie)
+{
+	if (contents == nullptr)
+		return;
+
+	auto it = std::find_if(((tsIObjectSignalList*)contents)->begin(), ((tsIObjectSignalList*)contents)->end(), [cookie](tsIObjectSignalItem& item)->bool { return item.cookie == (int)cookie; });
+	if (it != ((tsIObjectSignalList*)contents)->end())
+		((tsIObjectSignalList*)contents)->erase(it);
+}
+
+void tsIObjectSignal::Fire(const tsmod::IObject* object) const
+{
+	if (contents == nullptr)
+		return;
+
+	for (tsIObjectSignalItem& item : *((tsIObjectSignalList*)contents))
+	{
+		if (!!item.func)
+			item.func(object);
+	}
+}
+void tsIObjectSignal::clear()
+{
+	((tsIObjectSignalList*)contents)->clear();
+}
+
+
+//===================================================================================
+
+struct tsIObjectUint32SignalItem
+{
+	int cookie;
+	std::function<void(const tsmod::IObject*, uint32_t)> func;
+};
+typedef std::vector<tsIObjectUint32SignalItem> tsIObjectUint32SignalList;
+static uint32_t tsIObjectUint32SignalCookie = 1;
+
+tsIObjectUint32Signal::tsIObjectUint32Signal()
+{
+	contents = new tsIObjectUint32SignalList();
+}
+tsIObjectUint32Signal::~tsIObjectUint32Signal()
+{
+	if (contents != nullptr)
+		delete (tsIObjectUint32SignalList*)contents;
+	contents = nullptr;
+}
+
+size_t tsIObjectUint32Signal::Add(std::function<void(const tsmod::IObject*, uint32_t)> func)
+{
+	if (contents == nullptr)
+		return 0;
+
+	tsIObjectUint32SignalItem item;
+	item.cookie = InterlockedIncrement(&tsIObjectUint32SignalCookie);
+	item.func = func;
+	((tsIObjectUint32SignalList*)contents)->push_back(item);
+	return item.cookie;
+}
+
+void tsIObjectUint32Signal::Remove(size_t cookie)
+{
+	if (contents == nullptr)
+		return;
+
+	auto it = std::find_if(((tsIObjectUint32SignalList*)contents)->begin(), ((tsIObjectUint32SignalList*)contents)->end(), [cookie](tsIObjectUint32SignalItem& item)->bool { return item.cookie == (int)cookie; });
+	if (it != ((tsIObjectUint32SignalList*)contents)->end())
+		((tsIObjectUint32SignalList*)contents)->erase(it);
+}
+
+void tsIObjectUint32Signal::Fire(const tsmod::IObject* object, uint32_t value) const
+{
+	if (contents == nullptr)
+		return;
+
+	for (tsIObjectUint32SignalItem& item : *((tsIObjectUint32SignalList*)contents))
+	{
+		if (!!item.func)
+			item.func(object, value);
+	}
+}
+void tsIObjectUint32Signal::clear()
+{
+	((tsIObjectUint32SignalList*)contents)->clear();
 }
 
 

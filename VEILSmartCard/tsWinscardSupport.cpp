@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -712,7 +712,7 @@ LONG tsSCardTransmit(IN SCARDHANDLE hCard, IN LPCSCARD_IO_REQUEST pioSendPci, IN
 	return Result("Transmit", SCardTransmit(hCard, pioSendPci, pbSendBuffer, cbSendLength, pioRecvPci, pbRecvBuffer, pcbRecvLength));
 }
 
-LONG tsSCardGetStatusChange(IN SCARDCONTEXT hContext, IN DWORD dwTimeout, IN OUT LPSCARD_READERSTATE_A rgReaderStates, IN DWORD cReaders)
+LONG tsSCardGetStatusChange(IN SCARDCONTEXT hContext, IN DWORD dwTimeout, IN OUT LPSCARD_READERSTATE rgReaderStates, IN DWORD cReaders)
 {
 	return Result("GetStatusChange", SCardGetStatusChange(hContext, dwTimeout, rgReaderStates, cReaders));
 }
@@ -769,12 +769,12 @@ LONG tsSCardEndTransaction(IN SCARDHANDLE hCard, IN DWORD dwDisposition)
 HANDLE tsSCardAccessStartedEvent(void)
 {
 	HANDLE retVal = SCardAccessStartedEvent();
-		LOG(scdebug, "AccessStartedEvent -> " << ToHex()((void*)retVal));
-		return retVal;
+	LOG(scdebug, "AccessStartedEvent -> " << ToHex()((void*)retVal));
+	return retVal;
 }
 void tsSCardReleaseStartedEvent(void)
 {
-		LOG(scdebug, "ReleaseStartedEvent");
+	LOG(scdebug, "ReleaseStartedEvent");
 	SCardReleaseStartedEvent();
 }
 #endif

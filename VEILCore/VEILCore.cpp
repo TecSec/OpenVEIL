@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -35,6 +35,7 @@
 #include "shlobj.h"
 #endif // _WIN32
 #include "zlib.h"
+#include "TSALG.h"
 
 //using namespace BigNum;
 
@@ -77,10 +78,6 @@ extern tsmod::IObject* CreateResourceLoader();
 
 extern tsmod::IObject* CreateTcpMsgProcessor();
 
-#if defined(HAVE_BSTR) && !defined(MSYS) && !defined(MINGW)
-extern tsmod::IObject* CreateSqlServerDatabaseObject();
-#endif
-extern tsmod::IObject* CreateSqliteDatabaseObject();
 extern tsmod::IObject* CreateNotifyPropertyChange();
 extern tsmod::IObject* CreatePropertyMap();
 #ifdef _WIN32
@@ -142,6 +139,12 @@ std::shared_ptr<tsmod::IServiceLocator> TopServiceLocator()
 {
 	if (!g_ServiceLocator)
 	{
+		if (!initializeAndTestCrypto())
+		{
+			LOG(FrameworkError, "CRYPTO INIT FAILED");
+			return nullptr;
+		}
+
 		LOG(FrameworkInfo1, "Initializing the system");
 		g_ServiceLocator = tsmod::CreateServiceLocator();
 		g_ServiceLocator->SetAsRoot();
@@ -1036,22 +1039,24 @@ void CryptoTestFailed()
 
 bool TSGenerateRandom(tscrypto::tsCryptoData& data, size_t lenInBytes)
 {
-	std::shared_ptr<Random> prng = std::dynamic_pointer_cast<Random>(CryptoFactory("Random"));
-
-	if (!prng || !prng->Initialize(256, true, tscrypto::tsCryptoData(), tscrypto::tsCryptoData()) || !prng->Generate(lenInBytes * 8, 256, true, tscrypto::tsCryptoData(), data))
-		return false;
-	return true;
+	data.resize(lenInBytes);
+	return TSGenerateRandom(data.rawData(), lenInBytes);
 }
 
 bool TSGenerateRandom(uint8_t* data, size_t lenInBytes)
 {
-	std::shared_ptr<Random> prng = std::dynamic_pointer_cast<Random>(CryptoFactory("Random"));
-	tscrypto::tsCryptoData tmp;
+	return internalGenerateRandomBits(data, (uint32_t)(lenInBytes * 8), false, nullptr, 0);
+}
 
-	if (data == nullptr || !prng || !prng->Initialize(256, true, tscrypto::tsCryptoData(), tscrypto::tsCryptoData()) || !prng->Generate(lenInBytes * 8, 256, true, tscrypto::tsCryptoData(), tmp))
-		return false;
-	memmove(data, tmp.c_str(), tmp.size());
-	return true;
+bool TSGenerateStrongRandom(tscrypto::tsCryptoData& data, size_t lenInBytes)
+{
+	data.resize(lenInBytes);
+	return TSGenerateStrongRandom(data.rawData(), lenInBytes);
+}
+
+bool TSGenerateStrongRandom(uint8_t* data, size_t lenInBytes)
+{
+	return internalGenerateRandomBits(data, (uint32_t)(lenInBytes * 8), true, nullptr, 0);
 }
 
 bool TSWrap(const tscrypto::tsCryptoData &key, const tscrypto::tsCryptoData &dataToWrap, tscrypto::tsCryptoData &wrappedData, TS_ALG_ID alg)

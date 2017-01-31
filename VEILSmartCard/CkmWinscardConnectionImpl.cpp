@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -56,7 +56,7 @@ public:
 		if ((error = tsSCardDisconnect(m_handle, disposition)) != ERROR_SUCCESS)
 		{
 			if (!!_detailLogger)
-				_detailLogger(tsCryptoString("    ;+   Disconnect returned ").append(error));
+				_detailLogger(tsCryptoString("    ;+   Disconnect returned ").append((int32_t)error));
 			m_handle = 0;
 			return false;
 		}
@@ -74,7 +74,7 @@ public:
 		if ((error = tsSCardReconnect(m_handle, SCARD_SHARE_SHARED, protocolsToAllow, disposition, &m_protocol)) != ERROR_SUCCESS)
 		{
 			if (!!_detailLogger)
-				_detailLogger(tsCryptoString("    ;+   Reconnect returned ").append(error));
+				_detailLogger(tsCryptoString("    ;+   Reconnect returned ").append((int32_t)error));
 			return false;
 		}
 		return true;
@@ -109,7 +109,7 @@ public:
 		if ((error = tsSCardGetAttrib(m_handle, attributeId, NULL, &len)) != ERROR_SUCCESS)
 		{
 			if (!!_detailLogger)
-				_detailLogger(tsCryptoString("    ;+   GetAttribute returned ").append(error));
+				_detailLogger(tsCryptoString("    ;+   GetAttribute returned ").append((int32_t)error));
 			return false;
 		}
 
@@ -118,7 +118,7 @@ public:
 		if ((error = tsSCardGetAttrib(m_handle, attributeId, value.rawData(), &len)) != ERROR_SUCCESS)
 		{
 			if (!!_detailLogger)
-				_detailLogger(tsCryptoString("    ;+   GetAttribute returned ").append(error));
+				_detailLogger(tsCryptoString("    ;+   GetAttribute returned ").append((int32_t)error));
 			return false;
 		}
 		return true;
@@ -146,9 +146,9 @@ public:
 			else
 			{
 				if (!!_detailLogger)
-					_detailLogger(tsCryptoString("    ;+   BeginTransaction returned ").append(retVal));
+					_detailLogger(tsCryptoString("    ;+   BeginTransaction returned ").append((int32_t)retVal));
 				return false;
-		}
+			}
 		}
 		m_hasTransaction = true;
 		return true;
@@ -163,7 +163,7 @@ public:
 		if ((error = tsSCardEndTransaction(m_handle, disposition)) != ERROR_SUCCESS)
 		{
 			if (!!_detailLogger)
-				_detailLogger(tsCryptoString("    ;+   EndTransaction returned ").append(error));
+				_detailLogger(tsCryptoString("    ;+   EndTransaction returned ").append((int32_t)error));
 			return false;
 		}
 		m_hasTransaction = false;
@@ -214,7 +214,7 @@ public:
 		if (lReturn != SCARD_S_SUCCESS)
 		{
 			if (!!_detailLogger)
-				_detailLogger(tsCryptoString("    ;+   Status returned ").append(lReturn));
+				_detailLogger(tsCryptoString("    ;+   Status returned ").append((int32_t)lReturn));
 			return 0;
 		}
 		return (int)dwState;
@@ -247,7 +247,7 @@ private:
 			if ((error = tsSCardReconnect(m_handle, SCARD_SHARE_SHARED, m_protocol, SCardResetCard, &m_protocol)) != ERROR_SUCCESS)
 			{
 				if (!!_detailLogger)
-					_detailLogger(tsCryptoString("    ;+   Reconnect returned ").append(error));
+					_detailLogger(tsCryptoString("    ;+   Reconnect returned ").append((int32_t)error));
 				return false;
 			}
 			if (m_hasTransaction)
@@ -261,7 +261,7 @@ private:
 			if ((error = tsSCardReconnect(m_handle, SCARD_SHARE_SHARED, m_protocol, SCardResetCard, &m_protocol)) != ERROR_SUCCESS)
 			{
 				if (!!_detailLogger)
-					_detailLogger(tsCryptoString("    ;+   Reconnect returned ").append(error));
+					_detailLogger(tsCryptoString("    ;+   Reconnect returned ").append((int32_t)error));
 				return false;
 			}
 			if (m_hasTransaction)
@@ -287,7 +287,7 @@ private:
 					if ((error = tsSCardReconnect(m_handle, SCARD_SHARE_SHARED, m_protocol, SCardResetCard, &m_protocol)) != ERROR_SUCCESS)
 					{
 						if (!!_detailLogger)
-							_detailLogger(tsCryptoString("    ;+   Reconnect returned ").append(error));
+							_detailLogger(tsCryptoString("    ;+   Reconnect returned ").append((int32_t)error));
 						return false;
 					}
 					if (m_hasTransaction)
@@ -362,7 +362,7 @@ private:
 						continue;
 					}
 					if (!!_detailLogger)
-						_detailLogger(tsCryptoString("    ;+   Transmit returned ").append(errNo));
+						_detailLogger(tsCryptoString("    ;+   Transmit returned ").append((int32_t)errNo));
 					return false;
 				}
 			} while (repeat);

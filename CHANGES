@@ -39,3 +39,6 @@ Changes for 1/27/2016
  Changes for 7.0.39
  * Updated for VEILCrypto 7.0.5
  * More work on the port to OSX
+
+Changes for 7.0.41
+ * Updated for the new C crypto library TSALG

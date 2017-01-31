@@ -1,5 +1,5 @@
 @echo off
-rem	Copyright (c) 2016, TecSec, Inc.
+rem	Copyright (c) 2017, TecSec, Inc.
 rem
 rem	Redistribution and use in source and binary forms, with or without
 rem	modification, are permitted provided that the following conditions are met:
@@ -47,7 +47,7 @@ echo ===========================================================================
   pushd release-mingw-%PROCESSOR%-%COMPILERVERSION%
   echo call usegcc%COMPILERVERSION% > resetenv.cmd
   call resetenv
-  cmake -DTS_VS_CONFIG=Release -DFORCE_%PROCESSOR%=1 -G "Ninja" ..\..
+  cmake -DTS_VS_CONFIG=Release -DCMAKE_BUILD_TYPE=Release -DFORCE_%PROCESSOR%=1 -G "Unix Makefiles" ..\..
   echo @echo off > build.cmd
   echo call resetenv >> build.cmd
   echo call cmake --build . -- -j8 >> build.cmd
@@ -64,7 +64,7 @@ echo ===========================================================================
   pushd debug-mingw-%PROCESSOR%-%COMPILERVERSION%
   echo call usegcc%COMPILERVERSION% > resetenv.cmd
   call resetenv
-  cmake -DTS_VS_CONFIG=Debug -DFORCE_%PROCESSOR%=1 -G "Ninja" ..\..
+  cmake -DTS_VS_CONFIG=Debug -DCMAKE_BUILD_TYPE=Debug -DFORCE_%PROCESSOR%=1 -G "Unix Makefiles" ..\..
   echo @echo off > build.cmd
   echo call resetenv >> build.cmd
   echo call cmake --build . -- -j8 >> build.cmd

@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -33,20 +33,20 @@
 
 namespace tsmod {
 	typedef struct VEILCORE_API OptionList {
-	const char *option;
-	const char *description;
+		const char *option;
+		const char *description;
 	} OptionList;
 
 	class VEILCORE_API IVeilUtilities
 	{
 	public:
-	virtual ~IVeilUtilities() {}
-	virtual xp_console& console() = 0;
-	virtual void TopUsage() = 0;
+		virtual ~IVeilUtilities() {}
+		virtual xp_console& console() = 0;
+		virtual void TopUsage() = 0;
 		virtual void Usage(const tsmod::OptionList* list, size_t count) = 0;
-	virtual void localGetConsolePin(tscrypto::tsCryptoString& enteredPin, uint32_t len, const tscrypto::tsCryptoString& prompt) = 0;
-	virtual void OutputError(char *msg, ...) = 0;
-	virtual void DumpOptionLine(const tscrypto::tsCryptoString& left, const tscrypto::tsCryptoString& right) = 0;
-	virtual tsmod::IObject* buildCommandMenu(const tscrypto::tsCryptoString& description, const tscrypto::tsCryptoString& commandPrefix, const tscrypto::tsCryptoString& name, const tscrypto::tsCryptoString& menuHeader) = 0;
+		virtual void localGetConsolePin(tscrypto::tsCryptoString& enteredPin, uint32_t len, const tscrypto::tsCryptoString& prompt) = 0;
+		virtual void OutputError(char *msg, ...) = 0;
+		virtual void DumpOptionLine(const tscrypto::tsCryptoString& left, const tscrypto::tsCryptoString& right) = 0;
+		virtual tsmod::IObject* buildCommandMenu(const tscrypto::tsCryptoString& description, const tscrypto::tsCryptoString& commandPrefix, const tscrypto::tsCryptoString& name, const tscrypto::tsCryptoString& menuHeader) = 0;
 	};
 }

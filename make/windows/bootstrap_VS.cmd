@@ -1,5 +1,5 @@
 @echo off
-rem	Copyright (c) 2016, TecSec, Inc.
+rem	Copyright (c) 2017, TecSec, Inc.
 rem
 rem	Redistribution and use in source and binary forms, with or without
 rem	modification, are permitted provided that the following conditions are met:
@@ -35,6 +35,7 @@ set COMPILERVERSION=%1
 if "%COMPILERVERSION%"=="" set COMPILERVERSION=14
 if "%COMPILERVERSION%"=="2013" set COMPILERVERSION=12
 if "%COMPILERVERSION%"=="2015" set COMPILERVERSION=14
+if "%COMPILERVERSION%"=="2017" set COMPILERVERSION=15
 
 
 SETLOCAL ENABLEDELAYEDEXPANSION
@@ -55,9 +56,10 @@ echo ===========================================================================
   echo set LIBPATH=%%BASELIBPATH%% >> resetenv.cmd
   echo if "%%BASEINCLUDE%%"=="" set BASEINCLUDE=%%INCLUDE%% >> resetenv.cmd
   echo set INCLUDE=%%BASEINCLUDE%% >> resetenv.cmd
-  echo call "!VS%COMPILERVERSION%0COMNTOOLS!\..\..\vc\vcvarsall" x86 >> resetenv.cmd
+  if exist "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\vcvarsall.bat" echo call "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\vcvarsall" x86 >> resetenv.cmd
+  if exist "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\Auxiliary\Build\vcvarsall.bat" echo call "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\Auxiliary\Build\vcvarsall" x86 >> resetenv.cmd
   call resetenv
-  cmake -DTS_VS_CONFIG=Debug -G "Visual Studio %COMPILERVERSION%" ..\..
+  cmake -DTS_VS_CONFIG=Debug -DCMAKE_BUILD_TYPE=Debug -G "Visual Studio %COMPILERVERSION%" ..\..
   call :makefolderscripts --config Debug
   popd
 
@@ -73,9 +75,10 @@ echo ===========================================================================
   echo set LIBPATH=%%BASELIBPATH%% >> resetenv.cmd
   echo if "%%BASEINCLUDE%%"=="" set BASEINCLUDE=%%INCLUDE%% >> resetenv.cmd
   echo set INCLUDE=%%BASEINCLUDE%% >> resetenv.cmd
-  echo call "!VS%COMPILERVERSION%0COMNTOOLS!\..\..\vc\vcvarsall" x86 >> resetenv.cmd
+  if exist "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\vcvarsall.bat" echo call "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\vcvarsall" x86 >> resetenv.cmd
+  if exist "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\Auxiliary\Build\vcvarsall.bat" echo call "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\Auxiliary\Build\vcvarsall" x86 >> resetenv.cmd
   call resetenv
-  cmake -DTS_VS_CONFIG=Release -G "Visual Studio %COMPILERVERSION%" ..\..
+  cmake -DTS_VS_CONFIG=Release -DCMAKE_BUILD_TYPE=Release -G "Visual Studio %COMPILERVERSION%" ..\..
   call :makefolderscripts --config Release
   popd
 
@@ -91,9 +94,10 @@ echo ===========================================================================
   echo set LIBPATH=%%BASELIBPATH%% >> resetenv.cmd
   echo if "%%BASEINCLUDE%%"=="" set BASEINCLUDE=%%INCLUDE%% >> resetenv.cmd
   echo set INCLUDE=%%BASEINCLUDE%% >> resetenv.cmd
-  echo call "!VS%COMPILERVERSION%0COMNTOOLS!\..\..\vc\vcvarsall" amd64 >> resetenv.cmd
+  if exist "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\vcvarsall.bat" echo call "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\vcvarsall" amd64 >> resetenv.cmd
+  if exist "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\Auxiliary\Build\vcvarsall.bat" echo call "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\Auxiliary\Build\vcvarsall" amd64 >> resetenv.cmd
   call resetenv
-  cmake -DTS_VS_CONFIG=Debug -G "Visual Studio %COMPILERVERSION% Win64" ..\..
+  cmake -DTS_VS_CONFIG=Debug -DCMAKE_BUILD_TYPE=Debug -G "Visual Studio %COMPILERVERSION% Win64" ..\..
   call :makefolderscripts --config Debug
   popd
   
@@ -109,9 +113,10 @@ echo ===========================================================================
   echo set LIBPATH=%%BASELIBPATH%% >> resetenv.cmd
   echo if "%%BASEINCLUDE%%"=="" set BASEINCLUDE=%%INCLUDE%% >> resetenv.cmd
   echo set INCLUDE=%%BASEINCLUDE%% >> resetenv.cmd
-  echo call "!VS%COMPILERVERSION%0COMNTOOLS!\..\..\vc\vcvarsall" amd64 >> resetenv.cmd
+  if exist "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\vcvarsall.bat" echo call "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\vcvarsall" amd64 >> resetenv.cmd
+  if exist "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\Auxiliary\Build\vcvarsall.bat" echo call "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\Auxiliary\Build\vcvarsall" amd64 >> resetenv.cmd
   call resetenv
-  cmake -DTS_VS_CONFIG=Release -G "Visual Studio %COMPILERVERSION% Win64" ..\..
+  cmake -DTS_VS_CONFIG=Release -DCMAKE_BUILD_TYPE=Release -G "Visual Studio %COMPILERVERSION% Win64" ..\..
   call :makefolderscripts --config Release
   popd
 

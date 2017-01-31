@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -69,7 +69,7 @@ public:
 	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
 	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
 
-	virtual ~IHttpResponse(void) {}
+		virtual ~IHttpResponse(void) {}
 
 	virtual const tscrypto::tsCryptoString &Errors()const = 0;
 	virtual void ClearErrors() = 0;

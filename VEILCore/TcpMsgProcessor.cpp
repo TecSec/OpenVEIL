@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -34,177 +34,178 @@
 using namespace tscrypto;
 
 static SSL_CIPHER gCkmAuthAlgs[] = {
-	_SSL_CIPHER::TLS_CKMAUTH_WITH_AES_256_GCM_SHA384,
-	_SSL_CIPHER::TLS_CKMAUTH_WITH_AES_128_GCM_SHA256,
-	_SSL_CIPHER::TLS_CKMAUTH_WITH_AES_256_CCM_SHA384,
-	_SSL_CIPHER::TLS_CKMAUTH_WITH_AES_128_CCM_SHA256,
-	_SSL_CIPHER::TLS_CKMAUTH_WITH_AES_256_CCM_8_SHA384,
-	_SSL_CIPHER::TLS_CKMAUTH_WITH_AES_128_CCM_8_SHA256,
-	_SSL_CIPHER::TLS_CKMAUTH_WITH_AES_256_CBC_SHA384,
-	_SSL_CIPHER::TLS_CKMAUTH_WITH_AES_128_CBC_SHA256,
+	TLS_CKMAUTH_WITH_AES_256_GCM_SHA384,
+	TLS_CKMAUTH_WITH_AES_128_GCM_SHA256,
+	TLS_CKMAUTH_WITH_AES_256_CCM_SHA384,
+	TLS_CKMAUTH_WITH_AES_128_CCM_SHA256,
+	TLS_CKMAUTH_WITH_AES_256_CCM_8_SHA384,
+	TLS_CKMAUTH_WITH_AES_128_CCM_8_SHA256,
+	TLS_CKMAUTH_WITH_AES_256_CBC_SHA384,
+	TLS_CKMAUTH_WITH_AES_128_CBC_SHA256,
 
-	//_SSL_CIPHER::TLS_CKMAUTH_WITH_ARIA_256_GCM_SHA384,
-	//_SSL_CIPHER::TLS_CKMAUTH_WITH_ARIA_128_GCM_SHA256,
-	//_SSL_CIPHER::TLS_CKMAUTH_WITH_ARIA_256_CCM_SHA384,
-	//_SSL_CIPHER::TLS_CKMAUTH_WITH_ARIA_128_CCM_SHA256,
-	//_SSL_CIPHER::TLS_CKMAUTH_WITH_ARIA_256_CCM_8_SHA384,
-	//_SSL_CIPHER::TLS_CKMAUTH_WITH_ARIA_128_CCM_8_SHA256,
-	//_SSL_CIPHER::TLS_CKMAUTH_WITH_ARIA_256_CBC_SHA384,
-	//_SSL_CIPHER::TLS_CKMAUTH_WITH_ARIA_128_CBC_SHA256,
+	//TLS_CKMAUTH_WITH_ARIA_256_GCM_SHA384,
+	//TLS_CKMAUTH_WITH_ARIA_128_GCM_SHA256,
+	//TLS_CKMAUTH_WITH_ARIA_256_CCM_SHA384,
+	//TLS_CKMAUTH_WITH_ARIA_128_CCM_SHA256,
+	//TLS_CKMAUTH_WITH_ARIA_256_CCM_8_SHA384,
+	//TLS_CKMAUTH_WITH_ARIA_128_CCM_8_SHA256,
+	//TLS_CKMAUTH_WITH_ARIA_256_CBC_SHA384,
+	//TLS_CKMAUTH_WITH_ARIA_128_CBC_SHA256,
 
-	//_SSL_CIPHER::TLS_CKMAUTH_WITH_CAMELLIA_256_GCM_SHA384,
-	//_SSL_CIPHER::TLS_CKMAUTH_WITH_CAMELLIA_128_GCM_SHA256,
-	//_SSL_CIPHER::TLS_CKMAUTH_WITH_CAMELLIA_256_CCM_SHA384,
-	//_SSL_CIPHER::TLS_CKMAUTH_WITH_CAMELLIA_128_CCM_SHA256,
-	//_SSL_CIPHER::TLS_CKMAUTH_WITH_CAMELLIA_256_CCM_8_SHA384,
-	//_SSL_CIPHER::TLS_CKMAUTH_WITH_CAMELLIA_128_CCM_8_SHA256,
-	//_SSL_CIPHER::TLS_CKMAUTH_WITH_CAMELLIA_256_CBC_SHA384,
-	//_SSL_CIPHER::TLS_CKMAUTH_WITH_CAMELLIA_128_CBC_SHA256,
+	//TLS_CKMAUTH_WITH_CAMELLIA_256_GCM_SHA384,
+	//TLS_CKMAUTH_WITH_CAMELLIA_128_GCM_SHA256,
+	//TLS_CKMAUTH_WITH_CAMELLIA_256_CCM_SHA384,
+	//TLS_CKMAUTH_WITH_CAMELLIA_128_CCM_SHA256,
+	//TLS_CKMAUTH_WITH_CAMELLIA_256_CCM_8_SHA384,
+	//TLS_CKMAUTH_WITH_CAMELLIA_128_CCM_8_SHA256,
+	//TLS_CKMAUTH_WITH_CAMELLIA_256_CBC_SHA384,
+	//TLS_CKMAUTH_WITH_CAMELLIA_128_CBC_SHA256,
 
-	//_SSL_CIPHER::TLS_CKMAUTH_WITH_SEED_128_GCM_SHA256,
-	//_SSL_CIPHER::TLS_CKMAUTH_WITH_SEED_128_CCM_SHA256,
-	//_SSL_CIPHER::TLS_CKMAUTH_WITH_SEED_128_CCM_8_SHA256,
-	//_SSL_CIPHER::TLS_CKMAUTH_WITH_SEED_128_CBC_SHA256,
+	//TLS_CKMAUTH_WITH_SEED_128_GCM_SHA256,
+	//TLS_CKMAUTH_WITH_SEED_128_CCM_SHA256,
+	//TLS_CKMAUTH_WITH_SEED_128_CCM_8_SHA256,
+	//TLS_CKMAUTH_WITH_SEED_128_CBC_SHA256,
 };
 
 static SSL_CIPHER gSupportedPkCiphers[] =
 {
-	_SSL_CIPHER::TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
-	_SSL_CIPHER::TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
-	_SSL_CIPHER::TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
-	_SSL_CIPHER::TLS_ECDHE_ECDSA_WITH_AES_128_CCM,
-	_SSL_CIPHER::TLS_ECDHE_ECDSA_WITH_AES_256_CCM,
-	_SSL_CIPHER::TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8,
-	_SSL_CIPHER::TLS_ECDHE_ECDSA_WITH_AES_256_CCM_8,
+	TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
+	TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+	TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+	TLS_ECDHE_ECDSA_WITH_AES_128_CCM,
+	TLS_ECDHE_ECDSA_WITH_AES_256_CCM,
+	TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8,
+	TLS_ECDHE_ECDSA_WITH_AES_256_CCM_8,
 
-	//_SSL_CIPHER::TLS_ECDHE_ECDSA_WITH_CAMELLIA_256_CBC_SHA384,
-	//_SSL_CIPHER::TLS_ECDHE_ECDSA_WITH_CAMELLIA_128_CBC_SHA256,
+	//TLS_ECDHE_ECDSA_WITH_CAMELLIA_256_CBC_SHA384,
+	//TLS_ECDHE_ECDSA_WITH_CAMELLIA_128_CBC_SHA256,
 
-	_SSL_CIPHER::TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384,
-	_SSL_CIPHER::TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,
+	TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384,
+	TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,
 
-	_SSL_CIPHER::TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
-	_SSL_CIPHER::TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
-	_SSL_CIPHER::TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-	_SSL_CIPHER::TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384,
-	_SSL_CIPHER::TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,
+	TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
+	TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+	TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+	TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384,
+	TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,
 
-	//_SSL_CIPHER::TLS_ECDHE_RSA_WITH_CAMELLIA_256_CBC_SHA384,
-	//_SSL_CIPHER::TLS_ECDHE_RSA_WITH_CAMELLIA_128_CBC_SHA256,
+	//TLS_ECDHE_RSA_WITH_CAMELLIA_256_CBC_SHA384,
+	//TLS_ECDHE_RSA_WITH_CAMELLIA_128_CBC_SHA256,
 
-	_SSL_CIPHER::TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
-	_SSL_CIPHER::TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,
-	_SSL_CIPHER::TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
-	_SSL_CIPHER::TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
+	TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
+	TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,
+	TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+	TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
 
-	_SSL_CIPHER::TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384,
-	_SSL_CIPHER::TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256,
-	_SSL_CIPHER::TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384,
-	_SSL_CIPHER::TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256,
+	TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384,
+	TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256,
+	TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384,
+	TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256,
 
-	//_SSL_CIPHER::TLS_ECDH_ECDSA_WITH_CAMELLIA_256_CBC_SHA384,
-	//_SSL_CIPHER::TLS_ECDH_ECDSA_WITH_CAMELLIA_128_CBC_SHA256,
+	//TLS_ECDH_ECDSA_WITH_CAMELLIA_256_CBC_SHA384,
+	//TLS_ECDH_ECDSA_WITH_CAMELLIA_128_CBC_SHA256,
 
-	_SSL_CIPHER::TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384,
-	_SSL_CIPHER::TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256,
+	TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384,
+	TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256,
 
-	//_SSL_CIPHER::TLS_ECDH_RSA_WITH_CAMELLIA_256_CBC_SHA384,
-	//_SSL_CIPHER::TLS_ECDH_RSA_WITH_CAMELLIA_128_CBC_SHA256,
+	//TLS_ECDH_RSA_WITH_CAMELLIA_256_CBC_SHA384,
+	//TLS_ECDH_RSA_WITH_CAMELLIA_128_CBC_SHA256,
 
-	_SSL_CIPHER::TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384,
-	_SSL_CIPHER::TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256,
-	_SSL_CIPHER::TLS_ECDH_RSA_WITH_AES_256_CBC_SHA,
-	_SSL_CIPHER::TLS_ECDH_RSA_WITH_AES_128_CBC_SHA,
+	TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384,
+	TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256,
+	TLS_ECDH_RSA_WITH_AES_256_CBC_SHA,
+	TLS_ECDH_RSA_WITH_AES_128_CBC_SHA,
 
-	_SSL_CIPHER::TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA,
-	_SSL_CIPHER::TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA,
+	TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA,
+	TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA,
 
-	_SSL_CIPHER::TLS_RSA_WITH_AES_256_GCM_SHA384,
-	_SSL_CIPHER::TLS_RSA_WITH_AES_128_GCM_SHA256,
-	_SSL_CIPHER::TLS_RSA_WITH_AES_128_CCM,
-	_SSL_CIPHER::TLS_RSA_WITH_AES_256_CCM,
-	_SSL_CIPHER::TLS_RSA_WITH_AES_128_CCM_8,
-	_SSL_CIPHER::TLS_RSA_WITH_AES_256_CCM_8,
+	TLS_RSA_WITH_AES_256_GCM_SHA384,
+	TLS_RSA_WITH_AES_128_GCM_SHA256,
+	TLS_RSA_WITH_AES_128_CCM,
+	TLS_RSA_WITH_AES_256_CCM,
+	TLS_RSA_WITH_AES_128_CCM_8,
+	TLS_RSA_WITH_AES_256_CCM_8,
 
-	_SSL_CIPHER::TLS_RSA_WITH_AES_256_CBC_SHA256,
-	_SSL_CIPHER::TLS_RSA_WITH_AES_128_CBC_SHA256,
+	TLS_RSA_WITH_AES_256_CBC_SHA256,
+	TLS_RSA_WITH_AES_128_CBC_SHA256,
 
-	//_SSL_CIPHER::TLS_RSA_WITH_CAMELLIA_256_CBC_SHA256         ,
-	//_SSL_CIPHER::TLS_RSA_WITH_CAMELLIA_128_CBC_SHA256         ,
+	//TLS_RSA_WITH_CAMELLIA_256_CBC_SHA256         ,
+	//TLS_RSA_WITH_CAMELLIA_128_CBC_SHA256         ,
 
-	_SSL_CIPHER::TLS_RSA_WITH_AES_256_CBC_SHA,
-	_SSL_CIPHER::TLS_RSA_WITH_AES_128_CBC_SHA,
+	TLS_RSA_WITH_AES_256_CBC_SHA,
+	TLS_RSA_WITH_AES_128_CBC_SHA,
 
-	//_SSL_CIPHER::TLS_RSA_WITH_CAMELLIA_256_CBC_SHA,
-	//_SSL_CIPHER::TLS_RSA_WITH_CAMELLIA_128_CBC_SHA,
+	//TLS_RSA_WITH_CAMELLIA_256_CBC_SHA,
+	//TLS_RSA_WITH_CAMELLIA_128_CBC_SHA,
 
-	//_SSL_CIPHER::TLS_RSA_WITH_SEED_CBC_SHA,
-
-
-	_SSL_CIPHER::TLS_DHE_RSA_WITH_AES_256_GCM_SHA384          ,
-	_SSL_CIPHER::TLS_DHE_RSA_WITH_AES_128_GCM_SHA256          ,
-	_SSL_CIPHER::TLS_DHE_RSA_WITH_AES_256_CBC_SHA256          ,
-	_SSL_CIPHER::TLS_DHE_RSA_WITH_AES_128_CBC_SHA256          ,
-
-	//_SSL_CIPHER::TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA256,
-	//_SSL_CIPHER::TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA256,
-
-	//_SSL_CIPHER::TLS_DHE_RSA_WITH_CAMELLIA_256_GCM_SHA384,
-	//_SSL_CIPHER::TLS_DHE_RSA_WITH_CAMELLIA_128_GCM_SHA256,
-
-	_SSL_CIPHER::TLS_DHE_RSA_WITH_AES_256_CBC_SHA,
-	_SSL_CIPHER::TLS_DHE_RSA_WITH_AES_128_CBC_SHA,
-	//_SSL_CIPHER::TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA        ,
-	//_SSL_CIPHER::TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA        ,
-	//_SSL_CIPHER::TLS_DHE_RSA_WITH_SEED_CBC_SHA                ,
+	//TLS_RSA_WITH_SEED_CBC_SHA,
 
 
-	_SSL_CIPHER::TLS_DH_RSA_WITH_AES_256_GCM_SHA384           ,
-	_SSL_CIPHER::TLS_DH_RSA_WITH_AES_128_GCM_SHA256           ,
+	TLS_DHE_RSA_WITH_AES_256_GCM_SHA384          ,
+	TLS_DHE_RSA_WITH_AES_128_GCM_SHA256          ,
+	TLS_DHE_RSA_WITH_AES_256_CBC_SHA256          ,
+	TLS_DHE_RSA_WITH_AES_128_CBC_SHA256          ,
 
-	_SSL_CIPHER::TLS_DHE_RSA_WITH_AES_256_CCM,
-	_SSL_CIPHER::TLS_DHE_RSA_WITH_AES_128_CCM,
-	_SSL_CIPHER::TLS_DHE_RSA_WITH_AES_256_CCM_8,
-	_SSL_CIPHER::TLS_DHE_RSA_WITH_AES_128_CCM_8,
+	//TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA256,
+	//TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA256,
 
-	_SSL_CIPHER::TLS_DH_RSA_WITH_AES_256_CBC_SHA256           ,
-	_SSL_CIPHER::TLS_DH_RSA_WITH_AES_128_CBC_SHA256           ,
-	_SSL_CIPHER::TLS_DH_RSA_WITH_AES_256_CBC_SHA              ,
-	_SSL_CIPHER::TLS_DH_RSA_WITH_AES_128_CBC_SHA              ,
+	//TLS_DHE_RSA_WITH_CAMELLIA_256_GCM_SHA384,
+	//TLS_DHE_RSA_WITH_CAMELLIA_128_GCM_SHA256,
 
-	//_SSL_CIPHER::TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA256,
-	//_SSL_CIPHER::TLS_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA256,
-	//_SSL_CIPHER::TLS_DH_RSA_WITH_CAMELLIA_256_CBC_SHA         ,
-	//_SSL_CIPHER::TLS_DH_RSA_WITH_CAMELLIA_128_CBC_SHA         ,
+	TLS_DHE_RSA_WITH_AES_256_CBC_SHA,
+	TLS_DHE_RSA_WITH_AES_128_CBC_SHA,
+	//TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA        ,
+	//TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA        ,
+	//TLS_DHE_RSA_WITH_SEED_CBC_SHA                ,
 
-	//_SSL_CIPHER::TLS_DH_RSA_WITH_SEED_CBC_SHA                 ,
 
-	_SSL_CIPHER::TLS_DHE_DSS_WITH_AES_256_GCM_SHA384,
-	_SSL_CIPHER::TLS_DHE_DSS_WITH_AES_128_GCM_SHA256,
-	_SSL_CIPHER::TLS_DHE_DSS_WITH_AES_256_CBC_SHA256,
-	_SSL_CIPHER::TLS_DHE_DSS_WITH_AES_128_CBC_SHA256,
-	_SSL_CIPHER::TLS_DHE_DSS_WITH_AES_256_CBC_SHA,
-	_SSL_CIPHER::TLS_DHE_DSS_WITH_AES_128_CBC_SHA,
+	TLS_DH_RSA_WITH_AES_256_GCM_SHA384           ,
+	TLS_DH_RSA_WITH_AES_128_GCM_SHA256           ,
 
-	//_SSL_CIPHER::TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA,
-	//_SSL_CIPHER::TLS_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA,
+	TLS_DHE_RSA_WITH_AES_256_CCM,
+	TLS_DHE_RSA_WITH_AES_128_CCM,
+	TLS_DHE_RSA_WITH_AES_256_CCM_8,
+	TLS_DHE_RSA_WITH_AES_128_CCM_8,
 
-	//_SSL_CIPHER::TLS_DHE_DSS_WITH_SEED_CBC_SHA,
+	TLS_DH_RSA_WITH_AES_256_CBC_SHA256           ,
+	TLS_DH_RSA_WITH_AES_128_CBC_SHA256           ,
+	TLS_DH_RSA_WITH_AES_256_CBC_SHA              ,
+	TLS_DH_RSA_WITH_AES_128_CBC_SHA              ,
 
-	_SSL_CIPHER::TLS_DH_DSS_WITH_AES_256_GCM_SHA384           ,
-	_SSL_CIPHER::TLS_DH_DSS_WITH_AES_128_GCM_SHA256           ,
-	_SSL_CIPHER::TLS_DH_DSS_WITH_AES_256_CBC_SHA256           ,
-	_SSL_CIPHER::TLS_DH_DSS_WITH_AES_128_CBC_SHA256           ,
-	_SSL_CIPHER::TLS_DH_DSS_WITH_AES_256_CBC_SHA              ,
-	_SSL_CIPHER::TLS_DH_DSS_WITH_AES_128_CBC_SHA              ,
+	//TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA256,
+	//TLS_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA256,
+	//TLS_DH_RSA_WITH_CAMELLIA_256_CBC_SHA         ,
+	//TLS_DH_RSA_WITH_CAMELLIA_128_CBC_SHA         ,
 
-	//_SSL_CIPHER::TLS_DH_DSS_WITH_CAMELLIA_256_CBC_SHA         ,
-	//_SSL_CIPHER::TLS_DH_DSS_WITH_CAMELLIA_128_CBC_SHA         ,
+	//TLS_DH_RSA_WITH_SEED_CBC_SHA                 ,
+
+	TLS_DHE_DSS_WITH_AES_256_GCM_SHA384,
+	TLS_DHE_DSS_WITH_AES_128_GCM_SHA256,
+	TLS_DHE_DSS_WITH_AES_256_CBC_SHA256,
+	TLS_DHE_DSS_WITH_AES_128_CBC_SHA256,
+	TLS_DHE_DSS_WITH_AES_256_CBC_SHA,
+	TLS_DHE_DSS_WITH_AES_128_CBC_SHA,
+
+	//TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA,
+	//TLS_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA,
+
+	//TLS_DHE_DSS_WITH_SEED_CBC_SHA,
+
+	TLS_DH_DSS_WITH_AES_256_GCM_SHA384           ,
+	TLS_DH_DSS_WITH_AES_128_GCM_SHA256           ,
+	TLS_DH_DSS_WITH_AES_256_CBC_SHA256           ,
+	TLS_DH_DSS_WITH_AES_128_CBC_SHA256           ,
+	TLS_DH_DSS_WITH_AES_256_CBC_SHA              ,
+	TLS_DH_DSS_WITH_AES_128_CBC_SHA              ,
+
+	//TLS_DH_DSS_WITH_CAMELLIA_256_CBC_SHA         ,
+	//TLS_DH_DSS_WITH_CAMELLIA_128_CBC_SHA         ,
 	//
-	//_SSL_CIPHER::TLS_DH_DSS_WITH_SEED_CBC_SHA                 ,
+	//TLS_DH_DSS_WITH_SEED_CBC_SHA                 ,
 };
 
-class TcpMsgProcessor : public IMessageProcessorControl, public IHttpChannelProcessor, public authenticationInitiatorTunnelKeyHandler, public authenticationControlDataCommunications, public tsmod::IObject
+class TcpMsgProcessor : public IMessageProcessorControl, public IHttpChannelProcessor, public authenticationInitiatorTunnelKeyHandler, 
+	public authenticationControlDataCommunications, public tsmod::IObject, public IChannelProcessorEvents
 {
 public:
 	virtual bool WrapMessage(tscrypto::tsCryptoString& verb, tscrypto::tsCryptoString& destination, tscrypto::tsCryptoData &body, tscrypto::tsCryptoString& mimeType, HttpAttributeList headers) override
@@ -428,92 +429,66 @@ public:
 
 	virtual bool WrapTransport(tscrypto::tsCryptoData& content) override
 	{
-		if (!!_httpsTunnel)
-		{
-			if (_state == _SSL_CONNECTION_STATE::ssl_conn_ProtocolClosed || _state == _SSL_CONNECTION_STATE::ssl_conn_ProtocolReset)
-				return false;
-			if (!_httpsTunnel->SendData(content))
-				return false;
-			content.clear();
-			return true;
-		}
+		//if (!!_httpsTunnel)
+		//{
+		//	if (_state == ssl_conn_ProtocolClosed || _state == ssl_conn_ProtocolReset)
+		//		return false;
+		//	if (!_httpsTunnel->SendData(content))
+		//		return false;
+		//	content.clear();
+		//	return true;
+		//}
 		if (!!_tunnel)
 		{
 			tscrypto::tsCryptoData src(content);
-			return _tunnel->SendData(src, content);
+			bool retVal = _tunnel->SendData(src);
+			content.clear();
+			return retVal;
 		}
 		return true;
 	}
 	virtual bool UnwrapTransport(tscrypto::tsCryptoData& content) override
 	{
-		if (!!_httpsTunnel)
-		{
-			if (_state == _SSL_CONNECTION_STATE::ssl_conn_ProtocolClosed || _state == _SSL_CONNECTION_STATE::ssl_conn_ProtocolReset)
-				return false;
+		//if (!!_httpsTunnel)
+		//{
+		//	if (_state == ssl_conn_ProtocolClosed || _state == ssl_conn_ProtocolReset)
+		//		return false;
 
-			return _httpsTunnel->ProcessCommsData(content);
-		}
+		//	return _httpsTunnel->ProcessCommsData(content);
+		//}
 		if (!!_tunnel)
 		{
 			tscrypto::tsCryptoData src(content);
-			return _tunnel->ReceiveData(src, content);
+			bool retVal = _tunnel->ReceiveData(src);
+			content = _receivedData;
+			_receivedData.clear();
+			return retVal;
 		}
 		return true;
 	}
 	virtual bool Logout() override
 	{
 		_serverPin.clear();
-		if (!!_httpsTunnel)
-		{
-			_httpsTunnel->Logout();
-			_sessionId.clear();
-			_sessionKey.clear();
-			_AEAD.reset();
-			_symm.reset();
-			_hasher.reset();
-			return _httpsTunnel->Close();
-		}
+		_sessionId.clear();
+		_sessionKey.clear();
+		_AEAD.reset();
+		_symm.reset();
+		_hasher.reset();
+	//	if (!!_httpsTunnel)
+	//	{
+	//		_httpsTunnel->Logout();
+	//		return _httpsTunnel->StopTunnel();
+	//	}
 		if (!!_tunnel)
 			return _tunnel->Logout();
 		return false;
 	}
 	virtual TransportState GetTransportState() override
 	{
-		if (!!_httpsTunnel)
-		{
-			switch (_state)
-			{
-			case _SSL_CONNECTION_STATE::ssl_conn_Hello_Request:
-			case _SSL_CONNECTION_STATE::ssl_conn_Logout:
-				return logout;
-			case _SSL_CONNECTION_STATE::ssl_conn_Client_Hello:
-			case _SSL_CONNECTION_STATE::ssl_conn_Server_Hello:
-			case _SSL_CONNECTION_STATE::ssl_conn_Server_Certificate:
-			case _SSL_CONNECTION_STATE::ssl_conn_Server_Key_Exchange:
-			case _SSL_CONNECTION_STATE::ssl_conn_Server_Hello_Done:
-			case _SSL_CONNECTION_STATE::ssl_conn_Client_Certificate_Request:
-			case _SSL_CONNECTION_STATE::ssl_conn_Client_Key_Exchange:
-			case _SSL_CONNECTION_STATE::ssl_conn_Client_Certificate:
-			case _SSL_CONNECTION_STATE::ssl_conn_Client_Certificate_Verify:
-			case _SSL_CONNECTION_STATE::ssl_conn_Client_Send_Change_Cipher_Spec:
-			case _SSL_CONNECTION_STATE::ssl_conn_Client_Finished:
-			case _SSL_CONNECTION_STATE::ssl_conn_Server_Send_Change_Cipher_Spec:
-			case _SSL_CONNECTION_STATE::ssl_conn_Server_Finished:
-				return login;
-			case _SSL_CONNECTION_STATE::ssl_conn_Active:
-				return active;
-			case _SSL_CONNECTION_STATE::ssl_conn_ProtocolReset:
-			case _SSL_CONNECTION_STATE::ssl_conn_ProtocolClosed:
-			default:
-				return inactive;
-			}
-		}
 		return _transportState;
 	}
 	virtual bool isAuthenticated() const override
 	{
-		if ((!!_httpsTunnel && _httpsTunnel->isValid()))
-			return true;
 		return (!!_tunnel && _tunnel->TunnelActive()) || _sessionKey.size() > 0;
 	}
 
@@ -532,8 +507,11 @@ public:
 		_AEAD.reset();
 		_symm.reset();
 		_hasher.reset();
-		if (!!_httpsTunnel)
-			_httpsTunnel->Reset();
+		_closeAfterTransmit = false;
+		if (!!_tunnel)
+			_tunnel->Logout();
+		//if (!!_httpsTunnel)
+		//	_httpsTunnel->ResetTunnel();
 		_transportState = IHttpChannelProcessor::inactive;
 	}
 	virtual void start(const tscrypto::tsCryptoData& sessionId, const tscrypto::tsCryptoData& sessionKey) override
@@ -550,16 +528,28 @@ public:
 		_username = username;
 		_serverPin = password;
 
+		_transportState = IHttpChannelProcessor::login;
+
 		if (TsStriCmp(scheme, "https") == 0)
 		{
-			if (!(_httpsTunnel = CryptoLocator()->get_instance<ISslHandshake_Client>("PROTOCOL_SSL_CLIENT")))
+			if (!(_tunnel = CryptoLocator()->get_instance<IClientTunnel>("PROTOCOL_SSL_CLIENT")))
 				return false;
-			_httpsTunnel->useCompression(false);
-			_httpsTunnel->RegisterCommsDataSendCallback([this](const tscrypto::tsCryptoData& data)->bool { return sendControlData(data); });
-			_httpsTunnel->RegisterStateChangeCallback([this](SSL_CONNECTION_STATE state) { stateChanged(state); });
-			_httpsTunnel->RegisterCertificateVerifier([this](const tscrypto::tsCryptoDataList& certificate, SSL_CIPHER cipher) { return CertificateVerifier(certificate, cipher); });
+		}
+		else if (TsStriCmp(scheme, "httpv") == 0)
+		{
+			if (!(_tunnel = std::dynamic_pointer_cast<IClientTunnel>(CryptoFactory("TUNNEL-INITIATOR"))))
+				return false;
+		}
+		else
+			return false;
+
+		_httpsTunnelSupport = std::dynamic_pointer_cast<ISslHandshake_Client>(_tunnel);
+
+		if (!!_httpsTunnelSupport)
+		{
+			_httpsTunnelSupport->RegisterCertificateVerifier([this](const tscrypto::tsCryptoDataList& certificate, SSL_CIPHER cipher) { return CertificateVerifier(certificate, cipher); });
 			if (_ciphers.size() > 0)
-				_httpsTunnel->setCiphersSupported(_ciphers.data(), _ciphers.size());
+				_httpsTunnelSupport->setCiphersSupported(_ciphers.data(), _ciphers.size());
 			else
 			{
 				std::vector<SSL_CIPHER> ciphers;
@@ -580,28 +570,26 @@ public:
 						ciphers.push_back(cipher);
 					}
 				}
-				_httpsTunnel->setCiphersSupported(ciphers.data(), ciphers.size());
+				_httpsTunnelSupport->setCiphersSupported(ciphers.data(), ciphers.size());
 			}
 			if (!!_pskCallback)
-				_httpsTunnel->RegisterClientPSK(_pskCallback);
-			_httpsTunnel->RegisterPasswordCallback([this](tscrypto::tsCryptoData& password) { password = _serverPin; return true; });
-			_httpsTunnel->setCkmAuthUsername(_username);
-			_httpsTunnel->RegisterMessageKeyCallback([this](const tscrypto::tsCryptoData& key, const tscrypto::_POD_AlgorithmIdentifier& encAlg, const tscrypto::_POD_AlgorithmIdentifier& macAlg) { return messageKeyCallback(key, encAlg, macAlg); });
-			if (!_httpsTunnel->Connect())
-				return false;
-			return true;
+				_httpsTunnelSupport->RegisterClientPSK(_pskCallback);
+			_httpsTunnelSupport->RegisterPasswordCallback([this](tscrypto::tsCryptoData& password) { password = _serverPin; return true; });
 		}
-		else if (TsStriCmp(scheme, "httpv") == 0)
-		{
-			_transportState = IHttpChannelProcessor::login;
-			if (!(_tunnel = std::dynamic_pointer_cast<CkmAuthenticationTunnelInitiator>(CryptoFactory("TUNNEL-INITIATOR"))))
-				return false;
-			if (!_tunnel->StartTunnel(username.c_str(), this, this))
-				return false;
-			return true;
-		}
-		else
+
+		_tunnel->useCompression(false);
+
+		_tunnel->SetOnPacketRecievedCallback([this](uint8_t packetType, const uint8_t* data, uint32_t dataLen) {
+			_onPacketReceived.Fire(this, packetType, data, dataLen);
+		});
+		_tunnel->SetOnPacketSentCallback([this](uint8_t packetType, const uint8_t* data, uint32_t dataLen) {
+			_onPacketSent.Fire(this, packetType, data, dataLen);
+		});
+
+		if (!_tunnel->StartTunnel(username.c_str(), this, this))
 			return false;
+			
+		return true;
 	}
 
 	// authenticationInitiatorTunnelKeyHandler
@@ -629,7 +617,7 @@ public:
 			return _channel->RawSend(dest);
 		return false;
 	}
-	virtual void stateChanged(bool isActive) override
+	virtual void stateChanged(bool isActive, uint32_t currentState) override
 	{
 		if (isActive)
 		{
@@ -680,6 +668,7 @@ public:
 
 
 			}
+			_loginSignals.Fire(this);
 		}
 		else
 		{
@@ -688,15 +677,51 @@ public:
 			_hasher.reset();
 			_MAC.reset();
 
-			_transportState = IHttpChannelProcessor::logout;
+			if (!!_httpsTunnelSupport)
+			{
+				switch ((SSL_CONNECTION_STATE)currentState)
+				{
+				case ssl_conn_Hello_Request:
+				case ssl_conn_Logout:
+					_transportState = IHttpChannelProcessor::logout;
+					break;
+				case ssl_conn_Client_Hello:
+				case ssl_conn_Server_Hello:
+				case ssl_conn_Server_Certificate:
+				case ssl_conn_Server_Key_Exchange:
+				case ssl_conn_Server_Hello_Done:
+				case ssl_conn_Client_Certificate_Request:
+				case ssl_conn_Client_Key_Exchange:
+				case ssl_conn_Client_Certificate:
+				case ssl_conn_Client_Certificate_Verify:
+				case ssl_conn_Client_Send_Change_Cipher_Spec:
+				case ssl_conn_Client_Finished:
+				case ssl_conn_Server_Send_Change_Cipher_Spec:
+				case ssl_conn_Server_Finished:
+					_transportState = IHttpChannelProcessor::login;
+					break;
+				case ssl_conn_Active:
+					_transportState = IHttpChannelProcessor::active;
+					break;
+				case ssl_conn_ProtocolReset:
+				case ssl_conn_ProtocolClosed:
+				default:
+					_transportState = IHttpChannelProcessor::inactive;
+					break;
+				}
+			}
+			else 
+				_transportState = IHttpChannelProcessor::logout;
 			_sessionId.clear();
 			_sessionKey.clear();
 		}
+		_stateChangeSignals.Fire(this, currentState);
 	}
 	virtual void failed(const char *message) override
 	{
 		//LOG(gHttpLog, "CHANNEL ERROR:  " << message);
 		_failureReason = message;
+		_failureSignals.Fire(this, message);
 	}
 	virtual void loggedOut() override
 	{
@@ -705,13 +730,77 @@ public:
 		_sessionKey.clear();
 		_sessionId.clear();
 		_sequenceNumber = 0;
+		_logoutSignals.Fire(this);
 	}
 	virtual tscrypto::tsCryptoString failureReason() const override
 	{
 		return _failureReason;
 	}
+	virtual void setCloseAfterTransmit() override
+	{
+		_closeAfterTransmit = true;
+	}
+	virtual bool shouldCloseAfterTransmit() override
+	{
+		return _closeAfterTransmit;
+	}
+	virtual bool sendReceivedData(const tscrypto::tsCryptoData& dest) override
+	{
+		_receivedData << dest;
+		return true;
+	}
 
-	TcpMsgProcessor() : _sequenceNumber(0), _transportState(IHttpChannelProcessor::inactive) {}
+	// Inherited via IChannelProcessorEvents
+	virtual size_t AddOnLogin(std::function<void(const tsmod::IObject*)> func) override
+	{
+		return _loginSignals.Add(func);
+	}
+	virtual void RemoveOnLogin(size_t cookie) override
+	{
+		_loginSignals.Remove(cookie);
+	}
+	virtual size_t AddOnLogout(std::function<void(const tsmod::IObject*)> func) override
+	{
+		return _logoutSignals.Add(func);
+	}
+	virtual void RemoveOnLogout(size_t cookie) override
+	{
+		_logoutSignals.Remove(cookie);
+	}
+	virtual size_t AddOnStateChanged(std::function<void(const tsmod::IObject*, uint32_t )> func) override
+	{
+		return _stateChangeSignals.Add(func);
+	}
+	virtual void RemoveOnStateChanged(size_t cookie) override
+	{
+		_stateChangeSignals.Remove(cookie);
+	}
+	virtual size_t AddOnFailure(std::function<void(const tsmod::IObject*, const tscrypto::tsCryptoStringBase&)> func) override
+	{
+		return _failureSignals.Add(func);
+	}
+	virtual void RemoveOnFailure(size_t cookie) override
+	{
+		_failureSignals.Remove(cookie);
+	}
+	virtual size_t AddOnPacketReceived(std::function<void(const tsmod::IObject*, uint8_t packetType, const uint8_t*data, uint32_t dataLen)> func) override
+	{
+		return _onPacketReceived.Add(func);
+	}
+	virtual void RemoveOnPacketReceived(size_t cookie) override
+	{
+		_onPacketReceived.Remove(cookie);
+	}
+	virtual size_t AddOnPacketSent(std::function<void(const tsmod::IObject*, uint8_t packetType, const uint8_t*data, uint32_t dataLen)> func) override
+	{
+		return _onPacketSent.Add(func);
+	}
+	virtual void RemoveOnPacketSent(size_t cookie) override
+	{
+		_onPacketSent.Remove(cookie);
+	}
+
+	TcpMsgProcessor() : _sequenceNumber(0), _transportState(IHttpChannelProcessor::inactive), _closeAfterTransmit(false) {}
 	~TcpMsgProcessor(){}
 protected:
 	SSL_AlertDescription CertificateVerifier(const tscrypto::tsCryptoDataList& certificate, SSL_CIPHER cipher)
@@ -723,73 +812,28 @@ protected:
 		// TODO:  Implement default cert verifier here
 
 
-		return _SSL_AlertDescription::sslalert_no_error;
-	}
-	virtual void stateChanged(SSL_CONNECTION_STATE state)
-	{
-		_state = state;
-		if (state == _SSL_CONNECTION_STATE::ssl_conn_ProtocolReset || state == _SSL_CONNECTION_STATE::ssl_conn_ProtocolClosed)
-		{
-			if (!!_channel)
-				_channel->setChannelProcessor(nullptr);
-			clear();
-			//if (!!_channel)
-			//	_channel->Disconnect();
-		}
-	}
-	bool messageKeyCallback(const tscrypto::tsCryptoData& key, const tscrypto::_POD_AlgorithmIdentifier& encAlg, const tscrypto::_POD_AlgorithmIdentifier& macAlg)
-	{
-		_sessionId = key.substring(32, key.size() - 32);
-		_sessionKey = key.substring(0, 32);
-
-		_AEAD.reset();
-		_symm.reset();
-		_hasher.reset();
-		_MAC.reset();
-
-		// Use the alg parameter to specify the encryption alg for the message data
-		if (encAlg.get_oid().size() > 0)
-		{
-			std::shared_ptr<tscrypto::ICryptoObject> obj = CryptoFactory(encAlg.get_oid().ToOIDString());
-			_AEAD = std::dynamic_pointer_cast<CCM_GCM>(obj);
-			_symm = std::dynamic_pointer_cast<Symmetric>(obj);
-			
-			if (!!_symm)
-			{
-				if (macAlg.get_oid().size() > 0)
-				{
-					obj.reset();
-					obj = CryptoFactory(macAlg.get_oid().ToOIDString());
-					_hasher = std::dynamic_pointer_cast<Hash>(obj);
-					_MAC = std::dynamic_pointer_cast<MessageAuthenticationCode>(obj);
-				}
-			}
-		}
-		else
-		{
-			_AEAD = std::dynamic_pointer_cast<CCM_GCM>(CryptoFactory("GCM-AES"));
-		}
-		return true;
+		return sslalert_no_error;
 	}
 protected:
 	tscrypto::tsCryptoData _msgIv2;
 	tscrypto::tsCryptoData _msgMac2;
 	tscrypto::tsCryptoData _msgKey;
 	tscrypto::tsCryptoData _sessionKey;
+	tscrypto::tsCryptoData _receivedData;
 	int _sequenceNumber;
 	tscrypto::tsCryptoData _sessionId;
 	tscrypto::tsCryptoString _username;
 	tscrypto::tsCryptoData _serverPin;
-	std::shared_ptr<CkmAuthenticationTunnelInitiator> _tunnel;
+	std::shared_ptr<IClientTunnel> _tunnel;
 	std::shared_ptr<ITcpChannel> _channel;
 	IHttpChannelProcessor::TransportState _transportState;
 	// SSL variables
-	std::shared_ptr<ISslHandshake_Client> _httpsTunnel;
-	SSL_CONNECTION_STATE _state;
+	std::shared_ptr<ISslHandshake_Client> _httpsTunnelSupport;
 	std::vector<SSL_CIPHER> _ciphers;
 	std::function<SSL_AlertDescription(const tscrypto::tsCryptoDataList& certificate, SSL_CIPHER cipher)> _CertVerifier;
 	std::function<bool(const tscrypto::tsCryptoData& hint, tscrypto::tsCryptoData& identity, tscrypto::tsCryptoData& psk)> _pskCallback;
 	tscrypto::tsCryptoString _ckmAuthUsername;
+	bool _closeAfterTransmit;
 
 	std::shared_ptr<CCM_GCM> _AEAD;
 	std::shared_ptr<Symmetric> _symm;
@@ -797,6 +841,13 @@ protected:
 	std::shared_ptr<MessageAuthenticationCode> _MAC;
 
 	tscrypto::tsCryptoString _failureReason;
+
+	tsIObjectSignal _loginSignals;
+	tsIObjectSignal _logoutSignals;
+	tsIObjectUint32Signal _stateChangeSignals;
+	tsIObjStringSignal _failureSignals;
+	tsIObjPacketSignal _onPacketReceived;
+	tsIObjPacketSignal _onPacketSent;
 };
 
 

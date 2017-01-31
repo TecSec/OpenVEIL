@@ -1,0 +1,1565 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+	Copyright (c) 2017, TecSec, Inc.
+
+	Redistribution and use in source and binary forms, with or without
+	modification, are permitted provided that the following conditions are met:
+	
+		* Redistributions of source code must retain the above copyright
+		  notice, this list of conditions and the following disclaimer.
+		* Redistributions in binary form must reproduce the above copyright
+		  notice, this list of conditions and the following disclaimer in the
+		  documentation and/or other materials provided with the distribution.
+		* Neither the name of TecSec nor the names of the contributors may be
+		  used to endorse or promote products derived from this software 
+		  without specific prior written permission.
+		 
+	ALTERNATIVELY, provided that this notice is retained in full, this product
+	may be distributed under the terms of the GNU General Public License (GPL),
+	in which case the provisions of the GPL apply INSTEAD OF those given above.
+		 
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+	DISCLAIMED.  IN NO EVENT SHALL TECSEC BE LIABLE FOR ANY 
+	DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+	(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+	LOSS OF USE, DATA OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+	ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+ Written by Roger Butler
+-->
+<Root xmlns="http://schemas.tecsec.com/xml2asn1codegen/2015">
+  <File Name="PKIX" ExportSymbol="VEILCORE_API" TemplateExternSymbol="VEILCORE_TEMPLATE_EXTERN" HeaderPrefix="core/" >
+
+    <Namespace Name="tscrypto">
+      <!-- Handle the explicit tagging here-->
+      <Sequence Name="_ExplicitIA5String">
+        <IA5String Name="value"/>
+      </Sequence>
+      <Sequence Name="_ExplicitINTEGER">
+        <Number Name="value"/>
+      </Sequence>
+      <Sequence Name="_ExplicitInt32">
+        <Int32 Name="value"/>
+      </Sequence>
+      <Sequence Name="_ExplicitGeneralizedTime">
+        <GeneralizedTime Name="value"/>
+      </Sequence>
+
+      <Sequence Name="Pkcs8RSAPrivateKey">
+        <Int32 Name="version"/>
+        <Number Name="modulus" Tag="Number" Type="Universal"/>
+        <Number Name="publicExponent" Tag="Number" Type="Universal"/>
+        <Number Name="privateExponent" Tag="Number" Type="Universal"/>
+        <Number Name="prime1" Tag="Number" Type="Universal"/>
+        <Number Name="prime2" Tag="Number" Type="Universal"/>
+        <Number Name="exponent1" Tag="Number" Type="Universal"/>
+        <Number Name="exponent2" Tag="Number" Type="Universal"/>
+        <Number Name="coefficient" Tag="Number" Type="Universal"/>
+      </Sequence>
+
+      <Sequence Name="RsaPublicKeyPart">
+        <Number Name="n" Tag="Number" Type="Universal"/>
+        <Number Name="exponent" Tag="Number" Type="Universal"/>
+      </Sequence>
+
+      <Sequence Name="DhParameter_gMiddle">
+        <OctetString Name="p"/>
+        <OctetString Name="g"/>
+        <OctetString Name="q"/>
+      </Sequence>
+      <Sequence Name="DhParameterSet">
+        <OctetString Name="p"/>
+        <OctetString Name="q"/>
+        <OctetString Name="g"/>
+      </Sequence>
+
+      <Namespace Name="PKIX">
+
+        <ID Name="id_pkix" Value="1.3.6.1.5.5.7"/>
+        <ID Name="id_pe" Value="1.3.6.1.5.5.7.1"/>
+        <ID Name="id_qt" Value="1.3.6.1.5.5.7.2"/>
+        <ID Name="id_kp" Value="1.3.6.1.5.5.7.3"/>
+        <ID Name="id_ad" Value="1.3.6.1.5.5.7.48"/>
+
+        <ID Name="id_ad_ocsp" Value="1.3.6.1.5.5.7.48.1"/>
+        <ID Name="id_ad_caIssuers" Value="1.3.6.1.5.5.7.48.2"/>
+        <ID Name="id_ad_timeStamping" Value="1.3.6.1.5.5.7.48.3"/>
+        <ID Name="id_ad_caRepository" Value="1.3.6.1.5.5.7.48.5"/>
+
+        <ID Name="id_at" Value="2.5.4"/>
+
+        <ID Name="id_at_name" Value="2.5.4.41"/>
+        <ID Name="id_at_surname" Value="2.5.4.4"/>
+        <ID Name="id_at_givenName" Value="2.5.4.42"/>
+        <ID Name="id_at_initials" Value="2.5.4.43"/>
+        <ID Name="id_at_generationQualifier" Value="2.5.4.44"/>
+        <ID Name="id_at_commonName" Value="2.5.4.3"/>
+        <ID Name="id_at_localityName" Value="2.5.4.7"/>
+        <ID Name="id_at_stateOrProvinceName" Value="2.5.4.8"/>
+        <ID Name="id_at_organizationName" Value="2.5.4.10"/>
+        <ID Name="id_at_organizationalUnitName" Value="2.5.4.11"/>
+        <ID Name="id_at_title" Value="2.5.4.12"/>
+        <ID Name="id_at_dnQualifier" Value="2.5.4.46"/>
+        <ID Name="id_at_countryName" Value="2.5.4.6"/>
+        <ID Name="id_at_serialNumber" Value="2.5.4.5"/>
+        <ID Name="id_at_pseudonym" Value="2.5.4.65"/>
+        <ID Name="id_domainComponent" Value="0.9.2342.19200300.100.1.25"/>
+        <ID Name="pkcs_9" Value="1.2.840.113549.1.9"/>
+        <ID Name="id_emailAddress" Value="1.2.840.113549.1.9.1"/>
+
+        <!--<Sequence Name="Extension" ElementType="ResponseExtension" OID="id_pkix" Final="false">
+          <Version Name="dummy" OID="id_pkix"/>
+          <Bool Name="critical" Default="false" Initializer="false"/>
+          <OctetString Name="extnValue"/>
+        </Sequence>-->
+
+
+        <!--DirectoryString{INTEGER:maxSize} ::= CHOICE {    EXPLICIT
+          teletexString    TeletexString(SIZE (1..maxSize)),
+          printableString  PrintableString(SIZE (1..maxSize)),
+          bmpString        BMPString(SIZE (1..maxSize)),
+          universalString  UniversalString(SIZE (1..maxSize)),
+          uTF8String       UTF8String(SIZE (1..maxSize))
+        }-->
+        <Choice Name="DirectoryString" Exported="true">
+          <T61String Name="teletexString"/>
+          <PrintableString Name="printableString"/>
+          <BMPString Name="bmpString"/>
+          <UniversalString Name="universalString"/>
+          <String Name="uTF8String"/>
+          <IA5String Name="iasString"/>
+        </Choice>
+        <Sequence Name="_ExplicitDirectoryString">
+          <Choice Name="value" ElementType="DirectoryString"/>
+        </Sequence>
+
+        <!--SupportedAttributes ATTRIBUTE ::= {
+        at-name | at-surname | at-givenName | at-initials | at-generationQualifier | at-x520CommonName |
+        at-x520LocalityName | at-x520StateOrProvinceName |
+        at-x520OrganizationName | at-x520OrganizationalUnitName |
+        at-x520Title | at-x520dnQualifier | at-x520countryName |
+        at-x520SerialNumber | at-x520Pseudonym | at-domainComponent |
+        at-emailAddress, ... 
+      }-->
+        <Sequence Name="RDNPart" Exported="true">
+          <Version Name="at_name" OID="id_at_name">
+            <Choice Name="value"/>
+          </Version>
+          <Version Name="at_surname" OID="id_at_surname">
+            <Choice Name="value"/>
+          </Version>
+          <Version Name="at_givenName" OID="id_at_givenName">
+            <Choice Name="value"/>
+          </Version>
+          <Version Name="at_initials" OID="id_at_initials">
+            <Choice Name="value"/>
+          </Version>
+          <Version Name="at_generationQualifier" OID="id_at_generationQualifier">
+            <Choice Name="value"/>
+          </Version>
+          <Version Name="at_commonName" OID="id_at_commonName">
+            <Choice Name="value"/>
+          </Version>
+          <Version Name="at_localityName" OID="id_at_localityName">
+            <Choice Name="value"/>
+          </Version>
+          <Version Name="at_stateOrProvinceName" OID="id_at_stateOrProvinceName">
+            <Choice Name="value"/>
+          </Version>
+          <Version Name="at_organizationName" OID="id_at_organizationName">
+            <Choice Name="value"/>
+          </Version>
+          <Version Name="at_organizationUnitName" OID="id_at_organizationalUnitName">
+            <Choice Name="value"/>
+          </Version>
+          <Version Name="at_title" OID="id_at_title">
+            <Choice Name="value"/>
+          </Version>
+          <Version Name="at_dnQualifier" OID="id_at_dnQualifier">
+            <Choice Name="value"/>
+          </Version>
+          <Version Name="at_countryName" OID="id_at_countryName">
+            <Choice Name="value"/>
+          </Version>
+          <Version Name="at_serialNumber" OID="id_at_serialNumber">
+            <Choice Name="value"/>
+          </Version>
+          <Version Name="at_pseudonym" OID="id_at_pseudonym">
+            <Choice Name="value"/>
+          </Version>
+          <Version Name="domainComponent" OID="id_domainComponent">
+            <Choice Name="value"/>
+          </Version>
+          <Version Name="emailAddress" OID="id_emailAddress">
+            <Choice Name="value"/>
+          </Version>
+          <Version Name="other" OID="*">
+            <Choice Name="value"/>
+          </Version>
+          <Choice Name="value" ElementType="DirectoryString"/>
+        </Sequence>
+
+        <!--RelativeDistinguishedName  ::=                           EXPLICIT
+        SET SIZE (1 .. MAX) OF SingleAttribute { {SupportedAttributes} }-->
+        <SequenceOf Name="RelativeDistinguishedName" Exported="true" Tag="Set">
+          <Sequence Name="rdPart" ElementType="RDNPart"/>
+        </SequenceOf>
+
+        <!--RDNSequence ::= SEQUENCE OF RelativeDistinguishedName    EXPLICIT-->
+        <SequenceOf Name="RDNSequence">
+          <SequenceOf Name="namePart" ElementType="RelativeDistinguishedName" />
+        </SequenceOf>
+        <!--Name ::= CHOICE { - only one possibility for now -    EXPLICIT
+        rdnSequence  RDNSequence }-->
+
+        <Choice Name="Name">
+          <SequenceOf Name="rdnSequence" ElementType="RDNSequence"/>
+          <Function Name="SetFromDN" ReturnType="void" Parameters="tsDistinguishedName&amp; dn">
+            <![CDATA[
+            clear();
+            set_selectedItem(_POD_Name::Choice_rdnSequence);
+            for (size_t i = 0; i < dn.partCount(); i++)
+            {
+              tsDnPart& part = dn.part(i);
+              _POD_RelativeDistinguishedName rdn;
+              _POD_RDNPart rdnpart;
+              rdnpart.set_OID(part.NameAsOID());
+              if (part.NameAsOID().ToOIDString() == id_emailAddress)
+              {
+				  rdnpart.get_value().set_selectedItem(_POD_DirectoryString::Choice_iasString);
+				  rdnpart.get_value().set_iasString(part.Value());
+              }
+              else
+              {
+				  rdnpart.get_value().set_selectedItem(_POD_DirectoryString::Choice_printableString);
+				  rdnpart.get_value().set_printableString(part.Value());
+              }
+              rdn.add(rdnpart);
+              get_rdnSequence().add(rdn);
+            }]]>
+          </Function>
+        </Choice>
+
+        <!--DistinguishedName ::=   RDNSequence                      EXPLICIT-->
+        <Alias Name="DistinguishedName" BaseType="RDNSequence"/>
+
+        <!--ORAddress ::= SEQUENCE {                             EXPLICIT
+          built-in-standard-attributes BuiltInStandardAttributes,
+          built-in-domain-defined-attributes
+          BuiltInDomainDefinedAttributes OPTIONAL,
+
+          - see also teletex-domain-defined-attributes
+          extension-attributes ExtensionAttributes OPTIONAL 
+        }-->
+
+
+        <!--EDIPartyName ::= SEQUENCE {                      IMPLICIT
+          nameAssigner    [0] DirectoryString {ubMax} OPTIONAL,
+          partyName       [1] DirectoryString {ubMax}
+        }-->
+        <Sequence Name="EDIPartyName" Exported="true">
+          <Sequence Name="nameAssigner" ElementType="_ExplicitDirectoryString" Tag="0" Type="Context" Optional="true"/>
+          <Sequence Name="partyName" ElementType="_ExplicitDirectoryString" Tag="1" Type="Context"/>
+        </Sequence>
+
+        <!--GeneralName ::= CHOICE {                             IMPLICIT
+          otherName                   [0]  INSTANCE OF OTHER-NAME,
+          rfc822Name                  [1]  IA5String,
+          dNSName                     [2]  IA5String,
+          x400Address                 [3]  ORAddress,
+          directoryName               [4]  Name,
+          ediPartyName                [5]  EDIPartyName,
+          uniformResourceIdentifier   [6]  IA5String,
+          iPAddress                   [7]  OCTET STRING,
+          registeredID                [8]  OBJECT IDENTIFIER
+        }
+        
+        AccessDescription  ::=  SEQUENCE {                  IMPLICIT
+          accessMethod          OBJECT IDENTIFIER,
+          accessLocation        GeneralName  
+        }-->
+        <Choice Name="GeneralName" Exported="true">
+          <!--<String Name="otherName" Tag="0" Type="Context"/>-->
+          <IA5String Name="rfc822Name" Tag="1" Type="Context"/>
+          <IA5String Name="dNSName" Tag="2" Type="Context"/>
+          <!--<Sequence Name="x400Address" Tag="3" Type="Context" ElementType="ORAddress"/>-->
+          <!--<Sequence Name="directoryName" Tag="4" Type="Context" ElementType="Name"/>-->
+          <Sequence Name="ediPartyName" Tag="5" Type="Context" ElementType="EDIPartyName"/>
+          <IA5String Name="uniformResourceIdentifier" Tag="6" Type="Context"/>
+          <OctetString Name="iPAddress" Tag="7" Type="Context"/>
+          <OID Name="registeredID" Tag="8" Type="Context"/>
+        </Choice>
+        <SequenceOf Name="GeneralNames" Exported="true">
+          <Choice Name="item" ElementType="GeneralName"/>
+        </SequenceOf>
+        <Sequence Name="AccessDescription" Exported="true">
+          <OID Name="accessMethod"/>
+          <Choice Name="accessLocation" ElementType="GeneralName"/>
+        </Sequence>
+        <Sequence Name="_ExplicitGeneralName" Exported="true">
+          <Choice Name="name" ElementType="GeneralName"/>
+        </Sequence>
+        <!--AuthorityInfoAccessSyntax  ::= SEQUENCE SIZE (1..MAX) OF AccessDescription-->
+      </Namespace>
+    </Namespace>
+  </File>
+  <File Name="PKIX_Cert" ExportSymbol="VEILCORE_API" TemplateExternSymbol="VEILCORE_TEMPLATE_EXTERN" HeaderPrefix="core/" >
+    <Import Name="CryptoAsn1.export"/>
+
+    <Include Name="PKIX.h"/>
+    <Namespace Name="tscrypto">
+      <Namespace Name="PKIX">
+        <Namespace Name="Cert">
+
+          <!--OID for CPS qualifier-->
+          <ID Name="id_qt_cps" Value="1.3.6.1.5.5.7.2.1"/>
+          <!--OID for user notice qualifier-->
+          <ID Name="id_qt_unotice" Value="1.3.6.1.5.5.7.2.2"/>
+          <ID Name="id_ce" Value="2.5.29"/>
+          <ID Name="id_ce_authorityKeyIdentifier" Value="2.5.29.35"/>
+          <ID Name="id_ce_subjectKeyIdentifier" Value="2.5.29.14"/>
+          <ID Name="id_ce_keyUsage" Value="2.5.29.15"/>
+          <ID Name="id_ce_privateKeyUsagePeriod" Value="2.5.29.16"/>
+          <ID Name="id_ce_certificatePolicies" Value="2.5.29.32"/>
+          <ID Name="id_ce_policyMappings" Value="2.5.29.33"/>
+          <ID Name="id_ce_subjectAltName" Value="2.5.29.17"/>
+          <ID Name="id_ce_issuerAltName" Value="2.5.29.18"/>
+          <ID Name="id_ce_subjectDirectoryAttributes" Value="2.5.29.9"/>
+          <ID Name="id_ce_basicConstraints" Value="2.5.29.19"/>
+          <ID Name="id_ce_nameConstraints" Value="2.5.29.30"/>
+          <ID Name="id_ce_policyConstraints" Value="2.5.29.36"/>
+          <ID Name="id_ce_cRLDistributionPoints" Value="2.5.29.31"/>
+          <ID Name="id_ce_extKeyUsage" Value="2.5.29.37"/>
+          <ID Name="id_ce_inhibitAnyPolicy" Value="2.5.29.54"/>
+          <ID Name="id_ce_freshestCRL" Value="2.5.29.46"/>
+          <ID Name="id_ce_cRLNumber" Value="2.5.29.20"/>
+          <ID Name="id_ce_issuingDistributionPoint" Value="2.5.29.28"/>
+          <ID Name="id_ce_deltaCRLIndicator" Value="2.5.29.27"/>
+          <ID Name="id_ce_cRLReasons" Value="2.5.29.21"/>
+          <ID Name="id_ce_certificateIssuer" Value="2.5.29.29"/>
+          <ID Name="id_ce_holdInstructionCode" Value="2.5.29.23"/>
+          <ID Name="id_ce_invalidityDate" Value="2.5.29.24"/>
+          <ID Name="id_kp_serverAuth" Value="1.3.6.1.5.5.7.3.1"/>
+          <ID Name="id_kp_clientAuth" Value="1.3.6.1.5.5.7.3.2"/>
+          <ID Name="id_kp_codeSigning" Value="1.3.6.1.5.5.7.3.3"/>
+          <ID Name="id_kp_emailProtection" Value="1.3.6.1.5.5.7.3.4"/>
+          <ID Name="id_kp_timeStamping" Value="1.3.6.1.5.5.7.3.8"/>
+          <ID Name="id_kp_OCSPSigning" Value="1.3.6.1.5.5.7.3.9"/>
+          <ID Name="id_pe_authorityInfoAccess" Value="1.3.6.1.5.5.7.1.1"/>
+          <ID Name="id_pe_subjectInfoAccess" Value="1.3.6.1.5.5.7.1.11"/>
+          <ID Name="holdInstruction" Value="2.2.840.10040.2"/>
+          <!--deprecated-->
+          <ID Name="id_holdinstruction_none" Value="2.2.840.10040.2.1"/>
+          <ID Name="id_holdinstruction_callissuer" Value="2.2.840.10040.2.2}"/>
+          <ID Name="id_holdinstruction_reject" Value="2.2.840.10040.2.3}"/>
+          <ID Name="anyExtendedKeyUsage" Value="2.5.29.37.0"/>
+
+          <!--
+           ext-AuthorityKeyIdentifier EXTENSION ::= { SYNTAX
+               AuthorityKeyIdentifier IDENTIFIED BY
+               id-ce-authorityKeyIdentifier }
+
+           AuthorityKeyIdentifier ::= SEQUENCE {        IMPLICIT
+               keyIdentifier             [0] KeyIdentifier            OPTIONAL,
+               authorityCertIssuer       [1] GeneralNames             OPTIONAL,
+               authorityCertSerialNumber [2] CertificateSerialNumber  OPTIONAL }
+           (WITH COMPONENTS {
+              ...,
+              authorityCertIssuer        PRESENT,
+              authorityCertSerialNumber  PRESENT
+            } |
+            WITH COMPONENTS {
+              ...,
+              authorityCertIssuer        ABSENT,
+              authorityCertSerialNumber  ABSENT
+            })
+
+           KeyIdentifier ::= OCTET STRING
+          -->
+          <Sequence Name="AuthorityKeyIdentifier">
+            <OctetString Name="keyIdentifier" Tag="0" Type="Context" Optional="true"/>
+            <SequenceOf Name="authorityCertIssuer" Tag="1" Type="Context" ElementType="GeneralNames" Optional="true"/>
+            <Number Name="authorityCertSerialNumber" Tag="2" Type="Context" Optional="true"/>
+          </Sequence>
+          <!-- 
+           KeyUsage ::= BIT STRING {      
+                digitalSignature        (0),
+                nonRepudiation          (1), -  recent editions of X.509 have
+                                             -  renamed this bit to
+                                             -  contentCommitment
+                keyEncipherment         (2),
+                dataEncipherment        (3),
+                keyAgreement            (4),
+                keyCertSign             (5),
+                cRLSign                 (6),
+                encipherOnly            (7),
+                decipherOnly            (8)
+            }
+          -->
+          <Bitstring Name="KeyUsage">
+            <ID Name="digitalSignature" Value="0"/>
+            <ID Name="nonRepudiation" Value="1"/>
+            <ID Name="keyEncipherment" Value="2"/>
+            <ID Name="dataEncipherment" Value="3"/>
+            <ID Name="keyAgreement" Value="4"/>
+            <ID Name="keyCertSign" Value="5"/>
+            <ID Name="cRLSign" Value="6"/>
+            <ID Name="encipherOnly" Value="7"/>
+            <ID Name="decipherOnly" Value="8"/>
+          </Bitstring>
+          <!-- 
+           ext-PrivateKeyUsagePeriod EXTENSION ::= { SYNTAX
+               PrivateKeyUsagePeriod IDENTIFIED BY id-ce-privateKeyUsagePeriod }
+
+           PrivateKeyUsagePeriod ::= SEQUENCE {       IMPLICIT
+                notBefore       [0]     GeneralizedTime OPTIONAL,
+                notAfter        [1]     GeneralizedTime OPTIONAL }
+           (WITH COMPONENTS {..., notBefore  PRESENT } |
+            WITH COMPONENTS {..., notAfter  PRESENT })
+          -->
+          <Sequence Name="PrivateKeyUsagePeriod">
+            <Date Name="notBefore" Tag="0" Type="Context" Optional="true"/>
+            <Date Name="notAfter" Tag="1" Type="Context" Optional="true"/>
+          </Sequence>
+          <!-- 
+           ext-CertificatePolicies EXTENSION ::= { SYNTAX
+               CertificatePolicies IDENTIFIED BY id-ce-certificatePolicies}
+
+           PolicyInformation ::= SEQUENCE {         IMPLICIT
+                policyIdentifier   CertPolicyId,
+                policyQualifiers   SEQUENCE SIZE (1..MAX) OF
+                        PolicyQualifierInfo OPTIONAL }
+
+           CertPolicyId ::= OBJECT IDENTIFIER
+
+           CERT-POLICY-QUALIFIER ::= TYPE-IDENTIFIER
+
+           PolicyQualifierInfo ::= SEQUENCE {       IMPLICIT
+                  policyQualifierId  CERT-POLICY-QUALIFIER.
+                       &id({PolicyQualifierId}),
+                  qualifier          CERT-POLICY-QUALIFIER.
+                       &Type({PolicyQualifierId}{@policyQualifierId})}
+
+           - Implementations that recognize additional policy qualifiers MUST
+           - augment the following definition for PolicyQualifierId
+
+           PolicyQualifierId CERT-POLICY-QUALIFIER ::=
+               { pqid-cps | pqid-unotice, ... }
+
+           pqid-cps CERT-POLICY-QUALIFIER ::= { CPSuri IDENTIFIED BY id-qt-cps }
+           pqid-unotice CERT-POLICY-QUALIFIER ::= { UserNotice
+               IDENTIFIED BY id-qt-unotice }
+               
+           CPSuri ::= IA5String
+
+           - user notice qualifier
+
+           UserNotice ::= SEQUENCE {        IMPLICIT
+                noticeRef        NoticeReference OPTIONAL,
+                explicitText     DisplayText OPTIONAL}
+
+           -
+           -  This is not made explicit in the text
+           -
+           - {WITH COMPONENTS {..., noticeRef PRESENT} |
+           -  WITH COMPONENTS {..., DisplayText PRESENT }}
+
+           NoticeReference ::= SEQUENCE {     IMPLICIT
+                organization     DisplayText,
+                noticeNumbers    SEQUENCE OF INTEGER }
+
+           DisplayText ::= CHOICE {           IMPLICIT
+                ia5String        IA5String      (SIZE (1..200)),
+                visibleString    VisibleString  (SIZE (1..200)),
+                bmpString        BMPString      (SIZE (1..200)),
+                utf8String       UTF8String     (SIZE (1..200)) }
+               
+           CertificatePolicies ::= SEQUENCE SIZE (1..MAX) OF PolicyInformation
+          -->
+          <Choice Name="DisplayText">
+            <IA5String Name="ia5String"/>
+            <VisibleString Name="visibleString"/>
+            <BMPString Name="bmpString"/>
+            <UTF8String Name="utf8String"/>
+          </Choice>
+          <Sequence Name="NoticeReference">
+            <Choice Name="organization" ElementType="DisplayText"/>
+            <SequenceOf Name="noticeNumbers">
+              <Int32 Name="item"/>
+            </SequenceOf>
+          </Sequence>
+          <Sequence Name="UserNotice">
+            <Sequence Name="noticeRef" ElementType="NoticeReference" Optional="true"/>
+            <Choice Name="explicitText" ElementType="DisplayText" Optional="true"/>
+          </Sequence>
+
+          <Sequence Name="PolicyQualifierInfo">
+            <Version Name="cps" OID="id_qt_cps">
+              <IA5String Name="cPSuri"/>
+            </Version>
+            <Version Name="unotice" OID="id_qt_unotice">
+              <Sequence Name="userNotice" ElementType="UserNotice"/>
+            </Version>
+            <IA5String Name="cPSuri"/>
+            <Sequence Name="userNotice" ElementType="UserNotice"/>
+          </Sequence>
+          <Sequence Name="PolicyInformation">
+            <OID Name="policyIdentifier"/>
+            <SequenceOf Name="policyQualifiers" Optional="true">
+              <Sequence Name="item" ElementType="PolicyQualifierInfo"/>
+            </SequenceOf>
+          </Sequence>
+          <SequenceOf Name="CertificatePolicies">
+            <Sequence Name="item" ElementType="PolicyInformation"/>
+          </SequenceOf>
+          <!--
+           - policy mapping extension OID and syntax
+
+           ext-PolicyMappings EXTENSION ::= { SYNTAX
+               PolicyMappings IDENTIFIED BY id-ce-policyMappings }
+
+           PolicyMappings ::= SEQUENCE SIZE (1..MAX) OF SEQUENCE {
+               issuerDomainPolicy      CertPolicyId,
+               subjectDomainPolicy     CertPolicyId
+           }
+          -->
+          <Sequence Name="PolicyMapping">
+            <OID Name="issuerDomainPolicy"/>
+            <OID Name="subjectDomainPolicy"/>
+          </Sequence>
+          <SequenceOf Name="PolicyMappings">
+            <Sequence Name="item" ElementType="PolicyMapping"/>
+          </SequenceOf>
+          <!--
+           - basic constraints extension OID and syntax
+
+           ext-BasicConstraints EXTENSION ::= { SYNTAX
+               BasicConstraints IDENTIFIED BY id-ce-basicConstraints }
+
+           BasicConstraints ::= SEQUENCE {      IMPLICIT
+                cA                      BOOLEAN DEFAULT FALSE,
+                pathLenConstraint       INTEGER (0..MAX) OPTIONAL
+           }
+          -->
+          <Sequence Name="BasicConstraints">
+            <Bool Name="cA" Default="false"/>
+            <Int32 Name="pathLenConstraint" Initializer="0" Optional="true"/>
+          </Sequence>
+          <!--
+           - name constraints extension OID and syntax
+           ext-NameConstraints EXTENSION ::= { SYNTAX
+               NameConstraints IDENTIFIED BY id-ce-nameConstraints }
+
+           NameConstraints ::= SEQUENCE {     IMPLICIT
+                permittedSubtrees       [0] GeneralSubtrees OPTIONAL,
+                excludedSubtrees        [1] GeneralSubtrees OPTIONAL
+           }
+           -
+           -  This is a constraint in the issued certificates by CAs, but is
+           -  not a requirement on EEs.
+           -
+           - (WITH COMPONENTS { ..., permittedSubtrees PRESENT} |
+           -  WITH COMPONENTS { ..., excludedSubtrees PRESENT }}
+
+           GeneralSubtrees ::= SEQUENCE SIZE (1..MAX) OF GeneralSubtree
+
+           GeneralSubtree ::= SEQUENCE {        IMPLICIT
+                base                GeneralName,
+                minimum         [0] BaseDistance DEFAULT 0,
+                maximum         [1] BaseDistance OPTIONAL
+           }
+
+           BaseDistance ::= INTEGER (0..MAX)
+          -->
+          <Sequence Name="GeneralSubtree">
+            <Choice Name="base" ElementType="GeneralName"/>
+            <Int32 Name="minimum" Initializer="0" Default="0" Tag="0" Type="Context"/>
+            <Int32 Name="maximum" Initializer="0" Tag="1" Type="Context" Optional="true"/>
+          </Sequence>
+          <SequenceOf Name="GeneralSubtrees">
+            <Sequence Name="item" ElementType="GeneralSubtree"/>
+          </SequenceOf>
+          <Sequence Name="NameConstraints">
+            <SequenceOf Name="permittedSubtrees" ElementType="GeneralSubtrees" Tag="0" Type="Context" Optional="true"/>
+            <SequenceOf Name="excludedSubtrees" ElementType="GeneralSubtrees" Tag="1" Type="Context" Optional="true"/>
+          </Sequence>
+          <!--
+           - policy constraints extension OID and syntax
+
+           ext-PolicyConstraints EXTENSION ::= { SYNTAX
+               PolicyConstraints IDENTIFIED BY id-ce-policyConstraints }
+
+           PolicyConstraints ::= SEQUENCE {   IMPLICIT
+                requireExplicitPolicy           [0] SkipCerts OPTIONAL,
+                inhibitPolicyMapping            [1] SkipCerts OPTIONAL }
+           -
+           -  This is a constraint in the issued certificates by CAs,
+           -  but is not a requirement for EEs
+           -
+           - (WITH COMPONENTS { ..., requireExplicitPolicy PRESENT} |
+           -  WITH COMPONENTS { ..., inhibitPolicyMapping PRESENT})
+
+           SkipCerts ::= INTEGER (0..MAX)
+          -->
+          <Sequence Name="PolicyConstraints">
+            <Int32 Name="requireExplicitPolicy" Initializer="0" Tag="0" Type="Context" Optional="true"/>
+            <Int32 Name="inhibitPolicyMapping" Initializer="0" Tag="1" Type="Context" Optional="true"/>
+          </Sequence>
+          <!--
+           - extended key usage extension OID and syntax
+
+           ext-ExtKeyUsage EXTENSION ::= { SYNTAX
+               ExtKeyUsageSyntax IDENTIFIED BY id-ce-extKeyUsage }
+
+           ExtKeyUsageSyntax ::= SEQUENCE SIZE (1..MAX) OF KeyPurposeId
+
+           KeyPurposeId ::= OBJECT IDENTIFIER
+
+          -->
+          <SequenceOf Name="ExtKeyUsageSyntax">
+            <OID Name="keyPurposeId"/>
+          </SequenceOf>
+          <!--
+           - CRL distribution points extension OID and syntax
+
+           ext-CRLDistributionPoints EXTENSION ::= { SYNTAX
+               CRLDistributionPoints IDENTIFIED BY id-ce-cRLDistributionPoints}
+           CRLDistributionPoints ::= SEQUENCE SIZE (1..MAX) OF DistributionPoint
+
+           DistributionPoint ::= SEQUENCE {     IMPLICIT
+                distributionPoint       [0] DistributionPointName OPTIONAL,
+                reasons                 [1] ReasonFlags OPTIONAL,
+                cRLIssuer               [2] GeneralNames OPTIONAL
+           }
+           -
+           -  This is not a requirement in the text, but it seems as if it
+           -      should be
+           -
+           -(WITH COMPONENTS {..., distributionPoint PRESENT} |
+           - WITH COMPONENTS {..., cRLIssuer PRESENT})
+
+           DistributionPointName ::= CHOICE {     IMPLICIT
+                fullName                [0] GeneralNames,
+                nameRelativeToCRLIssuer [1] RelativeDistinguishedName
+           }
+
+           ReasonFlags ::= BIT STRING {
+                unused                  (0),
+                keyCompromise           (1),
+                cACompromise            (2),
+                affiliationChanged      (3),
+                superseded              (4),
+                cessationOfOperation    (5),
+                certificateHold         (6),
+                privilegeWithdrawn      (7),
+                aACompromise            (8)
+            }
+          -->
+          <Bitstring Name="ReasonFlags">
+            <ID Name="unused" Value="0"/>
+            <ID Name="keyCompromise" Value="1"/>
+            <ID Name="cACompromise" Value="2"/>
+            <ID Name="affiliationChanged" Value="3"/>
+            <ID Name="superseded" Value="4"/>
+            <ID Name="cessationOfOperation" Value="5"/>
+            <ID Name="certificateHold" Value="6"/>
+            <ID Name="privilegeWithdrawn" Value="7"/>
+            <ID Name="aACompromise" Value="8"/>
+          </Bitstring>
+          <Choice Name="DistributionPointName">
+            <SequenceOf Name="fullName" ElementType="GeneralNames" Tag="0" Type="Context"/>
+            <SequenceOf Name="nameRelativeToCRLIssuer" ElementType="RelativeDistinguishedName" Tag="1" Type="Context"/>
+          </Choice>
+          <Sequence Name="DistributionPoint">
+            <Choice Name="distributionPoint" ElementType="DistributionPointName" Tag="0" Type="Context" Optional="true"/>
+            <Bitstring Name="reasons" ElementType="ReasonFlags" Tag="1" Type="Context" Optional="true"/>
+            <SequenceOf Name="cRLIssuer" ElementType="GeneralNames" Tag="2" Type="Context" Optional="true"/>
+          </Sequence>
+          <SequenceOf Name="CRLDistributionPoints">
+            <Sequence Name="item" ElementType="DistributionPoint"/>
+          </SequenceOf>
+          <!--
+           - authority info access
+
+           ext-AuthorityInfoAccess EXTENSION ::= { SYNTAX
+               AuthorityInfoAccessSyntax IDENTIFIED BY
+               id-pe-authorityInfoAccess }
+
+           AuthorityInfoAccessSyntax  ::=
+                   SEQUENCE SIZE (1..MAX) OF AccessDescription
+
+           AccessDescription  ::=  SEQUENCE {     IMPLICIT
+                   accessMethod          OBJECT IDENTIFIER,
+                   accessLocation        GeneralName  }
+          -->
+          <Sequence Name="AccessDescription">
+            <OID Name="accessMethod"/>
+            <Choice Name="accessLocation" ElementType="GeneralName"/>
+          </Sequence>
+          <SequenceOf Name="AuthorityInfoAccessSyntax">
+            <Sequence Name="item" ElementType="AccessDescription"/>
+          </SequenceOf>
+          <!--
+           - subject info access
+
+           ext-SubjectInfoAccessSyntax EXTENSION ::= { SYNTAX
+               SubjectInfoAccessSyntax IDENTIFIED BY id-pe-subjectInfoAccess }
+
+           SubjectInfoAccessSyntax  ::=
+                   SEQUENCE SIZE (1..MAX) OF AccessDescription
+          -->
+          <SequenceOf Name="SubjectInfoAccessSyntax">
+            <Sequence Name="item" ElementType="AccessDescription"/>
+          </SequenceOf>
+          <!--
+           CertExtensions EXTENSION ::= {           IMPLICIT
+                   ext-AuthorityKeyIdentifier | ext-SubjectKeyIdentifier |
+                   ext-KeyUsage | ext-PrivateKeyUsagePeriod |
+                   ext-CertificatePolicies | ext-PolicyMappings |
+                   ext-SubjectAltName | ext-IssuerAltName |
+                   ext-SubjectDirectoryAttributes |
+                   ext-BasicConstraints | ext-NameConstraints |
+                   ext-PolicyConstraints | ext-ExtKeyUsage |
+                   ext-CRLDistributionPoints | ext-InhibitAnyPolicy |
+                   ext-FreshestCRL | ext-AuthorityInfoAccess |
+                   ext-SubjectInfoAccessSyntax, ... }
+
+           - subject key identifier OID and syntax
+
+           ext-SubjectKeyIdentifier EXTENSION ::= { SYNTAX
+               KeyIdentifier IDENTIFIED BY id-ce-subjectKeyIdentifier }
+
+           - issuer alternative name extension OID and syntax
+
+               id-ce-subjectDirectoryAttributes }
+
+           SubjectDirectoryAttributes ::= SEQUENCE SIZE (1..MAX) OF
+               AttributeSet{{SupportedAttributes}}
+
+
+           - inhibit any policy OID and syntax
+
+           ext-InhibitAnyPolicy EXTENSION  ::= {SYNTAX
+               SkipCerts IDENTIFIED BY id-ce-inhibitAnyPolicy }
+
+           - freshest (delta)CRL extension OID and syntax
+
+           ext-FreshestCRL EXTENSION ::= {SYNTAX
+               CRLDistributionPoints IDENTIFIED BY id-ce-freshestCRL }
+
+           - CRL number extension OID and syntax
+
+           ext-CRLNumber EXTENSION ::= {SYNTAX
+               INTEGER (0..MAX) IDENTIFIED BY id-ce-cRLNumber }
+
+           CRLNumber ::= INTEGER (0..MAX)
+           - issuing distribution point extension OID and syntax
+
+           ext-IssuingDistributionPoint EXTENSION ::= { SYNTAX
+               IssuingDistributionPoint IDENTIFIED BY
+               id-ce-issuingDistributionPoint }
+
+           IssuingDistributionPoint ::= SEQUENCE {      IMPLICIT
+                distributionPoint          [0] DistributionPointName OPTIONAL,
+                onlyContainsUserCerts      [1] BOOLEAN DEFAULT FALSE,
+                onlyContainsCACerts        [2] BOOLEAN DEFAULT FALSE,
+                onlySomeReasons            [3] ReasonFlags OPTIONAL,
+                indirectCRL                [4] BOOLEAN DEFAULT FALSE,
+                onlyContainsAttributeCerts [5] BOOLEAN DEFAULT FALSE
+           }
+                   - at most one of onlyContainsUserCerts, onlyContainsCACerts,
+                   - or onlyContainsAttributeCerts may be set to TRUE.
+
+           ext-DeltaCRLIndicator EXTENSION ::= { SYNTAX
+               CRLNumber IDENTIFIED BY id-ce-deltaCRLIndicator }
+
+           - Upper bounds
+           ubMax INTEGER ::= 32768
+          -->
+          <Sequence Name="CertificateExtension">
+            <Version Name="ext_authorityKeyIdentifier" OID="id_ce_authorityKeyIdentifier">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue" EncodedType="AuthorityKeyIdentifier" EncodedAccessor="AuthorityKeyId"/>
+            </Version>
+            <Version Name="ext_subjectKeyIdentifier" OID="id_ce_subjectKeyIdentifier">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue" EncodedType="OctetString" EncodedAccessor="SubjectKeyIdentifier"/>
+            </Version>
+            <Version Name="ext_keyUsage" OID="id_ce_keyUsage">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue" EncodedType="KeyUsage" EncodedAccessor="KeyUsage"/>
+            </Version>
+            <Version Name="ext_privateKeyUsagePeriod" OID="id_ce_privateKeyUsagePeriod">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue" EncodedType="PrivateKeyUsagePeriod" EncodedAccessor="PrivateKeyUsagePeriod"/>
+            </Version>
+            <Version Name="ext_certificatePolicies" OID="id_ce_certificatePolicies">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue" EncodedType="CertificatePolicies" EncodedAccessor="CertificatePolicies"/>
+            </Version>
+            <Version Name="ext_policyMappings" OID="id_ce_policyMappings">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue" EncodedType="PolicyMappings" EncodedAccessor="PolicyMappings"/>
+            </Version>
+            <Version Name="ext_subjectAltName" OID="id_ce_subjectAltName">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue" EncodedType="GeneralNames" EncodedAccessor="SubjectAltNames"/>
+            </Version>
+            <Version Name="ext_issuerAltName" OID="id_ce_issuerAltName">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue" EncodedType="GeneralNames" EncodedAccessor="IssuerAltNames"/>
+            </Version>
+            <Version Name="ext_subjectDirectoryAttributes" OID="id_ce_subjectDirectoryAttributes">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue"/>
+            </Version>
+            <Version Name="ext_basicConstraints" OID="id_ce_basicConstraints">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue" EncodedType="BasicConstraints" EncodedAccessor="BasicConstraints"/>
+            </Version>
+            <Version Name="ext_nameConstraints" OID="id_ce_nameConstraints">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue" EncodedType="NameConstraints" EncodedAccessor="NameConstraints"/>
+            </Version>
+            <Version Name="ext_policyConstraints" OID="id_ce_policyConstraints">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue" EncodedType="PolicyConstraints" EncodedAccessor="PolicyConstraints"/>
+            </Version>
+            <Version Name="ext_extKeyUsage" OID="id_ce_extKeyUsage">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue" EncodedType="ExtKeyUsageSyntax" EncodedAccessor="ExtKeyUsageSyntax"/>
+            </Version>
+            <Version Name="ext_cRLDistributionPoints" OID="id_ce_cRLDistributionPoints">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue" EncodedType="CRLDistributionPoints" EncodedAccessor="CRLDistributionPoints"/>
+            </Version>
+            <Version Name="ext_inhibitAnyPolicy" OID="id_ce_inhibitAnyPolicy">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue" EncodedType="Int32" EncodedAccessor="InhibitAnyPolicy"/>
+            </Version>
+            <Version Name="ext_freshestCRL" OID="id_ce_freshestCRL">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue" EncodedType="CRLDistributionPoints" EncodedAccessor="FreshestCRL"/>
+            </Version>
+            <Version Name="ext_authorityInfoAccess" OID="id_pe_authorityInfoAccess">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue" EncodedType="AuthorityInfoAccessSyntax" EncodedAccessor="AuthorityInfoAccess"/>
+            </Version>
+            <Version Name="ext_subjectInfoAccess" OID="id_pe_subjectInfoAccess">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue" EncodedType="SubjectInfoAccessSyntax" EncodedAccessor="SubjectInfoAccess"/>
+            </Version>
+            <Version Name="ext_unknown" OID="*">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue"/>
+            </Version>
+            <Bool Name="critical" Default="false" Initializer="false"/>
+            <OctetString Name="extnValue"/>
+          </Sequence>
+          <SequenceOf Name="CertificateExtensionList">
+            <Sequence Name="item" ElementType="CertificateExtension"/>
+          </SequenceOf>
+          <Sequence Name="_ExplicitCertificateExtension">
+            <SequenceOf Name="extensions" ElementType="CertificateExtensionList"/>
+          </Sequence>
+
+          <!--
+          Validity ::= SEQUENCE {             EXPLICIT
+              notBefore      Time,
+              notAfter       Time  }
+
+          Time ::= CHOICE {                   EXPLICIT
+              utcTime        UTCTime,
+              generalTime    GeneralizedTime }
+          -->
+          <Choice Name="Time">
+            <UTCTime Name="utcTime"/>
+            <Date Name="generalTime"/>
+          </Choice>
+          <Sequence Name="Validity">
+            <Choice Name="notBefore" ElementType="Time"/>
+            <Choice Name="notAfter" ElementType="Time"/>
+          </Sequence>
+          <!--
+          SubjectPublicKeyInfo  ::=  SEQUENCE  {      EXPLICIT
+              algorithm            AlgorithmIdentifier{PUBLIC-KEY,{PublicKeyAlgorithms}},
+              subjectPublicKey     BIT STRING  
+          }
+          -->
+          <Sequence Name="SubjectPublicKeyInfo">
+            <Sequence Name="algorithm" ElementType="AlgorithmIdentifier"/>
+            <Bitstring Name="subjectPublicKey"/>
+          </Sequence>
+          <!--
+          TBSCertificate  ::=  SEQUENCE  {            EXPLICIT
+              version         [0]  Version DEFAULT v1,
+              serialNumber         CertificateSerialNumber,
+              signature            AlgorithmIdentifier{SIGNATURE-ALGORITHM, {SignatureAlgorithms}},
+              issuer               Name,
+              validity             Validity,
+              subject              Name,
+              subjectPublicKeyInfo SubjectPublicKeyInfo,
+              ... ,
+              [[2:               - If present, version MUST be v2
+              issuerUniqueID  [1]  IMPLICIT UniqueIdentifier OPTIONAL,
+              subjectUniqueID [2]  IMPLICIT UniqueIdentifier OPTIONAL
+              ]],
+              [[3:               - If present, version MUST be v3 -
+              extensions      [3]  Extensions{{CertExtensions}} OPTIONAL
+              ]], ... }
+
+          Version  ::=  INTEGER  {  v1(0), v2(1), v3(2)  }
+          CertificateSerialNumber  ::=  INTEGER
+          UniqueIdentifier  ::=  BIT STRING
+          -->
+          <Sequence Name="TBSCertificate">
+            <Sequence Name="version" ElementType="_ExplicitInt32" Tag="0" Type="Context" Optional="true"/>
+            <Number Name="serialNumber"/>
+            <Sequence Name="signature" ElementType="AlgorithmIdentifier"/>
+            <Choice Name="issuer" ElementType="Name"/>
+            <Sequence Name="validity" ElementType="Validity"/>
+            <Choice Name="subject" ElementType="Name"/>
+            <Sequence Name="subjectPublicKeyInfo" ElementType="SubjectPublicKeyInfo"/>
+            <Bitstring Name="issuerUniqueID" Tag="1" Type="Context" Optional="true"/>
+            <Bitstring Name="subjectUniqueID" Tag="2" Type="Context" Optional="true"/>
+            <Sequence Name="extensions" ElementType="_ExplicitCertificateExtension" Tag="3" Type="Context" Optional="true"/>
+            <Function Name="GetVersion" ReturnType="int" suffix="const" Parameters="">
+              <![CDATA[
+return get_version()->get_value();
+              ]]>
+            </Function>
+            <Function Name="SetVersion" ReturnType="void" Parameters="int setTo">
+              <![CDATA[
+tscrypto::_POD__ExplicitInt32 ver;
+ver.set_value(setTo);
+set_version(ver);
+              ]]>
+            </Function>
+          </Sequence>
+          <!--
+          - Parameterized Type SIGNED
+          -
+          - Three different versions of doing SIGNED:
+          -  1.  Simple and close to the previous version
+          -
+          -  SIGNED{ToBeSigned} ::= SEQUENCE {
+          -    toBeSigned  ToBeSigned,
+          -    algorithm   AlgorithmIdentifier{SIGNATURE-ALGORITHM,
+          -                    {SignatureAlgorithms}},
+          -    signature   BIT STRING
+          -  }
+
+          -  2.  From Authenticated Framework
+          -
+          -  SIGNED{ToBeSigned} ::= SEQUENCE {
+          -    toBeSigned        ToBeSigned,
+          -    COMPONENTS OF SIGNATURE{ToBeSigned}
+          -  }
+          -  SIGNATURE{ToBeSigned} ::= SEQUENCE {
+          -    algorithmIdentifier   AlgorithmIdentifier,
+          -    encrypted             ENCRYPTED-HASH{ToBeSigned}
+          -  }
+          -  ENCRYPTED-HASH{ToBeSigned} ::=
+          -    BIT STRING
+          -      (CONSTRAINED BY {
+          -        shall be the result of applying a hashing procedure to
+          -        the DER-encoded (see 4.1) octets of a value of
+          -        ToBeSigned and then applying an encipherment procedure
+          -        to those octets
+          -      })
+          -
+          -
+          -  3.  A more complex version, but one that automatically ties
+          -      together both the signature algorithm and the
+          -      signature value for automatic decoding.
+          -
+          SIGNED{ToBeSigned} ::= SEQUENCE {       EXPLICIT
+             toBeSigned           ToBeSigned,
+             algorithmIdentifier  SEQUENCE {
+                 algorithm        SIGNATURE-ALGORITHM.
+                                    &id({SignatureAlgorithms}),
+                 parameters       SIGNATURE-ALGORITHM.
+                                    &Params({SignatureAlgorithms}
+                                      {@algorithmIdentifier.algorithm}) OPTIONAL
+             },
+             signature BIT STRING (CONTAINING SIGNATURE-ALGORITHM.&Value(
+                                      {SignatureAlgorithms}
+                                      {@algorithmIdentifier.algorithm}))
+          }
+          Certificate  ::=  SIGNED{TBSCertificate}
+          -->
+          <Sequence Name="Certificate">
+            <Sequence Name="tbsCertificate" ElementType="TBSCertificate"/>
+            <Sequence Name="algorithmIdentifier" ElementType="AlgorithmIdentifier"/>
+            <Bitstring Name="signature"/>
+          </Sequence>
+          <!--
+          - CRL structures
+          -->
+
+          <!--
+           CRLReason ::= ENUMERATED {
+                unspecified             (0),
+                keyCompromise           (1),
+                cACompromise            (2),
+                affiliationChanged      (3),
+                superseded              (4),
+                cessationOfOperation    (5),
+                certificateHold         (6),
+                removeFromCRL           (8),
+                privilegeWithdrawn      (9),
+                aACompromise           (10)
+           }
+          -->
+          <Enum Name="CRLReason">
+            <ID Value="0"  Name="crl_unspecified"/>
+            <ID Value="1"  Name="crl_keyCompromise"/>
+            <ID Value="2"  Name="crl_cACompromise"/>
+            <ID Value="3"  Name="crl_affiliationChanged"/>
+            <ID Value="4"  Name="crl_superseded"/>
+            <ID Value="5"  Name="crl_cessationOfOperation"/>
+            <ID Value="6"  Name="crl_certificateHold"/>
+            <ID Value="8"  Name="crl_removeFromCRL"/>
+            <ID Value="9"  Name="crl_privilegeWithdrawn"/>
+            <ID Value="10" Name="crl_aACompromise"/>
+          </Enum>
+          <!--
+           CrlEntryExtensions EXTENSION ::= {       IMPLICIT
+                   ext-CRLReason | ext-CertificateIssuer |
+                   ext-HoldInstructionCode | ext-InvalidityDate, ... }
+
+           ext-CRLReason EXTENSION ::= { SYNTAX
+               CRLReason IDENTIFIED BY id-ce-cRLReasons }
+
+           - certificate issuer CRL entry extension OID and syntax
+
+           ext-CertificateIssuer EXTENSION ::= { SYNTAX
+               GeneralNames IDENTIFIED BY id-ce-certificateIssuer }
+
+           - hold instruction extension OID and syntax
+           ext-HoldInstructionCode EXTENSION ::= { SYNTAX
+               OBJECT IDENTIFIER IDENTIFIED BY id-ce-holdInstructionCode }
+
+           ext-InvalidityDate EXTENSION  ::=  { SYNTAX
+               GeneralizedTime IDENTIFIED BY id-ce-invalidityDate }
+          -->
+          <Sequence Name="CrlEntryExtension">
+            <Version Name="ext_CRLReason" OID="id_ce_cRLReasons">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue" EncodedType="CRLReason" EncodedAccessor="CRLReason"/>
+            </Version>
+            <Version Name="ext_certificateIssuer" OID="id_ce_certificateIssuer">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue" EncodedType="GeneralNames" EncodedAccessor="issuer"/>
+            </Version>
+            <Version Name="ext_holdInstructionCode" OID="id_ce_holdInstructionCode">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue" EncodedType="OID" EncodedAccessor="HoldCode"/>
+            </Version>
+            <Version Name="ext_invalidityDate" OID="id_ce_invalidityDate">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue" EncodedType="GeneralizedTime" EncodedAccessor="invalidDate"/>
+            </Version>
+            <Version Name="ext_unknownCrl" OID="*">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue"/>
+            </Version>
+            <Bool Name="critical" Default="false" Initializer="false"/>
+            <OctetString Name="extnValue"/>
+          </Sequence>
+          <SequenceOf Name="CrlEntryExtensions">
+            <Sequence Name="item" ElementType="CrlEntryExtension"/>
+          </SequenceOf>
+          <Sequence Name="_ExplicitCrlEntryExtensions">
+            <SequenceOf Name="extensions" ElementType="CrlEntryExtensions"/>
+          </Sequence>
+
+          <!--
+           CrlExtensions EXTENSION ::= {            IMPLICIT
+                   ext-AuthorityKeyIdentifier | ext-IssuerAltName |
+                   ext-CRLNumber | ext-DeltaCRLIndicator |
+                   ext-IssuingDistributionPoint |  ext-FreshestCRL, ... }
+          -->
+          <Sequence Name="CrlExtension">
+            <Version Name="ext_authorityKeyIdentifier" OID="id_ce_authorityKeyIdentifier">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue"/>
+            </Version>
+            <Version Name="ext_issuerAltName" OID="id_ce_issuerAltName">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue"/>
+            </Version>
+            <Version Name="ext_cRLNumber" OID="id_ce_cRLNumber">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue"/>
+            </Version>
+            <Version Name="ext_deltaCRLIndicator" OID="id_ce_deltaCRLIndicator">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue"/>
+            </Version>
+            <Version Name="ext_issuingDistributionPoint" OID="id_ce_issuingDistributionPoint">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue"/>
+            </Version>
+            <Version Name="ext_freshestCRL" OID="id_ce_freshestCRL">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue"/>
+            </Version>
+            <Version Name="ext_unknownCrl2" OID="*">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue"/>
+            </Version>
+            <Bool Name="critical" Default="false" Initializer="false"/>
+            <OctetString Name="extnValue"/>
+          </Sequence>
+          <SequenceOf Name="CrlExtensions">
+            <Sequence Name="item" ElementType="CrlExtension"/>
+          </SequenceOf>
+          <Sequence Name="_ExplicitCrlExtensions">
+            <SequenceOf Name="extensions" ElementType="CrlExtensions"/>
+          </Sequence>
+          <!--
+          TBSCertList  ::=  SEQUENCE  {           EXPLICIT
+              version              Version OPTIONAL, - if present, MUST be v2
+              signature            AlgorithmIdentifier{SIGNATURE-ALGORITHM,{SignatureAlgorithms}},
+              issuer               Name,
+              thisUpdate           Time,
+              nextUpdate           Time OPTIONAL,
+              revokedCertificates  SEQUENCE SIZE (1..MAX) OF SEQUENCE {
+                  userCertificate  CertificateSerialNumber,
+                  revocationDate   Time,
+                  ... ,
+                  [[2:                  - if present, version MUST be v2
+                  crlEntryExtensions  Extensions{{CrlEntryExtensions}}
+                                          OPTIONAL
+                  ]], ...
+              } OPTIONAL,
+              ... ,
+              [[2:                       - if present, version MUST be v2
+              crlExtensions       [0] Extensions{{CrlExtensions}}
+                                          OPTIONAL
+              ]], ... }
+
+          - Version, Time, CertificateSerialNumber, and Extensions were
+          - defined earlier for use in the certificate structure
+          -->
+          <Sequence Name="RevokedCertificate">
+            <Number Name="userCertificate"/>
+            <Choice Name="thisUpdate" ElementType="Time"/>
+            <Sequence Name="crlEntryExtensions" ElementType="_ExplicitCrlEntryExtensions" Optional="true"/>
+          </Sequence>
+          <Sequence Name="TBSCertList">
+            <Int32 Name="version" Default="0" Initializer="1" />
+            <Sequence Name="signature" ElementType="AlgorithmIdentifier"/>
+            <Choice Name="issuer" ElementType="Name"/>
+            <Choice Name="thisUpdate" ElementType="Time"/>
+            <Choice Name="nextUpdate" Optional="true" ElementType="Time"/>
+            <SequenceOf Name="revokedCertificates" Optional="true">
+              <Sequence Name="item" ElementType="RevokedCertificate"/>
+            </SequenceOf>
+            <Sequence Name="crlExtensions" ElementType="_ExplicitCrlExtensions" Tag="0" Type="Context" Optional="true"/>
+          </Sequence>
+          <!--
+          CertificateList  ::=  SIGNED{TBSCertList}
+
+          SignatureAlgorithms SIGNATURE-ALGORITHM ::= {     EXPLICIT
+              PKIXAlgs-2009.SignatureAlgs, ...,
+              PKIX1-PSS-OAEP-Algorithms-2009.SignatureAlgs }
+
+          PublicKeyAlgorithms PUBLIC-KEY ::= {        EXPLICIT
+              PKIXAlgs-2009.PublicKeys, ...,
+              PKIX1-PSS-OAEP-Algorithms-2009.PublicKeys}
+
+          - Upper Bounds
+
+          ub-state-name INTEGER ::= 128
+          ub-organization-name INTEGER ::= 64
+          ub-organizational-unit-name INTEGER ::= 64
+          ub-title INTEGER ::= 64
+          ub-serial-number INTEGER ::= 64
+          ub-pseudonym INTEGER ::= 128
+          ub-emailaddress-length INTEGER ::= 255
+          ub-locality-name INTEGER ::= 128
+          ub-common-name INTEGER ::= 64
+          ub-name INTEGER ::= 32768
+
+          - Note - upper bounds on string types, such as TeletexString, are
+          - measured in characters.  Excepting PrintableString or IA5String, a
+          - significantly greater number of octets will be required to hold
+          - such a value.  As a minimum, 16 octets or twice the specified
+          - upper bound, whichever is the larger, should be allowed for
+          - TeletexString.  For UTF8String or UniversalString, at least four
+          - times the upper bound should be allowed.
+
+          - Information object classes used in the definition
+          - of certificates and CRLs
+          -->
+          <Sequence Name="CertificateList">
+            <Sequence Name="tbsCertList" ElementType="TBSCertList"/>
+            <Sequence Name="algorithmIdentifier" ElementType="AlgorithmIdentifier"/>
+            <Bitstring Name="signature"/>
+          </Sequence>
+        </Namespace>
+      </Namespace>
+    </Namespace>
+  </File>
+  <File Name="PKIX_OCSP" ExportSymbol="VEILCORE_API" TemplateExternSymbol="VEILCORE_TEMPLATE_EXTERN" HeaderPrefix="core/">
+    <Import Name="CryptoAsn1.export"/>
+
+    <Include Name="PKIX.h"/>
+    <Include Name="PKIX_Cert.h"/>
+    <Namespace Name="tscrypto">
+      <Namespace Name="PKIX">
+        <Namespace Name="OCSP">
+          <ID Name="id_kp_OCSPSigning" Value="1.3.6.1.5.5.7.3.9"/>
+          <ID Name="id_pkix_ocsp" Value="id-ad-ocsp"/>
+          <ID Name="id_pkix_ocsp_basic" Value="1.3.6.1.5.5.7.48.1.1"/>
+          <ID Name="id_pkix_ocsp_nonce" Value="1.3.6.1.5.5.7.48.1.2"/>
+          <ID Name="id_pkix_ocsp_crl" Value="1.3.6.1.5.5.7.48.1.3"/>
+          <ID Name="id_pkix_ocsp_response" Value="1.3.6.1.5.5.7.48.1.4"/>
+          <ID Name="id_pkix_ocsp_nocheck" Value="1.3.6.1.5.5.7.48.1.5"/>
+          <ID Name="id_pkix_ocsp_archive_cutoff" Value="1.3.6.1.5.5.7.48.1.6"/>
+          <ID Name="id_pkix_ocsp_service_locator" Value="1.3.6.1.5.5.7.48.1.7"/>
+          <ID Name="id_pkix_ocsp_pref_sig_algs" Value="1.3.6.1.5.5.7.48.1.8"/>
+          <ID Name="id_pkix_ocsp_extended_revoke" Value="1.3.6.1.5.5.7.48.1.9"/>
+
+          <!--OCSPResponseStatus ::= ENUMERATED {             EXPLICIT
+            successful            (0), - Response has valid confirmations
+            malformedRequest      (1), - Illegal confirmation request
+            internalError         (2), - Internal error in issuer
+            tryLater              (3), - Try again later
+                                       - (4) is not used
+            sigRequired           (5), - Must sign the request
+            unauthorized          (6)  - Request unauthorized
+          }-->
+
+          <Enum Name="OCSPResponseStatus">
+            <ID Name="successful" Value="0"/>
+            <ID Name="malformedRequest" Value="1"/>
+            <ID Name="internalError" Value="2"/>
+            <ID Name="tryLater" Value="3"/>
+            <ID Name="sigRequired" Value="5"/>
+            <ID Name="unauthorized" Value="6"/>
+          </Enum>
+
+          <!--CrlID ::= SEQUENCE {
+          crlUrl               [0]     EXPLICIT IA5String OPTIONAL,
+          crlNum               [1]     EXPLICIT INTEGER OPTIONAL,
+          crlTime              [2]     EXPLICIT GeneralizedTime OPTIONAL }-->
+
+          <Sequence Name="CrlID">
+            <Sequence Name="crlUrl" Tag="0" Type="Context" ElementType="_ExplicitIA5String" Optional="true"/>
+            <Sequence Name="crlNum" Tag="1" Type="Context" ElementType="_ExplicitINTEGER" Optional="true"/>
+            <Sequence Name="crlTime" Tag="2" Type="Context" ElementType="_ExplicitGeneralizedTime" Optional="true"/>
+          </Sequence>
+
+          <!-- Response Extensions -->
+
+          <!--re-ocsp-crl EXTENSION ::= { SYNTAX CrlID IDENTIFIED BY id-pkix-ocsp-crl }
+          re-ocsp-archive-cutoff EXTENSION ::= { SYNTAX ArchiveCutoff IDENTIFIED BY id-pkix-ocsp-archive-cutoff }
+          re-ocsp-extended-revoke EXTENSION ::= { SYNTAX NULL IDENTIFIED BY id-pkix-ocsp-extended-revoke }-->
+
+          <Sequence Name="ResponseExtension">
+            <Version Name="re_ocsp_nonce" OID="id_pkix_ocsp_nonce">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue"/>
+            </Version>
+            <Version Name="re_ocsp_extended_revoke" OID="id_pkix_ocsp_extended_revoke">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue"/>
+            </Version>
+            <Bool Name="critical" Default="false" Initializer="false"/>
+            <OctetString Name="extnValue"/>
+          </Sequence>
+
+          <Sequence Name="SingleResponseExtension">
+            <Version Name="re_ocsp_crl" OID="id_pkix_ocsp_crl">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue" EncodedType="CrlID" EncodedAccessor="Crl"/>
+            </Version>
+            <Version Name="re_ocsp_archive_cutoff" OID="id_pkix_ocsp_archive_cutoff">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue" EncodedType="ArchiveCutoff" EncodedAccessor="ArchiveCutoff"/>
+            </Version>
+            <Bool Name="critical" Default="false" Initializer="false"/>
+            <OctetString Name="extnValue"/>
+          </Sequence>
+
+          <!--Request Extensions-->
+
+          <!--re-ocsp-nonce EXTENSION ::= { SYNTAX OCTET STRING IDENTIFIED BY id-pkix-ocsp-nonce }
+          re-ocsp-response EXTENSION ::= { SYNTAX AcceptableResponses IDENTIFIED BY id-pkix-ocsp-response }
+          re-ocsp-service-locator EXTENSION ::= { SYNTAX ServiceLocator IDENTIFIED BY id-pkix-ocsp-service-locator }
+          re-ocsp-preferred-signature-algorithms EXTENSION ::= { SYNTAX PreferredSignatureAlgorithms IDENTIFIED BY id-pkix-ocsp-pref-sig-algs  }-->
+
+          <Sequence Name="RequestExtension">
+            <Version Name="re_ocsp_nonce" OID="id_pkix_ocsp_nonce">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue" EncodedType="OctetString" EncodedAccessor="NonceValue"/>
+            </Version>
+            <Version Name="re_ocsp_response" OID="id_pkix_ocsp_response">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue"/>
+            </Version>
+            <Version Name="re_ocsp_preferred_signature_algorithms" OID="id_pkix_ocsp_pref_sig_algs">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue"/>
+            </Version>
+            <Bool Name="critical" Default="false" Initializer="false"/>
+            <OctetString Name="extnValue"/>
+          </Sequence>
+          <SequenceOf Name="RequestExtensions">
+            <Sequence Name="item" ElementType="RequestExtension"/>
+          </SequenceOf>
+          <Sequence Name="SingleRequestExtension">
+            <Version Name="re_ocsp_service_locator" OID="id_pkix_ocsp_service_locator">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue"/>
+            </Version>
+            <Bool Name="critical" Default="false" Initializer="false"/>
+            <OctetString Name="extnValue"/>
+          </Sequence>
+
+          <!--Certificate Extensions-->
+          <!--ext-ocsp-nocheck EXTENSION ::= { SYNTAX NULL IDENTIFIED BY id-pkix-ocsp-nocheck }-->
+          <Sequence Name="CertificateExtension" OID="id_pkix_ocsp_nocheck">
+            <Version Name="ext_ocsp_nocheck" OID="id_pkix_ocsp_nocheck">
+              <Bool Name="critical"/>
+              <OctetString Name="extnValue"/>
+            </Version>
+            <Bool Name="critical" Default="false" Initializer="false"/>
+            <OctetString Name="extnValue"/>
+          </Sequence>
+
+
+          <Sequence Name="PreferredSignatureAlgorithm">
+            <Sequence Name="sigIdentifier" ElementType="AlgorithmIdentifier"/>
+            <Sequence Name="certIdentifier" ElementType="AlgorithmIdentifier"/>
+          </Sequence>
+
+
+          <!--PreferredSignatureAlgorithms ::= SEQUENCE OF PreferredSignatureAlgorithm-->
+
+
+          <!--
+          ServiceLocator ::= SEQUENCE {           EXPLICIT
+            issuer    Name,
+            locator   AuthorityInfoAccessSyntax 
+          }
+          -->
+          <Sequence Name="ServiceLocator">
+            <Choice Name="issuer" ElementType="Name"/>
+            <SequenceOf Name="locatorList">
+              <Sequence Name="locator" ElementType="AccessDescription"/>
+            </SequenceOf>
+          </Sequence>
+
+          <!--
+          AcceptableResponses ::= SEQUENCE OF RESPONSE.&id({ResponseSet})       EXPLICIT
+          ArchiveCutoff ::= GeneralizedTime           EXPLICIT
+          
+          RevokedInfo ::= SEQUENCE {                    EXPLICIT
+            revocationTime              GeneralizedTime,
+            revocationReason    [0]     EXPLICIT CRLReason OPTIONAL 
+          }-->
+          <Sequence Name="RevokedInfo">
+            <Date Name="revocationTime"/>
+            <Sequence Name="revocationReason" ElementType="_ExplicitInt32" Tag="0" Type="Context" Optional="true"/>
+          </Sequence>
+
+          <!--CertStatus ::= CHOICE {                       EXPLICIT
+            good                [0]     IMPLICIT NULL,
+            revoked             [1]     IMPLICIT RevokedInfo,
+            unknown             [2]     IMPLICIT UnknownInfo 
+          }
+          UnknownInfo ::= NULL                         EXPLICIT
+          -->
+          <Sequence Name="CertStatus">
+            <Choice Name="status">
+              <Null Name="good" Tag="0" Type="Context"/>
+              <Sequence Name="revoked" ElementType="RevokedInfo" Tag="1" Type="Context"/>
+              <Null Name="unknown" Tag="2" Type="Context"/>
+            </Choice>
+          </Sequence>
+          <!--
+          CertID ::= SEQUENCE {                           EXPLICIT
+            hashAlgorithm            AlgorithmIdentifier {DIGEST-ALGORITHM, {...}},
+            issuerNameHash     OCTET STRING, - Hash of issuer's DN
+            issuerKeyHash      OCTET STRING, - Hash of issuer's public key
+            serialNumber       CertificateSerialNumber 
+          }-->
+          <Sequence Name="CertID">
+            <Sequence Name="hashAlgorithm" ElementType="AlgorithmIdentifier"/>
+            <OctetString Name="issuerNameHash"/>
+            <OctetString Name="issuerKeyHash"/>
+            <Number Name="serialNumber"/>
+          </Sequence>
+
+          <!--          
+          SingleResponse ::= SEQUENCE {                 EXPLICIT
+            certID                       CertID,
+            certStatus                   CertStatus,
+            thisUpdate                   GeneralizedTime,
+            nextUpdate           [0]     EXPLICIT GeneralizedTime OPTIONAL,
+            singleExtensions     [1]     EXPLICIT Extensions{SingleResponseExtension} OPTIONAL 
+          }-->
+          <Sequence Name="_ExplicitSingleExtensionResponseList">
+            <SequenceOf Name="list">
+              <Sequence Name="extension" ElementType="SingleResponseExtension"/>
+            </SequenceOf>
+          </Sequence>
+          <Sequence Name="SingleResponse">
+            <Sequence Name="certID" ElementType="CertID"/>
+            <Sequence Name="certStatus" ElementType="CertStatus"/>
+            <Date Name="thisUpdate"/>
+            <Sequence Name="nextUpdate" ElementType="_ExplicitGeneralizedTime" Tag="0" Type="Context" Optional="true"/>
+            <Sequence Name="singleExtensions" ElementType="_ExplicitSingleExtensionResponseList" Tag="1" Type="Context" Optional="true"/>
+          </Sequence>
+
+          <!--
+          KeyHash ::= OCTET STRING - SHA-1 hash of responder's public key       EXPLICIT
+                                   - (excluding the tag and length fields)
+                                   
+          ResponderID ::= CHOICE {                      EXPLICIT
+            byName   [1] Name,
+            byKey    [2] KeyHash 
+          }-->
+          <Sequence Name="ResponderID">
+            <Choice Name="id">
+              <Choice Name="byName" ElementType="Name" Tag="1" Type="Context"/>
+              <OctetString Name="byKey" Tag="2" Type="Context"/>
+            </Choice>
+          </Sequence>
+          <!--
+          ResponseData ::= SEQUENCE {                   EXPLICIT
+            version              [0] EXPLICIT Version DEFAULT v1,
+            responderID              ResponderID,
+            producedAt               GeneralizedTime,
+            responses                SEQUENCE OF SingleResponse,
+            responseExtensions   [1] EXPLICIT Extensions {{re-ocsp-nonce, ..., re-ocsp-extended-revoke}} OPTIONAL 
+          }-->
+          <Sequence Name="_ExplicitExtensionResponseList">
+            <SequenceOf Name="list">
+              <Sequence Name="extension" ElementType="ResponseExtension"/>
+            </SequenceOf>
+          </Sequence>
+          <Sequence Name="ResponseData">
+            <Sequence Name="version" ElementType="_ExplicitInt32" Default="0" Tag="0" Type="Context" Optional="true"/>
+            <Sequence Name="responderID" ElementType="ResponderID"/>
+            <Date Name="producedAt"/>
+            <SequenceOf Name="responses">
+              <Sequence Name="item" ElementType="SingleResponse"/>
+            </SequenceOf>
+            <Sequence Name="responseExtensions" ElementType="_ExplicitExtensionResponseList" Tag="1" Type="Context" Optional="true"/>
+          </Sequence>
+          <!--
+          BasicOCSPResponse       ::= SEQUENCE {        EXPLICIT
+            tbsResponseData      ResponseData,
+            signatureAlgorithm   AlgorithmIdentifier{SIGNATURE-ALGORITHM,{sa-dsaWithSHA1 | sa-rsaWithSHA1 |sa-rsaWithMD5 | sa-rsaWithMD2, ...}},
+            signature            BIT STRING,
+            certs            [0] EXPLICIT SEQUENCE OF Certificate OPTIONAL 
+          }
+          basicResponse RESPONSE ::= { BasicOCSPResponse IDENTIFIED BY id-pkix-ocsp-basic }     EXPLICIT-->
+          <Sequence Name="_ExplicitCertificateList">
+            <SequenceOf Name="list">
+              <Sequence Name="item" ElementType="Certificate"/>
+            </SequenceOf>
+          </Sequence>
+          <Sequence Name="BasicOCSPResponse">
+            <Sequence Name="tbsResponseData" ElementType="ResponseData"/>
+            <Sequence Name="signatureAlgorithm" ElementType="AlgorithmIdentifier"/>
+            <Bitstring Name="signature"/>
+            <Sequence Name="certs" ElementType="_ExplicitCertificateList" Tag="0" Type="Context" Optional="true"/>
+          </Sequence>
+          <!--
+          ResponseBytes ::=       SEQUENCE {            EXPLICIT
+            responseType        RESPONSE.&id ({ResponseSet}),
+            response            OCTET STRING (CONTAINING RESPONSE.&Type({ResponseSet}{@responseType}))
+          }
+          
+          ResponseSet RESPONSE ::= {basicResponse, ...}   EXPLICIT
+          
+          RESPONSE ::= TYPE-IDENTIFIER
+          -->
+          <Sequence Name="ResponseBytes">
+            <Version Name="basic" OID="id_pkix_ocsp_basic">
+              <OctetString Name="response"/>
+            </Version>
+            <OctetString Name="response"/>
+          </Sequence>
+          <Sequence Name="_ExplicitResponseBytes">
+            <Sequence Name="data" ElementType="ResponseBytes"/>
+          </Sequence>
+          <!--
+          OCSPResponse ::= SEQUENCE {                     EXPLICIT
+            responseStatus         OCSPResponseStatus,
+            responseBytes          [0] EXPLICIT ResponseBytes OPTIONAL 
+          }-->
+          <Sequence Name="OCSPResponse">
+            <Enum Name="responseStatus" ElementType="OCSPResponseStatus" Initializer="successful"/>
+            <Sequence Name="responseBytes" ElementType="_ExplicitResponseBytes" Tag="0" Type="Context" Optional="true"/>
+          </Sequence>
+          <!--
+          Request ::=     SEQUENCE {                     EXPLICIT
+            reqCert                    CertID,
+            singleRequestExtensions    [0] EXPLICIT Extensions { {re-ocsp-service-locator, ...}} OPTIONAL 
+          }-->
+          <Sequence Name="_ExplicitSingleRequestExtension">
+            <Sequence Name="data" ElementType="SingleRequestExtension"/>
+          </Sequence>
+          <Sequence Name="Request">
+            <Sequence Name="reqCert" ElementType="CertID"/>
+            <Sequence Name="singleRequestExtensions" ElementType="_ExplicitSingleRequestExtension" Tag="0" Type="Context" Optional="true"/>
+          </Sequence>
+          <!--
+          Version  ::=  INTEGER  {  v1(0) }             EXPLICIT
+          
+          Signature       ::=     SEQUENCE {            EXPLICIT
+            signatureAlgorithm   AlgorithmIdentifier { SIGNATURE-ALGORITHM, {...}},
+            signature            BIT STRING,
+            certs            [0] EXPLICIT SEQUENCE OF Certificate OPTIONAL 
+          }-->
+          <Sequence Name="Signature">
+            <Sequence Name="signatureAlgorithm" ElementType="AlgorithmIdentifier"/>
+            <OctetString Name="signature"/>
+            <Sequence Name="certs" ElementType="_ExplicitCertificateList" Tag="0" Type="Context" Optional="true"/>
+          </Sequence>
+          <!--
+          TBSRequest      ::=     SEQUENCE {            EXPLICIT
+            version             [0] EXPLICIT Version DEFAULT v1,
+            requestorName       [1] EXPLICIT GeneralName OPTIONAL,
+            requestList             SEQUENCE OF Request,
+            requestExtensions   [2] EXPLICIT Extensions {{re-ocsp-nonce | re-ocsp-response, ..., re-ocsp-preferred-signature-algorithms}} OPTIONAL 
+          }-->
+          <Sequence Name="_ExplicitRequestExtensions">
+            <SequenceOf Name="data" ElementType="RequestExtensions"/>
+          </Sequence>
+          <Sequence Name="TBSRequest">
+            <Sequence Name="version" ElementType="_ExplicitInt32" Default="0" Tag="0" Type="Context" Optional="true"/>
+            <Sequence Name="requestorName" ElementType="_ExplicitGeneralName" Tag="1" Type="Context" Optional="true"/>
+            <SequenceOf Name="requestList">
+              <Sequence Name="item" ElementType="Request"/>
+            </SequenceOf>
+            <Sequence Name="requestExtensions" ElementType="_ExplicitRequestExtensions" Tag="2" Type="Context" Optional="true"/>
+          </Sequence>
+          <!--
+          OCSPRequest     ::=     SEQUENCE {            EXPLICIT
+          tbsRequest                  TBSRequest,
+          optionalSignature   [0]     EXPLICIT Signature OPTIONAL }
+          -->
+          <Sequence Name="_ExplicitSignature">
+            <Sequence Name="data" ElementType="Signature"/>
+          </Sequence>
+          <Sequence Name="OCSPRequest">
+            <Sequence Name="tbsRequest" ElementType="TBSRequest"/>
+            <Sequence Name="optionalSignature" ElementType="_ExplicitSignature" Tag="0" Type="Context" Optional="true"/>
+          </Sequence>
+        </Namespace>
+      </Namespace>
+    </Namespace>
+  </File>
+</Root>

@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -55,8 +55,8 @@ public:
 	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
 	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
 
-    /// <summary>Specifies the symbolic location(s) of the configuration file</summary>
-    typedef enum {
+		/// <summary>Specifies the symbolic location(s) of the configuration file</summary>
+		typedef enum {
 		System, ///< Stored in the system folder
 		Public, ///< Stored in the public (all users) documents folder
 		User,  ///< Stored in the current user's documents folder
@@ -88,68 +88,68 @@ public:
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	static tscrypto::tsCryptoString filePath(const tscrypto::tsCryptoString &appName, ConfigLocation location);
 
-    //////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///// <summary>Object allocation operator.</summary>
-    /////
-    ///// <param name="bytes">The number of bytes to allocate.</param>
-    /////
-    ///// <returns>The allocated object.</returns>
-    //////////////////////////////////////////////////////////////////////////////////////////////////////
-    //void *operator new(size_t bytes);
-    //////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///// <summary>Object de-allocation operator.</summary>
-    /////
-    ///// <param name="ptr">[in,out] If non-null, the pointer to delete.</param>
-    //////////////////////////////////////////////////////////////////////////////////////////////////////
-    //void operator delete(void *ptr);
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	///// <summary>Object allocation operator.</summary>
+	/////
+	///// <param name="bytes">The number of bytes to allocate.</param>
+	/////
+	///// <returns>The allocated object.</returns>
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	//void *operator new(size_t bytes);
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	///// <summary>Object de-allocation operator.</summary>
+	/////
+	///// <param name="ptr">[in,out] If non-null, the pointer to delete.</param>
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	//void operator delete(void *ptr);
 
 public:
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>Constructor.</summary>
-    ///
-    /// <param name="appName"> Name of the application.</param>
-    /// <param name="location">The location.</param>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    tsAppConfig(const tscrypto::tsCryptoString &appName, ConfigLocation location);
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>Constructor.</summary>
-    ///
-    /// <param name="appName">  Name of the application.</param>
-    /// <param name="location"> The location.</param>
-    /// <param name="buildHere">The build here.</param>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    tsAppConfig(const tscrypto::tsCryptoString &appName, ConfigLocation location, ConfigLocation buildHere);
-    /// <summary>Destructor.</summary>
-    ~tsAppConfig();
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// <summary>Constructor.</summary>
+	///
+	/// <param name="appName"> Name of the application.</param>
+	/// <param name="location">The location.</param>
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	tsAppConfig(const tscrypto::tsCryptoString &appName, ConfigLocation location);
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// <summary>Constructor.</summary>
+	///
+	/// <param name="appName">  Name of the application.</param>
+	/// <param name="location"> The location.</param>
+	/// <param name="buildHere">The build here.</param>
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	tsAppConfig(const tscrypto::tsCryptoString &appName, ConfigLocation location, ConfigLocation buildHere);
+	/// <summary>Destructor.</summary>
+	~tsAppConfig();
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>Gets the top level node as parsed from the XML configuration file.</summary>
-    ///
-    /// <returns>null if it fails, else the top level node</returns>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// <summary>Gets the top level node as parsed from the XML configuration file.</summary>
+	///
+	/// <returns>null if it fails, else the top level node</returns>
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	std::shared_ptr<tsXmlNode> Root();
-    /**
-     * \brief Gets the root.
-     *
-     * \return null if it fails, else.
-     */
+	/**
+	 * \brief Gets the root.
+	 *
+	 * \return null if it fails, else.
+	 */
 	std::shared_ptr<tsXmlNode> Root() const;
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>Searches for the first node that matches the search path</summary>
-    ///
-    /// <param name="nodeName">Search path  of the node to find</param>
-    /// <param name="buildIt"> true to build the node if it does not exist.</param>
-    ///
-    /// <returns>null if it fails, else the found node.</returns>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// <summary>Searches for the first node that matches the search path</summary>
+	///
+	/// <param name="nodeName">Search path  of the node to find</param>
+	/// <param name="buildIt"> true to build the node if it does not exist.</param>
+	///
+	/// <returns>null if it fails, else the found node.</returns>
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	std::shared_ptr<tsXmlNode> findNode(const tscrypto::tsCryptoString &nodeName, bool buildIt);
-    /**
-     * \brief Searches for the first node that matches the search path.
-     *
-     * \param nodeName Name of the node.
-     *
-     * \return null if it fails, else the found node.
-     */
+	/**
+	 * \brief Searches for the first node that matches the search path.
+	 *
+	 * \param nodeName Name of the node.
+	 *
+	 * \return null if it fails, else the found node.
+	 */
 	std::shared_ptr<tsXmlNode> findNode(const tscrypto::tsCryptoString &nodeName) const;
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Searches for the all nodes that match the search criteria.</summary>
@@ -177,89 +177,89 @@ public:
 	/// <returns>null if it fails, else the node added to the configuration</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	std::shared_ptr<tsXmlNode> addNode(const tscrypto::tsCryptoString &nodeName, bool bUnique);
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>Adds a node to the configuration or returns the existing node</summary>
-    ///
-    /// <param name="nodeName">Name of the node desired</param>
-    ///
-    /// <returns>null if it fails, else the node of that name</returns>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// <summary>Adds a node to the configuration or returns the existing node</summary>
+	///
+	/// <param name="nodeName">Name of the node desired</param>
+	///
+	/// <returns>null if it fails, else the node of that name</returns>
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	std::shared_ptr<tsXmlNode> addNode(const tscrypto::tsCryptoString &nodeName);
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>Removes a named node from the configuration</summary>
-    ///
-    /// <param name="nodeName">Name of the node.</param>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    void deleteNode(const tscrypto::tsCryptoString &nodeName);
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>Saves the current state (in memory) to the actual configuration file</summary>
-    ///
-    /// <remarks>All changes made with this class are held in memory.  To persist these changes you
-    /// 		 must call this function.</remarks>
-    /// <returns>true if it succeeds, false if it fails.</returns>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    bool Save();
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// <summary>Removes a named node from the configuration</summary>
+	///
+	/// <param name="nodeName">Name of the node.</param>
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	void deleteNode(const tscrypto::tsCryptoString &nodeName);
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// <summary>Saves the current state (in memory) to the actual configuration file</summary>
+	///
+	/// <remarks>All changes made with this class are held in memory.  To persist these changes you
+	/// 		 must call this function.</remarks>
+	/// <returns>true if it succeeds, false if it fails.</returns>
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	bool Save();
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>Retrieves the string value of an attribute from the named node</summary>
-    ///
-    /// <param name="nodeName">Name of the node.</param>
-    /// <param name="itemName">Name of the attribute.</param>
-    ///
-    /// <returns>The value of the attribute</returns>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    tscrypto::tsCryptoString getNodeItem(const tscrypto::tsCryptoString &nodeName, const tscrypto::tsCryptoString &itemName) const;
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>Retrieves the integer value of an attribute from the named node or the default value.</summary>
-    ///
-    /// <param name="nodeName">	   Name of the node.</param>
-    /// <param name="itemName">	   Name of the attribute.</param>
-    /// <param name="defaultValue">The default value.</param>
-    ///
-    /// <returns>The integer value of the attribute or the default value if the node does not exist.</returns>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    int getNodeItemAsNumber(const tscrypto::tsCryptoString &nodeName, const tscrypto::tsCryptoString &itemName, int defaultValue) const;
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>Retrieves the boolean value of an attribute from the named node or the default value.</summary>
-    ///
-    /// <param name="nodeName">	   Name of the node.</param>
-    /// <param name="itemName">	   Name of the attribute.</param>
-    /// <param name="defaultValue">The default value.</param>
-    ///
-    /// <returns>The boolean value of the attribute or the default value if the node does not exist.</returns>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    bool getNodeItemAsBool(const tscrypto::tsCryptoString &nodeName, const tscrypto::tsCryptoString &itemName, bool defaultValue) const;
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// <summary>Retrieves the string value of an attribute from the named node</summary>
+	///
+	/// <param name="nodeName">Name of the node.</param>
+	/// <param name="itemName">Name of the attribute.</param>
+	///
+	/// <returns>The value of the attribute</returns>
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	tscrypto::tsCryptoString getNodeItem(const tscrypto::tsCryptoString &nodeName, const tscrypto::tsCryptoString &itemName) const;
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// <summary>Retrieves the integer value of an attribute from the named node or the default value.</summary>
+	///
+	/// <param name="nodeName">	   Name of the node.</param>
+	/// <param name="itemName">	   Name of the attribute.</param>
+	/// <param name="defaultValue">The default value.</param>
+	///
+	/// <returns>The integer value of the attribute or the default value if the node does not exist.</returns>
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	int getNodeItemAsNumber(const tscrypto::tsCryptoString &nodeName, const tscrypto::tsCryptoString &itemName, int defaultValue) const;
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// <summary>Retrieves the boolean value of an attribute from the named node or the default value.</summary>
+	///
+	/// <param name="nodeName">	   Name of the node.</param>
+	/// <param name="itemName">	   Name of the attribute.</param>
+	/// <param name="defaultValue">The default value.</param>
+	///
+	/// <returns>The boolean value of the attribute or the default value if the node does not exist.</returns>
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	bool getNodeItemAsBool(const tscrypto::tsCryptoString &nodeName, const tscrypto::tsCryptoString &itemName, bool defaultValue) const;
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>Sets or creates an attribute in the named node and sets the string value</summary>
-    ///
-    /// <param name="nodeName">Name of the node.</param>
-    /// <param name="itemName">Name of the attribute.</param>
-    /// <param name="value">   The value to set.</param>
-    ///
-    /// <returns>true if it succeeds, false if it fails.</returns>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// <summary>Sets or creates an attribute in the named node and sets the string value</summary>
+	///
+	/// <param name="nodeName">Name of the node.</param>
+	/// <param name="itemName">Name of the attribute.</param>
+	/// <param name="value">   The value to set.</param>
+	///
+	/// <returns>true if it succeeds, false if it fails.</returns>
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	bool setNodeItem(const tscrypto::tsCryptoString &nodeName, const tscrypto::tsCryptoString &itemName, const tscrypto::tsCryptoString &value);
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>Sets or creates an attribute in the named node and sets the integer value.</summary>
-    ///
-    /// <param name="nodeName">Name of the node.</param>
-    /// <param name="itemName">Name of the attribute.</param>
-    /// <param name="value">   The value to set.</param>
-    ///
-    /// <returns>true if it succeeds, false if it fails.</returns>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// <summary>Sets or creates an attribute in the named node and sets the integer value.</summary>
+	///
+	/// <param name="nodeName">Name of the node.</param>
+	/// <param name="itemName">Name of the attribute.</param>
+	/// <param name="value">   The value to set.</param>
+	///
+	/// <returns>true if it succeeds, false if it fails.</returns>
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	bool setNodeItemAsNumber(const tscrypto::tsCryptoString &nodeName, const tscrypto::tsCryptoString &itemName, int value);
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>Sets or creates an attribute in the named node and sets the boolean value.</summary>
-    ///
-    /// <param name="nodeName">Name of the node.</param>
-    /// <param name="itemName">Name of the attribute.</param>
-    /// <param name="value">   The value to set.</param>
-    ///
-    /// <returns>true if it succeeds, false if it fails.</returns>
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// <summary>Sets or creates an attribute in the named node and sets the boolean value.</summary>
+	///
+	/// <param name="nodeName">Name of the node.</param>
+	/// <param name="itemName">Name of the attribute.</param>
+	/// <param name="value">   The value to set.</param>
+	///
+	/// <returns>true if it succeeds, false if it fails.</returns>
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	bool setNodeItemAsBool(const tscrypto::tsCryptoString &nodeName, const tscrypto::tsCryptoString &itemName, bool value);
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -325,7 +325,7 @@ public:
 	tscrypto::tsCryptoString configFilePath() const;
 protected:
 	std::shared_ptr<tsXmlNode> m_root;
-    tscrypto::tsCryptoString   m_path;
+	tscrypto::tsCryptoString   m_path;
 };
 
 #endif // tsAppConfig_H_INCLUDED

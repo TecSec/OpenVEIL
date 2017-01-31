@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -60,36 +60,36 @@ public:
 	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
 	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
 
-    /**
-     * \brief Default constructor.
-     */
+		/**
+		 * \brief Default constructor.
+		 */
 		JsonPreferenceItem() : Location(jc_NotFound) {}
-    /**
-     * \brief Constructor.
-     *
-     * \param path	   Full pathname of the file.
-     * \param value    The value.
-     * \param location The location.
-     */
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param path	   Full pathname of the file.
+	 * \param value    The value.
+	 * \param location The location.
+	 */
 	JsonPreferenceItem(const tscrypto::tsCryptoStringBase &path, const tscrypto::tsCryptoStringBase &value, JsonConfigLocation location) :
 		Path(path), Value(value), Location(location) {}
-    /**
-     * \brief Constructor.
-     *
-     * \param obj The object.
-     */
+	/**
+	 * \brief Constructor.
+	 *
+	 * \param obj The object.
+	 */
 	JsonPreferenceItem(const JsonPreferenceItem& obj) : Path(obj.Path), Value(obj.Value), Location(obj.Location) {}
-    /**
-     * \brief Assignment operator.
-     *
-     * \param obj The object.
-     *
-     * \return A shallow copy of this object.
-     */
+	/**
+	 * \brief Assignment operator.
+	 *
+	 * \param obj The object.
+	 *
+	 * \return A shallow copy of this object.
+	 */
 	JsonPreferenceItem &operator=(const JsonPreferenceItem& obj) { if (&obj != this) { Path = obj.Path; Value = obj.Value; Location = obj.Location; }return *this; }
 
-    tscrypto::tsCryptoString Path; ///< Full pathname of the preference item
-    tscrypto::tsCryptoString Value;	///< The value
+	tscrypto::tsCryptoString Path; ///< Full pathname of the preference item
+	tscrypto::tsCryptoString Value;	///< The value
 	JsonConfigLocation Location; ///< The location
 
 	/**
@@ -98,57 +98,57 @@ public:
 	 * \return true if node, false if not.
 	 */
 	bool isNode() const { return Path[0] == '&'; }
-    /**
-     * \brief Query if this object is entry.
-     *
-     * \return true if entry, false if not.
-     */
-    bool isEntry() const { return !isNode() && Path.size() > 0; }
-    /**
-     * \brief Gets the attribute path.
-     *
-     * \return .
-     */
-    tscrypto::tsCryptoString ItemPath() const {
+	/**
+	 * \brief Query if this object is entry.
+	 *
+	 * \return true if entry, false if not.
+	 */
+	bool isEntry() const { return !isNode() && Path.size() > 0; }
+	/**
+	 * \brief Gets the attribute path.
+	 *
+	 * \return .
+	 */
+	tscrypto::tsCryptoString ItemPath() const {
 		if (isNode()) return &Path.c_str()[1];
 		return Path;
 	}
-    /**
-     * \brief Gets the value as number.
-     *
-     * \return .
-     */
-    int valueAsNumber() const { return TsStrToInt(Value); }
-    /**
-     * \brief Gets the value as int 64.
-     *
-     * \return .
-     */
-    int64_t valueAsInt64() const { return TsStrToInt64(Value); }
-    /**
-     * \brief Determines if we can value as bool.
-     *
-     * \return true if it succeeds, false if it fails.
-     */
-    bool valueAsBool() const { return TsStrToInt64(Value) != 0 || TsStriCmp(Value, "true") == 0; }
-    /**
-     * \brief Sets value as number.
-     *
-     * \param setTo The set to.
-     */
-    void setValueAsNumber(int setTo) { 	char buff[20]; Value.clear(); tscrypto::TsSnPrintf(buff, sizeof(buff) / sizeof(char), ("%d"), setTo); Value = buff; }
-    /**
-     * \brief Sets value as int 64.
-     *
-     * \param setTo The set to.
-     */
-    void setValueAsInt64(int64_t setTo) { 	char buff[60]; Value.clear(); tscrypto::TsSnPrintf(buff, sizeof(buff) / sizeof(char), ("%lld"), setTo); Value = buff; }
-    /**
-     * \brief Sets value as bool.
-     *
-     * \param setTo true to set to.
-     */
-    void setValueAsBool(bool setTo) { 	Value = setTo ? "true" : "false"; }
+	/**
+	 * \brief Gets the value as number.
+	 *
+	 * \return .
+	 */
+	int valueAsNumber() const { return TsStrToInt(Value); }
+	/**
+	 * \brief Gets the value as int 64.
+	 *
+	 * \return .
+	 */
+	int64_t valueAsInt64() const { return TsStrToInt64(Value); }
+	/**
+	 * \brief Determines if we can value as bool.
+	 *
+	 * \return true if it succeeds, false if it fails.
+	 */
+	bool valueAsBool() const { return TsStrToInt64(Value) != 0 || TsStriCmp(Value, "true") == 0; }
+	/**
+	 * \brief Sets value as number.
+	 *
+	 * \param setTo The set to.
+	 */
+	void setValueAsNumber(int setTo) { char buff[20]; Value.clear(); tscrypto::TsSnPrintf(buff, sizeof(buff) / sizeof(char), ("%d"), setTo); Value = buff; }
+	/**
+	 * \brief Sets value as int 64.
+	 *
+	 * \param setTo The set to.
+	 */
+	void setValueAsInt64(int64_t setTo) { char buff[60]; Value.clear(); tscrypto::TsSnPrintf(buff, sizeof(buff) / sizeof(char), ("%lld"), setTo); Value = buff; }
+	/**
+	 * \brief Sets value as bool.
+	 *
+	 * \param setTo true to set to.
+	 */
+	void setValueAsBool(bool setTo) { Value = setTo ? "true" : "false"; }
 	bool operator==(const JsonPreferenceItem& obj) const { return TsStrCmp(Path, obj.Path) == 0; }
 };
 
@@ -521,7 +521,7 @@ protected:
 	///
 	/// <returns>the configuration name..</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual tscrypto::tsCryptoString ConfigName() { return _configName; }
+	virtual tscrypto::tsCryptoString ConfigName() { return _configName; }
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Saves the configuration changes for the specified location.</summary>
@@ -566,7 +566,7 @@ protected:
 
 	DECLARE_TEXT_PREF_CODE(Debug)
 protected:
-    tscrypto::tsCryptoString _configName;
+	tscrypto::tsCryptoString _configName;
 	tscrypto::tsCryptoString _root;
 };
 

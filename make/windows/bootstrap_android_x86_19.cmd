@@ -1,5 +1,5 @@
 @echo off
-rem	Copyright (c) 2016, TecSec, Inc.
+rem	Copyright (c) 2017, TecSec, Inc.
 rem
 rem	Redistribution and use in source and binary forms, with or without
 rem	modification, are permitted provided that the following conditions are met:

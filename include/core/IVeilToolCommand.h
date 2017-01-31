@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -35,9 +35,9 @@ namespace tsmod {
 	class VEILCORE_API IVeilToolCommand
 	{
 	public:
-	virtual ~IVeilToolCommand() {}
-	virtual tscrypto::tsCryptoString getDescription() const = 0;
-	virtual int RunCommand(CSimpleOptA& opt) = 0;
-	virtual tscrypto::tsCryptoString getCommandName() const = 0;
+		virtual ~IVeilToolCommand() {}
+		virtual tscrypto::tsCryptoString getDescription() const = 0;
+		virtual int RunCommand(CSimpleOptA& opt) = 0;
+		virtual tscrypto::tsCryptoString getCommandName() const = 0;
 	};
 }

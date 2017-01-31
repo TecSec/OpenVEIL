@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -55,7 +55,7 @@ class CryptoContainerWrapper
     : public ICryptoContainerWrapper<baseType> /*, public
                                                   tscrypto::ICryptoObject*/
 {
-	public:
+        public:
 		typedef typename std::vector<baseType> listType;
 		typedef size_t size_type;
 		typedef ptrdiff_t difference_type;

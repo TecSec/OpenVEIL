@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -32,10 +32,10 @@
 /*! \file xp_console.h
  * <summary>Trace logging classes, functions and variables</summary>
  */
- 
+
 #ifndef __XP_CONSOLE_H__
 #define __XP_CONSOLE_H__
- 
+
 #pragma once
 
 class VEILCORE_API xp_console;

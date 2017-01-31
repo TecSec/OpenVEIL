@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -55,7 +55,7 @@ public:
 	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
 	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
 
-	/// <summary>Default constructor.</summary>
+		/// <summary>Default constructor.</summary>
 	tsXmlParser();
 	/// <summary>Destructor.</summary>
 	~tsXmlParser();
@@ -115,20 +115,20 @@ public:
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	bool Parse(const char *xml, size_t len, tsXmlParserCallback *callback, tscrypto::tsCryptoStringBase &Results);
 
-    //////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///// <summary>Object allocation operator.</summary>
-    /////
-    ///// <param name="bytes">The number of bytes to allocate.</param>
-    /////
-    ///// <returns>The allocated object.</returns>
-    //////////////////////////////////////////////////////////////////////////////////////////////////////
-    //void *operator new(size_t bytes);
-    //////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///// <summary>Object de-allocation operator.</summary>
-    /////
-    ///// <param name="ptr">[in,out] If non-null, the pointer to delete.</param>
-    //////////////////////////////////////////////////////////////////////////////////////////////////////
-    //void operator delete(void *ptr);
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	///// <summary>Object allocation operator.</summary>
+	/////
+	///// <param name="bytes">The number of bytes to allocate.</param>
+	/////
+	///// <returns>The allocated object.</returns>
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	//void *operator new(size_t bytes);
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	///// <summary>Object de-allocation operator.</summary>
+	/////
+	///// <param name="ptr">[in,out] If non-null, the pointer to delete.</param>
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	//void operator delete(void *ptr);
 
 protected:
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -136,7 +136,7 @@ protected:
 	///
 	/// <param name="Results">[in,out] The error results.</param>
 	///
-    /// <returns>The parser error code for this tag.</returns>
+	/// <returns>The parser error code for this tag.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	tsXmlParserCallback::resultCodes Parse(tscrypto::tsCryptoStringBase &Results);
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -178,7 +178,7 @@ protected:
 	///
 	/// <param name="Results">[in,out] The error results.</param>
 	///
-    /// <returns>The parser error code for this tag.</returns>
+	/// <returns>The parser error code for this tag.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	tsXmlParserCallback::resultCodes ParseNode(tscrypto::tsCryptoStringBase &Results);
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -186,7 +186,7 @@ protected:
 	///
 	/// <param name="Results">[in,out] The error results.</param>
 	///
-    /// <returns>The parser error code for this tag.</returns>
+	/// <returns>The parser error code for this tag.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	tsXmlParserCallback::resultCodes ParseTextNode(tscrypto::tsCryptoStringBase &Results);
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -194,7 +194,7 @@ protected:
 	///
 	/// <param name="Results">[in,out] The error results.</param>
 	///
-    /// <returns>The parser error code for this tag.</returns>
+	/// <returns>The parser error code for this tag.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	tsXmlParserCallback::resultCodes ParseAttribute(tscrypto::tsCryptoStringBase &Results);
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -202,7 +202,7 @@ protected:
 	///
 	/// <param name="Results">[in,out] The error results.</param>
 	///
-    /// <returns>The parser error code for this tag.</returns>
+	/// <returns>The parser error code for this tag.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	tsXmlParserCallback::resultCodes ParseComment(tscrypto::tsCryptoStringBase &Results);
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -210,7 +210,7 @@ protected:
 	///
 	/// <param name="Results">[in,out] The error results.</param>
 	///
-    /// <returns>The parser error code for this tag.</returns>
+	/// <returns>The parser error code for this tag.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	tsXmlParserCallback::resultCodes ParseCData(tscrypto::tsCryptoStringBase &Results);
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -218,7 +218,7 @@ protected:
 	///
 	/// <param name="Results">[in,out] The error results.</param>
 	///
-    /// <returns>The parser error code for this tag.</returns>
+	/// <returns>The parser error code for this tag.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	tsXmlParserCallback::resultCodes ParseProcessingInstruction(tscrypto::tsCryptoStringBase &Results);
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -226,7 +226,7 @@ protected:
 	///
 	/// <param name="Results">[in,out] The error results.</param>
 	///
-    /// <returns>The parser error code for this tag.</returns>
+	/// <returns>The parser error code for this tag.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	tsXmlParserCallback::resultCodes ParseMetadataInstruction(tscrypto::tsCryptoStringBase &Results);
 

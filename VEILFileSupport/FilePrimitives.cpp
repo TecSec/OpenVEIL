@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -189,7 +189,7 @@ bool GetStreamNames (const tscrypto::tsCryptoString& filename, tscrypto::tsCrypt
     {
         // If we are done or there was no data read, break out
         if ( !bContinue || 0 == dwRead || (long)dwRead != (LPBYTE)&Sid.cStreamName - (LPBYTE)&Sid)
-            break;
+			break;
 
         // If this stream is named Alternate Data, get it's name.
         if ( BACKUP_ALTERNATE_DATA == Sid.dwStreamId && 0 < Sid.dwStreamNameSize )

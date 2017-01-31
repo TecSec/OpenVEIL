@@ -1,0 +1,1693 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+ 	Copyright (c) 2017, TecSec, Inc.
+ 
+ 	Redistribution and use in source and binary forms, with or without
+ 	modification, are permitted provided that the following conditions are met:
+ 	
+ 		* Redistributions of source code must retain the above copyright
+ 		  notice, this list of conditions and the following disclaimer.
+ 		* Redistributions in binary form must reproduce the above copyright
+ 		  notice, this list of conditions and the following disclaimer in the
+ 		  documentation and/or other materials provided with the distribution.
+ 		* Neither the name of TecSec nor the names of the contributors may be
+ 		  used to endorse or promote products derived from this software 
+ 		  without specific prior written permission.
+ 		 
+ 	ALTERNATIVELY, provided that this notice is retained in full, this product
+ 	may be distributed under the terms of the GNU General Public License (GPL),
+ 	in which case the provisions of the GPL apply INSTEAD OF those given above.
+ 		 
+ 	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ 	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ 	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ 	DISCLAIMED.  IN NO EVENT SHALL TECSEC BE LIABLE FOR ANY 
+ 	DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ 	(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ 	LOSS OF USE, DATA OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ 	ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ 	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ 	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ Written by Roger Butler
+-->
+<Root xmlns="http://schemas.tecsec.com/xml2asn1codegen/2015">
+  <File Name="CryptoAsn1" ExportSymbol="VEILCORE_API" TemplateExternSymbol="VEILCORE_TEMPLATE_EXTERN" HeaderPrefix="core/">
+    <Namespace Name="tscrypto">
+
+      <ID Name="TECSEC_CMS_HEADER" Value="1.2.840.10060.4" Exported="true" />
+
+      <ID Name="TECSEC_OID"	Value="2.23.42.9.10.3.0" Exported="true" />
+      <ID Name="TECSEC_CKMGROUP_OID" Value="{TECSEC_OID}.2" Exported="true" />
+
+      <ID Name="TECSEC_CKMHEADER_V2_OID" Value="{TECSEC_CKMGROUP_OID}.0" Exported="true"/>
+      <ID Name="TECSEC_EMBEDDED_CKMHEADER_OID" Value="{TECSEC_CKMGROUP_OID}.1" Exported="true"/>
+      <ID Name="TECSEC_CKM7_OID" Value="{TECSEC_ALGORITHMS_OID}.1" Exported="true"/>
+      <ID Name="TECSEC_CKM7_SCP_KEYS_OID" Value="{TECSEC_ALGORITHMS_OID}.1.0" Exported="true"/>
+      <ID Name="TECSEC_CKM7_GENERAL_WITH_MAC_OID" Value="{TECSEC_ALGORITHMS_OID}.1.1" Exported="true"/>
+      <ID Name="TECSEC_CKM7_KEY_AND_IVEC_OID" Value="{TECSEC_ALGORITHMS_OID}.1.2" Exported="true"/>
+      <ID Name="TECSEC_CKM7_ENC_MAC_AND_IVEC_OID" Value="{TECSEC_ALGORITHMS_OID}.1.3" Exported="true"/>
+
+
+      <ID Name="TECSEC_CKMHEADER_V3_OID" Value="{TECSEC_CKMGROUP_OID}.2" Exported="true"/>
+      <ID Name="TECSEC_CKMHEADER_V3_IVEC_EXT_OID" Value="{TECSEC_CKMGROUP_OID}.2.1" Exported="true"/>
+      <ID Name="TECSEC_CKMHEADER_V3_SECRYPTM_EXT_OID" Value="{TECSEC_CKMGROUP_OID}.2.2" Exported="true"/>
+      <ID Name="TECSEC_CKMHEADER_V3_SECRYPTM_EXT_PAD2_OID" Value="{TECSEC_CKMGROUP_OID}.2.2.1" Exported="true"/>
+      <ID Name="TECSEC_CKMHEADER_V3_FILELENGTH_EXT_OID" Value="{TECSEC_CKMGROUP_OID}.2.3" Exported="true"/>
+      <ID Name="TECSEC_CKMHEADER_V3_FILEHASH_EXT_OID" Value="{TECSEC_CKMGROUP_OID}.2.4" Exported="true"/>
+      <ID Name="TECSEC_CKMHEADER_V3_FILENAME_EXT_OID" Value="{TECSEC_CKMGROUP_OID}.2.5" Exported="true"/>
+      <ID Name="TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID" Value="{TECSEC_CKMGROUP_OID}.2.6" Exported="true"/>
+      <ID Name="TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID" Value="{TECSEC_CKMGROUP_OID}.2.7" Exported="true"/>
+      <ID Name="TECSEC_CKMHEADER_V7_ISSUER_EXT_OID" Value="{TECSEC_CKMGROUP_OID}.2.8" Exported="true"/>
+      <ID Name="TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID" Value="{TECSEC_CKMGROUP_OID}.2.9" Exported="true"/>
+      <ID Name="TECSEC_CKMHEADER_V7_SIGN_KEY_EXT_OID" Value="{TECSEC_CKMGROUP_OID}.2.10" Exported="true"/>
+      <ID Name="TECSEC_CKMHEADER_V7_KEY_USAGE_EXT_OID" Value="{TECSEC_CKMGROUP_OID}.2.11" Exported="true"/>
+      <ID Name="TECSEC_CKMHEADER_V7_BITSPRAY_EXT_OID" Value="{TECSEC_CKMGROUP_OID}.2.12" Exported="true"/>
+      <ID Name="TECSEC_CKMHEADER_V7_BITSPRAY_META_EXT_OID" Value="{TECSEC_CKMGROUP_OID}.2.12.1" Exported="true"/>
+      <ID Name="TECSEC_CKMHEADER_V7_BITSPRAY_SHARES_EXT_OID" Value="{TECSEC_CKMGROUP_OID}.2.12.2" Exported="true"/>
+      <ID Name="TECSEC_CKMHEADER_V7_FAVORITE_NAME_EXT_OID" Value="{TECSEC_CKMGROUP_OID}.2.13" Exported="true"/>
+      <ID Name="TECSEC_CKMHEADER_V7_DATA_SIGNATURE_EXT_OID" Value="{TECSEC_CKMGROUP_OID}.2.14" Exported="true"/>
+      <ID Name="TECSEC_CKMHEADER_V7_BLOCKSIZE_EXT_OID" Value="{TECSEC_CKMGROUP_OID}.2.15" Exported="true"/>
+      <ID Name="TECSEC_CKMHEADER_V7_DATA_FORMAT_EXT_OID" Value="{TECSEC_CKMGROUP_OID}.2.16" Exported="true"/>
+      <ID Name="TECSEC_CKMHEADER_V7_MIME_TYPE_EXT_OID" Value="{TECSEC_CKMGROUP_OID}.2.17" Exported="true"/>
+      <ID Name="TECSEC_PRODUCTS_OID" Value="{TECSEC_OID}.3" Exported="true"/>
+      <ID Name="TECSEC_CKMFILE_OID" Value="{TECSEC_PRODUCTS_OID}.0" Exported="true"/>
+      <ID Name="TECSEC_DISKENCRYPTOR_OID" Value="{TECSEC_PRODUCTS_OID}.1" Exported="true"/>
+      <ID Name="TECSEC_CKMOFFICE_OID" Value="{TECSEC_PRODUCTS_OID}.2" Exported="true"/>
+      <ID Name="TECSEC_CKMOFFICE_SELECTION_OID" Value="{TECSEC_PRODUCTS_OID}.2.0" Exported="true"/>
+      <ID Name="TECSEC_CKMOFFICE_SECTION_OID" Value="{TECSEC_PRODUCTS_OID}.2.1" Exported="true"/>
+      <ID Name="TECSEC_CKMOFFICE_RIGHTS_OID" Value="{TECSEC_PRODUCTS_OID}.2.2" Exported="true"/>
+      <ID Name="TECSEC_SECRYPTM_OID" Value="{TECSEC_PRODUCTS_OID}.3" Exported="true"/>
+      <ID Name="TECSEC_SECRYPTM_DEFINITION_OID" Value="{TECSEC_PRODUCTS_OID}.3.0" Exported="true"/>
+      <ID Name="TECSEC_SFX_ENCRYPTOR_OID" Value="{TECSEC_PRODUCTS_OID}.4" Exported="true"/>
+      <ID Name="TECSEC_OVERLAYED_IMAGE_OID" Value="{TECSEC_PRODUCTS_OID}.5" Exported="true"/>
+      <ID Name="TECSEC_FIRST_RESPONDER_OID" Value="{TECSEC_PRODUCTS_OID}.6" Exported="true"/>
+      <ID Name="TECSEC_FIRST_RESPONDER_DEMO1_OID" Value="{TECSEC_PRODUCTS_OID}.6.1" Exported="true"/>
+      <ID Name="TECSEC_DEMOS_OID" Value="{TECSEC_PRODUCTS_OID}.7" Exported="true"/>
+      <ID Name="TECSEC_DEMOS_AMA_OID" Value="{TECSEC_PRODUCTS_OID}.7.1" Exported="true"/>
+      <ID Name="TECSEC_VEIL_SSM_OID" Value="{TECSEC_PRODUCTS_OID}.8" Exported="true"/>
+      <ID Name="TECSEC_TOKEN_PROVIDER_OID" Value="{TECSEC_OID}.4" Exported="true"/>
+      <ID Name="TECSEC_SOFT_TOKEN_OID" Value="{TECSEC_TOKEN_PROVIDER_OID}.0" Exported="true"/>
+      <ID Name="TECSEC_OLD_SMARTCARD_TOKEN_OID" Value="{TECSEC_TOKEN_PROVIDER_OID}.1" Exported="true"/>
+      <ID Name="TECSEC_CPS_TOKEN_OID" Value="{TECSEC_TOKEN_PROVIDER_OID}.2" Exported="true"/>
+      <ID Name="TECSEC_EAGLECARD_TOKEN_OID" Value="{TECSEC_TOKEN_PROVIDER_OID}.3" Exported="true"/>
+      <ID Name="TECSEC_TOKEN_UPDATE_OID" Value="{TECSEC_OID}.5" Exported="true"/>
+      <ID Name="TECSEC_SOFT_TOKEN_UNLOCK_OID" Value="{TECSEC_TOKEN_UPDATE_OID}.1" Exported="true"/>
+      <ID Name="TECSEC_ADMIN_PROGRAM_OID" Value="{TECSEC_OID}.6" Exported="true"/>
+      <ID Name="TECSEC_ENTERPRISE_BUILDER_OID" Value="{TECSEC_OID}.6.0" Exported="true"/>
+      <ID Name="TECSEC_TOKENUTIL_OID" Value="{TECSEC_OID}.6.1" Exported="true"/>
+      <ID Name="TECSEC_ALGORITHMS_OID" Value="{TECSEC_OID}.7" Exported="true"/>
+      <ID Name="TECSEC_CKMENCRYPT_OID" Value="{TECSEC_ALGORITHMS_OID}.0" Exported="true"/>
+
+      <ID Name="TECSEC_SYM_ALGS_OID" Value="{TECSEC_ALGORITHMS_OID}.2" Exported="true"/>
+      <ID Name="TECSEC_AES_OID" Value="{TECSEC_SYM_ALGS_OID}.0" Exported="true"/>
+      <ID Name="TECSEC_AES_128_ECB_OID" Value="{TECSEC_SYM_ALGS_OID}.1" Exported="true"/>
+      <ID Name="TECSEC_AES_128_CBC_OID" Value="{TECSEC_SYM_ALGS_OID}.2" Exported="true"/>
+      <ID Name="TECSEC_AES_128_OFB_OID" Value="{TECSEC_SYM_ALGS_OID}.3" Exported="true"/>
+      <ID Name="TECSEC_AES_128_CFB_OID" Value="{TECSEC_SYM_ALGS_OID}.4" Exported="true"/>
+      <ID Name="TECSEC_AES_128_wrap_OID" Value="{TECSEC_SYM_ALGS_OID}.5" Exported="true"/>
+      <ID Name="TECSEC_AES_128_GCM_OID" Value="{TECSEC_SYM_ALGS_OID}.6" Exported="true"/>
+      <ID Name="TECSEC_AES_128_CCM_OID" Value="{TECSEC_SYM_ALGS_OID}.7" Exported="true"/>
+      <ID Name="TECSEC_AES_128_wrap_pad_OID" Value="{TECSEC_SYM_ALGS_OID}.8" Exported="true"/>
+      <ID Name="TECSEC_AES_192_ECB_OID" Value="{TECSEC_SYM_ALGS_OID}.21" Exported="true"/>
+      <ID Name="TECSEC_AES_192_CBC_OID" Value="{TECSEC_SYM_ALGS_OID}.22" Exported="true"/>
+      <ID Name="TECSEC_AES_192_OFB_OID" Value="{TECSEC_SYM_ALGS_OID}.23" Exported="true"/>
+      <ID Name="TECSEC_AES_192_CFB_OID" Value="{TECSEC_SYM_ALGS_OID}.24" Exported="true"/>
+      <ID Name="TECSEC_AES_192_wrap_OID" Value="{TECSEC_SYM_ALGS_OID}.25" Exported="true"/>
+      <ID Name="TECSEC_AES_192_GCM_OID" Value="{TECSEC_SYM_ALGS_OID}.26" Exported="true"/>
+      <ID Name="TECSEC_AES_192_CCM_OID" Value="{TECSEC_SYM_ALGS_OID}.27" Exported="true"/>
+      <ID Name="TECSEC_AES_192_wrap_pad_OID" Value="{TECSEC_SYM_ALGS_OID}.28" Exported="true"/>
+      <ID Name="TECSEC_AES_256_ECB_OID" Value="{TECSEC_SYM_ALGS_OID}.41" Exported="true"/>
+      <ID Name="TECSEC_AES_256_CBC_OID" Value="{TECSEC_SYM_ALGS_OID}.42" Exported="true"/>
+      <ID Name="TECSEC_AES_256_OFB_OID" Value="{TECSEC_SYM_ALGS_OID}.43" Exported="true"/>
+      <ID Name="TECSEC_AES_256_CFB_OID" Value="{TECSEC_SYM_ALGS_OID}.44" Exported="true"/>
+      <ID Name="TECSEC_AES_256_wrap_OID" Value="{TECSEC_SYM_ALGS_OID}.45" Exported="true"/>
+      <ID Name="TECSEC_AES_256_GCM_OID" Value="{TECSEC_SYM_ALGS_OID}.46" Exported="true"/>
+      <ID Name="TECSEC_AES_256_CCM_OID" Value="{TECSEC_SYM_ALGS_OID}.47" Exported="true"/>
+      <ID Name="TECSEC_AES_256_wrap_pad_OID" Value="{TECSEC_SYM_ALGS_OID}.48" Exported="true"/>
+      <ID Name="TECSEC_TDES_TWOKEY_OFB" Value="{TECSEC_SYM_ALGS_OID}.60" Exported="true"/>
+      <ID Name="TECSEC_TDES_THREEKEY_OFB" Value="{TECSEC_SYM_ALGS_OID}.61" Exported="true"/>
+      <ID Name="TECSEC_TDES_TWOKEY_CFB8" Value="{TECSEC_SYM_ALGS_OID}.62" Exported="true"/>
+      <ID Name="TECSEC_TDES_THREEKEY_CFB8" Value="{TECSEC_SYM_ALGS_OID}.63" Exported="true"/>
+      <ID Name="TECSEC_TDES_TWOKEY_CFB64" Value="{TECSEC_SYM_ALGS_OID}.64" Exported="true"/>
+      <ID Name="TECSEC_TDES_THREEKEY_CFB64" Value="{TECSEC_SYM_ALGS_OID}.65" Exported="true"/>
+      <ID Name="TECSEC_TDES_TWOKEY_CTR" Value="{TECSEC_SYM_ALGS_OID}.66" Exported="true"/>
+      <ID Name="TECSEC_TDES_THREEKEY_CTR" Value="{TECSEC_SYM_ALGS_OID}.67" Exported="true"/>
+      <ID Name="TECSEC_AES_256_CTR_OID" Value="{TECSEC_SYM_ALGS_OID}.68" Exported="true"/>
+      <ID Name="TECSEC_AES_192_CTR_OID" Value="{TECSEC_SYM_ALGS_OID}.69" Exported="true"/>
+      <ID Name="TECSEC_AES_128_CTR_OID" Value="{TECSEC_SYM_ALGS_OID}.70" Exported="true"/>
+      <ID Name="TECSEC_TSAES_256_CTR_OID" Value="{TECSEC_SYM_ALGS_OID}.71" Exported="true"/>
+      <ID Name="TECSEC_TSAES_192_CTR_OID" Value="{TECSEC_SYM_ALGS_OID}.72" Exported="true"/>
+      <ID Name="TECSEC_TSAES_128_CTR_OID" Value="{TECSEC_SYM_ALGS_OID}.73" Exported="true"/>
+
+      <ID Name="TECSEC_DES_CBC" Value="{TECSEC_SYM_ALGS_OID}.78" Exported="true"/>
+      <ID Name="TECSEC_DES_ECB" Value="{TECSEC_SYM_ALGS_OID}.79" Exported="true"/>
+      <ID Name="TECSEC_DES_CFB8" Value="{TECSEC_SYM_ALGS_OID}.80" Exported="true"/>
+      <ID Name="TECSEC_DES_CFB64" Value="{TECSEC_SYM_ALGS_OID}.81" Exported="true"/>
+      <ID Name="TECSEC_DES_CTR" Value="{TECSEC_SYM_ALGS_OID}.82" Exported="true"/>
+      <ID Name="TECSEC_DES_OFB" Value="{TECSEC_SYM_ALGS_OID}.83" Exported="true"/>
+      <ID Name="TECSEC_BLOWFISH_ECB_OID" Value="{TECSEC_SYM_ALGS_OID}.84" Exported="true"/>
+      <ID Name="TECSEC_BLOWFISH_CBC_OID" Value="{TECSEC_SYM_ALGS_OID}.85" Exported="true"/>
+      <ID Name="TECSEC_BLOWFISH_OFB_OID" Value="{TECSEC_SYM_ALGS_OID}.86" Exported="true"/>
+      <ID Name="TECSEC_BLOWFISH_CFB_OID" Value="{TECSEC_SYM_ALGS_OID}.87" Exported="true"/>
+      <ID Name="TECSEC_BLOWFISH_wrap_OID" Value="{TECSEC_SYM_ALGS_OID}.88" Exported="true"/>
+      <ID Name="TECSEC_BLOWFISH_GCM_OID" Value="{TECSEC_SYM_ALGS_OID}.89" Exported="true"/>
+      <ID Name="TECSEC_BLOWFISH_CCM_OID" Value="{TECSEC_SYM_ALGS_OID}.90" Exported="true"/>
+      <ID Name="TECSEC_BLOWFISH_wrap_pad_OID" Value="{TECSEC_SYM_ALGS_OID}.91" Exported="true"/>
+
+      <ID Name="TECSEC_XTEA_ECB_OID" Value="{TECSEC_SYM_ALGS_OID}.184" Exported="true"/>
+      <ID Name="TECSEC_XTEA_CBC_OID" Value="{TECSEC_SYM_ALGS_OID}.185" Exported="true"/>
+      <ID Name="TECSEC_XTEA_OFB_OID" Value="{TECSEC_SYM_ALGS_OID}.186" Exported="true"/>
+      <ID Name="TECSEC_XTEA_CFB_OID" Value="{TECSEC_SYM_ALGS_OID}.187" Exported="true"/>
+      <ID Name="TECSEC_XTEA_wrap_OID" Value="{TECSEC_SYM_ALGS_OID}.188" Exported="true"/>
+      <ID Name="TECSEC_XTEA_GCM_OID" Value="{TECSEC_SYM_ALGS_OID}.189" Exported="true"/>
+      <ID Name="TECSEC_XTEA_CCM_OID" Value="{TECSEC_SYM_ALGS_OID}.190" Exported="true"/>
+      <ID Name="TECSEC_XTEA_wrap_pad_OID" Value="{TECSEC_SYM_ALGS_OID}.191" Exported="true"/>
+
+      <ID Name="TECSEC_RC2_40_CFB8" Value="{TECSEC_SYM_ALGS_OID}.205" Exported="true"/>
+      <ID Name="TECSEC_RC2_40_CFB64" Value="{TECSEC_SYM_ALGS_OID}.206" Exported="true"/>
+      <ID Name="TECSEC_RC2_40_CTR" Value="{TECSEC_SYM_ALGS_OID}.207" Exported="true"/>
+      <ID Name="TECSEC_RC2_40_OFB" Value="{TECSEC_SYM_ALGS_OID}.208" Exported="true"/>
+      <ID Name="TECSEC_RC2_128_CBC" Value="{TECSEC_SYM_ALGS_OID}.209" Exported="true"/>
+      <ID Name="TECSEC_RC2_128_CFB8" Value="{TECSEC_SYM_ALGS_OID}.210" Exported="true"/>
+      <ID Name="TECSEC_RC2_128_CFB64" Value="{TECSEC_SYM_ALGS_OID}.211" Exported="true"/>
+      <ID Name="TECSEC_RC2_128_CTR" Value="{TECSEC_SYM_ALGS_OID}.212" Exported="true"/>
+      <ID Name="TECSEC_RC2_128_ECB" Value="{TECSEC_SYM_ALGS_OID}.213" Exported="true"/>
+      <ID Name="TECSEC_RC2_128_OFB" Value="{TECSEC_SYM_ALGS_OID}.214" Exported="true"/>
+
+      <ID Name="TECSEC_RAND_ALGS_OID" Value="{TECSEC_ALGORITHMS_OID}.3" Exported="true"/>
+      <ID Name="TECSEC_DRBG_SHA256_OID" Value="{TECSEC_RAND_ALGS_OID}.0" Exported="true"/>
+      <ID Name="TECSEC_DRBG_SHA512_OID" Value="{TECSEC_RAND_ALGS_OID}.1" Exported="true"/>
+      <ID Name="TECSEC_MAC_ALGS_OID" Value="{TECSEC_ALGORITHMS_OID}.4" Exported="true"/>
+      <ID Name="TECSEC_CMAC_TDES_OID" Value="{TECSEC_MAC_ALGS_OID}.0" Exported="true"/>
+      <ID Name="TECSEC_CMAC_AES128_OID" Value="{TECSEC_MAC_ALGS_OID}.1" Exported="true"/>
+      <ID Name="TECSEC_CMAC_AES192_OID" Value="{TECSEC_MAC_ALGS_OID}.2" Exported="true"/>
+      <ID Name="TECSEC_CMAC_AES256_OID" Value="{TECSEC_MAC_ALGS_OID}.3" Exported="true"/>
+      <ID Name="TECSEC_CMAC_TSAES128_OID" Value="{TECSEC_MAC_ALGS_OID}.4" Exported="true"/>
+      <ID Name="TECSEC_CMAC_TSAES192_OID" Value="{TECSEC_MAC_ALGS_OID}.5" Exported="true"/>
+      <ID Name="TECSEC_CMAC_TSAES256_OID" Value="{TECSEC_MAC_ALGS_OID}.6" Exported="true"/>
+      <ID Name="TECSEC_CMAC_BLOWFISH_OID" Value="{TECSEC_MAC_ALGS_OID}.7" Exported="true"/>
+      <ID Name="TECSEC_CMAC_XTEA_OID" Value="{TECSEC_MAC_ALGS_OID}.8" Exported="true"/>
+
+      <ID Name="TECSEC_KDF_ALGS_OID" Value="{TECSEC_ALGORITHMS_OID}.5" Exported="true"/>
+      <ID Name="TECSEC_KDF_CMAC_AES_OID" Value="{TECSEC_KDF_ALGS_OID}.0" Exported="true"/>
+      <ID Name="TECSEC_KDF_CMAC_TDES_OID" Value="{TECSEC_KDF_ALGS_OID}.1" Exported="true"/>
+      <ID Name="TECSEC_KDF_CMAC_TSAES_OID" Value="{TECSEC_KDF_ALGS_OID}.2" Exported="true"/>
+      <ID Name="TECSEC_KDF_HMAC_SHA1_OID" Value="{TECSEC_KDF_ALGS_OID}.3" Exported="true"/>
+      <ID Name="TECSEC_KDF_HMAC_SHA224_OID" Value="{TECSEC_KDF_ALGS_OID}.4" Exported="true"/>
+      <ID Name="TECSEC_KDF_HMAC_SHA256_OID" Value="{TECSEC_KDF_ALGS_OID}.5" Exported="true"/>
+      <ID Name="TECSEC_KDF_HMAC_SHA384_OID" Value="{TECSEC_KDF_ALGS_OID}.6" Exported="true"/>
+      <ID Name="TECSEC_KDF_HMAC_SHA512_OID" Value="{TECSEC_KDF_ALGS_OID}.7" Exported="true"/>
+      <ID Name="TECSEC_KDF_HASH_SHA1_OID" Value="{TECSEC_KDF_ALGS_OID}.8" Exported="true"/>
+      <ID Name="TECSEC_KDF_HASH_SHA224_OID" Value="{TECSEC_KDF_ALGS_OID}.9" Exported="true"/>
+      <ID Name="TECSEC_KDF_HASH_SHA256_OID" Value="{TECSEC_KDF_ALGS_OID}.10" Exported="true"/>
+      <ID Name="TECSEC_KDF_HASH_SHA384_OID" Value="{TECSEC_KDF_ALGS_OID}.11" Exported="true"/>
+      <ID Name="TECSEC_KDF_HASH_SHA512_OID" Value="{TECSEC_KDF_ALGS_OID}.12" Exported="true"/>
+      <ID Name="TECSEC_KDF_PBKDF2_OID" Value="{TECSEC_KDF_ALGS_OID}.13" Exported="true"/>
+      <ID Name="TECSEC_KDF_HASH_MD5_OID" Value="{TECSEC_KDF_ALGS_OID}.14" Exported="true"/>
+      <ID Name="TECSEC_KDF_HMAC_MD5_OID" Value="{TECSEC_KDF_ALGS_OID}.15" Exported="true"/>
+      <ID Name="TECSEC_KDF_HASH_RIPEMD160_OID" Value="{TECSEC_KDF_ALGS_OID}.16" Exported="true"/>
+      <ID Name="TECSEC_KDF_HMAC_RIPEMD160_OID" Value="{TECSEC_KDF_ALGS_OID}.17" Exported="true"/>
+
+      <ID Name="TECSEC_KDF_CMAC_BLOWFISH_OID" Value="{TECSEC_KDF_ALGS_OID}.19" Exported="true"/>
+      <ID Name="TECSEC_KDF_CMAC_XTEA_OID" Value="{TECSEC_KDF_ALGS_OID}.20" Exported="true"/>
+
+      <ID Name="TECSEC_PRIME_ALGS_OID" Value="{TECSEC_ALGORITHMS_OID}.6" Exported="true"/>
+      <ID Name="TECSEC_PROBABLE_PRIME_OID" Value="{TECSEC_PRIME_ALGS_OID}.0" Exported="true"/>
+      <ID Name="TECSEC_PROVABLE_PRIME_OID" Value="{TECSEC_PRIME_ALGS_OID}.1" Exported="true"/>
+      <ID Name="TECSEC_PROBABLE_X9_31_PRIME_OID" Value="{TECSEC_PRIME_ALGS_OID}.2" Exported="true"/>
+      <ID Name="TECSEC_ASYM_ALGS_OID" Value="{TECSEC_ALGORITHMS_OID}.7" Exported="true"/>
+      <ID Name="TECSEC_RSA_PKCS" Value="{TECSEC_ASYM_ALGS_OID}.0" Exported="true"/>
+      <ID Name="TECSEC_RSA_X9_31_ENCODE" Value="{TECSEC_ASYM_ALGS_OID}.1" Exported="true"/>
+      <ID Name="TECSEC_RSA_X9_31_SHA1" Value="{TECSEC_ASYM_ALGS_OID}.2" Exported="true"/>
+      <ID Name="TECSEC_RSA_X9_31_SHA224" Value="{TECSEC_ASYM_ALGS_OID}.3" Exported="true"/>
+      <ID Name="TECSEC_RSA_X9_31_SHA256" Value="{TECSEC_ASYM_ALGS_OID}.4" Exported="true"/>
+      <ID Name="TECSEC_RSA_X9_31_SHA384" Value="{TECSEC_ASYM_ALGS_OID}.5" Exported="true"/>
+      <ID Name="TECSEC_RSA_X9_31_SHA512" Value="{TECSEC_ASYM_ALGS_OID}.6" Exported="true"/>
+      
+      <ID Name="TECSEC_RSA_PRIVATE_KEY_BLOB" Value="{TECSEC_ASYM_ALGS_OID}.23" Exported="true"/>
+      <ID Name="TECSEC_CKM6" Value="{TECSEC_ASYM_ALGS_OID}.24" Exported="true"/>
+      <ID Name="TECSEC_ECC_PRIVATE_KEY_BLOB" Value="{TECSEC_ASYM_ALGS_OID}.25" Exported="true"/>
+      <ID Name="TECSEC_CKM6_SYM" Value="{TECSEC_ASYM_ALGS_OID}.26" Exported="true"/>
+      <ID Name="TECSEC_RSA_PSS_ENCODE" Value="{TECSEC_ASYM_ALGS_OID}.27" Exported="true"/>
+      <ID Name="TECSEC_RSA_PKCS_ENCODE" Value="{TECSEC_ASYM_ALGS_OID}.28" Exported="true"/>
+      <ID Name="TECSEC_RSA_PKCS_ENCRYPT_ENCODE" Value="{TECSEC_ASYM_ALGS_OID}.29" Exported="true"/>
+
+      <ID Name="TECSEC_RSA_OAEP_SHA1" Value="{TECSEC_ASYM_ALGS_OID}.31" Exported="true"/>
+      <ID Name="TECSEC_RSA_OAEP_SHA224" Value="{TECSEC_ASYM_ALGS_OID}.32" Exported="true"/>
+      <ID Name="TECSEC_RSA_OAEP_SHA256" Value="{TECSEC_ASYM_ALGS_OID}.33" Exported="true"/>
+      <ID Name="TECSEC_RSA_OAEP_SHA384" Value="{TECSEC_ASYM_ALGS_OID}.34" Exported="true"/>
+      <ID Name="TECSEC_RSA_OAEP_SHA512" Value="{TECSEC_ASYM_ALGS_OID}.35" Exported="true"/>
+
+      <ID Name="TECSEC_DH_PARAMETERS" Value="{TECSEC_ASYM_ALGS_OID}.42" Exported="true"/>
+      <ID Name="TECSEC_DH_KEY" Value="{TECSEC_ASYM_ALGS_OID}.43" Exported="true"/>
+      <ID Name="TECSEC_DSA_SIGN_SHA1" Value="{TECSEC_ASYM_ALGS_OID}.44" Exported="true"/>
+      <ID Name="TECSEC_DSA_SIGN_SHA384" Value="{TECSEC_ASYM_ALGS_OID}.45" Exported="true"/>
+      <ID Name="TECSEC_DSA_SIGN_SHA512" Value="{TECSEC_ASYM_ALGS_OID}.46" Exported="true"/>
+
+      <ID Name="TECSEC_GENERAL_ALGS" Value="{TECSEC_ALGORITHMS_OID}.8" Exported="true"/>
+      <ID Name="TECSEC_SECURE_CHANNEL_SERVER_OID" Value="{TECSEC_GENERAL_ALGS}.0" Exported="true"/>
+      <ID Name="TECSEC_TSAES_OID" Value="{TECSEC_GENERAL_ALGS}.1" Exported="true"/>
+      <ID Name="TECSEC_TDES_OID" Value="{TECSEC_GENERAL_ALGS}.2" Exported="true"/>
+      <ID Name="TECSEC_CMAC_OID" Value="{TECSEC_GENERAL_ALGS}.3" Exported="true"/>
+      <ID Name="TECSEC_CMAC_AES_OID" Value="{TECSEC_GENERAL_ALGS}.4" Exported="true"/>
+      <ID Name="TECSEC_HMAC_OID" Value="{TECSEC_GENERAL_ALGS}.5" Exported="true"/>
+      <ID Name="TECSEC_KEYWRAP_AES_OID" Value="{TECSEC_GENERAL_ALGS}.6" Exported="true"/>
+      <ID Name="TECSEC_KEYWRAP_TDES_OID" Value="{TECSEC_GENERAL_ALGS}.7" Exported="true"/>
+      <ID Name="TECSEC_KDF_CMAC_OID" Value="{TECSEC_GENERAL_ALGS}.8" Exported="true"/>
+      <ID Name="TECSEC_KDF_HMAC_OID" Value="{TECSEC_GENERAL_ALGS}.9" Exported="true"/>
+      <ID Name="TECSEC_KDF_HASH_OID" Value="{TECSEC_GENERAL_ALGS}.10" Exported="true"/>
+      <ID Name="TECSEC_SIGN_OID" Value="{TECSEC_GENERAL_ALGS}.11" Exported="true"/>
+      <ID Name="TECSEC_SIGN_RSA_OID" Value="{TECSEC_GENERAL_ALGS}.12" Exported="true"/>
+      <ID Name="TECSEC_SIGN_DSA_OID" Value="{TECSEC_GENERAL_ALGS}.13" Exported="true"/>
+      <ID Name="TECSEC_SIGN_ECDSA_OID" Value="{TECSEC_GENERAL_ALGS}.14" Exported="true"/>
+      <ID Name="TECSEC_DH_OID" Value="{TECSEC_GENERAL_ALGS}.15" Exported="true"/>
+      <ID Name="TECSEC_KEYWRAP_RSA_OID" Value="{TECSEC_GENERAL_ALGS}.16" Exported="true"/>
+      <ID Name="TECSEC_KEY_AGREEMENT_OID" Value="{TECSEC_GENERAL_ALGS}.17" Exported="true"/>
+      <ID Name="TECSEC_ASYM_MODE_X9_31_OID" Value="{TECSEC_GENERAL_ALGS}.18" Exported="true"/>
+      <ID Name="TECSEC_ASYM_MODE_PSS_OID" Value="{TECSEC_GENERAL_ALGS}.19" Exported="true"/>
+      <ID Name="TECSEC_ASYM_MODE_PKCS_OID" Value="{TECSEC_GENERAL_ALGS}.20" Exported="true"/>
+      <ID Name="TECSEC_ASYM_MODE_OAEP_OID" Value="{TECSEC_GENERAL_ALGS}.21" Exported="true"/>
+      <ID Name="TECSEC_ASYM_MODE_KAS1_OID" Value="{TECSEC_GENERAL_ALGS}.22" Exported="true"/>
+      <ID Name="TECSEC_ASYM_MODE_KAS2_OID" Value="{TECSEC_GENERAL_ALGS}.23" Exported="true"/>
+      <ID Name="TECSEC_ASYM_MODE_KTS_OID" Value="{TECSEC_GENERAL_ALGS}.24" Exported="true"/>
+      <ID Name="TECSEC_SYM_MODE_CBC_OID" Value="{TECSEC_GENERAL_ALGS}.25" Exported="true"/>
+      <ID Name="TECSEC_SYM_MODE_ECB_OID" Value="{TECSEC_GENERAL_ALGS}.26" Exported="true"/>
+      <ID Name="TECSEC_SYM_MODE_CFB8_OID" Value="{TECSEC_GENERAL_ALGS}.27" Exported="true"/>
+      <ID Name="TECSEC_SYM_MODE_CFBfull_OID" Value="{TECSEC_GENERAL_ALGS}.28" Exported="true"/>
+      <ID Name="TECSEC_SYM_MODE_CTR_OID" Value="{TECSEC_GENERAL_ALGS}.29" Exported="true"/>
+      <ID Name="TECSEC_SYM_MODE_OFB_OID" Value="{TECSEC_GENERAL_ALGS}.30" Exported="true"/>
+      <ID Name="TECSEC_SYM_MODE_CCM_OID" Value="{TECSEC_GENERAL_ALGS}.31" Exported="true"/>
+      <ID Name="TECSEC_SYM_MODE_GCM_OID" Value="{TECSEC_GENERAL_ALGS}.32" Exported="true"/>
+
+      <ID Name="TECSEC_KEYSIZE_AES128_OID" Value="{TECSEC_GENERAL_ALGS}.34" Exported="true"/>
+      <ID Name="TECSEC_KEYSIZE_AES192_OID" Value="{TECSEC_GENERAL_ALGS}.35" Exported="true"/>
+      <ID Name="TECSEC_KEYSIZE_AES256_OID" Value="{TECSEC_GENERAL_ALGS}.36" Exported="true"/>
+      <ID Name="TECSEC_KEYSIZE_TDES64_OID" Value="{TECSEC_GENERAL_ALGS}.37" Exported="true"/>
+      <ID Name="TECSEC_KEYSIZE_TDES128_OID" Value="{TECSEC_GENERAL_ALGS}.38" Exported="true"/>
+      <ID Name="TECSEC_KEYSIZE_TDES192_OID" Value="{TECSEC_GENERAL_ALGS}.39" Exported="true"/>
+      <ID Name="TECSEC_KEYSIZE_RSA1024_OID" Value="{TECSEC_GENERAL_ALGS}.40" Exported="true"/>
+      <ID Name="TECSEC_KEYSIZE_RSA2048_OID" Value="{TECSEC_GENERAL_ALGS}.41" Exported="true"/>
+      <ID Name="TECSEC_KEYSIZE_RSA3072_OID" Value="{TECSEC_GENERAL_ALGS}.42" Exported="true"/>
+      <ID Name="TECSEC_KEYSIZE_RSA4096_OID" Value="{TECSEC_GENERAL_ALGS}.43" Exported="true"/>
+      <ID Name="TECSEC_KEYSIZE_DH1024_OID" Value="{TECSEC_GENERAL_ALGS}.44" Exported="true"/>
+      <ID Name="TECSEC_KEYSIZE_DH2048_OID" Value="{TECSEC_GENERAL_ALGS}.45" Exported="true"/>
+      <ID Name="TECSEC_KEYSIZE_DH3072_OID" Value="{TECSEC_GENERAL_ALGS}.46" Exported="true"/>
+      <ID Name="TECSEC_KEYSIZE_DH4096_OID" Value="{TECSEC_GENERAL_ALGS}.47" Exported="true"/>
+      <ID Name="TECSEC_KEYSIZE_P192_OID" Value="{TECSEC_GENERAL_ALGS}.48" Exported="true"/>
+      <ID Name="TECSEC_KEYSIZE_P224_OID" Value="{TECSEC_GENERAL_ALGS}.49" Exported="true"/>
+      <ID Name="TECSEC_KEYSIZE_P256_OID" Value="{TECSEC_GENERAL_ALGS}.50" Exported="true"/>
+      <ID Name="TECSEC_KEYSIZE_P384_OID" Value="{TECSEC_GENERAL_ALGS}.51" Exported="true"/>
+      <ID Name="TECSEC_KEYSIZE_P521_OID" Value="{TECSEC_GENERAL_ALGS}.52" Exported="true"/>
+
+      <ID Name="TECSEC_KEYWRAP_BLOWFISH_OID" Value="{TECSEC_GENERAL_ALGS}.58" Exported="true"/>
+      <ID Name="TECSEC_KEYWRAP_XTEA_OID" Value="{TECSEC_GENERAL_ALGS}.59" Exported="true"/>
+      <ID Name="TECSEC_CKMAUTH_OID" Value="{TECSEC_ALGORITHMS_OID}.9" Exported="true"/>
+      <ID Name="TECSEC_CKMAUTH_PBKDF_SHA1_OID" Value="{TECSEC_CKMAUTH_OID}.0" Exported="true"/>
+      <ID Name="TECSEC_CKMAUTH_PBKDF_SHA224_OID" Value="{TECSEC_CKMAUTH_OID}.1" Exported="true"/>
+      <ID Name="TECSEC_CKMAUTH_PBKDF_SHA256_OID" Value="{TECSEC_CKMAUTH_OID}.2" Exported="true"/>
+      <ID Name="TECSEC_CKMAUTH_PBKDF_SHA384_OID" Value="{TECSEC_CKMAUTH_OID}.3" Exported="true"/>
+      <ID Name="TECSEC_CKMAUTH_PBKDF_SHA512_OID" Value="{TECSEC_CKMAUTH_OID}.4" Exported="true"/>
+
+      <ID Name="TECSEC_CKMAUTH_SERVER_PARAMETERS_OID" Value="{TECSEC_CKMAUTH_OID}.50" Exported="true"/>
+      <ID Name="TECSEC_CKMAUTH_INITIATOR_PARAMETERS_OID" Value="{TECSEC_CKMAUTH_OID}.51" Exported="true"/>
+      <ID Name="TECSEC_CKMAUTH_RESPONDER_PARAMETERS_OID" Value="{TECSEC_CKMAUTH_OID}.52" Exported="true"/>
+      <ID Name="TECSEC_MODULES_OID" Value="{TECSEC_OID}.8" Exported="true"/>
+      <ID Name="TECSEC_MODULES_IDS_OID" Value="{TECSEC_MODULES_OID}.0" Exported="true"/>
+      <ID Name="TECSEC_MODULES_DEMO_OID" Value="{TECSEC_MODULES_OID}.4" Exported="true"/>
+      <ID Name="TECSEC_MODULES_DEMO_FRAC_OID" Value="{TECSEC_MODULES_OID}.4.1" Exported="true"/>
+      <ID Name="TECSEC_MODULES_DEMO_AMA_OID" Value="{TECSEC_MODULES_OID}.4.2" Exported="true"/>
+
+      <ID Name="TECSEC_DATA_STRUCTURES_OID" Value="{TECSEC_OID}.9" Exported="true"/>
+      <ID Name="TECSEC_PBKEF_KEY_WRAP_PARAMETERS_OID" Value="{TECSEC_DATA_STRUCTURES_OID}.1" Exported="true"/>
+      <ID Name="TECSEC_SECURE_CONFIG_OID" Value="{TECSEC_DATA_STRUCTURES_OID}.2" Exported="true"/>
+
+      <ID Name="TECSEC_CERTIFICATE_EXTENSIONS_OID" Value="{TECSEC_OID}.10" Exported="true"/>
+      <ID Name="TECSEC_BMOC_KEY_AGREE_OID" Value="{TECSEC_CERTIFICATE_EXTENSIONS_OID}.1" Exported="true"/>
+
+      <ID Name="TECSEC_CKM_TUNNEL_OID" Value="{TECSEC_OID}.11" Exported="true"/>
+      <ID Name="TECSEC_CKM_TUNNEL_INIT_LOGIN_OID" Value="{TECSEC_CKM_TUNNEL_OID}.1" Exported="true"/>
+      <ID Name="TECSEC_CKM_TUNNEL_INIT_LOGIN_RESPONSE_OID" Value="{TECSEC_CKM_TUNNEL_OID}.2" Exported="true"/>
+      <ID Name="TECSEC_CKM_TUNNEL_FINISH_LOGIN_OID" Value="{TECSEC_CKM_TUNNEL_OID}.3" Exported="true"/>
+      <ID Name="TECSEC_CKM_TUNNEL_FINISH_LOGIN_RESPONSE_OID" Value="{TECSEC_CKM_TUNNEL_OID}.4" Exported="true"/>
+
+      <ID Name="TECSEC_CKM_SMART_CARD_IINs" Value="{TECSEC_OID}.12" Exported="true"/>
+      <ID Name="TECSEC_CKM_SMART_CARD_IINs_EXTERNAL" Value="{TECSEC_CKM_SMART_CARD_IINs}.1" Exported="true"/>
+      <ID Name="TECSEC_CKM_SMART_CARD_IINs_JIBBERISH" Value="{TECSEC_CKM_SMART_CARD_IINs}.1.1" Exported="true"/>
+
+
+
+
+      <ID Name="id_alg_CKMAUTH_PBKDF_SHA1" Value="{TECSEC_CKMAUTH_OID}.0"/>
+      <ID Name="id_alg_CKMAUTH_PBKDF_SHA224" Value="{TECSEC_CKMAUTH_OID}.1"/>
+      <ID Name="id_alg_CKMAUTH_PBKDF_SHA256" Value="{TECSEC_CKMAUTH_OID}.2"/>
+      <ID Name="id_alg_CKMAUTH_PBKDF_SHA384" Value="{TECSEC_CKMAUTH_OID}.3"/>
+      <ID Name="id_alg_CKMAUTH_PBKDF_SHA512" Value="{TECSEC_CKMAUTH_OID}.4"/>
+
+
+      <ID Name="id_alg_CKMAUTH_SERVER_PARAMETERS" Value="{TECSEC_CKMAUTH_OID}.50"/>
+      <ID Name="id_alg_CKMAUTH_INITIATOR_PARAMETERS" Value="{TECSEC_CKMAUTH_OID}.51"/>
+      <ID Name="id_alg_CKMAUTH_RESPONDER_PARAMETERS" Value="{TECSEC_CKMAUTH_OID}.52"/>
+
+      <ID Name="id_CKM_TUNNEL" Value="{TECSEC_OID}.11"/>
+      <ID Name="id_CKM_TUNNEL_INIT_LOGIN" Value="{TECSEC_CKM_TUNNEL_OID}.1"/>
+      <ID Name="id_CKM_TUNNEL_INIT_LOGIN_RESPONSE" Value="{TECSEC_CKM_TUNNEL_OID}.2"/>
+      <ID Name="id_CKM_TUNNEL_FINISH_LOGIN" Value="{TECSEC_CKM_TUNNEL_OID}.3"/>
+      <ID Name="id_CKM_TUNNEL_FINISH_LOGIN_RESPONSE" Value="{TECSEC_CKM_TUNNEL_OID}.4"/>
+      <ID Name="id_CKM_TUNNEL_ERROR" Value="{TECSEC_CKM_TUNNEL_OID}.5"/>
+      <ID Name="id_CKM_TUNNEL_LOGOUT" Value="{TECSEC_CKM_TUNNEL_OID}.6"/>
+      <ID Name="id_CKM_TUNNEL_TLS_EXT_REQUEST" Value="{TECSEC_CKM_TUNNEL_OID}.7"/>
+      <ID Name="id_CKM_TUNNEL_TLS_EXT_RESPONSE" Value="{TECSEC_CKM_TUNNEL_OID}.8"/>
+      <ID Name="id_CKM_CRYPTO_LICENSE" Value="{TECSEC_OID}.9.6.2"/>
+
+
+
+
+
+
+
+      <ID Name="id_pkcs7" Value="1.2.840.113549.1.7"/>
+      <ID Name="id_pkcs9" Value="1.2.840.113549.1.9"/>
+      <ID Name="id_data" Value="1.2.840.113549.1.7.1"/>
+      <ID Name="id_signedData" Value="1.2.840.113549.1.7.2"/>
+      <ID Name="id_envelopedData" Value="1.2.840.113549.1.7.3"/>
+      <ID Name="id_digestedData" Value="1.2.840.113549.1.7.5"/>
+      <ID Name="id_encryptedData" Value="1.2.840.113549.1.7.6"/>
+
+      <ID Name="id_smime" Value="1.2.840.113549.1.9.16"/>
+      <ID Name="id_ct_authData" Value="1.2.840.113549.1.9.16.1.2"/>
+
+      <ID Name="id_contentType" Value="1.2.840.113549.1.9.3"/>
+      <ID Name="id_messageDigest" Value="1.2.840.113549.1.9.4"/>
+
+      <ID Name="id_macValue" Value="1.2.840.113549.1.9.16.2.8"/>
+
+      <ID Name="id_ckm_recip_info" Value="1.2.840.10060.2.1"/>
+      <ID Name="id_ckm_algorithms" Value="1.2.840.10060.3"/>
+      <ID Name="id_ckm_symmetric" Value="1.2.840.10060.3.1"/>
+      <ID Name="id_ckm_key_transport" Value="1.2.840.10060.3.2"/>
+      <ID Name="id_ckm_key_agree_multiple_encrypt" Value="1.2.840.10060.3.3"/>
+      <ID Name="id_ckm_key_agree_hash" Value="1.2.840.10060.3.4"/>
+      <ID Name="id_ckm_header" Value="1.2.840.10060.4"/>
+
+      <ID Name="id_cms_attributes" Value="1.3.133.16.840.9.73.1"/>
+      <ID Name="id_xmlMarkup" Value="1.3.133.16.840.9.73.1.0"/>
+      <ID Name="id_cms_SAML" Value="1.3.133.16.840.9.73.1.0.1"/>
+      <ID Name="id_cms_XKMS" Value="1.3.133.16.840.9.73.1.0.2"/>
+
+      <ID Name="id_cms_namespaces" Value="1.3.133.16.840.9.73.2"/>
+      <ID Name="id_cms" Value="1.3.133.16.840.9.73.2.0"/>
+
+      <ID Name="id_alg_PWRI_KEK" Value="1.2.840.113549.1.9.16.3.9"/>
+
+      <ID Name="id_X25519" Value="1.3.6.1.4.1.11591.15.1"/>
+      <ID Name="id_X448" Value="1.3.6.1.4.1.11591.15.2"/>
+      <ID Name="id_X25519_PH" Value="1.3.6.1.4.1.11591.15.3"/>
+      <ID Name="id_X448_PH" Value="1.3.6.1.4.1.11591.15.4"/>
+
+      <ID Name="SHA1_OID" Value="1.3.14.3.2.26" Exported="true"/>
+      <ID Name="RSADSI_HMAC_SHA1_OID" Value="1.2.840.113549.2.7" Exported="true"/>
+      <ID Name="RSADSI_HMAC_SHA224_OID" Value="1.2.840.113549.2.8" Exported="true"/>
+      <ID Name="RSADSI_HMAC_SHA256_OID" Value="1.2.840.113549.2.9" Exported="true"/>
+      <ID Name="RSADSI_HMAC_SHA384_OID" Value="1.2.840.113549.2.10" Exported="true"/>
+      <ID Name="RSADSI_HMAC_SHA512_OID" Value="1.2.840.113549.2.11" Exported="true"/>
+      <ID Name="OSI_DES_EDE" Value="1.3.14.3.2.17" Exported="true"/>
+      <ID Name="ANSI_X9_52_DES_3EDE_CBC" Value="1.2.840.113549.3.7" Exported="true"/>
+      <ID Name="ANSI_X9_52_DES_3EDE_ECB" Value="1.2.840.113549.3.17" Exported="true"/>
+      <ID Name="ANSI_X9_62_OID" Value="1.2.840.10045" Exported="true"/>
+      <ID Name="CERTICOM_OID" Value="1.3.132" Exported="true"/>
+      <ID Name="CERTICOM_ECC_CURVE" Value="1.3.132.0" Exported="true"/>
+      <ID Name="SECP192R1_CURVE_OID" Value="1.2.840.10045.3.1.1" Exported="true"/>
+      <ID Name="SECP224R1_CURVE_OID" Value="1.3.132.0.33" Exported="true"/>
+      <ID Name="SECP256R1_CURVE_OID" Value="1.2.840.10045.3.1.7" Exported="true"/>
+      <ID Name="SECP384R1_CURVE_OID" Value="1.3.132.0.34" Exported="true"/>
+      <ID Name="SECP521R1_CURVE_OID" Value="1.3.132.0.35" Exported="true"/>
+      <ID Name="SECP256K1_CURVE_OID" Value="1.3.132.0.10" Exported="true"/>
+      <ID Name="DSA_SHA1_OID" Value="1.2.840.10040.4.3" Exported="true"/>
+      <ID Name="ECDSA_SHA1_OID" Value="1.2.840.10045.4.1" Exported="true"/>
+      <ID Name="ECDSA_SHA224_OID" Value="1.2.840.10045.4.3.1" Exported="true"/>
+      <ID Name="ECDSA_SHA256_OID" Value="1.2.840.10045.4.3.2" Exported="true"/>
+      <ID Name="ECDSA_SHA384_OID" Value="1.2.840.10045.4.3.3" Exported="true"/>
+      <ID Name="ECDSA_SHA512_OID" Value="1.2.840.10045.4.3.4" Exported="true"/>
+      <ID Name="EC_PUBLIC_KEY_OID" Value="1.2.840.10045.2.1" Exported="true"/>
+      <ID Name="RSA_SHA1_SIGN_OID" Value="1.2.840.113549.1.1.5" Exported="true"/>
+      <ID Name="RSA_OAEP_ENCRYPTION_OID" Value="1.2.840.113549.1.1.6" Exported="true"/>
+      <ID Name="RSAES_OAEP_OID" Value="1.2.840.113549.1.1.7" Exported="true"/>
+      <ID Name="RSASSA_PSS_OID" Value="1.2.840.113549.1.1.10" Exported="true"/>
+      <ID Name="RSA_SHA256_SIGN_OID" Value="1.2.840.113549.1.1.11" Exported="true"/>
+      <ID Name="RSA_SHA384_SIGN_OID" Value="1.2.840.113549.1.1.12" Exported="true"/>
+      <ID Name="RSA_SHA512_SIGN_OID" Value="1.2.840.113549.1.1.13" Exported="true"/>
+      <ID Name="RSA_SHA224_SIGN_OID" Value="1.2.840.113549.1.1.14" Exported="true"/>
+      <ID Name="RSA_ENCRYPT_OID" Value="1.2.840.113549.1.1.1" Exported="true"/>
+      <ID Name="TDES_KEYWRAP_OID" Value="1.2.840.113549.1.9.16.3.6" Exported="true"/>
+      <ID Name="IEEE_OID" Value="1.3.111.2" Exported="true"/>
+      <ID Name="IEEE_1619_OID" Value="1.3.111.2.1619.0" Exported="true"/>
+      <ID Name="IEEE_1619_CRYPTOALG_OID" Value="1.3.111.2.1619.0.1" Exported="true"/>
+      <ID Name="DSA_PARAMETER_SET" Value="1.2.840.10040.4.1" Exported="true"/>
+      <ID Name="DHPUBLICNUMBER_OID" Value="1.2.840.10046.2.1" Exported="true"/>
+      <ID Name="RC2_CBC_OID" Value="1.2.840.113549.3.2" Exported="true"/>
+      <ID Name="RC2_ECB_OID" Value="1.2.840.113549.3.3" Exported="true"/>
+      <ID Name="RC4_OID" Value="1.2.840.113549.3.4" Exported="true"/>
+      <ID Name="RC4_WITH_MAC_OID" Value="1.2.840.113549.3.5" Exported="true"/>
+      <ID Name="DESX_CBC_OID" Value="1.2.840.113549.3.6" Exported="true"/>
+      <ID Name="RSADSI_MD5" Value="1.2.840.113549.2.5" Exported="true"/>
+      <ID Name="HMAC_MD5" Value="1.3.6.1.5.5.8.1.1" Exported="true"/>
+      <ID Name="MD5_OID" Value="1.2.840.113549.2.5" Exported="true"/>
+      <ID Name="RIPEMD160_OID" Value="1.3.36.3.2.1" Exported="true"/>
+      <ID Name="HMAC_RIPEMD160_OID" Value="1.3.6.1.5.5.8.1.4" Exported="true"/>
+      <ID Name="DN_PART_COMMONNAME_OID" Value="2.5.4.3" Exported="true"/>
+      <ID Name="DN_PART_LOCALITY_OID" Value="2.5.4.7" Exported="true"/>
+      <ID Name="DN_PART_STATE_OID" Value="2.5.4.8" Exported="true"/>
+      <ID Name="DN_PART_ORG_OID" Value="2.5.4.10" Exported="true"/>
+      <ID Name="DN_PART_ORGUNIT_OID" Value="2.5.4.11" Exported="true"/>
+      <ID Name="DN_PART_COUNTRY_OID" Value="2.5.4.6" Exported="true"/>
+      <ID Name="DN_PART_STREET_OID" Value="2.5.4.9" Exported="true"/>
+      <ID Name="DN_PART_DOMAIN_COMPONENT_OID" Value="0.9.2342.19200300.100.1.25" Exported="true"/>
+      <ID Name="DN_PART_UID_OID" Value="0.9.2342.19200300.100.1.1" Exported="true"/>
+      <ID Name="CERT_EMAIL_ADDRESS_OID" Value="1.2.840.113549.1.9.1" Exported="true"/>
+      <ID Name="CERT_EFS_CRYPTO_OID" Value="1.3.6.1.4.1.311.10.3.4" Exported="true"/>
+      <ID Name="CERT_CERTIFICATE_TYPE_OID" Value="1.3.6.1.4.1.311.20.2" Exported="true"/>
+      <ID Name="CERT_SMARTCARD_LOGIN_OID" Value="1.3.6.1.4.1.311.20.2.2" Exported="true"/>
+      <ID Name="CERT_CA_VERSION_OID" Value="1.3.6.1.4.1.311.21.1" Exported="true"/>
+      <ID Name="CERT_UPN_OID" Value="1.3.6.1.4.1.311.20.2.3" Exported="true"/>
+      <ID Name="CERT_AUTHORITY_INFO_ACCESS_OID" Value="1.3.6.1.5.5.7.1.1" Exported="true"/>
+      <ID Name="CERT_CLIENT_AUTHENTICATION_OID" Value="1.3.6.1.5.5.7.3.2" Exported="true"/>
+      <ID Name="CERT_EMAIL_PROTECTION_OID" Value="1.3.6.1.5.5.7.3.4" Exported="true"/>
+      <ID Name="CERT_CA_ISSUERS_OID" Value="1.3.6.1.5.5.7.48.2" Exported="true"/>
+      <ID Name="CERT_SUBJECT_KEY_ID_OID" Value="2.5.29.14" Exported="true"/>
+      <ID Name="CERT_KEY_USAGE_OID" Value="2.5.29.15" Exported="true"/>
+      <ID Name="CERT_SUBJECT_ALT_NAME_OID" Value="2.5.29.17" Exported="true"/>
+      <ID Name="CERT_BASIC_CONSTRAINTS_OID" Value="2.5.29.19" Exported="true"/>
+      <ID Name="CERT_CRL_DISTRIBUTION_POINTS_OID" Value="2.5.29.31" Exported="true"/>
+      <ID Name="CERT_AUTHORITY_KEY_ID_OID" Value="2.5.29.35" Exported="true"/>
+      <ID Name="CERT_EXTENDED_KEY_USAGE_OID" Value="2.5.29.37" Exported="true"/>
+      <ID Name="CERT_PIV_CONTENT_SIGNING_OID" Value="2.16.840.1.101.3.6.7" Exported="true"/>
+      <ID Name="CURVE_25519_OID" Value="1.3.6.1.4.1.11591.15.1" Exported="true"/>
+      <ID Name="CURVE_448_OID" Value="1.3.6.1.4.1.11591.15.2" Exported="true"/>
+      <ID Name="CURVE_25519_PH_OID" Value="1.3.6.1.4.1.11591.15.3" Exported="true"/>
+      <ID Name="CURVE_448_PH_OID" Value="1.3.6.1.4.1.11591.15.4" Exported="true"/>
+
+      <!-- Extended algorithms -->
+      
+      <ID Name="TECSEC_AES_192_XTS_OID" Value="{TECSEC_SYM_ALGS_OID}.74" Exported="true"/>
+      <ID Name="TECSEC_TSAES_256_XTS_OID" Value="{TECSEC_SYM_ALGS_OID}.75" Exported="true"/>
+      <ID Name="TECSEC_TSAES_192_XTS_OID" Value="{TECSEC_SYM_ALGS_OID}.76" Exported="true"/>
+      <ID Name="TECSEC_TSAES_128_XTS_OID" Value="{TECSEC_SYM_ALGS_OID}.77" Exported="true"/>
+      <ID Name="TECSEC_CAMELLIA_OID" Value="{TECSEC_SYM_ALGS_OID}.100" Exported="true"/>
+      <ID Name="TECSEC_CAMELLIA_128_wrap_OID" Value="{TECSEC_SYM_ALGS_OID}.105" Exported="true"/>
+      <ID Name="TECSEC_CAMELLIA_128_wrap_pad_OID" Value="{TECSEC_SYM_ALGS_OID}.108" Exported="true"/>
+      <ID Name="TECSEC_CAMELLIA_192_wrap_OID" Value="{TECSEC_SYM_ALGS_OID}.125" Exported="true"/>
+      <ID Name="TECSEC_CAMELLIA_192_wrap_pad_OID" Value="{TECSEC_SYM_ALGS_OID}.128" Exported="true"/>
+      <ID Name="TECSEC_CAMELLIA_256_wrap_OID" Value="{TECSEC_SYM_ALGS_OID}.145" Exported="true"/>
+      <ID Name="TECSEC_CAMELLIA_256_wrap_pad_OID" Value="{TECSEC_SYM_ALGS_OID}.148" Exported="true"/>
+      <ID Name="TECSEC_CAMELLIA_128_XTS_OID" Value="{TECSEC_SYM_ALGS_OID}.173" Exported="true"/>
+      <ID Name="TECSEC_CAMELLIA_192_XTS_OID" Value="{TECSEC_SYM_ALGS_OID}.174" Exported="true"/>
+      <ID Name="TECSEC_CAMELLIA_256_XTS_OID" Value="{TECSEC_SYM_ALGS_OID}.175" Exported="true"/>
+      <ID Name="TECSEC_ARIA_128_XTS_OID" Value="{TECSEC_SYM_ALGS_OID}.192" Exported="true"/>
+      <ID Name="TECSEC_ARIA_192_XTS_OID" Value="{TECSEC_SYM_ALGS_OID}.193" Exported="true"/>
+      <ID Name="TECSEC_ARIA_256_XTS_OID" Value="{TECSEC_SYM_ALGS_OID}.194" Exported="true"/>
+      <ID Name="TECSEC_ARIA_256_CFB8_OID" Value="{TECSEC_SYM_ALGS_OID}.195" Exported="true"/>
+      <ID Name="TECSEC_ARIA_192_CFB8_OID" Value="{TECSEC_SYM_ALGS_OID}.196" Exported="true"/>
+      <ID Name="TECSEC_ARIA_128_CFB8_OID" Value="{TECSEC_SYM_ALGS_OID}.197" Exported="true"/>
+      <ID Name="TECSEC_SEED_128_CTR_OID" Value="{TECSEC_SYM_ALGS_OID}.198" Exported="true"/>
+      <ID Name="TECSEC_SEED_128_CFB8_OID" Value="{TECSEC_SYM_ALGS_OID}.199" Exported="true"/>
+      <ID Name="TECSEC_SEED_128_KW_OID" Value="{TECSEC_SYM_ALGS_OID}.200" Exported="true"/>
+      <ID Name="TECSEC_KDF_CMAC_SEED_OID" Value="{TECSEC_SYM_ALGS_OID}.201" Exported="true"/>
+      <ID Name="TECSEC_SEED_128_CCM_OID" Value="{TECSEC_SYM_ALGS_OID}.202" Exported="true"/>
+      <ID Name="TECSEC_SEED_128_GCM_OID" Value="{TECSEC_SYM_ALGS_OID}.203" Exported="true"/>
+      <ID Name="TECSEC_SEED_128_XTS_OID" Value="{TECSEC_SYM_ALGS_OID}.204" Exported="true"/>
+      <ID Name="TECSEC_SALSA20" Value="{TECSEC_SYM_ALGS_OID}.215" Exported="true"/>
+      <ID Name="TECSEC_XSALSA20" Value="{TECSEC_SYM_ALGS_OID}.216" Exported="true"/>
+      <ID Name="TECSEC_CHACHA20" Value="{TECSEC_SYM_ALGS_OID}.217" Exported="true"/>
+      <ID Name="TECSEC_POLY1305" Value="{TECSEC_SYM_ALGS_OID}.218" Exported="true"/>
+      <ID Name="TECSEC_CHACHA20_POLY1305_OID" Value="{TECSEC_SYM_ALGS_OID}.219" Exported="true"/>
+      <ID Name="TECSEC_SALSA20_POLY1305_OID" Value="{TECSEC_SYM_ALGS_OID}.220" Exported="true"/>
+      <!--<ID Name="TECSEC_HMAC_SHA3_224_OID" Value="{TECSEC_MAC_ALGS_OID}.9" Exported="true"/>
+      <ID Name="TECSEC_HMAC_SHA3_256_OID" Value="{TECSEC_MAC_ALGS_OID}.10" Exported="true"/>
+      <ID Name="TECSEC_HMAC_SHA3_384_OID" Value="{TECSEC_MAC_ALGS_OID}.11" Exported="true"/>
+      <ID Name="TECSEC_HMAC_SHA3_512_OID" Value="{TECSEC_MAC_ALGS_OID}.12" Exported="true"/>-->
+      <ID Name="TECSEC_KDF_CMAC_CAMELLIA_OID" Value="{TECSEC_KDF_ALGS_OID}.18" Exported="true"/>
+      <ID Name="TECSEC_KDF_CMAC_ARIA_OID" Value="{TECSEC_KDF_ALGS_OID}.21" Exported="true"/>
+      <ID Name="TECSEC_KDF_HMAC_SHA3_224_OID" Value="{TECSEC_KDF_ALGS_OID}.22" Exported="true"/>
+      <ID Name="TECSEC_KDF_HMAC_SHA3_256_OID" Value="{TECSEC_KDF_ALGS_OID}.23" Exported="true"/>
+      <ID Name="TECSEC_KDF_HMAC_SHA3_384_OID" Value="{TECSEC_KDF_ALGS_OID}.24" Exported="true"/>
+      <ID Name="TECSEC_KDF_HMAC_SHA3_512_OID" Value="{TECSEC_KDF_ALGS_OID}.25" Exported="true"/>
+      <ID Name="TECSEC_KDF_HASH_SHA3_224_OID" Value="{TECSEC_KDF_ALGS_OID}.26" Exported="true"/>
+      <ID Name="TECSEC_KDF_HASH_SHA3_256_OID" Value="{TECSEC_KDF_ALGS_OID}.27" Exported="true"/>
+      <ID Name="TECSEC_KDF_HASH_SHA3_384_OID" Value="{TECSEC_KDF_ALGS_OID}.28" Exported="true"/>
+      <ID Name="TECSEC_KDF_HASH_SHA3_512_OID" Value="{TECSEC_KDF_ALGS_OID}.29" Exported="true"/>
+      <ID Name="TECSEC_CKM7_CRYPTOGROUP_P256_SHA512" Value="{TECSEC_ASYM_ALGS_OID}.8" Exported="true"/>
+      <ID Name="TECSEC_CKM7_CRYPTOGROUP_P384_SHA512" Value="{TECSEC_ASYM_ALGS_OID}.10" Exported="true"/>
+      <ID Name="TECSEC_CKM7_CRYPTOGROUP_P521_SHA512" Value="{TECSEC_ASYM_ALGS_OID}.12" Exported="true"/>
+      <ID Name="TECSEC_CKM7_ATTR_SYM" Value="{TECSEC_ASYM_ALGS_OID}.13" Exported="true"/>
+      <ID Name="TECSEC_CKM7_ATTR_P256" Value="{TECSEC_ASYM_ALGS_OID}.14" Exported="true"/>
+      <ID Name="TECSEC_CKM7_ATTR_P384" Value="{TECSEC_ASYM_ALGS_OID}.15" Exported="true"/>
+      <ID Name="TECSEC_CKM7_ATTR_P521" Value="{TECSEC_ASYM_ALGS_OID}.16" Exported="true"/>
+      <ID Name="TECSEC_CKM7_ATTR_P192" Value="{TECSEC_ASYM_ALGS_OID}.17" Exported="true"/>
+      <ID Name="TECSEC_CKM7_ATTR_P224" Value="{TECSEC_ASYM_ALGS_OID}.18" Exported="true"/>
+      <ID Name="TECSEC_CKM7_CRYPTOGROUP_P192_SHA512" Value="{TECSEC_ASYM_ALGS_OID}.20" Exported="true"/>
+      <ID Name="TECSEC_CKM7_CRYPTOGROUP_P224_SHA512" Value="{TECSEC_ASYM_ALGS_OID}.22" Exported="true"/>
+      <ID Name="TECSEC_RSASVE" Value="{TECSEC_ASYM_ALGS_OID}.30" Exported="true"/>
+      <ID Name="TECSEC_RSA_KEM_KWS" Value="{TECSEC_ASYM_ALGS_OID}.36" Exported="true"/>
+      <ID Name="TECSEC_RSA_KAS1" Value="{TECSEC_ASYM_ALGS_OID}.37" Exported="true"/>
+      <ID Name="TECSEC_RSA_KAS2" Value="{TECSEC_ASYM_ALGS_OID}.38" Exported="true"/>
+      <ID Name="TECSEC_RSA_KTS_OAEP" Value="{TECSEC_ASYM_ALGS_OID}.39" Exported="true"/>
+      <ID Name="TECSEC_RSA_KTS_KEM_KWS" Value="{TECSEC_ASYM_ALGS_OID}.40" Exported="true"/>
+      <ID Name="TECSEC_DH_ECDH_KAS" Value="{TECSEC_ASYM_ALGS_OID}.41" Exported="true"/>
+      <ID Name="TECSEC_CKM7_ATTRIBUTE_BLOB" Value="{TECSEC_ASYM_ALGS_OID}.47" Exported="true"/>
+      <ID Name="TECSEC_CKM7_CRYPTOGROUP_BLOB" Value="{TECSEC_ASYM_ALGS_OID}.48" Exported="true"/>
+      <ID Name="TECSEC_RSA_X9_31_SHA3_224" Value="{TECSEC_ASYM_ALGS_OID}.49" Exported="true"/>
+      <ID Name="TECSEC_RSA_X9_31_SHA3_256" Value="{TECSEC_ASYM_ALGS_OID}.50" Exported="true"/>
+      <ID Name="TECSEC_RSA_X9_31_SHA3_384" Value="{TECSEC_ASYM_ALGS_OID}.51" Exported="true"/>
+      <ID Name="TECSEC_RSA_X9_31_SHA3_512" Value="{TECSEC_ASYM_ALGS_OID}.52" Exported="true"/>
+      <!--<ID Name="TECSEC_RSA_PKCS_SHA3_224" Value="{TECSEC_ASYM_ALGS_OID}.53" Exported="true"/>
+      <ID Name="TECSEC_RSA_PKCS_SHA3_256" Value="{TECSEC_ASYM_ALGS_OID}.54" Exported="true"/>
+      <ID Name="TECSEC_RSA_PKCS_SHA3_384" Value="{TECSEC_ASYM_ALGS_OID}.55" Exported="true"/>
+      <ID Name="TECSEC_RSA_PKCS_SHA3_512" Value="{TECSEC_ASYM_ALGS_OID}.56" Exported="true"/>-->
+      <ID Name="TECSEC_RSA_PSS_SHA3_224" Value="{TECSEC_ASYM_ALGS_OID}.57" Exported="true"/>
+      <ID Name="TECSEC_RSA_PSS_SHA3_256" Value="{TECSEC_ASYM_ALGS_OID}.58" Exported="true"/>
+      <ID Name="TECSEC_RSA_PSS_SHA3_384" Value="{TECSEC_ASYM_ALGS_OID}.59" Exported="true"/>
+      <ID Name="TECSEC_RSA_PSS_SHA3_512" Value="{TECSEC_ASYM_ALGS_OID}.60" Exported="true"/>
+      <ID Name="TECSEC_RSA_OAEP_SHA3_224" Value="{TECSEC_ASYM_ALGS_OID}.61" Exported="true"/>
+      <ID Name="TECSEC_RSA_OAEP_SHA3_256" Value="{TECSEC_ASYM_ALGS_OID}.62" Exported="true"/>
+      <ID Name="TECSEC_RSA_OAEP_SHA3_384" Value="{TECSEC_ASYM_ALGS_OID}.63" Exported="true"/>
+      <ID Name="TECSEC_RSA_OAEP_SHA3_512" Value="{TECSEC_ASYM_ALGS_OID}.64" Exported="true"/>
+      <!--<ID Name="TECSEC_ECDSA_SHA3_224_OID" Value="{TECSEC_ASYM_ALGS_OID}.65" Exported="true"/>
+      <ID Name="TECSEC_ECDSA_SHA3_256_OID" Value="{TECSEC_ASYM_ALGS_OID}.66" Exported="true"/>
+      <ID Name="TECSEC_ECDSA_SHA3_384_OID" Value="{TECSEC_ASYM_ALGS_OID}.67" Exported="true"/>
+      <ID Name="TECSEC_ECDSA_SHA3_512_OID" Value="{TECSEC_ASYM_ALGS_OID}.68" Exported="true"/>-->
+      <!--<ID Name="TECSEC_DSA_SHA3_224_OID" Value="{TECSEC_ASYM_ALGS_OID}.69" Exported="true"/>
+      <ID Name="TECSEC_DSA_SHA3_256_OID" Value="{TECSEC_ASYM_ALGS_OID}.70" Exported="true"/>
+      <ID Name="TECSEC_DSA_SHA3_384_OID" Value="{TECSEC_ASYM_ALGS_OID}.71" Exported="true"/>
+      <ID Name="TECSEC_DSA_SHA3_512_OID" Value="{TECSEC_ASYM_ALGS_OID}.72" Exported="true"/>-->
+      <ID Name="TECSEC_CKM7_CRYPTOGROUP_X25519_SHA512" Value="{TECSEC_ASYM_ALGS_OID}.73" Exported="true"/>
+      <ID Name="TECSEC_CKM7_ATTR_X25519" Value="{TECSEC_ASYM_ALGS_OID}.74" Exported="true"/>
+      <ID Name="TECSEC_CKM7_CRYPTOGROUP_P256K1_SHA512" Value="{TECSEC_ASYM_ALGS_OID}.75" Exported="true"/>
+      <ID Name="TECSEC_CKM7_ATTR_P256K1" Value="{TECSEC_ASYM_ALGS_OID}.77" Exported="true"/>
+      
+      <ID Name="TECSEC_CKM7_CRYPTOGROUP_NUMSP256D1_SHA512" Value="{TECSEC_ASYM_ALGS_OID}.78" Exported="true"/>
+      <ID Name="TECSEC_CKM7_CRYPTOGROUP_NUMSP384D1_SHA512" Value="{TECSEC_ASYM_ALGS_OID}.79" Exported="true"/>
+      <ID Name="TECSEC_CKM7_CRYPTOGROUP_NUMSP512D1_SHA512" Value="{TECSEC_ASYM_ALGS_OID}.80" Exported="true"/>
+      <ID Name="TECSEC_CKM7_CRYPTOGROUP_NUMSP256T1_SHA512" Value="{TECSEC_ASYM_ALGS_OID}.81" Exported="true"/>
+      <ID Name="TECSEC_CKM7_CRYPTOGROUP_NUMSP384T1_SHA512" Value="{TECSEC_ASYM_ALGS_OID}.82" Exported="true"/>
+      <ID Name="TECSEC_CKM7_CRYPTOGROUP_NUMSP512T1_SHA512" Value="{TECSEC_ASYM_ALGS_OID}.83" Exported="true"/>
+      
+      <ID Name="TECSEC_CKM7_ATTR_NUMSP256D1" Value="{TECSEC_ASYM_ALGS_OID}.84" Exported="true"/>
+      <ID Name="TECSEC_CKM7_ATTR_NUMSP384D1" Value="{TECSEC_ASYM_ALGS_OID}.85" Exported="true"/>
+      <ID Name="TECSEC_CKM7_ATTR_NUMSP512D1" Value="{TECSEC_ASYM_ALGS_OID}.86" Exported="true"/>
+      <ID Name="TECSEC_CKM7_ATTR_NUMSP256T1" Value="{TECSEC_ASYM_ALGS_OID}.87" Exported="true"/>
+      <ID Name="TECSEC_CKM7_ATTR_NUMSP384T1" Value="{TECSEC_ASYM_ALGS_OID}.88" Exported="true"/>
+      <ID Name="TECSEC_CKM7_ATTR_NUMSP512T1" Value="{TECSEC_ASYM_ALGS_OID}.89" Exported="true"/>
+
+      <ID Name="TECSEC_NUMSP256D1" Value="{TECSEC_ASYM_ALGS_OID}.90" Exported="true"/>
+      <ID Name="TECSEC_NUMSP384D1" Value="{TECSEC_ASYM_ALGS_OID}.91" Exported="true"/>
+      <ID Name="TECSEC_NUMSP512D1" Value="{TECSEC_ASYM_ALGS_OID}.92" Exported="true"/>
+      <ID Name="TECSEC_NUMSP256T1" Value="{TECSEC_ASYM_ALGS_OID}.93" Exported="true"/>
+      <ID Name="TECSEC_NUMSP384T1" Value="{TECSEC_ASYM_ALGS_OID}.94" Exported="true"/>
+      <ID Name="TECSEC_NUMSP512T1" Value="{TECSEC_ASYM_ALGS_OID}.95" Exported="true"/>
+
+      <ID Name="TECSEC_SYM_MODE_XTS_OID" Value="{TECSEC_GENERAL_ALGS}.33" Exported="true"/>
+      <ID Name="TECSEC_CMAC_CAMELLIA_OID" Value="{TECSEC_GENERAL_ALGS}.53" Exported="true"/>
+      <ID Name="TECSEC_KEYWRAP_CAMELLIA_OID" Value="{TECSEC_GENERAL_ALGS}.54" Exported="true"/>
+      <ID Name="TECSEC_KEYWRAP_CAMELLIA128_OID" Value="{TECSEC_GENERAL_ALGS}.55" Exported="true"/>
+      <ID Name="TECSEC_KEYWRAP_CAMELLIA192_OID" Value="{TECSEC_GENERAL_ALGS}.56" Exported="true"/>
+      <ID Name="TECSEC_KEYWRAP_CAMELLIA256_OID" Value="{TECSEC_GENERAL_ALGS}.57" Exported="true"/>
+      <ID Name="TECSEC_CKMAUTH_PBKDF_SHA3_224_OID" Value="{TECSEC_CKMAUTH_OID}.5" Exported="true"/>
+      <ID Name="TECSEC_CKMAUTH_PBKDF_SHA3_256_OID" Value="{TECSEC_CKMAUTH_OID}.6" Exported="true"/>
+      <ID Name="TECSEC_CKMAUTH_PBKDF_SHA3_384_OID" Value="{TECSEC_CKMAUTH_OID}.7" Exported="true"/>
+      <ID Name="TECSEC_CKMAUTH_PBKDF_SHA3_512_OID" Value="{TECSEC_CKMAUTH_OID}.8" Exported="true"/>
+      <ID Name="id_alg_CKMAUTH_PBKDF_SHA3_224" Value="{TECSEC_CKMAUTH_OID}.5"/>
+      <ID Name="id_alg_CKMAUTH_PBKDF_SHA3_256" Value="{TECSEC_CKMAUTH_OID}.6"/>
+      <ID Name="id_alg_CKMAUTH_PBKDF_SHA3_384" Value="{TECSEC_CKMAUTH_OID}.7"/>
+      <ID Name="id_alg_CKMAUTH_PBKDF_SHA3_512" Value="{TECSEC_CKMAUTH_OID}.8"/>
+      <!-- Non-tecsec OIDs -->
+      <ID Name="CAMELLIA_128_ECB_OID " Value="0.3.4401.5.3.1.9.1" Exported="true"/>
+      <ID Name="CAMELLIA_128_CBC_OID " Value="1.2.392.200011.61.1.1.1.2" Exported="true"/>
+      <ID Name="CAMELLIA_128_OFB_OID " Value="0.3.4401.5.3.1.9.3" Exported="true"/>
+      <ID Name="CAMELLIA_128_CFB_OID " Value="0.3.4401.5.3.1.9.4" Exported="true"/>
+      <ID Name="CAMELLIA_128_GCM_OID " Value="0.3.4401.5.3.1.9.6" Exported="true"/>
+      <ID Name="CAMELLIA_128_CCM_OID " Value="0.3.4401.5.3.1.9.7" Exported="true"/>
+      <ID Name="CAMELLIA_128_CTR_OID " Value="0.3.4401.5.3.1.9.9" Exported="true"/>
+      <ID Name="CAMELLIA_128_CMAC_OID " Value="0.3.4401.5.3.1.9.10" Exported="true"/>
+      <ID Name="CAMELLIA_192_ECB_OID " Value="0.3.4401.5.3.1.9.21" Exported="true"/>
+      <ID Name="CAMELLIA_192_CBC_OID " Value="1.2.392.200011.61.1.1.1.3" Exported="true"/>
+      <ID Name="CAMELLIA_192_OFB_OID " Value="0.3.4401.5.3.1.9.23" Exported="true"/>
+      <ID Name="CAMELLIA_192_CFB_OID " Value="0.3.4401.5.3.1.9.24" Exported="true"/>
+      <ID Name="CAMELLIA_192_GCM_OID " Value="0.3.4401.5.3.1.9.26" Exported="true"/>
+      <ID Name="CAMELLIA_192_CCM_OID " Value="0.3.4401.5.3.1.9.27" Exported="true"/>
+      <ID Name="CAMELLIA_192_CTR_OID " Value="0.3.4401.5.3.1.9.29" Exported="true"/>
+      <ID Name="CAMELLIA_192_CMAC_OID " Value="0.3.4401.5.3.1.9.30" Exported="true"/>
+      <ID Name="CAMELLIA_256_ECB_OID " Value="0.3.4401.5.3.1.9.41" Exported="true"/>
+      <ID Name="CAMELLIA_256_CBC_OID " Value="1.2.392.200011.61.1.1.1.4" Exported="true"/>
+      <ID Name="CAMELLIA_256_OFB_OID " Value="0.3.4401.5.3.1.9.43" Exported="true"/>
+      <ID Name="CAMELLIA_256_CFB_OID " Value="0.3.4401.5.3.1.9.44" Exported="true"/>
+      <ID Name="CAMELLIA_256_GCM_OID " Value="0.3.4401.5.3.1.9.46" Exported="true"/>
+      <ID Name="CAMELLIA_256_CCM_OID " Value="0.3.4401.5.3.1.9.47" Exported="true"/>
+      <ID Name="CAMELLIA_256_CTR_OID " Value="0.3.4401.5.3.1.9.49" Exported="true"/>
+      <ID Name="CAMELLIA_256_CMAC_OID " Value="0.3.4401.5.3.1.9.50" Exported="true"/>
+      
+      <ID Name="NIST_ALGS_OID" Value="2.16.840.1.101.3.4" Exported="true"/>
+      <ID Name="NIST_AES_OID" Value="{NIST_ALGS_OID}.1" Exported="true"/>
+      
+      <ID Name="NIST_AES_128_ECB_OID" Value="{NIST_AES_OID}.1" Exported="true"/>
+      <ID Name="NIST_AES_128_CBC_OID" Value="{NIST_AES_OID}.2" Exported="true"/>
+      <ID Name="NIST_AES_128_OFB_OID" Value="{NIST_AES_OID}.3" Exported="true"/>
+      <ID Name="NIST_AES_128_CFB_OID" Value="{NIST_AES_OID}.4" Exported="true"/>
+      <ID Name="NIST_AES_128_wrap_OID" Value="{NIST_AES_OID}.5" Exported="true"/>
+      <ID Name="NIST_AES_128_GCM_OID" Value="{NIST_AES_OID}.6" Exported="true"/>
+      <ID Name="NIST_AES_128_CCM_OID" Value="{NIST_AES_OID}.7" Exported="true"/>
+      <ID Name="NIST_AES_128_wrap_pad_OID" Value="{NIST_AES_OID}.8" Exported="true"/>
+      
+      <ID Name="NIST_AES_192_ECB_OID" Value="{NIST_AES_OID}.21" Exported="true"/>
+      <ID Name="NIST_AES_192_CBC_OID" Value="{NIST_AES_OID}.22" Exported="true"/>
+      <ID Name="NIST_AES_192_OFB_OID" Value="{NIST_AES_OID}.23" Exported="true"/>
+      <ID Name="NIST_AES_192_CFB_OID" Value="{NIST_AES_OID}.24" Exported="true"/>
+      <ID Name="NIST_AES_192_wrap_OID" Value="{NIST_AES_OID}.25" Exported="true"/>
+      <ID Name="NIST_AES_192_GCM_OID" Value="{NIST_AES_OID}.26" Exported="true"/>
+      <ID Name="NIST_AES_192_CCM_OID" Value="{NIST_AES_OID}.27" Exported="true"/>
+      <ID Name="NIST_AES_192_wrap_pad_OID" Value="{NIST_AES_OID}.28" Exported="true"/>
+      
+      <ID Name="NIST_AES_256_ECB_OID" Value="{NIST_AES_OID}.41" Exported="true"/>
+      <ID Name="NIST_AES_256_CBC_OID" Value="{NIST_AES_OID}.42" Exported="true"/>
+      <ID Name="NIST_AES_256_OFB_OID" Value="{NIST_AES_OID}.43" Exported="true"/>
+      <ID Name="NIST_AES_256_CFB_OID" Value="{NIST_AES_OID}.44" Exported="true"/>
+      <ID Name="NIST_AES_256_wrap_OID" Value="{NIST_AES_OID}.45" Exported="true"/>
+      <ID Name="NIST_AES_256_GCM_OID" Value="{NIST_AES_OID}.46" Exported="true"/>
+      <ID Name="NIST_AES_256_CCM_OID" Value="{NIST_AES_OID}.47" Exported="true"/>
+      <ID Name="NIST_AES_256_wrap_pad_OID" Value="{NIST_AES_OID}.48" Exported="true"/>
+      
+
+      <ID Name="NIST_HASH_OID" Value="{NIST_ALGS_OID}.2" Exported="true"/>
+      <ID Name="NIST_SHA256_OID" Value="{NIST_HASH_OID}.1" Exported="true"/>
+      <ID Name="NIST_SHA384_OID" Value="{NIST_HASH_OID}.2" Exported="true"/>
+      <ID Name="NIST_SHA512_OID" Value="{NIST_HASH_OID}.3" Exported="true"/>
+      <ID Name="NIST_SHA224_OID" Value="{NIST_HASH_OID}.4" Exported="true"/>
+      <ID Name="NIST_SHA512_224_OID" Value="{NIST_HASH_OID}.5" Exported="true"/>
+      <ID Name="NIST_SHA512_256_OID" Value="{NIST_HASH_OID}.6" Exported="true"/>     
+      <ID Name="NIST_SHA3_256_OID" Value="{NIST_HASH_OID}.7" Exported="true"/>
+      <ID Name="NIST_SHA3_384_OID" Value="{NIST_HASH_OID}.8" Exported="true"/>
+      <ID Name="NIST_SHA3_512_OID" Value="{NIST_HASH_OID}.9" Exported="true"/>
+      <ID Name="NIST_SHA3_224_OID" Value="{NIST_HASH_OID}.10" Exported="true"/>
+      <ID Name="NIST_SHAKE128_OID" Value="{NIST_HASH_OID}.11" Exported="true"/>
+      <ID Name="NIST_SHAKE256_OID" Value="{NIST_HASH_OID}.12" Exported="true"/>
+      <ID Name="NIST_HMAC_SHA3_224_OID" Value="{NIST_HASH_OID}.13" Exported="true"/>
+      <ID Name="NIST_HMAC_SHA3_256_OID" Value="{NIST_HASH_OID}.14" Exported="true"/>
+      <ID Name="NIST_HMAC_SHA3_384_OID" Value="{NIST_HASH_OID}.15" Exported="true"/>
+      <ID Name="NIST_HMAC_SHA3_512_OID" Value="{NIST_HASH_OID}.16" Exported="true"/>
+
+      
+      <ID Name="NIST_SIGALGS_OID" Value="{NIST_ALGS_OID}.3" Exported="true"/>
+      <ID Name="NIST_DSA_SHA224_OID" Value="{NIST_SIGALGS_OID}.1" Exported="true"/>
+      <ID Name="NIST_DSA_SHA256_OID" Value="{NIST_SIGALGS_OID}.2" Exported="true"/>
+      <ID Name="NIST_DSA_SHA384_OID" Value="{NIST_SIGALGS_OID}.3" Exported="true"/>
+      <ID Name="NIST_DSA_SHA512_OID" Value="{NIST_SIGALGS_OID}.4" Exported="true"/>
+      <ID Name="NIST_DSA_SHA3_224_OID"   Value="{NIST_SIGALGS_OID}.5" Exported="true"/>
+      <ID Name="NIST_DSA_SHA3_256_OID"   Value="{NIST_SIGALGS_OID}.6" Exported="true"/>
+      <ID Name="NIST_DSA_SHA3_384_OID"   Value="{NIST_SIGALGS_OID}.7" Exported="true"/>
+      <ID Name="NIST_DSA_SHA3_512_OID"   Value="{NIST_SIGALGS_OID}.8" Exported="true"/>
+      <ID Name="NIST_ECDSA_SHA3_224_OID" Value="{NIST_SIGALGS_OID}.9" Exported="true"/>
+      <ID Name="NIST_ECDSA_SHA3_256_OID" Value="{NIST_SIGALGS_OID}.10" Exported="true"/>
+      <ID Name="NIST_ECDSA_SHA3_384_OID" Value="{NIST_SIGALGS_OID}.11" Exported="true"/>
+      <ID Name="NIST_ECDSA_SHA3_512_OID" Value="{NIST_SIGALGS_OID}.12" Exported="true"/>
+      <ID Name="NIST_RSA_PKCS_SHA3_224"  Value="{NIST_SIGALGS_OID}.13" Exported="true"/>
+      <ID Name="NIST_RSA_PKCS_SHA3_256"  Value="{NIST_SIGALGS_OID}.14" Exported="true"/>
+      <ID Name="NIST_RSA_PKCS_SHA3_384"  Value="{NIST_SIGALGS_OID}.15" Exported="true"/>
+      <ID Name="NIST_RSA_PKCS_SHA3_512"  Value="{NIST_SIGALGS_OID}.16" Exported="true"/>
+
+      
+      
+      <ID Name="SECP256K1_OID" Value="1.3.132.0.10" Exported="true"/>
+      <ID Name="XTS_AES_128_OID" Value="1.3.111.2.1619.0.1.1" Exported="true"/>
+      <ID Name="XTS_AES_256_OID" Value="1.3.111.2.1619.0.1.2" Exported="true"/>
+      <ID Name="CKM_HEADER_CMS_OID" Value="1.3.133.16.840.9.73.0.6.1" Exported="true"/>
+      <ID Name="ARIA_128_ECB_OID" Value="1.2.410.200046.1.1.1" Exported="true"/>
+      <ID Name="ARIA_128_CBC_OID" Value="1.2.410.200046.1.1.2" Exported="true"/>
+      <ID Name="ARIA_128_CFB_OID" Value="1.2.410.200046.1.1.3" Exported="true"/>
+      <ID Name="ARIA_128_OFB_OID" Value="1.2.410.200046.1.1.4" Exported="true"/>
+      <ID Name="ARIA_128_CTR_OID" Value="1.2.410.200046.1.1.5" Exported="true"/>
+      <ID Name="ARIA_192_ECB_OID" Value="1.2.410.200046.1.1.6" Exported="true"/>
+      <ID Name="ARIA_192_CBC_OID" Value="1.2.410.200046.1.1.7" Exported="true"/>
+      <ID Name="ARIA_192_CFB_OID" Value="1.2.410.200046.1.1.8" Exported="true"/>
+      <ID Name="ARIA_192_OFB_OID" Value="1.2.410.200046.1.1.9" Exported="true"/>
+      <ID Name="ARIA_192_CTR_OID" Value="1.2.410.200046.1.1.10" Exported="true"/>
+      <ID Name="ARIA_256_ECB_OID" Value="1.2.410.200046.1.1.11" Exported="true"/>
+      <ID Name="ARIA_256_CBC_OID" Value="1.2.410.200046.1.1.12" Exported="true"/>
+      <ID Name="ARIA_256_CFB_OID" Value="1.2.410.200046.1.1.13" Exported="true"/>
+      <ID Name="ARIA_256_OFB_OID" Value="1.2.410.200046.1.1.14" Exported="true"/>
+      <ID Name="ARIA_256_CTR_OID" Value="1.2.410.200046.1.1.15" Exported="true"/>
+      <ID Name="ARIA_128_CMAC_OID" Value="1.2.410.200046.1.1.21" Exported="true"/>
+      <ID Name="ARIA_192_CMAC_OID" Value="1.2.410.200046.1.1.22" Exported="true"/>
+      <ID Name="ARIA_256_CMAC_OID" Value="1.2.410.200046.1.1.23" Exported="true"/>
+      <ID Name="ARIA_128_GCM_OID" Value="1.2.410.200046.1.1.34" Exported="true"/>
+      <ID Name="ARIA_192_GCM_OID" Value="1.2.410.200046.1.1.35" Exported="true"/>
+      <ID Name="ARIA_256_GCM_OID" Value="1.2.410.200046.1.1.36" Exported="true"/>
+      <ID Name="ARIA_128_CCM_OID" Value="1.2.410.200046.1.1.37" Exported="true"/>
+      <ID Name="ARIA_192_CCM_OID" Value="1.2.410.200046.1.1.38" Exported="true"/>
+      <ID Name="ARIA_256_CCM_OID" Value="1.2.410.200046.1.1.39" Exported="true"/>
+      <ID Name="ARIA_128_KW_OID" Value="1.2.410.200046.1.1.40" Exported="true"/>
+      <ID Name="ARIA_192_KW_OID" Value="1.2.410.200046.1.1.41" Exported="true"/>
+      <ID Name="ARIA_256_KW_OID" Value="1.2.410.200046.1.1.42" Exported="true"/>
+      <ID Name="SEED_128_ECB_OID" Value="1.2.410.200004.1.3" Exported="true"/>
+      <ID Name="SEED_128_CBC_OID" Value="1.2.410.200004.1.4" Exported="true"/>
+      <ID Name="SEED_128_CFB_OID" Value="1.2.410.200004.1.5" Exported="true"/>
+      <ID Name="SEED_128_OFB_OID" Value="1.2.410.200004.1.6" Exported="true"/>
+      <ID Name="SEED_128_CMAC_OID" Value="1.2.410.200004.1.7" Exported="true"/>
+
+
+      <NamedInt Name="TS_ALG_ID" BaseType="int32_t" Exported="true">
+        <ID Name="TS_ALG_INVALID" Value="0"/>
+        <ID Name="TS_ALG_DES_CBC" Value="1"/>
+        <ID Name="TS_ALG_DES_ECB" Value="2"/>
+        <ID Name="TS_ALG_DES3_TWOKEY_CBC" Value="5"/>
+        <ID Name="TS_ALG_DES3_TWOKEY_ECB" Value="6"/>
+        <ID Name="TS_ALG_DES3_THREEKEY_CBC" Value="9"/>
+        <ID Name="TS_ALG_DES3_THREEKEY_ECB" Value="10"/>
+        <ID Name="TS_ALG_PSQUARED" Value="11"/>
+        <ID Name="TS_ALG_BLOWFISH_CBC" Value="12"/>
+        <ID Name="TS_ALG_BLOWFISH_ECB" Value="13"/>
+        <ID Name="TS_ALG_AES_CBC_256" Value="16"/>
+        <ID Name="TS_ALG_AES_ECB_256" Value="32"/>
+        <ID Name="TS_ALG_AES_CBC_192" Value="37"/>
+        <ID Name="TS_ALG_AES_ECB_192" Value="38"/>
+        <ID Name="TS_ALG_AES_CBC_128" Value="39"/>
+        <ID Name="TS_ALG_AES_ECB_128" Value="40"/>
+        <ID Name="TS_ALG_RC2_ECB" Value="41"/>
+        <ID Name="TS_ALG_RC2_CBC" Value="42"/>
+        <ID Name="TS_ALG_RC4" Value="43"/>
+        <ID Name="TS_ALG_DES_CTR" Value="44"/>
+        <ID Name="TS_ALG_DES3_TWOKEY_CTR" Value="45"/>
+        <ID Name="TS_ALG_DES3_THREEKEY_CTR" Value="46"/>
+        <ID Name="TS_ALG_BLOWFISH_CTR" Value="47"/>
+        <ID Name="TS_ALG_AES_CTR" Value="49"/>
+        <ID Name="TS_ALG_AES_CTR_256" Value="49"/>
+        <ID Name="TS_ALG_AES_CTR_192" Value="52"/>
+        <ID Name="TS_ALG_AES_CTR_128" Value="53"/>
+        <ID Name="TS_ALG_RC2_CTR" Value="54"/>
+        <ID Name="TS_ALG_TSAES_CBC_256" Value="55"/>
+        <ID Name="TS_ALG_TSAES_ECB_256" Value="56"/>
+        <ID Name="TS_ALG_TSAES_CBC_192" Value="57"/>
+        <ID Name="TS_ALG_TSAES_ECB_192" Value="58"/>
+        <ID Name="TS_ALG_TSAES_CBC_128" Value="59"/>
+        <ID Name="TS_ALG_TSAES_ECB_128" Value="60"/>
+        <ID Name="TS_ALG_CMAC_TDES" Value="61"/>
+        <ID Name="TS_ALG_CMAC_AES128" Value="62"/>
+        <ID Name="TS_ALG_CMAC_AES192" Value="63"/>
+        <ID Name="TS_ALG_CMAC_AES256" Value="64"/>
+        <ID Name="TS_ALG_CMAC_TSAES128" Value="0x41"/>
+        <ID Name="TS_ALG_CMAC_TSAES192" Value="0x42"/>
+        <ID Name="TS_ALG_CMAC_TSAES256" Value="0x43"/>
+        <ID Name="TS_ALG_AES_OFB_256" Value="0x44"/>
+        <ID Name="TS_ALG_AES_OFB_192" Value="0x45"/>
+        <ID Name="TS_ALG_AES_OFB_128" Value="0x46"/>
+        <ID Name="TS_ALG_TSAES_OFB_256" Value="0x47"/>
+        <ID Name="TS_ALG_TSAES_OFB_192" Value="0x48"/>
+        <ID Name="TS_ALG_TSAES_OFB_128" Value="0x49"/>
+        <ID Name="TS_ALG_DES3_TWOKEY_OFB" Value="0x4a"/>
+        <ID Name="TS_ALG_DES3_THREEKEY_OFB" Value="0x4b"/>
+        <ID Name="TS_ALG_AES_CFB8_256" Value="0x4c"/>
+        <ID Name="TS_ALG_AES_CFB8_192" Value="0x4d"/>
+        <ID Name="TS_ALG_AES_CFB8_128" Value="0x4e"/>
+        <ID Name="TS_ALG_TSAES_CFB8_256" Value="0x4f"/>
+        <ID Name="TS_ALG_TSAES_CFB8_192" Value="0x50"/>
+        <ID Name="TS_ALG_TSAES_CFB8_128" Value="0x51"/>
+        <ID Name="TS_ALG_DES3_TWOKEY_CFB8" Value="0x52"/>
+        <ID Name="TS_ALG_DES3_THREEKEY_CFB8" Value="0x53"/>
+        <ID Name="TS_ALG_AES_CFB128_256" Value="0x54"/>
+        <ID Name="TS_ALG_AES_CFB128_192" Value="0x55"/>
+        <ID Name="TS_ALG_AES_CFB128_128" Value="0x56"/>
+        <ID Name="TS_ALG_TSAES_CFB128_256" Value="0x57"/>
+        <ID Name="TS_ALG_TSAES_CFB128_192" Value="0x58"/>
+        <ID Name="TS_ALG_TSAES_CFB128_128" Value="0x59"/>
+        <ID Name="TS_ALG_DES3_TWOKEY_CFB64" Value="0x5a"/>
+        <ID Name="TS_ALG_DES3_THREEKEY_CFB64" Value="0x5b"/>
+        <ID Name="TS_ALG_TSAES_CTR_256" Value="0x5c"/>
+        <ID Name="TS_ALG_TSAES_CTR_192" Value="0x5d"/>
+        <ID Name="TS_ALG_TSAES_CTR_128" Value="0x5e"/>
+        <ID Name="TS_ALG_AES_CCM_256" Value="0x5f"/>
+        <ID Name="TS_ALG_AES_CCM_192" Value="0x60"/>
+        <ID Name="TS_ALG_AES_CCM_128" Value="0x61"/>
+        <ID Name="TS_ALG_TSAES_CCM_256" Value="0x62"/>
+        <ID Name="TS_ALG_TSAES_CCM_192" Value="0x63"/>
+        <ID Name="TS_ALG_TSAES_CCM_128" Value="0x64"/>
+        <ID Name="TS_ALG_AES_GCM_256" Value="0x65"/>
+        <ID Name="TS_ALG_AES_GCM_192" Value="0x66"/>
+        <ID Name="TS_ALG_AES_GCM_128" Value="0x67"/>
+        <ID Name="TS_ALG_TSAES_GCM_256" Value="0x68"/>
+        <ID Name="TS_ALG_TSAES_GCM_192" Value="0x69"/>
+        <ID Name="TS_ALG_TSAES_GCM_128" Value="0x6a"/>
+        
+        <ID Name="TS_ALG_AES_XTS_256" Value="0x6b"/>
+        <ID Name="TS_ALG_AES_XTS_192" Value="0x6c"/>
+        <ID Name="TS_ALG_AES_XTS_128" Value="0x6d"/>
+
+        <ID Name="TS_ALG_PROBABLE_PRIME" Value="0x71"/>
+        <ID Name="TS_ALG_PROVABLE_PRIME" Value="0x72"/>
+        <ID Name="TS_ALG_DES_CFB8" Value="0x73"/>
+        <ID Name="TS_ALG_DES_CFB64" Value="0x74"/>
+        <ID Name="TS_ALG_DES_OFB" Value="0x75"/>
+        <ID Name="TS_ALG_PROBABLE_X9_31_PRIME" Value="0x76"/>
+        <ID Name="TS_ALG_RC2_OFB" Value="0x77"/>
+        <ID Name="TS_ALG_RC2_CFB8" Value="0x78"/>
+        <ID Name="TS_ALG_RC2_CFB64" Value="0x79"/>
+        <ID Name="TS_ALG_RC2_128_ECB" Value="0x7a"/>
+        <ID Name="TS_ALG_RC2_128_CBC" Value="0x7b"/>
+        <ID Name="TS_ALG_RC2_128_CTR" Value="0x7c"/>
+        <ID Name="TS_ALG_RC2_128_OFB" Value="0x7d"/>
+        <ID Name="TS_ALG_RC2_128_CFB8" Value="0x7e"/>
+        <ID Name="TS_ALG_RC2_128_CFB64" Value="0x7f"/>
+        
+        <ID Name="TS_ALG_SALSA20" Value="0x80"/>
+        <ID Name="TS_ALG_XSALSA20" Value="0x81"/>
+        <ID Name="TS_ALG_CHACHA20" Value="0x82"/>
+        <ID Name="TS_ALG_POLY1305" Value="0x83"/>
+
+        <ID Name="TS_ALG_DH" Value="0x101"/>
+        <ID Name="TS_ALG_DSA" Value="0x102"/>
+        <ID Name="TS_ALG_DSA_SHA1" Value="0x103"/>
+        <ID Name="TS_ALG_RSA_PKCS_v15" Value="0x104"/>
+        <ID Name="TS_ALG_RSA_SHA1_v15" Value="0x105"/>
+        <ID Name="TS_ALG_RSA_MD5_v15" Value="0x106"/>
+        <ID Name="TS_ALG_RSA_SHA256_v15" Value="0x107"/>
+        <ID Name="TS_ALG_RSA_SHA384_v15" Value="0x108"/>
+        <ID Name="TS_ALG_RSA_SHA512_v15" Value="0x109"/>
+        <ID Name="TS_ALG_RSA_SHA224_v15" Value="0x10a"/>
+        <ID Name="TS_ALG_RSA" Value="0x10b"/>
+        <ID Name="TS_ALG_RSA_PKCS" Value="TS_ALG_RSA_PKCS_v15"/>
+        <ID Name="TS_ALG_RSA_SHA1" Value="TS_ALG_RSA_SHA1_v15"/>
+        <ID Name="TS_ALG_RSA_MD5" Value="TS_ALG_RSA_MD5_v15"/>
+        <ID Name="TS_ALG_RSA_SHA256" Value="TS_ALG_RSA_SHA256_v15"/>
+        <ID Name="TS_ALG_RSA_SHA384" Value="TS_ALG_RSA_SHA384_v15"/>
+        <ID Name="TS_ALG_RSA_SHA512" Value="TS_ALG_RSA_SHA512_v15"/>
+        <ID Name="TS_ALG_RSA_SHA224" Value="TS_ALG_RSA_SHA224_v15"/>
+        <ID Name="TS_ALG_DSA_SHA256" Value="0x10c"/>
+        <ID Name="TS_ALG_DSA_SHA512" Value="0x10d"/>
+        <ID Name="TS_ALG_ECC" Value="0x10e"/>
+        <ID Name="TS_ALG_ECC_P256" Value="0x10f"/>
+        <ID Name="TS_ALG_ECC_P384" Value="0x110"/>
+        <ID Name="TS_ALG_ECC_P521" Value="0x111"/>
+        <ID Name="TS_ALG_KDF_CMAC_AES" Value="0x112"/>
+        <ID Name="TS_ALG_KDF_CMAC_TSAES" Value="0x113"/>
+        <ID Name="TS_ALG_KDF_CMAC_TDES" Value="0x114"/>
+        <ID Name="TS_ALG_KDF_HMAC_SHA1" Value="0x115"/>
+        <ID Name="TS_ALG_KDF_HMAC_SHA224" Value="0x116"/>
+        <ID Name="TS_ALG_KDF_HMAC_SHA256" Value="0x117"/>
+        <ID Name="TS_ALG_KDF_HMAC_SHA384" Value="0x118"/>
+        <ID Name="TS_ALG_KDF_HMAC_SHA512" Value="0x119"/>
+        <ID Name="TS_ALG_KDF_HASH_SHA1" Value="0x11a"/>
+        <ID Name="TS_ALG_KDF_HASH_SHA224" Value="0x11b"/>
+        <ID Name="TS_ALG_KDF_HASH_SHA256" Value="0x11c"/>
+        <ID Name="TS_ALG_KDF_HASH_SHA384" Value="0x11d"/>
+        <ID Name="TS_ALG_KDF_HASH_SHA512" Value="0x11e"/>
+        <ID Name="TS_ALG_RSA_PSS_ENCODE" Value="0x11f"/>
+        <ID Name="TS_ALG_RSA_X9_31_ENCODE" Value="0x120"/>
+        <ID Name="TS_ALG_ECC_SHA1" Value="0x121"/>
+        <ID Name="TS_ALG_ECC_SHA224" Value="0x122"/>
+        <ID Name="TS_ALG_ECC_SHA256" Value="0x123"/>
+        <ID Name="TS_ALG_ECC_SHA384" Value="0x124"/>
+        <ID Name="TS_ALG_ECC_SHA512" Value="0x125"/>
+        <ID Name="TS_ALG_ECC_P192" Value="0x126"/>
+        <ID Name="TS_ALG_ECC_P224" Value="0x127"/>
+        <ID Name="TS_ALG_RSA_X9_31_SHA1" Value="0x128"/>
+        <ID Name="TS_ALG_RSA_X9_31_SHA224" Value="0x129"/>
+        <ID Name="TS_ALG_RSA_X9_31_SHA256" Value="0x12a"/>
+        <ID Name="TS_ALG_RSA_X9_31_SHA384" Value="0x12b"/>
+        <ID Name="TS_ALG_RSA_X9_31_SHA512" Value="0x12c"/>
+        <ID Name="TS_ALG_RSA_PSS_SHA1" Value="0x12d"/>
+        <ID Name="TS_ALG_RSA_PSS_SHA224" Value="0x12e"/>
+        <ID Name="TS_ALG_RSA_PSS_SHA256" Value="0x12f"/>
+        <ID Name="TS_ALG_RSA_PSS_SHA384" Value="0x130"/>
+        <ID Name="TS_ALG_RSA_PSS_SHA512" Value="0x131"/>
+
+        <ID Name="TS_ALG_CKM7_CRYPTOGROUP_P256_SHA512" Value="0x133"/>
+        <ID Name="TS_ALG_CKM7_CRYPTOGROUP_P384_SHA512" Value="0x135"/>
+        <ID Name="TS_ALG_CKM7_CRYPTOGROUP_P521_SHA512" Value="0x137"/>
+        <ID Name="TS_ALG_CKM7_ATTRIBUTE_SYM" Value="0x138"/>
+        <ID Name="TS_ALG_CKM7_ATTRIBUTE_P256" Value="0x139"/>
+        <ID Name="TS_ALG_CKM7_ATTRIBUTE_P384" Value="0x13a"/>
+        <ID Name="TS_ALG_CKM7_ATTRIBUTE_P521" Value="0x13b"/>
+
+        <ID Name="TS_ALG_DSA_SHA224" Value="0x13c"/>
+        <ID Name="TS_ALG_DSA_SHA384" Value="0x13d"/>
+        <ID Name="TS_ALG_DH_PARAMETERS" Value="0x13e"/>
+        <ID Name="TS_ALG_DH_KEY" Value="0x13f"/>
+        <ID Name="TS_ALG_DSA_KEY" Value="0x13f"/>
+
+        <ID Name="TS_ALG_CKM7_ATTRIBUTE_P192" Value="0x140"/>
+        <ID Name="TS_ALG_CKM7_ATTRIBUTE_P224" Value="0x141"/>
+        <ID Name="TS_ALG_CKM7_CRYPTOGROUP_P192_SHA512" Value="0x143"/>
+        <ID Name="TS_ALG_CKM7_CRYPTOGROUP_P224_SHA512" Value="0x145"/>
+
+        <ID Name="TS_ALG_PBKDF2" Value="0x146"/>
+        <ID Name="TS_ALG_RSA_X9_31_KEY" Value="0x147"/>
+        
+        <ID Name="TS_ALG_RSASVE" Value="0x148"/>
+
+        <ID Name="TS_ALG_RSA_OAEP_SHA1" Value="0x149"/>
+        <ID Name="TS_ALG_RSA_OAEP_SHA224" Value="0x14a"/>
+        <ID Name="TS_ALG_RSA_OAEP_SHA256" Value="0x14b"/>
+        <ID Name="TS_ALG_RSA_OAEP_SHA384" Value="0x14c"/>
+        <ID Name="TS_ALG_RSA_OAEP_SHA512" Value="0x14d"/>
+        
+        <ID Name="TS_ALG_RSA_KEM_KWS" Value="0x14e"/>
+        <ID Name="TS_ALG_RSA_KAS1" Value="0x14f"/>
+        <ID Name="TS_ALG_RSA_KAS2" Value="0x150"/>
+        <ID Name="TS_ALG_RSA_KTS_OAEP" Value="0x151"/>
+        <ID Name="TS_ALG_RSA_KTS_KEM_KWS" Value="0x152"/>
+        <ID Name="TS_ALG_DH_ECDH_KAS" Value="0x153"/> 
+
+        <ID Name="TS_ALG_KDF_HASH_MD5" Value="0x154"/>
+        <ID Name="TS_ALG_KDF_HMAC_MD5" Value="0x155"/>
+        <ID Name="TS_ALG_RIPEMD160" Value="0x156"/>
+        <ID Name="TS_ALG_HMAC_RIPEMD160" Value="0x157"/>
+        <ID Name="TS_ALG_KDF_HMAC_RIPEMD160" Value="0x158"/>
+        <ID Name="TS_ALG_KDF_HASH_RIPEMD160" Value="0x159"/>
+        
+        <ID Name="TS_ALG_CAMELLIA_CBC_256" Value="0x15a"/>
+        <ID Name="TS_ALG_CAMELLIA_ECB_256" Value="0x15b"/>
+        <ID Name="TS_ALG_CAMELLIA_CBC_192" Value="0x15c"/>
+        <ID Name="TS_ALG_CAMELLIA_ECB_192" Value="0x15d"/>
+        <ID Name="TS_ALG_CAMELLIA_CBC_128" Value="0x15e"/>
+        <ID Name="TS_ALG_CAMELLIA_ECB_128" Value="0x15f"/>
+        <ID Name="TS_ALG_CAMELLIA_CTR" Value="0x160"/>
+        <ID Name="TS_ALG_CAMELLIA_CTR_256" Value="TS_ALG_CAMELLIA_CTR"/>
+        <ID Name="TS_ALG_CAMELLIA_CTR_192" Value="0x161"/>
+        <ID Name="TS_ALG_CAMELLIA_CTR_128" Value="0x162"/>
+        <ID Name="TS_ALG_CMAC_CAMELLIA128" Value="0x163"/>
+        <ID Name="TS_ALG_CMAC_CAMELLIA192" Value="0x164"/>
+        <ID Name="TS_ALG_CMAC_CAMELLIA256" Value="0x165"/>
+        <ID Name="TS_ALG_CAMELLIA_OFB_256" Value="0x166"/>
+        <ID Name="TS_ALG_CAMELLIA_OFB_192" Value="0x167"/>
+        <ID Name="TS_ALG_CAMELLIA_OFB_128" Value="0x168"/>
+        <ID Name="TS_ALG_CAMELLIA_CFB8_256" Value="0x169"/>
+        <ID Name="TS_ALG_CAMELLIA_CFB8_192" Value="0x16a"/>
+        <ID Name="TS_ALG_CAMELLIA_CFB8_128" Value="0x16b"/>
+        <ID Name="TS_ALG_CAMELLIA_CFB128_256" Value="0x16c"/>
+        <ID Name="TS_ALG_CAMELLIA_CFB128_192" Value="0x16d"/>
+        <ID Name="TS_ALG_CAMELLIA_CFB128_128" Value="0x16e"/>
+        <ID Name="TS_ALG_CAMELLIA_CCM_256" Value="0x16f"/>
+        <ID Name="TS_ALG_CAMELLIA_CCM_192" Value="0x170"/>
+        <ID Name="TS_ALG_CAMELLIA_CCM_128" Value="0x171"/>
+        <ID Name="TS_ALG_CAMELLIA_GCM_256" Value="0x172"/>
+        <ID Name="TS_ALG_CAMELLIA_GCM_192" Value="0x173"/>
+        <ID Name="TS_ALG_CAMELLIA_GCM_128" Value="0x174"/>
+        <ID Name="TS_ALG_CAMELLIA_XTS_256" Value="0x175"/>
+        <ID Name="TS_ALG_CAMELLIA_XTS_192" Value="0x176"/>
+        <ID Name="TS_ALG_CAMELLIA_XTS_128" Value="0x177"/>
+        <ID Name="TS_ALG_KDF_CMAC_CAMELLIA" Value="0x178"/>
+
+        <ID Name="TS_ALG_CMAC_BLOWFISH" Value="0x179"/>
+        <ID Name="TS_ALG_KDF_CMAC_BLOWFISH" Value="0x17a"/>
+        <ID Name="TS_ALG_XTEA_CBC" Value="0x17b"/>
+        <ID Name="TS_ALG_XTEA_ECB" Value="0x17c"/>
+        <ID Name="TS_ALG_XTEA_CTR" Value="0x17d"/>
+        <ID Name="TS_ALG_CMAC_XTEA" Value="0x17e"/>
+        <ID Name="TS_ALG_KDF_CMAC_XTEA" Value="0x17f"/>
+        
+        <ID Name="TS_ALG_ARIA_CBC_256" Value="0x180"/>
+        <ID Name="TS_ALG_ARIA_ECB_256" Value="0x181"/>
+        <ID Name="TS_ALG_ARIA_CBC_192" Value="0x182"/>
+        <ID Name="TS_ALG_ARIA_ECB_192" Value="0x183"/>
+        <ID Name="TS_ALG_ARIA_CBC_128" Value="0x184"/>
+        <ID Name="TS_ALG_ARIA_ECB_128" Value="0x185"/>
+        <ID Name="TS_ALG_ARIA_CTR" Value="0x186"/>
+        <ID Name="TS_ALG_ARIA_CTR_256" Value="TS_ALG_ARIA_CTR"/>
+        <ID Name="TS_ALG_ARIA_CTR_192" Value="0x187"/>
+        <ID Name="TS_ALG_ARIA_CTR_128" Value="0x188"/>
+        <ID Name="TS_ALG_CMAC_ARIA128" Value="0x189"/>
+        <ID Name="TS_ALG_CMAC_ARIA192" Value="0x18A"/>
+        <ID Name="TS_ALG_CMAC_ARIA256" Value="0x18b"/>
+        <ID Name="TS_ALG_ARIA_OFB_256" Value="0x18c"/>
+        <ID Name="TS_ALG_ARIA_OFB_192" Value="0x18d"/>
+        <ID Name="TS_ALG_ARIA_OFB_128" Value="0x18e"/>
+        <ID Name="TS_ALG_ARIA_CFB8_256" Value="0x18f"/>
+        <ID Name="TS_ALG_ARIA_CFB8_192" Value="0x190"/>
+        <ID Name="TS_ALG_ARIA_CFB8_128" Value="0x191"/>
+        <ID Name="TS_ALG_ARIA_CFB128_256" Value="0x192"/>
+        <ID Name="TS_ALG_ARIA_CFB128_192" Value="0x193"/>
+        <ID Name="TS_ALG_ARIA_CFB128_128" Value="0x194"/>
+        <ID Name="TS_ALG_ARIA_CCM_256" Value="0x195"/>
+        <ID Name="TS_ALG_ARIA_CCM_192" Value="0x196"/>
+        <ID Name="TS_ALG_ARIA_CCM_128" Value="0x197"/>
+        <ID Name="TS_ALG_ARIA_GCM_256" Value="0x198"/>
+        <ID Name="TS_ALG_ARIA_GCM_192" Value="0x199"/>
+        <ID Name="TS_ALG_ARIA_GCM_128" Value="0x19a"/>
+        <ID Name="TS_ALG_ARIA_XTS_256" Value="0x19b"/>
+        <ID Name="TS_ALG_ARIA_XTS_192" Value="0x19c"/>
+        <ID Name="TS_ALG_ARIA_XTS_128" Value="0x19d"/>
+        <ID Name="TS_ALG_KDF_CMAC_ARIA" Value="0x19e"/>
+        <ID Name="TS_ALG_SEED_CBC_128" Value="0x19f"/>
+        <ID Name="TS_ALG_SEED_ECB_128" Value="0x1a0"/>
+        <ID Name="TS_ALG_SEED_CTR_128" Value="0x1a1"/>
+        <ID Name="TS_ALG_CMAC_SEED128" Value="0x1a2"/>
+        <ID Name="TS_ALG_SEED_OFB_128" Value="0x1a3"/>
+        <ID Name="TS_ALG_SEED_CFB8_128" Value="0x1a4"/>
+        <ID Name="TS_ALG_SEED_CFB128_128" Value="0x1a5"/>
+        <ID Name="TS_ALG_SEED_CCM_128" Value="0x1a6"/>
+        <ID Name="TS_ALG_SEED_GCM_128" Value="0x1a7"/>
+        <ID Name="TS_ALG_SEED_XTS_128" Value="0x1a8"/>
+        <ID Name="TS_ALG_KDF_CMAC_SEED" Value="0x1a9"/>
+        <ID Name="TS_ALG_KDF_HMAC_SHA3_224" Value="0x1aa"/>
+        <ID Name="TS_ALG_KDF_HMAC_SHA3_256" Value="0x1ab"/>
+        <ID Name="TS_ALG_KDF_HMAC_SHA3_384" Value="0x1ac"/>
+        <ID Name="TS_ALG_KDF_HMAC_SHA3_512" Value="0x1ad"/>
+        <ID Name="TS_ALG_KDF_HASH_SHA3_224" Value="0x1ae"/>
+        <ID Name="TS_ALG_KDF_HASH_SHA3_256" Value="0x1af"/>
+        <ID Name="TS_ALG_KDF_HASH_SHA3_384" Value="0x1b0"/>
+        <ID Name="TS_ALG_KDF_HASH_SHA3_512" Value="0x1b1"/>
+        <ID Name="TS_ALG_RSA_X9_31_SHA3_224" Value="0x1b2"/>
+        <ID Name="TS_ALG_RSA_X9_31_SHA3_256" Value="0x1b3"/>
+        <ID Name="TS_ALG_RSA_X9_31_SHA3_384" Value="0x1b4"/>
+        <ID Name="TS_ALG_RSA_X9_31_SHA3_512" Value="0x1b5"/>
+        <ID Name="TS_ALG_RSA_PKCS_SHA3_224" Value="0x1b6"/>
+        <ID Name="TS_ALG_RSA_PKCS_SHA3_256" Value="0x1b7"/>
+        <ID Name="TS_ALG_RSA_PKCS_SHA3_384" Value="0x1b8"/>
+        <ID Name="TS_ALG_RSA_PKCS_SHA3_512" Value="0x1b9"/>
+        <ID Name="TS_ALG_RSA_PSS_SHA3_224" Value="0x1ba"/>
+        <ID Name="TS_ALG_RSA_PSS_SHA3_256" Value="0x1bb"/>
+        <ID Name="TS_ALG_RSA_PSS_SHA3_384" Value="0x1bc"/>
+        <ID Name="TS_ALG_RSA_PSS_SHA3_512" Value="0x1bd"/>
+        <ID Name="TS_ALG_RSA_OAEP_SHA3_224" Value="0x1be"/>
+        <ID Name="TS_ALG_RSA_OAEP_SHA3_256" Value="0x1bf"/>
+        <ID Name="TS_ALG_RSA_OAEP_SHA3_384" Value="0x1c0"/>
+        <ID Name="TS_ALG_RSA_OAEP_SHA3_512" Value="0x1c1"/>
+        <ID Name="TS_ALG_ECC_SHA3_224" Value="0x1c2"/>
+        <ID Name="TS_ALG_ECC_SHA3_256" Value="0x1c3"/>
+        <ID Name="TS_ALG_ECC_SHA3_384" Value="0x1c4"/>
+        <ID Name="TS_ALG_ECC_SHA3_512" Value="0x1c5"/>
+        <ID Name="TS_ALG_DSA_SHA3_224" Value="0x1c6"/>
+        <ID Name="TS_ALG_DSA_SHA3_256" Value="0x1c7"/>
+        <ID Name="TS_ALG_DSA_SHA3_384" Value="0x1c8"/>
+        <ID Name="TS_ALG_DSA_SHA3_512" Value="0x1c9"/>
+        <ID Name="TS_ALG_CHACHA20_POLY1305" Value="0x1ca"/>
+        <ID Name="TS_ALG_SALSA20_POLY1305" Value="0x1cb"/>
+
+        <ID Name="TS_ALG_X25519" Value="0x1CC"/>
+        <ID Name="TS_ALG_X448" Value="0x1CD"/>
+        <ID Name="TS_ALG_X25519_PH" Value="0x1CE"/>
+        <ID Name="TS_ALG_X448_PH" Value="0x1CF"/>
+        
+        <ID Name="TS_ALG_CKM7_CRYPTOGROUP_X25519_SHA512" Value="0x1D0"/>
+        <ID Name="TS_ALG_CKM7_ATTRIBUTE_X25519" Value="0x1D1"/>
+        <ID Name="TS_ALG_ECC_P256K1" Value="0x1D2"/>
+        <ID Name="TS_ALG_CKM7_CRYPTOGROUP_P256K1_SHA512" Value="0x1D3"/>
+        <ID Name="TS_ALG_CKM7_ATTRIBUTE_P256K1" Value="0x1D4"/>
+        
+        <ID Name="TS_ALG_NUMSP256D1" Value="0x1D5"/>
+        <ID Name="TS_ALG_NUMSP384D1" Value="0x1D6"/>
+        <ID Name="TS_ALG_NUMSP512D1" Value="0x1D7"/>
+        <ID Name="TS_ALG_NUMSP256T1" Value="0x1D8"/>
+        <ID Name="TS_ALG_NUMSP384T1" Value="0x1D9"/>
+        <ID Name="TS_ALG_NUMSP512T1" Value="0x1DA"/>
+        
+        <ID Name="TS_ALG_CKM7_CRYPTOGROUP_NUMSP256D1_SHA512" Value="0x1DB"/>
+        <ID Name="TS_ALG_CKM7_CRYPTOGROUP_NUMSP384D1_SHA512" Value="0x1DC"/>
+        <ID Name="TS_ALG_CKM7_CRYPTOGROUP_NUMSP512D1_SHA512" Value="0x1DD"/>
+        <ID Name="TS_ALG_CKM7_CRYPTOGROUP_NUMSP256T1_SHA512" Value="0x1DE"/>
+        <ID Name="TS_ALG_CKM7_CRYPTOGROUP_NUMSP384T1_SHA512" Value="0x1DF"/>
+        <ID Name="TS_ALG_CKM7_CRYPTOGROUP_NUMSP512T1_SHA512" Value="0x1E0"/>
+        
+        <ID Name="TS_ALG_CKM7_ATTRIBUTE_NUMSP256D1" Value="0x1E1"/>
+        <ID Name="TS_ALG_CKM7_ATTRIBUTE_NUMSP384D1" Value="0x1E2"/>
+        <ID Name="TS_ALG_CKM7_ATTRIBUTE_NUMSP512D1" Value="0x1E3"/>
+        <ID Name="TS_ALG_CKM7_ATTRIBUTE_NUMSP256T1" Value="0x1E4"/>
+        <ID Name="TS_ALG_CKM7_ATTRIBUTE_NUMSP384T1" Value="0x1E5"/>
+        <ID Name="TS_ALG_CKM7_ATTRIBUTE_NUMSP512T1" Value="0x1E6"/>
+        
+        
+        <ID Name="TS_ALG_SHA1" Value="0x201"/>
+        <ID Name="TS_ALG_MD5" Value="0x202"/>
+        <ID Name="TS_ALG_SHA256" Value="0x203"/>
+        <ID Name="TS_ALG_SHA384" Value="0x204"/>
+        <ID Name="TS_ALG_SHA512" Value="0x205"/>
+        <ID Name="TS_ALG_SHA224" Value="0x206"/>
+        
+        <ID Name="TS_ALG_SHA3_224" Value="0x207"/>
+        <ID Name="TS_ALG_SHA3_256" Value="0x208"/>
+        <ID Name="TS_ALG_SHA3_384" Value="0x209"/>
+        <ID Name="TS_ALG_SHA3_512" Value="0x20a"/>
+        <ID Name="TS_ALG_SHAKE128" Value="0x20b"/>
+        <ID Name="TS_ALG_SHAKE256" Value="0x20c"/>
+
+        <ID Name="TS_ALG_HMAC_SHA1" Value="0x251"/>
+        <ID Name="TS_ALG_HMAC_MD5" Value="0x252"/>
+        <ID Name="TS_ALG_HMAC_SHA256" Value="0x253"/>
+        <ID Name="TS_ALG_HMAC_SHA384" Value="0x254"/>
+        <ID Name="TS_ALG_HMAC_SHA512" Value="0x255"/>
+        <ID Name="TS_ALG_HMAC_SHA224" Value="0x256"/>
+        
+        <ID Name="TS_ALG_HMAC_SHA3_256" Value="0x257"/>
+        <ID Name="TS_ALG_HMAC_SHA3_384" Value="0x258"/>
+        <ID Name="TS_ALG_HMAC_SHA3_512" Value="0x259"/>
+        <ID Name="TS_ALG_HMAC_SHA3_224" Value="0x25a"/>
+
+        <ID Name="TS_ALG_KEYWRAP_TDES" Value="0x300"/>
+        <ID Name="TS_ALG_KEYWRAP_AES128" Value="0x301"/>
+        <ID Name="TS_ALG_KEYWRAP_AES192" Value="0x302"/>
+        <ID Name="TS_ALG_KEYWRAP_AES256" Value="0x303"/>
+        <ID Name="TS_ALG_KEYWRAP_TSAES128" Value="0x304"/>
+        <ID Name="TS_ALG_KEYWRAP_TSAES192" Value="0x305"/>
+        <ID Name="TS_ALG_KEYWRAP_TSAES256" Value="0x306"/>
+        
+        <ID Name="TS_ALG_KEYWRAP_CAMELLIA128" Value="0x307"/>
+        <ID Name="TS_ALG_KEYWRAP_CAMELLIA192" Value="0x308"/>
+        <ID Name="TS_ALG_KEYWRAP_CAMELLIA256" Value="0x309"/>
+
+        <ID Name="TS_ALG_KEYWRAP_BLOWFISH" Value="0x30A"/>
+        <ID Name="TS_ALG_KEYWRAP_XTEA" Value="0x30b"/>
+        
+        <ID Name="TS_ALG_KEYWRAP_ARIA128" Value="0x30c"/>
+        <ID Name="TS_ALG_KEYWRAP_ARIA192" Value="0x30d"/>
+        <ID Name="TS_ALG_KEYWRAP_ARIA256" Value="0x30e"/>
+        <ID Name="TS_ALG_KEYWRAP_SEED128" Value="0x30f"/>
+
+        <ID Name="TS_ALG_CKMAUTH_PBKDF_SHA1" Value="0x400"/>
+        <ID Name="TS_ALG_CKMAUTH_PBKDF_SHA224" Value="0x401"/>
+        <ID Name="TS_ALG_CKMAUTH_PBKDF_SHA256" Value="0x402"/>
+        <ID Name="TS_ALG_CKMAUTH_PBKDF_SHA384" Value="0x403"/>
+        <ID Name="TS_ALG_CKMAUTH_PBKDF_SHA512" Value="0x404"/>
+        
+        <ID Name="TS_ALG_CKMAUTH_PBKDF_SHA3_224" Value="0x405"/>
+        <ID Name="TS_ALG_CKMAUTH_PBKDF_SHA3_256" Value="0x406"/>
+        <ID Name="TS_ALG_CKMAUTH_PBKDF_SHA3_384" Value="0x407"/>
+        <ID Name="TS_ALG_CKMAUTH_PBKDF_SHA3_512" Value="0x408"/>
+
+        <ID Name="TS_ALG_CKMAUTH" Value="0x4FF"/>
+        
+        <ID Name="TS_ALG_CKM" Value="0x1000"/>
+        <ID Name="TS_ALG_SYM_CKM_256" Value="0x1001"/>
+        <ID Name="TS_ALG_CKM7" Value="0x1002"/>
+
+        <ID Name="TS_ALG_MISC" Value="0x1100"/>
+        <ID Name="TS_ALG_RND_SHA256_HASH_DRBG" Value="0x1201"/>
+        <ID Name="TS_ALG_RND_SHA512_HASH_DRBG" Value="0x1202"/>
+        <ID Name="TS_ALG_SECURE_CHANNEL_SERVER" Value="0x1203"/>
+        <ID Name="TS_ALG_RUNTIME_RESERVED" Value="0x2000"/>
+        <ID Name="TS_ALG_RUNTIME_RESERVED_MAX" Value="0x2fff"/>
+      </NamedInt>
+      <NamedInt Name="KeyType" BaseType="int32_t" Exported="true">
+        <ID Name="kt_UNKNOWN" Value="(int)0x80000000"/>
+        <ID Name="kt_RSA" Value="0"/>
+        <ID Name="kt_DSA" Value="0x1"/>
+        <ID Name="kt_DH" Value="0x2"/>
+        <ID Name="kt_ECDSA" Value="0x3"/>
+        <ID Name="kt_EC" Value="0x3"/>
+        <ID Name="kt_X9_42_DH" Value="0x4"/>
+        <!--<ID Name="kt_KEA" Value="0x5"/>-->
+        <ID Name="kt_GENERIC_SECRET" Value="0x10"/>
+        <ID Name="kt_RC2" Value="0x11"/>
+        <ID Name="kt_RC4" Value="0x12"/>
+        <ID Name="kt_DES" Value="0x13"/>
+        <ID Name="kt_DES2" Value="0x14"/>
+        <ID Name="kt_DES3" Value="0x15"/>
+        <!--<ID Name="kt_CAST" Value="0x16"/>
+        <ID Name="kt_CAST3" Value="0x17"/>
+        <ID Name="kt_CAST5" Value="0x18"/>
+        <ID Name="kt_CAST128" Value="0x18"/>-->
+        <!--<ID Name="kt_RC5" Value="0x19"/>-->
+        <!--<ID Name="kt_IDEA" Value="0x1a"/>
+        <ID Name="kt_SKIPJACK" Value="0x1b"/>
+        <ID Name="kt_BATON" Value="0x1c"/>
+        <ID Name="kt_JUNIPER" Value="0x1d"/>
+        <ID Name="kt_CDMF" Value="0x1e"/>-->
+        <ID Name="kt_AES" Value="0x1f"/>
+        <ID Name="kt_BLOWFISH" Value="0x20"/>
+        <!--<ID Name="kt_TWOFISH" Value="0x21"/>-->
+        <!--<ID Name="kt_SECURID" Value="0x22"                             />
+        <ID Name="kt_HOTP" Value="0x23"                                />
+        <ID Name="kt_ACTI" Value="0x24"                                /> -->
+        
+        <ID Name="kt_CAMELLIA" Value="0x25" />
+        <ID Name="kt_ARIA" Value="0x26" />
+        <ID Name="kt_MD5_HMAC" Value="0x27"                            />
+        <ID Name="kt_SHA_1_HMAC" Value="0x28"                          />
+        <!-- <ID Name="kt_RIPEMD128_HMAC" Value="0x29"                      /> -->
+        <ID Name="kt_RIPEMD160_HMAC" Value="0x2a"                      />
+        <ID Name="kt_SHA256_HMAC" Value="0x2b"                         />
+        <ID Name="kt_SHA384_HMAC" Value="0x2c"                         />
+        <ID Name="kt_SHA512_HMAC" Value="0x2d"                         />
+        <ID Name="kt_SHA224_HMAC" Value="0x2e"                         />
+        <!--<ID Name="kt_GOSTR3410" Value="0x30"                           />
+        <ID Name="kt_GOSTR3411" Value="0x31"                           />
+        <ID Name="kt_GOST28147" Value="0x32"                           />-->
+        <ID Name="kt_TECSEC_PSQUARED" Value="(int)0x80000001"          />
+        <ID Name="kt_TECSEC_AES_256" Value="(int)0x80000006"           />
+        <ID Name="kt_TECSEC_AES_192" Value="(int)0x80000007"           />
+        <ID Name="kt_TECSEC_AES_128" Value="(int)0x80000008"           />
+        <ID Name="kt_XTEA" Value="(int)0x80000009"                     />
+        
+        <ID Name="kt_SEED" Value="(int)0x8000000a" />
+        <ID Name="kt_SALSA20" Value="(int)0x8000000b" />
+        <ID Name="kt_ChaCha20" Value="(int)0x8000000c" />        
+        
+        <ID Name="kt_TECSEC_WORKING_KEY" Value="(int)0x80808001" />
+      </NamedInt>
+
+      <NamedInt Name="SymmetricMode" BaseType="int32_t" Exported="true">
+        <ID Name="CKM_SymMode_Default" Value="0"/>
+        <ID Name="CKM_SymMode_ECB" Value="1"/>
+        <ID Name="CKM_SymMode_CBC" Value="2"/>
+        <ID Name="CKM_SymMode_OFB" Value="3"/>
+        <ID Name="CKM_SymMode_CFB8" Value="4"/>
+        <ID Name="CKM_SymMode_CFBfull" Value="5"/>
+        <ID Name="CKM_SymMode_CTR" Value="6"/>
+        <ID Name="CKM_SymMode_CCM" Value="7"/>
+        <ID Name="CKM_SymMode_GCM" Value="8"/>        
+        <ID Name="CKM_SymMode_XTS" Value="9"/>
+      </NamedInt>
+
+      <NamedInt Name="CryptoAlgType" BaseType="int32_t" Exported="true">
+        <ID Name="cat_Symmetric" Value="0x00000001"/>
+        <ID Name="cat_Asymmetric" Value="0x00000002"/>
+        <ID Name="cat_Sign" Value="0x00000004"/>
+        <ID Name="cat_Encrypt" Value="0x00000008"/>
+        <ID Name="cat_KDF" Value="0x00000010"/>
+        <ID Name="cat_Digest" Value="0x00000020"/>
+        <ID Name="cat_MAC" Value="0x00000040"/>
+        <ID Name="cat_AEAD" Value="0x00000080"/>
+        <ID Name="cat_Random" Value="0x00000100"/>
+        <ID Name="cat_KeyTransport" Value="0x00000200"/>
+        <ID Name="cat_PbKdf" Value="0x00000400"/>
+        <ID Name="cat_CkmAuth" Value="0x00000800"/>
+        <ID Name="cat_Tunnel" Value="0x00001000"/>
+        <ID Name="cat_Prime" Value="0x00002000"/>
+        <ID Name="cat_KeyAgreement" Value="0x00004000"/>
+        <ID Name="cat_Encoder" Value="0x00008000"/>
+        <ID Name="cat_StreamCipher" Value="0x00010000"/>
+        <ID Name="cat_XTS" Value="0x00020000"/>
+        <ID Name="cat_XOF" Value="0x00040000"/>
+        <ID Name="cat_Combiner" Value="0x00080000"/>
+        <ID Name="cat_Attribute" Value="0x00100000"/>
+        <ID Name="cat_CryptoGroup" Value="0x00200000"/>
+      </NamedInt>
+
+      <NamedInt Name="SymmetricPaddingType" BaseType="uint8_t" Exported="true">
+        <ID Name="padding_None" Value="0"/>
+        <ID Name="padding_Pkcs5" Value="1"/>
+        <ID Name="padding_GP03" Value="2"/>
+        <ID Name="padding_Zeros" Value="3"/>
+        <ID Name="padding_FFs" Value="4"/>
+        <ID Name="padding_Custom" Value="255"/>
+      </NamedInt>
+
+      <NamedInt Name="DHParameterGenerationType" BaseType="int32_t" Exported="true">
+        <ID Name="pt_FIPS186_2" Value="0"/>
+        <ID Name="pt_Probable" Value="1"/>
+        <ID Name="pt_Provable" Value="2"/>
+      </NamedInt>
+
+      <NamedInt Name="RSAKeyGenerationType" BaseType="int32_t" Exported="true">
+        <ID Name="rt_X9_31" Value="0"/>
+        <ID Name="rt_Probable" Value="1"/>
+        <ID Name="rt_Probable_Composite" Value="2"/>
+        <ID Name="rt_Provable" Value="3"/>
+        <ID Name="rt_Provable_Composite" Value="4"/>
+        <ID Name="rt_Provable_Probable" Value="5"/>
+      </NamedInt>
+
+      <NamedInt Name="CkmValidationFailureType" BaseType="int32_t" Exported="true">
+        <ID Name="cvf_NoFailure" Value="0"/>
+        <ID Name="cvf_Internal" Value="1"/>
+        <ID Name="cvf_Rsa_p_invalid" Value="2"/>
+        <ID Name="cvf_Rsa_q_invalid" Value="3"/>
+        <ID Name="cvf_Rsa_Private_invalid" Value="4"/>
+        <ID Name="cvf_Rsa_Public_invalid" Value="5"/>
+        <ID Name="cvf_Ecc_x_invalid" Value="6"/>
+        <ID Name="cvf_Ecc_y_invalid" Value="7"/>
+        <ID Name="cvf_Ecc_Public_invalid" Value="8"/>
+        <ID Name="cvf_Ecc_Private_invalid" Value="9"/>
+        <ID Name="cvf_Dh_Private_invalid" Value="10"/>
+        <ID Name="cvf_Dh_Public_invalid" Value="11"/>
+      </NamedInt>
+
+      <NamedInt Name="CkmAttributePersistType" BaseType="int32_t" Exported="true">
+        <ID Name="persist_Symmetric" Value="0"/>
+        <ID Name="persist_Read" Value="1"/>
+        <ID Name="persist_Write" Value="2"/>
+        <ID Name="persist_Both" Value="3"/>
+      </NamedInt>
+      
+      <NamedInt Name="CkmAttributeType" BaseType="int32_t" Exported="true">
+        <ID Name="credType_None" Value="0"/>
+        <ID Name="SymmetricAttribute" Value="1"/>
+        <ID Name="AsymmetricAttribute" Value="2"/>
+      </NamedInt>
+      <NamedInt Name="CKM7_COMBINER_MODE" BaseType="int32_t" Exported="true">
+        <ID Name="combine" Value="1"/>
+        <ID Name="recombine" Value="2"/>
+      </NamedInt>
+      <NamedInt Name="Ckm7AttributePersistType" BaseType="int32_t" Exported="true">
+        <ID Name="Symmetric" Value="0"/>
+        <ID Name="Read" Value="1"/>
+        <ID Name="Write" Value="2"/>
+        <ID Name="Both" Value="3"/>
+      </NamedInt>
+
+      <NamedInt Name="SSL_ECPointFormat" BaseType="uint8_t" Exported="true">
+        <ID Name="ssl_point_uncompressed" Value="0"/>
+        <ID Name="ssl_point_ansiX962_compressed_prime" Value="1"/>
+        <ID Name="ssl_point_ansiX962_compressed_char2" Value="2"/>
+      </NamedInt>
+
+      <NamedInt Name="SSL_ClientCertificateType" BaseType="uint8_t" Exported="true">
+        <ID Name="rsa_sign" Value="1"/>
+        <ID Name="dss_sign" Value="2"/>
+        <ID Name="rsa_fixed_dh" Value="3"/>
+        <ID Name="dss_fixed_dh" Value="4"/>
+        <ID Name="rsa_ephemeral_dh_RESERVED" Value="5"/>
+        <ID Name="dss_ephemeral_dh_RESERVED" Value="6"/>
+        <ID Name="fortezza_dms_RESERVED" Value="20"/>
+        <ID Name="ecdsa_sign" Value="64"/>
+        <ID Name="rsa_fixed_ecdh" Value="65"/>
+        <ID Name="ecdsa_fixed_ecdh" Value="66"/>
+      </NamedInt>
+
+      <NamedInt Name="SSL_PublicValueEncoding" BaseType="uint8_t" Exported="true">
+        <ID Name="ssl_pk_implicit" Value="0"/>
+        <ID Name="ssl_pk_explicit" Value="1"/>
+      </NamedInt>
+
+      <NamedInt Name="ValidationFailureType" BaseType="int32_t" Exported="true">
+        <Description>Values that represent validation errors for asymmetric keys.</Description>
+        <ID Name="vf_NoFailure" Value="0"/>
+        <ID Name="vf_Internal" Value="1"/>
+        <ID Name="vf_Rsa_p_invalid" Value="2"/>
+        <ID Name="vf_Rsa_q_invalid" Value="3"/>
+        <ID Name="vf_Rsa_Private_invalid" Value="4"/>
+        <ID Name="vf_Rsa_Public_invalid" Value="5"/>
+        <ID Name="vf_Ecc_x_invalid" Value="6"/>
+        <ID Name="vf_Ecc_y_invalid" Value="7"/>
+        <ID Name="vf_Ecc_Public_invalid" Value="8"/>
+        <ID Name="vf_Ecc_Private_invalid" Value="9"/>
+        <ID Name="vf_Dh_Private_invalid" Value="10"/>
+        <ID Name="vf_Dh_Public_invalid" Value="11"/>
+      </NamedInt>
+
+      <NamedInt Name="CkmTunnelCommand" BaseType="int32_t" Exported="true">
+        <ID Name="ctc_initializeLogin" Value="1"/>
+        <ID Name="ctc_initializeLoginResponse" Value="2"/>
+        <ID Name="ctc_finishLogin" Value="3"/>
+        <ID Name="ctc_finishLoginResponse" Value="4"/>
+        <ID Name="ctc_logout" Value="5"/>
+        <ID Name="ctc_error" Value="6"/>
+        <ID Name="ctc_data" Value="7"/>
+      </NamedInt>
+
+      <NamedInt Name="RSA_Key_Gen_Type" BaseType="int32_t" Exported="true">
+        <Description>The possible prime number generation types.</Description>
+        <ID Name="rsakg_X9_31" Value="0">
+          <Description>Original</Description>
+        </ID>
+        <ID Name="rsakg_Probable" Value="1">
+          <Description>B.3.3</Description>
+        </ID>
+        <ID Name="rsakg_Probable_Composite" Value="2">
+          <Description>B.3.6</Description>
+        </ID>
+        <ID Name="rsakg_Provable" Value="3">
+          <Description>NOT SUPPORTED - not working   B.3.2</Description>
+        </ID>
+        <ID Name="rsakg_Provable_Composite" Value="4">
+          <Description>B.3.4</Description>
+        </ID>
+        <ID Name="rsakg_Provable_Probable" Value="5">
+          <Description>B.3.5</Description>
+        </ID>
+      </NamedInt>
+
+      <NamedInt Name="DH_Param_Gen_Type" BaseType="int32_t" Exported="true">
+        <Description>Defines the types of Diffie-Hellman domain parameter generation schemes</Description>
+        <ID Name="dhpg_FIPS186_2" Value="0">
+          <Description>Based on FIPS186-2</Description>
+        </ID>
+        <ID Name="dhpg_Probable" Value="1">
+          <Description>Using probable prime generation</Description>
+        </ID>
+        <ID Name="dhpg_Provable" Value="2">
+          <Description>Using provable prime generation</Description>
+        </ID>
+      </NamedInt>
+
+
+      <NamedInt Name="CkmCryptoGroupType" BaseType="int32_t" Exported="true">
+        <ID Name="ct_None" Value="0"/>
+        <ID Name="ct_EccP192Sha512" Value="0xa0"/>
+        <ID Name="ct_EccP224Sha512" Value="0xa1"/>
+        <ID Name="ct_EccP256Sha512" Value="0xa2"/>
+        <ID Name="ct_EccP384Sha512" Value="0xa3"/>
+        <ID Name="ct_EccP521Sha512" Value="0xa4"/>
+        <ID Name="ct_EccX25519Sha512" Value="0xa5"/>
+        <ID Name="ct_EccP256k1Sha512" Value="0xa6"/>
+      
+        <ID Name="ct_EccNUMSP256D1Sha512" Value="0xa7"/>
+        <ID Name="ct_EccNUMSP384D1Sha512" Value="0xa8"/>
+        <ID Name="ct_EccNUMSP512D1Sha512" Value="0xa9"/>
+        <ID Name="ct_EccNUMSP256T1Sha512" Value="0xaa"/>
+        <ID Name="ct_EccNUMSP384T1Sha512" Value="0xab"/>
+        <ID Name="ct_EccNUMSP512T1Sha512" Value="0xac"/>
+     </NamedInt>
+      
+      <Sequence  Name="AlgorithmIdentifier" Exported="true" JSONName="alg">
+        <OID Name="oid" JSONName="id"/>
+        <Any Name="Parameter" JSONName="parameters" Optional="true"/>
+      </Sequence>
+
+      <Sequence Name="PBKDFInfo" Exported="true">
+        <OctetString Name="salt"/>
+        <Int32 Name="count"/>
+        <OID Name="hashAlg"/>
+      </Sequence>
+
+
+      <Sequence Name="PBKDF_Parameters" DefaultVersion="0" Exported="true">
+        <Version Name="V0" MinNumber="0" MaxNumber="0">
+          <Int32 Name="IterationCount"/>
+          <OctetString Name="Salt"/>
+          <Sequence Name="hmacAlgorithm" ElementType="AlgorithmIdentifier"/>
+        </Version>
+        <Int32 Name="IterationCount" Initializer="1000"/>
+        <OctetString Name="Salt"/>
+        <Sequence Name="hmacAlgorithm" ElementType="AlgorithmIdentifier"/>
+      </Sequence>
+      <Sequence Name="CkmAuthServerParameters" OID="id_alg_CKMAUTH_SERVER_PARAMETERS" DefaultVersion="0" Exported="true">
+        <Version Name="V0" OID="id_alg_CKMAUTH_SERVER_PARAMETERS" MinNumber="0" MaxNumber="0">
+          <Choice Name="params"/>
+          <Bool Name="Expired" Tag="1" Type="Context"/>
+          <String Name="hashName" Optional="true" Tag="2" Type="Context"/>
+          <String Name="macName" Optional="true" Tag="3" Type="Context"/>
+          <String Name="keyWrapName" Optional="true" Tag="4" Type="Context"/>
+          <String Name="kdfName" Optional="true" Tag="5" Type="Context"/>
+          <String Name="kdfMacName" Optional="true" Tag="6" Type="Context"/>
+          <Bool Name="useMITM" Optional="true" Initializer="false" Tag="7" Type="Context"/>
+        </Version>
+        <Choice Name="params">
+          <Sequence Name="Pbkdf" ElementType="PBKDF_Parameters"  Tag="0" Type="Context"/>
+        </Choice>
+        <Bool Name="Expired" Default="false" Initializer="false" Tag="1" Type="Context"/>
+        <String Name="hashName" Optional="true" Tag="2" Type="Context"/>
+        <String Name="macName" Optional="true" Tag="3" Type="Context"/>
+        <String Name="keyWrapName" Optional="true" Tag="4" Type="Context"/>
+        <String Name="kdfName" Optional="true" Tag="5" Type="Context"/>
+        <String Name="kdfMacName" Optional="true" Tag="6" Type="Context"/>
+        <Bool Name="useMITM" Optional="true" Initializer="false" Tag="7" Type="Context"/>
+      </Sequence>
+
+      <Sequence Name="CkmAuthInitiatorParameters" OID="id_alg_CKMAUTH_INITIATOR_PARAMETERS" DefaultVersion="0" Exported="true">
+        <Version Name="V0" OID="id_alg_CKMAUTH_INITIATOR_PARAMETERS" MinNumber="0" MaxNumber="0">
+          <OctetString Name="responderPublicKey"/>
+          <OctetString Name="oidInfo"/>
+          <OctetString Name="nonce"/>
+          <Int32 Name="keySizeInBits"/>
+          <Sequence Name="authParameters" ElementType="CkmAuthServerParameters"/>
+          <OID Name="responderPublicKeyOID" Tag="0" Type="Context" Optional="true"/>
+        </Version>
+        <OctetString Name="responderPublicKey"/>
+        <OctetString Name="oidInfo"/>
+        <OctetString Name="nonce"/>
+        <Int32 Name="keySizeInBits"/>
+        <Sequence Name="authParameters" ElementType="CkmAuthServerParameters"/>
+        <OID Name="responderPublicKeyOID" Tag="0" Type="Context" Optional="true"/>
+      </Sequence>
+
+      <Sequence Name="CkmAuthResponderParameters" OID="id_alg_CKMAUTH_RESPONDER_PARAMETERS" DefaultVersion="0" Exported="true">
+        <Version Name="V0" OID="id_alg_CKMAUTH_RESPONDER_PARAMETERS" MinNumber="0" MaxNumber="0">
+          <OctetString Name="ephemeralPublic"/>
+          <OctetString Name="eKGK"/>
+          <OctetString Name="oidInfo"/>
+          <OctetString Name="nonce"/>
+          <Int32 Name="keySizeInBits"/>
+          <OctetString Name="initiatorMITMProof"/>
+          <OctetString Name="initiatorAuthProof"/>
+        </Version>
+        <OctetString Name="ephemeralPublic"/>
+        <OctetString Name="eKGK"/>
+        <OctetString Name="oidInfo"/>
+        <OctetString Name="nonce"/>
+        <Int32 Name="keySizeInBits"/>
+        <OctetString Name="initiatorMITMProof"/>
+        <OctetString Name="initiatorAuthProof"/>
+      </Sequence>
+
+
+      <Sequence Name="CkmAuthTlsExtRequest" OID="id_CKM_TUNNEL_TLS_EXT_REQUEST" DefaultVersion="0">
+        <Version Name="V0" OID="id_CKM_TUNNEL_TLS_EXT_REQUEST" MinNumber="0" MaxNumber="0">
+        </Version>
+      </Sequence>
+
+      <Sequence Name="CkmAuthTlsExtResponse" OID="id_CKM_TUNNEL_TLS_EXT_RESPONSE" DefaultVersion="0">
+        <Version Name="V0" OID="id_CKM_TUNNEL_TLS_EXT_RESPONSE" MinNumber="0" MaxNumber="0">
+          <Int16 Name="MessageKeySizeInBits"/>
+          <Sequence Name="MessageEncryptionAlg" ElementType="AlgorithmIdentifier"/>
+          <Sequence Name="MessageHashAlg" ElementType="AlgorithmIdentifier"/>
+        </Version>
+        <Int16 Name="MessageKeySizeInBits" Initializer="0"/>
+        <Sequence Name="MessageEncryptionAlg" ElementType="AlgorithmIdentifier" Optional="true" Tag="0" Type="Context"/>
+        <Sequence Name="MessageHashAlg" ElementType="AlgorithmIdentifier" Optional="true" Tag="1" Type="Context"/>
+      </Sequence>
+
+      <!--
+      <ID Name="id_CKM_TUNNEL_INIT_LOGIN" Value="{TECSEC_CKM_TUNNEL_OID}.1"/>
+      <ID Name="id_CKM_TUNNEL_INIT_LOGIN_RESPONSE" Value="{TECSEC_CKM_TUNNEL_OID}.2"/>
+      <ID Name="id_CKM_TUNNEL_FINISH_LOGIN" Value="{TECSEC_CKM_TUNNEL_OID}.3"/>
+      <ID Name="id_CKM_TUNNEL_FINISH_LOGIN_RESPONSE" Value="{TECSEC_CKM_TUNNEL_OID}.4"/>-->
+
+      <Sequence Name="CkmTunnelInitLogin" OID="id_CKM_TUNNEL_INIT_LOGIN" DefaultVersion="0" Exported="true">
+        <Version Name="V0" OID="id_CKM_TUNNEL_INIT_LOGIN" MinNumber="0" MaxNumber="0">
+          <String Name="username"/>
+        </Version>
+        <String Name="username"/>
+      </Sequence>
+      <Sequence Name="CkmTunnelInitLoginResponse" OID="id_CKM_TUNNEL_INIT_LOGIN_RESPONSE" DefaultVersion="0" Exported="true">
+        <Version Name="V0" OID="id_CKM_TUNNEL_INIT_LOGIN_RESPONSE" MinNumber="0" MaxNumber="0">
+          <Sequence Name="AuthenticationInformation" ElementType="CkmAuthInitiatorParameters"/>
+          <Int32 Name="MessageKeyBitSize"/>
+          <Sequence Name="MessageEncryptionAlg" ElementType="AlgorithmIdentifier"/>
+          <Sequence Name="MessageMacAlg" ElementType="AlgorithmIdentifier"/>
+        </Version>
+        <Sequence Name="AuthenticationInformation" ElementType="CkmAuthInitiatorParameters"/>
+        <Int32 Name="MessageKeyBitSize"/>
+        <Sequence Name="MessageEncryptionAlg" ElementType="AlgorithmIdentifier" Optional="true" Tag="0" Type="Context"/>
+        <Sequence Name="MessageMacAlg" ElementType="AlgorithmIdentifier" Optional="true" Tag="1" Type="Context"/>
+      </Sequence>
+      <Sequence Name="CkmTunnelFinishLogin" OID="id_CKM_TUNNEL_FINISH_LOGIN" DefaultVersion="0" Exported="true">
+        <Version Name="V0" OID="id_CKM_TUNNEL_FINISH_LOGIN" MinNumber="0" MaxNumber="0">
+          <Sequence Name="AuthenticationInformation" ElementType="CkmAuthResponderParameters"/>
+        </Version>
+        <Sequence Name="AuthenticationInformation" ElementType="CkmAuthResponderParameters"/>
+      </Sequence>
+      <Sequence Name="CkmTunnelFinishResponse" OID="id_CKM_TUNNEL_FINISH_LOGIN_RESPONSE" DefaultVersion="0" Exported="true">
+        <Version Name="V0" OID="id_CKM_TUNNEL_FINISH_LOGIN_RESPONSE" MinNumber="0" MaxNumber="0">
+          <OctetString Name="ResponderProof"/>
+        </Version>
+        <OctetString Name="ResponderProof"/>
+      </Sequence>
+      <Sequence Name="CkmTunnelError" OID="id_CKM_TUNNEL_ERROR" DefaultVersion="0" Exported="true">
+        <Version Name="V0" OID="id_CKM_TUNNEL_ERROR" MinNumber="0" MaxNumber="0">
+          <String Name="Message"/>
+        </Version>
+        <String Name="Message"/>
+      </Sequence>
+      <Sequence Name="CkmTunnelLogout" OID="id_CKM_TUNNEL_LOGOUT" DefaultVersion="0" Exported="true">
+        <Version Name="V0" OID="id_CKM_TUNNEL_LOGOUT" MinNumber="0" MaxNumber="0">
+        </Version>
+      </Sequence>
+      <Sequence Name="Pkcs8EccCurve">
+        <OID Name="parameters"/>
+      </Sequence>
+      <Sequence Name="Pkcs8EccPubKeyPart">
+        <Bitstring Name="value" />
+      </Sequence>
+      <Sequence Name="Pkcs8EccPrivateKey" DefaultVersion="1">
+        <Version Name="V1" MinNumber="0" MaxNumber="1">
+          <OctetString Name="privateKey"/>
+          <Sequence Name="curve" ElementType="Pkcs8EccCurve"/>
+          <Sequence Name="publicKey" ElementType="Pkcs8EccPubKeyPart"/>
+        </Version>
+        <OctetString Name="privateKey"/>
+        <Sequence Name="curve" ElementType="Pkcs8EccCurve" Tag="0" Type="Context" Optional="true"/>
+        <Sequence Name="publicKey" ElementType="Pkcs8EccPubKeyPart" Tag="1" Type="Context" Optional="true"/>
+      </Sequence>
+      <Sequence Name="PemDsaParameters" DefaultVersion="0">
+        <Number Name="p"/>
+        <Number Name="q"/>
+        <Number Name="g"/>
+      </Sequence>
+      <Sequence Name="PemDsaPrivateKey" DefaultVersion="0">
+        <Version Name="V0" MinNumber="0" MaxNumber="0">
+          <Number Name="p"/>
+          <Number Name="q"/>
+          <Number Name="g"/>
+          <Number Name="y"/>
+          <Number Name="x"/>
+        </Version>
+        <Number Name="p"/>
+        <Number Name="q"/>
+        <Number Name="g"/>
+        <Number Name="y"/>
+        <Number Name="x"/>
+      </Sequence>
+      <Sequence Name="Pkcs8PublicKey">
+        <Sequence Name="pubKeyAlgorithm" ElementType="AlgorithmIdentifier"/>
+        <Bitstring Name="keyValue"/>
+      </Sequence>
+      <!-- Number field should be Any field -->
+      <Sequence Name="FieldID">
+        <OID Name="fieldType"/>
+        <Number Name="parameters"/>
+      </Sequence>
+      <Sequence Name="Curve">
+        <OctetString Name="a"/>
+        <OctetString Name="b"/>
+        <Bitstring Name="seed" Optional="true"/>
+      </Sequence>
+      <Sequence Name="ECParameters">
+        <Int32 Name="version"/>
+        <Sequence Name="fieldId" ElementType="FieldID"/>
+        <Sequence Name="curve" ElementType="Curve"/>
+        <OctetString Name="base"/>
+        <Number Name="order"/>
+        <Number Name="cofactor" Optional="true"/>
+      </Sequence>
+
+      <Sequence Name="EccPublicKeyParameter">
+        <Choice Name="EcpkParameters">
+          <Sequence Name="ecParameters" ElementType="ECParameters"/>
+          <OID Name="namedCurve"/>
+        </Choice>
+      </Sequence>
+
+      <Sequence Name="EdwardsCurveKey" OID="id_X25519">
+        <Version Name="x25519" OID="id_X25519">
+          <Bool Name="forECDH"/>
+          <OctetString Name="PublicValue"/>
+          <OctetString Name="SecretValue" Tag="0" Type="Context"/>
+        </Version>
+        <Version Name="x448" OID="id_X448">
+          <Bool Name="forECDH"/>
+          <OctetString Name="PublicValue"/>
+          <OctetString Name="SecretValue" Tag="0" Type="Context"/>
+        </Version>
+        <Version Name="x25519_PH" OID="id_X25519_PH">
+          <Bool Name="forECDH"/>
+          <OctetString Name="PublicValue"/>
+          <OctetString Name="SecretValue" Tag="0" Type="Context"/>
+        </Version>
+        <Version Name="x448_PH" OID="id_X448_PH">
+          <Bool Name="forECDH"/>
+          <OctetString Name="PublicValue"/>
+          <OctetString Name="SecretValue" Tag="0" Type="Context"/>
+        </Version>
+        <Bool Name="forECDH" Default="true" Initializer="true"/>
+        <OctetString Name="PublicValue"/>
+        <OctetString Name="SecretValue" Tag="0" Type="Context" Optional="true"/>
+      </Sequence>
+      <Sequence Name="EccSignature">
+        <Number Name="r"/>
+        <Number Name="s"/>
+      </Sequence>
+      <Sequence Name="AEAD_Parameters">
+        <OctetString Name="iv"/>
+        <Number Name="tagLength" Default="12" Initializer="12"/>
+      </Sequence>
+    </Namespace>
+  </File>
+</Root>

@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -39,50 +39,13 @@
 #include <stdlib.h>
 #include <crtdbg.h>
 #endif 
-#include "VEILCrypto.h"
-
-
-#ifdef NO_LOGGING
-#define LOG(a,...)
-#define TSRETURN_ERROR(a,b) b
-#define TSRETURN(a,b) b
-#define TSRETURN_V(a,...)
-#define TSDECLARE_METHODExt(a)
-#define TSDECLARE_FUNCTIONExt(a)
-#endif
-
-
-//
-// Use these defines to help remove Microsoft specific code
-//
-//#undef S_OK
-//#define S_OK asdfadsfadsf
-//#undef E_FAIL
-//#define E_FAIL asdfadfadsf
-//#undef E_POINTER
-//#define E_POINTER asdfadfadsf
-//#undef E_INVALIDARG
-//#define E_INVALIDARG asdfadfadsf
-//#undef S_FALSE
-//#define S_FALSE asdfadfadsf
-//#undef STDMETHODCALLTYPE
-//#define STDMETHODCALLTYPE asfadsfasdf
-//
-// The following symbols are required for bzip2 and a few windows specific function calls.  When you uncomment these defines some code will not compile under windows.
-//
-//#define __stdcall asdfadsfasdf
-//#define HRESULT asdfadsfadf
-//#undef SUCCEEDED
-//#define SUCCEEDED asdfadfadsf
-//#undef FAILED
-//#define FAILED asdfadfadsf
 
 #ifdef _WIN32
 	#ifdef _STATIC_VEILCORE
 		#define VEILCORE_API
 		#define VEILCORE_TEMPLATE_EXTERN extern
 	#else
-        #if defined(VEILCORE_EXPORTS) || defined(VEILCORE_NM_EXPORTS)
+		#if defined(VEILCORE_EXPORTS) || defined(VEILCORE_NM_EXPORTS)
 			#define EXPORTED_VEILCORE_API __declspec(dllexport)
 			#define VEILCORE_API __declspec(dllexport)
 			#define VEILCORE_TEMPLATE_EXTERN
@@ -93,16 +56,18 @@
 		#endif
 	#endif
 #else
-    #if defined(VEILCORE_EXPORTS)
-        #define VEILCORE_API EXPORT_SYMBOL
+	#if defined(VEILCORE_EXPORTS)
+		#define VEILCORE_API EXPORT_SYMBOL
 		#define EXPORTED_VEILCORE_API EXPORT_SYMBOL
-        #define VEILCORE_TEMPLATE_EXTERN
-    #else
-        #define VEILCORE_API
+		#define VEILCORE_TEMPLATE_EXTERN
+	#else
+		#define VEILCORE_API
 		#define EXPORTED_VEILCORE_API EXPORT_SYMBOL
-        #define VEILCORE_TEMPLATE_EXTERN extern
-    #endif // defined
+		#define VEILCORE_TEMPLATE_EXTERN extern
+	#endif // defined
 #endif
+
+#include "VEILCrypto.h"
 
 
 // Clear all option defines
@@ -169,6 +134,8 @@ inline tscrypto::tsCryptoDataList CreateTsDataList() { return tscrypto::CreateTs
 #include "core/UrlParser.h"
 
 inline tscrypto::tsCryptoStringList CreateTsAsciiList() { return tscrypto::CreateTsCryptoStringList(); }
+
+
 
 namespace tsmod {
 	class VEILCORE_API IAlgorithmList : tscrypto::IAlgorithmList
@@ -372,19 +339,19 @@ namespace tsstd {
 #include "core/xp_console.h"
 
 // RFC 1950 compression for HTTP
-bool VEILCORE_API zlibCompress(const uint8_t* src, size_t srcLen, int level, uint8_t* dest, size_t& destLen);
-bool VEILCORE_API zlibDecompress(const uint8_t* src, size_t srcLen, uint8_t* dest, size_t& destLen);
-bool VEILCORE_API zlibDecompress(const uint8_t* src, size_t srcLen, tscrypto::tsCryptoData& outputData);
+_Check_return_ bool VEILCORE_API zlibCompress(const uint8_t* src, size_t srcLen, int level, uint8_t* dest, size_t& destLen);
+_Check_return_ bool VEILCORE_API zlibDecompress(const uint8_t* src, size_t srcLen, uint8_t* dest, size_t& destLen);
+_Check_return_ bool VEILCORE_API zlibDecompress(const uint8_t* src, size_t srcLen, tscrypto::tsCryptoData& outputData);
 
 // RFC 1951 compression for HTTP (raw deflate with no header
-bool VEILCORE_API raw_zlibCompress(const uint8_t* src, size_t srcLen, int level, uint8_t* dest, size_t& destLen);
-bool VEILCORE_API raw_zlibDecompress(const uint8_t* src, size_t srcLen, uint8_t* dest, size_t& destLen);
-bool VEILCORE_API raw_zlibDecompress(const uint8_t* src, size_t srcLen, tscrypto::tsCryptoData& outputData);
+_Check_return_ bool VEILCORE_API raw_zlibCompress(const uint8_t* src, size_t srcLen, int level, uint8_t* dest, size_t& destLen);
+_Check_return_ bool VEILCORE_API raw_zlibDecompress(const uint8_t* src, size_t srcLen, uint8_t* dest, size_t& destLen);
+_Check_return_ bool VEILCORE_API raw_zlibDecompress(const uint8_t* src, size_t srcLen, tscrypto::tsCryptoData& outputData);
 
 // RFC 1952 GZIP compression for HTTP
-bool VEILCORE_API gzipCompress(const uint8_t* src, size_t srcLen, int level, uint8_t* dest, size_t& destLen);
-bool VEILCORE_API gzipDecompress(const uint8_t* src, size_t srcLen, uint8_t* dest, size_t& destLen);
-bool VEILCORE_API gzipDecompress(const uint8_t* src, size_t srcLen, tscrypto::tsCryptoData& outputData);
+_Check_return_ bool VEILCORE_API gzipCompress(const uint8_t* src, size_t srcLen, int level, uint8_t* dest, size_t& destLen);
+_Check_return_ bool VEILCORE_API gzipDecompress(const uint8_t* src, size_t srcLen, uint8_t* dest, size_t& destLen);
+_Check_return_ bool VEILCORE_API gzipDecompress(const uint8_t* src, size_t srcLen, tscrypto::tsCryptoData& outputData);
 
 namespace TecSecResources {
 	struct ResourceHeader
@@ -416,10 +383,10 @@ VEILCORE_API bool HasServiceLocator();
 VEILCORE_API std::shared_ptr<tsmod::IServiceLocator> ServiceLocator();
 #endif
 
-extern bool VEILCORE_API GCM_Encrypt(const tscrypto::tsCryptoData &key, const tscrypto::tsCryptoData &iv, const tscrypto::tsCryptoData &authHeader, tscrypto::tsCryptoData &data, tscrypto::tsCryptoData &tag, const char* algorithm = "GCM-AES");
-extern bool VEILCORE_API GCM_Decrypt(const tscrypto::tsCryptoData &key, const tscrypto::tsCryptoData &iv, const tscrypto::tsCryptoData &authHeader, tscrypto::tsCryptoData &data, const tscrypto::tsCryptoData &tag, const char* algorithm = "GCM-AES");
+_Check_return_ extern bool VEILCORE_API GCM_Encrypt(const tscrypto::tsCryptoData &key, const tscrypto::tsCryptoData &iv, const tscrypto::tsCryptoData &authHeader, tscrypto::tsCryptoData &data, tscrypto::tsCryptoData &tag, const char* algorithm = "GCM-AES");
+_Check_return_ extern bool VEILCORE_API GCM_Decrypt(const tscrypto::tsCryptoData &key, const tscrypto::tsCryptoData &iv, const tscrypto::tsCryptoData &authHeader, tscrypto::tsCryptoData &data, const tscrypto::tsCryptoData &tag, const char* algorithm = "GCM-AES");
 
-extern bool VEILCORE_API xp_CreateGuid(GUID &guid);
+_Check_return_ extern bool VEILCORE_API xp_CreateGuid(GUID &guid);
 
 #ifdef _WIN32
 /// <summary>A macro that defines cross platform path separator character.</summary>
@@ -887,9 +854,9 @@ class VEILCORE_API ToString //: public boost::static_visitor<tscrypto::tsCryptoS
 public:
 	tscrypto::tsCryptoString operator()(bool i) const
 	{
-	    return i ? "true" : "false";
+		return i ? "true" : "false";
 	}
-	
+
 	tscrypto::tsCryptoString operator()(int8_t i) const
 	{
 		return tscrypto::tsCryptoString().append(i);
@@ -1177,12 +1144,14 @@ VEILCORE_API void AddSystemTerminationFunction(std::function<bool()> func);
 VEILCORE_API void RunInitializers();
 VEILCORE_API void TerminateVEILSystem();
 
-extern VEILCORE_API bool TSGenerateRandom(tscrypto::tsCryptoData& data, size_t lenInBytes);
-extern VEILCORE_API bool TSGenerateRandom(uint8_t* data, size_t lenInBytes);
-extern VEILCORE_API bool TSWrap(const tscrypto::tsCryptoData &key, const tscrypto::tsCryptoData &dataToWrap, tscrypto::tsCryptoData &wrappedData, tscrypto::TS_ALG_ID alg = tscrypto::_TS_ALG_ID::TS_ALG_KEYWRAP_AES256);
-extern VEILCORE_API bool TSUnwrap(const tscrypto::tsCryptoData &key, const tscrypto::tsCryptoData &dataToUnwrap, tscrypto::tsCryptoData &unwrappedData, tscrypto::TS_ALG_ID alg = tscrypto::_TS_ALG_ID::TS_ALG_KEYWRAP_AES256);
-extern VEILCORE_API bool TSPad(tscrypto::tsCryptoData& value, int blockSize);
-extern VEILCORE_API bool TSUnpad(tscrypto::tsCryptoData& value, int blockSize);
+_Check_return_ extern VEILCORE_API bool TSGenerateRandom(tscrypto::tsCryptoData& data, size_t lenInBytes);
+_Check_return_ extern VEILCORE_API bool TSGenerateRandom(uint8_t* data, size_t lenInBytes);
+_Check_return_ extern VEILCORE_API bool TSGenerateStrongRandom(tscrypto::tsCryptoData& data, size_t lenInBytes);
+_Check_return_ extern VEILCORE_API bool TSGenerateStrongRandom(uint8_t* data, size_t lenInBytes);
+_Check_return_ extern VEILCORE_API bool TSWrap(const tscrypto::tsCryptoData &key, const tscrypto::tsCryptoData &dataToWrap, tscrypto::tsCryptoData &wrappedData, tscrypto::TS_ALG_ID alg = tscrypto::_TS_ALG_ID::TS_ALG_KEYWRAP_AES256);
+_Check_return_ extern VEILCORE_API bool TSUnwrap(const tscrypto::tsCryptoData &key, const tscrypto::tsCryptoData &dataToUnwrap, tscrypto::tsCryptoData &unwrappedData, tscrypto::TS_ALG_ID alg = tscrypto::_TS_ALG_ID::TS_ALG_KEYWRAP_AES256);
+_Check_return_ extern VEILCORE_API bool TSPad(tscrypto::tsCryptoData& value, int blockSize);
+_Check_return_ extern VEILCORE_API bool TSUnpad(tscrypto::tsCryptoData& value, int blockSize);
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>Create a context to allow the encryption of data using a symmetric algorithm</summary>
 ///
@@ -1194,7 +1163,7 @@ extern VEILCORE_API bool TSUnpad(tscrypto::tsCryptoData& value, int blockSize);
 /// <returns>S_OK for success, otherwise a standard COM error code.</returns>
 /// <seealso cref="tsCrypto::TSEncrypt"/>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-extern VEILCORE_API bool TSEncryptInit(const tscrypto::tsCryptoData &Key, const tscrypto::tsCryptoData &IV, tscrypto::CryptoContext &Context, tscrypto::TS_ALG_ID AlgID = tscrypto::_TS_ALG_ID::TS_ALG_INVALID);
+_Check_return_ extern VEILCORE_API bool TSEncryptInit(const tscrypto::tsCryptoData &Key, const tscrypto::tsCryptoData &IV, tscrypto::CryptoContext &Context, tscrypto::TS_ALG_ID AlgID = tscrypto::_TS_ALG_ID::TS_ALG_INVALID);
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>Encrypts data</summary>
 ///
@@ -1205,7 +1174,7 @@ extern VEILCORE_API bool TSEncryptInit(const tscrypto::tsCryptoData &Key, const 
 /// <returns>S_OK for success, otherwise a standard COM error code.</returns>
 /// <seealso cref="tsCrypto::TSEncryptInit"/>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-extern VEILCORE_API bool TSEncrypt(const tscrypto::tsCryptoData &source, tscrypto::tsCryptoData &dest, tscrypto::CryptoContext &Context);
+_Check_return_ extern VEILCORE_API bool TSEncrypt(const tscrypto::tsCryptoData &source, tscrypto::tsCryptoData &dest, tscrypto::CryptoContext &Context);
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>Create a context to allow the encryption of data using a symmetric algorithm</summary>
 ///
@@ -1217,7 +1186,7 @@ extern VEILCORE_API bool TSEncrypt(const tscrypto::tsCryptoData &source, tscrypt
 /// <returns>S_OK for success, otherwise a standard COM error code.</returns>
 /// <seealso cref="tsCrypto::TSDecrypt"/>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-extern VEILCORE_API bool TSDecryptInit(const tscrypto::tsCryptoData &Key, const tscrypto::tsCryptoData &IV, tscrypto::CryptoContext &Context, tscrypto::TS_ALG_ID AlgID = tscrypto::_TS_ALG_ID::TS_ALG_INVALID);
+_Check_return_ extern VEILCORE_API bool TSDecryptInit(const tscrypto::tsCryptoData &Key, const tscrypto::tsCryptoData &IV, tscrypto::CryptoContext &Context, tscrypto::TS_ALG_ID AlgID = tscrypto::_TS_ALG_ID::TS_ALG_INVALID);
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>Decrypts data</summary>
 ///
@@ -1228,18 +1197,10 @@ extern VEILCORE_API bool TSDecryptInit(const tscrypto::tsCryptoData &Key, const 
 /// <returns>S_OK for success, otherwise a standard COM error code.</returns>
 /// <seealso cref="tsCrypto::TSEncryptInit"/>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-extern VEILCORE_API bool TSDecrypt(const tscrypto::tsCryptoData &source, tscrypto::tsCryptoData &dest, tscrypto::CryptoContext &Context);
+_Check_return_ extern VEILCORE_API bool TSDecrypt(const tscrypto::tsCryptoData &source, tscrypto::tsCryptoData &dest, tscrypto::CryptoContext &Context);
 
 
-void VEILCORE_API TSModExp(const tscrypto::tsCryptoData &prime, const tscrypto::tsCryptoData &y, const tscrypto::tsCryptoData &x, tscrypto::tsCryptoData &result);
-void VEILCORE_API TSModAdd(const tscrypto::tsCryptoData &prime, const tscrypto::tsCryptoData &a, const tscrypto::tsCryptoData &b, tscrypto::tsCryptoData &result);
-void VEILCORE_API TSModSub(const tscrypto::tsCryptoData &prime, const tscrypto::tsCryptoData &_a, const tscrypto::tsCryptoData &_b, tscrypto::tsCryptoData &result);
-void VEILCORE_API TSModMul(const tscrypto::tsCryptoData &prime, const tscrypto::tsCryptoData &a, const tscrypto::tsCryptoData &b, tscrypto::tsCryptoData &result);
-void VEILCORE_API TSAdd(const tscrypto::tsCryptoData &a, const tscrypto::tsCryptoData &b, tscrypto::tsCryptoData &result);
-void VEILCORE_API TSSub(const tscrypto::tsCryptoData &a, const tscrypto::tsCryptoData &b, tscrypto::tsCryptoData &result);
-void VEILCORE_API TSMul(const tscrypto::tsCryptoData &a, const tscrypto::tsCryptoData &b, tscrypto::tsCryptoData &result);
-void VEILCORE_API TSDiv(const tscrypto::tsCryptoData &a, const tscrypto::tsCryptoData &b, tscrypto::tsCryptoData &quotient, tscrypto::tsCryptoData& remainder);
-bool VEILCORE_API TSBytesToKey(const tscrypto::tsCryptoData &Bytes, tscrypto::tsCryptoData &Key, tscrypto::TS_ALG_ID AlgID);
+_Check_return_ bool VEILCORE_API TSBytesToKey(const tscrypto::tsCryptoData &Bytes, tscrypto::tsCryptoData &Key, tscrypto::TS_ALG_ID AlgID);
 
 VEILCORE_API void xor8(const uint8_t* src, const uint8_t* second, uint8_t* dest);
 VEILCORE_API void xor16(const uint8_t* src, const uint8_t* second, uint8_t* dest);
@@ -1451,6 +1412,96 @@ public:
 protected:
 	void *contents;
 };
+class VEILCORE_API tsIObjStringVarStringSignal
+{
+public:
+	static void *operator new(std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void *operator new[](std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
+	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
+
+	tsIObjStringVarStringSignal();
+	~tsIObjStringVarStringSignal();
+	size_t Add(std::function<void(const tsmod::IObject*, const tscrypto::tsCryptoStringBase&, tscrypto::tsCryptoStringBase&)> func);
+	void Remove(size_t cookie);
+	void Fire(const tsmod::IObject* object, const tscrypto::tsCryptoStringBase& param, tscrypto::tsCryptoStringBase& varString) const;
+	void clear();
+
+protected:
+	void *contents;
+};
+class VEILCORE_API tsIObjPacketSignal
+{
+public:
+	static void *operator new(std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void *operator new[](std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
+	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
+
+	tsIObjPacketSignal();
+	~tsIObjPacketSignal();
+	size_t Add(std::function<void(const tsmod::IObject*, uint8_t packetType, const uint8_t* data, uint32_t dataLen)> func);
+	void Remove(size_t cookie);
+	void Fire(const tsmod::IObject* object, uint8_t packetType, const uint8_t* data, uint32_t dataLen) const;
+	void clear();
+
+protected:
+	void *contents;
+};
+class VEILCORE_API tsIObjectSignal
+{
+public:
+	static void *operator new(std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void *operator new[](std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
+	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
+
+	tsIObjectSignal();
+	~tsIObjectSignal();
+	size_t Add(std::function<void(const tsmod::IObject*)> func);
+	void Remove(size_t cookie);
+	void Fire(const tsmod::IObject* object) const;
+	void clear();
+
+protected:
+	void *contents;
+};
+
+class VEILCORE_API tsIObjectUint32Signal
+{
+public:
+	static void *operator new(std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void *operator new[](std::size_t count) {
+		return tscrypto::cryptoNew(count);
+	}
+	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
+	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
+
+	tsIObjectUint32Signal();
+	~tsIObjectUint32Signal();
+	size_t Add(std::function<void(const tsmod::IObject*, uint32_t)> func);
+	void Remove(size_t cookie);
+	void Fire(const tsmod::IObject* object, uint32_t value) const;
+	void clear();
+
+protected:
+	void *contents;
+};
+
 class VEILCORE_API tsVoidSignal
 {
 public:
@@ -1515,7 +1566,8 @@ public:
 protected:
 	void *contents;
 };
-extern VEILCORE_API bool CreatePropertyChangedEventArgs(const tscrypto::tsCryptoStringBase& propertyName, std::shared_ptr<IPropertyChangedEventArgs>& pVal);
+
+_Check_return_ extern VEILCORE_API bool CreatePropertyChangedEventArgs(const tscrypto::tsCryptoStringBase& propertyName, std::shared_ptr<IPropertyChangedEventArgs>& pVal);
 
 tscrypto::tsCryptoString VEILCORE_API ToXml(const char *src, const char* nullValue = "");
 tscrypto::tsCryptoString VEILCORE_API ToXml(const tscrypto::tsCryptoStringBase &src, const char* nullValue = "");

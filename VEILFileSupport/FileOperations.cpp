@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -142,9 +142,9 @@ bool FileVEILOperationsImpl::secureDeleteFile(const tscrypto::tsCryptoString& in
 	BYTE *ptr;
 	int index;
 	int64_t fileSize = 0, numBlocks = 0, block;
-	std::shared_ptr<Random> prng = std::dynamic_pointer_cast<Random>(CryptoFactory("Random"));
 
-	if (!prng || !prng->Initialize(256, true, tscrypto::tsCryptoData(), tscrypto::tsCryptoData()) || !prng->Generate(BLOCK_SIZE * 8, 256, true, tscrypto::tsCryptoData(), buffer))
+	buffer.resize(BLOCK_SIZE);
+	if (!internalGenerateRandomBits(buffer.rawData(), BLOCK_SIZE * 8, false, nullptr, 0))
 		return false;
 
 	buffer.resize(2 * BLOCK_SIZE, 0xff);

@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -33,7 +33,7 @@
 
 extern const char *resolveSocketError(DWORD error);
 
-class TcpConnection : public ITcpConnection
+class TcpConnection : public ITcpConnection, public INetworkConnectionEvents, public tsmod::IObject
 {
 public:
 	TcpConnection();
@@ -60,6 +60,14 @@ protected:
 	virtual bool WSAInitialize();
 	virtual void flushBuffer();
 
+	// Inherited via INetworkConnectionEvents
+	virtual size_t AddOnConnect(std::function<void(const tsmod::IObject*)> func) override;
+	virtual void RemoveOnConnect(size_t cookie) override;
+	virtual size_t AddOnError(std::function<void(const tsmod::IObject*, const tscrypto::tsCryptoStringBase&)> func) override;
+	virtual void RemoveOnError(size_t cookie) override;
+	virtual size_t AddOnDisconnect(std::function<void(const tsmod::IObject*)> func) override;
+	virtual void RemoveOnDisconnect(size_t cookie) override;
+
 protected:
 	bool                 m_WSAinitialized;
 	mutable bool                 m_isConnected;
@@ -69,5 +77,9 @@ protected:
 	unsigned short       m_port;
 	tscrypto::tsCryptoString              m_errors;
 	tscrypto::tsCryptoData               m_bufferedData;
+	tsIObjectSignal _connectSignals;
+	tsIObjStringSignal _errorSignals;
+	tsIObjectSignal _disconnectSignals;
+
 };
 

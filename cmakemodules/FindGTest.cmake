@@ -1,4 +1,4 @@
-#	Copyright (c) 2016, TecSec, Inc.
+#	Copyright (c) 2017, TecSec, Inc.
 #
 #	Redistribution and use in source and binary forms, with or without
 #	modification, are permitted provided that the following conditions are met:
@@ -65,6 +65,13 @@ mark_as_advanced(GTEST_INCLUDE_DIR)
 		SET(CMAKE_FIND_LIBRARY_SUFFIXES ${_tmp})
 	endif(WIN32)
 # endif ()
+
+if (NOT GTEST_SHARED_LIBRARY_DEBUG AND GTEST_SHARED_LIBRARY_RELEASE)
+	set(GTEST_SHARED_LIBRARY_DEBUG ${GTEST_SHARED_LIBRARY_RELEASE})
+endif (NOT GTEST_SHARED_LIBRARY_DEBUG AND GTEST_SHARED_LIBRARY_RELEASE)
+if (NOT GTEST_MAIN_SHARED_LIBRARY_DEBUG AND GTEST_MAIN_SHARED_LIBRARY_RELEASE)
+	set(GTEST_MAIN_SHARED_LIBRARY_DEBUG ${GTEST_MAIN_SHARED_LIBRARY_RELEASE})
+endif (NOT GTEST_MAIN_SHARED_LIBRARY_DEBUG AND GTEST_MAIN_SHARED_LIBRARY_RELEASE)
 
 # handle the QUIETLY and REQUIRED arguments and set BZip2_FOUND to TRUE if
 # all listed variables are TRUE

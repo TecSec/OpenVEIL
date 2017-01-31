@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -272,6 +272,7 @@ bool TcpConnection::RawSend(const tscrypto::tsCryptoData& data)
 				send(m_socket, (const char *)data.c_str(), (int)data.size(), 0) == SOCKET_ERROR)
 			{
 				m_errors += "Unable to reconnect and send the request\n";
+				_errorSignals.Fire(this, m_errors);
 				return false;
 			}
 			break;
@@ -279,6 +280,7 @@ bool TcpConnection::RawSend(const tscrypto::tsCryptoData& data)
 			m_errors += "Error ";
 			m_errors << WSAGetLastError();
 			m_errors += " occurred while attempting to send the request\n";
+			_errorSignals.Fire(this, m_errors);
 			return false;
 		}
 #else
@@ -306,6 +308,7 @@ bool TcpConnection::RawSend(const tscrypto::tsCryptoData& data)
 #endif // _WIN32
 			{
 				m_errors += "Unable to reconnect and send the request\n";
+				_errorSignals.Fire(this, m_errors);
 				return false;
 			}
 
@@ -316,6 +319,7 @@ bool TcpConnection::RawSend(const tscrypto::tsCryptoData& data)
 			m_errors += "Error ";
 			m_errors << errno;
 			m_errors += " occurred while attempting to send the request\n";
+			_errorSignals.Fire(this, m_errors);
 			return false;
 		}
 #endif
@@ -370,6 +374,7 @@ bool TcpConnection::RawReceive(tscrypto::tsCryptoData& _data, size_t size)
 		else
 		{
 			m_errors += "Unable to read the data from the socket\n";
+			_errorSignals.Fire(this, m_errors);
 			//
 			// Data retrieval error (should never happen)
 			//
@@ -410,6 +415,7 @@ bool TcpConnection::Disconnect()
 		{
 			LOG(FrameworkInfo1, "Unable to close the socket");
 			m_errors += "Unable to close the socket\n";
+			_errorSignals.Fire(this, m_errors);
 			closesocket(m_socket);
 			m_socket = 0;
 			m_isConnected = false;
@@ -422,6 +428,7 @@ bool TcpConnection::Disconnect()
 			{
 				LOG(FrameworkInfo1, "Unable to close the socket");
 				m_errors += "Unable to close the socket\n";
+				_errorSignals.Fire(this, m_errors);
 				m_socket = INVALID_SOCKET;
 				m_isConnected = false;
 				return false;
@@ -429,7 +436,9 @@ bool TcpConnection::Disconnect()
 		}
 #endif
 		m_socket = INVALID_SOCKET;
+		_disconnectSignals.Fire(this);
 	}
+	m_bufferedData.clear();
 	m_isConnected = false;
 	return true;
 }
@@ -447,6 +456,7 @@ bool TcpConnection::Connect()
 		return true;
 
 
+	m_bufferedData.clear();
 
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_socktype = SOCK_STREAM;
@@ -467,6 +477,7 @@ bool TcpConnection::Connect()
 	{
 		LOG(FrameworkError, "Unable to resolve the specified network address.  " << addr << ":" << portStr);
 		m_errors << "An error occurred while attempting to resolve that IP address.\n";
+		_errorSignals.Fire(this, m_errors);
 		return false;
 	}
 	for (p = res; p != nullptr; p = p->ai_next)
@@ -520,11 +531,13 @@ bool TcpConnection::Connect()
 			}
 			m_isConnected = true;
 			freeaddrinfo(res);
+			_connectSignals.Fire(this);
 			return true;
 		}
 	}
 	freeaddrinfo(res);
 	m_errors += "Unable to resolve IP address\n";
+	_errorSignals.Fire(this, m_errors);
 	return false;
 }
 
@@ -548,6 +561,7 @@ bool TcpConnection::WSAInitialize()
 	if (WSAStartup(0x202, &wsaData) != 0)
 	{
 		m_errors += "Unable to start the WSA sockets system\n";
+		_errorSignals.Fire(this, m_errors);
 		return false;
 	}
 #endif
@@ -564,4 +578,34 @@ void TcpConnection::flushBuffer()
 	////        if ( recv(m_socket, buff, len, 0) == SOCKET_ERROR )
 	////			return;
 	////    }
+}
+
+size_t TcpConnection::AddOnConnect(std::function<void(const tsmod::IObject*)> func)
+{
+	return _connectSignals.Add(func);
+}
+
+void TcpConnection::RemoveOnConnect(size_t cookie)
+{
+	_connectSignals.Remove(cookie);
+}
+
+size_t TcpConnection::AddOnError(std::function<void(const tsmod::IObject*, const tscrypto::tsCryptoStringBase&)> func)
+{
+	return _errorSignals.Add(func);
+}
+
+void TcpConnection::RemoveOnError(size_t cookie)
+{
+	_errorSignals.Remove(cookie);
+}
+
+size_t TcpConnection::AddOnDisconnect(std::function<void(const tsmod::IObject*)> func)
+{
+	return _disconnectSignals.Add(func);
+}
+
+void TcpConnection::RemoveOnDisconnect(size_t cookie)
+{
+	_disconnectSignals.Remove(cookie);
 }

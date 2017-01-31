@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -44,7 +44,7 @@
 #ifdef HAVE_SMARTCARD
 
 #ifndef SCARD_E_SERVER_TOO_BUSY
-    typedef LPSCARD_READERSTATE_A LPSCARD_READERSTATE;
+    //typedef LPSCARD_READERSTATE_A LPSCARD_READERSTATE;
     #define SCARD_E_SERVER_TOO_BUSY  0x80100031
 #endif // _WIN32
 
@@ -72,10 +72,10 @@ bool tsWinscardRelease(void);
 /// <returns>A PCSC error code (For windows it is a standard OS error code).</returns>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 LONG tsSCardEstablishContext(
-    IN DWORD		   dwScope,
-    IN LPCVOID		   pvReserved1,
-    IN LPCVOID		   pvReserved2,
-    OUT LPSCARDCONTEXT phContext);
+    DWORD		   dwScope,
+    LPCVOID		   pvReserved1,
+    LPCVOID		   pvReserved2,
+    LPSCARDCONTEXT phContext);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>Releases a connection (Context) to the PCSC subsystem.</summary>
@@ -84,7 +84,7 @@ LONG tsSCardEstablishContext(
 ///
 /// <returns>A PCSC error code (For windows it is a standard OS error code).</returns>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-LONG tsSCardReleaseContext(IN SCARDCONTEXT hContext);
+LONG tsSCardReleaseContext(SCARDCONTEXT hContext);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>Ts card connect.</summary>
@@ -99,12 +99,12 @@ LONG tsSCardReleaseContext(IN SCARDCONTEXT hContext);
 /// <returns>A PCSC error code (For windows it is a standard OS error code).</returns>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 LONG tsSCardConnect(
-    IN SCARDCONTEXT	  hContext,
-    IN const		  char *szReader,
-    IN DWORD		  dwShareMode,
-    IN DWORD		  dwPreferredProtocols,
-    OUT LPSCARDHANDLE phCard,
-    OUT LPDWORD		  pdwActiveProtocol);
+    SCARDCONTEXT	  hContext,
+    const		  char *szReader,
+    DWORD		  dwShareMode,
+    DWORD		  dwPreferredProtocols,
+    LPSCARDHANDLE phCard,
+    LPDWORD		  pdwActiveProtocol);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>Disconnects a connection to a card.</summary>
@@ -114,7 +114,7 @@ LONG tsSCardConnect(
 ///
 /// <returns>A PCSC error code (For windows it is a standard OS error code).</returns>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-LONG tsSCardDisconnect(IN SCARDHANDLE hCard, IN DWORD dwDisposition);
+LONG tsSCardDisconnect(SCARDHANDLE hCard, DWORD dwDisposition);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>Send a command to the specified card.</summary>
@@ -130,13 +130,13 @@ LONG tsSCardDisconnect(IN SCARDHANDLE hCard, IN DWORD dwDisposition);
 /// <returns>A PCSC error code (For windows it is a standard OS error code).</returns>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 LONG tsSCardTransmit(
-    IN SCARDHANDLE		   hCard,
-    IN LPCSCARD_IO_REQUEST pioSendPci,
-    IN LPCBYTE			   pbSendBuffer,
-    IN DWORD			   cbSendLength,
-    IN OUT				   LPSCARD_IO_REQUEST pioRecvPci,
-    OUT LPBYTE			   pbRecvBuffer,
-    IN OUT				   LPDWORD pcbRecvLength);
+    SCARDHANDLE		   hCard,
+    LPCSCARD_IO_REQUEST pioSendPci,
+    LPCBYTE			   pbSendBuffer,
+    DWORD			   cbSendLength,
+    LPSCARD_IO_REQUEST pioRecvPci,
+    LPBYTE			   pbRecvBuffer,
+    LPDWORD pcbRecvLength);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>Queries the PCSC subsystem to see if the specified readers have detected a change.</summary>
@@ -149,10 +149,10 @@ LONG tsSCardTransmit(
 /// <returns>A PCSC error code (For windows it is a standard OS error code).</returns>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 LONG tsSCardGetStatusChange(
-    IN SCARDCONTEXT	hContext,
-    IN DWORD		dwTimeout,
-    IN OUT			LPSCARD_READERSTATE_A	rgReaderStates,
-    IN DWORD		cReaders);
+    SCARDCONTEXT	hContext,
+    DWORD		dwTimeout,
+    LPSCARD_READERSTATE	rgReaderStates,
+    DWORD		cReaders);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>Forces a reconnect and possible warm reset to the specified card.</summary>
@@ -166,11 +166,11 @@ LONG tsSCardGetStatusChange(
 /// <returns>A PCSC error code (For windows it is a standard OS error code).</returns>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 LONG tsSCardReconnect(
-    IN      SCARDHANDLE	hCard,
-    IN      DWORD		dwShareMode,
-    IN      DWORD		dwPreferredProtocols,
-    IN      DWORD		dwInitialization,
-    OUT     LPDWORD		pdwActiveProtocol);
+    SCARDHANDLE	hCard,
+    DWORD		dwShareMode,
+    DWORD		dwPreferredProtocols,
+    DWORD		dwInitialization,
+    LPDWORD		pdwActiveProtocol);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>Gets an attribute from the specifed card.</summary>
@@ -195,7 +195,7 @@ LONG tsSCardGetAttrib(
 ///
 /// <returns>A PCSC error code (For windows it is a standard OS error code).</returns>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-LONG tsSCardBeginTransaction(IN SCARDHANDLE hCard);
+LONG tsSCardBeginTransaction(SCARDHANDLE hCard);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>Restores shared access to the specified card.</summary>
@@ -205,7 +205,7 @@ LONG tsSCardBeginTransaction(IN SCARDHANDLE hCard);
 ///
 /// <returns>A PCSC error code (For windows it is a standard OS error code).</returns>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-LONG tsSCardEndTransaction(IN SCARDHANDLE hCard, IN DWORD dwDisposition);
+LONG tsSCardEndTransaction(SCARDHANDLE hCard, DWORD dwDisposition);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>Cancel any blocking operations on this context.</summary>
@@ -214,7 +214,7 @@ LONG tsSCardEndTransaction(IN SCARDHANDLE hCard, IN DWORD dwDisposition);
 ///
 /// <returns>A PCSC error code (For windows it is a standard OS error code).</returns>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-LONG tsSCardCancel(IN SCARDCONTEXT hContext);
+LONG tsSCardCancel(SCARDCONTEXT hContext);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>Free memory allocated by the PCSC subsystem.</summary>
@@ -224,7 +224,7 @@ LONG tsSCardCancel(IN SCARDCONTEXT hContext);
 ///
 /// <returns>A PCSC error code (For windows it is a standard OS error code).</returns>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-LONG tsSCardFreeMemory(IN SCARDCONTEXT hContext, IN LPCVOID pvMem);
+LONG tsSCardFreeMemory(SCARDCONTEXT hContext, LPCVOID pvMem);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>Test if the PCSC subsystem context is valid.</summary>
@@ -233,7 +233,7 @@ LONG tsSCardFreeMemory(IN SCARDCONTEXT hContext, IN LPCVOID pvMem);
 ///
 /// <returns>A PCSC error code (For windows it is a standard OS error code).</returns>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-LONG tsSCardIsValidContext(IN SCARDCONTEXT hContext);
+LONG tsSCardIsValidContext(SCARDCONTEXT hContext);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>Returns the current state of the specified card.</summary>
@@ -248,7 +248,7 @@ LONG tsSCardIsValidContext(IN SCARDCONTEXT hContext);
 ///
 /// <returns>A PCSC error code (For windows it is a standard OS error code).</returns>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-LONG tsSCardStatus(IN SCARDHANDLE hCard, OUT LPSTR mszReaderNames, IN OUT LPDWORD pcchReaderLen, OUT LPDWORD pdwState, OUT LPDWORD pdwProtocol, OUT LPBYTE pbAtr, OUT LPDWORD pcbAtrLen);
+LONG tsSCardStatus(SCARDHANDLE hCard, LPSTR mszReaderNames, LPDWORD pcchReaderLen, LPDWORD pdwState, LPDWORD pdwProtocol, LPBYTE pbAtr, LPDWORD pcbAtrLen);
 
 /// <summary>Defines information describing a reader.</summary>
 typedef struct ReaderInfo

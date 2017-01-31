@@ -1,4 +1,4 @@
-#	Copyright (c) 2016, TecSec, Inc.
+#	Copyright (c) 2017, TecSec, Inc.
 #
 #	Redistribution and use in source and binary forms, with or without
 #	modification, are permitted provided that the following conditions are met:
@@ -48,7 +48,11 @@ execute_process(COMMAND ${CMAKE_C_COMPILER} -dumpversion
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
-if(TS_X_PLATFORM STREQUAL "x64")
+if(MACHINETYPE MATCHES "arm")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -marm -mlittle-endian -mfpu=neon")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -marm -DNEON -mlittle-endian")
+    set(LINK_FLAGS "${LINK_FLAGS}")
+elseif(TS_X_PLATFORM STREQUAL "x64")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m64 -msse4.1 -maes")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64 -msse4.1 -maes")
     set(LINK_FLAGS "${LINK_FLAGS} -m64")
@@ -61,7 +65,7 @@ else()
   error(Missing processor type)
 endif()
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wdeclaration-after-statement --std=gnu89 -Wno-unused-parameter")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wdeclaration-after-statement -std=c11 -Wno-unused-parameter")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-invalid-offsetof")
 
 # the apple_unicode code violates the strict-aliasing rules

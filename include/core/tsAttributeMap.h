@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -79,7 +79,7 @@ public:
 	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
 	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
 
-	/// <summary><para>Initializes an instance of the <see cref="tsAttributeMap" /> class.</para></summary>
+		/// <summary><para>Initializes an instance of the <see cref="tsAttributeMap" /> class.</para></summary>
 	tsAttributeMap();
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Copy Constructor</summary>
@@ -236,20 +236,20 @@ public:
 	 * \param [in,out] obj The object.
 	 */
 	void ToJSON(tscrypto::JSONObject& obj) const;
-    //////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///// <summary>Object allocation operator.</summary>
-    /////
-    ///// <param name="bytes">The number of bytes to allocate.</param>
-    /////
-    ///// <returns>The allocated object.</returns>
-    //////////////////////////////////////////////////////////////////////////////////////////////////////
-    //void *operator new(size_t bytes);
-    //////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///// <summary>Object de-allocation operator.</summary>
-    /////
-    ///// <param name="ptr">[in,out] If non-null, the pointer to delete.</param>
-    //////////////////////////////////////////////////////////////////////////////////////////////////////
-    //void operator delete(void *ptr);
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	///// <summary>Object allocation operator.</summary>
+	/////
+	///// <param name="bytes">The number of bytes to allocate.</param>
+	/////
+	///// <returns>The allocated object.</returns>
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	//void *operator new(size_t bytes);
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	///// <summary>Object de-allocation operator.</summary>
+	/////
+	///// <param name="ptr">[in,out] If non-null, the pointer to delete.</param>
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	//void operator delete(void *ptr);
 	tscrypto::tsCryptoString tag(size_t index) const;
 	void tag(size_t index, const tscrypto::tsCryptoString& setTo);
 	tscrypto::tsCryptoString tag(const tscrypto::tsCryptoString &name) const;

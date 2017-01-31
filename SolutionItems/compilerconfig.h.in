@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -37,12 +37,11 @@
 
 #pragma once
 
-#define INLINE @TS_INLINE@
+#define TS_INLINE @TS_INLINE@
 
 #cmakedefine MSYS 1
 #cmakedefine MINGW 1
 #cmakedefine ANDROID 1
-#cmakedefine IS_OPAQUEVEIL 1
 
 #cmakedefine HAVE_STDIO_H 1
 #cmakedefine HAVE_STRING_H 1
@@ -56,12 +55,15 @@
 #cmakedefine HAVE_CPP_MEMORY 1
 #cmakedefine HAVE_CPP_FUNCTIONAL 1
 #cmakedefine HAVE_CPP_IOSTREAM 1
+#cmakedefine HAVE_CPP_OSTREAM 1
 #cmakedefine HAVE_CPP_REGEX 1
 #cmakedefine HAVE_CPP_CLIMITS 1
 #cmakedefine HAVE_CPP_LIST 1
 #cmakedefine HAVE_CPP_FORWARD_LIST 1
 #cmakedefine HAVE_CPP_DEQUE 1
 #cmakedefine HAVE_CPP_VECTOR 1
+#cmakedefine HAVE_CPP_CSTDDEF 1
+#cmakedefine HAVE_CPP_MUTEX 1
 #cmakedefine HAVE_CTYPE_H 1
 #cmakedefine HAVE_ERRNO_H 1
 #cmakedefine HAVE_LIMITS_H 1
@@ -100,13 +102,18 @@
 #cmakedefine HAVE_SMMINTRIN_H 1
 #cmakedefine HAVE_EMMINTRIN_H 1
 #cmakedefine HAVE_TMMINTRIN_H 1
+#cmakedefine HAVE_XMMINTRIN_H 1
 #cmakedefine HAVE_INTRIN_H 1
 #cmakedefine HAVE_GIO_GIO_H 1
 #cmakedefine HAVE_MAGIC_H 1
 #cmakedefine HAVE_SYS_IOCTL_H 1
 #cmakedefine HAVE_SD_DAEMON_H 1
 #cmakedefine HAVE_PCSCLITE_H 1
+#cmakedefine HAVE_PCSC_PCSCLITE_H 1
+#cmakedefine HAVE_WINSCARD_H 1
+#cmakedefine HAVE_PCSC_WINSCARD_H 1
 #cmakedefine HAVE_DIRECT_H 1
+#cmakedefine HAVE_SAL_H 1
 
 #cmakedefine HAVE_ERRNO_T 1
 #cmakedefine HAVE_NULLPTR 1
@@ -134,6 +141,7 @@
 #cmakedefine HAVE_VSNPRINTF 1
 #cmakedefine HAVE__UNLINK 1
 #cmakedefine HAVE_UNLINK 1
+#cmakedefine HAVE_GETPEEREID 1
 
 #cmakedefine HAVE_STRLEN 1
 #cmakedefine HAVE_STRNICMP 1
@@ -184,6 +192,7 @@
 #cmakedefine HAVE__I64TOA_S 1
 #cmakedefine HAVE__ATOI64 1
 #cmakedefine HAVE_ATOLL 1
+#cmakedefine HAVE_STRTOLL 1
 #cmakedefine HAVE_ATOQ 1
 #cmakedefine HAVE___INT64 1
 #cmakedefine HAVE_LONG_LONG_INT 1
@@ -199,6 +208,7 @@
 #cmakedefine HAVE_GETPWNAM 1
 
 #cmakedefine HAVE_SMARTCARD 1
+#cmakedefine HAVE_CONSTEXPR 1
 
 #if defined(MSYS) || defined(MINGW)
 	// I have found this to be faulty in gcc
@@ -267,6 +277,12 @@
 #endif
 #ifdef HAVE_CPP_CLIMITS
     #include <climits>
+#endif
+#ifdef HAVE_CPP_CSTDDEF
+    #include <cstddef>
+#endif
+#ifdef HAVE_CPP_MUTEX
+    #include <mutex>
 #endif
 #ifdef HAVE_SYS_TYPES_H
     #include <sys/types.h>
@@ -371,6 +387,9 @@
 #ifdef HAVE_XMMINTRIN_H
     #include <xmmintrin.h>
 #endif
+#ifdef HAVE_WMMINTRIN_H
+    #include <wmmintrin.h>
+#endif
 #ifdef HAVE_SMMINTRIN_H
     #include <smmintrin.h>
 #endif
@@ -394,6 +413,9 @@
 #endif
 #ifdef HAVE_CPP_IOSTREAM
     #include <iostream>
+#endif
+#ifdef HAVE_CPP_OSTREAM
+    #include <ostream>
 #endif
 #ifdef HAVE_CPP_FUNCTIONAL
     #include <functional>
@@ -520,7 +542,7 @@
 #define ERROR_CANCELLED                   1223L
 #define ERROR_CONNECTION_UNAVAIL 1201L
 
-#ifndef HAVE_PCSCLITE_H
+#if !defined(HAVE_PCSCLITE_H) && !defined(HAVE_PCSC_WINSCARD_H) && !defined(HAVE_PCSC_PCSCLITE_H)
 #define SCARD_E_COMM_DATA_LOST           ((DWORD)0x8010002FL)
 #endif
 
@@ -556,10 +578,66 @@
 
     #define SOCKET_ERROR (-1)
 
-    #ifdef HAVE_PCSCLITE_H
+    #if defined(HAVE_PCSCLITE_H) || defined(HAVE_PCSC_WINSCARD_H) || defined(HAVE_PCSC_PCSCLITE_H)
         #define HAVE_SMARTCARD 1
     #endif
 #endif
+
+#ifdef HAVE_SAL_H
+#   include <sal.h>
+//#   include <CodeAnalysis\sourceannotations.h>
+    #ifdef __GNUC__
+        #ifndef _When_
+            #define _When_(a)
+        #endif
+        #ifndef _Acquires_lock_
+            #define _Acquires_lock_(a)
+        #endif
+        #ifndef _Releases_lock_
+            #define _Releases_lock_(a)
+        #endif
+        #ifndef _On_failure_
+            #define _On_failure_(a)
+        #endif
+        #ifndef _Raises_SEH_exception_
+            #define _Raises_SEH_exception_(a)
+        #endif
+        #ifndef _Success_
+            #define _Success_(a)
+        #endif
+        #ifndef _Post_satisfies_
+            #define _Post_satisfies_(a)
+        #endif
+        #ifndef _Out_writes_bytes_
+            #define _Out_writes_bytes_(a)
+        #endif
+        #ifndef _In_
+            #define _In_
+        #endif
+        #ifndef _Inout_
+            #define _Inout_
+        #endif
+        #ifndef _Out_
+            #define _Out_
+        #endif
+        #ifndef _Check_return_
+            #define _Check_return_
+        #endif
+    #endif
+#else // HAVE_SAL_H
+#   define _When_(a)
+#   define _Acquires_lock_(a)
+#   define _Releases_lock_(a)
+#   define _On_failure_(a) 
+#   define _Raises_SEH_exception_
+#   define _Success_(a)
+#   define _Post_satisfies_(a)
+#   define _Out_writes_bytes_(a)
+#   define _In_
+#   define _Inout_
+#   define _Out_
+#   define _Check_return_
+#endif // HAVE_SAL_H
 
 #ifndef HAVE_SYM_MAX_PATH
     #define MAX_PATH 1024
@@ -574,6 +652,13 @@
 	#endif
 #endif
 
+#ifdef MINGW
+    #undef HAVE___CDECL 
+    #undef HAVE___STDCALL
+    #define HAVE___CDECL 1
+    #define HAVE___STDCALL 1
+#endif
+
 #ifndef HAVE___CDECL
     #define __cdecl
 #endif
@@ -586,10 +671,10 @@
     #define HAVE_ERRNO_T 1
 #endif
 
-#ifndef HAVE_NULLPTR
-    #define nullptr_t void*
-    #define nullptr NULL
-#endif
+//#ifndef HAVE_NULLPTR
+//    #define nullptr_t void*
+//    #define nullptr NULL
+//#endif
 #if MSYS || defined(MINGW) || !defined(HAVE_SYM_UNREFERENCED_PARAMETER)
     #undef UNREFERENCED_PARAMETER
 	#define UNREFERENCED_PARAMETER(P) do { (const void)(P); } while (0)
@@ -621,9 +706,15 @@
     typedef char*  LPSTR;
     typedef const char* LPCSTR;
     #define WINAPI
+    #ifdef HAVE_PCSC_PCSCLITE_H
+        #include <PCSC/pcsclite.h>
+    #endif
     #ifdef HAVE_PCSCLITE_H
         #include <pcsclite.h>
 	#endif
+    #ifdef HAVE_PCSC_WINSCARD_H
+        #include <PCSC/winscard.h>
+    #endif
 
     #define uuid(a)
     #define __uuidof(a) IID_##a
@@ -644,10 +735,17 @@
     typedef double DATE;
     extern "C" BOOL FileTimeToSystemTime(const FILETIME* ft, SYSTEMTIME* tm);
     #define FILETIME_TO_INT64(a) ((int64_t)(a))
+    typedef uint16_t ts_wchar;
+#else
+	#ifdef MINGW
+		#undef __uuidof
+		#define __uuidof(a) IID_##a
+	#endif
+    typedef wchar_t ts_wchar;
 #endif
 #ifndef HAVE_FOPEN_S
     #if defined(HAVE_FOPEN)
-        INLINE errno_t fopen_s(FILE **f, const char *name, const char *mode) {
+        TS_INLINE errno_t fopen_s(FILE **f, const char *name, const char *mode) {
             errno_t ret = 0;
             if (f == nullptr || name == nullptr || mode == nullptr) return EFAULT;
             *f = fopen(name, mode);
@@ -661,7 +759,7 @@
 #endif
 
 #ifndef HAVE_STRUPR
-    INLINE char* strupr(char *s)
+    TS_INLINE char* strupr(char *s)
     {
         char *tmp = s;
         while (*s)
@@ -831,13 +929,15 @@
         #define _atoi64(a) atoll(a)
     #elif defined(HAVE_ATOQ)
         #define _atoi64(a) atoq(a)
+    #elif defined(HAVE_STRTOLL)
+        #define _atoi64(a) strtoll(a,nullptr,10)
     #else
         #error _atoi64 is not defined
     #endif
 #endif
 
 #if !defined(HAVE_IUNKNOWN) && !defined(STDMETHODCALLTYPE)
-    #define STDMETHODCALLTYPE
+    //#define STDMETHODCALLTYPE
     #pragma ms_struct on
     #pragma pack(push, 1)
     struct tag_GUID {unsigned int Data1; unsigned short Data2; unsigned short Data3; unsigned char Data4[8];};
@@ -846,28 +946,29 @@
     typedef GUID IID;
     typedef const GUID &REFIID;
     #define DEFINE_GUID(name,a,b,c,d,e,f,g,h,i,j,k) const GUID name = {a,b,c,{d,e,f,g,h,i,j,k}}
-    class IUnknown {
-    public:
-        virtual ULONG AddRef() = 0;
-        virtual ULONG Release() = 0;
-        virtual HRESULT QueryInterface(REFIID guid, void** ppvObject) = 0;
-    };
-    class IServiceProvider {
-    public:
-	    virtual HRESULT QueryService(REFIID guidService, REFIID riid, void** ppvObject) = 0;
-    };
-    INLINE bool operator==(const GUID& left, const GUID& right) { return memcmp(&left, &right, sizeof(GUID)) == 0; }
-    INLINE bool operator!=(const GUID& left, const GUID& right) { return memcmp(&left, &right, sizeof(GUID)) != 0; }
-	const GUID IID_IUnknown = {0x00000000, 0x0000, 0x0000, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46};
-	const GUID IID_IServiceProvider = {0x6d5140c1, 0x7436, 0x11ce, 0x80, 0x34, 0x00, 0xaa, 0x00, 0x60, 0x09, 0xfa};
-	const GUID GUID_NULL = { 0, 0, 0, 0, };
+    //class IUnknown {
+    //public:
+    //    virtual ULONG AddRef() = 0;
+    //    virtual ULONG Release() = 0;
+    //    virtual HRESULT QueryInterface(REFIID guid, void** ppvObject) = 0;
+    //};
+    //class IServiceProvider {
+    //public:
+	//    virtual HRESULT QueryService(REFIID guidService, REFIID riid, void** ppvObject) = 0;
+    //};
+    #pragma ms_struct off
+    TS_INLINE bool operator==(const GUID& left, const GUID& right) { return memcmp(&left, &right, sizeof(GUID)) == 0; }
+    TS_INLINE bool operator!=(const GUID& left, const GUID& right) { return memcmp(&left, &right, sizeof(GUID)) != 0; }
+	const GUID IID_IUnknown = {0x00000000, 0x0000, 0x0000, {0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46}};
+	const GUID IID_IServiceProvider = {0x6d5140c1, 0x7436, 0x11ce, {0x80, 0x34, 0x00, 0xaa, 0x00, 0x60, 0x09, 0xfa}};
+	const GUID GUID_NULL = { 0, 0, 0, };
 #endif
 #if !defined(HAVE_CRITICAL_SECTION) && defined(HAVE_PTHREAD_H)
     typedef pthread_mutex_t CRITICAL_SECTION;
-    INLINE void InitializeCriticalSection(CRITICAL_SECTION* section) { pthread_mutexattr_t attr; pthread_mutexattr_init(&attr); pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE); pthread_mutex_init(section, &attr); pthread_mutexattr_destroy(&attr); }
-    INLINE void DeleteCriticalSection(CRITICAL_SECTION* section) { pthread_mutex_destroy(section); }
-    INLINE void EnterCriticalSection(CRITICAL_SECTION* section) { pthread_mutex_lock(section); }
-    INLINE void LeaveCriticalSection(CRITICAL_SECTION* section) { pthread_mutex_unlock(section); }
+    TS_INLINE void InitializeCriticalSection(CRITICAL_SECTION* section) { pthread_mutexattr_t attr; pthread_mutexattr_init(&attr); pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE); pthread_mutex_init(section, &attr); pthread_mutexattr_destroy(&attr); }
+    TS_INLINE void DeleteCriticalSection(CRITICAL_SECTION* section) { pthread_mutex_destroy(section); }
+    TS_INLINE void EnterCriticalSection(CRITICAL_SECTION* section) { pthread_mutex_lock(section); }
+    TS_INLINE void LeaveCriticalSection(CRITICAL_SECTION* section) { pthread_mutex_unlock(section); }
 #endif
 #ifndef HAVE_INTERLOCKED_INCREMENT
     #define InterlockedIncrement(a) __sync_add_and_fetch(a,1)

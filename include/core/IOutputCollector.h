@@ -1,4 +1,4 @@
-//	Copyright (c) 2016, TecSec, Inc.
+//	Copyright (c) 2017, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -35,16 +35,16 @@ namespace tsmod {
 	class VEILCORE_API IOutputCollector
 	{
 	public:
-	virtual ~IOutputCollector() {}
-	virtual int AddOutputData(const tscrypto::tsCryptoData& outData, const tscrypto::tsCryptoString& dataType, bool sensitive = false, const tsAttributeMap& attrs = tsAttributeMap()) = 0;
-	virtual bool usePassword() const = 0;
-	virtual void usePassword(bool setTo) = 0;
-	virtual tscrypto::tsCryptoString Password() const = 0;
-	virtual void Password(const tscrypto::tsCryptoString& setTo) = 0;
-	virtual tscrypto::tsCryptoString encryptionAlgName() const = 0;
-	virtual bool encryptionAlgName(const tscrypto::tsCryptoString& setTo) = 0;
-	virtual bool writeToStdout() = 0;
-	virtual bool writeToFile(const tscrypto::tsCryptoString& filename) = 0;
+		virtual ~IOutputCollector() {}
+		virtual int AddOutputData(const tscrypto::tsCryptoData& outData, const tscrypto::tsCryptoString& dataType, bool sensitive = false, const tsAttributeMap& attrs = tsAttributeMap()) = 0;
+		virtual bool usePassword() const = 0;
+		virtual void usePassword(bool setTo) = 0;
+		virtual tscrypto::tsCryptoString Password() const = 0;
+		virtual void Password(const tscrypto::tsCryptoString& setTo) = 0;
+		virtual tscrypto::tsCryptoString encryptionAlgName() const = 0;
+		virtual bool encryptionAlgName(const tscrypto::tsCryptoString& setTo) = 0;
+		virtual bool writeToStdout() = 0;
+		virtual bool writeToFile(const tscrypto::tsCryptoString& filename) = 0;
 		virtual bool writeToString(tscrypto::tsCryptoString& str) = 0;
 	};
 }

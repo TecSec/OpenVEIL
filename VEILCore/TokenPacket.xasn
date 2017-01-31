@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<!--	Copyright (c) 2016, TecSec, Inc.
+<!--	Copyright (c) 2017, TecSec, Inc.
 
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions are met:
@@ -138,7 +138,7 @@
       <Sequence Name="TUFAttribute" ElementType="TUFAttribute">
         <Any Name="attr"/>
       </Sequence>
-      
+
       <Sequence Name="SoftTokenCommand" ElementType="SoftTokenCommand">
         <Enum Name="commandType" ElementType="SoftTokenCommandType" BaseType="Int32" Tag="Number" Initializer="cmd_InitToken"/>
         <OctetString Name="commandData"/>
@@ -146,13 +146,13 @@
           <Sequence Name="TUFAttribute" ElementType="TUFAttribute" Tag="Sequence" Type="Universal"/>
         </SequenceOf>
       </Sequence>
-      
+
       <Sequence Name="SoftTokenCommands" ElementType="SoftTokenCommands">
         <SequenceOf Name="softTokenCommands" Tag="Sequence" Type="Universal">
           <Sequence Name="SoftTokenCommand" ElementType="SoftTokenCommand" Tag="Sequence" Type="Universal"/>
         </SequenceOf>
       </Sequence>
-      
+
       <Sequence Name="SmartCardCommandPart" ElementType="SmartCardCommandPart">
         <OctetString Name="command"/>
         <Bool Name="IgnoreError" Initializer="false" Default="false"/>
@@ -164,7 +164,7 @@
           <Sequence Name="SmartCardCommandPart" ElementType="SmartCardCommandPart" Tag="Sequence" Type="Universal"/>
         </SequenceOf>
       </Sequence>
-      
+
       <Sequence Name="SmartCardCommands" ElementType="SmartCardCommands">
         <OctetString Name="iin"/>
         <OctetString Name="cin"/>
@@ -179,14 +179,14 @@
         <Int32 Name="keyVersion" Initializer="0"/>
         <OctetString Name="signature" Optional="true" Tag="0" Type="Context"/>
       </Sequence>
-      
+
       <Sequence Name="TP_AttrGroup" ElementType="TP_AttrGroup">
         <SequenceOf Name="attributes" Tag="Sequence" Type="Universal">
           <Sequence Name="TP_Attr" ElementType="TP_Attr" Tag="Sequence" Type="Universal"/>
         </SequenceOf>
         <OctetString Name="encryptedRandom"/>
       </Sequence>
-      
+
       <Sequence Name="TP_MiniHeader" ElementType="TP_MiniHeader">
         <Int32 Name="ckmVersion" Initializer="7"/>
         <Int32 Name="currentKgkLevel" Initializer="0"/>
@@ -775,7 +775,7 @@ return true;
             <OctetString Name="PrivateData" />
             <Bool Name="AllowSingleSignOn" JSONName="allowSSO"/>
           </Part>
-            
+
           <String Name="MemberName" JSONName="memberName"/>
           <Guid Name="MemberId" JSONName="memid"/>
           <String Name="EnterpriseName" JSONName="enterpriseName"/>
@@ -798,7 +798,7 @@ return true;
           <OctetString Name="SerialNumber" Tag="6" Type="Context" Optional="true" JSONName="serno"/>
           <OctetString Name="PrivateData" Tag="7" Type="Context" Optional="true"/>
           <Bool Name="AllowSingleSignOn" Tag="9" Type="Context" Optional="true" Initializer="false" JSONName="allowSSO"/>
-          
+
           <OctetString Name="Signature" Tag="8" Type="Context" Optional="true"/>
 
           <Function ReturnType="bool" Name="NeedsUpdating" Parameters="">
@@ -834,14 +834,14 @@ return true;
           <Guid Name="id" JSONName="id"/>
           <Int32 Name="version" JSONName="version"/>
         </Sequence>
-        
+
         <Sequence Name="AccessGroup" JSONName="group">
           <SequenceOf Name="attributes" Tag="0" Type="Context" JSONName="attributes">
             <Sequence Name="attributes" ElementType="AttributeIdentifier" JSONName="attribute"/>
           </SequenceOf>
           <OctetString Name="encRand" JSONName="encRand"/>
         </Sequence>
-        
+
         <Sequence Name="AttributeSignature" JSONName="attributeSignature">
           <Guid Name="attributeId" JSONName="attributeId"/>
           <Int32 Name="version" JSONName="version"/>
@@ -972,7 +972,7 @@ return true;
           <Guid Name="memberId" JSONName="memid"/>
           <Guid Name="enterpriseId" JSONName="entid"/>
         </Sequence>
-  
+
         <Sequence Name="CkmRecipe" OID="TECSEC_DATA_CTS_RECIPE" DefaultVersion="0" JSONName="recipe">
           <Version Name="V0" OID="TECSEC_DATA_CTS_RECIPE" MinNumber="0" MaxNumber="0">
             <Int32 Name="ckmVersion" JSONName="ckmVersion"/>
@@ -997,18 +997,18 @@ return true;
           <OID Name="keyUsage" JSONName="keyUsage"/>
         </Sequence>
 
-      <Sequence Name="Favorite" OID="id_Favorite" DefaultVersion="0">
-        <Version Name="V0" OID="id_Favorite" MinNumber="0" MaxNumber="0">
-          <Guid Name="Id"/>
-          <String Name="Name"/>
-          <OctetString Name="serialNumber"/>
-          <OctetString Name="data"/>
-        </Version>
-        <Guid Name="Id" JSONName="id"/>
-        <String Name="Name" JSONName="name"/>
-        <OctetString Name="serialNumber" JSONName="serial"/>
-        <OctetString Name="data" JSONName="data"/>
-      </Sequence>
+        <Sequence Name="Favorite" OID="id_Favorite" DefaultVersion="0">
+          <Version Name="V0" OID="id_Favorite" MinNumber="0" MaxNumber="0">
+            <Guid Name="Id"/>
+            <String Name="Name"/>
+            <OctetString Name="serialNumber"/>
+            <OctetString Name="data"/>
+          </Version>
+          <Guid Name="Id" JSONName="id"/>
+          <String Name="Name" JSONName="name"/>
+          <OctetString Name="serialNumber" JSONName="serial"/>
+          <OctetString Name="data" JSONName="data"/>
+        </Sequence>
       </Namespace>
     </Namespace>
   </File>
