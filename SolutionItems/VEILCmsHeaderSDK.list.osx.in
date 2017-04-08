@@ -1,0 +1,42 @@
+%product TecSecVEILCmsHeaderSDK
+%copyright @VEIL_COPYRIGHT@
+%vendor TecSec, Inc.
+%license ../bin/LICENSE.md
+%readme ../bin/README.md
+%description TecSec VEIL CMS Header Framework SDK
+%version @VEIL_VERSION@
+l 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Headers Versions/Current/Headers
+l 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Resources Versions/Current/Resources
+l 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/VEILApiVersion.cmake Versions/Current/VEILApiVersion.cmake
+l 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/VEILCmsHeader Versions/Current/VEILCmsHeader
+d 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions -
+d 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A -
+d 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/Headers -
+f 644 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/Headers/VEILCmsHeader.h sdk/VEILCmsHeader.framework/Versions/A/Headers/VEILCmsHeader.h
+d 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/Headers/CmsHeader -
+f 644 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/Headers/CmsHeader/CmsHeaderExtensionOIDs.h sdk/VEILCmsHeader.framework/Versions/A/Headers/CmsHeader/CmsHeaderExtensionOIDs.h
+f 644 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/Headers/CmsHeader/CmsHeaderInterfaces.h sdk/VEILCmsHeader.framework/Versions/A/Headers/CmsHeader/CmsHeaderInterfaces.h
+#
+d 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/Documentation -
+#f 644 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/Documentation/TSALG.pdf @CMAKE_CURRENT_SOURCE_DIR@/docs/TSALG.pdf
+#
+d 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/Resources -
+f 644 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/Resources/CKM_Lock_Icon.icns @CMAKE_CURRENT_SOURCE_DIR@/cmakemodules/CKM_Lock_Icon.icns
+f 644 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/Resources/Info.plist sdk/VEILCmsHeader.framework/Versions/A/Resources/Info.plist
+f 644 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/VEILApiVersion.cmake sdk/VEILCmsHeader.framework/Versions/A/VEILApiVersion.cmake
+f 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/VEILCmsHeader sdk/VEILCmsHeader.framework/Versions/A/VEILCmsHeader
+l 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/Current A
+#
+# Now create the embeddable framework in /usr/local/TecSec
+#
+l 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Resources Versions/Current/Resources
+l 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/VEILApiVersion.cmake Versions/Current/VEILApiVersion.cmake
+l 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/VEILCmsHeader Versions/Current/VEILCmsHeader
+d 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions -
+d 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A -
+d 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/Resources -
+f 644 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/Resources/CKM_Lock_Icon.icns @CMAKE_CURRENT_SOURCE_DIR@/cmakemodules/CKM_Lock_Icon.icns
+f 644 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/Resources/Info.plist sdk/VEILCmsHeader.framework/Versions/A/Resources/Info.plist
+f 644 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/VEILApiVersion.cmake sdk/VEILCmsHeader.framework/Versions/A/VEILApiVersion.cmake
+f 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/VEILCmsHeader sdk/VEILCmsHeader.framework/Versions/A/VEILCmsHeader
+l 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/Current A

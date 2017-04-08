@@ -69,14 +69,14 @@ public:
 	}
 	virtual const HttpAttribute* attributeByName(const char *index) const override
 	{
-		auto it = std::find_if(m_attributes.begin(), m_attributes.end(), [&index](const HttpAttribute& attr)->bool{ return TsStriCmp(index, attr.m_Name) == 0; });
+		auto it = std::find_if(m_attributes.begin(), m_attributes.end(), [&index](const HttpAttribute& attr)->bool { return TsStriCmp(index, attr.m_Name) == 0; });
 		if (it == m_attributes.end())
 			return nullptr;
 		return &*it;
 	}
 	virtual tscrypto::tsCryptoData recreateResponse() const override;
 
-	virtual ReadCode ReadStream(SOCKET msgsock, const tscrypto::tsCryptoData& leadin, std::shared_ptr<IHttpChannelProcessor>& processor) override;
+	virtual ReadCode ReadStream(std::shared_ptr<ITcpConnection> channel, const tscrypto::tsCryptoData& leadin, std::shared_ptr<IHttpChannelProcessor>& processor) override;
 	virtual void clear() override;
 
 private:
@@ -118,9 +118,8 @@ HttpHeader::~HttpHeader(void)
 {
 }
 
-HttpHeader::ReadCode HttpHeader::ReadStream(SOCKET msgsock, const tscrypto::tsCryptoData& leadin, std::shared_ptr<IHttpChannelProcessor>& processor)
+HttpHeader::ReadCode HttpHeader::ReadStream(std::shared_ptr<ITcpConnection> channel, const tscrypto::tsCryptoData& leadin, std::shared_ptr<IHttpChannelProcessor>& processor)
 {
-	int len;
 	tscrypto::tsCryptoData buff;
 	int requiredDataLength = 0;
 	int targetLength;
@@ -128,7 +127,7 @@ HttpHeader::ReadCode HttpHeader::ReadStream(SOCKET msgsock, const tscrypto::tsCr
 	clear();
 	m_parseState = pse_InRequest;
 
-	if ( leadin.size() > 0 )
+	if (leadin.size() > 0)
 		m_dataPart = leadin.ToUtf8String();
 	else
 		m_dataPart.clear();
@@ -136,38 +135,29 @@ HttpHeader::ReadCode HttpHeader::ReadStream(SOCKET msgsock, const tscrypto::tsCr
 	m_errorCode = 200;
 	do
 	{
-		buff.resize(1024);
+		buff.clear();
 
-		if ( m_parseState == pse_InHeader ||
-			 m_parseState == pse_InRequest )
+		if (m_parseState == pse_InHeader ||
+			m_parseState == pse_InRequest)
 			targetLength = 1023;
 		else
 		{
 			targetLength = (int)MIN(1023, (requiredDataLength - m_dataPart.size()));
 		}
-#ifdef _WIN32
-		len = recv(msgsock, (char*)buff.rawData(), targetLength, MSG_PEEK);
-#else
-		len = recv((int)msgsock, (char*)buff.rawData(), targetLength, MSG_PEEK);
-#endif
+		if (!channel->RawReceive(buff, targetLength))
+		{
+			m_errors += "Unable to read the data from the socket\n";
+			//
+			// Data retrieval error (should never happen)
+			//
+			return hh_Failure;
+		}
 
 		//
 		// Is there data in the buffer?
 		//
-		if ( len > 0 )
+		if (!buff.empty())
 		{
-			//
-			// Get it
-			//
-#ifdef _WIN32
-			len = recv(msgsock, (char*)buff.rawData(), len, 0);
-#else
-			len = recv((int)msgsock, (char*)buff.rawData(), len, 0);
-#endif
-			if ( len > 0 )
-			{
-				buff.resize(len);
-
 				LOG(httpData, "recv'd" << tscrypto::endl << buff.ToHexDump());
 
 				if (processor != nullptr)
@@ -211,19 +201,9 @@ HttpHeader::ReadCode HttpHeader::ReadStream(SOCKET msgsock, const tscrypto::tsCr
 			}
 			else
 			{
-			    m_errors += "Unable to read the data from the socket\n";
-				//
-				// Data retrieval error (should never happen)
-				//
-				return hh_Failure;
-			}
-		}
-		else
-		{
 		    return hh_CloseSocket;
 		}
-	}
-	while (m_parseState != pse_Done && m_parseState != pse_Error );
+	} while (m_parseState != pse_Done && m_parseState != pse_Error);
 
 
 	m_errorCode = (WORD)TsStrToInt(m_status);
@@ -285,7 +265,7 @@ void HttpHeader::ParseOffHeaders()
     int posi = 0;
     tscrypto::tsCryptoData nextPart;
 
-	if ( m_parseState == pse_InRequest )
+	if (m_parseState == pse_InRequest)
 	{
 		if (!PeekLine(posi, false, line) || line.size() == 0)
 		{
@@ -304,7 +284,7 @@ void HttpHeader::ParseOffHeaders()
 		//
 		// First parse off the request line
 		//
-		if ( !ParseOffResponseLine(posi) )
+		if (!ParseOffResponseLine(posi))
 		{
 			m_parseState = pse_Error;
 			m_errorCode = 400;
@@ -320,9 +300,9 @@ void HttpHeader::ParseOffHeaders()
         tscrypto::tsCryptoData attrName;
 		//bool append = false;
 
-		if ( IsWhiteSpace(posi) )
+		if (IsWhiteSpace(posi))
 		{
-			if ( m_lastAttribute.size() == 0 )
+			if (m_lastAttribute.size() == 0)
 			{
 				m_parseState = pse_Error;
 				m_errorCode = 400;
@@ -333,13 +313,13 @@ void HttpHeader::ParseOffHeaders()
 		}
 		else
 		{
-			if ( !GetNextToken(posi, attrName) )
+			if (!GetNextToken(posi, attrName))
 			{
 				m_parseState = pse_Error;
 				m_errorCode = 400;
 				return;
 			}
-			if ( attrName.size() == 0 || attrName[attrName.size() - 1] != ':' )
+			if (attrName.size() == 0 || attrName[attrName.size() - 1] != ':')
 			{
 				m_parseState = pse_Error;
 				m_errorCode = 400;
@@ -350,7 +330,7 @@ void HttpHeader::ParseOffHeaders()
 		}
         GetLine(posi, true, line);
         while (PeekLine(posi, false, nextPart) && nextPart.size() > 0 &&
-               (nextPart[0] == ' ' || nextPart[0] == 9) )
+			(nextPart[0] == ' ' || nextPart[0] == 9))
         {
             GetLine(posi, true, nextPart);
             line += (BYTE)0x20;
@@ -377,7 +357,7 @@ void HttpHeader::ParseOffHeaders()
 			m_attributes.push_back(attr);
 		}
     }
-    if ( PeekLine(posi, false, nextPart) && nextPart.size() == 0 )
+	if (PeekLine(posi, false, nextPart) && nextPart.size() == 0)
     {
 		GetLine(posi, false, nextPart);
 		m_parseState = pse_InData;
@@ -390,17 +370,17 @@ void HttpHeader::ParseOffHeaders()
 bool HttpHeader::ParseOffResponseLine(int &posi)
 {
     tscrypto::tsCryptoData token;
-    if ( !GetNextToken(posi, token) )
+	if (!GetNextToken(posi, token))
     {
         return false;
     }
     m_version = token.ToUtf8String();
-    if ( !GetNextToken(posi, token) )
+	if (!GetNextToken(posi, token))
     {
         return false;
     }
     m_status = token.ToUtf8String();
-    if ( !GetLine(posi, true, token) )
+	if (!GetLine(posi, true, token))
         return false;
     m_reason = token.ToUtf8String();
 
@@ -415,29 +395,29 @@ bool HttpHeader::ParseOffResponseLine(int &posi)
     return true;
 }
 
-bool HttpHeader::GetNextToken (int &posi, tscrypto::tsCryptoData &token)
+bool HttpHeader::GetNextToken(int &posi, tscrypto::tsCryptoData &token)
 {
     token.clear();
-    if ( posi >= (int)m_dataPart.size() )
+	if (posi >= (int)m_dataPart.size())
         return false;
-    while (posi < (int)m_dataPart.size() && (m_dataPart[posi] == 0x20) )
+	while (posi < (int)m_dataPart.size() && (m_dataPart[posi] == 0x20))
         posi++;
-    if ( posi >= (int)m_dataPart.size() )
+	if (posi >= (int)m_dataPart.size())
         return false;
-    while (posi < (int)m_dataPart.size() && m_dataPart[posi] != 0x20 && m_dataPart[posi] != 10 && m_dataPart[posi] != 13 )
+	while (posi < (int)m_dataPart.size() && m_dataPart[posi] != 0x20 && m_dataPart[posi] != 10 && m_dataPart[posi] != 13)
     {
         token += (BYTE)m_dataPart[posi++];
     }
-    if ( token.size() == 0 )
+	if (token.size() == 0)
         return false;
     return true;
 }
 
 bool HttpHeader::IsWhiteSpace(int posi) const
 {
-    if ( posi >= (int)m_dataPart.size() )
+	if (posi >= (int)m_dataPart.size())
         return false;
-	if ( m_dataPart.c_at(posi) == ' ' || m_dataPart.c_at(posi) == 9 )
+	if (m_dataPart.c_at(posi) == ' ' || m_dataPart.c_at(posi) == 9)
 		return true;
 	return false;
 }
@@ -445,28 +425,28 @@ bool HttpHeader::IsWhiteSpace(int posi) const
 bool HttpHeader::GetLine(int &posi, bool eat_spaces, tscrypto::tsCryptoData &line)
 {
     line.clear();
-    if ( posi >= (int)m_dataPart.size() )
+	if (posi >= (int)m_dataPart.size())
         return false;
-    if ( eat_spaces )
+	if (eat_spaces)
     {
-        while (posi < (int)m_dataPart.size() && (m_dataPart[posi] == 0x20) )
+		while (posi < (int)m_dataPart.size() && (m_dataPart[posi] == 0x20))
             posi++;
     }
-    while (posi < (int)m_dataPart.size() && m_dataPart[posi] != 10 && m_dataPart[posi] != 13 )
+	while (posi < (int)m_dataPart.size() && m_dataPart[posi] != 10 && m_dataPart[posi] != 13)
     {
         line += (BYTE)m_dataPart[posi++];
     }
-    if ( posi >= (int)m_dataPart.size() )
+	if (posi >= (int)m_dataPart.size())
         return false;
-    if ( m_dataPart[posi] == 13 )
+	if (m_dataPart[posi] == 13)
     {
         posi++;
-        if ( m_dataPart[posi] == 10 )
+		if (m_dataPart[posi] == 10)
             posi++;
         else
             return false;
     }
-    else if ( m_dataPart[posi] == 10 )
+	else if (m_dataPart[posi] == 10)
         posi++;
     else
         return false;
@@ -478,7 +458,7 @@ bool HttpHeader::PeekLine(int posi, bool eat_spaces, tscrypto::tsCryptoData &lin
     return GetLine(posi, eat_spaces, line);
 }
 
-WORD HttpHeader::errorCode () const
+WORD HttpHeader::errorCode() const
 {
     return m_errorCode;
 }
@@ -491,9 +471,9 @@ void HttpHeader::errorCode(WORD setTo)
 #if 0
 int HTMLHelper::FindAttributeIndexHelper(HTMLHelper::HttpAttribute *data, void *param)
 {
-    if ( param == NULL )
+	if (param == NULL)
         return 0;
-    if ( stricmp(data->m_Name.c_str(), ((const char *)param)) == 0 )
+	if (stricmp(data->m_Name.c_str(), ((const char *)param)) == 0)
         return 1;
     return 0;
 }

@@ -40,6 +40,7 @@
 #include "targetver.h"
 
 #include "VEIL.h"
+#include "VEILCmsHeader.h"
 #include "VEILWinAPI.h"
 
 using namespace tscrypto;

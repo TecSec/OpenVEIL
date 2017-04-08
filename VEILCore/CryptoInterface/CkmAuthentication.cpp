@@ -31,7 +31,6 @@
 
 #include "stdafx.h"
 #include "CryptoAsn1.h"
-#include "TSALG.h"
 
 using namespace tscrypto;
 

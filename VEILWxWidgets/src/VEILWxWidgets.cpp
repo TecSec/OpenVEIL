@@ -38,6 +38,7 @@ XP_MODULE hDllInstance = XP_MODULE_INVALID;
 //static ATOM registeredGrid = 0;
 //static ATOM registeredList = 0;
 
+#ifndef VEILWXWIDGETS_STATIC
 #ifdef _WIN32
 BOOL APIENTRY DllMain(HMODULE hModule,
 	DWORD  ul_reason_for_call,
@@ -59,6 +60,7 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 	return TRUE;
 }
 #endif
+#endif
 
 static bool Terminate()
 {
@@ -68,6 +70,7 @@ static bool Terminate()
 	std::shared_ptr<tsmod::IServiceLocator> servLoc = ::TopServiceLocator();
 
 	servLoc->DeleteClass("/WxWin/AudienceSelector");
+	servLoc->DeleteClass("/WxWin/AudienceSelector2");
 	servLoc->DeleteClass("/WxWin/FavoriteEditor");
 	servLoc->DeleteClass("/WxWin/AttributeSelectorGrid");
 	servLoc->DeleteClass("/WxWin/TokenLogIn");
@@ -79,6 +82,10 @@ static bool Terminate()
 	servLoc->DeleteClass("/WxWin/CreateVEILPropertySheet");
 	servLoc->DeleteClass("/WxWin/GeneralSettingsPage");
 	servLoc->DeleteClass("/WxWin/VEILFileSettingsPage");
+	servLoc->DeleteClass("/WxWin/FavoriteManager");
+	servLoc->DeleteClass("/WxWin/EnterPin");
+	servLoc->DeleteClass("/WxWin/ChangeName");
+	servLoc->DeleteClass("/WxWin/HelpRegistry");
 
 	return true;
 }
@@ -102,6 +109,8 @@ bool InitializeVEILWxWidgets()
 #endif
 
 		servLoc->AddClass("/WxWin/AudienceSelector", CreateAudienceSelector);
+		servLoc->AddClass("/WxWin/AudienceSelector2", CreateAudienceSelector2);
+		servLoc->AddClass("/WxWin/FavoriteManager", CreateFavoriteManager);
 		servLoc->AddClass("/WxWin/FavoriteEditor", CreateFavoriteEditer);
 		servLoc->AddClass("/WxWin/AttributeSelectorGrid", CreateAttributeSelectorGrid);
 		servLoc->AddClass("/WxWin/TokenLogIn", CreateTokenLogIn);
@@ -112,7 +121,10 @@ bool InitializeVEILWxWidgets()
 		servLoc->AddClass("/WxWin/GeneralSettingsPage", CreateGeneralSettingsPage);
 		servLoc->AddClass("/WxWin/VEILFileSettingsPage", CreateVEILFileSettingsPage);
 		servLoc->AddClass("/WxWin/PropertySheet", CreateVEILPropertySheet);
-		//servLoc->AddClass("/WxWin/ProgressDlg", CreateProgressDlg);
+		servLoc->AddClass("/WxWin/ProgressDlg", CreateProgressDlg);
+		servLoc->AddClass("/WxWin/EnterPin", CreateEnterPinDlg);
+		servLoc->AddClass("/WxWin/ChangeName", CreateChangeName);
+		servLoc->AddSingletonClass("/WxWin/HelpRegistry", CreateWxHelpRegistry);
 		AddSystemTerminationFunction(Terminate);
 	}
 	return true;
@@ -174,4 +186,43 @@ wxIcon GetIconResource(const wxString& name)
 	wxUnusedVar(name);
 	return wxNullIcon;
 	////@end AboutCKM icon retrieval
+}
+
+
+int wxTsMessageBox(const tscrypto::tsCryptoString& message, const tscrypto::tsCryptoString& caption, long style, XP_WINDOW parent)
+{
+	// add the appropriate icon unless this was explicitly disabled by use of
+	// wxICON_NONE
+	if (!(style & wxICON_NONE) && !(style & wxICON_MASK))
+	{
+		style |= style & wxYES ? wxICON_QUESTION : wxICON_INFORMATION;
+	}
+
+	tsCryptoStringList parts = message.split("\n", 2);
+
+	wxMessageDialog dialog((wxWindow*)parent, parts->at(0).c_str(), caption.c_str(), style);
+
+	if (parts->size() > 1)
+	{
+		dialog.SetExtendedMessage(parts->at(1).c_str());
+	}
+
+	int ans = dialog.ShowModal();
+	switch (ans)
+	{
+	case wxID_OK:
+		return wxOK;
+	case wxID_YES:
+		return wxYES;
+	case wxID_NO:
+		return wxNO;
+	case wxID_CANCEL:
+		return wxCANCEL;
+	case wxID_HELP:
+		return wxHELP;
+	}
+
+	wxFAIL_MSG(wxT("unexpected return code from wxMessageDialog"));
+
+	return wxCANCEL;
 }

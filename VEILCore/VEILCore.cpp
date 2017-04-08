@@ -35,13 +35,13 @@
 #include "shlobj.h"
 #endif // _WIN32
 #include "zlib.h"
-#include "TSALG.h"
 
 //using namespace BigNum;
 
 static std::shared_ptr<tsmod::IServiceLocator> g_ServiceLocator;
 std::shared_ptr < ICkmChangeMonitor> gChangeMonitor;
 static std::vector<std::function<bool()> > gInitializers;
+static std::vector<std::function<bool()> > gInitialInitializers;
 static std::deque<std::function<bool()> > gTerminators;
 
 // from servicelocator.cpp
@@ -750,10 +750,48 @@ class __ResourceLoader :public tsmod::IResourceLoader, public tsmod::IObject, pu
 public:
 	virtual bool LoadResourceFile(const tscrypto::tsCryptoStringBase& filename) override
 	{
-		tscrypto::tsCryptoData tmp;
 		tscrypto::tsCryptoData part;
 
 		_resources.clear();
+
+#ifdef _WIN32
+		tsCryptoString dir, file, ext;
+		HRSRC hRes = nullptr;
+		HGLOBAL hResLoad = nullptr;
+		LPVOID lpResLock = nullptr;
+		DWORD resSize;
+		bool loaded = false;
+
+		xp_SplitPath(filename, dir, file, ext);
+
+		file.ToUpper();
+		ext.ToUpper();
+
+		if (ext == ".RSZ" && (hRes = ::FindResource(nullptr, file.c_str(), "RSZ")) != nullptr)
+		{
+			hResLoad = ::LoadResource(nullptr, hRes);
+			if (hResLoad != nullptr && (resSize = SizeofResource(nullptr, hRes)) > 4 && (lpResLock = LockResource(hResLoad)) != nullptr)
+			{
+				part.assign((uint8_t*)lpResLock, sizeof(int));
+#if (BYTE_ORDER == LITTLE_ENDIAN)
+				part.reverse();
+#endif
+				_resources.resize(*(int*)part.c_str());
+				size_t len = _resources.size();
+				if (!zlibDecompress(((uint8_t*)lpResLock) + sizeof(int), resSize - sizeof(int), _resources.rawData(), len) || len != _resources.size())
+				{
+					_resources.clear();
+				}
+				else
+					loaded = true;
+			}
+		}
+
+		if (loaded)
+			return true;
+#endif // _WIN32
+		tscrypto::tsCryptoData tmp;
+
 		if (!xp_ReadAllBytes(filename, tmp))
 		{
 			return false;
@@ -942,6 +980,9 @@ tsmod::IObject* CreateResourceLoader()
 
 void RunInitializers()
 {
+	if (gInitialInitializers.empty())
+		gInitialInitializers = gInitializers;
+
 	for (auto func : gInitializers)
 	{
 		func();
@@ -980,6 +1021,8 @@ void TerminateVEILSystem()
 		g_ServiceLocator->clear();
 	g_ServiceLocator.reset();
     TerminateCryptoSystem();
+	if (!gInitialInitializers.empty())
+		gInitializers = gInitialInitializers;
 	LOG(FrameworkInfo1, "VEIL system terminated");
 }
 
@@ -1675,4 +1718,60 @@ uint32_t xp_GetComputerName(tscrypto::tsCryptoStringBase& name)
 	name.resize(strlen(name.c_str()));
 #endif
 	return 0;
+}
+
+bool xp_LaunchBrowser(const tscrypto::tsCryptoStringBase& _url)
+{
+#ifdef _WIN32
+	SHELLEXECUTEINFO info;
+	CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+	memset(&info, 0, sizeof(info));
+	info.cbSize = sizeof(info);
+	info.fMask = 0; //SEE_MASK_NOCLOSEPROCESS;
+	info.hwnd = nullptr;
+	info.lpVerb = "open";
+	info.lpFile = _url.c_str();
+	info.lpParameters = "";
+	info.nShow = SW_MAXIMIZE;
+	info.hInstApp = nullptr;
+	return ShellExecuteEx(&info) ? true : false;
+#elif defined(__APPLE__)
+	CFURLRef url = CFURLCreateWithBytes(
+		NULL,                        // allocator
+		(UInt8*)_url.c_str(),        // URLBytes
+		_url.length(),               // length
+		kCFStringEncodingASCII,      // encoding
+		NULL                         // baseURL
+	);
+	LSOpenCFURLRef(url, 0);
+	CFRelease(url);
+	return true;
+#else
+	// TODO:  Research this approach - newer OS...
+	//char url[128]; //you could make this bigger if you want
+	//scanf("%s", url); // get the url from the console
+	//
+	//char call[256];
+	//strcpy(call, "xdg-open "); // web browser command
+	//strcat(call, url); // append url
+	//
+	//system(call);
+
+
+
+	tsCryptoString browser = getenv("BROWSER");
+	if (browser.empty) 
+		return false;
+
+	char *args[3];
+	args[0] = (char*)browser.c_str();
+	args[1] = (char*)_url.c_str();
+	args[2] = 0;
+
+	// TODO:  Not sure of the fork here - from inet example
+	pid_t pid = fork();
+	if (!pid)
+		execvp(browser.c_str(), args);
+	return true;
+#endif // _WIN32
 }

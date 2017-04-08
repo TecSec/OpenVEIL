@@ -53,7 +53,7 @@ extern tsmod::IObject* CreateGetMyCtsTool();
 #endif
 
 extern "C"
-bool EXPORTME Initializects(std::shared_ptr<tsmod::IServiceLocator> servLoc, tsmod::IReportError* log)
+bool EXPORTME Initialize_cts(std::shared_ptr<tsmod::IServiceLocator> servLoc, tsmod::IReportError* log)
 {
 	UNREFERENCED_PARAMETER(servLoc);
 	UNREFERENCED_PARAMETER(log);
@@ -66,7 +66,7 @@ bool EXPORTME Initializects(std::shared_ptr<tsmod::IServiceLocator> servLoc, tsm
 	return true;
 }
 extern "C"
-bool EXPORTME Terminatects(std::shared_ptr<tsmod::IServiceLocator> servLoc)
+bool EXPORTME Terminate_cts(std::shared_ptr<tsmod::IServiceLocator> servLoc)
 {
 	UNREFERENCED_PARAMETER(servLoc);
 		if (::HasServiceLocator())
@@ -136,7 +136,7 @@ int main(int argc, const char *argv[])
 		break;
 	}
 
-	baseUri << "/ebadmin.tsmod/";
+	baseUri << "/bin/";
 
 
 	// Request the CTS token for the specified user

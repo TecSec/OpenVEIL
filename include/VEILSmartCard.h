@@ -34,8 +34,10 @@
 
 #pragma once
 
-#include "VEIL.h"
-
+#ifdef VEILSMARTCARD_STATIC
+#define VEILSMARTCARD_EXPORT
+#define VEILSMARTCARD_TEMPLATE_EXTERN 
+#else
 #ifdef _WIN32
 #ifdef _STATIC_RUNTIME_LOADER
 #define VEILSMARTCARD_EXPORT
@@ -60,6 +62,7 @@
 #define VEILSMARTCARD_TEMPLATE_EXTERN
 #endif
 #endif // _WIN32
+#endif // VEILSMARTCARD_STATIC
 
 //#include "CkmSmartCard/TokenPacket.h"
 //#include "CkmSmartCard/CTSProfile.h"

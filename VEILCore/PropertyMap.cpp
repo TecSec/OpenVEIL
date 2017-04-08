@@ -46,70 +46,70 @@ public:
 		return *this;
 	}
 
-	virtual void OnConstructionFinished()
+	virtual void OnConstructionFinished() override
 	{
 		_propChange = TopServiceLocator()->get_instance<INotifyPropertyChange>("/NotifyPropertyChange");
 	}
-	virtual size_t count () const
+	virtual size_t count () const override
 	{
 		return _map.count();
 	}
 
-	virtual tscrypto::tsCryptoString item(size_t index) const
+	virtual tscrypto::tsCryptoString item(size_t index) const override
 	{
 		return _map.item(index);
 	}
 
-	virtual tscrypto::tsCryptoString item(const tscrypto::tsCryptoString &name) const
+	virtual tscrypto::tsCryptoString item(const tscrypto::tsCryptoString &name) const override
 	{
 		return _map.item(name);
 	}
 
-	virtual int itemAsNumber(const tscrypto::tsCryptoString &name, int defaultValue) const
+	virtual int itemAsNumber(const tscrypto::tsCryptoString &name, int defaultValue) const override
 	{
 		return _map.itemAsNumber(name, defaultValue);
 	}
 
-	virtual bool itemAsBoolean(const tscrypto::tsCryptoString &name, bool defaultValue) const
+	virtual bool itemAsBoolean(const tscrypto::tsCryptoString &name, bool defaultValue) const override
 	{
 		return _map.itemAsBoolean(name, defaultValue);
 	}
 
-	virtual bool hasItem(const tscrypto::tsCryptoString &name) const
+	virtual bool hasItem(const tscrypto::tsCryptoString &name) const override
 	{
 		return _map.hasItem(name);
 	}
 
-	virtual tscrypto::tsCryptoString name(size_t index) const
+	virtual tscrypto::tsCryptoString name(size_t index) const override
 	{
 		return _map.name(index);
 	}
 
-	virtual bool AddItem(const tscrypto::tsCryptoString &name, const tscrypto::tsCryptoString &value)
+	virtual bool AddItem(const tscrypto::tsCryptoString &name, const tscrypto::tsCryptoString &value) override
 	{
 		bool retVal = _map.AddItem(name, value);
 
 		if (retVal)
-			RaisePropertyChange(name);
+			retVal = RaisePropertyChange(name);
 		return retVal;
 	}
 
-	virtual bool AddItem(const tscrypto::tsCryptoString &name, int value)
+	virtual bool AddItem(const tscrypto::tsCryptoString &name, int value) override
 	{
 		bool retVal = _map.AddItem(name, value);
 
 		if (retVal)
-			RaisePropertyChange(name);
+			retVal = RaisePropertyChange(name);
 		return retVal;
 	}
 
-	virtual void ClearAll ()
+	virtual void ClearAll () override
 	{
 		_map.ClearAll();
 		RaisePropertyChange("PropertyMap");
 	}
 
-	virtual void RemoveItem(size_t index)
+	virtual void RemoveItem(size_t index) override
 	{
 		tscrypto::tsCryptoString itemName = _map.name(index);
 
@@ -118,7 +118,7 @@ public:
 			RaisePropertyChange(itemName);
 	}
 
-	virtual void RemoveItem(const tscrypto::tsCryptoString &name)
+	virtual void RemoveItem(const tscrypto::tsCryptoString &name) override
 	{
 		bool hadItem = hasItem(name);
 		_map.RemoveItem(name);
@@ -126,36 +126,36 @@ public:
 			RaisePropertyChange(name);
 	}
 
-	virtual int AddNotification(std::function<void(const tscrypto::tsCryptoString&)> func)
+	virtual int AddNotification(std::function<bool(const tscrypto::tsCryptoString&)> func) override
 	{
 		return _propChange->AddNotification(func);
 	}
-	virtual void RemoveNotification(int cookie)
+	virtual void RemoveNotification(int cookie) override
 	{
 		_propChange->RemoveNotification(cookie);
 	}
-	virtual void RaisePropertyChange(const tscrypto::tsCryptoString& list)
+	virtual bool RaisePropertyChange(const tscrypto::tsCryptoString& list) override
 	{
-		_propChange->RaisePropertyChange(list);
+		return _propChange->RaisePropertyChange(list);
 	}
-	virtual tscrypto::tsCryptoString tag(size_t index) const
+	virtual tscrypto::tsCryptoString tag(size_t index) const override
 	{
 		return _map.tag(index);
 	}
-	virtual void tag(size_t index, const tscrypto::tsCryptoString& setTo)
+	virtual void tag(size_t index, const tscrypto::tsCryptoString& setTo) override
 	{
 		_map.tag(index, setTo);
 	}
-	virtual tscrypto::tsCryptoString tag(const tscrypto::tsCryptoString &name) const
+	virtual tscrypto::tsCryptoString tag(const tscrypto::tsCryptoString &name) const override
 	{
 		return _map.tag(name);
 	}
-	virtual void tag(const tscrypto::tsCryptoString &name, const tscrypto::tsCryptoString& setTo)
+	virtual void tag(const tscrypto::tsCryptoString &name, const tscrypto::tsCryptoString& setTo) override
 	{
 		_map.tag(name, setTo);
 	}
 	// Added 7.0.35
-	bool parseUrlQueryString(const tscrypto::tsCryptoString& queryString)
+	bool parseUrlQueryString(const tscrypto::tsCryptoString& queryString) override
 	{
 		tscrypto::tsCryptoString str;
 		UrlParser parser;
@@ -183,7 +183,7 @@ public:
 		}
 		return true;
 	}
-	tscrypto::tsCryptoString createUrlQueryString() const
+	tscrypto::tsCryptoString createUrlQueryString() const override
 	{
 		UrlParser parser;
 		NameValueList list = CreateNameValueList();

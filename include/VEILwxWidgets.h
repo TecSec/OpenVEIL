@@ -34,11 +34,13 @@
 
 #pragma once
 
-#include "VEILCmsHeader.h"
-
 #undef DECLARE_CLASS
 
-#ifdef _WIN32
+#ifdef VEILWXWIDGETS_STATIC
+#   define VEILWXWIDGETS_EXPORT
+#   define VEILWXWIDGETS_TEMPLATE_EXTERN 
+#else
+	#ifdef _WIN32
 	#ifdef _STATIC_RUNTIME_LOADER
 		#define VEILWXWIDGETS_EXPORT
 		#define VEILWXWIDGETS_TEMPLATE_EXTERN extern
@@ -53,7 +55,7 @@
 			#define VEILWXWIDGETS_EXPORT __declspec(dllexport)
 		#endif // !defined(VEILWXWIDGETSDEF) && !defined(DOXYGEN)
 	#endif // _STATIC_RUNTIME_LOADER
-#else // _WIN32
+	#else // _WIN32
 	#if !defined(VEILWXWIDGETSDEF) && !defined(DOXYGEN)
 		#define VEILWXWIDGETS_EXPORT
 		#define VEILWXWIDGETS_TEMPLATE_EXTERN extern
@@ -61,9 +63,8 @@
 		#define VEILWXWIDGETS_EXPORT EXPORT_SYMBOL
 		#define VEILWXWIDGETS_TEMPLATE_EXTERN
 	#endif // !defined(VEILWXWIDGETSDEF) && !defined(DOXYGEN)
-#endif // _WIN32
-
-#define WXUSINGDLL 1
+	#endif // _WIN32
+#endif // VEILWXWIDGETS_STATIC
 
 #include "wx/wxprec.h"
 
@@ -254,8 +255,6 @@ struct __XP_WINDOW{};
 typedef ID<__XP_WINDOW, wxWindow*, nullptr> XP_WINDOW;
 #define XP_WINDOW_INVALID XP_WINDOW::invalid()  /*!< \brief A flag that indicates that the window handle is invalid */
 
-//#include "htmlhelp.h"
-
 class VEILWXWIDGETS_EXPORT IVEILWxUIBase
 {
 public:
@@ -278,7 +277,23 @@ public:
 	virtual int  DisplayModal(XP_WINDOW wnd) = 0;
 };
 
-// "/WinAPI/AudienceSelector"
+// "/WxWin/AboutCKM"
+class VEILWXWIDGETS_EXPORT IAboutCkm : public IVEILWxUIBase
+{
+public:
+	virtual bool Start(XP_WINDOW parent, const tscrypto::tsCryptoString& appName) = 0;
+};
+
+class VEILWXWIDGETS_EXPORT ISkippablePage
+{
+public:
+	virtual ~ISkippablePage()
+	{
+	}
+	virtual bool skipMe() = 0;
+};
+
+// "/WxWin/AudienceSelector"
 class VEILWXWIDGETS_EXPORT IAudienceSelector : public IVEILWxUIBase
 {
 public:
@@ -293,18 +308,19 @@ public:
 
 	virtual bool Start(std::shared_ptr<IKeyVEILConnector> connector, XP_WINDOW parent, const tscrypto::tsCryptoString& appName) = 0;
 
+	virtual void HideKeyVEILLogin(bool setTo) = 0;
 };
 
 #define TS_UI_CRYPTO_GROUP_ID_NOT_SPECIFIED GUID_NULL
 
-// "/WinAPI/AttributeSelectorGrid"
+// "/WxWin/AttributeSelectorGrid"
 class VEILWXWIDGETS_EXPORT IAttributeSelector : public IVEILWxUIBase
 {
 public:
 	virtual bool Start(std::shared_ptr<IKeyVEILSession> session, XP_WINDOW parent, const GUID& CryptoGroupId, std::shared_ptr<ICmsHeaderAttributeGroup> group, std::shared_ptr<ICmsHeaderAttributeListExtension> attrList) = 0;
 };
 
-// "/WinAPI/TokenLogIn"
+// "/WxWin/TokenLogIn"
 class VEILWXWIDGETS_EXPORT ITokenLogin : public IVEILWxUIBase
 {
 public:
@@ -313,7 +329,7 @@ public:
 	virtual void Pin(const tscrypto::tsCryptoString& setTo) = 0;
 };
 
-// "/WinAPI/KeyVEILLogIn"
+// "/WxWin/KeyVEILLogIn"
 class VEILWXWIDGETS_EXPORT IKeyVEILLogin : public IVEILWxUIBase
 {
 public:
@@ -327,7 +343,7 @@ public:
 	virtual void UserName(const tscrypto::tsCryptoString& setTo) = 0;
 };
 
-// "/WinAPI/TokenSelector"
+// "/WxWin/TokenSelector"
 class VEILWXWIDGETS_EXPORT ITokenSelector : public IVEILWxUIBase
 {
 public:
@@ -335,7 +351,7 @@ public:
 	virtual std::shared_ptr<IKeyVEILSession> Session() = 0;
 };
 
-// "/WinAPI/FavoriteName"
+// "/WxWin/FavoriteName"
 class VEILWXWIDGETS_EXPORT IFavoriteName : public IVEILWxUIBase
 {
 public:
@@ -344,7 +360,7 @@ public:
 	virtual void Name(const tscrypto::tsCryptoString& setTo) = 0;
 };
 
-// "/WinAPI/ProgressDlg"
+// "/WxWin/ProgressDlg"
 class VEILWXWIDGETS_EXPORT IProgressDlg : public IVEILWxUIBase
 {
 public:
@@ -448,8 +464,6 @@ public:
 	virtual void EnableCancelButton(bool bShowCancel) = 0;
 };
 
-//extern XP_WINDOW VEILWXWIDGETS_EXPORT TS_HtmlHelp(XP_WINDOW hwndCaller, const tscrypto::tsCryptoString& pszFile, UINT uCommand, DWORD_PTR dwData);
-
 class IVEILPropertySheet;
 
 class VEILWXWIDGETS_EXPORT IVEILPropertyPage
@@ -482,7 +496,7 @@ public:
 	virtual bool SetActive() = 0;
 };
 
-// "/WinAPI/PropertySheet"
+// "/WxWin/PropertySheet"
 class VEILWXWIDGETS_EXPORT IVEILPropertySheet
 {
 public:
@@ -494,6 +508,294 @@ public:
 	virtual void AddCustomPage(const tscrypto::tsCryptoString& link) = 0;
 	virtual std::shared_ptr<BasicVEILPreferences> BasicPreferences() = 0;
 	virtual void PageModified(bool setTo) = 0;
+};
+
+// "/WxWin/EnterPin"
+class VEILWXWIDGETS_EXPORT IEnterPin : public IVEILWxUIBase
+{
+public:
+	typedef enum {enterPin, createPin, changePin} EnterPinMode;
+	
+	virtual void SetExplanation(const tscrypto::tsCryptoString& setTo) = 0;
+	virtual void SetStatus(const tscrypto::tsCryptoString& setTo) = 0;
+	virtual void SetPinTesterFunction(std::function<bool(std::shared_ptr<IEnterPin>, const tscrypto::tsCryptoString&)> func) = 0;
+	virtual void SetPinStrengthFunction(std::function<int(std::shared_ptr<IEnterPin>, const tscrypto::tsCryptoString&)> func) = 0;
+	virtual void SetMinimumLength(uint32_t setTo) = 0;
+	virtual void SetMaximumLength(uint32_t setTo) = 0;
+	virtual uint32_t GetWeakStrength() const = 0;
+	virtual void SetWeakStrength(uint32_t setTo) = 0;
+	virtual uint32_t GetStrongStrength() const = 0;
+	virtual void SetStrongStrength(uint32_t setTo) = 0;
+	virtual uint32_t GetMaxStrength() const = 0;
+	virtual void SetMaxStrength(uint32_t setTo) = 0;
+
+	virtual bool Start(const tscrypto::tsCryptoString& title, EnterPinMode mode, XP_WINDOW parent) = 0;
+	virtual tscrypto::tsCryptoString Pin() = 0;
+	virtual void Pin(const tscrypto::tsCryptoString& setTo) = 0;
+	virtual tscrypto::tsCryptoString OldPin() = 0;
+	virtual void OldPin(const tscrypto::tsCryptoString& setTo) = 0;
+	virtual void SetHelpId(uint32_t setTo) = 0;
+};
+
+// "/WxWin/ChangeName"
+class VEILWXWIDGETS_EXPORT IChangeName : public IVEILWxUIBase
+{
+public:
+	virtual tscrypto::tsCryptoString Description() = 0;
+	virtual void Description(const tscrypto::tsCryptoString& setTo) = 0;
+	virtual tscrypto::tsCryptoString OldName() = 0;
+	virtual void OldName(const tscrypto::tsCryptoString& setTo) = 0;
+	virtual bool Start(XP_WINDOW parent, uint32_t helpId) = 0;
+	virtual tscrypto::tsCryptoString NewName() = 0;
+	virtual void NewName(const tscrypto::tsCryptoString& setTo) = 0;
+};
+
+int VEILWXWIDGETS_EXPORT wxTsMessageBox(const tscrypto::tsCryptoString& message, const tscrypto::tsCryptoString& caption, long style = wxOK, XP_WINDOW parent = XP_WINDOW_INVALID);
+
+
+#define WEAK_PASSWORD_ENTROPY 32
+#define STRONG_PASSWORD_ENTROPY 60
+
+class VEILWXWIDGETS_EXPORT PasswordGauge : public wxWindow {
+public:
+	PasswordGauge() :
+		m_position(0), m_max(100), m_label(false), m_weak(32), m_strong(60) {
+		InitialInit();
+	}
+
+	PasswordGauge(wxWindow *parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = 0, const wxString& name = wxPanelNameStr) :
+		wxWindow(parent, id, pos, size, style, name), m_position(0), m_max(100), m_label(false), m_weak(32), m_strong(60)
+	{
+		InitialInit();
+	}
+
+	~PasswordGauge()
+	{
+		Unbind(wxEVT_SIZE, &PasswordGauge::OnPanelResize, this);
+		Unbind(wxEVT_PAINT, &PasswordGauge::paintEvent, this);
+	}
+
+	void paintEvent(wxPaintEvent & evt)
+	{
+		wxPaintDC dc(this);
+		render(dc);
+	}
+	void render(wxPaintDC& dc)
+	{
+		int value = GetValue();
+
+		dc.Clear();
+
+		// Set default font
+		dc.SetFont(m_font);
+		dc.SetTextForeground(m_font_col);
+
+
+		// Draw gauge background
+		dc.SetBrush(m_backFill);
+		dc.SetPen(m_pen);
+
+		wxRect FillRect(0, 0, dc.GetSize().GetWidth(), dc.GetSize().GetHeight());
+		dc.DrawRectangle(FillRect);
+
+		if (value > GetMax())
+			value = GetMax();
+		if (value < 0)
+			value = 0;
+		// Draw gauge bar
+		if (value >= GetStrong())
+			dc.SetBrush(m_foreFill3);
+		else if (value >= GetWeak())
+			dc.SetBrush(m_foreFill2);
+		else
+			dc.SetBrush(m_foreFill1);
+
+		wxCoord w = dc.GetSize().GetWidth() * value / GetMax();
+		wxCoord h = dc.GetSize().GetHeight();
+
+		wxRect rectToDraw(0, 0, w, h);
+		dc.DrawRectangle(rectToDraw);
+
+		if (value > 0)
+		{
+			if (m_label) {
+
+				const wxFont currentFont = dc.GetFont();
+				int fw = currentFont.GetPointSize();
+				tscrypto::tsCryptoString tmp;
+
+				tmp.Format("Strength: %d", GetValue());
+
+				dc.DrawText(tmp.c_str(), (dc.GetSize().GetWidth() - dc.GetTextExtent(tmp.c_str()).GetWidth()) / 2, dc.GetSize().GetHeight() / 2 - fw / 1.25);
+			}
+			else {
+				const wxFont currentFont = dc.GetFont();
+				int fw = currentFont.GetPointSize();
+				tscrypto::tsCryptoString tmp;
+
+				if (value >= GetStrong())
+					tmp = "strong";
+				else if (value >= GetWeak())
+					tmp = "weak";
+				else
+					tmp = "very weak";
+
+				dc.DrawText(tmp.c_str(), (dc.GetSize().GetWidth() - dc.GetTextExtent(tmp.c_str()).GetWidth()) / 2, dc.GetSize().GetHeight() / 2 - fw / 1.25);
+			}
+		}
+	}
+
+	// Setters & Getters
+
+	int GetValue() const { return m_position; }
+	int GetWeak() const { return m_weak; }
+	int GetStrong() const { return m_strong; }
+	int GetMax() const { return m_max; }
+
+	void SetValue(int pos)
+	{
+		if (GetValue() != pos)
+		{
+			m_position = pos;
+			Refresh();
+			Update();
+		}
+	}
+	void SetMax(int setTo)
+	{
+		if (GetMax() != setTo)
+		{
+			m_max = setTo;
+			Refresh();
+			Update();
+		}
+	}
+	void SetWeak(int setTo)
+	{
+		if (GetWeak() != setTo)
+		{
+			m_weak = setTo;
+			Refresh();
+			Update();
+		}
+	}
+	void SetStrong(int setTo)
+	{
+		if (GetStrong() != setTo)
+		{
+			m_strong = setTo;
+			Refresh();
+			Update();
+		}
+	}
+
+	// Settings
+
+	void ShowEntropy(bool flag) { m_label = flag; }
+	void SetBackgroundBrush(const wxColour& col) { m_backFill.SetColour(col); }
+	void SetPoorForegroundBrush(const wxColour& col) { m_foreFill1.SetColour(col); }
+	void SetWeakForegroundBrush(const wxColour& col) { m_foreFill2.SetColour(col); }
+	void SetStrongForegroundBrush(const wxColour& col) { m_foreFill3.SetColour(col); }
+	void SetPen(const wxPen& pen) { m_pen = pen; }
+	bool SetFont(const wxFont &font) { m_font = font; return true; }
+	void SetTextForeground(const wxColour &colour) { m_font_col = colour; }
+
+
+private:
+	int         m_position; // Current position
+	int         m_max;      // Overall range
+	int         m_weak;     // Point where it changes to weak
+	int         m_strong;   // Point where it changes to strong 
+
+	bool        m_label;    // If true, then add entropy value label
+
+	wxBrush     m_backFill; // Gauge background brush
+	wxBrush     m_foreFill1; // Gauge bar brush
+	wxBrush     m_foreFill2; // Gauge bar brush
+	wxBrush     m_foreFill3; // Gauge bar brush
+	wxPen       m_pen;      // For gauge border drawing
+
+	wxFont      m_font;     // Text font
+	wxColour    m_font_col; // Text colour
+
+							// Brushes and pen init
+	void InitialInit()
+	{
+		// White background by default
+		m_backFill.SetColour("WHITE");
+
+		// Light grey gauge bar by default
+		m_foreFill1.SetColour("RED");
+		m_foreFill2.SetColour("YELLOW");
+		m_foreFill3.SetColour("GREEN");
+
+		// Solid brushes by default
+		m_backFill.SetStyle(wxBRUSHSTYLE_SOLID);
+		m_foreFill1.SetStyle(wxBRUSHSTYLE_SOLID);
+		m_foreFill2.SetStyle(wxBRUSHSTYLE_SOLID);
+		m_foreFill3.SetStyle(wxBRUSHSTYLE_SOLID);
+
+		// Default gauge border: black 1px solid
+		m_pen.SetColour("BLACK");
+		m_pen.SetWidth(1);
+		m_pen.SetStyle(wxPENSTYLE_SOLID);
+
+		// Set default font
+		m_font = *wxNORMAL_FONT;
+		m_font_col = *wxBLACK;
+
+		// Binds redraw on resize event
+		Bind(wxEVT_SIZE, &PasswordGauge::OnPanelResize, this);
+		Bind(wxEVT_PAINT, &PasswordGauge::paintEvent, this);
+	}
+	// Resize event handler
+	void OnPanelResize(wxSizeEvent& event)
+	{
+		Update();
+		event.Skip();
+	}
+};
+
+const size_t helpid_TOC = 0;
+
+const size_t winid_AudienceSelector = 1;
+const size_t winid_GeneralSettings = 2;
+const size_t winid_FileSettings = 3;
+const size_t winid_TokenSelector = 4;
+const size_t winid_KeyVEILLogin = 5;
+const size_t winid_FavoriteManager = 6;
+const size_t winid_FavoriteName = 7;
+const size_t winid_AttributeSelector = 8;
+const size_t winid_FavoriteSelectionPage = 9;
+const size_t winid_GroupEditorPage = 10;
+const size_t winid_KeyVEILLoginPage = 11;
+const size_t winid_SaveFavoritePage = 12;
+const size_t winid_TokenSelectionPage = 13;
+const size_t winid_ChangeFavoriteName = 14;
+const size_t winid_StandardTokenLogin = 15;
+
+const size_t winid_FavAdd_FavoriteSelectionPage = 16;
+const size_t winid_FavAdd_GroupEditorPage = 17;
+const size_t winid_FavAdd_KeyVEILLoginPage = 18;
+const size_t winid_FavAdd_SaveFavoritePage = 19;
+const size_t winid_FavAdd_TokenSelectionPage = 20;
+
+const size_t winid_FavEdit_FavoriteSelectionPage = 21;
+const size_t winid_FavEdit_GroupEditorPage = 22;
+const size_t winid_FavEdit_KeyVEILLoginPage = 23;
+const size_t winid_FavEdit_SaveFavoritePage = 24;
+const size_t winid_FavEdit_TokenSelectionPage = 25;
+
+class VEILWXWIDGETS_EXPORT IVEILHttpHelpRegistry
+{
+public:
+	virtual ~IVEILHttpHelpRegistry() {}
+	virtual void DisplayHelpForWindowId(size_t windowId, XP_WINDOW wnd) = 0;
+	virtual void RegisterHelpFunction(size_t windowId, std::function<void()> func) = 0;
+	virtual void RegisterHttpHelp(size_t windowId, const tscrypto::tsCryptoString& urlPart) = 0;
+	virtual void SetHelpPort(uint16_t setTo) = 0;
+	virtual void SetHelpScheme(const tscrypto::tsCryptoString& scheme) = 0;
+	virtual void SetHelpPrefix(const tscrypto::tsCryptoString& setTo) = 0;
 };
 
 

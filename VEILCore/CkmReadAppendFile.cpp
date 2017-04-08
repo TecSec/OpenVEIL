@@ -40,7 +40,9 @@ class HIDDEN CkmReadAppendFile :
 	public IFifoStream,
 	public IDataReader,
 	public IDataWriter, 
-	public IDataIOBase
+	public IDataIOBase,
+	public tscrypto::IStringWriter,
+	public tscrypto::IBinaryWriter
 {
 public:
 	CkmReadAppendFile(const tscrypto::tsCryptoString& filename);
@@ -103,6 +105,18 @@ private:
 	CryptoEvent m_writerDoneEvent;
 	bool m_callbackReturn;
 	int64_t m_bytesRead;
+
+	// Inherited via IStringWriter
+	virtual bool WriteString(const tscrypto::tsCryptoStringBase & dataToAppend) override
+	{
+		return WriteData(tscrypto::tsCryptoData((uint8_t*)dataToAppend.c_str(), dataToAppend.size()));
+	}
+
+	// Inherited via IBinaryWriter
+	virtual bool WriteBinary(const tscrypto::tsCryptoData & dataToAppend) override
+	{
+		return WriteData(dataToAppend);
+	}
 };
 
 std::shared_ptr<IDataIOBase> CreateReadAppendFile(const tscrypto::tsCryptoString& filename)

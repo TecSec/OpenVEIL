@@ -31,8 +31,6 @@
 
 #include "stdafx.h"
 
-static bool gDebugCryptoHelper = true;
-
 std::shared_ptr<IKeyGenCallback> CreateEncryptProcessor(DWORD taskCount, DWORD currentTask, std::shared_ptr<IFileVEILOperationStatus> status, std::shared_ptr<IDataReader> reader, std::shared_ptr<IDataWriter> writer, bool prependHeader);
 
 class HIDDEN CCKMCryptoHelperImpl :
@@ -44,39 +42,40 @@ public:
 	CCKMCryptoHelperImpl(std::shared_ptr<IKeyVEILSession> session);
 	virtual ~CCKMCryptoHelperImpl();
 
-	virtual bool HashData(const tscrypto::tsCryptoData &data, TS_ALG_ID algorithm, tscrypto::tsCryptoData &hash);
-	virtual bool HmacData(const tscrypto::tsCryptoData &data, const tscrypto::tsCryptoData &key, TS_ALG_ID algorithm, tscrypto::tsCryptoData &hash);
+	virtual bool HashData(const tscrypto::tsCryptoData &data, TS_ALG_ID algorithm, tscrypto::tsCryptoData &hash) override;
+	virtual bool HmacData(const tscrypto::tsCryptoData &data, const tscrypto::tsCryptoData &key, TS_ALG_ID algorithm, tscrypto::tsCryptoData &hash) override;
 
 	virtual bool EncryptStream(CompressionType comp, TS_ALG_ID algorithm, TS_ALG_ID hashAlgorithm, std::shared_ptr<ICmsHeaderBase> header, bool prependHeader, const tscrypto::tsCryptoData &forcedIvec,
 		std::shared_ptr<IDataReader> reader, std::shared_ptr<IDataWriter> writer, bool SignHeader, bool bindData, CMSFileFormatIds DataFormat, bool randomIvec,
-		SymmetricPaddingType paddingType, int blockSize);
+		SymmetricPaddingType paddingType, int blockSize) override;
 	virtual bool EncryptStreamWithKey(CompressionType comp, TS_ALG_ID algorithm, const tscrypto::tsCryptoData &hashOid, const tscrypto::tsCryptoData &key, const tscrypto::tsCryptoData &forcedIvec,
 		std::shared_ptr<IDataReader> reader, std::shared_ptr<IDataWriter> writer, CMSFileFormatIds DataFormat, SymmetricPaddingType paddingType, const tscrypto::tsCryptoData &authData,
-		tscrypto::tsCryptoData &finalHash, int blockSize);
-	virtual bool DecryptStream(std::shared_ptr<ICmsHeaderBase> header, std::shared_ptr<IDataReader> reader, std::shared_ptr<IDataWriter> writer, bool headerIncludedInStream);
+		tscrypto::tsCryptoData &finalHash, int blockSize) override;
+	virtual bool DecryptStream(std::shared_ptr<ICmsHeaderBase> header, std::shared_ptr<IDataReader> reader, std::shared_ptr<IDataWriter> writer, bool headerIncludedInStream) override;
 	virtual bool DecryptStreamWithKey(std::shared_ptr<IDataReader> reader, std::shared_ptr<IDataWriter> writer, CompressionType comp,
 		TS_ALG_ID algorithm, const tscrypto::tsCryptoData &hashOid, const tscrypto::tsCryptoData &key, const tscrypto::tsCryptoData &forcedIvec, CMSFileFormatIds DataFormat,
-		SymmetricPaddingType paddingType, const tscrypto::tsCryptoData &authData, const tscrypto::tsCryptoData &finalHash, int blockSize);
-	virtual bool    StreamStartsWithCkmHeader(std::shared_ptr<IDataReader> stream, std::shared_ptr<ICmsHeaderBase>& pVal);
-	virtual bool ValidateFileContents_PublicOnly(std::shared_ptr<IDataReader> reader);
-	virtual bool SetOperationStatusCallback(std::shared_ptr<IFileVEILOperationStatus> setTo);
-	virtual bool SetTaskInformation(int taskNumber, int taskCount);
-	virtual bool SetDecryptCallback(std::shared_ptr<ICryptoHelperDecryptCallback> setTo);
-	virtual tscrypto::tsCryptoData ComputeHeaderIdentity(std::shared_ptr<ICmsHeader> header) {
+		SymmetricPaddingType paddingType, const tscrypto::tsCryptoData &authData, const tscrypto::tsCryptoData &finalHash, int blockSize) override;
+	virtual bool    StreamStartsWithCkmHeader(std::shared_ptr<IDataReader> stream, std::shared_ptr<ICmsHeaderBase>& pVal) override;
+	virtual bool ValidateFileContents_PublicOnly(std::shared_ptr<IDataReader> reader) override;
+	virtual bool SetOperationStatusCallback(std::shared_ptr<IFileVEILOperationStatus> setTo) override;
+	virtual bool SetTaskInformation(int taskNumber, int taskCount) override;
+	virtual bool SetDecryptCallback(std::shared_ptr<ICryptoHelperDecryptCallback> setTo) override;
+	virtual tscrypto::tsCryptoData ComputeHeaderIdentity(std::shared_ptr<ICmsHeader> header) override {
 		return computeHeaderIdentity(header);
 	}
-	virtual bool padHeaderToSize(std::shared_ptr<ICmsHeaderBase> header, DWORD size);
+	virtual bool padHeaderToSize(std::shared_ptr<ICmsHeaderBase> header, DWORD size) override;
 	virtual bool PrepareHeader(std::shared_ptr<ICmsHeader> header7, CompressionType comp, TS_ALG_ID algorithm, TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData,
-		CMSFileFormatIds DataFormat, bool randomIvec, SymmetricPaddingType paddingType, int blockSize, int64_t fileSize);
-	virtual DWORD   ReservedHeaderLength() const;
-	virtual bool SetKeyGenCallback(std::shared_ptr<IKeyGenCallback> callback);
-	virtual bool SetSessionCallback(std::shared_ptr<IFileVEILSessionCallback> callback);
+		CMSFileFormatIds DataFormat, bool randomIvec, SymmetricPaddingType paddingType, int blockSize, int64_t fileSize) override;
+	virtual DWORD   ReservedHeaderLength() const override;
+	virtual bool SetKeyGenCallback(std::shared_ptr<IKeyGenCallback> callback) override;
+	virtual bool SetSessionCallback(std::shared_ptr<IFileVEILSessionCallback> callback) override;
 
 	// IFifoStreamReaderCallback
-	virtual bool DataAvailable(std::shared_ptr<IFifoStream> fifo);
+	virtual bool DataAvailable(std::shared_ptr<IFifoStream> fifo) override;
 
-	virtual bool GenerateWorkingKey(std::shared_ptr<ICmsHeader>& header, std::shared_ptr<IKeyGenCallback> callback, tscrypto::tsCryptoData& workingKey);
-	virtual bool RegenerateWorkingKey(std::shared_ptr<ICmsHeader>& header, tscrypto::tsCryptoData& workingKey);
+	virtual bool GenerateWorkingKey(std::shared_ptr<ICmsHeader>& header, std::shared_ptr<IKeyGenCallback> callback, tscrypto::tsCryptoData& workingKey) override;
+	virtual bool RegenerateWorkingKey(std::shared_ptr<ICmsHeader>& header, tscrypto::tsCryptoData& workingKey) override;
+	virtual tscrypto::tsCryptoString failureReason() override { return m_failureReason; }
 
 protected:
 	bool computeAlgParams(TS_ALG_ID algorithm, tscrypto::tsCryptoData &workingKey, KeyType &keyType, tscrypto::tsCryptoData &ivec,
@@ -87,6 +86,23 @@ protected:
 		std::shared_ptr<IDataReader>& reader, std::shared_ptr<IDataWriter>& writer);
 	bool padHeaderToSize(std::shared_ptr<ICmsHeader>& header, DWORD size);
 
+	void LogError(tscrypto::tsCryptoString error, ...)
+	{
+		va_list args;
+		tscrypto::tsCryptoString msg;
+
+		if (error == NULL)
+			return;
+		va_start(args, error);
+		msg.FormatArg(error, args);
+		va_end(args);
+		LOG(DebugError, msg);
+		if (!!m_status)
+		{
+			m_status->FailureReason(msg.c_str());
+		}
+		m_failureReason << msg;
+	}
 
 private:
 	typedef enum CH_STATE {
@@ -174,6 +190,7 @@ private:
 	bool								m_hasFileSize;
 	int									m_oldPercent;
 	int									m_chunksize;
+	tscrypto::tsCryptoString			m_failureReason;
 };
 
 std::shared_ptr<ICryptoHelper> CreateCryptoHelper(std::shared_ptr<IKeyVEILSession> session)
@@ -243,8 +260,12 @@ bool CCKMCryptoHelperImpl::HashData(const tscrypto::tsCryptoData &data, TS_ALG_I
 {
 	std::shared_ptr<Hash> hasher = std::dynamic_pointer_cast<Hash>(CryptoFactory(algorithm));
 
+	m_failureReason.clear();
 	if (!hasher || !hasher->initialize() || !hasher->update(data) || !hasher->finish(hash))
+	{
+		m_failureReason = "Hash algorithm not available";
 		return false;
+	}
 
 	return true;
 }
@@ -253,8 +274,12 @@ bool CCKMCryptoHelperImpl::HmacData(const tscrypto::tsCryptoData &data, const ts
 {
 	std::shared_ptr<MessageAuthenticationCode> hasher = std::dynamic_pointer_cast<MessageAuthenticationCode>(CryptoFactory(algorithm));
 
+	m_failureReason.clear();
 	if (!hasher || !hasher->initialize(key) || !hasher->update(data) || !hasher->finish(hash))
+	{
+		m_failureReason = "HMAC algorithm not available";
 		return false;
+	}
 
 	return true;
 }
@@ -298,18 +323,19 @@ bool CCKMCryptoHelperImpl::EncryptStream(CompressionType comp, TS_ALG_ID algorit
 	std::shared_ptr<ICkmOperations> ops;
 	int64_t fileSize = 0;
 
+	m_failureReason.clear();
 	m_reservedHeaderLength = 0;
 	m_fifoState = chs_nonFifo;
 	m_headerLenNeeded = 0;
 	if (!Header)
 	{
-		LOG(DebugError, "The CKM Header is missing.");
+		LogError("The CKM Header is missing.");
 		return TSRETURN_ERROR(("Bad Header"), false);
 	}
 
 	if (!(header7 = std::dynamic_pointer_cast<ICmsHeader>(Header)) || !(ops = std::dynamic_pointer_cast<ICkmOperations>(header7)))
 	{
-		LOG(DebugError, "The specified CKM Header is incomplete or invalid.");
+		LogError("The specified CKM Header is incomplete or invalid.");
 		return TSRETURN_ERROR(("Bad Header"), false);
 	}
 
@@ -322,7 +348,10 @@ bool CCKMCryptoHelperImpl::EncryptStream(CompressionType comp, TS_ALG_ID algorit
 		fileSize = -1;
 
 	if (!ops->PrepareHeader(comp, algorithm, hashAlgorithm, SignHeader, bindData, DataFormat, forcedIvec.size() == 0 && randomIvec, paddingType, blockSize, fileSize))
+	{
+		LogError(ops->failureReason());
 		return TSRETURN_ERROR(("Returns ~~"), false);
+	}
 
 	//LOG(CkmDevOnly , "Header after prepare" << endl << indent << TSHeaderToString(header7) << endl << outdent);
 
@@ -338,7 +367,7 @@ bool CCKMCryptoHelperImpl::EncryptStream(CompressionType comp, TS_ALG_ID algorit
 
 	if (!(callback = CreateEncryptProcessor(m_taskCount, m_taskNumber, m_status, reader, writer, prependHeader)))
 	{
-		LOG(DebugError, "Unable to create the encryption processor.");
+		LogError("Unable to create the encryption processor.");
 		return TSRETURN_ERROR(("Unable to create the encryption processor"), false);
 	}
 
@@ -353,7 +382,7 @@ bool CCKMCryptoHelperImpl::EncryptStream(CompressionType comp, TS_ALG_ID algorit
 			{
 				if (!(m_sessionCallback->GetSessionForHeader(true, Header, 0, m_session)))
 				{
-					LOG(DebugError, "No session");
+					LogError("No session");
 					return TSRETURN_ERROR(("Returns ~~"), false);
 				}
 			}
@@ -361,7 +390,7 @@ bool CCKMCryptoHelperImpl::EncryptStream(CompressionType comp, TS_ALG_ID algorit
 	}
 	if (!m_session)
 	{
-		LOG(DebugError, "Unable to generate the working key and encrypted data - No session.");
+		LogError("Unable to generate the working key and encrypted data - No session.");
 		return TSRETURN_ERROR(("Unable to generate the working key and encrypted data."), false);
 	}
 	else
@@ -370,7 +399,7 @@ bool CCKMCryptoHelperImpl::EncryptStream(CompressionType comp, TS_ALG_ID algorit
 
 		if (!ops->GenerateWorkingKey(m_session, callback, wk))
 		{
-			LOG(DebugError, "Unable to generate the working key and encrypted data - GenerateWorkingKey.");
+			LogError(ops->failureReason());
 			return TSRETURN_ERROR(("Unable to generate the working key and encrypted data."), false);
 		}
 	}
@@ -383,7 +412,7 @@ bool CCKMCryptoHelperImpl::EncryptStream(CompressionType comp, TS_ALG_ID algorit
 		{
 			if (!writer->Prepend(header7->ToBytes()))
 			{
-				LOG(DebugError, "Unable to save the header to the output file.");
+				LogError("Unable to save the header to the output file.");
 				return TSRETURN_ERROR(("Unable to save the header to the output file"), false);
 			}
 		}
@@ -394,13 +423,13 @@ bool CCKMCryptoHelperImpl::EncryptStream(CompressionType comp, TS_ALG_ID algorit
 			//
 			if (!(padHeaderToSize(header7, std::dynamic_pointer_cast<IReservedLength>(callback)->ReservedHeaderLength())))
 			{
-				LOG(DebugError, "Unable to create a CKM header of the reserved size.");
+				LogError("Unable to create a CKM header of the reserved size.");
 				return TSRETURN_ERROR(("FAILED"), false);
 			}
 
 			if (!writer->WriteData(header7->ToBytes()))
 			{
-				LOG(DebugError, "Unable to save the header to the output file.");
+				LogError("Unable to save the header to the output file.");
 				return TSRETURN_ERROR(("Unable to save the header to the output file"), false);
 			}
 		}
@@ -416,6 +445,7 @@ bool CCKMCryptoHelperImpl::EncryptStreamWithKey(CompressionType comp, TS_ALG_ID 
 	std::shared_ptr<IKeyGenCallback> callback;
 //	int64_t fileSize = 0;
 
+	m_failureReason.clear();
 	m_reservedHeaderLength = 0;
 	m_fifoState = chs_nonFifo;
 	m_headerLenNeeded = 0;
@@ -430,7 +460,7 @@ bool CCKMCryptoHelperImpl::EncryptStreamWithKey(CompressionType comp, TS_ALG_ID 
 
 	if (!(callback = CreateEncryptProcessor(m_taskCount, m_taskNumber, m_status, reader, writer, false)))
 	{
-		LOG(DebugError, "Unable to create the encryption processor.");
+		LogError("Unable to create the encryption processor.");
 		return TSRETURN_ERROR(("Unable to create the encryption processor"), false);
 	}
 
@@ -461,6 +491,7 @@ bool CCKMCryptoHelperImpl::DecryptStream(std::shared_ptr<ICmsHeaderBase> header,
 	bool retVal;
 	std::shared_ptr<ICkmOperations> ops;
 
+	m_failureReason.clear();
 	m_fifoState = chs_nonFifo;
 	m_headerLenNeeded = 0;
 	if (!reader || !writer)
@@ -521,7 +552,7 @@ bool CCKMCryptoHelperImpl::DecryptStream(std::shared_ptr<ICmsHeaderBase> header,
 
 	if (!(processor = std::dynamic_pointer_cast<IDecryptProcessor>(CreateEncryptProcessor(m_taskCount, m_taskNumber, m_status, reader, writer, prependHeader))))
 	{
-		LOG(DebugError, "Unable to create the decryption processor.");
+		LogError("Unable to create the decryption processor.");
 		return TSRETURN_ERROR(("Unable to create the decryption processor"), false);
 	}
 
@@ -533,7 +564,7 @@ bool CCKMCryptoHelperImpl::DecryptStream(std::shared_ptr<ICmsHeaderBase> header,
 			{
 				if (!(m_sessionCallback->GetSessionForHeader(false, header, 0, m_session)))
 				{
-					LOG(DebugError, "No session.");
+					LogError("No session.");
 					return TSRETURN_ERROR(("No session"), false);
 				}
 			}
@@ -542,7 +573,7 @@ bool CCKMCryptoHelperImpl::DecryptStream(std::shared_ptr<ICmsHeaderBase> header,
 	// Regenerate the working key
 	if (!m_session)
 	{
-		LOG(DebugError, "Unable to regenerate the working key and encrypted data.");
+		LogError("Unable to regenerate the working key and encrypted data.");
 		return TSRETURN_ERROR(("Unable to regenerate the working key and encrypted data."), false);
 	}
 	else
@@ -553,21 +584,21 @@ bool CCKMCryptoHelperImpl::DecryptStream(std::shared_ptr<ICmsHeaderBase> header,
 		{
 			if (!header7->ValidateSignature())
 			{
-				LOG(DebugError, "The header has been modified and is no longer trusted.");
+				LogError("The header has been modified and is no longer trusted.");
 				return false;
 			}
 		}
 
 		if (!ops->RegenerateWorkingKey(m_session, wk))
 		{
-			LOG(DebugError, "Unable to regenerate the working key and encrypted data.");
+			LogError(ops->failureReason());
 			return TSRETURN_ERROR(("Unable to regenerate the working key and encrypted data."), false);
 		}
 		if (!header7->HasHeaderSigningPublicKey())
 		{
 			if (!header7->ValidateMAC(wk))
 			{
-				LOG(DebugError, "Invalid header detected");
+				LogError("Invalid header detected");
 				return false;
 			}
 		}
@@ -575,7 +606,7 @@ bool CCKMCryptoHelperImpl::DecryptStream(std::shared_ptr<ICmsHeaderBase> header,
 
 	if (!(processor->PrevalidateData(header)))
 	{
-		LOG(DebugError, "The data does not match the data signature.");
+		LogError("The data does not match the data signature.");
 		return TSRETURN_ERROR(("The data does not match the data signature."), false);
 	}
 
@@ -613,7 +644,7 @@ bool CCKMCryptoHelperImpl::DecryptStream(std::shared_ptr<ICmsHeaderBase> header,
 		retVal = DecryptEncAuthData(wk, header7, prependHeader ? header7->PaddedHeaderSize() : 0, blocksize, reader, writer);
 		break;
 	default:
-		LOG(DebugError, "Error:  Unrecognized file format.");
+		LogError("Error:  Unrecognized file format.");
 		return TSRETURN_ERROR(("Bad File"), false);
 	}
 	if (!retVal)
@@ -635,6 +666,7 @@ bool CCKMCryptoHelperImpl::DecryptStreamWithKey(std::shared_ptr<IDataReader> rea
 	std::shared_ptr<IFifoStream> fifo;
 	WaitableBool retVal;
 
+	m_failureReason.clear();
 	m_fifoState = chs_nonFifo;
 	m_headerLenNeeded = 0;
 	if (!reader || !writer)
@@ -661,13 +693,13 @@ bool CCKMCryptoHelperImpl::DecryptStreamWithKey(std::shared_ptr<IDataReader> rea
 
 		if (!(m_processor = std::dynamic_pointer_cast<IDecryptProcessor>(CreateEncryptProcessor(m_taskCount, m_taskNumber, m_status, reader, writer, false))))
 		{
-			if (gDebugCryptoHelper) { LOG(DebugError, "Unable to create the decryption processor."); }
+			LogError("Unable to create the decryption processor.");
 			return TSRETURN_ERROR(("Unable to create the decryption processor"), false);
 		}
 
 		if (!(m_processor->PrevalidateDataHash(finalHash, hashOid, authData, DataFormat)))
 		{
-			if (gDebugCryptoHelper) { LOG(DebugError, "The data does not match the data signature."); }
+			LogError("The data does not match the data signature.");
 			return TSRETURN_ERROR(("The data does not match the data signature."), false);
 		}
 
@@ -693,7 +725,7 @@ bool CCKMCryptoHelperImpl::DecryptStreamWithKey(std::shared_ptr<IDataReader> rea
 			retVal = InitializeDecryptEncAuth(fifo, key, finalHash, hashOid, algorithm, comp, authData, forcedIvec, 0, paddingType);
 			break;
 		default:
-			LOG(DebugError, "Error:  Unrecognized file format.");
+			LogError("Error:  Unrecognized file format.");
 			return TSRETURN_ERROR(("Bad File"), false);
 		}
 		if (retVal != wait_true)
@@ -704,7 +736,7 @@ bool CCKMCryptoHelperImpl::DecryptStreamWithKey(std::shared_ptr<IDataReader> rea
 
 	if (!(processor = std::dynamic_pointer_cast<IDecryptProcessor>(CreateEncryptProcessor(m_taskCount, m_taskNumber, m_status, reader, writer, false))))
 	{
-		LOG(DebugError, "Unable to create the decryption processor.");
+		LogError("Unable to create the decryption processor.");
 		return TSRETURN_ERROR(("Unable to create the decryption processor"), false);
 	}
 
@@ -764,9 +796,10 @@ bool CCKMCryptoHelperImpl::DecryptEncAuthData(const tscrypto::tsCryptoData &_key
 	TS_ALG_ID encAlg = header->GetEncryptionAlgorithmID();
 	encMode = Alg2Mode(encAlg);
 
-	if (!(kdf = std::dynamic_pointer_cast<KeyDerivationFunction>(CryptoFactory("KDF-SHA512"))))
+	if (!(kdf = std::dynamic_pointer_cast<KeyDerivationFunction>(CryptoFactory("KDF-SHA512"))) ||
+		!kdf->initialize())
 	{
-		LOG(DebugError, "The specified encryption file format requires the use of a key derivation function that is not available.");
+		LogError("The specified encryption file format requires the use of a key derivation function that is not available.");
 		return TSRETURN_ERROR(("The specified encryption file format requires the use of a key derivation function that is not available."), false);
 	}
 
@@ -776,12 +809,12 @@ bool CCKMCryptoHelperImpl::DecryptEncAuthData(const tscrypto::tsCryptoData &_key
 	case _SymmetricMode::CKM_SymMode_GCM:
 		if (!(enc = std::dynamic_pointer_cast<CCM_GCM>(CryptoFactory(header->GetEncryptionAlgorithmOID().ToOIDString()))))
 		{
-			LOG(DebugError, "Unable to create the required data encryption algorithm.");
+			LogError("Unable to create the required data encryption algorithm.");
 			return TSRETURN_ERROR(("Unable to create the required data encryption algorithm."), false);
 		}
 		break;
 	default:
-		LOG(DebugError, "The specified encryption file format requires the use of an authenticated encryption mode.");
+		LogError("The specified encryption file format requires the use of an authenticated encryption mode.");
 		return TSRETURN_ERROR(("The specified encryption file format requires the use of an authenticated encryption mode."), false);
 	}
 
@@ -791,13 +824,13 @@ bool CCKMCryptoHelperImpl::DecryptEncAuthData(const tscrypto::tsCryptoData &_key
 
 	if (encKeySize == 0 || encBlocksize == 0)
 	{
-		LOG(DebugError, "Unable to retrieve the required data encryption algorithm parameters.");
+		LogError("Unable to retrieve the required data encryption algorithm parameters.");
 		return TSRETURN_ERROR(("Unable to retrieve the required data encryption algorithm parameters."), false);
 	}
 
 	if (key.size() * 8 < (uint32_t)encKeySize)
 	{
-		LOG(DebugError, "The encryption key is too short.");
+		LogError("The encryption key is too short.");
 		return TSRETURN_ERROR(("The encryption key is too short."), false);
 	}
 
@@ -807,14 +840,14 @@ bool CCKMCryptoHelperImpl::DecryptEncAuthData(const tscrypto::tsCryptoData &_key
 	case ct_zLib:
 		if (!(compressor = CreateCompressor(header->GetCompressionType())))
 		{
-			LOG(DebugError, "The compression type is not recognized.");
+			LogError("The compression type is not recognized.");
 			return TSRETURN_ERROR(("The compression type is not recognized."), false);
 		}
 		break;
 	case ct_None:
 		break;
 	default:
-		LOG(DebugError, "The compression type is not recognized.");
+		LogError("The compression type is not recognized.");
 		return TSRETURN_ERROR(("The compression type is not recognized."), false);
 	}
 	encKey = key.substring(0, encKeySize / 8);
@@ -833,7 +866,7 @@ bool CCKMCryptoHelperImpl::DecryptEncAuthData(const tscrypto::tsCryptoData &_key
 
 			if (key.size() * 8 < (uint32_t)maxKeySize)
 			{
-				LOG(DebugError, "The encryption key is too short.");
+				LogError("The encryption key is too short.");
 				return TSRETURN_ERROR(("The encryption key is too short."), false);
 			}
 
@@ -842,7 +875,7 @@ bool CCKMCryptoHelperImpl::DecryptEncAuthData(const tscrypto::tsCryptoData &_key
 		}
 		if (!hasher->initialize(macKey))
 		{
-			LOG(DebugError, "Unable to create the required data hash algorithm.");
+			LogError("Unable to create the required data hash algorithm.");
 			return TSRETURN_ERROR(("Unable to create the required data hash algorithm"), false);
 		}
 		macKey.clear();
@@ -859,7 +892,7 @@ bool CCKMCryptoHelperImpl::DecryptEncAuthData(const tscrypto::tsCryptoData &_key
 			// IVEC comes from the working key.
 			if (key.size() < (uint32_t)ivecSize)
 			{
-				LOG(DebugError, "The encryption key is too short.");
+				LogError("The encryption key is too short.");
 				return TSRETURN_ERROR(("The encryption key is too short."), false);
 			}
 
@@ -887,7 +920,7 @@ bool CCKMCryptoHelperImpl::DecryptEncAuthData(const tscrypto::tsCryptoData &_key
 
 			if (!(m_status->Status(task.c_str(), m_taskNumber, m_taskCount, percent)))
 			{
-				LOG(DebugError, "Operation cancelled");
+				LogError("Operation cancelled");
 				return TSRETURN_ERROR(("Cancelled"), false);
 			}
 			oldPercent = percent;
@@ -903,7 +936,7 @@ bool CCKMCryptoHelperImpl::DecryptEncAuthData(const tscrypto::tsCryptoData &_key
 		{
 			if (!hasher->update(len))
 			{
-				LOG(DebugError, "Unable to compute the data hash.");
+				LogError("Unable to compute the data hash.");
 				return TSRETURN_ERROR(("Unable to compute the data hash."), false);
 			}
 		}
@@ -913,7 +946,7 @@ bool CCKMCryptoHelperImpl::DecryptEncAuthData(const tscrypto::tsCryptoData &_key
 #endif
 		if (!reader->ReadData(*(int32_t *)len.c_str(), tmp))
 		{
-			LOG(DebugError, "Data format invalid.");
+			LogError("Data format invalid.");
 			return TSRETURN_ERROR(("Data format invalid."), false);
 		}
 		if (tmp.size() > 16)
@@ -923,13 +956,13 @@ bool CCKMCryptoHelperImpl::DecryptEncAuthData(const tscrypto::tsCryptoData &_key
 		}
 		else
 		{
-			LOG(DebugError, "Data format invalid.");
+			LogError("Data format invalid.");
 			return TSRETURN_ERROR(("Data format invalid."), false);
 		}
 
 		if (!!hasher && !hasher->update(tag))
 		{
-			LOG(DebugError, "Unable to compute the data hash.");
+			LogError("Unable to compute the data hash.");
 			return TSRETURN_ERROR(("Unable to compute the data hash."), false);
 		}
 
@@ -937,19 +970,19 @@ bool CCKMCryptoHelperImpl::DecryptEncAuthData(const tscrypto::tsCryptoData &_key
 		counter.increment();
 		if (!kdf->Derive_SP800_56A_Counter(encIvec, counter, 256 + 96, ivec))
 		{
-			LOG(DebugError, "The decryption key is too short.");
+			LogError("The decryption key is too short.");
 			return TSRETURN_ERROR(("The decryption key is too short."), false);
 		}
 		// Each block is treated as a new encryption (new ivec, same key).  We only need to initialize once.
 		if (!enc->initialize(ivec.substring(0, 32)))
 		{
-			LOG(DebugError, "Unable to initialize the bulk data encryptor.");
+			LogError("Unable to initialize the bulk data encryptor.");
 			return TSRETURN_ERROR(("Unable to initialize the bulk data encryptor."), false);
 		}
 		ivec.erase(0, 32);
 		if (!enc->decryptMessage(ivec, authHeader, tmp, tag))
 		{
-			LOG(DebugError, "Unable to decrypt the file.  The tag does not match the computed value.");
+			LogError("Unable to decrypt the file.  The tag does not match the computed value.");
 			return TSRETURN_ERROR(("FAILED"), false);
 		}
 
@@ -959,7 +992,7 @@ bool CCKMCryptoHelperImpl::DecryptEncAuthData(const tscrypto::tsCryptoData &_key
 				!(compressor->Decompress(tmp, tmp2, compAct_Run)) ||
 				!(compressor->DecompressFinal(tmp)))
 			{
-				LOG(DebugError, "Unable to decrypt the file.  The decompression operation failed.");
+				LogError("Unable to decrypt the file.  The decompression operation failed.");
 				return TSRETURN_ERROR(("FAILED"), false);
 			}
 			tmp.insert(0, tmp2);
@@ -970,7 +1003,7 @@ bool CCKMCryptoHelperImpl::DecryptEncAuthData(const tscrypto::tsCryptoData &_key
 
 			if (!writer->WriteData(tmp))
 			{
-				LOG(DebugError, "Unable to write the decrypted data into the output file.");
+				LogError("Unable to write the decrypted data into the output file.");
 				return TSRETURN_ERROR(("FAILED"), false);
 			}
 		}
@@ -984,7 +1017,7 @@ bool CCKMCryptoHelperImpl::DecryptEncAuthData(const tscrypto::tsCryptoData &_key
 
 		if (!(m_status->Status(task.c_str(), m_taskNumber, m_taskCount, 100)))
 		{
-			LOG(DebugError, "Operation cancelled");
+			LogError("Operation cancelled");
 			return TSRETURN_ERROR(("Cancelled"), false);
 		}
 	}
@@ -993,13 +1026,13 @@ bool CCKMCryptoHelperImpl::DecryptEncAuthData(const tscrypto::tsCryptoData &_key
 	{
 		if (!hasher->finish(tmp))
 		{
-			LOG(DebugError, "Unable to compute the data hash.");
+			LogError("Unable to compute the data hash.");
 			return TSRETURN_ERROR(("Unable to compute the data hash."), false);
 		}
 
 		if (tmp.compare(header->GetDataHash()) != 0)
 		{
-			LOG(DebugError, "Unable to decrypt the file - data hash invalid.");
+			LogError("Unable to decrypt the file - data hash invalid.");
 			return TSRETURN_ERROR(("Unable to decrypt the file - data hash invalid"), false);
 		}
 	}
@@ -1038,7 +1071,7 @@ bool CCKMCryptoHelperImpl::DecryptHashed(const tscrypto::tsCryptoData &_key, std
 
 	if (!(enc = std::dynamic_pointer_cast<Symmetric>(CryptoFactory(header->GetEncryptionAlgorithmOID().ToOIDString()))))
 	{
-		LOG(DebugError, "Unable to create the required data encryption algorithm.");
+		LogError("Unable to create the required data encryption algorithm.");
 		return TSRETURN_ERROR(("Unable to create the required data encryption algorithm."), false);
 	}
 
@@ -1048,13 +1081,13 @@ bool CCKMCryptoHelperImpl::DecryptHashed(const tscrypto::tsCryptoData &_key, std
 
 	if (encKeySize == 0 || encBlocksize == 0)
 	{
-		LOG(DebugError, "Unable to retrieve the required data encryption algorithm parameters.");
+		LogError("Unable to retrieve the required data encryption algorithm parameters.");
 		return TSRETURN_ERROR(("Unable to retrieve the required data encryption algorithm parameters."), false);
 	}
 
 	if (key.size() * 8 < (uint32_t)encKeySize)
 	{
-		LOG(DebugError, "The encryption key is too short.");
+		LogError("The encryption key is too short.");
 		return TSRETURN_ERROR(("The encryption key is too short."), false);
 	}
 
@@ -1064,14 +1097,14 @@ bool CCKMCryptoHelperImpl::DecryptHashed(const tscrypto::tsCryptoData &_key, std
 	case ct_zLib:
 		if (!(compressor = CreateCompressor(header->GetCompressionType())))
 		{
-			LOG(DebugError, "The compression type is not recognized.");
+			LogError("The compression type is not recognized.");
 			return TSRETURN_ERROR(("The compression type is not recognized."), false);
 		}
 		break;
 	case ct_None:
 		break;
 	default:
-		LOG(DebugError, "The compression type is not recognized.");
+		LogError("The compression type is not recognized.");
 		return TSRETURN_ERROR(("The compression type is not recognized."), false);
 	}
 	encKey = key.substring(0, encKeySize / 8);
@@ -1090,7 +1123,7 @@ bool CCKMCryptoHelperImpl::DecryptHashed(const tscrypto::tsCryptoData &_key, std
 
 			if (key.size() * 8 < (uint32_t)maxKeySize)
 			{
-				LOG(DebugError, "The encryption key is too short.");
+				LogError("The encryption key is too short.");
 				return TSRETURN_ERROR(("The encryption key is too short."), false);
 			}
 
@@ -1099,7 +1132,7 @@ bool CCKMCryptoHelperImpl::DecryptHashed(const tscrypto::tsCryptoData &_key, std
 		}
 		if (!hasher->initialize(macKey) || !hasher->update(authHeader))
 		{
-			LOG(DebugError, "Unable to create the required data hash algorithm.");
+			LogError("Unable to create the required data hash algorithm.");
 			return TSRETURN_ERROR(("Unable to create the required data hash algorithm"), false);
 		}
 		macKey.clear();
@@ -1116,7 +1149,7 @@ bool CCKMCryptoHelperImpl::DecryptHashed(const tscrypto::tsCryptoData &_key, std
 			// IVEC comes from the working key.
 			if (key.size() < (uint32_t)ivecSize)
 			{
-				LOG(DebugError, "The encryption key is too short.");
+				LogError("The encryption key is too short.");
 				return TSRETURN_ERROR(("The encryption key is too short."), false);
 			}
 
@@ -1128,7 +1161,7 @@ bool CCKMCryptoHelperImpl::DecryptHashed(const tscrypto::tsCryptoData &_key, std
 	// Each block is treated as a new encryption (new ivec, same key).  We only need to initialize once.
 	if (!enc->init(false, encMode, encKey, encIvec))
 	{
-		LOG(DebugError, "Unable to initialize the bulk data encryptor.");
+		LogError("Unable to initialize the bulk data encryptor.");
 		return TSRETURN_ERROR(("Unable to initialize the bulk data encryptor."), false);
 	}
 
@@ -1140,7 +1173,7 @@ bool CCKMCryptoHelperImpl::DecryptHashed(const tscrypto::tsCryptoData &_key, std
 	{
 		if (!(compressor->DecompressInit()))
 		{
-			LOG(DebugError, "Unable to decrypt the file.  The decompression operation failed.");
+			LogError("Unable to decrypt the file.  The decompression operation failed.");
 			return TSRETURN_ERROR(("FAILED"), false);
 		}
 	}
@@ -1160,7 +1193,7 @@ bool CCKMCryptoHelperImpl::DecryptHashed(const tscrypto::tsCryptoData &_key, std
 
 			if (!(m_status->Status(task.c_str(), m_taskNumber, m_taskCount, percent)))
 			{
-				LOG(DebugError, "Operation cancelled");
+				LogError("Operation cancelled");
 				return TSRETURN_ERROR(("Cancelled"), false);
 			}
 			oldPercent = percent;
@@ -1168,7 +1201,7 @@ bool CCKMCryptoHelperImpl::DecryptHashed(const tscrypto::tsCryptoData &_key, std
 
 		if (!reader->ReadData(blocksize, tmp))
 		{
-			LOG(DebugError, "Data format invalid.");
+			LogError("Data format invalid.");
 			return TSRETURN_ERROR(("Data format invalid."), false);
 		}
 		if (tmp.size() == 0 && reader->IsEndOfFile())
@@ -1178,20 +1211,20 @@ bool CCKMCryptoHelperImpl::DecryptHashed(const tscrypto::tsCryptoData &_key, std
 		{
 			if (!hasher->update(tmp))
 			{
-				LOG(DebugError, "Unable to compute the data hash.");
+				LogError("Unable to compute the data hash.");
 				return TSRETURN_ERROR(("Unable to compute the data hash."), false);
 			}
 		}
 
 		if (tmp.size() <= 0)
 		{
-			LOG(DebugError, "Data format invalid.");
+			LogError("Data format invalid.");
 			return TSRETURN_ERROR(("Data format invalid."), false);
 		}
 
 		if (!enc->update(tmp, tmp))
 		{
-			LOG(DebugError, "Unable to decrypt the file.  The decryption operation failed.");
+			LogError("Unable to decrypt the file.  The decryption operation failed.");
 			return TSRETURN_ERROR(("FAILED"), false);
 		}
 
@@ -1199,7 +1232,7 @@ bool CCKMCryptoHelperImpl::DecryptHashed(const tscrypto::tsCryptoData &_key, std
 		{
 			if (!(compressor->Decompress(tmp, tmp2, compAct_Run)))
 			{
-				LOG(DebugError, "Unable to decrypt the file.  The decompression operation failed.");
+				LogError("Unable to decrypt the file.  The decompression operation failed.");
 				return TSRETURN_ERROR(("FAILED"), false);
 			}
 			tmp = tmp2;
@@ -1210,7 +1243,7 @@ bool CCKMCryptoHelperImpl::DecryptHashed(const tscrypto::tsCryptoData &_key, std
 			{
 				if (!hasher->update(tmp))
 				{
-					LOG(DebugError, "Unable to compute the data hash.");
+					LogError("Unable to compute the data hash.");
 					return TSRETURN_ERROR(("Unable to compute the data hash."), false);
 				}
 			}
@@ -1219,7 +1252,7 @@ bool CCKMCryptoHelperImpl::DecryptHashed(const tscrypto::tsCryptoData &_key, std
 
 			if (!writer->WriteData(tmp))
 			{
-				LOG(DebugError, "Unable to write the decrypted data into the output file.");
+				LogError("Unable to write the decrypted data into the output file.");
 				return TSRETURN_ERROR(("FAILED"), false);
 			}
 		}
@@ -1233,14 +1266,14 @@ bool CCKMCryptoHelperImpl::DecryptHashed(const tscrypto::tsCryptoData &_key, std
 
 		if (!(m_status->Status(task.c_str(), m_taskNumber, m_taskCount, 100)))
 		{
-			LOG(DebugError, "Operation cancelled");
+			LogError("Operation cancelled");
 			return TSRETURN_ERROR(("Cancelled"), false);
 		}
 	}
 
 	if (!enc->finish(tmp))
 	{
-		LOG(DebugError, "Unable to decrypt the file.  The decryption operation could not finish.");
+		LogError("Unable to decrypt the file.  The decryption operation could not finish.");
 		return TSRETURN_ERROR(("FAILED"), false);
 	}
 	if (!!compressor)
@@ -1250,14 +1283,14 @@ bool CCKMCryptoHelperImpl::DecryptHashed(const tscrypto::tsCryptoData &_key, std
 		{
 			if (!(compressor->Decompress(tmp, tmp2, compAct_Run)))
 			{
-				LOG(DebugError, "Unable to decrypt the file.  The decompression operation failed.");
+				LogError("Unable to decrypt the file.  The decompression operation failed.");
 				return TSRETURN_ERROR(("FAILED"), false);
 			}
 		}
 		tmp.clear();
 		if (!(compressor->DecompressFinal(tmp)))
 		{
-			LOG(DebugError, "Unable to decrypt the file.  The decompression operation failed.");
+			LogError("Unable to decrypt the file.  The decompression operation failed.");
 			return TSRETURN_ERROR(("FAILED"), false);
 		}
 		tmp.insert(0, tmp2);
@@ -1268,7 +1301,7 @@ bool CCKMCryptoHelperImpl::DecryptHashed(const tscrypto::tsCryptoData &_key, std
 		{
 			if (!hasher->update(tmp))
 			{
-				LOG(DebugError, "Unable to compute the data hash.");
+				LogError("Unable to compute the data hash.");
 				return TSRETURN_ERROR(("Unable to compute the data hash."), false);
 			}
 		}
@@ -1277,7 +1310,7 @@ bool CCKMCryptoHelperImpl::DecryptHashed(const tscrypto::tsCryptoData &_key, std
 
 		if (!writer->WriteData(tmp))
 		{
-			LOG(DebugError, "Unable to write the decrypted data into the output file.");
+			LogError("Unable to write the decrypted data into the output file.");
 			return TSRETURN_ERROR(("FAILED"), false);
 		}
 	}
@@ -1286,13 +1319,13 @@ bool CCKMCryptoHelperImpl::DecryptHashed(const tscrypto::tsCryptoData &_key, std
 	{
 		if (!hasher->finish(tmp))
 		{
-			LOG(DebugError, "Unable to compute the data hash.");
+			LogError("Unable to compute the data hash.");
 			return TSRETURN_ERROR(("Unable to compute the data hash."), false);
 		}
 
 		if (tmp.compare(header->GetDataHash()) != 0)
 		{
-			LOG(DebugError, "Unable to decrypt the file - data hash invalid.");
+			LogError("Unable to decrypt the file - data hash invalid.");
 			return TSRETURN_ERROR(("Unable to decrypt the file - data hash invalid"), false);
 		}
 	}
@@ -1308,6 +1341,7 @@ bool    CCKMCryptoHelperImpl::StreamStartsWithCkmHeader(std::shared_ptr<IDataRea
 	int64_t fileLength;
 	std::shared_ptr<tsmod::IObject> iunk;
 
+	m_failureReason.clear();
 	if (!stream)
 		return false;
 
@@ -1341,6 +1375,7 @@ bool CCKMCryptoHelperImpl::ValidateFileContents_PublicOnly(std::shared_ptr<IData
 	std::shared_ptr<ICmsHeaderBase> header;
 	bool hr;
 
+	m_failureReason.clear();
 	LOG(DebugInfo3, "Validating file '" << reader->DataName() << "'");
 
 	if (!StreamStartsWithCkmHeader(reader, header))
@@ -1377,13 +1412,13 @@ bool CCKMCryptoHelperImpl::ValidateFileContents_PublicOnly(std::shared_ptr<IData
 	std::shared_ptr<IDataWriter> emptyWriter;
 	if (!(processor = std::dynamic_pointer_cast<IDecryptProcessor>(CreateEncryptProcessor(m_taskCount, m_taskNumber, m_status, reader, emptyWriter, true))))
 	{
-		LOG(DebugError, "Unable to create the decryption processor.");
+		LogError("Unable to create the decryption processor.");
 		return TSRETURN_ERROR(("Unable to create the decryption processor"), false);
 	}
 
 	if (!(hr = processor->PrevalidateData(header)))
 	{
-		LOG(DebugError, "ERROR:  The file has been modified.");
+		LogError("ERROR:  The file has been modified.");
 		return TSRETURN_ERROR(("The file has been modified."), false);
 	}
 	return TSRETURN(("OK"), true);
@@ -1417,15 +1452,22 @@ bool CCKMCryptoHelperImpl::PrepareHeader(std::shared_ptr<ICmsHeader> header7, Co
 {
 	std::shared_ptr<ICkmOperations> ops = std::dynamic_pointer_cast<ICkmOperations>(header7);
 
+	m_failureReason.clear();
 	if (!ops)
 		return false;
-	return ops->PrepareHeader(comp, algorithm, hashAlgorithm, SignHeader, bindData, DataFormat, randomIvec, paddingType, blockSize, fileSize);
+	if (!ops->PrepareHeader(comp, algorithm, hashAlgorithm, SignHeader, bindData, DataFormat, randomIvec, paddingType, blockSize, fileSize))
+	{
+		LogError(ops->failureReason());
+		return false;
+	}
+	return true;
 }
 
 bool CCKMCryptoHelperImpl::padHeaderToSize(std::shared_ptr<ICmsHeaderBase> header, DWORD size)
 {
 	std::shared_ptr<ICmsHeader> header7;
 
+	m_failureReason.clear();
 	if (!(header7 = std::dynamic_pointer_cast<ICmsHeader>(header)))
 		return false;
 	return padHeaderToSize(header7, size);
@@ -1437,7 +1479,12 @@ bool CCKMCryptoHelperImpl::padHeaderToSize(std::shared_ptr<ICmsHeader>& header, 
 
 	if (!ops)
 		return false;
-	return ops->padHeaderToSize(size);
+	if (!ops->padHeaderToSize(size))
+	{
+		LogError(ops->failureReason());
+		return false;
+	}
+	return true;
 }
 
 DWORD   CCKMCryptoHelperImpl::ReservedHeaderLength() const
@@ -1504,7 +1551,7 @@ WaitableBool CCKMCryptoHelperImpl::ProcessFifoValidateHeaderDecrypt(std::shared_
 		!(writer = std::dynamic_pointer_cast<IDataWriter>(m_writer)) ||
 		!(m_processor = std::dynamic_pointer_cast<IDecryptProcessor>(CreateEncryptProcessor(m_taskCount, m_taskNumber, m_status, reader, writer, m_prependHeader))))
 	{
-		if (gDebugCryptoHelper) { LOG(DebugError, "Unable to create the decryption processor."); }
+		LogError("Unable to create the decryption processor.");
 		return TSRETURN_ERROR(("Unable to create the decryption processor"), wait_false);
 	}
 
@@ -1517,7 +1564,7 @@ WaitableBool CCKMCryptoHelperImpl::ProcessFifoValidateHeaderDecrypt(std::shared_
 			{
 				if (!(m_sessionCallback->GetSessionForHeader(false, headerBase, 0, m_session)))
 				{
-					if (gDebugCryptoHelper) { LOG(DebugError, "No session."); }
+					LogError("No session.");
 					return TSRETURN_ERROR(("No session"), wait_false);
 				}
 			}
@@ -1526,7 +1573,7 @@ WaitableBool CCKMCryptoHelperImpl::ProcessFifoValidateHeaderDecrypt(std::shared_
 	// Regenerate the working key
 	if (!m_session)
 	{
-		if (gDebugCryptoHelper) { LOG(DebugError, "Unable to regenerate the working key and encrypted data."); }
+		LogError("Unable to regenerate the working key and encrypted data.");
 		return TSRETURN_ERROR(("Unable to regenerate the working key and encrypted data."), wait_false);
 	}
 	else
@@ -1536,14 +1583,14 @@ WaitableBool CCKMCryptoHelperImpl::ProcessFifoValidateHeaderDecrypt(std::shared_
 		if (!(ops = std::dynamic_pointer_cast<ICkmOperations>(m_cmsHeader)) ||
 			!ops->RegenerateWorkingKey(m_session, wk))
 		{
-			if (gDebugCryptoHelper) { LOG(DebugError, "Unable to regenerate the working key and encrypted data."); }
+			LogError(ops->failureReason());
 			return TSRETURN_ERROR(("Unable to regenerate the working key and encrypted data."), wait_false);
 		}
 	}
 
 	if (!(m_processor->PrevalidateData(headerBase)))
 	{
-		if (gDebugCryptoHelper) { LOG(DebugError, "The data does not match the data signature."); }
+		LogError("The data does not match the data signature.");
 		return TSRETURN_ERROR(("The data does not match the data signature."), wait_false);
 	}
 
@@ -1573,7 +1620,7 @@ WaitableBool CCKMCryptoHelperImpl::ProcessFifoValidateHeaderDecrypt(std::shared_
 		hr = InitializeDecryptEncAuth(fifo, wk);
 		break;
 	default:
-		LOG(DebugError, "Error:  Unrecognized file format.");
+		LogError("Error:  Unrecognized file format.");
 		return TSRETURN_ERROR(("Bad File"), wait_false);
 	}
 	return TSRETURN(("Returns ~~"), hr);
@@ -1670,7 +1717,7 @@ WaitableBool CCKMCryptoHelperImpl::InitializeDecryptHashed(std::shared_ptr<IFifo
 
 	if (!(m_symEnc = std::dynamic_pointer_cast<Symmetric>(CryptoFactory(encAlg))))
 	{
-		LOG(DebugError, "Unable to create the required data encryption algorithm.");
+		LogError("Unable to create the required data encryption algorithm.");
 		return TSRETURN_ERROR(("Unable to create the required data encryption algorithm."), wait_false);
 	}
 
@@ -1680,13 +1727,13 @@ WaitableBool CCKMCryptoHelperImpl::InitializeDecryptHashed(std::shared_ptr<IFifo
 
 	if (encKeySize == 0 || encBlocksize == 0)
 	{
-		LOG(DebugError, "Unable to retrieve the required data encryption algorithm parameters.");
+		LogError("Unable to retrieve the required data encryption algorithm parameters.");
 		return TSRETURN_ERROR(("Unable to retrieve the required data encryption algorithm parameters."), wait_false);
 	}
 
 	if ((int)(workingKey.size() * 8) < encKeySize)
 	{
-		LOG(DebugError, "The encryption key is too short.");
+		LogError("The encryption key is too short.");
 		return TSRETURN_ERROR(("The encryption key is too short."), wait_false);
 	}
 
@@ -1696,14 +1743,14 @@ WaitableBool CCKMCryptoHelperImpl::InitializeDecryptHashed(std::shared_ptr<IFifo
 	case ct_zLib:
 		if (!(m_compressor = CreateCompressor(compType)))
 		{
-			LOG(DebugError, "The compression type is not recognized.");
+			LogError("The compression type is not recognized.");
 			return TSRETURN_ERROR(("The compression type is not recognized."), wait_false);
 		}
 		break;
 	case ct_None:
 		break;
 	default:
-		LOG(DebugError, "The compression type is not recognized.");
+		LogError("The compression type is not recognized.");
 		return TSRETURN_ERROR(("The compression type is not recognized."), wait_false);
 	}
 	encKey.assign(workingKey.c_str(), encKeySize / 8);
@@ -1724,7 +1771,7 @@ WaitableBool CCKMCryptoHelperImpl::InitializeDecryptHashed(std::shared_ptr<IFifo
 
 			if ((int)(workingKey.size() * 8) < maxKeySize)
 			{
-				LOG(DebugError, "The encryption key is too short.");
+				LogError("The encryption key is too short.");
 				return TSRETURN_ERROR(("The encryption key is too short."), wait_false);
 			}
 
@@ -1733,7 +1780,7 @@ WaitableBool CCKMCryptoHelperImpl::InitializeDecryptHashed(std::shared_ptr<IFifo
 		}
 		if (!m_fifoHasher->initialize(macKey) || !m_fifoHasher->update(m_authHeader))
 		{
-			LOG(DebugError, "Unable to create the required data hash algorithm.");
+			LogError("Unable to create the required data hash algorithm.");
 			return TSRETURN_ERROR(("Unable to create the required data hash algorithm"), wait_false);
 		}
 		macKey.clear();
@@ -1748,7 +1795,7 @@ WaitableBool CCKMCryptoHelperImpl::InitializeDecryptHashed(std::shared_ptr<IFifo
 			// IVEC comes from the working key.
 			if ((int)(workingKey.size()) < ivecSize)
 			{
-				LOG(DebugError, "The encryption key is too short.");
+				LogError("The encryption key is too short.");
 				return TSRETURN_ERROR(("The encryption key is too short."), wait_false);
 			}
 
@@ -1760,7 +1807,7 @@ WaitableBool CCKMCryptoHelperImpl::InitializeDecryptHashed(std::shared_ptr<IFifo
 	// Each block is treated as a new encryption (new ivec, same key).  We only need to initialize once.
 	if (!m_symEnc->init(false, encMode, encKey, m_encIvec))
 	{
-		LOG(DebugError, "Unable to initialize the bulk data encryptor.");
+		LogError("Unable to initialize the bulk data encryptor.");
 		return TSRETURN_ERROR(("Unable to initialize the bulk data encryptor."), wait_false);
 	}
 
@@ -1772,7 +1819,7 @@ WaitableBool CCKMCryptoHelperImpl::InitializeDecryptHashed(std::shared_ptr<IFifo
 	{
 		if (!(m_compressor->DecompressInit()))
 		{
-			LOG(DebugError, "Unable to decrypt the file.  The decompression operation failed.");
+			LogError("Unable to decrypt the file.  The decompression operation failed.");
 			return TSRETURN_ERROR(("FAILED"), wait_false);
 		}
 	}
@@ -1803,7 +1850,7 @@ WaitableBool CCKMCryptoHelperImpl::ProcessFifoProcessHashedDataDecrypt(std::shar
 
 				if (!(m_status->Status(task.c_str(), m_taskNumber, m_taskCount, percent)))
 				{
-					LOG(DebugError, "Operation cancelled");
+					LogError("Operation cancelled");
 					return TSRETURN_ERROR(("Cancelled"), wait_false);
 				}
 				m_oldPercent = percent;
@@ -1814,7 +1861,7 @@ WaitableBool CCKMCryptoHelperImpl::ProcessFifoProcessHashedDataDecrypt(std::shar
 		{
 			if (!fifo->ReadData(m_chunksize, m_tmp))
 			{
-				LOG(DebugError, "Data format invalid.");
+				LogError("Data format invalid.");
 				return TSRETURN_ERROR(("Data format invalid."), wait_false);
 			}
 		}
@@ -1832,20 +1879,20 @@ WaitableBool CCKMCryptoHelperImpl::ProcessFifoProcessHashedDataDecrypt(std::shar
 		{
 			if (!m_fifoHasher->update(m_tmp))
 			{
-				LOG(DebugError, "Unable to compute the data hash.");
+				LogError("Unable to compute the data hash.");
 				return TSRETURN_ERROR(("Unable to compute the data hash."), wait_false);
 			}
 		}
 
 		if (m_tmp.size() <= 0)
 		{
-			LOG(DebugError, "Data format invalid.");
+			LogError("Data format invalid.");
 			return TSRETURN_ERROR(("Data format invalid."), wait_false);
 		}
 
 		if (!m_symEnc->update(m_tmp, m_tmp))
 		{
-			LOG(DebugError, "Unable to decrypt the file.  The decryption operation failed.");
+			LogError("Unable to decrypt the file.  The decryption operation failed.");
 			return TSRETURN_ERROR(("FAILED"), wait_false);
 		}
 
@@ -1853,7 +1900,7 @@ WaitableBool CCKMCryptoHelperImpl::ProcessFifoProcessHashedDataDecrypt(std::shar
 		{
 			if (!(m_compressor->Decompress(m_tmp, m_tmp2, compAct_Run)))
 			{
-				LOG(DebugError, "Unable to decrypt the file.  The decompression operation failed.");
+				LogError("Unable to decrypt the file.  The decompression operation failed.");
 				return TSRETURN_ERROR(("FAILED"), wait_false);
 			}
 			m_tmp = m_tmp2;
@@ -1864,7 +1911,7 @@ WaitableBool CCKMCryptoHelperImpl::ProcessFifoProcessHashedDataDecrypt(std::shar
 			{
 				if (!m_fifoHasher->update(m_tmp))
 				{
-					LOG(DebugError, "Unable to compute the data hash.");
+					LogError("Unable to compute the data hash.");
 					return TSRETURN_ERROR(("Unable to compute the data hash."), wait_false);
 				}
 			}
@@ -1873,7 +1920,7 @@ WaitableBool CCKMCryptoHelperImpl::ProcessFifoProcessHashedDataDecrypt(std::shar
 
 			if (!m_writer->WriteData(m_tmp))
 			{
-				LOG(DebugError, "Unable to write the decrypted data into the output file.");
+				LogError("Unable to write the decrypted data into the output file.");
 				return TSRETURN_ERROR(("FAILED"), wait_false);
 			}
 		}
@@ -1895,14 +1942,14 @@ WaitableBool CCKMCryptoHelperImpl::ProcessFifoFinishDecryptHashed(std::shared_pt
 
 		if (!(m_status->Status(task.c_str(), m_taskNumber, m_taskCount, 100)))
 		{
-			LOG(DebugError, "Operation cancelled");
+			LogError("Operation cancelled");
 			return TSRETURN_ERROR(("Cancelled"), wait_false);
 		}
 	}
 
 	if (!m_symEnc->finish(m_tmp))
 	{
-		LOG(DebugError, "Unable to decrypt the file.  The decryption operation could not finish.");
+		LogError("Unable to decrypt the file.  The decryption operation could not finish.");
 		return TSRETURN_ERROR(("FAILED"), wait_false);
 	}
 	if (!!m_compressor)
@@ -1912,14 +1959,14 @@ WaitableBool CCKMCryptoHelperImpl::ProcessFifoFinishDecryptHashed(std::shared_pt
 		{
 			if (!(m_compressor->Decompress(m_tmp, m_tmp2, compAct_Run)))
 			{
-				LOG(DebugError, "Unable to decrypt the file.  The decompression operation failed.");
+				LogError("Unable to decrypt the file.  The decompression operation failed.");
 				return TSRETURN_ERROR(("FAILED"), wait_false);
 			}
 		}
 		m_tmp.clear();
 		if (!(m_compressor->DecompressFinal(m_tmp)))
 		{
-			LOG(DebugError, "Unable to decrypt the file.  The decompression operation failed.");
+			LogError("Unable to decrypt the file.  The decompression operation failed.");
 			return TSRETURN_ERROR(("FAILED"), wait_false);
 		}
 		m_tmp.insert(0, m_tmp2);
@@ -1930,7 +1977,7 @@ WaitableBool CCKMCryptoHelperImpl::ProcessFifoFinishDecryptHashed(std::shared_pt
 		{
 			if (!m_fifoHasher->update(m_tmp))
 			{
-				LOG(DebugError, "Unable to compute the data hash.");
+				LogError("Unable to compute the data hash.");
 				return TSRETURN_ERROR(("Unable to compute the data hash."), wait_false);
 			}
 		}
@@ -1939,7 +1986,7 @@ WaitableBool CCKMCryptoHelperImpl::ProcessFifoFinishDecryptHashed(std::shared_pt
 
 		if (!m_writer->WriteData(m_tmp))
 		{
-			LOG(DebugError, "Unable to write the decrypted data into the output file.");
+			LogError("Unable to write the decrypted data into the output file.");
 			return TSRETURN_ERROR(("FAILED"), wait_false);
 		}
 	}
@@ -1948,13 +1995,13 @@ WaitableBool CCKMCryptoHelperImpl::ProcessFifoFinishDecryptHashed(std::shared_pt
 	{
 		if (!m_fifoHasher->finish(m_tmp))
 		{
-			LOG(DebugError, "Unable to compute the data hash.");
+			LogError("Unable to compute the data hash.");
 			return TSRETURN_ERROR(("Unable to compute the data hash."), wait_false);
 		}
 
 		if (m_tmp.compare(m_finalHash) != 0)
 		{
-			LOG(DebugError, "Unable to decrypt the file - data hash invalid.");
+			LogError("Unable to decrypt the file - data hash invalid.");
 			return TSRETURN_ERROR(("Unable to decrypt the file - data hash invalid"), wait_false);
 		}
 	}
@@ -2011,9 +2058,10 @@ WaitableBool CCKMCryptoHelperImpl::InitializeDecryptEncAuth(std::shared_ptr<IFif
 
 	SymmetricMode encMode = Alg2Mode(encAlg);
 
-	if (!(m_kdf = std::dynamic_pointer_cast<KeyDerivationFunction>(CryptoFactory("KDF-SHA512"))))
+	if (!(m_kdf = std::dynamic_pointer_cast<KeyDerivationFunction>(CryptoFactory("KDF-SHA512"))) ||
+		!m_kdf->initialize())
 	{
-		LOG(DebugError, "The specified encryption file format requires the use of a key derivation function that is not available.");
+		LogError("The specified encryption file format requires the use of a key derivation function that is not available.");
 		return TSRETURN_ERROR(("The specified encryption file format requires the use of a key derivation function that is not available."), wait_false);
 	}
 
@@ -2023,12 +2071,12 @@ WaitableBool CCKMCryptoHelperImpl::InitializeDecryptEncAuth(std::shared_ptr<IFif
 	case _SymmetricMode::CKM_SymMode_GCM:
 		if (!(m_gcm = std::dynamic_pointer_cast<CCM_GCM>(CryptoFactory(encAlg))))
 		{
-			LOG(DebugError, "Unable to create the required data encryption algorithm.");
+			LogError("Unable to create the required data encryption algorithm.");
 			return TSRETURN_ERROR(("Unable to create the required data encryption algorithm."), wait_false);
 		}
 		break;
 	default:
-		LOG(DebugError, "The specified encryption file format requires the use of an authenticated encryption mode.");
+		LogError("The specified encryption file format requires the use of an authenticated encryption mode.");
 		return TSRETURN_ERROR(("The specified encryption file format requires the use of an authenticated encryption mode."), wait_false);
 	}
 
@@ -2039,13 +2087,13 @@ WaitableBool CCKMCryptoHelperImpl::InitializeDecryptEncAuth(std::shared_ptr<IFif
 
 	if (encKeySize == 0 || encBlocksize == 0)
 	{
-		LOG(DebugError, "Unable to retrieve the required data encryption algorithm parameters.");
+		LogError("Unable to retrieve the required data encryption algorithm parameters.");
 		return TSRETURN_ERROR(("Unable to retrieve the required data encryption algorithm parameters."), wait_false);
 	}
 
 	if ((int)(workingKey.size() * 8) < encKeySize)
 	{
-		LOG(DebugError, "The encryption key is too short.");
+		LogError("The encryption key is too short.");
 		return TSRETURN_ERROR(("The encryption key is too short."), wait_false);
 	}
 
@@ -2055,14 +2103,14 @@ WaitableBool CCKMCryptoHelperImpl::InitializeDecryptEncAuth(std::shared_ptr<IFif
 	case ct_zLib:
 		if (!(m_compressor = CreateCompressor(compType)))
 		{
-			LOG(DebugError, "The compression type is not recognized.");
+			LogError("The compression type is not recognized.");
 			return TSRETURN_ERROR(("The compression type is not recognized."), wait_false);
 		}
 		break;
 	case ct_None:
 		break;
 	default:
-		LOG(DebugError, "The compression type is not recognized.");
+		LogError("The compression type is not recognized.");
 		return TSRETURN_ERROR(("The compression type is not recognized."), wait_false);
 	}
 	encKey.assign(workingKey.c_str(), encKeySize / 8);
@@ -2083,7 +2131,7 @@ WaitableBool CCKMCryptoHelperImpl::InitializeDecryptEncAuth(std::shared_ptr<IFif
 
 			if ((int)(workingKey.size() * 8) < maxKeySize)
 			{
-				LOG(DebugError, "The encryption key is too short.");
+				LogError("The encryption key is too short.");
 				return TSRETURN_ERROR(("The encryption key is too short."), wait_false);
 			}
 
@@ -2092,7 +2140,7 @@ WaitableBool CCKMCryptoHelperImpl::InitializeDecryptEncAuth(std::shared_ptr<IFif
 		}
 		if (!m_fifoHasher->initialize(macKey))
 		{
-			LOG(DebugError, "Unable to create the required data hash algorithm.");
+			LogError("Unable to create the required data hash algorithm.");
 			return TSRETURN_ERROR(("Unable to create the required data hash algorithm"), wait_false);
 		}
 		macKey.clear();
@@ -2107,7 +2155,7 @@ WaitableBool CCKMCryptoHelperImpl::InitializeDecryptEncAuth(std::shared_ptr<IFif
 			// IVEC comes from the working key.
 			if ((int)(workingKey.size()) < ivecSize)
 			{
-				LOG(DebugError, "The encryption key is too short.");
+				LogError("The encryption key is too short.");
 				return TSRETURN_ERROR(("The encryption key is too short."), wait_false);
 			}
 
@@ -2151,7 +2199,7 @@ WaitableBool CCKMCryptoHelperImpl::ProcessFifoProcessEncAuthLengthDecrypt(std::s
 	{
 		if (!m_fifoHasher->update(len))
 		{
-			LOG(DebugError, "Unable to compute the data hash.");
+			LogError("Unable to compute the data hash.");
 			return TSRETURN_ERROR(("Unable to compute the data hash."), wait_false);
 		}
 	}
@@ -2163,7 +2211,7 @@ WaitableBool CCKMCryptoHelperImpl::ProcessFifoProcessEncAuthLengthDecrypt(std::s
 
 	if (m_chunksize < 17)
 	{
-		LOG(DebugError, "The file format is incorrect.");
+		LogError("The file format is incorrect.");
 		return TSRETURN_ERROR(("The file format is incorrect."), wait_false);
 	}
 
@@ -2203,7 +2251,7 @@ WaitableBool CCKMCryptoHelperImpl::ProcessFifoProcessEncAuthBlockDecrypt(std::sh
 
 			if (!(m_status->Status(task.c_str(), m_taskNumber, m_taskCount, percent)))
 			{
-				LOG(DebugError, "Operation cancelled");
+				LogError("Operation cancelled");
 				return TSRETURN_ERROR(("Cancelled"), wait_false);
 			}
 			m_oldPercent = percent;
@@ -2212,7 +2260,7 @@ WaitableBool CCKMCryptoHelperImpl::ProcessFifoProcessEncAuthBlockDecrypt(std::sh
 
 	if (!fifo->ReadData(m_chunksize, m_tmp))
 	{
-		LOG(DebugError, "Data format invalid.");
+		LogError("Data format invalid.");
 		return TSRETURN_ERROR(("Data format invalid."), wait_false);
 	}
 	tag.assign(&m_tmp.c_str()[m_tmp.size() - 16], 16);
@@ -2220,7 +2268,7 @@ WaitableBool CCKMCryptoHelperImpl::ProcessFifoProcessEncAuthBlockDecrypt(std::sh
 
 	if (!!m_fifoHasher && !m_fifoHasher->update(tag))
 	{
-		LOG(DebugError, "Unable to compute the data hash.");
+		LogError("Unable to compute the data hash.");
 		return TSRETURN_ERROR(("Unable to compute the data hash."), wait_false);
 	}
 
@@ -2228,19 +2276,19 @@ WaitableBool CCKMCryptoHelperImpl::ProcessFifoProcessEncAuthBlockDecrypt(std::sh
 	m_counter.increment();
 	if (!m_kdf->Derive_SP800_56A_Counter(m_encIvec, m_counter, 256 + 96, ivec))
 	{
-		LOG(DebugError, "The decryption key is too short.");
+		LogError("The decryption key is too short.");
 		return TSRETURN_ERROR(("The decryption key is too short."), wait_false);
 	}
 	// Each block is treated as a new encryption (new ivec, new key).
 	if (!m_gcm->initialize(ivec.substring(0, 32)))
 	{
-		LOG(DebugError, "Unable to initialize the bulk data encryptor.");
+		LogError("Unable to initialize the bulk data encryptor.");
 		return TSRETURN_ERROR(("Unable to initialize the bulk data encryptor."), wait_false);
 	}
 	ivec.erase(0, 32);
 	if (!m_gcm->decryptMessage(ivec, m_authHeader, m_tmp, tag))
 	{
-		LOG(DebugError, "Unable to decrypt the file.  The tag does not match the computed value.");
+		LogError("Unable to decrypt the file.  The tag does not match the computed value.");
 		return TSRETURN_ERROR(("FAILED"), wait_false);
 	}
 
@@ -2250,7 +2298,7 @@ WaitableBool CCKMCryptoHelperImpl::ProcessFifoProcessEncAuthBlockDecrypt(std::sh
 			!(hr = m_compressor->Decompress(m_tmp, m_tmp2, compAct_Run)) ||
 			!(hr = m_compressor->DecompressFinal(m_tmp)))
 		{
-			LOG(DebugError, "Unable to decrypt the file.  The decompression operation failed.");
+			LogError("Unable to decrypt the file.  The decompression operation failed.");
 			return TSRETURN_ERROR(("FAILED"), wait_false);
 		}
 		m_tmp.insert(0, m_tmp2);
@@ -2261,7 +2309,7 @@ WaitableBool CCKMCryptoHelperImpl::ProcessFifoProcessEncAuthBlockDecrypt(std::sh
 
 		if (!m_writer->WriteData(m_tmp))
 		{
-			LOG(DebugError, "Unable to write the decrypted data into the output file.");
+			LogError("Unable to write the decrypted data into the output file.");
 			return TSRETURN_ERROR(("FAILED"), wait_false);
 		}
 	}
@@ -2284,7 +2332,7 @@ WaitableBool CCKMCryptoHelperImpl::ProcessFifoFinishDecryptEncAuth(std::shared_p
 
 		if (!(m_status->Status(task.c_str(), m_taskNumber, m_taskCount, 100)))
 		{
-			LOG(DebugError, "Operation cancelled");
+			LogError("Operation cancelled");
 			return TSRETURN_ERROR(("Cancelled"), wait_false);
 		}
 	}
@@ -2293,13 +2341,13 @@ WaitableBool CCKMCryptoHelperImpl::ProcessFifoFinishDecryptEncAuth(std::shared_p
 	{
 		if (!m_fifoHasher->finish(m_tmp))
 		{
-			LOG(DebugError, "Unable to compute the data hash.");
+			LogError("Unable to compute the data hash.");
 			return TSRETURN_ERROR(("Unable to compute the data hash."), wait_false);
 		}
 
 		if (m_tmp.compare(m_finalHash) != 0)
 		{
-			LOG(DebugError, "Unable to decrypt the file - data hash invalid.");
+			LogError("Unable to decrypt the file - data hash invalid.");
 			return TSRETURN_ERROR(("Unable to decrypt the file - data hash invalid"), wait_false);
 		}
 	}
@@ -2406,16 +2454,28 @@ bool CCKMCryptoHelperImpl::GenerateWorkingKey(std::shared_ptr<ICmsHeader>& heade
 {
 	std::shared_ptr<ICkmOperations> ops = std::dynamic_pointer_cast<ICkmOperations>(header);
 
+	m_failureReason.clear();
 	if (!ops)
 		return false;
-	return ops->GenerateWorkingKey(m_session, callback, workingKey);
+	if (!ops->GenerateWorkingKey(m_session, callback, workingKey))
+	{
+		LogError(ops->failureReason());
+		return false;
+	}
+	return true;
 }
 bool CCKMCryptoHelperImpl::RegenerateWorkingKey(std::shared_ptr<ICmsHeader>& header, tscrypto::tsCryptoData& workingKey)
 {
 	std::shared_ptr<ICkmOperations> ops = std::dynamic_pointer_cast<ICkmOperations>(header);
 
+	m_failureReason.clear();
 	if (!ops)
 		return false;
-	return ops->RegenerateWorkingKey(m_session, workingKey);
+	if (!ops->RegenerateWorkingKey(m_session, workingKey))
+	{
+		LogError(ops->failureReason());
+		return false;
+	}
+	return true;
 }
 

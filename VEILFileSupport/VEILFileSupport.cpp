@@ -32,6 +32,7 @@
 #include "stdafx.h"
 #include "VEILFileSupportFactory.h"
 
+#ifndef VEILFILESUPPORT_STATIC
 #ifdef _WIN32
 extern "C"
 BOOL __stdcall DllMain( HINSTANCE hModule,
@@ -48,6 +49,7 @@ BOOL __stdcall DllMain( HINSTANCE hModule,
     return TRUE;
 }
 #endif
+#endif // VEILFILESUPPORT_STATIC
 
 class VEILFileSupportDllInterface : public IVEILFileSupportDllInterface, public tsmod::IObject
 {

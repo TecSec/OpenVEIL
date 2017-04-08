@@ -32,7 +32,7 @@
  Written by Roger Butler
 -->
 <Root xmlns="http://schemas.tecsec.com/xml2asn1codegen/2015">
-  <File Name="CryptoAsn1" ExportSymbol="VEILCORE_API" TemplateExternSymbol="VEILCORE_TEMPLATE_EXTERN" HeaderPrefix="core/">
+  <File Name="CryptoAsn1" ExportSymbol="VEILCORE_API" TemplateExternSymbol="VEILCORE_TEMPLATE_EXTERN" HeaderPrefix="">
     <Namespace Name="tscrypto">
 
       <ID Name="TECSEC_CMS_HEADER" Value="1.2.840.10060.4" Exported="true" />

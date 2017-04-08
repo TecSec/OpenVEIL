@@ -44,9 +44,9 @@ class VEILCORE_API INotifyPropertyChange
 {
 public:
 	virtual ~INotifyPropertyChange() {}
-	virtual int AddNotification(std::function<void(const tscrypto::tsCryptoString&)> func) = 0;
+	virtual int AddNotification(std::function<bool(const tscrypto::tsCryptoString&)> func) = 0;
 	virtual void RemoveNotification(int cookie) = 0;
-	virtual void RaisePropertyChange(const tscrypto::tsCryptoString& list) = 0;
+	virtual bool RaisePropertyChange(const tscrypto::tsCryptoString& list) = 0;
 };
 
 #endif // __INOTIFYPROPERTYCHANGE_H__

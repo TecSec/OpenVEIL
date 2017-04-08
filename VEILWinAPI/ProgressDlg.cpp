@@ -44,7 +44,6 @@ public:
 	CProgressDlg() :
 		m_hWnd(NULL),
 		m_nCaptionID(0),
-		m_nTimer(0),
 		m_nLower(0),
 		m_nUpper(0),
 		m_nStep(0),
@@ -499,7 +498,6 @@ private:
 
 	HWND m_hWnd;
 	uint32_t m_nCaptionID;
-	uint32_t m_nTimer;
 	int m_nLower;
 	int m_nUpper;
 	int m_nStep;

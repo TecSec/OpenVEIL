@@ -69,7 +69,7 @@ extern tsmod::IObject* CreateSmartCardMonitorTool();
 #endif
 
 extern "C"
-bool EXPORTME Initializesmartcard(std::shared_ptr<tsmod::IServiceLocator> servLoc, tsmod::IReportError* log)
+bool EXPORTME Initialize_smartcard(std::shared_ptr<tsmod::IServiceLocator> servLoc, tsmod::IReportError* log)
 {
 	UNREFERENCED_PARAMETER(servLoc);
 	UNREFERENCED_PARAMETER(log);
@@ -99,7 +99,7 @@ bool EXPORTME Initializesmartcard(std::shared_ptr<tsmod::IServiceLocator> servLo
 }
 
 extern "C"
-bool EXPORTME Terminatesmartcard(std::shared_ptr<tsmod::IServiceLocator> servLoc)
+bool EXPORTME Terminate_smartcard(std::shared_ptr<tsmod::IServiceLocator> servLoc)
 {
 	UNREFERENCED_PARAMETER(servLoc);
 

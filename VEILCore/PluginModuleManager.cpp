@@ -181,7 +181,7 @@ void PluginModuleManager::LoadModulesOfType(const tscrypto::tsCryptoStringBase& 
     tsCryptoString name;
     
 // #ifdef _DEBUG
-// printf ("Searching for modules:  %s\n", pattern);
+// printf ("Searching for modules:  %s\n", pattern.c_str());
 // #endif
 
 	XP_FileListHandle files = xp_GetFileListHandle(pattern);
@@ -218,8 +218,17 @@ void PluginModuleManager::LoadModulesOfTypeForService(const tscrypto::tsCryptoSt
 	DWORD count;
     tsCryptoString name;
     
+// #ifdef _DEBUG
+// printf ("Searching for modules:  %s\n", pattern.c_str());
+// #endif
+
 	if (files == XP_FILELIST_INVALID)
+	{
+// #ifdef _DEBUG
+// printf ("  None found\n");
+// #endif
 		return;
+	}
 
 	auto cleanup = finally([&files]() {xp_CloseFileList(files);});
 
@@ -229,6 +238,9 @@ void PluginModuleManager::LoadModulesOfTypeForService(const tscrypto::tsCryptoSt
 	{
 		if (xp_GetFileName(files, i, name))
 		{
+// #ifdef _DEBUG
+// printf ("  found: %s\n", name.c_str());
+// #endif
 			LoadModuleForService(name.c_str(), log, servLoc, registerCleanup);
 		}
 	}

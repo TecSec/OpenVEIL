@@ -61,6 +61,7 @@ static const char *gItems[] = {
 	"$.FileVEIL.SessionTimeout",
 	"$.FileVEIL.LastDirBrowsed",
 	"$.FileVEIL.CompressionType",
+	"$.FileVEIL.DirBrowsedList",
 };
 
 BasicVEILPreferences::BasicVEILPreferences(JsonConfigLocation loc1, JsonConfigLocation loc2, JsonConfigLocation loc3) : tsJsonPreferencesBase(loc1, loc2, loc3)
@@ -129,6 +130,7 @@ DEFINE_INT_PREF_CODE(BasicVEILPreferences, "$.FileVEIL.SecureDeletePassCount", S
 DEFINE_INT_PREF_CODE(BasicVEILPreferences, "$.FileVEIL.SessionTimeout", SessionTimeout, 300)
 DEFINE_TEXT_PREF_CODE(BasicVEILPreferences, "$.FileVEIL.LastDirBrowsed", LastDirBrowsed, "")
 DEFINE_ENUM_PREF_CODE(BasicVEILPreferences, "$.FileVEIL.CompressionType", CompressionType, CompressionType, ct_zLib)
+DEFINE_TEXT_PREF_CODE(BasicVEILPreferences, "$.FileVEIL.DirBrowsedList", DirBrowsedList, "")
 
 std::shared_ptr<BasicVEILPreferences> BasicVEILPreferences::Create(JsonConfigLocation loc1, JsonConfigLocation loc2, JsonConfigLocation loc3)
 {

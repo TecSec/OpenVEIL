@@ -40,8 +40,6 @@
 #include "targetver.h"
 #endif
 
-#include "core/compilerconfig.h"
-
 #include "VEIL.h"
 #include "core/tsThread.h"
 #include "TcpConnection.h"
@@ -400,7 +398,7 @@ class IHttpHeader : public IHttpResponse
 public:
 	typedef enum { hh_CloseSocket, hh_Success, hh_Failure } ReadCode;
 
-	virtual ReadCode ReadStream(SOCKET msgsock, const tscrypto::tsCryptoData& leadin, std::shared_ptr<IHttpChannelProcessor>& processor) = 0;
+    virtual ReadCode ReadStream(std::shared_ptr<ITcpConnection> channel, const tscrypto::tsCryptoData& leadin, std::shared_ptr<IHttpChannelProcessor>& processor) = 0;
 	virtual void clear() = 0;
 };
 

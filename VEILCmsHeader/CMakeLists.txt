@@ -37,34 +37,34 @@ INCLUDE_DIRECTORIES(
 
 
 # source_group("Generated" FILES )
-set(CmsHeaderCppSources
-    stdafx.cpp
-    CmsHeader.cpp
-	CmsHeaderAndGroupImpl.cpp
-	CmsHeaderAttributeImpl.cpp
-	CmsHeaderExtensionImpl.cpp
-	CmsHeaderFiefdomImpl.cpp
-	CmsHeaderImpl.cpp
-)
 
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/CmsHeader.rc.in ${CMAKE_CURRENT_BINARY_DIR}/CmsHeader.rc)
 
 set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/CmsHeader.rc PROPERTIES COMPILE_DEFINITIONS RC_COMPILED)
 
+set(VEILCmsHeaderSource
+    ${CMAKE_CURRENT_SOURCE_DIR}/targetver.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/resource.h
+	${CMAKE_CURRENT_SOURCE_DIR}/CmsHeaderAndGroupImpl.h
+	${CMAKE_CURRENT_SOURCE_DIR}/CmsHeaderAttributeImpl.h
+	${CMAKE_CURRENT_SOURCE_DIR}/CmsHeaderExtensionImpl.h
+	${CMAKE_CURRENT_SOURCE_DIR}/CmsHeaderFiefdomImpl.h
+	${CMAKE_CURRENT_SOURCE_DIR}/CmsHeaderImpl.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/CmsHeader.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/CmsHeaderAndGroupImpl.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/CmsHeaderAttributeImpl.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/CmsHeaderExtensionImpl.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/CmsHeaderFiefdomImpl.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/CmsHeaderImpl.cpp
+	${OVCmsHeaders}
+	)
+
 add_library(VEILCmsHeader SHARED
+    stdafx.h
+    stdafx.cpp
     CmsHeader.rc.in
 	${CMAKE_CURRENT_BINARY_DIR}/CmsHeader.rc
-    targetver.h
-    resource.h
-    stdafx.h
-	CmsHeaderAndGroupImpl.h
-	CmsHeaderAttributeImpl.h
-	CmsHeaderExtensionImpl.h
-	CmsHeaderFiefdomImpl.h
-	CmsHeaderImpl.h
-
-    ${CmsHeaderCppSources}
-	${OVCmsHeaders}
+	${VEILCmsHeaderSource}
 )
 
 target_include_directories(VEILCmsHeader INTERFACE $<BUILD_INTERFACE:${PUBLIC_SOURCE_TOP_DIR}/include> $<INSTALL_INTERFACE:${TS_MODULE}/include>)
@@ -90,4 +90,24 @@ if(UNIX AND CMAKE_OBJCOPY)
 endif()
 
 
-install(TARGETS VEILCmsHeader ARCHIVE DESTINATION ${LIB_DIR} LIBRARY DESTINATION ${SHLIB_DIR} RUNTIME DESTINATION ${BIN_DIR})
+if(APPLE)
+     set_target_properties(VEILCmsHeader PROPERTIES 
+ 		FRAMEWORK TRUE
+ 		FRAMEWORK_VERSION ${OSX_FRAMEWORK_VERSION}
+ 		MACOSX_FRAMEWORK_IDENTIFIER com.tecsec.VEILCmsHeader
+ 		MACOSX_FRAMEWORK_ICON_FILE CKM_Lock_Icon.icns
+ #		MACOSX_FRAMEWORK_NAME
+ 		MACOSX_FRAMEWORK_BUNDLE_VERSION ${VEIL_VERSION}
+ 		MACOSX_FRAMEWORK_SHORT_VERSION_STRING ${VEIL_VERSION}
+ 		# MACOSX_FRAMEWORK_INFO_PLIST Info.plist
+ 		PUBLIC_HEADER VEILCmsHeader.h
+ 		# XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"
+ 		)
+else()
+	install(TARGETS VEILCmsHeader ARCHIVE DESTINATION ${LIB_DIR} LIBRARY DESTINATION ${SHLIB_DIR} RUNTIME DESTINATION ${BIN_DIR})
+endif()
+
+
+if(WIN32)
+    add_subdirectory(static)
+endif(WIN32)

@@ -81,5 +81,7 @@ protected:
 	tsIObjStringSignal _errorSignals;
 	tsIObjectSignal _disconnectSignals;
 
+	std::shared_ptr<tsmod::IBaseProtocolStack> _stack;
+	tscrypto::tsCryptoData m_receivedDataFromStack;
 };
 

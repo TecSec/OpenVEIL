@@ -43,8 +43,12 @@
 
 #ifdef HAVE_SMARTCARD
 
+#ifdef __linux__
+    typedef LPSCARD_READERSTATE LPSCARD_READERSTATE_A;
+    typedef SCARD_READERSTATE SCARD_READERSTATE_A;
+#endif
+
 #ifndef SCARD_E_SERVER_TOO_BUSY
-    //typedef LPSCARD_READERSTATE_A LPSCARD_READERSTATE;
     #define SCARD_E_SERVER_TOO_BUSY  0x80100031
 #endif // _WIN32
 
@@ -151,7 +155,7 @@ LONG tsSCardTransmit(
 LONG tsSCardGetStatusChange(
     SCARDCONTEXT	hContext,
     DWORD		dwTimeout,
-    LPSCARD_READERSTATE	rgReaderStates,
+    LPSCARD_READERSTATE_A	rgReaderStates,
     DWORD		cReaders);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

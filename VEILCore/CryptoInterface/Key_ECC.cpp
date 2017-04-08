@@ -31,7 +31,6 @@
 
 #include "stdafx.h"
 #include "CryptoAsn1.h"
-#include "TSALG.h"
 
 class Key_ECC : public EccKey, public TSName, public DhEccPrimitives, public tscrypto::ICryptoObject, public tscrypto::IInitializableObject, public AlgorithmInfo, public TSALG_Access
 {
@@ -684,13 +683,15 @@ public:
 		tsCryptoString algorithm(fullName);
 
 		SetName(algorithm);
+		algorithm.ToUpper();
 		algorithm.Replace("KEY-", "ECC-");
 		if (TsStrniCmp(algorithm, "NUMSP", 5) == 0)
 			algorithm.insert(0, "ECC-");
 		if (TsStrniCmp(algorithm, "X", 1) == 0)
 			algorithm.Replace("X", "ECC-CURVE", 1);
 		if (TsStrniCmp(algorithm, "ED", 2) == 0)
-			algorithm.insert(0, "ECC-").Replace("_PH", "");
+			algorithm.insert(0, "ECC-");
+		algorithm.Replace("X25519", "CURVE25519").Replace("_PH", "");
 		if (keyPair != nullptr)
 			desc->freeKeyStructure(desc, keyPair);
 		keyPair = nullptr;

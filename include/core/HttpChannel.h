@@ -110,6 +110,15 @@ public:
 	virtual ~IHttpChannelProcessor() {}
 };
 
+class VEILCORE_API IJsonChannelProcessor : public IChannelProcessor
+{
+public:
+	virtual bool WrapMessage(tscrypto::JSONObject &body) = 0;
+	virtual bool UnwrapMessage(tscrypto::JSONObject &body) = 0;
+
+	virtual ~IJsonChannelProcessor() {}
+};
+
 class VEILCORE_API INetworkConnectionEvents
 {
 public:
@@ -206,7 +215,7 @@ public:
 	virtual tscrypto::tsCryptoString extensionsSelected() const = 0;
 };
 
-class VEILCORE_API IHttpChannel : public ITcpChannel
+class VEILCORE_API IHttpChannel //: public ITcpChannel
 {
 public:
 	virtual ~IHttpChannel(void) {}
@@ -217,6 +226,21 @@ public:
 
 	virtual std::shared_ptr<IHttpChannelProcessor> getHttpChannelProcessor() const = 0;
 	virtual std::shared_ptr<IWebSocket> UpgradeToWebSocket(const tscrypto::tsCryptoString& url, const tscrypto::tsCryptoString& protocols, const tscrypto::tsCryptoString& extensions) = 0;
+	virtual std::shared_ptr<ITcpChannel> GetBaseChannel() = 0; // Workaround for std::dynamic_pointer_cast not working with the HttpChannel complex class
+//private:
+//	using ITcpChannel::Send;
+//	using ITcpChannel::Receive;
+};
+
+class VEILCORE_API IJsonChannel : public ITcpChannel
+{
+public:
+	virtual ~IJsonChannel(void) {}
+
+	virtual bool Send(const tscrypto::JSONObject &data) = 0;
+	virtual bool Receive(tscrypto::JSONObject &data) = 0;
+
+	virtual std::shared_ptr<IJsonChannelProcessor> getJsonChannelProcessor() const = 0;
 private:
 	using ITcpChannel::Send;
 	using ITcpChannel::Receive;
@@ -232,6 +256,7 @@ public:
 };
 
 VEILCORE_API std::shared_ptr<IHttpChannel> CreateHttpChannel();
+VEILCORE_API std::shared_ptr<IJsonChannel> CreateJsonChannel();
 VEILCORE_API std::shared_ptr<ITcpChannel> CreateTcpChannel();
 VEILCORE_API tscrypto::tsCryptoString UrlEncode(const tscrypto::tsCryptoString& src);
 VEILCORE_API tscrypto::tsCryptoString UrlDecode(const tscrypto::tsCryptoString& src);

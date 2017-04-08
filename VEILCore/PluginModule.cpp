@@ -270,16 +270,28 @@ bool PluginModule::Initialize(tsmod::IReportError* log)
 
 //	if (log != nullptr)
 	{
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__APPLE__)
 		fn = (fn_t)xp_GetProcAddress(_handle, "Initialize");
 #endif
 		if (fn == nullptr)
 		{
-			fn = (fn_t)xp_GetProcAddress(_handle, ("Initialize" + _baseName).c_str());
+			fn = (fn_t)xp_GetProcAddress(_handle, "_Initialize");
 		}
 		if (fn == nullptr)
 		{
-			fn = (fn_t)xp_GetProcAddress(_handle, ("Initialize" + _baseName + "_d").c_str());
+			fn = (fn_t)xp_GetProcAddress(_handle, ("_Initialize_" + _baseName).c_str());
+		}
+		if (fn == nullptr)
+		{
+			fn = (fn_t)xp_GetProcAddress(_handle, ("Initialize_" + _baseName).c_str());
+		}
+		if (fn == nullptr)
+		{
+			fn = (fn_t)xp_GetProcAddress(_handle, ("_Initialize_" + _baseName + "_d").c_str());
+		}
+		if (fn == nullptr)
+		{
+			fn = (fn_t)xp_GetProcAddress(_handle, ("Initialize_" + _baseName + "_d").c_str());
 		}
 		if (fn == nullptr)
 		{
@@ -287,7 +299,7 @@ bool PluginModule::Initialize(tsmod::IReportError* log)
 			log->SetJSONFault("SystemException", "The service specification is invalid.  The service is missing the initialization entry point.", "Server", "");
 			else
 			{
-				LOG(FrameworkError, "The service specification is invalid.  The service is missing the initialization entry point.");
+				LOG(FrameworkError, "The service specification is invalid.  The service is missing the initialization entry point.  Name: " << _name << "  Basename: " << _baseName);
 			}
 			return false;
 		}

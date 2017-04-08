@@ -34,9 +34,11 @@
 
 #pragma once
 
-#include "VEIL.h"
-
-#ifdef _WIN32
+#ifdef VEILCMSHEADER_STATIC
+	#define CMSHEADER_EXPORT
+	#define CMSHEADER_TEMPLATE_EXTERN
+#else
+	#ifdef _WIN32
 	#ifdef _STATIC_RUNTIME_LOADER
 		#define CMSHEADER_EXPORT
 		#define CMSHEADER_TEMPLATE_EXTERN extern
@@ -51,7 +53,7 @@
 			#define CMSHEADER_EXPORT __declspec(dllexport)
 		#endif
 	#endif
-#else
+	#else
 	#if !defined(CMSHEADERDEF) && !defined(DOXYGEN)
 		#define CMSHEADER_EXPORT
 		#define CMSHEADER_TEMPLATE_EXTERN extern
@@ -59,7 +61,8 @@
 		#define CMSHEADER_EXPORT EXPORT_SYMBOL
 		#define CMSHEADER_TEMPLATE_EXTERN
 	#endif
-#endif // _WIN32
+	#endif // _WIN32
+#endif // VEILCMSHEADER_STATIC
 
 extern bool CMSHEADER_EXPORT InitializeCmsHeader();
 

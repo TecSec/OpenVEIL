@@ -34,18 +34,12 @@ if(APPLE)
   set(TSALG_NAME "TSALG")
 	FIND_LIBRARY(TSALG_LIBRARY ${TSALG_NAME})
 	MARK_AS_ADVANCED(TSALG_LIBRARY)
-  if (NOT TSALG_LIBRARY)
-  	message(FATAL "TSALG not found")
-  else()
-  	message(STATUS "TSALG at ${TSALG_LIBRARY}")
-  endif()
 
 	FIND_LIBRARY(TSALG_D_LIBRARY ${TSALG_NAME}_d)
   if (NOT TSALG_D_LIBRARY)
   	set(TSALG_D_LIBRARY ${TSALG_LIBRARY})
   endif()
 	MARK_AS_ADVANCED(TSALG_D_LIBRARY)
-	message(STATUS "TSALG_d at ${TSALG_D_LIBRARY}")
 
   set(TSALG_ROOT_DIR ${TSALG_LIBRARY})
 
@@ -56,20 +50,19 @@ if(APPLE)
     set(TSALG_TARGET ${TSALG_LIBRARY})
   endif()
 
-  message(STATUS "Crypto target:  ${TSALG_TARGET}")
+  include(${TSALG_TARGET}/TSALG.cmake)
+
+  message(STATUS "Crypto target:  ${TSALG_TARGET}  Version: ${CRYPTO_VERSION}")
   #add_definitions(-framework ${TSALG_NAME})
 
-  set(CRYPTO_INSTALL_PREFIX "${TSALG_ROOT_DIR}")
-  set(CRYPTO_BIN_DIR "${TSALG_ROOT_DIR}")
-  set(CRYPTO_INCLUDE_DIR "${TSALG_ROOT_DIR}/Headers")
-  set(CRYPTO_LIB_DIR "${TSALG_ROOT_DIR}")
-  if(UNIX)
-    set(CRYPTO_SHLIB_DIR "${CRYPTO_LIB_DIR}")
-  else()
-    set(CRYPTO_SHLIB_DIR "${CRYPTO_BIN_DIR}")
-  endif()
-
   #  TODO:  Need lots of stuff here
+  if(NOT TARGET TSALG)
+    add_library(TSALG SHARED IMPORTED)
+    set_target_properties(TSALG PROPERTIES
+        IMPORTED_LOCATION_DEBUG "${TSALG_TARGET}"
+        IMPORTED_LOCATION_RELEASE "${TSALG_TARGET}"
+        )
+  endif()
 
 else()
   set(__path_suffixes 
@@ -282,6 +275,20 @@ else()
       else()
         message(FATAL_ERROR "TSALG not found")
       endif()
+      endif()
+      if(NOT TARGET TSALG_s)
+        if(EXISTS ${TSALG_ROOT_LIB_RELEASE}/${CMAKE_STATIC_LIBRARY_PREFIX}TSALG_static${__releaseSuffix}${CMAKE_STATIC_LIBRARY_SUFFIX})
+          add_library(TSALG_s STATIC IMPORTED)
+          set_target_properties(TSALG_s PROPERTIES
+          IMPORTED_LOCATION_DEBUG "${TSALG_ROOT_LIB_DEBUG}/${CMAKE_STATIC_LIBRARY_PREFIX}TSALG_static${__debugSuffix}${CMAKE_STATIC_LIBRARY_SUFFIX}"
+          IMPORTED_LOCATION_RELEASE "${TSALG_ROOT_LIB_RELEASE}/${CMAKE_STATIC_LIBRARY_PREFIX}TSALG_static${__releaseSuffix}${CMAKE_STATIC_LIBRARY_SUFFIX}"
+          INTERFACE_INCLUDE_DIRECTORIES "${CRYPTO_INCLUDE_DIR}"
+          INTERFACE_INCLUDE_DIRECTORIES_DEBUG "${CRYPTO_INCLUDE_DIR}"
+          INTERFACE_INCLUDE_DIRECTORIES_RELEASE "${CRYPTO_INCLUDE_DIR}"
+          )
+        else()
+          #message(FATAL_ERROR "TSALG_s not found")
+        endif()
       endif()
     else ()
       message(FATAL_ERROR "TSALG.cmake could not be found.")

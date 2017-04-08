@@ -53,6 +53,9 @@ set(CMAKE_OSX_DEPLOYMENT_TARGET 10.11)
 set(CMAKE_OSX_ARCHITECTURES "Universal")
 
 set(DEBUG_TSALG ON)
+#if(APPLE)
+	set(wxWidgets_USE_STATIC OFF)
+#endif(APPLE)
 
 
 set(SuperProject ON)
@@ -75,8 +78,13 @@ ENDIF()
 #
 include(tecsec_configure_env)
 include(tecsec_ConfigureTSALG)
-set(SDK_FOLDER ${CRYPTO_INSTALL_BASE_DIR})
-set(TS_INSTALL_PREFIX ${CRYPTO_INSTALL_PREFIX})
+if(APPLE)
+    set(SDK_FOLDER ${CRYPTO_INSTALL_BASE_DIR})
+    set(TS_INSTALL_PREFIX /usr/local)
+else()
+    set(SDK_FOLDER ${CRYPTO_INSTALL_BASE_DIR})
+    set(TS_INSTALL_PREFIX ${CRYPTO_INSTALL_PREFIX})
+endif(APPLE)
 include(tecsec_packages)
 IF(MSVC)
 	# include(compiler_tecsec_msvc.noWarnings)
@@ -111,7 +119,7 @@ endif(APPLE)
 
 set(${VEILCORENAME_U}_MAJOR_VERSION 7)
 set(${VEILCORENAME_U}_MINOR_VERSION 0)
-set(${VEILCORENAME_U}_REVISION_VERSION 41)
+set(${VEILCORENAME_U}_REVISION_VERSION 51)
 set(${VEILCORENAME_U}_BUILD_VERSION 0)
 set(OSX_FRAMEWORK_VERSION A)
 
@@ -578,8 +586,8 @@ elseif(APPLE)
     set(HAVE_SMARTCARD 1)
 endif(HAVE_WINDOWS_H)
 
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/SolutionItems/compilerconfig.h.in ${CMAKE_CURRENT_BINARY_DIR}/core/compilerconfig.h)
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/SolutionItems/compilerconfig_c.h.in ${CMAKE_CURRENT_BINARY_DIR}/core/compilerconfig_c.h)
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/SolutionItems/compilerconfig.h.in ${CMAKE_CURRENT_BINARY_DIR}/core/${TS_TOOLSET}/compilerconfig.h)
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/SolutionItems/compilerconfig_c.h.in ${CMAKE_CURRENT_BINARY_DIR}/core/${TS_TOOLSET}/compilerconfig_c.h)
 
 ImportTarget(TSALG)
 
@@ -587,6 +595,7 @@ add_definitions(-DWFMO)
 
 include_directories(
 	${CMAKE_CURRENT_BINARY_DIR} 
+    ${CMAKE_CURRENT_BINARY_DIR}/core
 	${CMAKE_CURRENT_SOURCE_DIR}/include 
 	${CMAKE_CURRENT_SOURCE_DIR}/SolutionItems
 	)
@@ -698,8 +707,10 @@ set(VEILCoreHeaders
 	${CMAKE_CURRENT_SOURCE_DIR}/include/core/cryptolocator.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/core/cryptolocatorwriter.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/core/VEILCrypto.h
-	${CMAKE_CURRENT_BINARY_DIR}/core/compilerconfig.h
-	${CMAKE_CURRENT_BINARY_DIR}/core/compilerconfig_c.h
+    )
+set(VEILCoreHeadersCompiler
+    ${CMAKE_CURRENT_BINARY_DIR}/core/${TS_TOOLSET}/compilerconfig.h
+    ${CMAKE_CURRENT_BINARY_DIR}/core/${TS_TOOLSET}/compilerconfig_c.h
 
 )
 
@@ -745,17 +756,46 @@ if (wxWidgets_FOUND)
 		${CMAKE_CURRENT_BINARY_DIR}/VEILwxWidgetsVersion.h
 	)
 	set(OVWxWinHeaders
-		${PUBLIC_SOURCE_TOP_DIR}/include/VeilWxWidgets/wxhtmlhelp.h
+        ${PUBLIC_SOURCE_TOP_DIR}/include/VEILWxWidgets/wxhtmlhelp.h
 		)
 endif (wxWidgets_FOUND)
 
+set(GEN_EXPORTS_XASN
+    ${PUBLIC_BINARY_TOP_DIR}/core/CryptoAsn1.export
+    ${PUBLIC_BINARY_TOP_DIR}/core/PKIX.export
+    ${PUBLIC_BINARY_TOP_DIR}/core/PKIX_Cert.export
+    ${PUBLIC_BINARY_TOP_DIR}/core/PKIX_OCSP.export
+)
+set(GEN_HEADERS_XASN
+    ${PUBLIC_BINARY_TOP_DIR}/core/CryptoAsn1.h
+    ${PUBLIC_BINARY_TOP_DIR}/core/PKIX.h
+    ${PUBLIC_BINARY_TOP_DIR}/core/PKIX_Cert.h
+    ${PUBLIC_BINARY_TOP_DIR}/core/PKIX_OCSP.h
+    ${PUBLIC_BINARY_TOP_DIR}/Asn1CkmHeader.h
+    ${PUBLIC_BINARY_TOP_DIR}/TokenPacket.h
+    ${PUBLIC_BINARY_TOP_DIR}/CTSProfile.h
+    ${PUBLIC_BINARY_TOP_DIR}/Asn1CkmHeader.export
+    ${PUBLIC_BINARY_TOP_DIR}/TokenPacket.export
+    ${PUBLIC_BINARY_TOP_DIR}/CTSProfile.export
+)
+set (VEILCoreHeaders ${VEILCoreHeaders} ${GEN_EXPORTS_XASN} ${GEN_HEADERS_XASN})
 CONFIGURE_FILE(VEILApiVersion.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/VEILApiVersion.cmake)
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/VEILApiVersion.cmake DESTINATION ${INCLUDE_DIR})
-install(FILES ${OVHeaders} DESTINATION ${INCLUDE_DIR})
-install(FILES ${VEILCoreHeaders} DESTINATION ${INCLUDE_DIR}/core)
-install(FILES ${VEILCmsHeaders} DESTINATION ${INCLUDE_DIR}/CmsHeader)
-install(FILES ${VEILCoreHelpHeaders} DESTINATION ${INCLUDE_DIR}/Help)
+if (NOT APPLE)
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/VEILApiVersion.cmake DESTINATION ${INCLUDE_DIR})
+    install(FILES ${OVHeaders} DESTINATION ${INCLUDE_DIR})
+    install(FILES ${VEILCoreHeaders} DESTINATION ${INCLUDE_DIR}/core)
+    install(FILES ${VEILCoreHeadersCompiler} DESTINATION ${INCLUDE_DIR}/core/${TS_TOOLSET})
+    install(FILES ${VEILCmsHeaders} DESTINATION ${INCLUDE_DIR}/CmsHeader)
+    install(FILES ${VEILCoreHelpHeaders} DESTINATION ${INCLUDE_DIR}/Help)
+    install(FILES ${VEILSmartCardHeaders} DESTINATION ${INCLUDE_DIR}/VEILSmartCard)
+    IF(WIN32)
+    install(FILES ${OVWinAPIHeaders} DESTINATION ${INCLUDE_DIR}/WinAPI)
+    ENDIF(WIN32)
+    if(wxWidgets_FOUND)
+        install(FILES ${OVWxWinHeaders} DESTINATION ${INCLUDE_DIR}/VEILWxWidgets)
+    endif()
+endif()
 
 if(UNIX)
 	string(REPLACE ";" " " VEILHeaders_str "${OVHeaders} ${PUBLIC_BINARY_TOP_DIR}/Asn1CkmHeader.h ${PUBLIC_BINARY_TOP_DIR}/TokenPacket.h ${PUBLIC_BINARY_TOP_DIR}/CTSProfile.h ${PUBLIC_BINARY_TOP_DIR}/VEILssmAsn.h")
@@ -766,13 +806,6 @@ if(UNIX)
 	# configure_file(${CMAKE_CURRENT_SOURCE_DIR}/installsdk.sh.in ${CMAKE_CURRENT_BINARY_DIR}/installsdk.sh @ONLY)
 	# install(FILES ${CMAKE_CURRENT_BINARY_DIR}/install.sh ${CMAKE_CURRENT_BINARY_DIR}/installtools.sh ${CMAKE_CURRENT_BINARY_DIR}/installsdk.sh ${CMAKE_CURRENT_BINARY_DIR}/stage.sh ${CMAKE_CURRENT_BINARY_DIR}/stagesdk.sh DESTINATION ${BIN_DIR} PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)
 endif(UNIX)
-install(FILES ${VEILSmartCardHeaders} DESTINATION ${INCLUDE_DIR}/VEILSmartCard)
-IF(WIN32)
-install(FILES ${OVWinAPIHeaders} DESTINATION ${INCLUDE_DIR}/WinAPI)
-ENDIF(WIN32)
-if(wxWidgets_FOUND)
-	install(FILES ${OVWxWinHeaders} DESTINATION ${INCLUDE_DIR}/VEILWxWidgets)
-endif()
 
 add_subdirectory(ThirdParty)
 add_subdirectory(VEILCore)
@@ -796,7 +829,83 @@ endif(GTEST_FOUND)
 
 if(WIN32)
 	CopyImportTargetBinaries(TSALG ${BIN_DIR})
+	if (wxWidgets_FOUND)
+	    CopyImportTargetBinaries(WxWidgets ${BIN_DIR})
+	endif (wxWidgets_FOUND)
 endif(WIN32)
+
+if(APPLE)
+    CONFIGURE_FILE(README.md ${CMAKE_CURRENT_BINARY_DIR}/bin/README.md COPYONLY)
+    CONFIGURE_FILE(LICENSE.md ${CMAKE_CURRENT_BINARY_DIR}/bin/LICENSE.md COPYONLY)
+
+
+    CONFIGURE_FILE(SolutionItems/BuildFrameworks.VEILCore.cmake.osx.in ${CMAKE_CURRENT_BINARY_DIR}/bin/BuildFrameworks.VEILCore.cmake @ONLY)
+    CONFIGURE_FILE(SolutionItems/VEILCore.list.osx.in ${CMAKE_CURRENT_BINARY_DIR}/bin/VEILCore.list @ONLY)
+    CONFIGURE_FILE(SolutionItems/VEILCoreSDK.list.osx.in ${CMAKE_CURRENT_BINARY_DIR}/bin/VEILCoreSDK.list @ONLY)
+
+    add_custom_target(CopyFrameworkVEILCore ALL
+        WORKING_DIRECTORY
+            ${CMAKE_CURRENT_BINARY_DIR}/bin
+        COMMAND 
+            ${CMAKE_COMMAND} -P BuildFrameworks.VEILCore.cmake
+    )
+    add_dependencies(CopyFrameworkVEILCore VEILCore ) # VEILWxWidgets
+
+
+    CONFIGURE_FILE(SolutionItems/BuildFrameworks.VEILCmsHeader.cmake.osx.in ${CMAKE_CURRENT_BINARY_DIR}/bin/BuildFrameworks.VEILCmsHeader.cmake @ONLY)
+    CONFIGURE_FILE(SolutionItems/VEILCmsHeader.list.osx.in ${CMAKE_CURRENT_BINARY_DIR}/bin/VEILCmsHeader.list @ONLY)
+    CONFIGURE_FILE(SolutionItems/VEILCmsHeaderSDK.list.osx.in ${CMAKE_CURRENT_BINARY_DIR}/bin/VEILCmsHeaderSDK.list @ONLY)
+
+    add_custom_target(CopyFrameworkVEILCmsHeader ALL
+        WORKING_DIRECTORY
+            ${CMAKE_CURRENT_BINARY_DIR}/bin
+        COMMAND 
+            ${CMAKE_COMMAND} -P BuildFrameworks.VEILCmsHeader.cmake
+    )
+    add_dependencies(CopyFrameworkVEILCmsHeader CopyFrameworkVEILCore VEILCmsHeader ) # VEILWxWidgets
+
+
+    CONFIGURE_FILE(SolutionItems/BuildFrameworks.VEILSmartCard.cmake.osx.in ${CMAKE_CURRENT_BINARY_DIR}/bin/BuildFrameworks.VEILSmartCard.cmake @ONLY)
+    CONFIGURE_FILE(SolutionItems/VEILSmartCard.list.osx.in ${CMAKE_CURRENT_BINARY_DIR}/bin/VEILSmartCard.list @ONLY)
+    CONFIGURE_FILE(SolutionItems/VEILSmartCardSDK.list.osx.in ${CMAKE_CURRENT_BINARY_DIR}/bin/VEILSmartCardSDK.list @ONLY)
+
+    add_custom_target(CopyFrameworkVEILSmartCard ALL
+        WORKING_DIRECTORY
+            ${CMAKE_CURRENT_BINARY_DIR}/bin
+        COMMAND 
+            ${CMAKE_COMMAND} -P BuildFrameworks.VEILSmartCard.cmake
+    )
+    add_dependencies(CopyFrameworkVEILSmartCard CopyFrameworkVEILCore VEILSmartCard ) # VEILWxWidgets
+
+
+    CONFIGURE_FILE(SolutionItems/BuildFrameworks.VEILFileSupport.cmake.osx.in ${CMAKE_CURRENT_BINARY_DIR}/bin/BuildFrameworks.VEILFileSupport.cmake @ONLY)
+    CONFIGURE_FILE(SolutionItems/VEILFileSupport.list.osx.in ${CMAKE_CURRENT_BINARY_DIR}/bin/VEILFileSupport.list @ONLY)
+    CONFIGURE_FILE(SolutionItems/VEILFileSupportSDK.list.osx.in ${CMAKE_CURRENT_BINARY_DIR}/bin/VEILFileSupportSDK.list @ONLY)
+
+    add_custom_target(CopyFrameworkVEILFileSupport ALL
+        WORKING_DIRECTORY
+            ${CMAKE_CURRENT_BINARY_DIR}/bin
+        COMMAND 
+            ${CMAKE_COMMAND} -P BuildFrameworks.VEILFileSupport.cmake
+    )
+    add_dependencies(CopyFrameworkVEILFileSupport CopyFrameworkVEILCore VEILFileSupport ) # VEILWxWidgets
+    
+    
+    if (wxWidgets_FOUND)
+        CONFIGURE_FILE(SolutionItems/BuildFrameworks.VEILWxWidgets.cmake.osx.in ${CMAKE_CURRENT_BINARY_DIR}/bin/BuildFrameworks.VEILWxWidgets.cmake @ONLY)
+        CONFIGURE_FILE(SolutionItems/VEILWxWidgets.list.osx.in ${CMAKE_CURRENT_BINARY_DIR}/bin/VEILWxWidgets.list @ONLY)
+        CONFIGURE_FILE(SolutionItems/VEILWxWidgetsSDK.list.osx.in ${CMAKE_CURRENT_BINARY_DIR}/bin/VEILWxWidgetsSDK.list @ONLY)
+
+        add_custom_target(CopyFrameworkVEILWxWidgets ALL
+            WORKING_DIRECTORY
+                ${CMAKE_CURRENT_BINARY_DIR}/bin
+            COMMAND 
+                ${CMAKE_COMMAND} -P BuildFrameworks.VEILWxWidgets.cmake
+        )
+        add_dependencies(CopyFrameworkVEILWxWidgets CopyFrameworkVEILCore VEILWxWidgets ) # VEILWxWidgets
+    endif (wxWidgets_FOUND)
+
+endif(APPLE)
 
 summary()
 add_uninstall()

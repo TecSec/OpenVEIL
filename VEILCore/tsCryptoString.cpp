@@ -359,6 +359,16 @@ tsCryptoString &tsCryptoString::append(uint64_t val)
 	append(buffer);
 	return *this;
 }
+#ifdef __APPLE__
+tsCryptoString &tsCryptoString::append(size_t val)
+{
+	tsCryptoString buffer;
+
+	buffer.Format("%llu", val);
+	append(buffer);
+	return *this;
+}
+#endif
 
 tsCryptoString& tsCryptoString::erase(tsCryptoString::size_type pos, tsCryptoString::size_type count)
 {
@@ -902,6 +912,12 @@ tsCryptoString& tscrypto::operator<<(tsCryptoString& string, uint64_t val)
 {
 	return string.append(val);
 }
+#ifdef __APPLE__
+tsCryptoString& tscrypto::operator<<(tsCryptoString& string, size_t val)
+{
+	return string.append(val);
+}
+#endif
 tsCryptoString& tscrypto::operator<<(tsCryptoString& string, const char* val)
 {
 	return string.append(val);
@@ -936,4 +952,10 @@ tsCryptoString& tscrypto::operator<<(tsCryptoString& string, enum SpecialStrings
 		break;
 	}
 	return string;
+}
+
+bool tscrypto::tsCryptoStringStream::WriteString(const tscrypto::tsCryptoStringBase & dataToAppend)
+{
+	append(dataToAppend);
+	return true;
 }

@@ -44,37 +44,41 @@ INCLUDE_DIRECTORIES(
 
 # source_group("Generated" FILES )
 set(CkmSmartCardCppSources
-    stdafx.cpp
-    CkmSmartCard.cpp
-	tsWinscardSupport.cpp
-	CkmWinscardEventImpl.cpp
-	SmartCardConnection.cpp
-	SmartCardInformation.cpp
-	SmartCardLink.cpp
-	CkmWinscardMonitorImpl.cpp
-	CkmWinscardReaderImpl.cpp
-	CkmWinscardConnectionImpl.cpp
-	CkmWinscardContextImpl.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/CkmSmartCard.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/tsWinscardSupport.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/CkmWinscardEventImpl.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/SmartCardConnection.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/SmartCardInformation.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/SmartCardLink.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/CkmWinscardMonitorImpl.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/CkmWinscardReaderImpl.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/CkmWinscardConnectionImpl.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/CkmWinscardContextImpl.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/targetver.h
+	${CMAKE_CURRENT_SOURCE_DIR}/tsWinscardSupport.h
+	${CMAKE_CURRENT_SOURCE_DIR}/CkmWinscardEventImpl.h
+	${CMAKE_CURRENT_SOURCE_DIR}/CkmWinscardMonitorImpl.h
+	${CMAKE_CURRENT_SOURCE_DIR}/CkmWinscardReaderImpl.h
+	${CMAKE_CURRENT_SOURCE_DIR}/CkmWinscardConnectionImpl.h
+	${CMAKE_CURRENT_SOURCE_DIR}/CkmWinscardContextImpl.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/resource.h
 )
 
 set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/CkmSmartCard.rc PROPERTIES COMPILE_DEFINITIONS RC_COMPILED)
 
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/CkmSmartCard.rc.in ${CMAKE_CURRENT_BINARY_DIR}/CkmSmartCard.rc)
 
-add_library(VEILSmartCard SHARED
-    ${CMAKE_CURRENT_BINARY_DIR}/CkmSmartCard.rc
-    CkmSmartCard.rc.in
-    targetver.h
-    resource.h
-    stdafx.h
-	tsWinscardSupport.h
-	CkmWinscardEventImpl.h
-	CkmWinscardMonitorImpl.h
-	CkmWinscardReaderImpl.h
-	CkmWinscardConnectionImpl.h
-	CkmWinscardContextImpl.h
+set(VEILSmartCardSource
     ${CkmSmartCardCppSources}
 	${VEILSmartCardHeaders}
+	)
+
+add_library(VEILSmartCard SHARED
+    stdafx.h
+    stdafx.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/CkmSmartCard.rc
+    CkmSmartCard.rc.in
+	${VEILSmartCardSource}
 )
 
 target_include_directories(VEILSmartCard INTERFACE $<BUILD_INTERFACE:${PUBLIC_SOURCE_TOP_DIR}/include> $<INSTALL_INTERFACE:${TS_MODULE}/include>)
@@ -82,9 +86,9 @@ target_include_directories(VEILSmartCard INTERFACE $<BUILD_INTERFACE:${PUBLIC_SO
 if(WIN32)
 	# add_dependencies(VEILSmartCard Configure.TSFrameworkVersion.h)
 ENDIF(WIN32)
-if(APPLE)
-    set_target_properties(VEILSmartCard PROPERTIES COMPILE_FLAGS ${PCSC_FLAGS})
-endif(APPLE)
+#if(APPLE)
+#    set_target_properties(VEILSmartCard PROPERTIES COMPILE_FLAGS ${PCSC_FLAGS})
+#endif(APPLE)
 if(ANDROID)
 	set_target_properties(VEILSmartCard PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
 endif()
@@ -106,4 +110,24 @@ if(UNIX AND CMAKE_OBJCOPY)
 endif()
 set_target_properties(VEILSmartCard PROPERTIES OUTPUT_NAME ${VEILCORENAME}SmartCard)
 
-install(TARGETS VEILSmartCard ARCHIVE DESTINATION ${LIB_DIR} LIBRARY DESTINATION ${SHLIB_DIR} RUNTIME DESTINATION ${BIN_DIR})
+if(APPLE)
+     set_target_properties(VEILSmartCard PROPERTIES 
+ 		FRAMEWORK TRUE
+ 		FRAMEWORK_VERSION ${OSX_FRAMEWORK_VERSION}
+ 		MACOSX_FRAMEWORK_IDENTIFIER com.tecsec.VEILSmartCard
+ 		MACOSX_FRAMEWORK_ICON_FILE CKM_Lock_Icon.icns
+ #		MACOSX_FRAMEWORK_NAME
+ 		MACOSX_FRAMEWORK_BUNDLE_VERSION ${VEIL_VERSION}
+ 		MACOSX_FRAMEWORK_SHORT_VERSION_STRING ${VEIL_VERSION}
+ 		# MACOSX_FRAMEWORK_INFO_PLIST Info.plist
+ 		PUBLIC_HEADER VEILSmartCard.h
+ 		# XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"
+ 		)
+else()
+	install(TARGETS VEILSmartCard ARCHIVE DESTINATION ${LIB_DIR} LIBRARY DESTINATION ${SHLIB_DIR} RUNTIME DESTINATION ${BIN_DIR})
+endif()
+
+
+if(WIN32)
+    add_subdirectory(static)
+endif(WIN32)

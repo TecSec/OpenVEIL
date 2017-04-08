@@ -33,7 +33,6 @@
 #include "gtest/gtest.h"
 #include "CodeGenTemplates.h"
 #include "TestAsn1CkmHeader.h"
-#include "TSALG.h"
 #include "core/CryptoAsn1.h"
 
 using namespace tscrypto;
@@ -1020,9 +1019,9 @@ GTEST_API_ int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);
   int retVal = RUN_ALL_TESTS();
 
-  if (_heapchk() != _HEAPOK)
-	  printf("HEAP ERROR\n");
-  return retVal;
+//   if (_heapchk() != _HEAPOK)
+// 	  printf("HEAP ERROR\n");
+//   return retVal;
 }
 
 #ifdef MINGW

@@ -34,16 +34,20 @@
 struct Notification
 {
 	int cookie;
-	std::function<void(const tscrypto::tsCryptoString&)> func;
+	std::function<bool(const tscrypto::tsCryptoString&)> func;
 };
 
 class NotifyPropertyChange : public INotifyPropertyChange, public tsmod::IObject
 {
 public:
-	NotifyPropertyChange() : _nextCookie(0) {}
+	NotifyPropertyChange() : _nextCookie(0) 
+	{
+	}
 
-	virtual ~NotifyPropertyChange() {}
-	virtual int AddNotification(std::function<void(const tscrypto::tsCryptoString&)> func)
+	virtual ~NotifyPropertyChange() 
+	{
+	}
+	virtual int AddNotification(std::function<bool(const tscrypto::tsCryptoString&)> func)
 	{
 		Notification n;
 
@@ -58,7 +62,7 @@ public:
 		_notifications.erase(std::remove_if(_notifications.begin(), _notifications.end(), [cookie](Notification& n)->bool{ return n.cookie == cookie; }), _notifications.end());
 	}
 
-	void RaisePropertyChange(const tscrypto::tsCryptoString& list)
+	bool RaisePropertyChange(const tscrypto::tsCryptoString& list)
 	{
 		auto items = list.split(",;");
 
@@ -67,9 +71,11 @@ public:
 			name.Trim(); 
 			for (auto notif : _notifications)
 			{
-				notif.func(name);
+				if (!notif.func(name))
+					return false;
 			}
 		}
+		return true;
 	}
 private:
 	std::vector<Notification> _notifications;

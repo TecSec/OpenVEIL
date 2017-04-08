@@ -214,7 +214,7 @@ public:
 protected:
 	SCARDCONTEXT _context;
 	//ReaderNameList _readers;
-	std::vector<SCARD_READERSTATE> _readers;
+	std::vector<SCARD_READERSTATE_A> _readers;
 	tscrypto::AutoCriticalSection _readerNameListLock;
 	ConsumerList _consumers;
 	tscrypto::AutoCriticalSection _consumerListLock;
@@ -268,7 +268,7 @@ protected:
 					// This convoluted code is here to avoid a deadlock situation.  We must first lock the list and clone it.  
 					// Then we wait in a potentially long process (SCardGetStatusChange).
 					// Then we have to lock the list again and sync the lists back up for later processing.
-					std::vector<SCARD_READERSTATE> tmpReaders;
+					std::vector<SCARD_READERSTATE_A> tmpReaders;
 					{
 						// Duplicate the list
 						TSAUTOLOCKER lock(_readerNameListLock);
@@ -283,7 +283,7 @@ protected:
 						TSAUTOLOCKER lock(_readerNameListLock);
 						for (auto reader : tmpReaders)
 						{
-							auto it = std::find_if(_readers.begin(), _readers.end(), [&reader](SCARD_READERSTATE& rdr) { return reader.szReader == rdr.szReader; });  // we can compare the szReader pointers as they are shallow copied above
+							auto it = std::find_if(_readers.begin(), _readers.end(), [&reader](SCARD_READERSTATE_A& rdr) { return reader.szReader == rdr.szReader; });  // we can compare the szReader pointers as they are shallow copied above
 							if (it != _readers.end())
 							{
 								*it = reader;
@@ -302,7 +302,7 @@ protected:
 						TSAUTOLOCKER lock(_readerNameListLock);
 						for (size_t i = 0; i < _readers.size(); i++)
 						{
-							SCARD_READERSTATE& readerState = _readers[i];
+							SCARD_READERSTATE_A& readerState = _readers[i];
 
 							if (readerState.dwEventState & SCARD_STATE_CHANGED)
 							{
@@ -585,7 +585,7 @@ protected:
 					_readers[0].pvUserData = (void*)1; // make sure that the Plug-N-Play entry is never removed
 
 				// Now go through the list of tracked readers and remove all removed readers
-				_readers.erase(std::remove_if(_readers.begin(), _readers.end(), [&readersRemoved](SCARD_READERSTATE& state) ->bool {
+				_readers.erase(std::remove_if(_readers.begin(), _readers.end(), [&readersRemoved](SCARD_READERSTATE_A& state) ->bool {
 					if (state.pvUserData == nullptr)
 					{
 						if (state.szReader != nullptr)
@@ -615,7 +615,7 @@ protected:
 			}
 			for (tscrypto::tsCryptoString& name : *readersAdded)
 			{
-				SCARD_READERSTATE state;
+				SCARD_READERSTATE_A state;
 
 				memset(&state, 0, sizeof(state));
 				state.dwCurrentState = SCARD_STATE_UNAWARE;
@@ -712,7 +712,7 @@ LONG tsSCardTransmit(IN SCARDHANDLE hCard, IN LPCSCARD_IO_REQUEST pioSendPci, IN
 	return Result("Transmit", SCardTransmit(hCard, pioSendPci, pbSendBuffer, cbSendLength, pioRecvPci, pbRecvBuffer, pcbRecvLength));
 }
 
-LONG tsSCardGetStatusChange(IN SCARDCONTEXT hContext, IN DWORD dwTimeout, IN OUT LPSCARD_READERSTATE rgReaderStates, IN DWORD cReaders)
+LONG tsSCardGetStatusChange(IN SCARDCONTEXT hContext, IN DWORD dwTimeout, IN OUT LPSCARD_READERSTATE_A rgReaderStates, IN DWORD cReaders)
 {
 	return Result("GetStatusChange", SCardGetStatusChange(hContext, dwTimeout, rgReaderStates, cReaders));
 }

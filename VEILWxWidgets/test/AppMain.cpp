@@ -59,18 +59,22 @@ const int ID_FAVORITEMANAGER = ID_AUDIENCESELECTOR + 1;
 const int ID_TOKENSELECTOR = ID_FAVORITEMANAGER + 1;
 const int ID_FAVORITENAME = ID_TOKENSELECTOR + 1;
 const int ID_PROPERTYSHEET = ID_FAVORITENAME + 1;
+const int ID_AUDIENCESELECTOR2 = ID_PROPERTYSHEET + 1;
+const int ID_FAVORITEMANAGER2 = ID_AUDIENCESELECTOR2 + 1;
 
 BEGIN_EVENT_TABLE(MyFrame, wxFrame)
-	EVT_MENU(wxID_ABOUT, MyFrame::OnAbout)
-	EVT_MENU(wxID_EXIT, MyFrame::OnQuit)
-	EVT_MENU(ID_ABOUTCKM, MyFrame::OnAboutCkm)
-	EVT_MENU(ID_KEYVEILLOGIN, MyFrame::OnKeyVEILLogin)
-	EVT_MENU(ID_AUDIENCESELECTOR, MyFrame::OnAudienceSelector)
-	EVT_MENU(ID_FAVORITEMANAGER, MyFrame::OnFavoriteManager)
-	EVT_MENU(ID_TOKENSELECTOR, MyFrame::OnTokenSelector)
-	EVT_MENU(ID_FAVORITENAME, MyFrame::OnFavoriteName)
-	EVT_MENU(ID_PROPERTYSHEET, MyFrame::OnPropertySheet)
-	END_EVENT_TABLE()
+EVT_MENU(wxID_ABOUT, MyFrame::OnAbout)
+EVT_MENU(wxID_EXIT, MyFrame::OnQuit)
+EVT_MENU(ID_ABOUTCKM, MyFrame::OnAboutCkm)
+EVT_MENU(ID_KEYVEILLOGIN, MyFrame::OnKeyVEILLogin)
+EVT_MENU(ID_AUDIENCESELECTOR, MyFrame::OnAudienceSelector)
+EVT_MENU(ID_FAVORITEMANAGER, MyFrame::OnFavoriteManager)
+EVT_MENU(ID_TOKENSELECTOR, MyFrame::OnTokenSelector)
+EVT_MENU(ID_FAVORITENAME, MyFrame::OnFavoriteName)
+EVT_MENU(ID_PROPERTYSHEET, MyFrame::OnPropertySheet)
+EVT_MENU(ID_AUDIENCESELECTOR2, MyFrame::OnAudienceSelector2)
+EVT_MENU(ID_FAVORITEMANAGER2, MyFrame::OnFavoriteManager2)
+END_EVENT_TABLE()
 
 MyFrame::MyFrame(const wxString& title) : wxFrame(NULL, wxID_ANY, title)
 {
@@ -92,6 +96,8 @@ MyFrame::MyFrame(const wxString& title) : wxFrame(NULL, wxID_ANY, title)
 	guiMenu->Append(ID_TOKENSELECTOR, wxT("&Token Selector..."), wxT("Show the Token Selector"));
 	guiMenu->Append(ID_FAVORITENAME, wxT("Favorite &Name..."), wxT("Show the Favorite Name dialog"));
 	guiMenu->Append(ID_PROPERTYSHEET, wxT("&Property sheet..."), wxT("Show the property sheet"));
+	guiMenu->Append(ID_AUDIENCESELECTOR2, wxT("Audience Selector &Wizard..."), wxT("Show the Audience Selector Wizard"));
+	guiMenu->Append(ID_FAVORITEMANAGER2, wxT("&Favorite Manager 2..."), wxT("Show the newer Favorite Manager"));
 
 	// Now append the freshly created menu to the menu bar...
 	wxMenuBar *menuBar = new wxMenuBar();
@@ -137,7 +143,7 @@ void MyFrame::OnAudienceSelector(wxCommandEvent& event)
 	std::shared_ptr<IVEILWxUIBase> dlg = ::TopServiceLocator()->get_instance<IVEILWxUIBase>("/WxWin/AudienceSelector");
 	std::shared_ptr<IAudienceSelector> as = std::dynamic_pointer_cast<IAudienceSelector>(dlg);
 
-	if (!_connector)
+	if (!_connector || !_connector->isConnected())
 	{
 		wxCommandEvent evt;
 
@@ -150,12 +156,40 @@ void MyFrame::OnAudienceSelector(wxCommandEvent& event)
 	}
 }
 
+void MyFrame::OnAudienceSelector2(wxCommandEvent& event)
+{
+	std::shared_ptr<IVEILWxUIBase> dlg = ::TopServiceLocator()->get_instance<IVEILWxUIBase>("/WxWin/AudienceSelector2");
+	std::shared_ptr<IAudienceSelector> as = std::dynamic_pointer_cast<IAudienceSelector>(dlg);
+
+	as->Start(_connector, (XP_WINDOW)this, "GUI Tester");
+	dlg->DisplayModal((XP_WINDOW)this);
+	_connector = as->Connector();
+}
+
 void MyFrame::OnFavoriteManager(wxCommandEvent& event)
 {
 	std::shared_ptr<IVEILWxUIBase> dlg = ::TopServiceLocator()->get_instance<IVEILWxUIBase>("/WxWin/FavoriteEditor");
 	std::shared_ptr<IAudienceSelector> as = std::dynamic_pointer_cast<IAudienceSelector>(dlg);
 
-	if (!_connector)
+	if (!_connector || !_connector->isConnected())
+	{
+		wxCommandEvent evt;
+
+		OnKeyVEILLogin(evt);
+	}
+	if (!!_connector)
+	{
+		as->Start(_connector, (XP_WINDOW)this, "GUI Tester");
+		dlg->DisplayModal((XP_WINDOW)this);
+	}
+}
+
+void MyFrame::OnFavoriteManager2(wxCommandEvent& event)
+{
+	std::shared_ptr<IVEILWxUIBase> dlg = ::TopServiceLocator()->get_instance<IVEILWxUIBase>("/WxWin/FavoriteManager");
+	std::shared_ptr<IAudienceSelector> as = std::dynamic_pointer_cast<IAudienceSelector>(dlg);
+
+	if (!_connector || !_connector->isConnected())
 	{
 		wxCommandEvent evt;
 
@@ -173,7 +207,7 @@ void MyFrame::OnTokenSelector(wxCommandEvent& event)
 	std::shared_ptr<ITokenSelector> tokSel = ::TopServiceLocator()->get_instance<ITokenSelector>("/WxWin/TokenSelector");
 	std::shared_ptr<IKeyVEILSession> sess;
 
-	if (!_connector)
+	if (!_connector || !_connector->isConnected())
 	{
 		wxCommandEvent evt;
 
@@ -202,6 +236,6 @@ void MyFrame::OnFavoriteName(wxCommandEvent& event)
 	dlg->Name("Original Name");
 	if (dlg->DisplayModal((XP_WINDOW)this) == wxID_OK)
 	{
-		wxMessageBox((tscrypto::tsCryptoString() << "Returned name: '" << dlg->Name() << "'").c_str());
+		wxMessageBox((tscrypto::tsCryptoString().append("Returned name: '") << dlg->Name() << "'").c_str());
 	}
 }

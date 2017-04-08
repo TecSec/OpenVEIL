@@ -267,6 +267,9 @@ namespace tscrypto {
 		tsCryptoString &append(uint16_t val);
 		tsCryptoString &append(uint32_t val);
 		tsCryptoString &append(uint64_t val);
+#ifdef __APPLE__
+        tsCryptoString &append(size_t val);
+#endif
 
 		tsCryptoString& erase(size_type pos = 0, size_type count = npos);
 		iterator erase(const_iterator position);
@@ -594,6 +597,17 @@ namespace tscrypto {
 		tsCryptoString TruncOrPadRight(size_type width, value_type padding) const;
 	};
 
+    class VEILCORE_API tsCryptoStringStream : public tsCryptoString, public IStringWriter
+    {
+    public:
+        virtual ~tsCryptoStringStream()
+        {
+        }
+
+        // Inherited via IStringWriter
+        virtual bool WriteString(const tscrypto::tsCryptoStringBase & dataToAppend) override;
+    };
+
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable:4231)
@@ -693,6 +707,9 @@ namespace tscrypto {
 	VEILCORE_API tsCryptoString& operator<<(tsCryptoString& string, uint16_t val);
 	VEILCORE_API tsCryptoString& operator<<(tsCryptoString& string, uint32_t val);
 	VEILCORE_API tsCryptoString& operator<<(tsCryptoString& string, uint64_t val);
+#ifdef __APPLE__
+    VEILCORE_API tsCryptoString& operator<<(tsCryptoString& string, size_t val);
+#endif
 	VEILCORE_API tsCryptoString& operator<<(tsCryptoString& string, const char* val);
 	VEILCORE_API tsCryptoString& operator<<(tsCryptoString& string, const tsCryptoStringBase& val);
 	VEILCORE_API tsCryptoString& operator<<(tsCryptoString& string, const tsCryptoData& val);

@@ -111,6 +111,7 @@ public:
 	DECLARE_INT_PREF_CODE(SessionTimeout)
 	DECLARE_TEXT_PREF_CODE(LastDirBrowsed)
 	DECLARE_BASE_TYPE_PREF_CODE(CompressionType, CompressionType)
+	DECLARE_TEXT_PREF_CODE(DirBrowsedList)
 
 protected:
 

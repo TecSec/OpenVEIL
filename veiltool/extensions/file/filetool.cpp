@@ -53,7 +53,7 @@ extern tsmod::IObject* CreateFileInfoTool();
 #endif
 
 extern "C"
-bool EXPORTME Initializefiletool(std::shared_ptr<tsmod::IServiceLocator> servLoc, tsmod::IReportError* log)
+bool EXPORTME Initialize_filetool(std::shared_ptr<tsmod::IServiceLocator> servLoc, tsmod::IReportError* log)
 {
 	UNREFERENCED_PARAMETER(servLoc);
 	UNREFERENCED_PARAMETER(log);
@@ -67,7 +67,7 @@ bool EXPORTME Initializefiletool(std::shared_ptr<tsmod::IServiceLocator> servLoc
 }
 
 extern "C"
-bool EXPORTME Terminatefiletool(std::shared_ptr<tsmod::IServiceLocator> servLoc)
+bool EXPORTME Terminate_filetool(std::shared_ptr<tsmod::IServiceLocator> servLoc)
 {
 	UNREFERENCED_PARAMETER(servLoc);
 

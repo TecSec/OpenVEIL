@@ -59,6 +59,7 @@ static std::shared_ptr<tscrypto::ICryptoLocator> g_CryptoLocator;
 static std::shared_ptr<tscrypto::ICryptoLocator> g_CryptoTestLocator;
 FipsState tscrypto::gFipsState;
 static std::vector<std::function<bool()> > gInitializers;
+static std::vector<std::function<bool()> > gInitialInitializers;
 static std::deque<std::function<bool()> > gTerminators;
 static XP_MODULE hDllModule = XP_MODULE_INVALID;
 
@@ -243,6 +244,9 @@ std::shared_ptr<tscrypto::ICryptoLocator> tscrypto::CryptoLocator()
 		cryptoWriter->AddClass("X25519", CreateEccKey);
 		cryptoWriter->AddClass("ED25519", CreateEccKey);
 		cryptoWriter->AddClass("ED25519_PH", CreateEccKey);
+		cryptoWriter->AddClass("KEY-X25519", CreateEccKey);
+		cryptoWriter->AddClass("KEY-ED25519", CreateEccKey);
+		cryptoWriter->AddClass("KEY-ED25519_PH", CreateEccKey);
 
 #ifndef MINGW
         cryptoWriter->AddClass("numsp256d1", CreateEccKey);
@@ -251,6 +255,12 @@ std::shared_ptr<tscrypto::ICryptoLocator> tscrypto::CryptoLocator()
         cryptoWriter->AddClass("numsp256t1", CreateEccKey);
         cryptoWriter->AddClass("numsp384t1", CreateEccKey);
         cryptoWriter->AddClass("numsp512t1", CreateEccKey);
+		cryptoWriter->AddClass("KEY-numsp256d1", CreateEccKey);
+		cryptoWriter->AddClass("KEY-numsp384d1", CreateEccKey);
+		cryptoWriter->AddClass("KEY-numsp512d1", CreateEccKey);
+		cryptoWriter->AddClass("KEY-numsp256t1", CreateEccKey);
+		cryptoWriter->AddClass("KEY-numsp384t1", CreateEccKey);
+		cryptoWriter->AddClass("KEY-numsp512t1", CreateEccKey);
 #endif
 
 
@@ -495,6 +505,8 @@ bool tscrypto::HasCryptoLocator()
 
 void RunCryptoInitializers()
 {
+	if (gInitialInitializers.empty())
+		gInitialInitializers = gInitializers;
     for (auto func : gInitializers)
     {
         func();
@@ -519,6 +531,7 @@ void tscrypto::TerminateCryptoSystem()
         gTerminators.pop_back();
         func();
     }
+	gInitialInitializers = gInitialInitializers;
 }
 
 static bool Check_CPU_support_AES()
@@ -2667,12 +2680,12 @@ void tscrypto::CryptoTestFailed()
 bool tscrypto::GenerateRandom(tsCryptoData& data, size_t lenInBytes)
 {
 	data.resize(lenInBytes);
-	return internalGenerateRandomBits(data.rawData(), lenInBytes * 8, true, nullptr, 0);
+	return internalGenerateRandomBits(data.rawData(), (uint32_t)(lenInBytes * 8), true, nullptr, 0);
 }
 
 bool tscrypto::GenerateRandom(uint8_t* data, size_t lenInBytes)
 {
-	return internalGenerateRandomBits(data, lenInBytes * 8, true, nullptr, 0);
+	return internalGenerateRandomBits(data, (uint32_t)(lenInBytes * 8), true, nullptr, 0);
 }
 #ifdef __cplusplus
 extern "C"

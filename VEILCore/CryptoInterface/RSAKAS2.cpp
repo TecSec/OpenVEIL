@@ -30,7 +30,6 @@
 // Written by Roger Butler
 
 #include "stdafx.h"
-#include "TSALG.h"
 
 using namespace tscrypto;
 
@@ -153,7 +152,8 @@ bool RSAKAS2::initialize(size_t secretLengthInBits, const tsCryptoStringBase& kd
     m_IDu = IDu;
     m_IDv = IDv;
 
-    if (!(m_kdf = std::dynamic_pointer_cast<KeyDerivationFunction>(CryptoFactory(kdfName))))
+    if (!(m_kdf = std::dynamic_pointer_cast<KeyDerivationFunction>(CryptoFactory(kdfName))) ||
+		!m_kdf->initialize())
     {
         finish();
         return false;
@@ -181,6 +181,7 @@ bool RSAKAS2::initializeForConfirmation(size_t secretLengthInBits, const tsCrypt
     m_forBilateral = forBilateral;
 
 	if (!(m_kdf = std::dynamic_pointer_cast<KeyDerivationFunction>(CryptoFactory(kdfName))) ||
+		!m_kdf->initialize() ||
 		!(m_mac = std::dynamic_pointer_cast<MessageAuthenticationCode>(CryptoFactory(macName))) ||
 		!(m_sve = std::dynamic_pointer_cast<RsaSVE>(CryptoFactory("RSASVE"))))
     {

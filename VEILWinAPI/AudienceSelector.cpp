@@ -987,7 +987,7 @@ protected:
 				MessageBoxA(_hDlg, "An error occurred while attempting to create the new favorite.", "Error", MB_ICONHAND | MB_OK);
 				return FALSE;
 			}
-			if (SendMessage(_FavoriteCombo, CB_FINDSTRING, 0, (LPARAM)favName.c_str()) == CB_ERR)
+			if (SendMessage(_FavoriteCombo, CB_FINDSTRING, 0, (LPARAM)favName.c_str()) == -1)
 			{
 				int index = (int)SendMessage(_FavoriteCombo, CB_ADDSTRING, 0, (LPARAM)favName.c_str());
 				SendMessage(_FavoriteCombo, CB_SETITEMDATA, index, findGuidIndex(id, true));
@@ -1367,7 +1367,7 @@ protected:
 		std::shared_ptr<IFavorite> fav;
 		tscrypto::tsCryptoString name;
 		GUID id = GUID_NULL;
-		LRESULT idx = CB_ERR;
+		LRESULT idx = -1;
 
 		// Verify that the user wishes to eliminate any previously displayed access groups.
 		name.resize(512);
@@ -1478,7 +1478,7 @@ protected:
 		//Check if Token not present in the Slot
 		UINT ind = (UINT)SendMessage(_TokenCombo, CB_GETCURSEL, 0, 0);
 
-		if (ind != (UINT)CB_ERR)
+		if (ind != (UINT)-1)
 		{
 			if (!HasSession())
 			{
@@ -1680,7 +1680,7 @@ protected:
 	//
 	//						name = cg->get_Name();
 	//						int item = (int)SendMessage(_CryptoGroupCombo, CB_ADDSTRING, 0, (LPARAM)name.c_str());
-	//						if (item != CB_ERR)
+	//						if (item != -1)
 	//						{
 	//							SendMessage(_CryptoGroupCombo, CB_SETITEMDATA, item, index);
 	//						}
@@ -1932,7 +1932,7 @@ protected:
 
 			// first get the user's selection
 			tokindex = (int)SendMessage(_TokenCombo, CB_GETCURSEL, 0, 0);
-			if (CB_ERR != tokindex)
+			if (-1 != tokindex)
 			{
 				LRESULT index = SendMessage(_TokenCombo, CB_GETITEMDATA, tokindex, 0);
 
@@ -2478,7 +2478,7 @@ protected:
 		// TODO:  Implement me
 		/*    // if we are supposed to remember favorites, load it up
 		if (myRememberFavorite && selection.GetLength() &&
-		(CB_ERR != _FavoriteCombo.SelectString(-1, selection)))
+		(-1 != _FavoriteCombo.SelectString(-1, selection)))
 		{
 		OnChangeFavorite();
 		UpdateDialogControls();
@@ -2669,7 +2669,7 @@ protected:
 		if (tokenSerial.size() > 0)
 		{
 			int curToken = FindTokenOnComboBox(tokenSerial);
-			if (curToken != CB_ERR)
+			if (curToken != -1)
 				SendMessage(_TokenCombo, CB_SETCURSEL, curToken, 0);
 		}
 	}
@@ -2681,7 +2681,7 @@ protected:
 
 		if (!!_connector)
 		{
-			if (curToken == CB_ERR)
+			if (curToken == -1)
 			{
 				std::shared_ptr<IToken>         token;
 
@@ -2708,7 +2708,7 @@ protected:
 
 				if (isSelected)
 				{
-					SendMessage(_TokenCombo, CB_SETCURSEL, (WPARAM)CB_ERR, 0);
+					SendMessage(_TokenCombo, CB_SETCURSEL, (WPARAM)-1, 0);
 				}
 
 				int serialIndex = (int)SendMessage(_TokenCombo, CB_GETITEMDATA, curToken, 0);
@@ -2747,13 +2747,13 @@ protected:
 		char name[512];
 		int nameLen = sizeof(name);
 
-		if (curToken != CB_ERR)
+		if (curToken != -1)
 		{
 			bool isSelected = (curToken == cursel);
 
 			if (isSelected)
 			{
-				SendMessage(_TokenCombo, CB_SETCURSEL, (WPARAM)CB_ERR, 0);
+				SendMessage(_TokenCombo, CB_SETCURSEL, (WPARAM)-1, 0);
 			}
 
 			int serialIndex = (int)SendMessage(_TokenCombo, CB_GETITEMDATA, curToken, 0);
@@ -2778,7 +2778,7 @@ protected:
 	//		int cursel = (int)SendMessage(_FavoriteCombo, CB_GETCURSEL, 0, 0);
 	//		tscrypto::tsCryptoString name;
 	//
-	//		if (curFavorite == CB_ERR)
+	//		if (curFavorite == -1)
 	//		{
 	//			std::shared_ptr<IFavorite>         favorite;
 	//
@@ -2804,7 +2804,7 @@ protected:
 	//
 	//			if (isSelected)
 	//			{
-	//				SendMessage(_FavoriteCombo, CB_SETCURSEL, (WPARAM)CB_ERR, 0);
+	//				SendMessage(_FavoriteCombo, CB_SETCURSEL, (WPARAM)-1, 0);
 	//			}
 	//
 	//			int guidIndex = (int)SendMessage(_FavoriteCombo, CB_GETITEMDATA, curFavorite, 0);
@@ -3084,7 +3084,7 @@ protected:
 				if (!!(fav = _connector->favorite(favIndex)))
 				{
 					name = fav->favoriteName();
-					if (SendMessage(_FavoriteCombo, CB_FINDSTRING, 0, (LPARAM)name.c_str()) == CB_ERR)
+					if (SendMessage(_FavoriteCombo, CB_FINDSTRING, 0, (LPARAM)name.c_str()) == -1)
 					{
 						index = (int)SendMessage(_FavoriteCombo, CB_ADDSTRING, 0, (LPARAM)name.c_str());
 						SendMessage(_FavoriteCombo, CB_SETITEMDATA, index, findGuidIndex(fav->favoriteId(), true));
@@ -3118,7 +3118,7 @@ protected:
 			}
 		}
 		if (serialIndex == -1)
-			return CB_ERR;
+			return -1;
 
 		count = (int)SendMessage(_TokenCombo, CB_GETCOUNT, 0, 0);
 		for (index = 0; index < count; index++)
@@ -3130,7 +3130,7 @@ protected:
 					return index;
 			}
 		}
-		return CB_ERR;
+		return -1;
 	}
 
 };

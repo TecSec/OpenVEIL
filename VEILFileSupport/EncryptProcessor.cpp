@@ -176,7 +176,7 @@ bool EncryptProcessor::FinishHeader(const tscrypto::tsCryptoData &key, std::shar
 
 	if (!(header7 = std::dynamic_pointer_cast<ICmsHeader>(header)))
 	{
-		LogError("An error occurred while retrieving the encryption header for file '%s'.", sTempFile.c_str());
+		LogError("An error occurred while retrieving the encryption header for file '%s'.", m_writer->DataName().c_str());
 		return TSRETURN_ERROR(("FAILED"), false);
 	}
 
@@ -204,7 +204,7 @@ bool EncryptProcessor::FinishHeader(const tscrypto::tsCryptoData &key, std::shar
 		//
 		if (!m_writer->WriteData(tmpHeaderData))
 		{
-			LogError("An error occurred while reserving space for the encryption header in file '%s'.", sTempFile.c_str());
+			LogError("An error occurred while reserving space for the encryption header in file '%s'.  It appears that the write failed.", m_writer->DataName().c_str());
 			return TSRETURN_ERROR(("FAILED"), false);
 		}
 	}
@@ -234,7 +234,7 @@ bool EncryptProcessor::FinishHeader(const tscrypto::tsCryptoData &key, std::shar
 		retVal = ProcessHashed(key, header7, blocksize, true, fifo);
 		break;
 	default:
-		LogError("An invalid encryption format was specified for file '%s'.", sTempFile.c_str());
+		LogError("An invalid encryption format was specified for file '%s'.", m_writer->DataName().c_str());
 		return TSRETURN_ERROR(("FAILED"), false);
 	}
 	ClearStreamVariables();
@@ -1148,7 +1148,8 @@ bool EncryptProcessor::ProcessEncAuthHashed(const tscrypto::tsCryptoData &_key, 
 	encAlg = header7->GetEncryptionAlgorithmID();
 	encMode = Alg2Mode(encAlg);
 
-	if (!(m_kdf = std::dynamic_pointer_cast<KeyDerivationFunction>(CryptoFactory("KDF-SHA512"))))
+	if (!(m_kdf = std::dynamic_pointer_cast<KeyDerivationFunction>(CryptoFactory("KDF-SHA512"))) ||
+		!m_kdf->initialize())
 	{
 		LogError("The specified encryption file format requires the use of a key derivation function that is not available.");
 		return TSRETURN_ERROR(("The specified encryption file format requires the use of a key derivation function that is not available."), false);
@@ -1425,7 +1426,8 @@ bool EncryptProcessor::ProcessEncAuthHashed(const tscrypto::tsCryptoData &_key, 
 
 	encMode = Alg2Mode(encAlg);
 
-	if (!(m_kdf = std::dynamic_pointer_cast<KeyDerivationFunction>(CryptoFactory("KDF-SHA512"))))
+	if (!(m_kdf = std::dynamic_pointer_cast<KeyDerivationFunction>(CryptoFactory("KDF-SHA512"))) ||
+		!m_kdf->initialize())
 	{
 		LogError("The specified encryption file format requires the use of a key derivation function that is not available.");
 		return TSRETURN_ERROR(("The specified encryption file format requires the use of a key derivation function that is not available."), false);
@@ -1932,7 +1934,8 @@ bool EncryptProcessor::DecryptEncAuthData(const tscrypto::tsCryptoData &_key, st
 	tscrypto::TS_ALG_ID encAlg = header->GetEncryptionAlgorithmID();
 	encMode = Alg2Mode(encAlg);
 
-	if (!(m_kdf = std::dynamic_pointer_cast<KeyDerivationFunction>(CryptoFactory("KDF-SHA512"))))
+	if (!(m_kdf = std::dynamic_pointer_cast<KeyDerivationFunction>(CryptoFactory("KDF-SHA512"))) ||
+		!m_kdf->initialize())
 	{
 		LogError("The specified encryption file format requires the use of a key derivation function that is not available.");
 		return TSRETURN_ERROR(("The specified encryption file format requires the use of a key derivation function that is not available."), false);
@@ -2210,7 +2213,8 @@ bool EncryptProcessor::DecryptEncAuthData(const tscrypto::tsCryptoData &_key, in
 
 	encMode = Alg2Mode(encAlg);
 
-	if (!(m_kdf = std::dynamic_pointer_cast<KeyDerivationFunction>(CryptoFactory("KDF-SHA512"))))
+	if (!(m_kdf = std::dynamic_pointer_cast<KeyDerivationFunction>(CryptoFactory("KDF-SHA512"))) ||
+		!m_kdf->initialize())
 	{
 		LogError("The specified encryption file format requires the use of a key derivation function that is not available.");
 		return TSRETURN_ERROR(("The specified encryption file format requires the use of a key derivation function that is not available."), false);

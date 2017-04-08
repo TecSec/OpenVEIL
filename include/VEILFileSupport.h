@@ -37,6 +37,10 @@
 #ifndef VEILFILESUPPORT_H_INCLUDED
 #define VEILFILESUPPORT_H_INCLUDED
 
+#ifdef VEILFILESUPPORT_STATIC
+#define VEILFILESUPPORT_EXPORT
+#define VEILFILESUPPORT_TEMPLATE_EXTERN 
+#else
 #ifdef _WIN32
 #ifdef _STATIC_RUNTIME_LOADER
 #define VEILFILESUPPORT_EXPORT
@@ -61,6 +65,7 @@
 #define VEILFILESUPPORT_TEMPLATE_EXTERN
 #endif
 #endif // _WIN32
+#endif // VEILFILESUPPORT_STATIC
 
 class VEILFILESUPPORT_EXPORT IReservedLength
 {
@@ -239,7 +244,7 @@ public:
     ///
     /// <returns>S_OK for success or a standard COM error code for failure.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual bool EncryptFile(const tscrypto::tsCryptoString& sFile, const tscrypto::tsCryptoString& sEncrFile, std::shared_ptr<ICmsHeader> header, CompressionType comp, tscrypto::TS_ALG_ID algorithm, tscrypto::TS_ALG_ID hashAlgorithm,
+	virtual bool Encrypt_File(const tscrypto::tsCryptoString& sFile, const tscrypto::tsCryptoString& sEncrFile, std::shared_ptr<ICmsHeader> header, CompressionType comp, tscrypto::TS_ALG_ID algorithm, tscrypto::TS_ALG_ID hashAlgorithm,
 		bool SignHeader, bool bindData, CMSFileFormatIds DataFormat, bool randomIvec, tscrypto::SymmetricPaddingType paddingType, int blockSize = 5000000) = 0;
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Encrypts a stream within a file using CKM 7.</summary>
@@ -389,7 +394,10 @@ public:
 	virtual bool DecryptCryptoDataWithHeader(const tscrypto::tsCryptoData &inputData, tscrypto::tsCryptoData &outputData, std::shared_ptr<ICmsHeaderBase>& header) = 0;
 	// Added 7.0.30
 	virtual bool  DataStartsWithCmsHeader(const tscrypto::tsCryptoData& contents, std::shared_ptr<ICmsHeaderBase>& pVal) = 0;
-
+	// Added 7.0.43
+	virtual tscrypto::tsCryptoString failureReason() = 0;
+	// Added 7.0.46
+	virtual bool GetFileInformation(const tscrypto::tsCryptoString& filename, tscrypto::JSONObject& info) = 0;
 };
 
 
@@ -687,6 +695,8 @@ public:
 	virtual bool GenerateWorkingKey(std::shared_ptr<ICmsHeader>& header, std::shared_ptr<IKeyGenCallback> callback, tscrypto::tsCryptoData& workingKey) = 0;
 	virtual bool RegenerateWorkingKey(std::shared_ptr<ICmsHeader>& header, tscrypto::tsCryptoData& workingKey) = 0;
 
+	// Added 7.0.43
+	virtual tscrypto::tsCryptoString failureReason() = 0;
 };
 
 /*! @brief Enumeration that defines the compression action to take
@@ -849,7 +859,7 @@ typedef std::shared_ptr<IVEILFileSupportDllInterface> (*GetVEILFileSupportDllInt
 /*! \endcond */
 
 
-#if __GNUC__ >= 4
+#if (__GNUC__ >= 4) && !defined(__APPLE__)
 extern "C"
 #endif
 std::shared_ptr<IVEILFileSupportDllInterface> VEILFILESUPPORT_EXPORT GetVEILFileSupportDllInterface();

@@ -48,9 +48,19 @@ extern ProcAddressFn tscrypto::xp_GetProcAddress(XP_MODULE phDll, const char *pr
 #ifdef _WIN32
 	return (ProcAddressFn)GetProcAddress((HINSTANCE)phDll, procName);
 #else /* UNIX */
+    Dl_info info = {0,};
+
     //printf ("looking for proc %s\n", procName);
 	ProcAddressFn retVal = (ProcAddressFn)dlsym((void *)phDll, procName);
-    //printf ("  found %p\n", retVal);
+    // if (retVal == nullptr)
+    // {
+    //     if (dladdr((void*)phDll, &info) != 0)
+    //         printf ("  not found - %s - %s\n", dlerror(), info.dli_fname);
+    //     else
+    //         printf ("  not found - %s - %s\n", dlerror(), "UNKNOWN");
+    // }
+    // else
+    //     printf ("  found %p - %s\n", retVal, info.dli_fname);
     return retVal;
 #endif
 }
@@ -62,24 +72,28 @@ extern int32_t tscrypto::xp_LoadSharedLib(const tsCryptoStringBase &pPath, XP_MO
 {
 #ifdef _WIN32
     /* load the desired IA Object (DLL) */
-    ;
-
 	if (XP_MODULE_INVALID == (*phDll = (XP_MODULE)LoadLibraryExA(pPath.c_str(), nullptr, 0))) {
         return -1;
     }
 #else
-    #ifdef MAC
-        *phDll = (XP_MODULE)dlopen(pPath.c_str(), RTLD_NOW | RTLD_GLOBAL);
+    void* p;
+    #ifdef __APPLE__
+        p = dlopen(pPath.c_str(), RTLD_NOW | RTLD_GLOBAL | RTLD_FIRST);
     #else
-        *phDll = (XP_MODULE)dlopen(pPath.c_str(), RTLD_LAZY | RTLD_LOCAL);
+        p = dlopen(pPath.c_str(), RTLD_LAZY | RTLD_LOCAL);
     #endif
-    if (NULL == (void *)(*phDll))
+    *phDll = (XP_MODULE)p;
+    if (NULL == p)
     {
         gLastDLError = dlerror();
         //printf ("Load of %s failed with %s\n", pPath.c_str(), gLastDLError);
         return -1;
     }
+    else
+    {
+        //printf("Found module %s at %p\n", pPath.c_str(), p);
     gLastDLError = NULL;
+    }
 #endif
     return 0;
 }

@@ -37,6 +37,8 @@ INCLUDE_DIRECTORIES(
 if(MINGW)
 	string(REPLACE "/" "\\" xmlCodeGen ${CRYPTO_BIN_DIR}/xml2Asn1CodeGen${CMAKE_EXECUTABLE_SUFFIX})
 	# message(STATUS "CodeGen Path ${xmlCodeGen}")
+elseif(APPLE)
+	set(xmlCodeGen /usr/local/bin/xml2Asn1CodeGen)
 else()
 	set(xmlCodeGen ${CRYPTO_BIN_DIR}/xml2Asn1CodeGen${CMAKE_EXECUTABLE_SUFFIX})
 endif()

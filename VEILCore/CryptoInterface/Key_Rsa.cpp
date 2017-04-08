@@ -32,7 +32,6 @@
 #include "stdafx.h"
 #include "PKIX.h"
 #include "CryptoAsn1.h"
-#include "TSALG.h"
 
 using namespace tscrypto;
 

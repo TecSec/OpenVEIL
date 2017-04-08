@@ -799,26 +799,37 @@ public:
 		std::shared_ptr<Hash> hasher;
 		tscrypto::tsCryptoData Empty, hash;
 
+		m_failureReason.clear();
 		if (!(hasher = std::dynamic_pointer_cast<Hash>(CryptoFactory(_TS_ALG_ID::TS_ALG_SHA512))) || !hasher->initialize())
+		{
+			LogError("Invalid hash algorithm");
 			return Empty;
+		}
 
 		if (HasHeaderSigningPublicKey())
 		{
 			if (!hasher->update(GetHeaderSigningPublicKey()))
+			{
+				LogError("Invalid hash algorithm");
 				return Empty;
+		}
 		}
 		else
 		{
 			std::shared_ptr<ICmsHeaderExtension> ext;
 
 			if (!hasher->update(GetCreationDate().ToUTF8Data()))
+			{
+				LogError("Invalid hash algorithm");
 				return Empty;
+			}
 
 			ext.reset();
 			if (GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_IVEC_EXT_OID, tscrypto::tsCryptoData::OID), ext))
 			{
 				if (!hasher->update(ext->GetOID()) || !hasher->update(ext->GetContents()))
 				{
+					LogError("Invalid hash algorithm");
 					return Empty;
 				}
 			}
@@ -828,6 +839,7 @@ public:
 			{
 				if (!hasher->update(ext->GetOID()) || !hasher->update(ext->GetContents()))
 				{
+					LogError("Invalid hash algorithm");
 					return Empty;
 				}
 			}
@@ -837,6 +849,7 @@ public:
 			{
 				if (!hasher->update(ext->GetOID()) || !hasher->update(ext->GetContents()))
 				{
+					LogError("Invalid hash algorithm");
 					return Empty;
 				}
 			}
@@ -846,12 +859,16 @@ public:
 			{
 				if (!hasher->update(ext->GetOID()) || !hasher->update(ext->GetContents()))
 				{
+					LogError("Invalid hash algorithm");
 					return Empty;
 				}
 			}
 		}
 		if (!hasher->finish(hash))
+		{
+			LogError("Invalid hash algorithm");
 			return Empty;
+		}
 		return hash;
 	}
 	virtual bool padHeaderToSize(DWORD size) override
@@ -863,9 +880,10 @@ public:
 		SetPaddedHeaderSize(size);
 		headerLength = (int)ToBytes().size();
 
+		m_failureReason.clear();
 		if ((DWORD)headerLength > size)
 		{
-			LOG(DebugError, "New header length does not match size [headerLength " << headerLength << ", size " << (uint32_t)size << "]");
+			LogError(tsCryptoString("New header length does not match size [headerLength ").append(headerLength) << ", size " << (uint32_t)size << "]");
 			return false;
 		}
 		return true;
@@ -877,6 +895,7 @@ public:
 
 		tscrypto::tsCryptoData buff;
 
+		m_failureReason.clear();
 		SetCompressionType(comp);
 		SetEncryptionAlgorithmID(algorithm);
 		SetPaddingType(paddingType);
@@ -908,7 +927,7 @@ public:
 		{
 			if (!(mac = std::dynamic_pointer_cast<MessageAuthenticationCode>(CryptoFactory(hashAlgorithm))))
 			{
-				LOG(DebugError, "Invalid data hash detected.");
+				LogError("Invalid data hash detected.");
 				return TSRETURN_ERROR(("Returns ~~"), false);
 			}
 			if (mac->requiresKey())
@@ -973,22 +992,23 @@ public:
 		Asn1::CTS::_POD_CkmCombineParameters params;
 		std::shared_ptr<EccKey> headerSigning;
 
+		m_failureReason.clear();
 		workingKey.clear();
 
 		if (!session)
 		{
-			LOG(DebugError, "Unable to generate the working key and encrypted data - No session.");
+			LogError("Unable to generate the working key and encrypted data - No session.");
 			return false;
 		}
 		if (!HeaderToCombinerParams_Combine(session->GetProfile(), headerSigning, params))
 		{
-			LOG(DebugError, "Unable to generate the working key and encrypted data - Cannot convert the header parameters.");
+			LogError("Unable to generate the working key and encrypted data - Cannot convert the header parameters.");
 			return false;
 		}
 		if (!(session->GenerateWorkingKey(params, [this, &callback](Asn1::CTS::_POD_CkmCombineParameters& params, tscrypto::tsCryptoData& wk)->bool {
 			if (!CombinerParamsToHeader_Combine(params))
 			{
-				LOG(DebugError, "CombinerParamsToHeader_Combine failed");
+				LogError("CombinerParamsToHeader_Combine failed");
 				return false;
 			}
 			// This call is here to force all changes to be pushed from the helper classes into the main header extensions.
@@ -997,13 +1017,15 @@ public:
 			GetSignablePortion(true);
 			if (!!callback && !callback->FinishHeader(wk, std::dynamic_pointer_cast<ICmsHeaderBase>(_me.lock())))
 			{
-				LOG(DebugError, "callback->FinishHeader failed");
+				LogError("callback->FinishHeader failed");
 				return false;
 			}
 			return true;
 		}, wk)))
 		{
-			LOG(DebugError, "Unable to generate the working key and encrypted data - GenerateWorkingKey.");
+			LogError("Unable to generate the working key and encrypted data - GenerateWorkingKey.");
+			if (!session->failureReason().empty())
+				LogError("\n" + session->failureReason());
 			return false;
 		}
 
@@ -1035,7 +1057,7 @@ public:
 					name = "SIGN-ECC-SHA512";
 					break;
 				default:
-					LOG(DebugError, "Unable to sign header");
+					LogError("Unable to sign header");
 					return false;
 				}
 				SetSignatureAlgorithmOID(tscrypto::tsCryptoData(oid, tscrypto::tsCryptoData::OID));
@@ -1046,13 +1068,13 @@ public:
 
 				if (!(signer = std::dynamic_pointer_cast<Signer>(CryptoFactory(name))))
 				{
-					LOG(DebugError, "Unable to sign header");
+					LogError("Unable to sign header");
 					return false;
 				}
 
 				if (!signer->initialize(std::dynamic_pointer_cast<AsymmetricKey>(headerSigning)) || !signer->update(data) || !signer->sign(sig))
 				{
-					LOG(DebugError, "Unable to sign header");
+					LogError("Unable to sign header");
 					return false;
 				}
 			}
@@ -1074,7 +1096,7 @@ public:
 				//	oid = ECDSA_SHA512_OID;
 				//	break;
 				//default:
-				//	LOG(DebugError, "Unable to sign header");
+				//	LogError("Unable to sign header");
 				//	return false;
 				//}
 				//header7->SetSignatureAlgorithmOID(tscrypto::tsCryptoData(oid, tscrypto::tsCryptoData::OID));
@@ -1102,7 +1124,7 @@ public:
 				//		return false;
 				//	break;
 				//default:
-				//	LOG(DebugError, "Unable to sign header");
+				//	LogError("Unable to sign header");
 				//	return false;
 				//}
 				//
@@ -1111,13 +1133,13 @@ public:
 				//
 				//if (!processor->CKM7SignHeaderHash(hash, sig))
 				//{
-				//	LOG(DebugError, "Unable to sign header");
+				//	LogError("Unable to sign header");
 				//	return false;
 				//}
 			}
 			if (!SetSignature(sig))
 			{
-				LOG(DebugError, "Unable to save the signature");
+				LogError("Unable to save the signature");
 				return false;
 			}
 		}
@@ -1126,7 +1148,10 @@ public:
 			if (GetSignatureAlgorithmId() == _TS_ALG_ID::TS_ALG_INVALID)
 				SetSignatureAlgorithmId(_TS_ALG_ID::TS_ALG_HMAC_SHA512);
 			if (!(GenerateMAC(wk, OIDtoAlgName(IDtoOID(GetSignatureAlgorithmId())))))
+			{
+				LogError("Header MAC generation failed.");
 				return false;
+		}
 		}
 		workingKey = wk;
 		return true;
@@ -1136,35 +1161,36 @@ public:
 		Asn1::CTS::_POD_CkmCombineParameters params;
 		tscrypto::tsCryptoData wk;
 
+		m_failureReason.clear();
 		if (!session)
 		{
-			LOG(DebugError, "Unable to regenerate the working key and encrypted data - No session.");
+			LogError("Unable to regenerate the working key and encrypted data - No session.");
 			return false;
 		}
 		if (HasHeaderSigningPublicKey())
 		{
 			if (!ValidateSignature())
 			{
-				LOG(DebugError, "The header has been modified and is no longer trusted.");
+				LogError("The header has been modified and is no longer trusted.");
 				return false;
 			}
 		}
 
 		if (!HeaderToCombinerParams_Recombine(session->GetProfile(), params))
 		{
-			LOG(DebugError, "Unable to regenerate the working key and encrypted data.");
+			LogError("Unable to regenerate the working key and encrypted data.");
 			return false;
 		}
 		if (!(session->RegenerateWorkingKey(params, wk)))
 		{
-			LOG(DebugError, "Unable to regenerate the working key and encrypted data.");
+			LogError("Unable to regenerate the working key and encrypted data.");
 			return false;
 		}
 		if (!HasHeaderSigningPublicKey())
 		{
 			if (!ValidateMAC(wk))
 			{
-				LOG(DebugError, "Invalid header detected");
+				LogError("Invalid header detected");
 				return false;
 			}
 		}
@@ -1176,14 +1202,15 @@ public:
 		Asn1::CTS::_POD_CkmCombineParameters params;
 		std::shared_ptr<EccKey> headerSigning;
 
+		m_failureReason.clear();
 		if (!session)
 		{
-			LOG(DebugError, "Unable to generate the working key and encrypted data - No session.");
+			LogError("Unable to generate the working key and encrypted data - No session.");
 			return false;
 		}
 		if (!HeaderToCombinerParams_Combine(session->GetProfile(), headerSigning, params, true))
 		{
-			LOG(DebugError, "Unable to generate the working key and encrypted data - Cannot convert the header parameters.");
+			LogError("Unable to generate the working key and encrypted data - Cannot convert the header parameters.");
 			return false;
 		}
 		return true;
@@ -1192,19 +1219,20 @@ public:
 	{
 		Asn1::CTS::_POD_CkmCombineParameters params;
 
+		m_failureReason.clear();
 		if (!session)
 		{
-			LOG(DebugError, "Unable to regenerate the working key and encrypted data - No session.");
+			LogError("Unable to regenerate the working key and encrypted data - No session.");
 			return false;
 		}
 		if (!HeaderToCombinerParams_Recombine(session->GetProfile(), params))
 		{
-			LOG(DebugError, "Unable to regenerate the working key and encrypted data.");
+			LogError("Unable to regenerate the working key and encrypted data.");
 			return false;
 		}
 		return true;
 	}
-
+	virtual tscrypto::tsCryptoString failureReason() { return m_failureReason; }
 
 protected:
 	CmsHeaderImpl(const CmsHeaderImpl &obj);
@@ -1832,6 +1860,7 @@ private:
 	mutable _POD_CmsHeaderData m_data;
 	int m_originalSize;
 	std::shared_ptr<IKeyGenCallback>	m_keyGenCallback;
+	tscrypto::tsCryptoString m_failureReason;
 
 	// Inherited via ICkmJsonPersistable
 	virtual tscrypto::tsCryptoString ToJSON() override
@@ -1862,6 +1891,19 @@ private:
 		m_originalSize = 0;
 
 		return true;
+	}
+	void LogError(tscrypto::tsCryptoString error, ...)
+	{
+		va_list args;
+		tscrypto::tsCryptoString msg;
+
+		if (error == NULL)
+			return;
+		va_start(args, error);
+		msg.FormatArg(error, args);
+		va_end(args);
+		LOG(DebugError, msg);
+		m_failureReason << msg;
 	}
 };
 

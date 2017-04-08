@@ -36,8 +36,6 @@
 
 #pragma once
 
-#include "core/compilerconfig.h"
-
 #ifdef NO_LOGGING
 #define LOG(a,...)
 #define TSRETURN_ERROR(a,b) b
@@ -167,12 +165,30 @@ namespace tscrypto
 	private:
 		impl m_val;
 	};
-
+	class tsCryptoStringBase;
+	class VEILCORE_API IStringWriter
+	{
+	public:
+		virtual ~IStringWriter()
+		{
+		}
+		virtual bool WriteString(const tscrypto::tsCryptoStringBase& dataToAppend) = 0;
+	};
+	class tsCryptoData;
+	class VEILCORE_API IBinaryWriter
+	{
+	public:
+		virtual ~IBinaryWriter()
+		{
+		}
+		virtual bool WriteBinary(const tscrypto::tsCryptoData& dataToAppend) = 0;
+	};
 }
 
 #include "CryptoLocks.h"
 #include "standardLayoutList.h"
 #include "tsCryptoStringBase.h"
+
 #include "CryptoExceptions.h"
 #include "CryptoIterators.h"
 #include "CryptoContainerWrapper.h"
@@ -188,15 +204,15 @@ namespace tscrypto
 #include "TlvDocument.h"
 #include "tsTlvSerializer.h"
 #ifndef ONLY_ALG_LIBS
-#include "core/CryptoAsn1.h"
+#include "CryptoAsn1.h"
 #include "CryptoInterfaces.h"
 #endif
 
 #include "tsDistinguishedName.h"
 #ifndef ONLY_ALG_LIBS
-#include "core/PKIX.h"
-#include "core/PKIX_Cert.h"
-#include "core/PKIX_OCSP.h"
+#include "PKIX.h"
+#include "PKIX_Cert.h"
+#include "PKIX_OCSP.h"
 #endif
 #include "xp_sharedlib.h"
 #include "xp_file.h"

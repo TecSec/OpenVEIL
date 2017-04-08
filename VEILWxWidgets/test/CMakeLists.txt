@@ -29,23 +29,36 @@
 #
 # Written by Roger Butler
 
-add_definitions(-D_UNICODE)
-add_definitions(-DUNICODE)
-if(WIN32)
-	add_definitions(-D_CRT_SECURE_NO_WARNINGS=1)
-endif(WIN32)
+if(APPLE)
+	foreach(_def ${wxWidgets_DEFINITIONS})
+		add_definitions(-D${_def})
+	endforeach()
+	INCLUDE_DIRECTORIES(${wxWidgets_INCLUDE_DIRS})
+elseif(WIN32)
+	add_definitions(-D_UNICODE)
+	add_definitions(-DUNICODE)
+	add_definitions(-D_CRT_SECURE_NO_WARNINGS=1 -D__WXMSW__ -DWXUSINGDLL)
+else()
+	foreach(_def ${wxWidgets_DEFINITIONS})
+		add_definitions(-D${_def})
+	endforeach()
+	INCLUDE_DIRECTORIES(${wxWidgets_INCLUDE_DIRS})
+endif(APPLE)
 
+set(VEILwxWinApiSampleSource
+	${CMAKE_CURRENT_SOURCE_DIR}/AppMain.cpp
+	)
 add_executable(VEILwxWinApiSample WIN32
 	stdafx.h
 	stdafx.cpp
-	AppMain.cpp
+	${VEILwxWinApiSampleSource}
 )
 if(ANDROID)
 	set_target_properties(VEILwxWinApiSample PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
 endif()
 add_precompiled_header(VEILwxWinApiSample stdafx.h FORCEINCLUDE SOURCE_CXX stdafx.cpp)
 TARGET_LINK_LIBRARIES(VEILwxWinApiSample VEILCore VEILWxWidgets ${wxWidgets_LIBRARIES})
-set_target_properties(VEILwxWinApiSample PROPERTIES FOLDER "Tools" VERSION ${${VEILCORENAME_U}_VERSION} SOVERSION ${${VEILCORENAME_U}_SO_VERSION} COMPILE_DEFINITIONS OPAQUEVEILWXWIDGETSDEF)
+set_target_properties(VEILwxWinApiSample PROPERTIES FOLDER "Tools" VERSION ${${VEILCORENAME_U}_VERSION} SOVERSION ${${VEILCORENAME_U}_SO_VERSION} COMPILE_DEFINITIONS "OPAQUEVEILWXWIDGETSDEF")
 if(UNIX AND CMAKE_OBJCOPY)
 	add_custom_command(TARGET VEILwxWinApiSample POST_BUILD 
 		COMMAND ${CMAKE_OBJCOPY} --only-keep-debug $<TARGET_FILE:VEILwxWinApiSample> $<TARGET_FILE_DIR:VEILwxWinApiSample>/$<TARGET_FILE_NAME:VEILwxWinApiSample>.dbg 
@@ -54,3 +67,7 @@ if(UNIX AND CMAKE_OBJCOPY)
 endif()
 
 install(TARGETS VEILwxWinApiSample ARCHIVE DESTINATION ${LIB_DIR} LIBRARY DESTINATION ${SHLIB_DIR} RUNTIME DESTINATION ${BIN_DIR})
+
+if(WIN32)
+	#add_subdirectory(static)
+endif(WIN32)

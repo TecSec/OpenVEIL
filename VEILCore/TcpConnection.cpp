@@ -206,6 +206,13 @@ void TcpConnection::Server(const tscrypto::tsCryptoString &setTo)
 {
 	if (TsStriCmp(m_server, setTo) != 0)
 	{
+		if (!!_stack)
+		{
+			m_receivedDataFromStack.clear();
+			_stack.reset();
+		}
+		else
+		{
 #ifdef _WIN32
 		closesocket(m_socket);
 		m_socket = 0;
@@ -214,6 +221,7 @@ void TcpConnection::Server(const tscrypto::tsCryptoString &setTo)
 			close((int)m_socket);
 		m_socket = SOCKET::invalid();
 #endif
+		}
 		m_isConnected = false;
 		m_server = setTo;
 	}
@@ -227,6 +235,13 @@ void TcpConnection::Port(unsigned short setTo)
 {
 	if (m_port != setTo)
 	{
+		if (!!_stack)
+		{
+			m_receivedDataFromStack.clear();
+			_stack.reset();
+		}
+		else
+		{
 #ifdef _WIN32
 		closesocket(m_socket);
 		m_socket = 0;
@@ -235,6 +250,7 @@ void TcpConnection::Port(unsigned short setTo)
 			close((int)m_socket);
 		m_socket = SOCKET::invalid();
 #endif
+		}
 		m_isConnected = false;
 		m_port = setTo;
 	}
@@ -252,6 +268,12 @@ bool TcpConnection::RawSend(const tscrypto::tsCryptoData& data)
 {
 	//	int64_t start = GetTicks();
 
+	if (!!_stack)
+	{
+		_stack->QueueReceivedData(data);
+	}
+	else
+	{
 #ifdef _WIN32
 	if (send(m_socket, (const char *)data.c_str(), (int)data.size(), 0) == SOCKET_ERROR)
 #else
@@ -324,6 +346,7 @@ bool TcpConnection::RawSend(const tscrypto::tsCryptoData& data)
 		}
 #endif
 	}
+	}
 
 	//LOG(httpLog, "Send in " << (GetTicks() - start) / 1000.0 << " ms");
 	LOG(httpData, "Raw Sent:" << tscrypto::endl << data.ToHexDump());
@@ -337,6 +360,23 @@ bool TcpConnection::RawReceive(tscrypto::tsCryptoData& _data, size_t size)
 	int targetLength = (int)size;
 
 	_data.clear();
+
+	if (!!_stack)
+	{
+		if (size >= m_receivedDataFromStack.size())
+		{
+			_data = m_receivedDataFromStack;
+			m_receivedDataFromStack.clear();
+		}
+		else
+		{
+			_data = m_receivedDataFromStack.substr(0, size);
+			m_receivedDataFromStack.erase(0, size);
+		}
+		return true;
+	}
+	else
+	{
 	buff.resize(size);
 #ifdef _WIN32
 	len = recv(m_socket, (char*)buff.rawData(), targetLength, MSG_PEEK);
@@ -383,16 +423,23 @@ bool TcpConnection::RawReceive(tscrypto::tsCryptoData& _data, size_t size)
 	}
 	else
 	{
-		return false;
+			return true;
+		}
 	}
 }
 
 bool TcpConnection::isConnected() const
 {
-	if (!isWSAInitialized())
+	if (!m_isConnected)
 		return false;
 
-	if (!m_isConnected)
+	if (!!_stack)
+	{
+		return true;
+	}
+	else
+	{
+		if (!isWSAInitialized())
 		return false;
 
 #ifdef _WIN32
@@ -404,12 +451,21 @@ bool TcpConnection::isConnected() const
 		m_isConnected = false;
 		return false;
 	}
+	}
 	return true;
 }
 bool TcpConnection::Disconnect()
 {
 	if (m_isConnected)
 	{
+		if (!!_stack)
+		{
+			_stack->closingConnection();
+			_stack->channelShutdown();
+			_stack.reset();
+		}
+		else
+		{
 #ifdef _WIN32
 		if (closesocket(m_socket) == SOCKET_ERROR)
 		{
@@ -436,6 +492,7 @@ bool TcpConnection::Disconnect()
 		}
 #endif
 		m_socket = INVALID_SOCKET;
+		}
 		_disconnectSignals.Fire(this);
 	}
 	m_bufferedData.clear();
@@ -444,6 +501,33 @@ bool TcpConnection::Disconnect()
 }
 bool TcpConnection::Connect()
 {
+	if (m_isConnected)
+		return true;
+
+	if (TsStrniCmp(m_server, "local:", 6) == 0)
+	{
+		tsCryptoString name(m_server);
+
+		name.erase(0, 6);
+
+		_stack = ServiceLocator()->try_get_instance<tsmod::IBaseProtocolStack>(name);
+		if (!_stack)
+		{
+			LOG(FrameworkError, "Unable to resolve the specified local address.  " << m_server);
+			m_errors << "An error occurred while attempting to resolve that address.\n";
+			_errorSignals.Fire(this, m_errors);
+			return false;
+		}
+		_stack->SetSentDataCallback([this](const tsCryptoData& data) { 
+			m_receivedDataFromStack += data; 
+		});
+		m_server = "localhost";
+		m_isConnected = true;
+		_connectSignals.Fire(this);
+		return true;
+	}
+	else
+	{
 	struct addrinfo hints, *res, *p;
 	int status;
 	tscrypto::tsCryptoString portStr;
@@ -539,6 +623,7 @@ bool TcpConnection::Connect()
 	m_errors += "Unable to resolve IP address\n";
 	_errorSignals.Fire(this, m_errors);
 	return false;
+	}
 }
 
 bool TcpConnection::isWSAInitialized() const

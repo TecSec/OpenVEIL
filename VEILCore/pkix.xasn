@@ -32,7 +32,7 @@
  Written by Roger Butler
 -->
 <Root xmlns="http://schemas.tecsec.com/xml2asn1codegen/2015">
-  <File Name="PKIX" ExportSymbol="VEILCORE_API" TemplateExternSymbol="VEILCORE_TEMPLATE_EXTERN" HeaderPrefix="core/" >
+  <File Name="PKIX" ExportSymbol="VEILCORE_API" TemplateExternSymbol="VEILCORE_TEMPLATE_EXTERN" HeaderPrefix="" >
 
     <Namespace Name="tscrypto">
       <!-- Handle the explicit tagging here-->
@@ -307,7 +307,7 @@
       </Namespace>
     </Namespace>
   </File>
-  <File Name="PKIX_Cert" ExportSymbol="VEILCORE_API" TemplateExternSymbol="VEILCORE_TEMPLATE_EXTERN" HeaderPrefix="core/" >
+  <File Name="PKIX_Cert" ExportSymbol="VEILCORE_API" TemplateExternSymbol="VEILCORE_TEMPLATE_EXTERN" HeaderPrefix="" >
     <Import Name="CryptoAsn1.export"/>
 
     <Include Name="PKIX.h"/>
@@ -1207,7 +1207,7 @@ set_version(ver);
       </Namespace>
     </Namespace>
   </File>
-  <File Name="PKIX_OCSP" ExportSymbol="VEILCORE_API" TemplateExternSymbol="VEILCORE_TEMPLATE_EXTERN" HeaderPrefix="core/">
+  <File Name="PKIX_OCSP" ExportSymbol="VEILCORE_API" TemplateExternSymbol="VEILCORE_TEMPLATE_EXTERN" HeaderPrefix="">
     <Import Name="CryptoAsn1.export"/>
 
     <Include Name="PKIX.h"/>

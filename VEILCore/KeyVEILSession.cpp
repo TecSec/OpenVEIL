@@ -48,25 +48,38 @@ public:
 		JSONObject obj, result;
 		int status;
 
+		m_failureReason.clear();
 		//printf("Logging into the token with pwd:  %s\n", pin.c_str());
 
 		if (!conn)
+		{
+			LogError("No server specified.");
 			return LoginStatus::loginStatus_NoServer;
+		}
 		obj.add("tokenId", TSGuidToString(_tokenId)).add("password", pin);
 		if (!conn->sendJsonRequest("POST", "TokenAuth", obj, result, status))
 		{
 			if (status > 399)
 			{
 				if (result.hasField("type") && result.AsString("type") == "NotAllowedException")
+				{
+					LogError("Authenication information is invalid");
 					return LoginStatus::loginStatus_BadAuth;
+				}
+				LogError("Unable to communicate with the server");
 				return LoginStatus::loginStatus_NoServer;
 			}
+			LogError("Unable to communicate with the server");
 			return LoginStatus::loginStatus_NoServer;
 		}
 		if (status > 399 || status < 200)
 		{
 			if (result.hasField("type") && result.AsString("type") == "NotAllowedException")
+			{
+				LogError("Not allowed");
 				return LoginStatus::loginStatus_BadAuth;
+			}
+			LogError("Authenication information is invalid");
 			return LoginStatus::loginStatus_BadAuth;
 		}
 		_profile.reset();
@@ -78,15 +91,21 @@ public:
 		JSONObject obj, result;
 		int status;
 
+		m_failureReason.clear();
 		if (!conn)
+		{
+			LogError("No server specified.");
 			return false;
+		}
 
 		if (!conn->sendJsonRequest("GET", "TokenAuth?tokenId=" + TSGuidToString(_tokenId), obj, result, status))
 		{
+			LogError("Unable to communicate with the server:  " + result.ToJSON());
 			return false;
 		}
 		if (status > 399 || status < 200)
 		{
+			LogError("The server responded with error:  %d %s", status, result.ToJSON().c_str());
 			return false;
 		}
 		return result.AsBool("authenticated", false);
@@ -97,15 +116,21 @@ public:
 		JSONObject obj, result;
 		int status;
 
+		m_failureReason.clear();
 		if (!conn)
+		{
+			LogError("No server specified.");
 			return false;
+		}
 
 		if (!conn->sendJsonRequest("DELETE", "TokenAuth?tokenId=" + TSGuidToString(_tokenId), obj, result, status))
 		{
+			LogError("Unable to communicate with the server:  " + result.ToJSON());
 			return false;
 		}
 		if (status > 399 || status < 200)
 		{
+			LogError("The server responded with error:  %d %s", status, result.ToJSON().c_str());
 			return false;
 		}
 		return true;
@@ -116,9 +141,10 @@ public:
 		JSONObject obj, result;
 		int status;
 
+		m_failureReason.clear();
 		if (!conn)
         {
-            LOG(FrameworkError, "Unable to connect to KeyVEIL.");
+			LogError("No server specified.");
             return false;
         }
 
@@ -128,12 +154,12 @@ public:
 
 		if (!conn->sendJsonRequest("POST", "KeyGen", obj, result, status))
 		{
-            LOG(FrameworkError, "The key gen request failed." << tscrypto::endl << "Result = " << result.ToJSON());
+            LogError("The key gen request failed.\n%s", result.AsString("userMessage").c_str());
 			return false;
 		}
 		if (status > 399 || status < 200)
 		{
-            LOG(FrameworkError, "The key gen request failed with status " << status << ".");
+			LogError("The server responded with error:  %d %s", status, result.ToJSON().c_str());
 			return false;
 		}
 		WorkingKey = result.AsString("key").Base64ToData();
@@ -141,7 +167,7 @@ public:
 		params.clear();
 		if (!params.fromJSON(result))
         {
-            LOG(FrameworkError, "The response is not properly formed." << tscrypto::endl << result.ToJSON());
+            LogError("The response is not properly formed.\n%s", result.ToJSON().c_str());
 			return false;
         }
 
@@ -156,8 +182,12 @@ public:
 		JSONObject obj, result;
 		int status;
 
+		m_failureReason.clear();
 		if (!conn)
+		{
+			LogError("No server specified.");
 			return false;
+		}
 
 		obj
 			.add("tokenId", TSGuidToString(_tokenId));
@@ -165,10 +195,12 @@ public:
 
 		if (!conn->sendJsonRequest("PUT", "KeyGen", obj, result, status))
 		{
+			LogError("Unable to communicate with the server:  " + result.ToJSON());
 			return false;
 		}
 		if (status > 399 || status < 200)
 		{
+			LogError("The server responded with error:  %d %s", status, result.ToJSON().c_str());
 			return false;
 		}
 		WorkingKey = result.AsString("key").Base64ToData();
@@ -180,8 +212,13 @@ public:
 		return true;
 	}
 
+	virtual bool HasProfile() const override
+	{
+		return !!_profile;
+	}
 	virtual std::shared_ptr<Asn1::CTS::_POD_Profile> GetProfile() override
 	{
+		m_failureReason.clear();
 		if (!_profile)
 		{
 			std::shared_ptr<IKeyVEILConnector> conn = _connector.lock();
@@ -189,19 +226,32 @@ public:
 			int status;
 
 			if (!conn)
-				return nullptr;
-
-			if (!conn->sendJsonRequest("GET", "Token?tokenId=" + TSGuidToString(_tokenId), obj, result, status))
 			{
+				LogError("No server specified.");
+				return nullptr;
+			}
+
+			if (!conn->sendJsonRequest("GET", "Token?format=base64&tokenId=" + TSGuidToString(_tokenId), obj, result, status))
+			{
+				LogError("Unable to communicate with the server:  " + result.ToJSON());
 				return nullptr;
 			}
 			if (status > 399 || status < 200)
 			{
+				LogError("The server responded with error:  %d %s", status, result.ToJSON().c_str());
 				return nullptr;
 			}
 
 			_profile = std::shared_ptr<Asn1::CTS::_POD_Profile>(new Asn1::CTS::_POD_Profile());
-			if (!_profile->fromJSON(result.AsObject("profile")))
+
+			if (result.hasField("profile_b64"))
+			{
+				if (!_profile->Decode(result.AsString("profile_b64").Base64ToData()))
+				{
+					_profile->clear();
+				}
+			}
+			else if (!_profile->fromJSON(result.AsObject("profile")))
 			{
 				_profile->clear();
 			}
@@ -210,6 +260,7 @@ public:
 	}
 	virtual bool Close(void) override
 	{
+		m_failureReason.clear();
 		_profile.reset();
 		_connector.reset();
 		return true;
@@ -220,15 +271,21 @@ public:
 		JSONObject obj, result;
 		int status;
 
+		m_failureReason.clear();
 		if (!conn)
+		{
+			LogError("No server specified.");
 			return false;
+		}
 
 		if (!conn->sendJsonRequest("GET", "TokenAuth?tokenId=" + TSGuidToString(_tokenId), obj, result, status))
 		{
+			LogError("Unable to communicate with the server:  " + result.ToJSON());
 			return false;
 		}
 		if (status > 399 || status < 200)
 		{
+			LogError("The server responded with error:  %d %s", status, result.ToJSON().c_str());
 			return false;
 		}
 		return result.AsString("status") == "locked";
@@ -239,15 +296,21 @@ public:
 		JSONObject obj, result;
 		int status;
 
+		m_failureReason.clear();
 		if (!conn)
+		{
+			LogError("No server specified.");
 			return 0;
+		}
 
 		if (!conn->sendJsonRequest("GET", "TokenAuth?tokenId=" + TSGuidToString(_tokenId), obj, result, status))
 		{
+			LogError("Unable to communicate with the server:  " + result.ToJSON());
 			return 0;
 		}
 		if (status > 399 || status < 200)
 		{
+			LogError("The server responded with error:  %d %s", status, result.ToJSON().c_str());
 			return 0;
 		}
 		size_t count = (size_t)result.AsNumber("failedTries", 0);
@@ -263,15 +326,21 @@ public:
 		JSONObject obj, result;
 		int status;
 
+		m_failureReason.clear();
 		if (!conn)
+		{
+			LogError("No server specified.");
 			return false;
+		}
 
 		if (!conn->sendJsonRequest("GET", "TokenAuth?tokenId=" + TSGuidToString(_tokenId), obj, result, status))
 		{
+			LogError("Unable to communicate with the server:  " + result.ToJSON());
 			return false;
 		}
 		if (status > 399 || status < 200)
 		{
+			LogError("The server responded with error:  %d %s", status, result.ToJSON().c_str());
 			return false;
 		}
 		return true;
@@ -302,11 +371,36 @@ public:
 	{
 		return _connector.lock();
 	}
+	virtual std::shared_ptr<IToken> Token() override
+	{
+		std::shared_ptr<IKeyVEILConnector> conn = _connector.lock();
+
+		if (!conn || _tokenId == GUID_NULL)
+			return nullptr;
+		return conn->token(_tokenId);
+	}
+	virtual tscrypto::tsCryptoString failureReason() override { return m_failureReason; }
 
 protected:
 	GUID									 _tokenId;
 	std::shared_ptr<Asn1::CTS::_POD_Profile> _profile;
 	std::weak_ptr<IKeyVEILConnector>		 _connector;
+	tscrypto::tsCryptoString				 m_failureReason;
+
+	void LogError(tscrypto::tsCryptoString error, ...)
+	{
+		va_list args;
+		tscrypto::tsCryptoString msg;
+
+		if (error == NULL)
+			return;
+		va_start(args, error);
+		msg.FormatArg(error, args);
+		va_end(args);
+		LOG(FrameworkError, msg);
+		m_failureReason << msg;
+	}
+
 };
 
 std::shared_ptr<IKeyVEILSession> CreateKeyVEILSession(const GUID& tokenId, std::shared_ptr<IKeyVEILConnector> connector)

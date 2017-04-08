@@ -31,7 +31,11 @@
 
 
 #include "stdafx.h"
-#include "TSALG.h"
+#ifdef __APPLE__
+	#include "TSALG/TSALG.h"
+#else
+	#include "TSALG.h"
+#endif
 
 using namespace tscrypto;
 

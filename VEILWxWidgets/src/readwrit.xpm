@@ -1,5 +1,5 @@
 /* XPM */
-static char * readwrit_xpm[] = {
+static const char * readwrit_xpm[] = {
 "52 16 16 1",
 " 	c #000000",
 ".	c #800000",

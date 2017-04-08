@@ -35,6 +35,7 @@
 #include <climits>
 #include <sstream>
 
+#include "Asn1ParserTest.h"
 #include "Asn1ParserTestImport.h"
 #include "Asn1ParserTestImport.inl"
 

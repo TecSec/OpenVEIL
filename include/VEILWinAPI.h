@@ -34,8 +34,6 @@
 
 #pragma once
 
-#include "VEILCmsHeader.h"
-
 #ifdef _WIN32
 #ifdef _STATIC_RUNTIME_LOADER
 #define VEILWINAPI_EXPORT

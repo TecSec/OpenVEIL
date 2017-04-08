@@ -40,7 +40,12 @@
 #include <crtdbg.h>
 #endif 
 
-#ifdef _WIN32
+#ifdef VEILCORE_STATIC
+    #define VEILCORE_API
+    #define VEILCORE_TEMPLATE_EXTERN 
+    #define EXPORTED_VEILCORE_API 
+#else
+    #ifdef _WIN32
 	#ifdef _STATIC_VEILCORE
 		#define VEILCORE_API
 		#define VEILCORE_TEMPLATE_EXTERN extern
@@ -55,7 +60,7 @@
 			#define VEILCORE_TEMPLATE_EXTERN extern
 		#endif
 	#endif
-#else
+    #else
 	#if defined(VEILCORE_EXPORTS)
 		#define VEILCORE_API EXPORT_SYMBOL
 		#define EXPORTED_VEILCORE_API EXPORT_SYMBOL
@@ -65,7 +70,8 @@
 		#define EXPORTED_VEILCORE_API EXPORT_SYMBOL
 		#define VEILCORE_TEMPLATE_EXTERN extern
 	#endif // defined
-#endif
+    #endif
+#endif // VEILCORE_STATIC
 
 #include "VEILCrypto.h"
 
@@ -130,8 +136,8 @@ inline tscrypto::tsCryptoString ToJSONValue(const tscrypto::tsCryptoStringBase& 
 
 inline tscrypto::tsCryptoDataList CreateTsDataList() { return tscrypto::CreateTsCryptoDataList(); }
 
-#include "core/tsmod_extension.h"
-#include "core/UrlParser.h"
+#include "tsmod_extension.h"
+#include "UrlParser.h"
 
 inline tscrypto::tsCryptoStringList CreateTsAsciiList() { return tscrypto::CreateTsCryptoStringList(); }
 
@@ -327,16 +333,16 @@ namespace tsstd {
 #endif // _WIN32
 }
 
-#include "core/HttpHeader.h"
-#include "core/HttpChannel.h"
-#include "core/CkmFileStreams.h"
-#include "core/CkmFileReader.h"
-#include "core/CkmFileWriter.h"
-#include "core/CkmMemoryFifoStream.h"
-#include "core/CkmMemoryStream.h"
-#include "core/CkmReadAppendFile.h"
-#include "core/CkmReadWriteFile.h"
-#include "core/xp_console.h"
+#include "HttpHeader.h"
+#include "HttpChannel.h"
+#include "CkmFileStreams.h"
+#include "CkmFileReader.h"
+#include "CkmFileWriter.h"
+#include "CkmMemoryFifoStream.h"
+#include "CkmMemoryStream.h"
+#include "CkmReadAppendFile.h"
+#include "CkmReadWriteFile.h"
+#include "xp_console.h"
 
 // RFC 1950 compression for HTTP
 _Check_return_ bool VEILCORE_API zlibCompress(const uint8_t* src, size_t srcLen, int level, uint8_t* dest, size_t& destLen);
@@ -412,6 +418,7 @@ typedef enum LoginStatus
 } LoginStatus;
 
 class IKeyVEILConnector;
+class IToken;
 
 class VEILCORE_API IKeyVEILSession
 {
@@ -439,6 +446,13 @@ public:
 	// Added in 7.0.19
 	virtual int LastKeyVEILStatus() = 0;
 	virtual std::shared_ptr<IKeyVEILConnector> Connector() = 0;
+    
+    // Added in 7.0.43
+    virtual std::shared_ptr<IToken> Token() = 0;
+    virtual tscrypto::tsCryptoString failureReason() = 0;
+
+	// Added in 7.0.51
+	virtual bool HasProfile() const = 0;
 };
 
 typedef enum ConnectionStatus
@@ -539,9 +553,11 @@ public:
 	virtual size_t AddKeyVEILChangeCallback(std::function<void(tscrypto::JSONObject& eventData)> func) = 0; // For details
 	virtual size_t AddKeyVEILGeneralChangeCallback(std::function<void()> func) = 0; // for general notice
 	virtual void RemoveKeyVEILChangeCallback(size_t cookie) = 0;
+    // Added in 7.0.43
+    virtual tscrypto::tsCryptoString failureReason() = 0;
 };
 
-#include "core/ChangeTracker.h"
+#include "ChangeTracker.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>Defines the core functionality needed to implement a Ckm Change Producer</summary>
@@ -613,12 +629,12 @@ public:
 	virtual CKMChangeType GetChangeType() = 0;
 };
 
-#include "core/IPreferenceChangeNotify.h"
-#include "core/tsJsonPreferencesBase.h"
-#include "core/BasicVEILPreferences.h"
-#include "core/tsAttributeMap.h"
-#include "core/pem.h"
-#include "core/nargv.h"
+#include "IPreferenceChangeNotify.h"
+#include "tsJsonPreferencesBase.h"
+#include "BasicVEILPreferences.h"
+#include "tsAttributeMap.h"
+#include "pem.h"
+#include "nargv.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1206,25 +1222,25 @@ VEILCORE_API void xor8(const uint8_t* src, const uint8_t* second, uint8_t* dest)
 VEILCORE_API void xor16(const uint8_t* src, const uint8_t* second, uint8_t* dest);
 VEILCORE_API void xor32(const uint8_t* src, const uint8_t* second, uint8_t* dest);
 
-#include "core/tsLog.h"
-#include "core/tsTraceStream.h"
-#include "core/tsDebugStream.h"
-#include "core/tsDebug.h"
+#include "tsLog.h"
+#include "tsTraceStream.h"
+#include "tsDebugStream.h"
+#include "tsDebug.h"
 
-#include "core/IPropertyMap.h"
-#include "core/INotifyPropertyChange.h"
+#include "IPropertyMap.h"
+#include "INotifyPropertyChange.h"
 
-#include "core/tsXmlError.h"
-#include "core/tsXmlNode.h"
-#include "core/tsXmlParserCallback.h"
-#include "core/tsXmlParser.h"
-#include "core/tsAppConfig.h"
-#include "core/tsPreferencesBase.h"
-#include "core/tsThread.h"
-#include "core/SimpleOpt.h"
-#include "core/IOutputCollector.h"
-#include "core/IVeilToolCommand.h"
-#include "core/IVeilUtilities.h"
+#include "tsXmlError.h"
+#include "tsXmlNode.h"
+#include "tsXmlParserCallback.h"
+#include "tsXmlParser.h"
+#include "tsAppConfig.h"
+#include "tsPreferencesBase.h"
+#include "tsThread.h"
+#include "SimpleOpt.h"
+#include "IOutputCollector.h"
+#include "IVeilToolCommand.h"
+#include "IVeilUtilities.h"
 
 
 /// <summary>Defines an alias representing the function that converts an error number to a message.</summary>
@@ -1586,5 +1602,6 @@ tscrypto::tsCryptoString VEILCORE_API ToXml(const tscrypto::tsCryptoDate &src, c
 
 VEILCORE_API uint32_t xp_GetUserName(tscrypto::tsCryptoStringBase& name);
 VEILCORE_API uint32_t xp_GetComputerName(tscrypto::tsCryptoStringBase& name);
+VEILCORE_API bool xp_LaunchBrowser(const tscrypto::tsCryptoStringBase& url);
 
 #endif // Header Protector

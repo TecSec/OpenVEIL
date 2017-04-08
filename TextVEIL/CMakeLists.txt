@@ -34,11 +34,16 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_CURRENT_BINARY_DIR}
     )
 
-if(WIN32)
+if(APPLE)
+    add_definitions(-D_FILE_OFFSET_BITS=64 -DWXUSINGDLL -D__WXMAC__ -D__WXOSX__ -D__WXOSX_COCOA__)
+elseif(WIN32)
+    add_definitions(-DWXUSINGDLL)
 	add_definitions(-D_UNICODE)
 	add_definitions(-DUNICODE)
-	add_definitions(-D_CRT_SECURE_NO_WARNINGS=1)
-endif(WIN32)
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS=1 -D__WXMSW__)
+else()
+    add_definitions(-D_FILE_OFFSET_BITS=64 -DWXUSINGDLL)
+endif(APPLE)
 
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/TextVEIL.rc.in ${CMAKE_CURRENT_BINARY_DIR}/TextVEIL.rc @ONLY)
 

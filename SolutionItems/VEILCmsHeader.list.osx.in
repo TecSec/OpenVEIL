@@ -1,0 +1,18 @@
+%product TecSecVEILCmsHeader
+%copyright @VEIL_COPYRIGHT@
+%vendor TecSec, Inc.
+%license ../bin/LICENSE.md
+%readme ../bin/README.md
+%description TecSec VEIL CMS Header Framework
+%version @VEIL_VERSION@
+l 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Resources Versions/Current/Resources
+l 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/VEILApiVersion.cmake Versions/Current/VEILApiVersion.cmake
+l 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/VEILCmsHeader Versions/Current/VEILCmsHeader
+d 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions -
+d 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A -
+d 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/Resources -
+f 644 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/Resources/CKM_Lock_Icon.icns @CMAKE_CURRENT_SOURCE_DIR@/cmakemodules/CKM_Lock_Icon.icns
+f 644 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/Resources/Info.plist sdk/VEILCmsHeader.framework/Versions/A/Resources/Info.plist
+f 644 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/VEILApiVersion.cmake sdk/VEILCmsHeader.framework/Versions/A/VEILApiVersion.cmake
+f 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/VEILCmsHeader sdk/VEILCmsHeader.framework/Versions/A/VEILCmsHeader
+l 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/Current A

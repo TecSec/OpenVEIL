@@ -446,6 +446,19 @@ namespace tscrypto {
 		tsCryptoData FromHexString(size_type maxSize, size_type offset = 0) const;
 		tsCryptoData FromBase64(size_type maxSize, size_type offset = 0, bool base64Url = false, bool padWithEquals = true) const;
 	};
+	class VEILCORE_API tsCryptoDataStream : public tsCryptoData, public IBinaryWriter, public IStringWriter
+	{
+	public:
+		virtual ~tsCryptoDataStream()
+		{
+		}
+
+		// Inherited via IBinaryWriter
+		virtual bool WriteBinary(const tscrypto::tsCryptoData & dataToAppend) override;
+
+		// Inherited via IStringWriter
+		virtual bool WriteString(const tscrypto::tsCryptoStringBase & dataToAppend) override;
+	};
 
 	VEILCORE_API bool operator==(const tsCryptoData& lhs, const tsCryptoData& rhs);
 	VEILCORE_API bool operator!=(const tsCryptoData& lhs, const tsCryptoData& rhs);

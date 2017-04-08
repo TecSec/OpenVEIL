@@ -31,7 +31,6 @@
 
 
 #include "stdafx.h"
-#include "TSALG.h"
 
 using namespace tscrypto;
 
@@ -125,7 +124,8 @@ bool RSA_KEM_KWS::Wrap(std::shared_ptr<RsaKey> key, const tsCryptoStringBase& KD
     if (KDFname.size() == 0 || KeyWrapName.size() == 0)
         return false;
 
-    if (!(kdf = std::dynamic_pointer_cast<KeyDerivationFunction>(CryptoFactory(KDFname))))
+    if (!(kdf = std::dynamic_pointer_cast<KeyDerivationFunction>(CryptoFactory(KDFname))) ||
+		!kdf->initialize())
         return false;
 	if (!(transport = std::dynamic_pointer_cast<KeyTransport>(CryptoFactory(KeyWrapName))))
         return false;
@@ -172,7 +172,8 @@ bool RSA_KEM_KWS::Unwrap(std::shared_ptr<RsaKey> key, const tsCryptoStringBase& 
     if (KDFname.size() == 0 || KeyWrapName.size() == 0)
         return false;
 
-	if (!(kdf = std::dynamic_pointer_cast<KeyDerivationFunction>(CryptoFactory(KDFname))))
+	if (!(kdf = std::dynamic_pointer_cast<KeyDerivationFunction>(CryptoFactory(KDFname))) ||
+		!kdf->initialize())
         return false;
 	if (!(transport = std::dynamic_pointer_cast<KeyTransport>(CryptoFactory(KeyWrapName))))
         return false;

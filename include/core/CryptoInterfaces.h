@@ -2288,7 +2288,11 @@ namespace tscrypto {
 	};
 
 }
-#include "TSALG.h"
+#ifdef __APPLE__
+	#include "TSALG/TSALG.h"
+#else
+	#include "TSALG.h"
+#endif
 
 namespace tscrypto {
 	class VEILCORE_API ISslCertSelector

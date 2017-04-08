@@ -46,7 +46,7 @@ public:
 	virtual bool  FileStartsWithCmsHeader(const tscrypto::tsCryptoString& filename, std::shared_ptr<ICmsHeaderBase>& pVal) override;
 	virtual bool    StreamStartsWithCmsHeader(std::shared_ptr<IDataReader> stream, std::shared_ptr<ICmsHeaderBase>& pVal) override;
 
-	virtual bool EncryptFile(const tscrypto::tsCryptoString& sFile, const tscrypto::tsCryptoString& sEncrFile, std::shared_ptr<ICmsHeader> header, CompressionType comp, tscrypto::TS_ALG_ID algorithm, tscrypto::TS_ALG_ID hashAlgorithm,
+	virtual bool Encrypt_File(const tscrypto::tsCryptoString& sFile, const tscrypto::tsCryptoString& sEncrFile, std::shared_ptr<ICmsHeader> header, CompressionType comp, tscrypto::TS_ALG_ID algorithm, tscrypto::TS_ALG_ID hashAlgorithm,
 		bool SignHeader, bool bindData, CMSFileFormatIds DataFormat, bool randomIvec, tscrypto::SymmetricPaddingType paddingType, int blockSize) override;
 	virtual bool EncryptStream(std::shared_ptr<IDataReader> sFile, std::shared_ptr<IDataWriter> sEncrFile, std::shared_ptr<ICmsHeader> header, CompressionType comp, tscrypto::TS_ALG_ID algorithm,
 		tscrypto::TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData, CMSFileFormatIds DataFormat, bool randomIvec, tscrypto::SymmetricPaddingType paddingType, int blockSize) override;
@@ -65,6 +65,8 @@ public:
 	virtual bool DecryptCryptoData(const tscrypto::tsCryptoData &inputData, tscrypto::tsCryptoData &outputData) override;
 	virtual bool DecryptCryptoDataWithHeader(const tscrypto::tsCryptoData &inputData, tscrypto::tsCryptoData &outputData, std::shared_ptr<ICmsHeaderBase>& header) override;
 	virtual bool  DataStartsWithCmsHeader(const tscrypto::tsCryptoData& contents, std::shared_ptr<ICmsHeaderBase>& pVal) override;
+	virtual tscrypto::tsCryptoString failureReason() override { return m_failureReason; }
+	virtual bool GetFileInformation(const tscrypto::tsCryptoString & filename, tscrypto::JSONObject & info) override;
 
 private:
 	virtual ~FileVEILOperationsImpl();
@@ -83,12 +85,17 @@ private:
 							CMSFileFormatIds DataFormat, bool randomIvec, tscrypto::SymmetricPaddingType paddingType, int blockSize, int64_t fileSize);
     bool RegenerateStreamKey(const tscrypto::tsCryptoString &sFilename, tscrypto::tsCryptoData& headerSignature, tscrypto::tsCryptoData& workingKey);
 
+	void getFileStreamNamesAndInfo(const tscrypto::tsCryptoString& name, tscrypto::JSONObject& o, bool includeCkmInfo = false);
+	void getCkmInfo(const tscrypto::tsCryptoString& name, tscrypto::JSONObject& o);
+
     std::shared_ptr<IFileVEILOperationStatus>    m_status;
     std::shared_ptr<IKeyVEILSession>             m_session;
 	std::shared_ptr<IKeyGenCallback>             m_keyGenCallback;
 	std::shared_ptr<IFileVEILSessionCallback>    m_sessionCallback;
     DWORD                                        m_taskCount;
     DWORD                                        m_currentTask;
+	tscrypto::tsCryptoString                     m_failureReason;
+
 };
 
 #endif // FILEOPERATIONS_H_INCLUDED

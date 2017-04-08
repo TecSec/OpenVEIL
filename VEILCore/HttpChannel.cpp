@@ -825,7 +825,14 @@ public:
 		if (hdr == nullptr)
 			return false;
 
-		switch (hdr->ReadStream(m_socket, m_bufferedData, m_httpProcessor))
+		std::shared_ptr<tsmod::IObject> obj = _me.lock();
+		std::shared_ptr<HttpChannel> hChan = std::dynamic_pointer_cast<HttpChannel>(obj);
+		std::shared_ptr<TcpConnection> tChan = std::dynamic_pointer_cast<TcpConnection>(hChan);
+
+		if (!tChan)
+			return false;
+
+		switch (hdr->ReadStream(tChan, m_bufferedData, m_httpProcessor))
 		{
 		case IHttpHeader::hh_Success:
 			break;
@@ -853,7 +860,7 @@ public:
 			//
 			tscrypto::tsCryptoData data = hdr->dataPart();
 			hdr->clear();
-			switch (hdr->ReadStream(m_socket, data, m_httpProcessor))
+			switch (hdr->ReadStream(std::dynamic_pointer_cast<ITcpConnection>(_me.lock()), data, m_httpProcessor))
 			{
 			case IHttpHeader::hh_Success:
 				break;
@@ -978,6 +985,15 @@ protected:
 	}
 protected:
 	std::shared_ptr<IHttpChannelProcessor> m_httpProcessor;
+
+	// Inherited via IHttpChannel
+	virtual std::shared_ptr<ITcpChannel> GetBaseChannel() override
+	{
+		std::shared_ptr<tsmod::IObject> obj = _me.lock();
+		std::shared_ptr<HttpChannel> hChan = std::dynamic_pointer_cast<HttpChannel>(obj);
+		//std::shared_ptr<TcpConnection> tChan = std::dynamic_pointer_cast<TcpConnection>(hChan);
+		return hChan;
+	}
 };
 
 

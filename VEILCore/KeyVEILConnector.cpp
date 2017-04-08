@@ -61,7 +61,9 @@ public:
 		UrlParser parser;
 		tscrypto::CryptoEvent done;
 		tscrypto::tsCryptoData authKey;
+		std::shared_ptr<ITcpChannel> tcpChannel;
 
+		m_failureReason.clear();
 		if (!!_channel)
 		{
 			disconnect();
@@ -69,6 +71,13 @@ public:
 		_isGenericConnection = true;
 		TSAUTOLOCKER lock(_channelLock);
 		_channel = CreateHttpChannel();
+		tcpChannel = std::dynamic_pointer_cast<ITcpChannel>(_channel);
+
+		if (!tcpChannel)
+		{
+			LogError("The channel object could not be created.");
+			return connStatus_UrlBad;
+		}
 		_hdr = std::shared_ptr<IHttpResponse>(dynamic_cast<IHttpResponse*>(CreateHttpResponse()));
 
 		_msgProcessor = ::TopServiceLocator()->get_instance<IMessageProcessorControl>("TcpMessageProcessor");
@@ -76,20 +85,39 @@ public:
 
 		if (!parser.ParseFullUrl(url))
 		{
+			LogError("Invalid URL detected.");
 			return connStatus_UrlBad;
 		}
 
 		_scheme = parser.getScheme();
+		if (_scheme == "local")
+		{
+			parser.setScheme("");
+
+			cmd.clear();
+
+			_genericBaseUrl.clear();
+
+			tsCryptoString tmp(url);
+			tmp.Replace("local://", "local:");
+			tcpChannel->Server(tmp);
+			tcpChannel->Port(80);
+		}
+		else
+		{
 		parser.setScheme("");
 
 		cmd = parser.BuildUrl();
 
 		_genericBaseUrl << cmd;
 
+			tcpChannel->Server(parser.getServer());
+			tcpChannel->Port(parser.getPort() == 0 ? 80 : (WORD)parser.getPort());
+		}
 		if (cmd.size() > 0 && cmd[cmd.size() - 1] == '/')
 			cmd.resize(cmd.size() - 1);
 
-		if (cmd.size() >= 14 && TsStriCmp("/ebadmin.tsmod", &cmd.c_str()[cmd.size() - 14]) == 0)
+		if (cmd.size() >= 14 && TsStriCmp("/bin", &cmd.c_str()[cmd.size() - 14]) == 0)
 			cmd.resize(cmd.size() - 14);
 		else if (cmd.size() > 4 && TsStriCmp("/bin", &cmd.c_str()[cmd.size() - 4]) == 0)
 			cmd.resize(cmd.size() - 4);
@@ -97,45 +125,51 @@ public:
 		_baseUri << cmd << "/bin/";
 		_baseUri.Replace("//bin", "/bin");
 
-		_channel->Server(parser.getServer());
-		_channel->Port(parser.getPort() == 0 ? 80 : (WORD)parser.getPort());
-
-		if (!_channel->Connect())
+		if (!tcpChannel->Connect())
 		{
 			_msgProcessor.reset();
 			_httpProcessor.reset();
-			_channel->setChannelProcessor(nullptr);
+			tcpChannel->setChannelProcessor(nullptr);
+			LogError("Unable to connect to the server.");
 			return connStatus_NoServer;
 		}
 
 		if (_scheme == "httpv" || _scheme == "https")
 		{
-			_channel->SendLogout();
+			tcpChannel->SendLogout();
 			if (password.size() == 0)
 			{
 				disconnect();
+				LogError("Invalid authentication information.");
 				return connStatus_BadAuth;
 			}
-			if (!_msgProcessor->startTunnel(_scheme, std::dynamic_pointer_cast<ITcpChannel>(_channel), username, tsCryptoData(password)))
+			if (!_msgProcessor->startTunnel(_scheme, tcpChannel, username, tsCryptoData(password)))
 			{
 				disconnect();
+				LogError("Unable to negotiate a secure channel.");
 				return connStatus_BadAuth;
 			}
-			_channel->setChannelProcessor(_httpProcessor);
-			if (!_channel->processAuthenticationMessages() || _httpProcessor->GetTransportState() != IHttpChannelProcessor::active)
+			tcpChannel->setChannelProcessor(_httpProcessor);
+			if (!tcpChannel->processAuthenticationMessages() || _httpProcessor->GetTransportState() != IHttpChannelProcessor::active)
 			{
 				disconnect();
+				LogError("Unable to negotiate a secure channel.");
 				return connStatus_BadAuth;
 			}
 		}
 		else
 		{
-			_channel->SendLogout();
-			if (username.size() > 0 && password.size() > 0)
+			tcpChannel->SendLogout();
+			if (_scheme == "local" && password.empty())
+			{
+
+			}
+			else if (username.size() > 0 && password.size() > 0)
 			{
 				if (!Login(_channel, _hdr.get(), _baseUri, username, tsCryptoData(password)))
 				{
 					disconnect();
+					LogError("Invalid authentication information.");
 					return connStatus_BadAuth;
 				}
 			}
@@ -143,6 +177,7 @@ public:
 			else if (username.size() > 0)
 			{
 				disconnect();
+				LogError("Invalid authentication information.");
 				return connStatus_BadAuth;
 			}
 		}
@@ -158,7 +193,9 @@ public:
 		UrlParser parser;
 		tscrypto::CryptoEvent done;
 		tscrypto::tsCryptoData authKey;
+		std::shared_ptr<ITcpChannel> tcpChannel;
 
+		m_failureReason.clear();
 		if (!!_channel)
 		{
 			disconnect();
@@ -170,15 +207,40 @@ public:
 		_httpProcessor = std::dynamic_pointer_cast<IHttpChannelProcessor>(_msgProcessor);
 
 		_channel = CreateHttpChannel();
+		tcpChannel = std::dynamic_pointer_cast<ITcpChannel>(_channel);
+
+		if (!tcpChannel)
+		{
+			LogError("The channel object could not be created.");
+			return connStatus_UrlBad;
+		}
 		_hdr = std::shared_ptr<IHttpResponse>(dynamic_cast<IHttpResponse*>(CreateHttpResponse()));
 
 
 		if (!parser.ParseFullUrl(url))
 		{
+			LogError("Invalid URL detected.");
 			return connStatus_UrlBad;
 		}
 
 		_scheme = parser.getScheme();
+		if (_scheme == "local")
+		{
+			parser.setScheme("");
+
+			cmd.clear();
+
+			_baseUri.clear();
+			_baseUri << cmd << "/bin/";
+			_baseUri.Replace("//bin", "/bin");
+
+			tsCryptoString tmp(url);
+			tmp.Replace("local://", "local:");
+			tcpChannel->Server(tmp);
+			tcpChannel->Port(80);
+		}
+		else
+		{
 		parser.setScheme("");
 
 		cmd = parser.BuildUrl();
@@ -187,45 +249,55 @@ public:
 		_baseUri << cmd << "/bin/";
 		_baseUri.Replace("//bin", "/bin");
 
-		_channel->Server(parser.getServer());
-		_channel->Port(parser.getPort() == 0 ? 80 : (WORD)parser.getPort());
+			tcpChannel->Server(parser.getServer());
+			tcpChannel->Port(parser.getPort() == 0 ? 80 : (WORD)parser.getPort());
+		}
 
-		if (!_channel->Connect())
+		if (!tcpChannel->Connect())
 		{
 			_msgProcessor.reset();
 			_httpProcessor.reset();
-			_channel->setChannelProcessor(nullptr);
+			tcpChannel->setChannelProcessor(nullptr);
+			LogError("Unable to connect to the server.");
 			return connStatus_NoServer;
 		}
 
 		if (_scheme == "httpv" || _scheme == "https")
 		{
-			_channel->SendLogout();
+			tcpChannel->SendLogout();
 			if (password.size() == 0)
 			{
 				disconnect();
+				LogError("Invalid authentication information.");
 				return connStatus_BadAuth;
 			}
-			if (!_msgProcessor->startTunnel(_scheme, _channel, username, tsCryptoData(password)))
+			if (!_msgProcessor->startTunnel(_scheme, tcpChannel, username, tsCryptoData(password)))
 			{
 				disconnect();
+				LogError("Unable to negotiate a secure channel.");
 				return connStatus_BadAuth;
 			}
-			_channel->setChannelProcessor(_httpProcessor);
-			if (!_channel->processAuthenticationMessages() || _httpProcessor->GetTransportState() != IHttpChannelProcessor::active)
+			tcpChannel->setChannelProcessor(_httpProcessor);
+			if (!tcpChannel->processAuthenticationMessages() || _httpProcessor->GetTransportState() != IHttpChannelProcessor::active)
 			{
 				disconnect();
+				LogError("Unable to negotiate a secure channel.");
 				return connStatus_BadAuth;
 			}
 		}
 		else
 		{
-			_channel->SendLogout();
-			if (password.size() > 0)
+			tcpChannel->SendLogout();
+			if (_scheme == "local" && password.empty())
+			{
+
+			}
+			else if (password.size() > 0)
 			{
 				if (!Login(_channel, _hdr.get(), _baseUri, username, tsCryptoData(password)))
 				{
 					disconnect();
+					LogError("Invalid authentication information.");
 					return connStatus_BadAuth;
 				}
 			}
@@ -233,6 +305,7 @@ public:
 			else
 			{
 				disconnect();
+				LogError("Invalid authentication information.");
 				return connStatus_BadAuth;
 			}
 		}
@@ -247,11 +320,18 @@ public:
 	virtual void disconnect() override
 	{
 		TSAUTOLOCKER lock(_channelLock);
+		m_failureReason.clear();
 		if (!!_channel)
 		{
-			if (_channel->isAuthenticated())
-				_channel->SendLogout();
-			_channel->Disconnect();
+			std::shared_ptr<ITcpChannel> tcpChannel;
+			tcpChannel = std::dynamic_pointer_cast<ITcpChannel>(_channel);
+
+			if (!!tcpChannel)
+			{
+				if (tcpChannel->isAuthenticated())
+					tcpChannel->SendLogout();
+				tcpChannel->Disconnect();
+			}
 		}
 		_isGenericConnection = false;
 		_genericBaseUrl.clear();
@@ -269,7 +349,9 @@ public:
 	}
 	virtual bool isConnected() override
 	{
-		bool retVal = !!_channel && _channel->isConnected();
+		std::shared_ptr<ITcpChannel> tcpChannel;
+		tcpChannel = std::dynamic_pointer_cast<ITcpChannel>(_channel);
+		bool retVal = !!tcpChannel && tcpChannel->isConnected();
 
 		if (retVal != _lastConnected)
 		{
@@ -290,40 +372,47 @@ public:
 	}
 	virtual bool refresh() override
 	{
+		std::shared_ptr<ITcpChannel> tcpChannel;
+		tcpChannel = std::dynamic_pointer_cast<ITcpChannel>(_channel);
+
 		TSAUTOLOCKER favLock(_favoriteListLock);
+		m_failureReason.clear();
 		_favorites.clear();
 		favLock.Unlock();
 
 		TSAUTOLOCKER lock(_channelLock);
-		if (!_channel)
+		if (!tcpChannel)
 			return false;
-		if (!_channel->isConnected())
+		if (!tcpChannel->isConnected())
 		{
-			if (!_channel->Connect())
+			if (!tcpChannel->Connect())
 			{
+				LogError("Unable to connect to the server.");
 				disconnect();
 				return false;
 			}
 		}
-		if (!_channel->isAuthenticated())
+		if (!tcpChannel->isAuthenticated())
 		{
 			if (_scheme == "httpv" || _scheme == "https")
 			{
-				_channel->SendLogout();
-				if (!_msgProcessor->startTunnel(_scheme, _channel, _username, _password.ToUTF8Data()))
+				tcpChannel->SendLogout();
+				if (!_msgProcessor->startTunnel(_scheme, tcpChannel, _username, _password.ToUTF8Data()))
 				{
+					LogError("Unable to negotiate a secure channel.");
 					disconnect();
 					return false;
 				}
-				_channel->setChannelProcessor(_httpProcessor);
+				tcpChannel->setChannelProcessor(_httpProcessor);
 			}
 			else
 			{
-				_channel->SendLogout();
+				tcpChannel->SendLogout();
 				if (!_isGenericConnection || _password.size() > 0)
 				{
 					if (!Login(_channel, _hdr.get(), _baseUri, _username, _password.ToUTF8Data()))
 					{
+						LogError("Invalid authentication information.");
 						disconnect();
 						return false;
 					}
@@ -374,13 +463,17 @@ public:
 	virtual bool sendJsonRequest(const tscrypto::tsCryptoStringBase& verb, const tscrypto::tsCryptoStringBase& cmd, const JSONObject &inData, JSONObject& outData, int& status) override
 	{
 		tscrypto::tsCryptoString cmdToUse;
+		std::shared_ptr<ITcpChannel> tcpChannel;
+		tcpChannel = std::dynamic_pointer_cast<ITcpChannel>(_channel);
+
+		m_failureReason.clear();
 
 		TSAUTOLOCKER lock(_channelLock);
-		if (!_channel || !_channel->isConnected() /*|| !_channel->isAuthenticated()*/)
+		if (!tcpChannel || !tcpChannel->isConnected() /*|| !_channel->isAuthenticated()*/)
 		{
 			//			if (!refresh())
 			{
-				LOG(FrameworkError, "Not connected to KeyVEIL.");
+				LogError("Not connected to KeyVEIL.");
 				return false;
 			}
 		}
@@ -427,13 +520,17 @@ public:
 	virtual bool sendRequest(const tscrypto::tsCryptoStringBase& verb, const tscrypto::tsCryptoStringBase& cmd, const tscrypto::tsCryptoData &inData, tscrypto::tsCryptoData& outData, int& status) override
 	{
 		tscrypto::tsCryptoString cmdToUse;
+		std::shared_ptr<ITcpChannel> tcpChannel;
+		tcpChannel = std::dynamic_pointer_cast<ITcpChannel>(_channel);
+
+		m_failureReason.clear();
 
 		TSAUTOLOCKER lock(_channelLock);
-		if (!_channel || !_channel->isConnected() /*|| !_channel->isAuthenticated()*/)
+		if (!tcpChannel || !tcpChannel->isConnected() /*|| !_channel->isAuthenticated()*/)
 		{
 			//			if (!refresh())
 			{
-				LOG(FrameworkError, "Not connected to KeyVEIL.");
+				LogError("Not connected to KeyVEIL.");
 				return false;
 			}
 		}
@@ -460,7 +557,7 @@ public:
 			LOG(FrameworkError, "Failed with code " << code << " and data: " << tscrypto::endl << data.ToHexDump());
 		}, inData))
 		{
-			LOG(FrameworkError, "Communications with KeyVEIL failed.");
+			LogError("Communications with KeyVEIL failed.");
 			return false;
 		}
 		return true;
@@ -507,10 +604,13 @@ public:
 	}
 	virtual size_t favoriteCount() override
 	{
+		std::shared_ptr<ITcpChannel> tcpChannel;
+		tcpChannel = std::dynamic_pointer_cast<ITcpChannel>(_channel);
+
 		TSAUTOLOCKER favLock(_favoriteListLock);
 		if (_favorites.size() == 0)
 		{
-			if (!_channel || !_channel->isAuthenticated())
+			if (!tcpChannel || !tcpChannel->isAuthenticated())
 				return 0;
 
 			LoadFavorites();
@@ -571,6 +671,8 @@ public:
 		int status;
 		tscrypto::tsCryptoData outData;
 
+		m_failureReason.clear();
+
 		TSAUTOLOCKER lock(_channelLock);
 		if (!this->isConnected())
 			return GUID_NULL;
@@ -594,7 +696,7 @@ public:
 			LOG(FrameworkError, "Failed with code " << code << " and data: " << tscrypto::endl << data.ToHexDump());
 		}, params.ToJSON().ToUTF8Data()))
 		{
-			LOG(FrameworkError, "Communications with KeyVEIL failed.");
+			LogError("Communications with KeyVEIL failed.");
 			return GUID_NULL;
 		}
 
@@ -608,6 +710,8 @@ public:
 	{
 		tscrypto::tsCryptoData outData;
 		int status;
+
+		m_failureReason.clear();
 
 		TSAUTOLOCKER lock(_channelLock);
 		if (!this->isConnected())
@@ -628,7 +732,7 @@ public:
 			LOG(FrameworkError, "Failed with code " << code << " and data: " << tscrypto::endl << data.ToHexDump());
 		}, tscrypto::tsCryptoData()))
 		{
-			LOG(FrameworkError, "Communications with KeyVEIL failed.");
+			LogError("Communications with KeyVEIL failed.");
 			return false;
 		}
 
@@ -639,6 +743,8 @@ public:
 		JSONObject params;
 		tscrypto::tsCryptoData outData;
 		int status;
+
+		m_failureReason.clear();
 
 		TSAUTOLOCKER lock(_channelLock);
 		if (!this->isConnected())
@@ -660,7 +766,7 @@ public:
 			LOG(FrameworkError, "Failed with code " << code << " and data: " << tscrypto::endl << data.ToHexDump());
 		}, params.ToJSON().ToUTF8Data()))
 		{
-			LOG(FrameworkError, "Communications with KeyVEIL failed.");
+			LogError("Communications with KeyVEIL failed.");
 			return false;
 		}
 
@@ -671,6 +777,8 @@ public:
 		JSONObject params;
 		tscrypto::tsCryptoData outData;
 		int status;
+
+		m_failureReason.clear();
 
 		TSAUTOLOCKER lock(_channelLock);
 		if (!this->isConnected())
@@ -692,7 +800,7 @@ public:
 			LOG(FrameworkError, "Failed with code " << code << " and data: " << tscrypto::endl << data.ToHexDump());
 		}, params.ToJSON().ToUTF8Data()))
 		{
-			LOG(FrameworkError, "Communications with KeyVEIL failed.");
+			LogError("Communications with KeyVEIL failed.");
 			return false;
 		}
 
@@ -794,20 +902,24 @@ public:
 			_callbackThread.WaitForThread(3000);
 		}
 	}
+	virtual tscrypto::tsCryptoString failureReason() override { return m_failureReason; }
 
 
 protected:
 
 	bool runJsonCommand(std::shared_ptr<IHttpChannel>& _channel, IHttpResponse* hdr, const tscrypto::tsCryptoString& cmd, const tscrypto::tsCryptoString& verb, std::function<void(const tscrypto::tsCryptoData&, int)> success, std::function<void(const tscrypto::tsCryptoData&, int)> failed, const tscrypto::tsCryptoData& data)
 	{
-		if (!_channel)
+		std::shared_ptr<ITcpChannel> tcpChannel;
+		tcpChannel = std::dynamic_pointer_cast<ITcpChannel>(_channel);
+
+		if (!tcpChannel)
 		{
 			failed(tsCryptoData("Not connected."), 500);
 			return false;
 		}
-		if (!_channel->isConnected())
+		if (!tcpChannel->isConnected())
 		{
-			if (!_channel->Connect())
+			if (!tcpChannel->Connect())
 			{
 				if (!!failed)
 				{
@@ -866,8 +978,10 @@ protected:
 	bool LoginPart3(std::shared_ptr<IHttpChannel>& _channel, const tscrypto::tsCryptoString& MITMProof, const tscrypto::tsCryptoData& initiatorSessionKey, const tscrypto::tsCryptoData& data)
 	{
 		JSONObject obj;
+		std::shared_ptr<ITcpChannel> tcpChannel;
+		tcpChannel = std::dynamic_pointer_cast<ITcpChannel>(_channel);
 
-		if (!_channel || !obj.FromJSON(data.ToUtf8String().c_str()))
+		if (!tcpChannel || !obj.FromJSON(data.ToUtf8String().c_str()))
 			return false;
 
 		if (obj.AsString("msg") != MITMProof) {
@@ -876,7 +990,7 @@ protected:
 
 		// Start the authentication process with the session key
 		_msgProcessor->start(obj.AsString("sessionId").Base64ToData(), initiatorSessionKey);
-		_channel->setChannelProcessor(_httpProcessor);
+		tcpChannel->setChannelProcessor(_httpProcessor);
 
 		return true;
 	}
@@ -1126,13 +1240,13 @@ protected:
 			}
 			else
 			{
-				// remove this token from the temporary list as it was found.
-				tmpAry.erase(it);
-
 				// Update the contents
 				(*it)->favoriteName(o.AsString("favoriteName"));
 				(*it)->tokenSerialNumber(o.AsString("tokenSerial").HexToData());
 				(*it)->headerData(o.AsString("data").Base64ToData());
+
+				// remove this token from the temporary list as it was found.
+				tmpAry.erase(it);
 			}
 		}
 		if (tmpAry.size() > 0)
@@ -1243,6 +1357,22 @@ protected:
 	tsThread _callbackThread;
 	int64_t _lastEvent;
 	bool _lastConnected;
+	tsCryptoString m_failureReason;
+
+	void LogError(tscrypto::tsCryptoString error, ...)
+	{
+		va_list args;
+		tscrypto::tsCryptoString msg;
+
+		if (error == NULL)
+			return;
+		va_start(args, error);
+		msg.FormatArg(error, args);
+		va_end(args);
+		LOG(FrameworkError, msg);
+		m_failureReason << msg;
+	}
+
 };
 
 tsmod::IObject* CreateKeyVEILConnector()

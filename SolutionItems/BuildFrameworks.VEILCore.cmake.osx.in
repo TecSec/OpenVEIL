@@ -1,0 +1,165 @@
+#
+# This file is the property of TecSec, Inc. (c)2016 TecSec, Inc.
+# All rights are reserved to TecSec.
+#
+# This product is protected by one or more of the following
+# U.S. patents, as well as pending U.S. patent applications and foreign patents:
+# 5,369,702; 5,369,707; 5,375,169; 5,410,599; 5,432,851; 5,440,290; 5,680,452;
+# 5,787,173; 5,898,781; 6,075,865; 6,229,445; 6,266,417; 6,490,680; 6,542,608;
+# 6,549,623; 6,606,386; 6,608,901; 6,684,330; 6,694,433; 6,754,820; 6,845,453;
+# 6,868,598; 7,016,495; 7,069,448; 7,079,653; 7,089,417; 7,095,851; 7,095,852;
+# 7,111,173; 7,131,009; 7,178,030; 7,212,632; 7,490,240; 7,539,855; 7,738,660;
+# 7,817,800; 7,974,410; 8,077,870; 8,083,808; 8,285,991; 8,308,820; 8,712,046.
+#
+# Written by Roger Butler
+
+set(SOURCE_DIR @CMAKE_SOURCE_DIR@)
+set(VEIL_MAJOR_VERSION @VEIL_MAJOR_VERSION@)
+set(VEIL_MINOR_VERSION @VEIL_MINOR_VERSION@)
+set(VEIL_REVISION_VERSION @VEIL_REVISION_VERSION@)
+set(VEIL_BUILD_VERSION @VEIL_BUILD_VERSION@)
+set(OSX_FRAMEWORK_VERSION @OSX_FRAMEWORK_VERSION@)
+set(CMAKE_BUILD_TYPE @CMAKE_BUILD_TYPE@)
+set(DSO_POSTFIX )
+if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    set(DSO_POSTFIX _d)
+endif()
+
+set(SDK_FOLDER @SDK_FOLDER@)
+set(TOOLS_FOLDER @TOOLS_FOLDER@)
+
+set(VEIL_COPYRIGHT "@VEIL_COPYRIGHT@")
+
+set(VEIL_VERSION @VEIL_VERSION@)
+set(VEIL_VERSION_COMMA @VEIL_VERSION_COMMA@)
+set(VEIL_SO_VERSION @VEIL_SO_VERSION@)
+
+SET(CMAKE_SKIP_BUILD_RPATH FALSE)
+SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+SET(CMAKE_INSTALL_RPATH "$ORIGIN")
+SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
+
+cmake_minimum_required(VERSION 3.1.3)
+
+function(CopyFilelist source dest)
+    foreach(_file ${${source}})
+        GET_FILENAME_COMPONENT(__destFile ${_file} NAME)
+        execute_process(
+            COMMAND 
+                ${CMAKE_COMMAND} -E copy_if_different ${_file} ${dest}/${__destFile}
+        )
+    endforeach()
+endfunction()
+
+set(OVHeaders @SOURCE_DIR@/include/VEIL.h)
+set(VEILCoreHeaders @VEILCoreHeaders@)
+set(VEILCoreHeadersCompiler @VEILCoreHeadersCompiler@)
+set(VEILCoreHelpHeaders @VEILCoreHelpHeaders@)
+
+execute_process(
+    COMMAND 
+        ${CMAKE_COMMAND} -E remove_directory @CMAKE_CURRENT_BINARY_DIR@/out/VEILCore${DSO_POSTFIX}.framework
+)
+execute_process(
+    COMMAND 
+        ${CMAKE_COMMAND} -E remove_directory @CMAKE_CURRENT_BINARY_DIR@/out/sdk/VEILCore${DSO_POSTFIX}.framework
+)
+execute_process(
+    COMMAND 
+        ${CMAKE_COMMAND} -E remove_directory @CMAKE_CURRENT_BINARY_DIR@/out
+)
+
+
+
+execute_process(
+    COMMAND 
+        ${CMAKE_COMMAND} -E make_directory @CMAKE_CURRENT_BINARY_DIR@/out
+)
+execute_process(
+    COMMAND 
+        ${CMAKE_COMMAND} -E make_directory @CMAKE_CURRENT_BINARY_DIR@/out/VEILCore${DSO_POSTFIX}.framework
+)
+execute_process(
+    COMMAND 
+        ${CMAKE_COMMAND} -E make_directory @CMAKE_CURRENT_BINARY_DIR@/out/sdk
+)
+execute_process(
+    COMMAND 
+        ${CMAKE_COMMAND} -E make_directory @CMAKE_CURRENT_BINARY_DIR@/out/sdk/VEILCore${DSO_POSTFIX}.framework
+)
+
+
+# Create VEILCore framework
+execute_process(
+    COMMAND 
+        cp -a @CMAKE_CURRENT_BINARY_DIR@/bin/VEILCore${DSO_POSTFIX}.framework @CMAKE_CURRENT_BINARY_DIR@/out
+)
+
+
+# Add the VEILApiVersion.cmake file
+execute_process(
+    COMMAND 
+        cp @CMAKE_CURRENT_BINARY_DIR@/VEILApiVersion.cmake @CMAKE_CURRENT_BINARY_DIR@/out/VEILCore${DSO_POSTFIX}.framework/Versions/${OSX_FRAMEWORK_VERSION}/
+)
+execute_process(
+    COMMAND 
+        ${CMAKE_COMMAND} -E create_symlink Versions/Current/VEILApiVersion.cmake @CMAKE_CURRENT_BINARY_DIR@/out/VEILCore${DSO_POSTFIX}.framework/VEILApiVersion.cmake
+)
+
+
+# create VEILCore SDK framework
+execute_process(
+    COMMAND 
+        cp -a @CMAKE_CURRENT_BINARY_DIR@/bin/VEILCore${DSO_POSTFIX}.framework @CMAKE_CURRENT_BINARY_DIR@/out/sdk
+)
+
+
+# Add the VEILApiVersion.cmake file
+execute_process(
+    COMMAND 
+        cp @CMAKE_CURRENT_BINARY_DIR@/VEILApiVersion.cmake @CMAKE_CURRENT_BINARY_DIR@/out/sdk/VEILCore${DSO_POSTFIX}.framework/Versions/${OSX_FRAMEWORK_VERSION}/
+)
+execute_process(
+    COMMAND 
+        ${CMAKE_COMMAND} -E create_symlink Versions/Current/VEILApiVersion.cmake @CMAKE_CURRENT_BINARY_DIR@/out/sdk/VEILCore${DSO_POSTFIX}.framework/VEILApiVersion.cmake
+)
+
+
+#
+execute_process(
+    COMMAND 
+        ${CMAKE_COMMAND} -E make_directory @CMAKE_CURRENT_BINARY_DIR@/out/sdk/VEILCore${DSO_POSTFIX}.framework/Versions/${OSX_FRAMEWORK_VERSION}/Headers
+)
+execute_process(
+    COMMAND 
+        ${CMAKE_COMMAND} -E make_directory @CMAKE_CURRENT_BINARY_DIR@/out/sdk/VEILCore${DSO_POSTFIX}.framework/Versions/${OSX_FRAMEWORK_VERSION}/Headers/core
+)
+execute_process(
+    COMMAND 
+        ${CMAKE_COMMAND} -E make_directory @CMAKE_CURRENT_BINARY_DIR@/out/sdk/VEILCore${DSO_POSTFIX}.framework/Versions/${OSX_FRAMEWORK_VERSION}/Headers/Help
+)
+execute_process(
+    COMMAND 
+        ${CMAKE_COMMAND} -E create_symlink Versions/Current/Headers @CMAKE_CURRENT_BINARY_DIR@/out/sdk/VEILCore${DSO_POSTFIX}.framework/Headers
+)
+
+# now process the headers
+CopyFilelist(OVHeaders @CMAKE_CURRENT_BINARY_DIR@/out/sdk/VEILCore${DSO_POSTFIX}.framework/Versions/${OSX_FRAMEWORK_VERSION}/Headers)
+CopyFilelist(VEILCoreHeaders @CMAKE_CURRENT_BINARY_DIR@/out/sdk/VEILCore${DSO_POSTFIX}.framework/Versions/${OSX_FRAMEWORK_VERSION}/Headers/core)
+CopyFilelist(VEILCoreHeadersCompiler @CMAKE_CURRENT_BINARY_DIR@/out/sdk/VEILCore${DSO_POSTFIX}.framework/Versions/${OSX_FRAMEWORK_VERSION}/Headers/core/@TS_TOOLSET@)
+CopyFilelist(VEILCoreHelpHeaders @CMAKE_CURRENT_BINARY_DIR@/out/sdk/VEILCore${DSO_POSTFIX}.framework/Versions/${OSX_FRAMEWORK_VERSION}/Headers/Help)
+
+
+# Now create the installers
+execute_process(
+    COMMAND
+        epm -f osx VEILCore ../bin/VEILCore.list
+    WORKING_DIRECTORY
+        ../out
+)
+execute_process(
+    COMMAND
+        epm -f osx VEILCoreSDK ../bin/VEILCoreSDK.list 
+    WORKING_DIRECTORY
+        ../out
+)

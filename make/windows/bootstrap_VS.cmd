@@ -60,7 +60,7 @@ echo ===========================================================================
   if exist "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\Auxiliary\Build\vcvarsall.bat" echo call "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\Auxiliary\Build\vcvarsall" x86 >> resetenv.cmd
   call resetenv
   cmake -DTS_VS_CONFIG=Debug -DCMAKE_BUILD_TYPE=Debug -G "Visual Studio %COMPILERVERSION%" ..\..
-  call :makefolderscripts --config Debug
+  call :makefolderscripts Win32 Debug
   popd
 
 echo ============================================================================
@@ -79,7 +79,7 @@ echo ===========================================================================
   if exist "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\Auxiliary\Build\vcvarsall.bat" echo call "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\Auxiliary\Build\vcvarsall" x86 >> resetenv.cmd
   call resetenv
   cmake -DTS_VS_CONFIG=Release -DCMAKE_BUILD_TYPE=Release -G "Visual Studio %COMPILERVERSION%" ..\..
-  call :makefolderscripts --config Release
+  call :makefolderscripts Win32 Release
   popd
 
 echo ============================================================================
@@ -98,7 +98,7 @@ echo ===========================================================================
   if exist "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\Auxiliary\Build\vcvarsall.bat" echo call "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\Auxiliary\Build\vcvarsall" amd64 >> resetenv.cmd
   call resetenv
   cmake -DTS_VS_CONFIG=Debug -DCMAKE_BUILD_TYPE=Debug -G "Visual Studio %COMPILERVERSION% Win64" ..\..
-  call :makefolderscripts --config Debug
+  call :makefolderscripts x64 Debug
   popd
   
 echo ============================================================================
@@ -117,7 +117,7 @@ echo ===========================================================================
   if exist "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\Auxiliary\Build\vcvarsall.bat" echo call "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\Auxiliary\Build\vcvarsall" amd64 >> resetenv.cmd
   call resetenv
   cmake -DTS_VS_CONFIG=Release -DCMAKE_BUILD_TYPE=Release -G "Visual Studio %COMPILERVERSION% Win64" ..\..
-  call :makefolderscripts --config Release
+  call :makefolderscripts x64 Release
   popd
 
   
@@ -127,6 +127,7 @@ echo for %%%%i in (debug release) do ( >> buildall-vc%COMPILERVERSION%.cmd
 echo    for %%%%j in (vc%COMPILERVERSION%) do ( >> buildall-vc%COMPILERVERSION%.cmd
 echo      for %%%%k in (x86 x64) do ( >> buildall-vc%COMPILERVERSION%.cmd
 echo 		pushd vs%%%%i-%%%%j-%%%%k >> buildall-vc%COMPILERVERSION%.cmd
+echo        call cmake . >> buildall-vc%COMPILERVERSION%.cmd
 echo        call install.cmd >> buildall-vc%COMPILERVERSION%.cmd
 echo        if errorlevel 1 ( >> buildall-vc%COMPILERVERSION%.cmd
 echo           popd  >> buildall-vc%COMPILERVERSION%.cmd
@@ -148,6 +149,7 @@ echo    for %%%%j in (vc%COMPILERVERSION%) do ( >> buildrelease-vc%COMPILERVERSI
 echo      for %%%%k in (x86 x64) do ( >> buildrelease-vc%COMPILERVERSION%.cmd
 echo 		pushd vs%%%%i-%%%%j-%%%%k >> buildrelease-vc%COMPILERVERSION%.cmd
 echo        call clean.cmd >> buildrelease-vc%COMPILERVERSION%.cmd
+echo        call cmake . >> buildrelease-vc%COMPILERVERSION%.cmd
 echo        call install.cmd >> buildrelease-vc%COMPILERVERSION%.cmd
 echo        if errorlevel 1 ( >> buildrelease-vc%COMPILERVERSION%.cmd
 echo           popd  >> buildrelease-vc%COMPILERVERSION%.cmd
@@ -193,13 +195,13 @@ goto :eof
 :makefolderscripts
   echo @echo off > build.cmd
   echo call resetenv >> build.cmd
-  echo call cmake --build . %* -- /m >> build.cmd
+  echo call msbuild  /p:Configuration=%2 /p:Platform=%1 ALL_BUILD.vcxproj >> build.cmd
   echo @echo off > install.cmd
   echo call resetenv >> install.cmd
-  echo call cmake --build . %* --target install -- /m >> install.cmd
+  echo call msbuild /p:Configuration=%2 /p:Platform=%1 INSTALL.vcxproj >> install.cmd
   echo @echo off > clean.cmd
   echo call resetenv >> clean.cmd
-  echo call cmake --build . %* --target clean -- /m >> clean.cmd
+  echo call msbuild /target:clean /p:Configuration=%2 /p:Platform=%1 ALL_BUILD.vcxproj >> clean.cmd
   exit /b
   
   

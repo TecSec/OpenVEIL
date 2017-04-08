@@ -86,10 +86,11 @@ bool  FileVEILOperationsImpl::SetSessionCallback(std::shared_ptr<IFileVEILSessio
 bool  FileVEILOperationsImpl::secureDelete(const tscrypto::tsCryptoString& inFilename, int inDeletePasses)
 {
 	TSDECLARE_FUNCTIONExt(true);
+	m_failureReason.clear();
 	m_currentTask = 1;
 	if ((inDeletePasses < 3) || (inDeletePasses > 200))
 	{
-		LogError("Invalid delete pass argument value of %d.  It must be between 3 and 200");
+		LogError("Invalid delete pass argument value of %d.  It must be between 3 and 200", inDeletePasses);
 		return TSRETURN_ERROR(("inDeletePasses is not valid"), false);
 	}
 
@@ -104,6 +105,7 @@ bool  FileVEILOperationsImpl::GetStreamNames(const tscrypto::tsCryptoString& sFi
 {
 	TSDECLARE_FUNCTIONExt(true);
 	tscrypto::tsCryptoStringList list = CreateTsAsciiList();
+	m_failureReason.clear();
 
 	if (!::GetStreamNames(sFile, list))
 		return TSRETURN_ERROR(("Returns ~~"), false);
@@ -430,6 +432,7 @@ void FileVEILOperationsImpl::LogError(tscrypto::tsCryptoString error, ...)
 	{
 		m_status->FailureReason(msg.c_str());
 	}
+	m_failureReason << msg;
 }
 
 bool FileVEILOperationsImpl::secureDeleteEntireFile(const tscrypto::tsCryptoString& inFilename, int inDeletePasses)
@@ -642,6 +645,7 @@ bool  FileVEILOperationsImpl::FileStartsWithCmsHeader(const tscrypto::tsCryptoSt
 	// 06/15/2010 krr c4996
 	errno_t err;
 
+	m_failureReason.clear();
 	fileLength = xp_GetFileSize(filename);
 
 	// 06/15/2010 KRR C4996
@@ -674,11 +678,12 @@ bool  FileVEILOperationsImpl::FileStartsWithCmsHeader(const tscrypto::tsCryptoSt
 	return true;
 }
 
-bool  FileVEILOperationsImpl::EncryptFile(const tscrypto::tsCryptoString& sFile, const tscrypto::tsCryptoString& sEncrFile, std::shared_ptr<ICmsHeader> header, CompressionType comp, TS_ALG_ID algorithm, TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData, CMSFileFormatIds DataFormat, bool randomIvec, SymmetricPaddingType paddingType, int blockSize)
+bool  FileVEILOperationsImpl::Encrypt_File(const tscrypto::tsCryptoString& sFile, const tscrypto::tsCryptoString& sEncrFile, std::shared_ptr<ICmsHeader> header, CompressionType comp, TS_ALG_ID algorithm, TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData, CMSFileFormatIds DataFormat, bool randomIvec, SymmetricPaddingType paddingType, int blockSize)
 {
 	bool retVal = false;
 	tscrypto::tsCryptoString sTempFile;
 
+	m_failureReason.clear();
 	// Delete temp file, in case it exists.
 	sTempFile = sEncrFile;
 	sTempFile += ".tmp";
@@ -701,6 +706,7 @@ bool  FileVEILOperationsImpl::EncryptFileAndStreams(const tscrypto::tsCryptoStri
 	tscrypto::tsCryptoStringList streamList = CreateTsAsciiList();
 	tscrypto::tsCryptoString sTempFile;
 
+	m_failureReason.clear();
 	m_taskCount = 1;
 	m_currentTask = 1;
 	// Delete temp file, in case it exists.
@@ -745,6 +751,7 @@ bool  FileVEILOperationsImpl::DecryptCryptoData(const tscrypto::tsCryptoData &in
 
 	std::shared_ptr<ICmsHeaderBase> header;
 
+	m_failureReason.clear();
 	return TSRETURN(("Returns ~~"), DecryptCryptoDataWithHeader(inputData, outputData, header));
 }
 
@@ -761,6 +768,7 @@ bool FileVEILOperationsImpl::DecryptCryptoDataWithHeader(const tscrypto::tsCrypt
 	std::shared_ptr<IDataReader> reader;
 	std::shared_ptr<IDataWriter> writer;
 
+	m_failureReason.clear();
 	header.reset();
 
 	if (!(iface = GetVEILFileSupportDllInterface()) ||
@@ -790,6 +798,7 @@ bool  FileVEILOperationsImpl::DataStartsWithCmsHeader(const tscrypto::tsCryptoDa
 	std::shared_ptr<tsmod::IObject> iunk;
 	int headerLen = 0;
 
+	m_failureReason.clear();
 	if (!ExtractHeaderFromStream(contents.c_str(), MIN((int)contents.size(), 20480), &headerLen, iunk) ||
 		!(header = std::dynamic_pointer_cast<ICmsHeader>(iunk)) ||
 		headerLen == 0)
@@ -815,6 +824,7 @@ bool  FileVEILOperationsImpl::EncryptCryptoData(const tscrypto::tsCryptoData &in
 	std::shared_ptr<IDataReader> reader;
 	std::shared_ptr<IDataWriter> writer;
 
+	m_failureReason.clear();
 	if (!header)
 		return TSRETURN_ERROR(("E_INVALIDARG - No encryption header"), false);
 
@@ -845,6 +855,7 @@ bool  FileVEILOperationsImpl::EncryptStream(std::shared_ptr<IDataReader> sFile, 
 {
 	tscrypto::tsCryptoString sTempFile;
 
+	m_failureReason.clear();
 	m_taskCount = 1;
 	m_currentTask = 1;
 
@@ -1124,6 +1135,7 @@ bool  FileVEILOperationsImpl::ValidateFileContents_PublicOnly(const tscrypto::ts
 	std::shared_ptr<IDataIOBase> ioBase;
 	std::shared_ptr<IKeyVEILSession> empty;
 
+	m_failureReason.clear();
 	if (!(helper = CreateCryptoHelper(empty)))
 	{
 		LogError("Unable to create the decryption processor.");
@@ -1155,6 +1167,7 @@ bool  FileVEILOperationsImpl::DecryptStream(std::shared_ptr<IDataReader> sFile, 
 
 	std::shared_ptr<ICmsHeaderBase> header;
 
+	m_failureReason.clear();
 	return TSRETURN(("OK"), DecryptStreamWithHeader(sFile, sDecrFile, header));
 }
 
@@ -1167,6 +1180,7 @@ bool     FileVEILOperationsImpl::StreamStartsWithCmsHeader(std::shared_ptr<IData
 	int headerLen = 0;
 	int64_t fileLength;
 
+	m_failureReason.clear();
 	if (stream == NULL)
 		return false;
 
@@ -1250,6 +1264,7 @@ bool  FileVEILOperationsImpl::DecryptStreamWithHeader(std::shared_ptr<IDataReade
 
 	bool headerPassedIn = false;
 
+	m_failureReason.clear();
 	LOG(DebugInfo3, "Decrypting stream");
 
 	if (!header)
@@ -1332,11 +1347,344 @@ bool FileVEILOperationsImpl::RegenerateStreamKey(const tscrypto::tsCryptoString 
 	return TSRETURN(("OK"), true);
 }
 
+void FileVEILOperationsImpl::getCkmInfo(const tscrypto::tsCryptoString& name, tscrypto::JSONObject& o)
+{
+	int64_t fileLength;
+	//	int len;
+	FILE* infile;
+	std::shared_ptr<ICmsHeader> header7;
+	bool isCkm7 = true;
+	tscrypto::tsCryptoData fileContents;
+	tscrypto::JSONObject testObj;
+	Asn1::CTS::_POD_Favorite fav;
+	Asn1::CTS::_POD_CkmRecipe recipe;
+	Asn1::CTS::_POD_Profile profile;
+
+	if (fopen_s(&infile, name.c_str(), ("rb")) != 0 || infile == NULL)
+	{
+		o.add("canOpen", false);
+		return;
+	}
+	o.add("canOpen", true);
+#ifdef HAVE__FTELLI64
+	_fseeki64(infile, 0, SEEK_END);
+	fileLength = _ftelli64(infile);
+	_fseeki64(infile, 0, SEEK_SET);
+#elif defined(HAVE_FTELL)
+	fseek(infile, 0, SEEK_END);
+	fileLength = ftell(infile);
+	fseek(infile, 0, SEEK_SET);
+#else
+#error Need an implementation of ftell
+#endif // HAVE__FTELLI64
+
+
+	if (fileLength > 300000)
+		fileContents.resize(300000);
+	else
+		fileContents.resize((int)fileLength);
+
+	if (fread(fileContents.rawData(), 1, fileContents.size(), infile) != (DWORD)fileContents.size())
+	{
+		fclose(infile);
+		o.add("canRead", false);
+		return;
+	}
+	o.add("canRead", false);
+	fclose(infile);
+
+	// Now we need to look at the contents to determine its type:
+
+	if (fileLength < 300000 && testObj.FromJSON(fileContents.ToUtf8String().c_str()))
+	{
+		// May be a FavJ.  It is at least a JSON file
+		if (testObj.hasField("name") && testObj.hasField("recipe"))
+		{
+			o.add("type", "FavJ - JSON Favorite");
+			o.add("favRecipe", testObj);
+		}
+		else
+		{
+			o.add("type", "JSON File");
+		}
+	}
+	else if (fav.Decode(fileContents))
+	{
+		tscrypto::JSONObject ob;
+
+		// This is a favorite
+		o.add("type", "Fav2 - Binary Favorite");
+
+		ob
+			.add("name", fav.get_Name())
+			.add("id", ToString()(fav.get_Id()))
+			.add("serial", fav.get_serialNumber().ToHexString())
+			;
+		if (!(header7 = ::TopServiceLocator()->try_get_instance<ICmsHeader>("/CmsHeader")))
+		{
+			throw tscrypto::tsCryptoString("An error occurred while creating the CMS Header.");
+		}
+		if (header7->IsProbableHeader(fav.get_data().c_str(), fav.get_data().size()))
+		{
+			tscrypto::JSONObject ckmInfo;
+
+			ckmInfo.FromJSON(header7->toString("JSONDEBUG").c_str());
+			ob.add("ckmInfo", ckmInfo);
+		}
+
+		o.add("favorite", ob);
+
+	}
+	else if (recipe.Decode(fileContents))
+	{
+		// This is a binary recipe
+		o.add("type", "FavJ - JSON Favorite (binary)");
+		o.add("recipe", recipe.toJSON());
+	}
+	else if (profile.Decode(fileContents))
+	{
+		// This is a some type of Token.  Go through the types here ...
+		if (profile.get_OID().ToOIDString() == Asn1::CTS::TECSEC_DATA_CTS)
+		{
+			o.add("type", "CTS");
+
+			//<String Name = "MemberName" JSONName = "memberName" / >
+			//<Guid Name = "MemberId" JSONName = "memid" / >
+			//<String Name = "EnterpriseName" JSONName = "enterpriseName" / >
+			//<Guid Name = "EnterpriseId" JSONName = "entid" / >
+			//<OctetString Name = "keyId" JSONName = "keyid" / >
+			//<String Name = "DistinguishName" JSONName = "memdn" / >
+			//<Date Name = "Issue" JSONName = "issue" / >
+			//<Date Name = "Expire" JSONName = "expire" / >
+			//<Sequence Name = "passwordPolicy" ElementType = "PasswordPolicy" JSONName = "passwordPolicy" / >
+			//<Sequence Name = "enterpriseSigning" ElementType = "EnterpriseSigning" JSONName = "signing" / >
+			//<Guid Name = "EnterpriseCryptoGroup" JSONName = "enterpriseCryptoGroup" / >
+			//<SequenceOf Name = "cryptoGroupList" JSONName = "cryptoGroups" / >
+			//<String Name = "uid" JSONName = "uid" / >
+			//<String Name = "url" JSONName = "url" / >
+			//<String Name = "TokenName" JSONName = "TokenName" / >
+			//<Sequence Name = "authData" ElementType = "TokenAuthentication" / >
+			//<Int32 Name = "UpdateNumber" JSONName = "updateNumber" / >
+			//<OctetString Name = "SerialNumber" JSONName = "serno" / >
+			//<OctetString Name = "PrivateData" / >
+			//<Bool Name = "AllowSingleSignOn" JSONName = "allowSSO" / >
+			profile.clear_PrivateData();
+			o.add("ctsInfo", profile.toJSON());
+		}
+		else if (profile.get_OID().ToOIDString() == tscrypto::TECSEC_TOKEN_UPDATE_OID)
+		{
+			o.add("type", "Token Update");
+			//<String Name = "MemberName" JSONName = "memberName" / >
+			//<Guid Name = "MemberId" JSONName = "memid" / >
+			//<String Name = "EnterpriseName" JSONName = "enterpriseName" / >
+			//<Guid Name = "EnterpriseId" JSONName = "entid" / >
+			//<OctetString Name = "keyId" JSONName = "keyid" / >
+			//<String Name = "DistinguishName" JSONName = "memdn" / >
+			//<Date Name = "Issue" JSONName = "issue" / >
+			//<Date Name = "Expire" JSONName = "expire" / >
+			//<Sequence Name = "passwordPolicy" ElementType = "PasswordPolicy" JSONName = "passwordPolicy" / >
+			//<Sequence Name = "enterpriseSigning" ElementType = "EnterpriseSigning" JSONName = "signing" / >
+			//<Guid Name = "EnterpriseCryptoGroup" JSONName = "enterpriseCryptoGroup" / >
+			//<SequenceOf Name = "cryptoGroupList" JSONName = "cryptoGroups" / >
+			//<String Name = "uid" JSONName = "uid" / >
+			//<String Name = "url" JSONName = "url" / >
+			//<String Name = "TokenName" JSONName = "TokenName" / >
+			//<Sequence Name = "authData" ElementType = "TokenAuthentication" / >
+			//<Int32 Name = "UpdateNumber" JSONName = "updateNumber" / >
+			//<OctetString Name = "SerialNumber" JSONName = "serno" / >
+			//<OctetString Name = "PrivateData" / >
+			//<Bool Name = "AllowSingleSignOn" JSONName = "allowSSO" / >
+			//<OctetString Name = "Signature" / >
+			profile.clear_PrivateData();
+			o.add("tufInfo", profile.toJSON());
+		}
+		else if (profile.get_OID().ToOIDString() == tscrypto::TECSEC_SOFT_TOKEN_OID)
+		{
+			o.add("type", "Soft Token");
+			//<String Name = "MemberName" JSONName = "memberName" / >
+			//<Guid Name = "MemberId" JSONName = "memid" / >
+			//<String Name = "EnterpriseName" JSONName = "enterpriseName" / >
+			//<Guid Name = "EnterpriseId" JSONName = "entid" / >
+			//<OctetString Name = "keyId" JSONName = "keyid" / >
+			//<String Name = "DistinguishName" JSONName = "memdn" / >
+			//<Date Name = "Issue" JSONName = "issue" / >
+			//<Date Name = "Expire" JSONName = "expire" / >
+			//<Sequence Name = "passwordPolicy" ElementType = "PasswordPolicy" JSONName = "passwordPolicy" / >
+			//<Sequence Name = "enterpriseSigning" ElementType = "EnterpriseSigning" JSONName = "signing" / >
+			//<Guid Name = "EnterpriseCryptoGroup" JSONName = "enterpriseCryptoGroup" / >
+			//<SequenceOf Name = "cryptoGroupList" JSONName = "cryptoGroups" / >
+			//<String Name = "TokenName" JSONName = "TokenName" / >
+			//<Sequence Name = "authData" ElementType = "TokenAuthentication" / >
+			//<Int32 Name = "UpdateNumber" JSONName = "updateNumber" / >
+			//<OctetString Name = "SerialNumber" JSONName = "serno" / >
+			//<OctetString Name = "PrivateData" / >
+			//<Bool Name = "AllowSingleSignOn" JSONName = "allowSSO" / >
+			//<OctetString Name = "Signature" / >
+			profile.clear_PrivateData();
+			o.add("sftInfo", profile.toJSON());
+		}
+		else if (profile.get_OID().ToOIDString() == tscrypto::TECSEC_SOFT_TOKEN_UNLOCK_OID)
+		{
+			o.add("type", "Soft Token Unlock");
+			//<String Name = "MemberName" JSONName = "memberName" / >
+			//<Guid Name = "MemberId" JSONName = "memid" / >
+			//<String Name = "EnterpriseName" JSONName = "enterpriseName" / >
+			//<Guid Name = "EnterpriseId" JSONName = "entid" / >
+			//<OctetString Name = "keyId" JSONName = "keyid" / >
+			//<String Name = "DistinguishName" JSONName = "memdn" / >
+			//<Sequence Name = "enterpriseSigning" ElementType = "EnterpriseSigning" JSONName = "signing" / >
+			//<Guid Name = "EnterpriseCryptoGroup" JSONName = "enterpriseCryptoGroup" / >
+			//<Sequence Name = "authData" ElementType = "TokenAuthentication" / >
+			//<Int32 Name = "UpdateNumber" JSONName = "updateNumber" / >
+			//<OctetString Name = "SerialNumber" JSONName = "serno" / >
+			//<OctetString Name = "Signature" / >
+			profile.clear_PrivateData();
+			o.add("sftUnlockInfo", profile.toJSON());
+		}
+	}
+	else
+	{
+
+		if (!(header7 = ::TopServiceLocator()->try_get_instance<ICmsHeader>("/CmsHeader")))
+		{
+			throw tscrypto::tsCryptoString("An error occurred while creating the CMS Header.");
+		}
+		if (!header7->IsProbableHeader(fileContents.c_str(), fileContents.size()))
+		{
+			isCkm7 = false;
+			o.add("type", "Generic File");
+			return;
+		}
+
+		if (isCkm7)
+		{
+			tscrypto::JSONObject ckmInfo;
+
+			ckmInfo.FromJSON(header7->toString("JSONDEBUG").c_str());
+
+			bool hr = ValidateFileContents_PublicOnly(name);
+
+			if (!hr)
+			{
+				ckmInfo.add("fileIntegrity", "FAILED");
+			}
+			else
+			{
+				ckmInfo.add("fileIntegrity", "pass");
+			}
+			o.add("ckmInfo", ckmInfo).add("type", "CKM Encrypted File");
+		}
+		else
+		{
+			o.add("type", "Generic File");
+		}
+	}
+}
+
+void FileVEILOperationsImpl::getFileStreamNamesAndInfo(const tscrypto::tsCryptoString& name, tscrypto::JSONObject& o, bool includeCkmInfo)
+{
+	tscrypto::tsCryptoString tmp;
+	tscrypto::tsCryptoString stream;
+	std::shared_ptr<IVEILFileList> filelist;
+
+	o.add("file", name);
+	xp_GetLongPathName(name, tmp);
+	o.add("fullPath", tmp);
+	if (xp_IsDirectory(name))
+	{
+		o.add("isDirectory", true);
+		return;
+	}
+	else
+	{
+		o.add("isDirectory", false);
+	}
+	if (!xp_FileExists(name))
+	{
+		o.add("exists", false);
+		return;
+	}
+	else
+	{
+		o.add("exists", true);
+	}
+	o.add("size", xp_GetFileSize(name));
+
+	if (includeCkmInfo)
+	{
+		getCkmInfo(name, o);
+	}
+
+	if (!GetStreamNames(name.c_str(), filelist) || !filelist)
+	{
+		//        printf("Unable to retrieve the list of file streams for file '%s'\n", fileToEncrypt.c_str());
+		//        return 1;
+	}
+	else
+	{
+		o.createArrayField("streams");
+		for (DWORD i = 0; i < filelist->FileCount(); i++)
+		{
+			tscrypto::JSONObject s;
+
+			if (filelist->GetFileName(i, stream))
+			{
+				s
+					.add("file", stream)
+					.add("fullPath", tmp + stream)
+					.add("streamNamePart", stream)
+					.add("size", xp_GetFileSize(tmp + stream))
+					;
+				if (includeCkmInfo)
+				{
+					getCkmInfo(tmp + stream, s);
+				}
+
+				o.add("streams", s);
+			}
+		}
+	}
+}
+
+bool FileVEILOperationsImpl::GetFileInformation(const tscrypto::tsCryptoString & filename, tscrypto::JSONObject & info)
+{
+	try
+	{
+		try
+		{
+			JSONObject o;
+
+			if (!info.hasField("files"))
+				info.createArrayField("files");
+			getFileStreamNamesAndInfo(filename, o, true);
+			info.add("files", o);
+
+			return true;
+		}
+		catch (tscrypto::tsCryptoString& s)
+		{
+			info.add("error", s);
+			return false;
+		}
+	}
+	catch (tscrypto::tsCryptoString& str)
+	{
+		info.add("error", str);
+		return false;
+	}
+	catch (tsstd::Exception& ex)
+	{
+		info.add("error", (tscrypto::tsCryptoString(typeid(ex).name()) + ":  " + ex.Message()));
+		return false;
+	}
+}
+
 bool  FileVEILOperationsImpl::RecoverKeys(const tscrypto::tsCryptoString& inputFile, FileVEILFileOp_recoveredKeyList& keys)
 {
 	tscrypto::tsCryptoStringList lStreams = CreateTsAsciiList();
 	bool retVal = false;
 
+	m_failureReason.clear();
 	keys = CreateFileVEILFileOp_recoveredKeyList();
 	// Enumerate all streams associated with given file.
 	if (::GetStreamNames(inputFile, lStreams))
@@ -1390,6 +1738,7 @@ bool FileVEILOperationsImpl::DecryptFileAndStreams(const tscrypto::tsCryptoStrin
 	tscrypto::tsCryptoString sTempFile;
 	bool retVal = false;
 
+	m_failureReason.clear();
 	m_taskCount = 1;
 	m_currentTask = 1;
 

@@ -30,7 +30,6 @@
 // Written by Roger Butler
 
 #include "stdafx.h"
-#include "TSALG.h"
 
 using namespace tscrypto;
 

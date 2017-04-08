@@ -37,26 +37,24 @@ INCLUDE_DIRECTORIES(
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/VEILFileSupport.rc.in ${CMAKE_CURRENT_BINARY_DIR}/VEILFileSupport.rc)
 
 set(CppSources
-    stdafx.cpp
-
-    FilePrimitives.cpp
-    FileVEILFileList.cpp
-    VEILFileSupportFactory.cpp
-    VEILFileSupport.cpp
-    FileOperations.cpp
-	CryptoHelperImpl.cpp
-	EncryptProcessor.cpp
-	Compressor.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/FilePrimitives.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/FileVEILFileList.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/VEILFileSupportFactory.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/VEILFileSupport.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/FileOperations.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/CryptoHelperImpl.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/EncryptProcessor.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Compressor.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/targetver.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/FileVEILFileList.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/VEILFileSupportFactory.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/FileOperations.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/resource.h
     )
 
 add_library(VEILFileSupport SHARED
-    targetver.h
     stdafx.h
-    resource.h
-
-    FileVEILFileList.h
-    VEILFileSupportFactory.h
-    FileOperations.h
+    stdafx.cpp
 
     ${CppSources}
     VEILFileSupport.rc.in
@@ -101,4 +99,25 @@ if(UNIX AND CMAKE_OBJCOPY)
 		)
 endif()
 
-install(TARGETS VEILFileSupport ARCHIVE DESTINATION ${LIB_DIR} LIBRARY DESTINATION ${SHLIB_DIR} RUNTIME DESTINATION ${BIN_DIR})
+if(APPLE)
+     set_target_properties(VEILFileSupport PROPERTIES 
+ 		FRAMEWORK TRUE
+ 		FRAMEWORK_VERSION ${OSX_FRAMEWORK_VERSION}
+ 		MACOSX_FRAMEWORK_IDENTIFIER com.tecsec.VEILFileSupport
+ 		MACOSX_FRAMEWORK_ICON_FILE CKM_Lock_Icon.icns
+ #		MACOSX_FRAMEWORK_NAME
+ 		MACOSX_FRAMEWORK_BUNDLE_VERSION ${VEIL_VERSION}
+ 		MACOSX_FRAMEWORK_SHORT_VERSION_STRING ${VEIL_VERSION}
+ 		# MACOSX_FRAMEWORK_INFO_PLIST Info.plist
+ 		PUBLIC_HEADER VEILFileSupport.h
+ 		# XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"
+ 		)
+else()
+    install(TARGETS VEILFileSupport ARCHIVE DESTINATION ${LIB_DIR} LIBRARY DESTINATION ${SHLIB_DIR} RUNTIME DESTINATION ${BIN_DIR})
+endif()
+
+
+
+if(WIN32)
+    add_subdirectory(static)
+endif(WIN32)

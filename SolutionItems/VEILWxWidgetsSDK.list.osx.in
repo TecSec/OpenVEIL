@@ -1,0 +1,42 @@
+%product TecSecVEILWxWidgetsSDK
+%copyright @VEIL_COPYRIGHT@
+%vendor TecSec, Inc.
+%license ../bin/LICENSE.md
+%readme ../bin/README.md
+%description TecSec VEIL Core Framework SDK
+%version @VEIL_VERSION@
+l 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/Headers Versions/Current/Headers
+l 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/Resources Versions/Current/Resources
+l 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/VEILApiVersion.cmake Versions/Current/VEILApiVersion.cmake
+l 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/VEILWxWidgets Versions/Current/VEILWxWidgets
+d 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions -
+d 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A -
+d 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A/Headers -
+f 644 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A/Headers/VEILwxWidgets.h sdk/VEILWxWidgets.framework/Versions/A/Headers/VEILwxWidgets.h
+f 644 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A/Headers/VEILwxWidgetsVersion.h sdk/VEILWxWidgets.framework/Versions/A/Headers/VEILwxWidgetsVersion.h
+d 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A/Headers/VEILWxWidgets -
+f 644 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A/Headers/VEILWxWidgets/wxhtmlhelp.h sdk/VEILWxWidgets.framework/Versions/A/Headers/VEILWxWidgets/wxhtmlhelp.h
+#
+d 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A/Documentation -
+#f 644 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A/Documentation/TSALG.pdf @CMAKE_CURRENT_SOURCE_DIR@/docs/TSALG.pdf
+#
+d 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A/Resources -
+f 644 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A/Resources/CKM_Lock_Icon.icns @CMAKE_CURRENT_SOURCE_DIR@/cmakemodules/CKM_Lock_Icon.icns
+f 644 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A/Resources/Info.plist sdk/VEILWxWidgets.framework/Versions/A/Resources/Info.plist
+f 644 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A/VEILApiVersion.cmake sdk/VEILWxWidgets.framework/Versions/A/VEILApiVersion.cmake
+f 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A/VEILWxWidgets sdk/VEILWxWidgets.framework/Versions/A/VEILWxWidgets
+l 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/Current A
+#
+# Now create the embeddable framework in /usr/local/TecSec
+#
+l 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/Resources Versions/Current/Resources
+l 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/VEILApiVersion.cmake Versions/Current/VEILApiVersion.cmake
+l 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/VEILWxWidgets Versions/Current/VEILWxWidgets
+d 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions -
+d 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A -
+d 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A/Resources -
+f 644 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A/Resources/CKM_Lock_Icon.icns @CMAKE_CURRENT_SOURCE_DIR@/cmakemodules/CKM_Lock_Icon.icns
+f 644 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A/Resources/Info.plist sdk/VEILWxWidgets.framework/Versions/A/Resources/Info.plist
+f 644 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A/VEILApiVersion.cmake sdk/VEILWxWidgets.framework/Versions/A/VEILApiVersion.cmake
+f 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A/VEILWxWidgets sdk/VEILWxWidgets.framework/Versions/A/VEILWxWidgets
+l 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/Current A

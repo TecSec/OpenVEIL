@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resource version="2.3.0.1" xmlns="http://www.wxwidgets.org/wxxrc">
+    <object class="wxWizard" name="ID_AUDIENCESELECTOR" subclass="AudienceSelector2">
+        <style>wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX</style>
+        <exstyle>wxWS_EX_BLOCK_EVENTS|wxWIZARD_EX_HELPBUTTON</exstyle>
+        <title>Audience Selector</title>
+        <object class="wxWizardPage" name="ID_KEYVEIL_LOGIN" subclass="KeyVEILWizardPage">
+            <style>wxTAB_TRAVERSAL</style>
+            <exstyle>wxWS_EX_VALIDATE_RECURSIVELY</exstyle>
+            <object class="wxBoxSizer">
+                <orient>wxVERTICAL</orient>
+                <object class="sizeritem">
+                    <flag>wxALIGN_LEFT|wxALL</flag>
+                    <border>5</border>
+                    <object class="wxStaticText" name="wxID_STATIC">
+                        <font>
+                            <size>8</size>
+                            <family>swiss</family>
+                            <weight>bold</weight>
+                            <face>Tahoma</face>
+                        </font>
+                        <label>Connect to KeyVEIL</label>
+                    </object>
+                </object>
+                <object class="sizeritem">
+                    <flag>wxALIGN_LEFT|wxALL</flag>
+                    <border>5</border>
+                    <object class="wxStaticText" name="wxID_STATIC">
+                        <label>Enter the URL for KeyVEIL:</label>
+                    </object>
+                </object>
+                <object class="sizeritem">
+                    <flag>wxGROW|wxALL</flag>
+                    <border>5</border>
+                    <object class="wxTextCtrl" name="ID_KEYVEIL_URL">
+                        <tooltip>Enter the URL of the VEIL or KeyVEIL that is to be used.</tooltip>
+                        <maxlength>512</maxlength>
+                    </object>
+                </object>
+                <object class="sizeritem">
+                    <flag>wxALIGN_LEFT|wxALL</flag>
+                    <border>5</border>
+                    <object class="wxStaticText" name="wxID_STATIC">
+                        <label>Enter the user name:</label>
+                    </object>
+                </object>
+                <object class="sizeritem">
+                    <flag>wxGROW|wxALL</flag>
+                    <border>5</border>
+                    <object class="wxTextCtrl" name="ID_KEYVEIL_USER">
+                        <tooltip>Enter the username for that VEIL/KeyVEIL</tooltip>
+                    </object>
+                </object>
+                <object class="sizeritem">
+                    <flag>wxALIGN_LEFT|wxALL</flag>
+                    <border>5</border>
+                    <object class="wxStaticText" name="wxID_STATIC">
+                        <label>Enter the user password:</label>
+                    </object>
+                </object>
+                <object class="sizeritem">
+                    <flag>wxGROW|wxALL</flag>
+                    <border>5</border>
+                    <object class="wxTextCtrl" name="ID_KEYVEIL_PASSWORD">
+                        <tooltip>Enter the user's password.</tooltip>
+                        <style>wxTE_PASSWORD</style>
+                    </object>
+                </object>
+                <object class="spacer">
+                    <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                    <border>5</border>
+                    <size>5,5</size>
+                </object>
+                <object class="sizeritem">
+                    <flag>wxGROW|wxALL</flag>
+                    <border>5</border>
+                    <object class="wxFlexGridSizer">
+                        <cols>3</cols>
+                        <rows>1</rows>
+                        <vgap>0</vgap>
+                        <hgap>0</hgap>
+                        <growablecols>0,2</growablecols>
+                        <object class="sizeritem">
+                            <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                            <border>5</border>
+                            <object class="wxButton" name="ID_CONNECT">
+                                <tooltip>Attempt to connect to the VEIL/KeyVEIL.</tooltip>
+                                <label>Connect</label>
+                            </object>
+                        </object>
+                    </object>
+                </object>
+            </object>
+        </object>
+        <object class="wxWizardPage" name="ID_SELECT_TOKEN" subclass="TokenSelectionWizardPage">
+            <style>wxTAB_TRAVERSAL</style>
+            <exstyle>wxWS_EX_VALIDATE_RECURSIVELY</exstyle>
+            <object class="wxBoxSizer">
+                <orient>wxVERTICAL</orient>
+                <object class="sizeritem">
+                    <flag>wxALIGN_LEFT|wxALL</flag>
+                    <border>5</border>
+                    <object class="wxStaticText" name="wxID_STATIC">
+                        <font>
+                            <size>8</size>
+                            <family>swiss</family>
+                            <weight>bold</weight>
+                            <face>Tahoma</face>
+                        </font>
+                        <label>Select Token</label>
+                    </object>
+                </object>
+                <object class="spacer">
+                    <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                    <border>5</border>
+                    <size>5,5</size>
+                </object>
+                <object class="sizeritem">
+                    <flag>wxALIGN_LEFT|wxALL</flag>
+                    <border>5</border>
+                    <object class="wxStaticText" name="wxID_STATIC">
+                        <label>Token name:</label>
+                    </object>
+                </object>
+                <object class="sizeritem">
+                    <flag>wxGROW|wxALL</flag>
+                    <border>5</border>
+                    <object class="wxChoice" name="ID_TOKEN">
+                        <tooltip>Select the token that is to be used for this encryption.</tooltip>
+                        <bg>#White</bg>
+                    </object>
+                </object>
+                <object class="sizeritem">
+                    <flag>wxALIGN_LEFT|wxALL</flag>
+                    <border>5</border>
+                    <object class="wxStaticText" name="wxID_STATIC">
+                        <label>Token Password:</label>
+                    </object>
+                </object>
+                <object class="sizeritem">
+                    <flag>wxGROW|wxALL</flag>
+                    <border>5</border>
+                    <object class="wxTextCtrl" name="ID_TOKEN_PASSWORD">
+                        <tooltip>Enter the password for this token.</tooltip>
+                        <style>wxTE_PASSWORD</style>
+                        <enabled>0</enabled>
+                        <maxlength>128</maxlength>
+                    </object>
+                </object>
+                <object class="spacer">
+                    <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                    <border>5</border>
+                    <size>5,5</size>
+                </object>
+                <object class="sizeritem">
+                    <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                    <border>5</border>
+                    <object class="wxButton" name="ID_TOKEN_LOGIN">
+                        <tooltip>Attempt to log into the token.</tooltip>
+                        <enabled>0</enabled>
+                        <label>Login</label>
+                        <default>1</default>
+                    </object>
+                </object>
+            </object>
+        </object>
+        <object class="wxWizardPage" name="ID_FAVORITE_SELECTION_PAGE" subclass="FavoriteSelectionPage">
+            <style>wxTAB_TRAVERSAL</style>
+            <exstyle>wxWS_EX_VALIDATE_RECURSIVELY</exstyle>
+            <object class="wxBoxSizer">
+                <orient>wxVERTICAL</orient>
+                <object class="sizeritem">
+                    <flag>wxALIGN_LEFT|wxALL</flag>
+                    <border>5</border>
+                    <object class="wxStaticText" name="wxID_STATIC">
+                        <font>
+                            <size>8</size>
+                            <family>swiss</family>
+                            <weight>bold</weight>
+                            <face>Tahoma</face>
+                        </font>
+                        <label>Select a Favorite</label>
+                    </object>
+                </object>
+                <object class="sizeritem">
+                    <flag>wxALIGN_LEFT|wxALL</flag>
+                    <border>5</border>
+                    <object class="wxStaticText" name="wxID_STATIC">
+                        <label>Select a favorite or continue on to manually specify the encryption parameters.</label>
+                    </object>
+                </object>
+                <object class="spacer">
+                    <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                    <border>5</border>
+                    <size>5,5</size>
+                </object>
+                <object class="sizeritem">
+                    <flag>wxALIGN_LEFT|wxALL</flag>
+                    <border>5</border>
+                    <object class="wxStaticText" name="wxID_STATIC">
+                        <label>Favorite to use:</label>
+                    </object>
+                </object>
+                <object class="sizeritem">
+                    <flag>wxGROW|wxALL</flag>
+                    <border>5</border>
+                    <object class="wxChoice" name="ID_CHOICE">
+                        <tooltip>Either select a favorite from this list or use &lt;Manually enter&gt; to create an ad-hoc encryption recipe.</tooltip>
+                        <content>
+                            <item>&lt;Manually enter&gt;</item>
+                        </content>
+                        <selection>0</selection>
+                    </object>
+                </object>
+            </object>
+        </object>
+        <object class="wxWizardPage" name="ID_SELECT_AUDIENCES" subclass="GroupEditorWizardPage">
+            <style>wxTAB_TRAVERSAL</style>
+            <exstyle>wxWS_EX_VALIDATE_RECURSIVELY</exstyle>
+            <object class="wxFlexGridSizer">
+                <cols>1</cols>
+                <rows>4</rows>
+                <vgap>0</vgap>
+                <hgap>0</hgap>
+                <growablecols>0</growablecols>
+                <growablerows>2</growablerows>
+                <object class="sizeritem">
+                    <flag>wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                    <border>5</border>
+                    <object class="wxStaticText" name="wxID_STATIC">
+                        <font>
+                            <size>8</size>
+                            <family>swiss</family>
+                            <weight>bold</weight>
+                            <face>Tahoma</face>
+                        </font>
+                        <label>Select Access Groups</label>
+                    </object>
+                </object>
+                <object class="sizeritem">
+                    <flag>wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                    <border>5</border>
+                    <object class="wxStaticText" name="wxID_STATIC">
+                        <label>Here is the list of access groups.  Press the 'Add' button to add another access group</label>
+                    </object>
+                </object>
+                <object class="sizeritem">
+                    <flag>wxGROW|wxALL</flag>
+                    <border>5</border>
+                    <object class="wxSimpleHtmlListBox" name="ID_GROUP_LIST">
+                        <tooltip>The current access groups are displayed here.</tooltip>
+                        <style>wxHLB_DEFAULT_STYLE</style>
+                    </object>
+                </object>
+                <object class="sizeritem">
+                    <flag>wxGROW|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                    <border>5</border>
+                    <object class="wxFlexGridSizer">
+                        <cols>5</cols>
+                        <rows>1</rows>
+                        <vgap>0</vgap>
+                        <hgap>0</hgap>
+                        <growablecols>0,4</growablecols>
+                        <object class="spacer">
+                            <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                            <border>5</border>
+                            <size>5,5</size>
+                        </object>
+                        <object class="sizeritem">
+                            <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                            <border>5</border>
+                            <object class="wxButton" name="ID_ADD_GROUP">
+                                <tooltip>Add another access group to the encryption recipe.</tooltip>
+                                <label>Add...</label>
+                            </object>
+                        </object>
+                        <object class="sizeritem">
+                            <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxRIGHT|wxTOP|wxBOTTOM</flag>
+                            <border>5</border>
+                            <object class="wxButton" name="ID_EDIT_GROUP">
+                                <tooltip>Edit the currently selected access group.</tooltip>
+                                <label>Edit...</label>
+                            </object>
+                        </object>
+                        <object class="sizeritem">
+                            <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxRIGHT|wxTOP|wxBOTTOM</flag>
+                            <border>5</border>
+                            <object class="wxButton" name="ID_DELETE_GROUP">
+                                <tooltip>Delete the currently selected access group.</tooltip>
+                                <label>Delete...</label>
+                            </object>
+                        </object>
+                        <object class="spacer">
+                            <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                            <border>5</border>
+                            <size>5,5</size>
+                        </object>
+                    </object>
+                </object>
+            </object>
+        </object>
+        <object class="wxWizardPage" name="ID_SAVE_FAVORITE" subclass="SaveSelectionWizardPage">
+            <style>wxTAB_TRAVERSAL</style>
+            <exstyle>wxWS_EX_VALIDATE_RECURSIVELY</exstyle>
+            <object class="wxBoxSizer">
+                <orient>wxVERTICAL</orient>
+                <object class="sizeritem">
+                    <flag>wxALIGN_LEFT|wxALL</flag>
+                    <border>5</border>
+                    <object class="wxStaticText" name="wxID_STATIC">
+                        <font>
+                            <size>8</size>
+                            <family>swiss</family>
+                            <weight>bold</weight>
+                            <face>Tahoma</face>
+                        </font>
+                        <label>Save Selection</label>
+                    </object>
+                </object>
+                <object class="sizeritem">
+                    <flag>wxALIGN_LEFT|wxALL</flag>
+                    <border>5</border>
+                    <object class="wxStaticText" name="wxID_STATIC">
+                        <label>In this step you have the option to save this selection for later use as a new favorite.</label>
+                    </object>
+                </object>
+                <object class="sizeritem">
+                    <flag>wxALIGN_LEFT|wxALL</flag>
+                    <border>5</border>
+                    <object class="wxStaticText" name="wxID_STATIC">
+                        <label>This step is optional.</label>
+                    </object>
+                </object>
+                <object class="spacer">
+                    <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                    <border>5</border>
+                    <size>5,5</size>
+                </object>
+                <object class="sizeritem">
+                    <flag>wxALIGN_LEFT|wxALL</flag>
+                    <border>5</border>
+                    <object class="wxStaticText" name="wxID_STATIC">
+                        <label>Name:</label>
+                    </object>
+                </object>
+                <object class="sizeritem">
+                    <flag>wxGROW|wxALL</flag>
+                    <border>5</border>
+                    <object class="wxTextCtrl" name="ID_TEXTCTRL1">
+                        <tooltip>Enter the name of the favorite that you want to create using this recipe.</tooltip>
+                        <maxlength>100</maxlength>
+                    </object>
+                </object>
+                <object class="sizeritem">
+                    <flag>wxGROW|wxALL</flag>
+                    <border>5</border>
+                    <object class="wxFlexGridSizer">
+                        <cols>3</cols>
+                        <rows>1</rows>
+                        <vgap>0</vgap>
+                        <hgap>0</hgap>
+                        <growablecols>0,2</growablecols>
+                        <object class="spacer">
+                            <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                            <border>5</border>
+                            <size>5,5</size>
+                        </object>
+                        <object class="sizeritem">
+                            <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                            <border>5</border>
+                            <object class="wxButton" name="ID_SAVE">
+                                <tooltip>Press this button to save this recipe as a favorite.</tooltip>
+                                <label>Save New Favorite</label>
+                            </object>
+                        </object>
+                        <object class="spacer">
+                            <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                            <border>5</border>
+                            <size>5,5</size>
+                        </object>
+                    </object>
+                </object>
+            </object>
+        </object>
+    </object>
+</resource>

@@ -33,7 +33,7 @@
 
 class HIDDEN CkmMemoryStream :
 	public tsmod::IObject,
-	public IDataReader, public IDataWriter, public ICkmPersistable, public IDataIOBase
+	public IDataReader, public IDataWriter, public ICkmPersistable, public IDataIOBase, public tscrypto::IStringWriter, public tscrypto::IBinaryWriter
 {
 public:
 	CkmMemoryStream(void);
@@ -79,6 +79,18 @@ private:
 	tscrypto::tsCryptoData m_data;
 	tscrypto::tsCryptoString m_filename;
 	int64_t m_position;
+
+	// Inherited via IStringWriter
+	virtual bool WriteString(const tscrypto::tsCryptoStringBase & dataToAppend) override
+	{
+		return WriteData(tscrypto::tsCryptoData((uint8_t*)dataToAppend.c_str(), dataToAppend.size()));
+	}
+
+	// Inherited via IBinaryWriter
+	virtual bool WriteBinary(const tscrypto::tsCryptoData & dataToAppend) override
+	{
+		return WriteData(dataToAppend);
+	}
 };
 
 std::shared_ptr<IDataIOBase> CreateMemoryStream()

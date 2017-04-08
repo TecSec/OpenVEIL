@@ -184,6 +184,8 @@ elseif(WIN32)
   endif()
 endif(APPLE)
 
+add_definitions(-DTS_TOOLSET_CONFIG="core/${TS_TOOLSET}/compilerconfig.h")
+
 if(MSVC_IDE)
   set(TS_VS_CONFIGURATION "${TS_VS_CONFIG}")
 else()

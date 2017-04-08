@@ -31,7 +31,6 @@
 
 #include "stdafx.h"
 #include "core/CkmSymmetricAlgorithmImpl.h"
-#include "TSALG.h"
 
 using namespace tscrypto;
 
@@ -61,7 +60,7 @@ public:
 			return false;
 
 		key.resize((keyLengthInBits + 7) / 8);
-		if (!internalGenerateRandomBits(key.rawData(), keyLengthInBits, true, nullptr, 0))
+		if (!internalGenerateRandomBits(key.rawData(), (uint32_t)keyLengthInBits, true, nullptr, 0))
 			return false;
 
 		return true;
@@ -72,7 +71,7 @@ public:
 			return false;
 
 		ivec.resize(getIVECSizeForMode(_SymmetricMode::CKM_SymMode_CTR));
-		if (!internalGenerateRandomBits(ivec.rawData(), getIVECSizeForMode(_SymmetricMode::CKM_SymMode_CTR) * 8, false, nullptr, 0))
+		if (!internalGenerateRandomBits(ivec.rawData(), (uint32_t)(getIVECSizeForMode(_SymmetricMode::CKM_SymMode_CTR) * 8), false, nullptr, 0))
 			return false;
 
 		return true;

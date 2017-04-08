@@ -173,12 +173,12 @@
 # Helper macro to control the debugging output globally. There are
 # two versions for controlling how verbose your output should be.
 macro(DBG_MSG _MSG)
-#  message(STATUS
-#    "${CMAKE_CURRENT_LIST_FILE}(${CMAKE_CURRENT_LIST_LINE}): ${_MSG}")
+  message(STATUS
+    "${CMAKE_CURRENT_LIST_FILE}(${CMAKE_CURRENT_LIST_LINE}): ${_MSG}")
 endmacro()
 macro(DBG_MSG_V _MSG)
-#  message(STATUS
-#    "${CMAKE_CURRENT_LIST_FILE}(${CMAKE_CURRENT_LIST_LINE}): ${_MSG}")
+  message(STATUS
+    "${CMAKE_CURRENT_LIST_FILE}(${CMAKE_CURRENT_LIST_LINE}): ${_MSG}")
 endmacro()
 
 # Clear return values in case the module is loaded more than once.
@@ -414,21 +414,13 @@ if(wxWidgets_FIND_STYLE STREQUAL "win32")
             ${WX_${LIB}}
             )
 		  if(WIN32)
-			if(${TS_X_PLATFORM} STREQUAL "x64")
 				string(REPLACE ".lib" "_${TS_TOOLSET}0_${TS_X_PLATFORM}_tecsec.dll" __tmp "${WX_${LIB}d}")
-			else()
-				string(REPLACE ".lib" "_${TS_TOOLSET}0_tecsec.dll" __tmp "${WX_${LIB}d}")
-			endif()
 			string(REPLACE "wxmsw31u" "wxmsw311u" __tmp "${__tmp}")
 			string(REPLACE "wxbase31u" "wxbase311u" __tmp "${__tmp}")
 			  list(APPEND wxWidgets_DLLS_DEBUG
 				${__tmp}
 				)
-			if(${TS_X_PLATFORM} STREQUAL "x64")
 				string(REPLACE ".lib" "_${TS_TOOLSET}0_${TS_X_PLATFORM}_tecsec.dll" __tmp "${WX_${LIB}}")
-			else()
-				string(REPLACE ".lib" "_${TS_TOOLSET}0_tecsec.dll" __tmp "${WX_${LIB}}")
-			endif()
 			string(REPLACE "wxmsw31u" "wxmsw311u" __tmp "${__tmp}")
 			string(REPLACE "wxbase31u" "wxbase311u" __tmp "${__tmp}")
 			  list(APPEND wxWidgets_DLLS_RELEASE

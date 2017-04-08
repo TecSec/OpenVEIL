@@ -34,6 +34,16 @@
 
 #pragma once
 
+#include TS_TOOLSET_CONFIG
+
+#ifdef __APPLE__
+#   include <CoreFoundation/CoreFoundation.h>
+#   include <ApplicationServices/ApplicationServices.h>
+#   include <Security/Security.h>
+#   include <CoreServices/CoreServices.h>
+#   undef verify
+#endif
+
 #define VEILCORENAME "VEIL"
 //#define NO_LOGGING
 //#define SUPPORT_XML_LOGGING

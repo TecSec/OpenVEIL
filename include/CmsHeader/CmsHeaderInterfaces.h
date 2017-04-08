@@ -1582,6 +1582,7 @@ public:
 	virtual bool RegenerateWorkingKey(std::shared_ptr<IKeyVEILSession> session, tscrypto::tsCryptoData& workingKey) = 0;
 	virtual bool CanGenerateWorkingKey(std::shared_ptr<IKeyVEILSession> session) = 0;
 	virtual bool CanRegenerateWorkingKey(std::shared_ptr<IKeyVEILSession> session) = 0;
+	virtual tscrypto::tsCryptoString failureReason() = 0;
 };
 
 /*! \endcond */

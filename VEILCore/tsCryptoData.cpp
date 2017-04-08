@@ -3109,3 +3109,15 @@ tsCryptoData& tscrypto::operator<<(tsCryptoData& data, const tsCryptoData& val)
 {
 	return data.append(val);
 }
+
+bool tscrypto::tsCryptoDataStream::WriteBinary(const tscrypto::tsCryptoData & dataToAppend)
+{
+	append(dataToAppend);
+	return true;
+}
+
+bool tscrypto::tsCryptoDataStream::WriteString(const tscrypto::tsCryptoStringBase & dataToAppend)
+{
+	append(dataToAppend);
+	return true;
+}

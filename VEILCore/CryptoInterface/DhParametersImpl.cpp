@@ -30,7 +30,6 @@
 // Written by Roger Butler
 
 #include "stdafx.h"
-#include "TSALG.h"
 
 using namespace tscrypto;
 
@@ -300,14 +299,14 @@ public:
 		if (!gFipsState.operational() || desc == nullptr || dhParams == nullptr)
 			return false;
 
-		return desc->generateProbablePrimeParameters(desc, dhParams, hashAlgName.c_str(), primeBitLength, subprimeBitLength, seedLen, optionalFirstSeed.c_str(), (uint32_t)optionalFirstSeed.size(), index);
+		return desc->generateProbablePrimeParameters(desc, dhParams, hashAlgName.c_str(), (uint32_t)primeBitLength, (uint32_t)subprimeBitLength, (uint32_t)seedLen, optionalFirstSeed.c_str(), (uint32_t)optionalFirstSeed.size(), index);
 	}
 	virtual bool generateProvablePrimeParameters(const tsCryptoStringBase& hashAlgName, size_t primeBitLength, size_t subprimeBitLength, size_t seedLen, const tsCryptoData &optionalFirstSeed, uint8_t index) override
 	{
 		if (!gFipsState.operational() || desc == nullptr || dhParams == nullptr)
 			return false;
 
-		return desc->generateProvablePrimeParameters(desc, dhParams, hashAlgName.c_str(), primeBitLength, subprimeBitLength, seedLen, optionalFirstSeed.c_str(), (uint32_t)optionalFirstSeed.size(), index);
+		return desc->generateProvablePrimeParameters(desc, dhParams, hashAlgName.c_str(), (uint32_t)primeBitLength, (uint32_t)subprimeBitLength, (uint32_t)seedLen, optionalFirstSeed.c_str(), (uint32_t)optionalFirstSeed.size(), index);
 	}
 	virtual bool validateParametersAndGenerator(const tsCryptoStringBase& hashAlgName, DH_Param_Gen_Type primeType, bool verifiableGenerator, uint8_t index) override
 	{

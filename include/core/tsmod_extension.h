@@ -322,7 +322,9 @@ namespace tsmod
 			NotAllowed,
 			DataAccess,
 			Protocol,
-			License
+			License,
+			NoFault,
+			NeedsAuthentication,
 		} FaultType;
 		virtual void SetJSONFault(FaultType fault, const tscrypto::tsCryptoStringBase& userMessage, const tscrypto::tsCryptoStringBase& devMessage, const tscrypto::tsCryptoStringBase& details) = 0;
 	};
@@ -391,7 +393,28 @@ namespace tsmod
 
 	VEILCORE_API tsmod::IObject* CreatePluginModuleManager();
 
+	class VEILCORE_API IBaseProtocolStack
+	{
+	public:
+		virtual ~IBaseProtocolStack() {}
 
+		virtual void QueueReceivedData(const tscrypto::tsCryptoData& data) = 0;
+		virtual void SetSentDataCallback(std::function<void(const tscrypto::tsCryptoData& data)> func) = 0;
+		virtual void CloseAfterTransmit(bool setTo) = 0;
+		virtual bool CloseAfterTransmit() = 0;
+		virtual void closingConnection() = 0;
+		virtual void channelShutdown() = 0;
+
+		virtual bool supportProtocol(const char *protocolName) = 0;
+		virtual bool startProtocol(const char *protocolName) = 0;
+		virtual bool stopProtocol(const char *protocolName) = 0;
+		virtual bool activateProtocol(const char *protocolName) = 0;
+		virtual bool setActiveCallback(const char *protocolName, std::function<void(tsmod::IObject*)> onActive) = 0;
+		virtual bool setInactiveCallback(const char *protocolName, std::function<void(tsmod::IObject*)> onInactive) = 0;
+		virtual bool setProtocolIdentityObject(std::shared_ptr<tsmod::IObject> setTo) = 0;
+		virtual bool setCommand(const char *protocolName, const char* commandName) = 0;
+		virtual bool setCommandObject(const char *protocolName, std::shared_ptr<tsmod::IObject> setTo) = 0;
+	};
 
 };
 

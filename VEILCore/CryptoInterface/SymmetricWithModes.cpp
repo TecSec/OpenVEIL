@@ -37,7 +37,6 @@
 #include <smmintrin.h>
 #endif // _WIN32
 
-#include "TSALG.h"
 #include "core/CkmSymmetricAlgorithmImpl.h"
 
 using namespace tscrypto;
@@ -69,7 +68,7 @@ public:
 			return false;
 
 		key.resize((keyLengthInBits + 7) / 8);
-		if (!internalGenerateRandomBits(key.rawData(), keyLengthInBits, true, nullptr, 0))
+		if (!internalGenerateRandomBits(key.rawData(), (uint32_t)keyLengthInBits, true, nullptr, 0))
 			return false;
 
 		return true;
@@ -80,7 +79,7 @@ public:
 			return false;
 
 		ivec.resize(getBlockSize());
-		if (!internalGenerateRandomBits(ivec.rawData(), getBlockSize() * 8, true, nullptr, 0))
+		if (!internalGenerateRandomBits(ivec.rawData(), (uint32_t)(getBlockSize() * 8), true, nullptr, 0))
 			return false;
 
 		return true;
