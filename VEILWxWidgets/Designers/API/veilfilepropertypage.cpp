@@ -76,6 +76,9 @@ bool VEILFilePropertyPage::Create( wxWindow* parent, wxWindowID id, const wxStri
 
 	SetBackgroundColour(wxColour(wxSystemSettingsNative::GetColour(wxSYS_COLOUR_3DFACE)));
 	OnInitialize();
+#ifdef __APPLE__
+    edtPasses->SetFocus();
+#endif // __APPLE__
 
     return true;
 }

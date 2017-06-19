@@ -89,9 +89,9 @@ public:
 		m_keySizeInBits = (int)key.size() * 8;
 		m_key = key;
 
-		m_context.clear();
-		m_context.resize(desc->getWorkspaceSize(desc));
-		return desc->init(desc, m_context.rawData(), forEncrypt, key.c_str(), (uint32_t)key.size(), ivec.c_str(), (uint32_t)ivec.size(), 0);
+		m_context.reset();
+		m_context = desc;
+		return desc->init(desc, m_context, forEncrypt, key.c_str(), (uint32_t)key.size(), ivec.c_str(), (uint32_t)ivec.size(), 0);
 	}
 	virtual bool update(const tsCryptoData &in_Data, tsCryptoData &out_Data) override
 	{
@@ -108,7 +108,7 @@ public:
 		if (dataToProcess == 0)
 			return true;
 
-		return desc->update(desc, m_context.rawData(), in_Data.c_str(), (uint32_t)in_Data.size(), out_Data.rawData());
+		return desc->update(desc, m_context, in_Data.c_str(), (uint32_t)in_Data.size(), out_Data.rawData());
 	}
 	virtual bool finish(tsCryptoData &out_Data) override
 	{
@@ -119,7 +119,7 @@ public:
 		if (m_context.empty())
 			return false;
 
-		m_context.clear();
+		m_context.reset();
 		m_keySizeInBits = 0;
 		return true;
 	}
@@ -131,7 +131,7 @@ public:
 			return false;
 		ivec.clear();
 		ivec.resize(desc->ivecSize);
-		return desc->getIvec(desc, m_context.rawData(), ivec.rawData());
+		return desc->getIvec(desc, m_context, ivec.rawData());
 	}
 	virtual bool setIVEC(const tsCryptoData &ivec) override
 	{
@@ -141,7 +141,7 @@ public:
 			return false;
 		if (ivec.size() != desc->ivecSize)
 			return false;
-		return desc->setIvec(desc, m_context.rawData(), ivec.c_str());
+		return desc->setIvec(desc, m_context, ivec.c_str());
 	}
 	virtual bool supportsBlockLength(size_t in_blockLength) override
 	{
@@ -178,11 +178,11 @@ public:
 	{
 		if (!gFipsState.operational())
 			return 0;
-		return desc->getBlockCount(desc, m_context.c_str());
+		return desc->getBlockCount(desc, m_context);
 	}
 	virtual void setBlockCount(uint64_t setTo) override
 	{
-		desc->setBlockCount(desc, m_context.rawData(), setTo);
+		desc->setBlockCount(desc, m_context, setTo);
 	}
 	virtual void registerCounterModeIncrementor(std::shared_ptr<CounterModeIncrementor> pObj) override
 	{
@@ -301,7 +301,7 @@ public:
 	virtual bool InitializeWithFullName(const tscrypto::tsCryptoStringBase& fullName) override
 	{
 		SetName(fullName);
-		m_context.clear();
+		m_context.reset();
 
 		desc = findSymmetricAlgorithm(fullName.c_str());
 
@@ -315,7 +315,7 @@ public:
 
 private:
 	const SymmetricAlgorithmDescriptor* desc;
-	tsCryptoData m_context;
+    SmartCryptoWorkspace m_context;
 	tsCryptoData m_key;
 	std::shared_ptr<CounterModeIncrementor> m_incrementer;
 	int m_keySizeInBits;

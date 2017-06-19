@@ -63,7 +63,7 @@ public:
     virtual bool PKCS5_PBKDF2(const tsCryptoStringBase& hmacName, const tsCryptoData &password, const tsCryptoData &salt, size_t counter, tsCryptoData &key, size_t keyLenNeeded) const override
 	{
 		const MAC_Descriptor* macDesc = nullptr;
-		tsCryptoData macWorkspace;
+		SmartCryptoWorkspace macWorkspace;
 
 		if (!gFipsState.operational() || desc == nullptr)
 		{
@@ -80,7 +80,7 @@ public:
 		}
 		if (macDesc == nullptr)
 			return false;
-		macWorkspace.resize(macDesc->getWorkspaceSize(macDesc));
+		macWorkspace = macDesc;
 
 		key.clear();
 
@@ -91,7 +91,7 @@ public:
 
 		key.resize(keyLenNeeded);
 
-		bool retVal = desc->PKCS5_PBKDF2(desc, macDesc, macWorkspace.rawData(), password.c_str(), (uint32_t)password.size(), salt.c_str(), (uint32_t)salt.size(), (uint32_t)counter, key.rawData(), (uint32_t)keyLenNeeded);
+		bool retVal = desc->PKCS5_PBKDF2(desc, macDesc, macWorkspace, password.c_str(), (uint32_t)password.size(), salt.c_str(), (uint32_t)salt.size(), (uint32_t)counter, key.rawData(), (uint32_t)keyLenNeeded);
 
 		if (!retVal)
 			key.clear();
@@ -101,7 +101,7 @@ public:
 		tsCryptoData &mac) const override
 	{
 		const MAC_Descriptor* macDesc = nullptr;
-		tsCryptoData macWorkspace;
+		SmartCryptoWorkspace macWorkspace;
 
 		if (!gFipsState.operational() || desc == nullptr)
 		{
@@ -118,7 +118,7 @@ public:
 		}
 		if (macDesc == nullptr)
 			return false;
-		macWorkspace.resize(macDesc->getWorkspaceSize(macDesc));
+		macWorkspace = macDesc;
 
 		key.clear();
 
@@ -130,7 +130,7 @@ public:
 		key.resize(keyLenNeeded);
 		mac.resize(macDesc->getDigestSize(macDesc));
 
-		bool retVal = desc->PKCS5_PBKDF2_With_Mac(desc, macDesc, macWorkspace.rawData(), password.c_str(), (uint32_t)password.size(), salt.c_str(), (uint32_t)salt.size(), (uint32_t)counter, key.rawData(), (uint32_t)keyLenNeeded, mac.rawData(), (uint32_t)mac.size());
+		bool retVal = desc->PKCS5_PBKDF2_With_Mac(desc, macDesc, macWorkspace, password.c_str(), (uint32_t)password.size(), salt.c_str(), (uint32_t)salt.size(), (uint32_t)counter, key.rawData(), (uint32_t)keyLenNeeded, mac.rawData(), (uint32_t)mac.size());
 
 		if (!retVal)
 		{
@@ -143,7 +143,7 @@ public:
 		tsCryptoData& Key) const override
 	{
 		const HASH_Descriptor* hasher;
-		tsCryptoData hashWorkspace;
+		SmartCryptoWorkspace hashWorkspace;
 
 		if (!gFipsState.operational() || desc == nullptr)
 			return false;
@@ -151,12 +151,12 @@ public:
 		hasher = findHashAlgorithm(hashAlg.c_str());
 		if (hasher == nullptr)
 			return false;
-		hashWorkspace.resize(hasher->getWorkspaceSize(hasher));
+		hashWorkspace = hasher;
 
 		Key.clear();
 		Key.resize((outputLengthInBits + 7) / 8);
 
-		bool retVal = desc->Pkcs12Pbkdf_Ascii(desc, hasher, hashWorkspace.rawData(), password.c_str(), id, salt.c_str(), (uint32_t)salt.size(), (uint32_t)iter, (uint32_t)outputLengthInBits, Key.rawData());
+		bool retVal = desc->Pkcs12Pbkdf_Ascii(desc, hasher, hashWorkspace, password.c_str(), id, salt.c_str(), (uint32_t)salt.size(), (uint32_t)iter, (uint32_t)outputLengthInBits, Key.rawData());
 		if (!retVal)
 			Key.clear();
 		return retVal;
@@ -164,7 +164,7 @@ public:
 	virtual bool PBKDF1(const tsCryptoStringBase& hashName, const tsCryptoStringBase & password, const tsCryptoData & iv, int keyLenInBytes, tsCryptoData& Key) const override
 	{
 		const HASH_Descriptor* hasher;
-		tsCryptoData hashWorkspace;
+        SmartCryptoWorkspace hashWorkspace;
 
 		if (!gFipsState.operational() || desc == nullptr)
 			return false;
@@ -172,11 +172,11 @@ public:
 		hasher = findHashAlgorithm(hashName.c_str());
 		if (hasher == nullptr)
 			return false;
-		hashWorkspace.resize(hasher->getWorkspaceSize(hasher));
+		hashWorkspace = hasher;
 
 		Key.clear();
 		Key.resize(keyLenInBytes);
-		bool retVal = desc->PBKDF1(desc, hasher, hashWorkspace.rawData(), password.c_str(), iv.c_str(), (uint32_t)iv.size(), keyLenInBytes, Key.rawData());
+		bool retVal = desc->PBKDF1(desc, hasher, hashWorkspace, password.c_str(), iv.c_str(), (uint32_t)iv.size(), keyLenInBytes, Key.rawData());
 		if (!retVal)
 			Key.clear();
 		return retVal;

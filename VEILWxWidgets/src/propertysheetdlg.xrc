@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resource version="2.3.0.1" xmlns="http://www.wxwidgets.org/wxxrc">
     <object class="wxPropertySheetDialog" name="ID_PROPERTYSHEET" subclass="PropertySheetDlg">
-        <style>wxCAPTION|wxSYSTEM_MENU|wxCLOSE_BOX</style>
+        <style>wxCAPTION</style>
         <exstyle>wxWS_EX_VALIDATE_RECURSIVELY|wxWS_EX_BLOCK_EVENTS</exstyle>
         <title>PropertySheet</title>
         <centered>1</centered>

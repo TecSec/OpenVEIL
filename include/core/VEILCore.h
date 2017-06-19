@@ -1604,4 +1604,59 @@ VEILCORE_API uint32_t xp_GetUserName(tscrypto::tsCryptoStringBase& name);
 VEILCORE_API uint32_t xp_GetComputerName(tscrypto::tsCryptoStringBase& name);
 VEILCORE_API bool xp_LaunchBrowser(const tscrypto::tsCryptoStringBase& url);
 
+namespace tscrypto {
+    class VEILCORE_API ICertificateRevocationChecker
+    {
+    public:
+        virtual ~ICertificateRevocationChecker()
+        {
+        }
+        virtual bool IsRevoked(const tscrypto::tsCertificateParser& cert) = 0;
+        virtual bool IsRevoked(const tscrypto::tsCryptoData& cert) = 0;
+    };
+    class VEILCORE_API ICertificateRetriever
+    {
+    public:
+        virtual ~ICertificateRetriever()
+        {
+        }
+        virtual bool isTrustedRootCert(const tscrypto::tsCertificateParser& cert) = 0;
+        virtual bool isTrustedRootCert(const tscrypto::tsCryptoData& cert) = 0;
+        virtual bool isTrustedIntermediaryCert(const tscrypto::tsCertificateParser& cert) = 0;
+        virtual bool isTrustedIntermediaryCert(const tscrypto::tsCryptoData& cert) = 0;
+
+        virtual bool getTrustChainForCert(const tscrypto::tsCertificateParser& cert, tscrypto::tsCryptoDataList& certificates, bool& endsInTrustedRoot, bool& endsInTrustedIntermediary) = 0;
+        virtual bool getTrustChainForCert(const tscrypto::tsCryptoData& cert, tscrypto::tsCryptoDataList& certificates, bool& endsInTrustedRoot, bool& endsInTrustedIntermediary) = 0;
+    };
+    class VEILCORE_API ICertificateValidatorOptions
+    {
+    public:
+        virtual ~ICertificateValidatorOptions()
+        {
+        }
+        virtual bool allowSelfSignedCerts() const = 0;
+        virtual std::shared_ptr<ICertificateRevocationChecker> getRevocationChecker() = 0;
+        virtual std::shared_ptr<ICertificateRetriever> getCertificateRetriever() = 0;
+        virtual bool CertSignatureTypeOkForCipher(SSL_HashAlgorithm hashAlg, SSL_SignatureAlgorithm sigAlg, bool sslCert, SSL_CIPHER cipher) = 0;
+        virtual bool KeySizeOkForCipher(SSL_HashAlgorithm hashAlg, SSL_SignatureAlgorithm sigAlg, uint32_t keySize, bool sslCert, SSL_CIPHER cipher) = 0;
+    };
+    class VEILCORE_API ICertificateValidator
+    {
+    public:
+        virtual ~ICertificateValidator()
+        {
+        }
+        virtual SSL_AlertDescription ValidateCertificate(const tscrypto::tsCryptoDataList& certificates, SSL_CIPHER cipher) = 0;
+
+        virtual bool GetCertificateSignatureInfo(const tscrypto::tsCertificateParser& cert, SSL_HashAlgorithm& hashAlg, SSL_SignatureAlgorithm& sigAlg) = 0;
+        virtual bool GetCertificateSignatureInfo(const tscrypto::tsCryptoData& cert, SSL_HashAlgorithm& hashAlg, SSL_SignatureAlgorithm& sigAlg) = 0;
+        virtual SSL_AlertDescription basicCertValidation(const tscrypto::tsCertificateParser& cert, std::shared_ptr<tscrypto::AsymmetricKey> priorKey, bool sslCert, SSL_CIPHER cipher) = 0;
+        virtual SSL_AlertDescription basicCertValidation(const tscrypto::tsCryptoData& cert, std::shared_ptr<tscrypto::AsymmetricKey> priorKey, bool sslCert, SSL_CIPHER cipher) = 0;
+        virtual bool IsSelfSigned(const tscrypto::tsCertificateParser& cert) = 0;
+        virtual bool IsSelfSigned(const tscrypto::tsCryptoData& cert) = 0;
+    };
+    VEILCORE_API bool GetCertificateSignatureInfo(const tscrypto::tsCryptoString& oid, SSL_HashAlgorithm& hashAlg, SSL_SignatureAlgorithm& sigAlg);
+    VEILCORE_API bool GetCertificateSignatureInfo(const tscrypto::tsCryptoData& oid, SSL_HashAlgorithm& hashAlg, SSL_SignatureAlgorithm& sigAlg);
+}
+
 #endif // Header Protector

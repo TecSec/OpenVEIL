@@ -325,7 +325,7 @@ void FavoriteManagerDlg::OnAddFavoriteClick( wxCommandEvent& event )
 
 	dlg.Create(this);
 
-	dlg.RunWizard(dlg.GetFirstPage()) ? wxID_OK : wxID_CANCEL;
+	dlg.Run() ? wxID_OK : wxID_CANCEL;
 	updateControls();
 }
 
@@ -368,7 +368,7 @@ void FavoriteManagerDlg::OnEditFavoriteClick( wxCommandEvent& event )
 
 	dlg.Create(this);
 
-	dlg.RunWizard(dlg.GetFirstPage()) ? wxID_OK : wxID_CANCEL;
+	dlg.Run() ? wxID_OK : wxID_CANCEL;
 	updateControls();
 }
 

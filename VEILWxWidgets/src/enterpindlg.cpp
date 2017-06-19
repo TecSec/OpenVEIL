@@ -1,23 +1,36 @@
-/////////////////////////////////////////////////////////////////////////////
-// Name:        enterpindlg.cpp
-// Purpose:     
-// Author:      Roger Butler
-// Modified by: 
-// Created:     21/02/2017 18:07:43
-// RCS-ID:      
-// Copyright:   Copyright (c) 2017, TecSec, Inc.  
-// Licence:     
-/////////////////////////////////////////////////////////////////////////////
+//	Copyright (c) 2017, TecSec, Inc.
+//
+//	Redistribution and use in source and binary forms, with or without
+//	modification, are permitted provided that the following conditions are met:
+//	
+//		* Redistributions of source code must retain the above copyright
+//		  notice, this list of conditions and the following disclaimer.
+//		* Redistributions in binary form must reproduce the above copyright
+//		  notice, this list of conditions and the following disclaimer in the
+//		  documentation and/or other materials provided with the distribution.
+//		* Neither the name of TecSec nor the names of the contributors may be
+//		  used to endorse or promote products derived from this software 
+//		  without specific prior written permission.
+//		 
+//	ALTERNATIVELY, provided that this notice is retained in full, this product
+//	may be distributed under the terms of the GNU General Public License (GPL),
+//	in which case the provisions of the GPL apply INSTEAD OF those given above.
+//		 
+//	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+//	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+//	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+//	DISCLAIMED.  IN NO EVENT SHALL TECSEC BE LIABLE FOR ANY 
+//	DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+//	(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+//	LOSS OF USE, DATA OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+//	ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+//	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+// Written by Roger Butler
 
 // For compilers that support precompilation, includes "wx/wx.h".
 #include "stdafx.h"
-
-////@begin includes
-////@end includes
-
-////@begin XPM images
-////@end XPM images
-
 
 /*
  * EnterPin type definition
@@ -146,7 +159,7 @@ void EnterPin::CreateControls()
         edtOldPassword->SetToolTip(_("Enter the current password."));
     itemFlexGridSizer4->Add(edtOldPassword, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
-    lblNewPassword = new wxStaticText( itemDialog1, wxID_STATIC, _("New password:"), wxDefaultPosition, wxDefaultSize, 0 );
+    lblNewPassword = new wxStaticText( itemDialog1, wxID_STATIC, _("New Password:"), wxDefaultPosition, wxDefaultSize, 0 );
     itemFlexGridSizer4->Add(lblNewPassword, 0, wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
     edtNewPassword = new wxTextCtrl( itemDialog1, ID_ENTERPIN_NEW_PASSWORD, wxEmptyString, wxDefaultPosition, wxSize(250, -1), wxTE_PASSWORD );
@@ -154,7 +167,7 @@ void EnterPin::CreateControls()
         edtNewPassword->SetToolTip(_("Enter the new password"));
     itemFlexGridSizer4->Add(edtNewPassword, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
-    lblVerifyPassword = new wxStaticText( itemDialog1, wxID_STATIC, _("Verify password:"), wxDefaultPosition, wxDefaultSize, 0 );
+    lblVerifyPassword = new wxStaticText( itemDialog1, wxID_STATIC, _("Verify Password:"), wxDefaultPosition, wxDefaultSize, 0 );
     itemFlexGridSizer4->Add(lblVerifyPassword, 0, wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxBOTTOM, 5);
 
     edtVerifyPassword = new wxTextCtrl( itemDialog1, ID_ENTERPIN_VERIFY_PASSWORD, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PASSWORD );
@@ -199,6 +212,7 @@ void EnterPin::CreateControls()
 	configureControls();
 	if (_vars != nullptr && _vars->helpId > 0)
 	{
+        btnAbout->Enable(false);
 		btnAbout->Show(false);
 		btnHelp->Show(true);
 	}
@@ -206,6 +220,7 @@ void EnterPin::CreateControls()
 	{
 		btnAbout->Show(true);
 		btnHelp->Show(false);
+        btnHelp->Enable(false);
 	}
 }
 
@@ -222,12 +237,16 @@ void EnterPin::configureControls()
 
 			lblOldPassword->Show(true);
 			edtOldPassword->Show(true);
+            edtOldPassword->Enable(true);
 			lblNewPassword->Show(true);
 			edtNewPassword->Show(true);
+            edtNewPassword->Enable(true);
 			lblVerifyPassword->Show(true);
 			edtVerifyPassword->Show(true);
+            edtVerifyPassword->Enable(true);
 			lblPasswordStrength->Show(true);
 			edtPasswordStrength->Show(true);
+            edtPasswordStrength->Enable(false);
 		}
 		else if (_vars->m_creatingPin)
 		{
@@ -236,25 +255,34 @@ void EnterPin::configureControls()
 			edtPasswordStrength->SetMax(_vars->maxStrength);
 
 			lblOldPassword->Show(false);
+            edtOldPassword->Enable(false);
 			edtOldPassword->Show(false);
 			lblVerifyPassword->Show(true);
+            edtVerifyPassword->Enable(true);
 			edtVerifyPassword->Show(true);
 			lblNewPassword->Show(true);
 			edtNewPassword->Show(true);
+            edtNewPassword->Enable(true);
+            edtNewPassword->SetFocus();
 			lblPasswordStrength->Show(true);
 			edtPasswordStrength->Show(true);
+            edtPasswordStrength->Enable(false);
 		}
 		else
 		{
 			lblNewPassword->Show(true);
 			edtNewPassword->Show(true);
+            edtNewPassword->Enable(true);
 			lblNewPassword->SetLabel("Password:");
 
 			lblOldPassword->Show(false);
+            edtOldPassword->Enable(false);
 			edtOldPassword->Show(false);
 			lblVerifyPassword->Show(false);
+            edtVerifyPassword->Enable(false);
 			edtVerifyPassword->Show(false);
 			lblPasswordStrength->Show(false);
+            edtPasswordStrength->Enable(false);
 			edtPasswordStrength->Show(false);
 		}
 		edtOldPassword->SetMaxLength(_vars->maxLen);
@@ -264,6 +292,21 @@ void EnterPin::configureControls()
 		Fit();
 		btnOK->Enable(false);
 	}
+}
+void EnterPin::setExplanation(const tscrypto::tsCryptoString& setTo)
+{
+	lblExplain->SetLabel(setTo.c_str());
+	Fit();
+}
+void EnterPin::setStatus(const tscrypto::tsCryptoString& setTo)
+{
+	lblStatus->SetLabel(setTo.c_str());
+	Fit();
+}
+void EnterPin::setVariables(enterPinVariables* vars)
+{
+	_vars = vars;
+	configureControls();
 }
 
 
@@ -374,23 +417,6 @@ wxIcon EnterPin::GetIconResource( const wxString& name )
 {
 	return ::GetIconResource(name);
 }
-
-void EnterPin::setExplanation(const tscrypto::tsCryptoString& setTo)
-{
-	lblExplain->SetLabel(setTo.c_str());
-	Fit();
-}
-void EnterPin::setStatus(const tscrypto::tsCryptoString& setTo)
-{
-	lblStatus->SetLabel(setTo.c_str());
-	Fit();
-}
-void EnterPin::setVariables(enterPinVariables* vars)
-{
-	_vars = vars;
-	configureControls();
-}
-
 
 /*
  * wxEVT_COMMAND_TEXT_UPDATED event handler for ID_ENTERPASSWORD

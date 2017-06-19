@@ -97,6 +97,7 @@ public:
 		/// <param name="message"> The message.</param>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 	virtual void WriteLine(const tscrypto::tsCryptoStringBase &category, int priority, const tscrypto::tsCryptoStringBase &message) = 0;
+    virtual bool WantsUnfiltered() const = 0;
 };
 
 
@@ -124,7 +125,7 @@ public:
 	DEPRECATED virtual bool initialize(const tsXmlNode* node);
 #endif // SUPPORT_XML_LOGGING
 
-	virtual void WriteToLog(const char *loggerName, int level, const char *msg);
+    virtual void WriteToLog(const tscrypto::tsCryptoString& loggerName, int level, tscrypto::tsCryptoString& msg);
 	void setFormatString(const char *formatter);
 	tscrypto::tsCryptoString getFormatString() const { return _formatter; }
 	tscrypto::tsCryptoString getName() const;
@@ -197,13 +198,13 @@ public:
 	///
 	/// <param name="consumer">[in] The consumer.</param>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	static void AddMasterConsumer(tsDebugConsumer *consumer);
+    static void AddMasterConsumer(std::shared_ptr<tsDebugConsumer> consumer);
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Removes a consumer from all instance of this class.</summary>
 	///
 	/// <param name="consumer">[in] The consumer.</param>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	static void RemoveMasterConsumer(tsDebugConsumer *consumer);
+    static void RemoveMasterConsumer(std::shared_ptr<tsDebugConsumer> consumer);
 	/// <summary>Remove all consumers from all instances of this class.</summary>
 	static void ClearMasterConsumers();
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -214,6 +215,7 @@ public:
 	/// <param name="message"> The message.</param>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	static void WriteToConsumers(const tscrypto::tsCryptoStringBase &category, int priority, const tscrypto::tsCryptoStringBase &message);
+    static void WriteToUnfilteredConsumers(const tscrypto::tsCryptoStringBase &category, int priority, const tscrypto::tsCryptoStringBase &message);
 	static void AllowLogs(const char *logList);
 	static void DisallowLogs(const char *logList);
 	static void indent(const char *loggerName, int level);

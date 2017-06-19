@@ -40,10 +40,10 @@ public:
 	{
 		desc = findKdfAlgorithm("KDF");
 		if (desc != nullptr)
-			workspace.resize(desc->getWorkspaceSize(desc));
+			workspace = desc;
 		macDesc = findMacAlgorithm("SHA512");
 		if (macDesc != nullptr)
-			macWorkspace.resize(macDesc->getWorkspaceSize(macDesc));
+			macWorkspace = macDesc;
 	}
 	virtual ~KDF(void)
 	{
@@ -55,18 +55,18 @@ public:
 		if (!gFipsState.operational() || desc == nullptr || macDesc == nullptr)
 			return false;
 
-		if (!desc->configure(desc, workspace.rawData(), macDesc, macWorkspace.rawData()))
+		if (!desc->configure(desc, workspace, macDesc, macWorkspace))
 			return false;
-		return desc->init(desc, workspace.rawData());
+		return desc->init(desc, workspace);
 	}
 	virtual bool initializeWithKey(const tsCryptoData &key) override
 	{
 		if (!gFipsState.operational() || desc == nullptr || macDesc == nullptr)
 			return false;
 
-		if (!desc->configure(desc, workspace.rawData(), macDesc, macWorkspace.rawData()))
+		if (!desc->configure(desc, workspace, macDesc, macWorkspace))
 			return false;
-		return desc->initWithKey(desc, workspace.rawData(), key.c_str(), (uint32_t)key.size());
+		return desc->initWithKey(desc, workspace, key.c_str(), (uint32_t)key.size());
 	}
 	virtual bool Derive_X9_63_Counter(const tsCryptoData &Z, const tsCryptoData &otherInfo, size_t outputBitLength, tsCryptoData &output) override
 	{
@@ -74,7 +74,7 @@ public:
 			return false;
 
 		output.resize((outputBitLength + 7) / 8);
-		bool retVal = desc->derive_X9_63_Counter(desc, workspace.rawData(), Z.c_str(), (uint32_t)Z.size(), otherInfo.c_str(), (uint32_t)otherInfo.size(), (uint32_t)outputBitLength, output.rawData());
+		bool retVal = desc->derive_X9_63_Counter(desc, workspace, Z.c_str(), (uint32_t)Z.size(), otherInfo.c_str(), (uint32_t)otherInfo.size(), (uint32_t)outputBitLength, output.rawData());
 		if (!retVal)
 			output.clear();
 		return retVal;
@@ -86,7 +86,7 @@ public:
 			return false;
 
 		output.resize((outputBitLength + 7) / 8);
-		bool retVal = desc->derive_SP800_108_Counter(desc, workspace.rawData(), containsBitLength, (uint32_t)bytesOfBitLength, containsLabel, counterLocation, (uint32_t)counterByteLength,
+		bool retVal = desc->derive_SP800_108_Counter(desc, workspace, containsBitLength, (uint32_t)bytesOfBitLength, containsLabel, counterLocation, (uint32_t)counterByteLength,
 			Label.c_str(), (uint32_t)Label.size(), Context.c_str(), (uint32_t)Context.size(), (uint32_t)outputBitLength, output.rawData());
 		if (!retVal)
 			output.clear();
@@ -98,7 +98,7 @@ public:
 			return false;
 
 		output.resize((outputBitLength + 7) / 8);
-		bool retVal = desc->derive_SP800_108_Feedback(desc, workspace.rawData(), (kdf_feedbackCounterLocation)counterLocation, counterByteLength, containsBitLength, bytesOfBitLength, containsLabel, feedbackIV.c_str(), (uint32_t)feedbackIV.size(), (uint8_t*)Label.c_str(), (uint32_t)Label.size(),
+		bool retVal = desc->derive_SP800_108_Feedback(desc, workspace, (kdf_feedbackCounterLocation)counterLocation, counterByteLength, containsBitLength, bytesOfBitLength, containsLabel, feedbackIV.c_str(), (uint32_t)feedbackIV.size(), (uint8_t*)Label.c_str(), (uint32_t)Label.size(),
 			Context.c_str(), (uint32_t)Context.size(), (uint32_t)outputBitLength, output.rawData());
 		if (!retVal)
 			output.clear();
@@ -110,7 +110,7 @@ public:
 			return false;
 
 		output.resize((outputBitLength + 7) / 8);
-		bool retVal = desc->derive_SP800_56A_Counter(desc, workspace.rawData(), Z.c_str(), (uint32_t)Z.size(), otherInfo.c_str(), (uint32_t)otherInfo.size(),
+		bool retVal = desc->derive_SP800_56A_Counter(desc, workspace, Z.c_str(), (uint32_t)Z.size(), otherInfo.c_str(), (uint32_t)otherInfo.size(),
 			(uint32_t)outputBitLength, output.rawData());
 		if (!retVal)
 			output.clear();
@@ -122,7 +122,7 @@ public:
 			return false;
 
 		output.resize((outputBitLength + 7) / 8);
-		bool retVal = desc->derive_SP800_56A_Feedback(desc, workspace.rawData(), includeCounter, feedbackIV.c_str(), (uint32_t)feedbackIV.size(), Z.c_str(), (uint32_t)Z.size(),
+		bool retVal = desc->derive_SP800_56A_Feedback(desc, workspace, includeCounter, feedbackIV.c_str(), (uint32_t)feedbackIV.size(), Z.c_str(), (uint32_t)Z.size(),
 			otherInfo.c_str(), (uint32_t)otherInfo.size(), (uint32_t)outputBitLength, output.rawData());
 		if (!retVal)
 			output.clear();
@@ -134,7 +134,7 @@ public:
 			return false;
 
 		output.resize((outputBitLength + 7) / 8);
-		bool retVal = desc->derive_SCP03(desc, workspace.rawData(), type, (uint32_t)outputBitLength, Context.c_str(), (uint32_t)Context.size(), output.rawData());
+		bool retVal = desc->derive_SCP03(desc, workspace, type, (uint32_t)outputBitLength, Context.c_str(), (uint32_t)Context.size(), output.rawData());
 		if (!retVal)
 			output.clear();
 		return retVal;
@@ -146,7 +146,7 @@ public:
 			return false;
 
 		output.resize((outputBitLength + 7) / 8);
-		bool retVal = desc->derive_Raw(desc, workspace.rawData(), includeCounter, useFeedback, feedbackIV.c_str(), (uint32_t)feedbackIV.size(), Context.c_str(), (uint32_t)Context.size(), 
+		bool retVal = desc->derive_Raw(desc, workspace, includeCounter, useFeedback, feedbackIV.c_str(), (uint32_t)feedbackIV.size(), Context.c_str(), (uint32_t)Context.size(), 
 			(uint32_t)counterLength, (uint32_t)counterStart, (uint32_t)feedbackPosition, (uint32_t)outputBitLength, output.rawData());
 		if (!retVal)
 			output.clear();
@@ -157,7 +157,7 @@ public:
 		if (!gFipsState.operational() || desc == nullptr || macDesc == nullptr)
 			return false;
 
-		return desc->finish(desc, workspace.rawData());
+		return desc->finish(desc, workspace);
 	}
 	virtual size_t GetBlockSize() override
 	{
@@ -192,7 +192,7 @@ public:
 		tsCryptoString algorithm(fullName);
 
 		SetName(algorithm);
-		macWorkspace.clear();
+		macWorkspace.reset();
 		macDesc = nullptr;
 		if (algorithm.size() < 5)
 		{
@@ -213,15 +213,15 @@ public:
 		{
 			return false;
 		}
-		macWorkspace.resize(macDesc->getWorkspaceSize(macDesc));
+		macWorkspace = macDesc;
 		return true;
 	}
 
 private:
 	const KDF_Descriptor* desc;
-	tsCryptoData workspace;
+	SmartCryptoWorkspace workspace;
 	const MAC_Descriptor* macDesc;
-	tsCryptoData macWorkspace;
+	SmartCryptoWorkspace macWorkspace;
 };
 
 tscrypto::ICryptoObject* CreateKDF()

@@ -155,13 +155,12 @@ void TokenSelectionWizardPage::CreateControls()
     itemBoxSizer2->Add(_cmbToken, 0, wxGROW|wxALL, 5);
 
     lblTokenPassword = new wxStaticText( itemWizardPage1, wxID_STATIC, _("Token Password:"), wxDefaultPosition, wxDefaultSize, 0 );
-    itemBoxSizer2->Add(lblTokenPassword, 0, wxALIGN_LEFT|wxALL, 5);
+    itemBoxSizer2->Add(lblTokenPassword, 0, wxGROW|wxALL, 5);
 
     _txtTokenPassword = new wxTextCtrl( itemWizardPage1, ID_TOKEN_PASSWORD, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PASSWORD );
     _txtTokenPassword->SetMaxLength(128);
     if (TokenSelectionWizardPage::ShowToolTips())
         _txtTokenPassword->SetToolTip(_("Enter the password for this token."));
-    _txtTokenPassword->Enable(false);
     itemBoxSizer2->Add(_txtTokenPassword, 0, wxGROW|wxALL, 5);
 
     itemBoxSizer2->Add(5, 5, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
@@ -224,6 +223,15 @@ void TokenSelectionWizardPage::OnSelectTokenPageChanged(wxWizardEvent& event)
 			}
 			else
 			{
+				if (!!wiz->_vars->_session && !!!wiz->_vars->_session->HasProfile())
+				{
+					wxBusyCursor busyCursor;
+					wxWindowDisabler disabler;
+					wxBusyInfo busyInfo(_("Retrieving token information..."));
+
+					wiz->_vars->_session->GetProfile();
+				}
+
 				if (!!wiz->_vars->_session && !!wiz->_vars->_session->GetProfile() && wiz->_vars->_session->GetProfile()->exists_SerialNumber() &&
 					*wiz->_vars->_session->GetProfile()->get_SerialNumber() == wiz->_vars->_token->serialNumber())
 				{
@@ -247,6 +255,11 @@ void TokenSelectionWizardPage::OnSelectTokenPageChanged(wxWizardEvent& event)
 		wiz->_vars->_token.reset();
 		wiz->_vars->_session.reset();
     }
+#ifdef __APPLE__
+    if (_txtTokenPassword->IsEnabled())
+        _txtTokenPassword->SetFocus();
+#endif __APPLE__
+    Layout();
 	updateControls();
 	event.Skip();
 }
@@ -337,6 +350,7 @@ void TokenSelectionWizardPage::OnTokenSelected(wxCommandEvent& event)
     wxBusyInfo busyInfo(_("Retrieving token information..."));
 
 	wiz->_vars->_token = wiz->_vars->_connector->token(event.GetString().mbc_str().data());
+    _tokenName = event.GetString().mbc_str().data();
 	if (!wiz->_vars->_token)
     {
         wxTsMessageBox("The selected token appears to not be available.  Please select a different token.", "ERROR", wxICON_HAND | wxOK, (XP_WINDOW)this);
@@ -417,11 +431,17 @@ void TokenSelectionWizardPage::updateControls()
 	{
 		_txtTokenPassword->Show(true);
 		_btnTokenLogin->Show(true);
+        lblTokenPassword->Show(true);
+		_txtTokenPassword->Enable(_cmbToken->GetSelection() >= 0);
+		_btnTokenLogin->Enable(_txtTokenPassword->GetValue().size() > 0);
+        Layout();
 	}
 	else
 	{
 		_txtTokenPassword->Show(false);
 		_btnTokenLogin->Show(false);
+        lblTokenPassword->Show(false);
+        Layout();
 	}
 
 	if (_txtTokenPassword->GetValue().size() > 0)
@@ -528,21 +548,21 @@ void TokenSelectionWizardPage::OnTokenLoginClick(wxCommandEvent& event)
 						entID = wiz->_vars->_session->GetProfile()->get_EnterpriseId();
 				}
 
-				if (wiz->_vars->_connector->favoriteCountForEnterprise(entID) == 0)
-				{
-					SetNextPage(wiz->_accessGroupPage);
-					wiz->_accessGroupPage->SetPrevPage(this);
-				}
-				else if (wiz->_vars->_favoriteManager)
-				{
-					SetNextPage(wiz->_accessGroupPage);
-					wiz->_accessGroupPage->SetPrevPage(this);
-				}
-				else
-				{
-					SetNextPage(wiz->_favoriteSelectionPage);
-					wiz->_favoriteSelectionPage->SetPrevPage(this);
-				}
+                //if (wiz->_vars->_connector->favoriteCountForEnterprise(entID) == 0)
+                //{
+                //    SetNextPage(wiz->_accessGroupPage);
+                //    wiz->_accessGroupPage->SetPrevPage(this);
+                //}
+                //else if (wiz->_vars->_favoriteManager)
+                //{
+                //    SetNextPage(wiz->_accessGroupPage);
+                //    wiz->_accessGroupPage->SetPrevPage(this);
+                //}
+                //else
+                //{
+                //    SetNextPage(wiz->_favoriteSelectionPage);
+                //    wiz->_favoriteSelectionPage->SetPrevPage(this);
+                //}
 				((wxWizard*)this->GetParent())->ShowPage(GetNext());
 				return;
 			case loginStatus_NoServer:
@@ -574,6 +594,10 @@ void TokenSelectionWizardPage::OnTokenLoginClick(wxCommandEvent& event)
 
 wxWizardPage* TokenSelectionWizardPage::GetPrev() const
 {
+	ISkippablePage* tokPg = dynamic_cast<ISkippablePage*>(prevPage);
+
+	if (tokPg != nullptr && tokPg->skipMe())
+		return prevPage->GetPrev();
     return prevPage;
 }
 
@@ -584,6 +608,29 @@ wxWizardPage* TokenSelectionWizardPage::GetPrev() const
 
 wxWizardPage* TokenSelectionWizardPage::GetNext() const
 {
+	ISkippablePage* tokPg = dynamic_cast<ISkippablePage*>(nextPage);
+
+	if (tokPg != nullptr && tokPg->skipMe())
+		return nextPage->GetNext();
     return nextPage;
+}
+
+bool TokenSelectionWizardPage::skipMe()
+{
+	AudienceSelector2* wiz = dynamic_cast<AudienceSelector2*>(GetParent());
+
+	if (wiz == nullptr || wiz->_vars == nullptr)
+		return false;
+
+	if (!wiz->_vars->_connector || wiz->_vars->_connector->tokenCount() != 1)
+		return false;
+
+	if (!wiz->_vars->_session)
+	{
+		wiz->_vars->_session = wiz->_vars->_connector->token(0)->openSession();
+	}
+	if (!wiz->_vars->_session || !wiz->_vars->_session->IsLoggedIn())
+		return false;
+	return true;
 }
 

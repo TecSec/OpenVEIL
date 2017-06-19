@@ -80,7 +80,7 @@ namespace tscrypto
 		///
 		/// <returns>true if it succeeds, false if it fails.</returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
-		bool LoadCertificate(const tsCryptoData &certData);
+        bool LoadCertificate(const tscrypto::tsCryptoData &certData);
 		/// <summary>Clears this object to its blank/initial state.</summary>
 		void Clear();
 		////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -94,13 +94,13 @@ namespace tscrypto
 		///
 		/// <returns>the encoded serial number.</returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
-		const tsCryptoData &EncodedSerialNumber() const;
+        const tscrypto::tsCryptoData &EncodedSerialNumber() const;
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>Gets the serial number.</summary>
 		///
 		/// <returns>the serial number.</returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
-		const tsCryptoData &SerialNumber() const;
+        const tscrypto::tsCryptoData &SerialNumber() const;
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>Gets the algorithm BLOB node.</summary>
 		///
@@ -112,7 +112,7 @@ namespace tscrypto
 		///
 		/// <returns>the algorithm oid.</returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
-		const tsCryptoData &AlgorithmOID() const;
+        const tscrypto::tsCryptoData &AlgorithmOID() const;
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>Gets the algorithm parameters node.</summary>
 		///
@@ -130,13 +130,13 @@ namespace tscrypto
 		///
 		/// <returns>the issuance date.</returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
-		const tsCryptoString &IssuanceDate() const;
+        const tscrypto::tsCryptoString &IssuanceDate() const;
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>Gets the expiration date.</summary>
 		///
 		/// <returns>the expiration date.</returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
-		const tsCryptoString &ExpirationDate() const;
+        const tscrypto::tsCryptoString &ExpirationDate() const;
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>Gets the subject node.</summary>
 		///
@@ -148,13 +148,13 @@ namespace tscrypto
 		///
 		/// <returns>the public key algorithm BLOB.</returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
-		const tsCryptoData &PublicKeyAlgorithmBlob() const;
+        const tscrypto::tsCryptoData &PublicKeyAlgorithmBlob() const;
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>Gets the public key algorithm.</summary>
 		///
 		/// <returns>the public key algorithm.</returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
-		const tsCryptoData &PublicKeyAlgorithm() const;
+        const tscrypto::tsCryptoData &PublicKeyAlgorithm() const;
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>Gets the public key algorithm parameters node.</summary>
 		///
@@ -166,19 +166,19 @@ namespace tscrypto
 		///
 		/// <returns>the public key.</returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
-		const tsCryptoData &PublicKey() const;
+        const tscrypto::tsCryptoData &PublicKey() const;
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>Gets the RSA modulus.</summary>
 		///
 		/// <returns>the RSA modulus.</returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
-		const tsCryptoData &Modulus() const;
+        const tscrypto::tsCryptoData &Modulus() const;
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>Gets the RSA exponent.</summary>
 		///
 		/// <returns>the RSA exponent.</returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
-		const tsCryptoData &Exponent() const;
+        const tscrypto::tsCryptoData &Exponent() const;
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>Gets the issuer unique number node.</summary>
 		///
@@ -218,7 +218,7 @@ namespace tscrypto
 		///
 		/// <returns>the signature algorithm oid.</returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
-		const tsCryptoData &SignatureAlgorithmOID() const;
+        const tscrypto::tsCryptoData &SignatureAlgorithmOID() const;
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>Gets the signature algorithm parameters node.</summary>
 		///
@@ -231,7 +231,7 @@ namespace tscrypto
 		///
 		/// <returns>the certificate signature.</returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
-		const tsCryptoData &CertificateSignature() const;
+        const tscrypto::tsCryptoData &CertificateSignature() const;
 
 		//////////////////////////////////////////////////////////////////////////////////////////////////////
 		///// <summary>Object allocation operator.</summary>
@@ -248,16 +248,22 @@ namespace tscrypto
 		//////////////////////////////////////////////////////////////////////////////////////////////////////
 		//void operator delete(void *ptr);
 
-		const tsCryptoData SubjectKeyIdentifier() const;
-		const tsCryptoData SubjectKeyIdentifierValue() const;
-		const tsCryptoData IssuerKeyIdentifier() const;
-		tsCryptoData asRawData() const;
-		tsCryptoString asBase64() const;
-		tsCryptoString SubjectName() const;
-		tsCryptoString IssuerName() const;
+        const tscrypto::tsCryptoData SubjectKeyIdentifier() const;
+        const tscrypto::tsCryptoData SubjectKeyIdentifierValue() const;
+        const tscrypto::tsCryptoData IssuerKeyIdentifier() const;
+        tscrypto::tsCryptoData asRawData() const;
+        tscrypto::tsCryptoString asBase64() const;
+        tscrypto::tsCryptoString SubjectName() const;
+        tscrypto::tsCryptoString IssuerName() const;
 		std::shared_ptr<tscrypto::AsymmetricKey> getPublicKeyObject() const;
-		tsCryptoData getExtensionValue(const char* oid) const;
+        tscrypto::tsCryptoData getExtensionValue(const char* oid) const;
 		CA_Certificate_Request::KeyUsageFlags GetKeyUsage() const;
+        tscrypto::tsCryptoDate ValidFrom() const;
+        tscrypto::tsCryptoDate ValidTo() const;
+        std::shared_ptr<tscrypto::AsymmetricKey> PublicKeyObject(bool forSigning) const;
+        bool VerifySignature(std::shared_ptr<tscrypto::AsymmetricKey> parentCertKey) const;
+        bool IsCACert() const;
+        bool getBasicConstraintInfo(bool& isCA, int32_t& maxNumberIntermediaries) const;
 
 	private:
 		std::shared_ptr<tscrypto::TlvDocument> m_doc;
@@ -285,6 +291,7 @@ namespace tscrypto
 		std::shared_ptr<tscrypto::TlvNode> m_signatureAlgorithmParameters;
 		tsCryptoData m_certificateSignature;
 		tsCryptoData m_originalData;
+        tsCryptoData m_signablePart;
 
 		tsCryptoData UnpackNumber(const tsCryptoData& number) const;
 	};

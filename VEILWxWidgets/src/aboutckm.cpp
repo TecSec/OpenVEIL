@@ -208,7 +208,7 @@ void AboutCKM::CreateControls()
     itemFlexGridSizer19->AddGrowableRow(0);
     itemFlexGridSizer19->AddGrowableCol(0);
 
-    itemNotebook11->AddPage(itemPanel18, _("Open source"));
+    itemNotebook11->AddPage(itemPanel18, _("Open Source"));
 
     itemFlexGridSizer2->Add(itemNotebook11, 0, wxGROW|wxALL, 5);
 

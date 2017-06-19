@@ -168,8 +168,8 @@ static SSL_CIPHER gSupportedPkCiphers[] =
 	tsTLS_DH_DSS_WITH_SEED_CBC_SHA                 ,
 };
 
-class TcpMsgProcessor : public IMessageProcessorControl, public IHttpChannelProcessor, public authenticationInitiatorTunnelKeyHandler, 
-	public authenticationControlDataCommunications, public tsmod::IObject, public IChannelProcessorEvents, public IJsonChannelProcessor
+class TcpMsgProcessor : public IMessageProcessorControl, public IHttpChannelProcessor, public tscrypto::authenticationInitiatorTunnelKeyHandler, 
+    public tscrypto::authenticationControlDataCommunications, public tsmod::IObject, public IChannelProcessorEvents, public IJsonChannelProcessor, public tsmod::IInitializableObject
 {
 public:
 	// IHttpChannelProcessor
@@ -469,6 +469,7 @@ public:
 		_sessionId.clear();
 		_username.clear();
 		_channel.reset();
+        _callbacks.reset();
 		_AEAD.reset();
 		_symm.reset();
 		_hasher.reset();
@@ -484,77 +485,18 @@ public:
 		clear();
 		_sessionId = sessionId;
 		_sessionKey = sessionKey;
-		_AEAD = std::dynamic_pointer_cast<CCM_GCM>(CryptoFactory("GCM-AES"));
+        _AEAD = std::dynamic_pointer_cast<CCM_GCM>(CryptoFactory(_parameters->item("AEAD")));
 	}
 
+    virtual bool startTunnel(const tscrypto::tsCryptoString& scheme, std::shared_ptr<IMessageProcessorCallback> callbacks, const tscrypto::tsCryptoString& username, const tscrypto::tsCryptoData& password) override
+    {
+        _callbacks = callbacks;
+        return internalStartTunnel(scheme, username, password);
+    }
 	virtual bool startTunnel(const tscrypto::tsCryptoString& scheme, std::shared_ptr<ITcpChannel> channel, const tscrypto::tsCryptoString& username, const tscrypto::tsCryptoData& password) override
 	{
 		_channel = channel;
-		_username = username;
-		_serverPin = password;
-
-		_transportState = IHttpChannelProcessor::login;
-
-		if (TsStriCmp(scheme, "https") == 0)
-		{
-			if (!(_tunnel = CryptoLocator()->get_instance<IClientTunnel>("PROTOCOL_SSL_CLIENT")))
-				return false;
-		}
-		else if (TsStriCmp(scheme, "httpv") == 0)
-		{
-			if (!(_tunnel = std::dynamic_pointer_cast<IClientTunnel>(CryptoFactory("TUNNEL-INITIATOR"))))
-				return false;
-		}
-		else
-			return false;
-
-		_httpsTunnelSupport = std::dynamic_pointer_cast<ISslHandshake_Client>(_tunnel);
-
-		if (!!_httpsTunnelSupport)
-		{
-			_httpsTunnelSupport->RegisterCertificateVerifier([this](const tscrypto::tsCryptoDataList& certificate, SSL_CIPHER cipher) { return CertificateVerifier(certificate, cipher); });
-			if (_ciphers.size() > 0)
-				_httpsTunnelSupport->setCiphersSupported(_ciphers.data(), _ciphers.size());
-			else
-			{
-				std::vector<SSL_CIPHER> ciphers;
-
-				if (username.size() > 0 && password.size() > 0)
-				{
-					ciphers.reserve(ciphers.size() + (sizeof(gCkmAuthAlgs) / sizeof(gCkmAuthAlgs[0])));
-					for (SSL_CIPHER cipher : gCkmAuthAlgs)
-					{
-						ciphers.push_back(cipher);
-					}
-				}
-				else
-				{
-					ciphers.reserve(ciphers.size() + (sizeof(gSupportedPkCiphers) / sizeof(gSupportedPkCiphers[0])));
-					for (SSL_CIPHER cipher : gSupportedPkCiphers)
-					{
-						ciphers.push_back(cipher);
-					}
-				}
-				_httpsTunnelSupport->setCiphersSupported(ciphers.data(), ciphers.size());
-			}
-			if (!!_pskCallback)
-				_httpsTunnelSupport->RegisterClientPSK(_pskCallback);
-			_httpsTunnelSupport->RegisterPasswordCallback([this](tscrypto::tsCryptoData& password) { password = _serverPin; return true; });
-		}
-
-		_tunnel->useCompression(false);
-
-		_tunnel->SetOnPacketRecievedCallback([this](uint8_t packetType, const uint8_t* data, uint32_t dataLen) {
-			_onPacketReceived.Fire(this, packetType, data, dataLen);
-		});
-		_tunnel->SetOnPacketSentCallback([this](uint8_t packetType, const uint8_t* data, uint32_t dataLen) {
-			_onPacketSent.Fire(this, packetType, data, dataLen);
-		});
-
-		if (!_tunnel->StartTunnel(username.c_str(), this, this))
-			return false;
-			
-		return true;
+        return internalStartTunnel(scheme, username, password);
 	}
 
 	// authenticationInitiatorTunnelKeyHandler
@@ -580,6 +522,8 @@ public:
 	{
 		if (!!_channel)
 			return _channel->RawSend(dest);
+        if (!!_callbacks)
+            return _callbacks->RawSend(dest);
 		return false;
 	}
 	virtual void stateChanged(bool isActive, uint32_t currentState) override
@@ -628,7 +572,7 @@ public:
 				}
 				else
 				{
-					_AEAD = std::dynamic_pointer_cast<CCM_GCM>(CryptoFactory("GCM-AES"));
+                    _AEAD = std::dynamic_pointer_cast<CCM_GCM>(CryptoFactory(_parameters->item("AEAD")));
 				}
 
 
@@ -784,11 +728,97 @@ protected:
 		{
 			return _CertVerifier(certificate, cipher);
 		}
-		// TODO:  Implement default cert verifier here
 
+        std::shared_ptr<tscrypto::ICertificateValidator> validator;
 
-		return sslalert_no_error;
+        if (_parameters->hasItem("CERTOPTIONS"))
+        {
+            validator = TopServiceLocator()->try_get_instance<tscrypto::ICertificateValidator>(_parameters->item("CERTOPTIONS"));
+            if (!validator)
+                return sslalert_certificate_unknown;
+        }
+
+        if (!validator)
+            validator = TopServiceLocator()->try_get_instance<tscrypto::ICertificateValidator>("/CERT_VALIDATOR?OPTIONS=/CERTIFICATE_OPTIONS");
+
+        if (!validator)
+            validator = TopServiceLocator()->try_get_instance<tscrypto::ICertificateValidator>("/CERT_VALIDATOR?OPTIONS=/BASICCERTOPTIONS");
+
+        if (!!validator)
+            return validator->ValidateCertificate(certificate, cipher);
+
+        return sslalert_certificate_unknown;
+    }
+
+    bool internalStartTunnel(const tscrypto::tsCryptoString& scheme, const tscrypto::tsCryptoString& username, const tscrypto::tsCryptoData& password)
+    {
+        _username = username;
+        _serverPin = password;
+
+        _transportState = IHttpChannelProcessor::login;
+
+        if (TsStriCmp(scheme, "https") == 0)
+        {
+            if (!(_tunnel = CryptoLocator()->get_instance<IClientTunnel>("PROTOCOL_SSL_CLIENT")))
+                return false;
 	}
+        else if (TsStriCmp(scheme, "httpv") == 0)
+        {
+            if (!(_tunnel = std::dynamic_pointer_cast<IClientTunnel>(CryptoFactory("TUNNEL-INITIATOR"))))
+                return false;
+        }
+        else
+            return false;
+
+        _httpsTunnelSupport = std::dynamic_pointer_cast<ISslHandshake_Client>(_tunnel);
+
+        if (!!_httpsTunnelSupport)
+        {
+            _httpsTunnelSupport->RegisterCertificateVerifier([this](const tscrypto::tsCryptoDataList& certificate, SSL_CIPHER cipher) { return CertificateVerifier(certificate, cipher); });
+            if (_ciphers.size() > 0)
+                _httpsTunnelSupport->setCiphersSupported(_ciphers.data(), _ciphers.size());
+            else
+            {
+                std::vector<SSL_CIPHER> ciphers;
+
+                if (username.size() > 0 && password.size() > 0)
+                {
+                    ciphers.reserve(ciphers.size() + (sizeof(gCkmAuthAlgs) / sizeof(gCkmAuthAlgs[0])));
+                    for (SSL_CIPHER cipher : gCkmAuthAlgs)
+                    {
+                        ciphers.push_back(cipher);
+                    }
+                }
+                else
+                {
+                    ciphers.reserve(ciphers.size() + (sizeof(gSupportedPkCiphers) / sizeof(gSupportedPkCiphers[0])));
+                    for (SSL_CIPHER cipher : gSupportedPkCiphers)
+                    {
+                        ciphers.push_back(cipher);
+                    }
+                }
+                _httpsTunnelSupport->setCiphersSupported(ciphers.data(), ciphers.size());
+            }
+            if (!!_pskCallback)
+                _httpsTunnelSupport->RegisterClientPSK(_pskCallback);
+            _httpsTunnelSupport->RegisterPasswordCallback([this](tscrypto::tsCryptoData& password) { password = _serverPin; return true; });
+        }
+
+        _tunnel->useCompression(false);
+
+        _tunnel->SetOnPacketReceivedCallback([this](uint8_t packetType, const uint8_t* data, uint32_t dataLen) {
+            _onPacketReceived.Fire(this, packetType, data, dataLen);
+        });
+        _tunnel->SetOnPacketSentCallback([this](uint8_t packetType, const uint8_t* data, uint32_t dataLen) {
+            _onPacketSent.Fire(this, packetType, data, dataLen);
+        });
+
+        if (!_tunnel->StartTunnel(username.c_str(), this, this))
+            return false;
+
+        return true;
+    }
+
 protected:
 	tscrypto::tsCryptoData _msgIv2;
 	tscrypto::tsCryptoData _msgMac2;
@@ -801,6 +831,7 @@ protected:
 	tscrypto::tsCryptoData _serverPin;
 	std::shared_ptr<IClientTunnel> _tunnel;
 	std::shared_ptr<ITcpChannel> _channel;
+    std::shared_ptr<IMessageProcessorCallback> _callbacks;
 	IHttpChannelProcessor::TransportState _transportState;
 	// SSL variables
 	std::shared_ptr<ISslHandshake_Client> _httpsTunnelSupport;
@@ -823,6 +854,19 @@ protected:
 	tsIObjStringSignal _failureSignals;
 	tsIObjPacketSignal _onPacketReceived;
 	tsIObjPacketSignal _onPacketSent;
+    std::shared_ptr<IPropertyMap> _parameters;
+
+
+    // Inherited via IInitializableObject
+    virtual bool InitializeWithFullName(const tscrypto::tsCryptoStringBase & fullName) override
+    {
+        _parameters = ServiceLocator()->get_instance<IPropertyMap>("PropertyMap");
+        _parameters->parseUrlQueryString(fullName);
+        
+        if (!_parameters->hasItem("AEAD"))
+            _parameters->AddItem("AEAD", "GCM-AES");
+        return true;
+    }
 
 };
 

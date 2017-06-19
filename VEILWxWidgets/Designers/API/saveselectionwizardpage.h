@@ -64,7 +64,7 @@ class SaveSelectionWizardPage;
  * SaveSelectionWizardPage class declaration
  */
 
-class SaveSelectionWizardPage: public wxWizardPageSimple
+class SaveSelectionWizardPage: public wxWizardPageSimple, public ISkippablePage
 {    
     DECLARE_DYNAMIC_CLASS( SaveSelectionWizardPage )
     DECLARE_EVENT_TABLE()
@@ -138,6 +138,9 @@ public:
 	void SetPrevPage(wxWizardPage* setTo) { prevPage = setTo; }
 
 	void updateControls();
+
+	// Inherited via ISkippablePage
+	virtual bool skipMe() override;
 };
 
 #endif

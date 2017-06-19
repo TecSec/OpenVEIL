@@ -52,9 +52,9 @@ public:
 	{
 		if (!gFipsState.operational() || desc == nullptr)
 			return false;
-		context.clear();
-		context.resize(desc->getWorkspaceSize(desc));
-		return desc->init(desc, context.rawData());
+		context.reset();
+		context = desc;
+		return desc->init(desc, context);
 	}
 	virtual bool update(const tsCryptoData &data) override
 	{
@@ -62,7 +62,7 @@ public:
 			return false;
 		if (context.empty())
 			return false;
-		return desc->update(desc, context.rawData(), data.c_str(), (uint32_t)data.size());
+		return desc->update(desc, context, data.c_str(), (uint32_t)data.size());
 	}
 	virtual bool finish(tsCryptoData &digest) override
 	{
@@ -71,8 +71,8 @@ public:
 		digest.resize((outputSize + 7) / 8);
 		if (context.empty())
 			return false;
-		bool retVal = desc->finish(desc, context.rawData(), digest.rawData(), (uint32_t)digest.size());
-		context.clear();
+		bool retVal = desc->finish(desc, context, digest.rawData(), (uint32_t)digest.size());
+		context.reset();
 		return retVal;
 	}
 	virtual size_t GetBlockSize() override
@@ -136,14 +136,14 @@ public:
 
 		SetName(algorithm);
 
-		context.clear();
+		context.reset();
 		return true;
 	}
 
 protected:
 
 private:
-	tsCryptoData context;
+	SmartCryptoWorkspace context;
 	const HASH_Descriptor *desc;
 	int bitSize;
 	int outputSize;

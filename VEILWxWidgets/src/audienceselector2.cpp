@@ -97,7 +97,7 @@ bool AudienceSelector2::Create( wxWindow* parent, wxWindowID id, const wxPoint& 
 ////@begin AudienceSelector2 creation
     SetExtraStyle(wxWS_EX_BLOCK_EVENTS|wxWIZARD_EX_HELPBUTTON);
 	wxBitmap wizardBitmap(wxNullBitmap);
-    wxWizard::Create( parent, id, _("Audience Selector"), wizardBitmap, pos, wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX );
+    wxWizard::Create( parent, id, _("Audience Selector"), wizardBitmap, pos, wxDEFAULT_DIALOG_STYLE|wxCAPTION );
 
 	CreateControls();
 	////@end AudienceSelector2 creation

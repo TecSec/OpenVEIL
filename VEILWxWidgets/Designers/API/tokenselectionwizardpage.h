@@ -65,7 +65,7 @@ class TokenSelectionWizardPage;
  * TokenSelectionWizardPage class declaration
  */
 
-class TokenSelectionWizardPage: public wxWizardPage
+class TokenSelectionWizardPage: public wxWizardPage, public ISkippablePage
 {    
     DECLARE_DYNAMIC_CLASS( TokenSelectionWizardPage )
     DECLARE_EVENT_TABLE()
@@ -144,6 +144,9 @@ public:
 	void SetPrevPage(wxWizardPage* setTo) { prevPage = setTo; }
 
 	void updateControls();
+	
+	// ISkippablePage
+	virtual bool skipMe() override;
 
 };
 

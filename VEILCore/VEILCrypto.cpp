@@ -416,13 +416,23 @@ std::shared_ptr<tscrypto::ICryptoLocator> tscrypto::CryptoLocator()
             cryptoWriter->DeleteClass("XTS-SEED");
             cryptoWriter->DeleteClass("XTS-SEED-128");
             cryptoWriter->DeleteClass("X25519");
-            cryptoWriter->DeleteClass("X25519_PH");
+            cryptoWriter->DeleteClass("ED25519");
+            cryptoWriter->DeleteClass("ED25519_PH");
+            cryptoWriter->DeleteClass("KEY-X25519");
+            cryptoWriter->DeleteClass("KEY-ED25519");
+            cryptoWriter->DeleteClass("KEY-ED25519_PH");
             cryptoWriter->DeleteClass("numsp256d1");
             cryptoWriter->DeleteClass("numsp384d1");
             cryptoWriter->DeleteClass("numsp512d1");
             cryptoWriter->DeleteClass("numsp256t1");
             cryptoWriter->DeleteClass("numsp384t1");
             cryptoWriter->DeleteClass("numsp512t1");
+            cryptoWriter->DeleteClass("KEY-numsp256d1");
+            cryptoWriter->DeleteClass("KEY-numsp384d1");
+            cryptoWriter->DeleteClass("KEY-numsp512d1");
+            cryptoWriter->DeleteClass("KEY-numsp256t1");
+            cryptoWriter->DeleteClass("KEY-numsp384t1");
+            cryptoWriter->DeleteClass("KEY-numsp512t1");
             cryptoWriter->DeleteClass("KAS");
             cryptoWriter->DeleteClass("RSASVE");
             cryptoWriter->DeleteClass("KTS-OAEP");
@@ -902,8 +912,12 @@ static AlgNameToIds _nameIdList[] = {
     {"SIGN-DSA-SHA384", TECSEC_DSA_SIGN_SHA384, TS_ALG_DSA_SHA384, cat_Sign},
     {"SIGN-DSA-SHA512", TECSEC_DSA_SIGN_SHA512, TS_ALG_DSA_SHA512, cat_Sign},
 
-    {"X25519", id_X25519, TS_ALG_X25519, cat_Asymmetric},
-    {"X25519_PH", id_X25519_PH, TS_ALG_X25519_PH, cat_Asymmetric},
+    { "X25519", id_X25519, TS_ALG_X25519, cat_Asymmetric },
+    { "ED25519", id_X25519, TS_ALG_X25519, cat_Asymmetric },
+    { "ED25519_PH", id_X25519_PH, TS_ALG_X25519_PH, cat_Asymmetric },
+    { "KEY-X25519", id_X25519, TS_ALG_X25519, cat_Asymmetric },
+    { "KEY-ED25519", id_X25519, TS_ALG_X25519, cat_Asymmetric },
+    { "KEY-ED25519_PH", id_X25519_PH, TS_ALG_X25519_PH, cat_Asymmetric },
     //{ "X448", id_X448, TS_ALG_X448, cat_Asymmetric },
     //{ "X448_PH", id_X448_PH, TS_ALG_X448_PH, cat_Asymmetric },
 
@@ -914,6 +928,12 @@ static AlgNameToIds _nameIdList[] = {
     { "NUMSP256T1", TECSEC_NUMSP256T1, TS_ALG_NUMSP256T1, cat_Asymmetric },
     { "NUMSP384T1", TECSEC_NUMSP384T1, TS_ALG_NUMSP384T1, cat_Asymmetric },
     { "NUMSP512T1", TECSEC_NUMSP512T1, TS_ALG_NUMSP512T1, cat_Asymmetric },
+    { "KEY-NUMSP256D1", TECSEC_NUMSP256D1, TS_ALG_NUMSP256D1, cat_Asymmetric },
+    { "KEY-NUMSP384D1", TECSEC_NUMSP384D1, TS_ALG_NUMSP384D1, cat_Asymmetric },
+    { "KEY-NUMSP512D1", TECSEC_NUMSP512D1, TS_ALG_NUMSP512D1, cat_Asymmetric },
+    { "KEY-NUMSP256T1", TECSEC_NUMSP256T1, TS_ALG_NUMSP256T1, cat_Asymmetric },
+    { "KEY-NUMSP384T1", TECSEC_NUMSP384T1, TS_ALG_NUMSP384T1, cat_Asymmetric },
+    { "KEY-NUMSP512T1", TECSEC_NUMSP512T1, TS_ALG_NUMSP512T1, cat_Asymmetric },
 #endif
 
     {"CKMAUTH", TECSEC_CKMAUTH_OID, TS_ALG_CKMAUTH, cat_CkmAuth},

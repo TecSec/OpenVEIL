@@ -40,7 +40,6 @@ class DhParametersImpl : public DhParameters, public TSName, public tscrypto::IC
 public:
 	DhParametersImpl(const tsCryptoStringBase& algorithm) :
 		desc(nullptr),
-		dhParams(nullptr),
 		reason(kvf_NoFailure)
 	{
 		desc = findDhParamAlgorithm("DHPARAMETERS");
@@ -52,12 +51,6 @@ public:
 	}
 	virtual ~DhParametersImpl(void)
 	{
-		if (desc != nullptr && dhParams != nullptr)
-		{
-			desc->freeParametersetStructure(desc, dhParams);
-		}
-		desc = nullptr;
-		dhParams = nullptr;
 	}
 
 	// AlgorithmInfo
@@ -331,7 +324,6 @@ public:
 		if (!gFipsState.operational() || desc == nullptr || dhParams == nullptr)
 			return;
 
-		desc->freeParametersetStructure(desc, dhParams);
 		dhParams = desc->createParametersetStructure(desc);
 		reason = kvf_NoFailure;
 	}
@@ -379,7 +371,7 @@ public:
 		if (!obj || !PrimesLoaded() || !obj->PrimesLoaded())
 			return false;
 
-		return desc->parametersAreCompatible(desc, dhParams, ts->getKeyPair());
+		return desc->parametersAreCompatible(desc, dhParams, (CRYPTO_DH_PARAMS)ts->getKeyPair());
 	}
 	virtual bool computeGenerator(const tsCryptoStringBase& hashAlgName, const tsCryptoData &seed, uint8_t index) override
 	{
@@ -408,12 +400,10 @@ public:
 			return false;
 
 		reason = kvf_NoFailure;
-		void* newParams = desc->createParametersetStructureFromBlob(desc, data.c_str(), (uint32_t)data.size());
+		SmartCryptoDhParams newParams = desc->createParametersetStructureFromBlob(desc, data.c_str(), (uint32_t)data.size());
 		if (newParams != nullptr)
 		{
-			if (dhParams != nullptr)
-				desc->freeParametersetStructure(desc, dhParams);
-			dhParams = newParams;
+			dhParams = std::move(newParams);
 		}
 		return newParams != nullptr;
 	}
@@ -463,34 +453,32 @@ public:
 	}
 
 	// Inherited via TSALG_Access
-	virtual const void * Descriptor() const override
+	virtual const TSALG_Base_Descriptor * Descriptor() const override
 	{
 		return desc;
 	}
-	virtual void * getKeyPair() const override
+	virtual CRYPTO_ASYMKEY getKeyPair() const override
 	{
-		return dhParams;
+		return (CRYPTO_ASYMKEY)(CRYPTO_DH_PARAMS)dhParams;
 	}
-	virtual uint8_t * getWorkspace() const override
+	virtual CRYPTO_WORKSPACE getWorkspace() const override
 	{
 		return nullptr;
 	}
-	virtual void * detachFromKeyPair() override
+	virtual CRYPTO_ASYMKEY detachFromKeyPair() override
 	{
-		void* params = dhParams;
-		dhParams = nullptr;
-		return params;
+        return (CRYPTO_ASYMKEY)dhParams.detach();
 	}
-	virtual void * cloneKeyPair() const override
+	virtual CRYPTO_ASYMKEY cloneKeyPair() const override
 	{
 		if (desc == nullptr || dhParams == nullptr)
 			return nullptr;
-		return desc->cloneKey(desc, dhParams);
+		return (CRYPTO_ASYMKEY)desc->cloneKey(desc, dhParams);
 	}
 
 private:
 	const DH_Parameters_Descriptor* desc;
-	void *dhParams;
+	SmartCryptoDhParams dhParams;
 	tsalg_keyValidationFailureType reason;
 };
 

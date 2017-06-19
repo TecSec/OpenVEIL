@@ -457,6 +457,16 @@ void KeyVEILWizardPage::updateControls()
 	//FindWindowById(wxID_BACKWARD, this->GetParent())->Enable(false);
 }
 
+bool KeyVEILWizardPage::skipMe()
+{
+	AudienceSelector2* wiz = dynamic_cast<AudienceSelector2*>(GetParent());
+
+	if (wiz == nullptr || wiz->_vars == nullptr)
+		return false;
+
+	return wiz->_vars->_hideKeyVEILLogin;
+}
+
 
 /*
  * Gets the previous page.
@@ -464,6 +474,10 @@ void KeyVEILWizardPage::updateControls()
 
 wxWizardPage* KeyVEILWizardPage::GetPrev() const
 {
+	ISkippablePage* tokPg = dynamic_cast<ISkippablePage*>(prevPage);
+
+	if (tokPg != nullptr && tokPg->skipMe())
+		return prevPage->GetPrev();
     return prevPage;
 }
 
@@ -474,6 +488,10 @@ wxWizardPage* KeyVEILWizardPage::GetPrev() const
 
 wxWizardPage* KeyVEILWizardPage::GetNext() const
 {
+	ISkippablePage* tokPg = dynamic_cast<ISkippablePage*>(nextPage);
+
+	if (tokPg != nullptr && tokPg->skipMe())
+		return nextPage->GetNext();
     return nextPage;
 }
 

@@ -1435,7 +1435,7 @@ namespace tscrypto {
 		virtual bool SendData(const tsCryptoData& src) = 0;
 		virtual bool GetMessageEncryptionAlg(tscrypto::_POD_AlgorithmIdentifier& alg) = 0;
 		virtual bool GetMessageHashAlg(tscrypto::_POD_AlgorithmIdentifier& alg) = 0;
-		virtual bool SetOnPacketRecievedCallback(std::function<void(uint8_t packetType, const uint8_t* data, uint32_t dataLen)> func) = 0;
+		virtual bool SetOnPacketReceivedCallback(std::function<void(uint8_t packetType, const uint8_t* data, uint32_t dataLen)> func) = 0;
 		virtual bool SetOnPacketSentCallback(std::function<void(uint8_t packetType, const uint8_t* data, uint32_t dataLen)> func) = 0;
 		virtual bool useCompression() = 0;
 		virtual void useCompression(bool setTo) = 0;
@@ -3422,11 +3422,11 @@ namespace tscrypto {
 	{
 	public:
 		virtual ~TSALG_Access() {}
-		virtual const void* Descriptor() const = 0;
-		virtual void* getKeyPair() const = 0;
-		virtual uint8_t* getWorkspace() const = 0;
-		virtual void* detachFromKeyPair() = 0;
-		virtual void* cloneKeyPair() const = 0;
+		virtual const TSALG_Base_Descriptor* Descriptor() const = 0;
+		virtual CRYPTO_ASYMKEY getKeyPair() const = 0;
+		virtual CRYPTO_WORKSPACE getWorkspace() const = 0;
+		virtual CRYPTO_ASYMKEY detachFromKeyPair() = 0;
+		virtual CRYPTO_ASYMKEY cloneKeyPair() const = 0;
 	};
 }
 

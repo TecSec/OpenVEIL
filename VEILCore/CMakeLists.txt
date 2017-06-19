@@ -261,12 +261,15 @@ set(VEILCoreSource
     ${CMAKE_CURRENT_SOURCE_DIR}/tsCertificateBuilder.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tsCertificateExtension.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tsCertificateNamePart.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/CertificateValidator.cpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/TcpMsgProcessor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/VEILCore.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/HttpHeader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/TcpConnection.h
     ${CMAKE_CURRENT_SOURCE_DIR}/TcpConnection.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/UdpConnection.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/UdpConnection.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/TcpChannel.h
     ${CMAKE_CURRENT_SOURCE_DIR}/TcpChannel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/HttpChannel.cpp

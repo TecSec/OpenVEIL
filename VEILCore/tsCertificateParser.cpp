@@ -33,7 +33,7 @@
 
 using namespace tscrypto;
 
-static BYTE gRsaAlgorithm[] = {42, 0x86, 72, 0x86, 0xf7, 13, 1, 1, 1};
+static BYTE gRsaAlgorithm[] = { 42, 0x86, 72, 0x86, 0xf7, 13, 1, 1, 1 };
 
 namespace tsCertificateTypes
 {
@@ -239,11 +239,11 @@ bool tsCertificateParser::LoadCertificate(const tsCryptoData &certData)
 
     Clear();
 
-    if ( !m_doc->LoadTlv(certData) )
+    if (!m_doc->LoadTlv(certData))
         return false;
 
-    if ( m_doc->DocumentElement()->Tag() != 0x10 || m_doc->DocumentElement()->Type() != 0 ||
-        !m_doc->DocumentElement()->IsConstructed() || m_doc->DocumentElement()->Children()->size() < 3 )
+    if (m_doc->DocumentElement()->Tag() != 0x10 || m_doc->DocumentElement()->Type() != 0 ||
+        !m_doc->DocumentElement()->IsConstructed() || m_doc->DocumentElement()->Children()->size() < 3)
     {
         Clear();
         return false;
@@ -252,17 +252,18 @@ bool tsCertificateParser::LoadCertificate(const tsCryptoData &certData)
     // Now extract the cert info structures
     //
     certInfo = m_doc->DocumentElement()->Children()->at(0);
-    if ( !certInfo || certInfo->Tag() != 0x10 || certInfo->Type() != 0 || !certInfo->IsConstructed() ||
-        certInfo->Children()->size() < 6 )
+    if (!certInfo || certInfo->Tag() != 0x10 || certInfo->Type() != 0 || !certInfo->IsConstructed() ||
+        certInfo->Children()->size() < 6)
     {
         Clear();
         return false;
     }
+    m_signablePart = certInfo->OuterData();
     //
     // Version information
     //
     node1 = certInfo->Children()->at(0);
-    if ( node1->Tag() != 0 || node1->Type() != 2 || !node1->IsConstructed() || node1->Children()->size() != 1 )
+    if (node1->Tag() != 0 || node1->Type() != 2 || !node1->IsConstructed() || node1->Children()->size() != 1)
     {
 		m_version = ICertificateIssuer::X509_v2;
     }
@@ -281,34 +282,34 @@ bool tsCertificateParser::LoadCertificate(const tsCryptoData &certData)
     // Serial number
     //
     node1 = certInfo->Children()->at(tbsOffset++);
-    if ( node1->Tag() != TlvNode::Tlv_Number || node1->Type() != 0 || node1->IsConstructed() )
+    if (node1->Tag() != TlvNode::Tlv_Number || node1->Type() != 0 || node1->IsConstructed())
     {
         Clear();
         return false;
     }
     m_encodedSerialNumber = node1->OuterData();
     m_serialNumber = node1->InnerData();
-    if ( m_serialNumber.size() > 0 && m_serialNumber[0] == 0 )
+    if (m_serialNumber.size() > 0 && m_serialNumber[0] == 0)
         m_serialNumber.erase(0, 1);
 
     //
     // Signature Algorithm
     //
     node1 = certInfo->Children()->at(tbsOffset++);
-    if ( node1->Tag() != 0x10 || node1->Type() != 0 || !node1->IsConstructed() || node1->Children()->size() < 1 )
+    if (node1->Tag() != 0x10 || node1->Type() != 0 || !node1->IsConstructed() || node1->Children()->size() < 1)
     {
         Clear();
         return false;
     }
     m_algorithmBlob = node1;
     node3 = node1->Children()->at(0);
-    if ( node3->Tag() != TlvNode::Tlv_OID || node3->Type() != 0 || node3->IsConstructed() )
+    if (node3->Tag() != TlvNode::Tlv_OID || node3->Type() != 0 || node3->IsConstructed())
     {
         Clear();
         return false;
     }
     m_algorithmOID = node3->InnerData();
-    if ( node1->Children()->size() == 2 )
+    if (node1->Children()->size() == 2)
     {
         node3 = node1->Children()->at(1);
         m_algorithmParameters = node3;
@@ -319,7 +320,7 @@ bool tsCertificateParser::LoadCertificate(const tsCryptoData &certData)
     //
     node1 = certInfo->Children()->at(tbsOffset++);
     m_issuer = node1; // TODO:  Implement error checked here
-    if ( node1->Tag() != 0x10 || node1->Type() != 0 || !node1->IsConstructed() )
+    if (node1->Tag() != 0x10 || node1->Type() != 0 || !node1->IsConstructed())
     {
         Clear();
         return false;
@@ -329,20 +330,20 @@ bool tsCertificateParser::LoadCertificate(const tsCryptoData &certData)
     // Validity
     //
     node1 = certInfo->Children()->at(tbsOffset++);
-    if ( node1->Tag() != 0x10 || node1->Type() != 0 || !node1->IsConstructed() || node1->Children()->size() != 2 )
+    if (node1->Tag() != 0x10 || node1->Type() != 0 || !node1->IsConstructed() || node1->Children()->size() != 2)
     {
         Clear();
         return false;
     }
     node2 = node1->Children()->at(0);
-    if ( node2->Tag() == TlvNode::Tlv_GeneralizedTime && node2->Type() == 0 )
+    if (node2->Tag() == TlvNode::Tlv_GeneralizedTime && node2->Type() == 0)
     {
         m_start = node2->InnerData().ToUtf8String();
     }
-    else if ( node2->Tag() == TlvNode::Tlv_UTCTime && node2->Type() == 0 )
+    else if (node2->Tag() == TlvNode::Tlv_UTCTime && node2->Type() == 0)
     {
         m_start = node2->InnerData().ToUtf8String();
-        if ( m_start.size() > 0 && m_start[0] >= '5' )
+        if (m_start.size() > 0 && m_start[0] >= '5')
             m_start.prepend("19");
         else
             m_start.prepend("20");
@@ -353,14 +354,14 @@ bool tsCertificateParser::LoadCertificate(const tsCryptoData &certData)
         return false;
     }
     node2 = node1->Children()->at(1);
-    if ( node2->Tag() == TlvNode::Tlv_GeneralizedTime && node2->Type() == 0 )
+    if (node2->Tag() == TlvNode::Tlv_GeneralizedTime && node2->Type() == 0)
     {
         m_end = node2->InnerData().ToUtf8String();
     }
-    else if ( node2->Tag() == TlvNode::Tlv_UTCTime && node2->Type() == 0 )
+    else if (node2->Tag() == TlvNode::Tlv_UTCTime && node2->Type() == 0)
     {
         m_end = node2->InnerData().ToUtf8String();
-        if ( m_end.size() > 0 && m_end[0] >= '5' )
+        if (m_end.size() > 0 && m_end[0] >= '5')
             m_end.prepend("19");
         else
             m_end.prepend("20");
@@ -375,7 +376,7 @@ bool tsCertificateParser::LoadCertificate(const tsCryptoData &certData)
     //
     node1 = certInfo->Children()->at(tbsOffset++);
     m_subject = node1; // TODO:  Implement error checked here
-    if ( node1->Tag() != 0x10 || node1->Type() != 0 || !node1->IsConstructed() )
+    if (node1->Tag() != 0x10 || node1->Type() != 0 || !node1->IsConstructed())
     {
         Clear();
         return false;
@@ -385,27 +386,27 @@ bool tsCertificateParser::LoadCertificate(const tsCryptoData &certData)
     // Public key information
     //
     node1 = certInfo->Children()->at(tbsOffset++);
-    if ( node1->Tag() != 0x10 || node1->Type() != 0 || !node1->IsConstructed() || node1->Children()->size() != 2 )
+    if (node1->Tag() != 0x10 || node1->Type() != 0 || !node1->IsConstructed() || node1->Children()->size() != 2)
     {
         Clear();
         return false;
     }
     node2 = node1->Children()->at(0);
-    if ( node2->Tag() != 0x10 || node2->Type() != 0 || !node2->IsConstructed() || node2->Children()->size() < 1 ||
-        node2->Children()->size() > 2 )
+    if (node2->Tag() != 0x10 || node2->Type() != 0 || !node2->IsConstructed() || node2->Children()->size() < 1 ||
+        node2->Children()->size() > 2)
     {
         Clear();
         return false;
     }
     m_pubKeyAlgorithmBlob = node2->OuterData();
     node3 = node2->Children()->at(0);
-    if ( node3->Tag() != TlvNode::Tlv_OID || node3->Type() != 0 || node3->IsConstructed() )
+    if (node3->Tag() != TlvNode::Tlv_OID || node3->Type() != 0 || node3->IsConstructed())
     {
         Clear();
         return false;
     }
     m_pubKeyAlgorithm = node3->InnerData();
-    if ( node2->Children()->size() == 2 )
+    if (node2->Children()->size() == 2)
     {
         node3 = node2->Children()->at(1);
         m_pubKeyAlgorithmParameters = node3;
@@ -413,54 +414,54 @@ bool tsCertificateParser::LoadCertificate(const tsCryptoData &certData)
 
 
     node2 = node1->Children()->at(1);
-    if ( node2->Tag() != TlvNode::Tlv_BitString || node2->Type() != 0 || node2->IsConstructed() )
+    if (node2->Tag() != TlvNode::Tlv_BitString || node2->Type() != 0 || node2->IsConstructed())
     {
         Clear();
         return false;
     }
     m_publicKey = node2->InnerData();
-    if ( m_pubKeyAlgorithm.size() == sizeof(gRsaAlgorithm) && memcmp(m_pubKeyAlgorithm.c_str(), gRsaAlgorithm, sizeof(gRsaAlgorithm)) == 0 )
+    if (m_pubKeyAlgorithm.size() == sizeof(gRsaAlgorithm) && memcmp(m_pubKeyAlgorithm.c_str(), gRsaAlgorithm, sizeof(gRsaAlgorithm)) == 0)
     {
         //
         // We are using RSA keys, so parse out the modulus and exponent
         //
 		std::shared_ptr<TlvDocument> doc2 = TlvDocument::Create();
 
-        if ( m_publicKey.size() > 0 )
+        if (m_publicKey.size() > 0)
             m_publicKey.erase(0, 1);
 
-        if ( !doc2->LoadTlv(m_publicKey) )
+        if (!doc2->LoadTlv(m_publicKey))
         {
             Clear();
             return false;
         }
         node2 = doc2->DocumentElement();
-        if ( node2->Tag() != 0x10 || node2->Type() != 0 || !node2->IsConstructed() || node2->Children()->size() != 2 )
+        if (node2->Tag() != 0x10 || node2->Type() != 0 || !node2->IsConstructed() || node2->Children()->size() != 2)
         {
             Clear();
             return false;
         }
         node3 = node2->Children()->at(0); // Modulus
-        if ( node3->Tag() != TlvNode::Tlv_Number || node3->Type() != 0 )
+        if (node3->Tag() != TlvNode::Tlv_Number || node3->Type() != 0)
         {
             Clear();
             return false;
         }
         m_modulus = node3->InnerData();
-        if ( m_modulus.size() > 3 && m_modulus[0] == 0 && (m_modulus[1] & 0x80) != 0 )
+        if (m_modulus.size() > 3 && m_modulus[0] == 0 && (m_modulus[1] & 0x80) != 0)
             m_modulus.erase(0, 1);
         node3 = node2->Children()->at(1); // Exponent
-        if ( node3->Tag() != TlvNode::Tlv_Number || node3->Type() != 0 )
+        if (node3->Tag() != TlvNode::Tlv_Number || node3->Type() != 0)
         {
             Clear();
             return false;
         }
         m_exponent = node3->InnerData();
-        if ( m_exponent.size() > 3 && m_exponent[0] == 0 && (m_exponent[1] & 0x80) != 0 )
+        if (m_exponent.size() > 3 && m_exponent[0] == 0 && (m_exponent[1] & 0x80) != 0)
             m_exponent.erase(0, 1);
     }
 
-    if ( m_version == ICertificateIssuer::X509_v1 && certInfo->Children()->size() > 7 )
+    if (m_version == ICertificateIssuer::X509_v1 && certInfo->Children()->size() > 7)
     {
         // Version 1 certs cannot have any of the extensions
         Clear();
@@ -471,7 +472,7 @@ bool tsCertificateParser::LoadCertificate(const tsCryptoData &certData)
     {
         node1 = certInfo->Children()->at(i);
 
-        if ( !node1 || node1->Type() != 2 )
+        if (!node1 || node1->Type() != 2)
         {
             Clear();
             return false;
@@ -485,19 +486,19 @@ bool tsCertificateParser::LoadCertificate(const tsCryptoData &certData)
             m_subjectUniqueNumber = node1;
             break;
         case 3:	// Extension list
-            if ( m_version < ICertificateIssuer::X509_v3 )
+            if (m_version < ICertificateIssuer::X509_v3)
             {
                 Clear();
                 return false;
             }
-            if ( !node1->IsConstructed() || node1->Children()->size() != 1 )
+            if (!node1->IsConstructed() || node1->Children()->size() != 1)
             {
                 Clear();
                 return false;
             }
             node2 = node1->Children()->at(0);
             if (!node2 || node2->Tag() != TlvNode::Tlv_Sequence || node2->Type() != TlvNode::Type_Universal ||
-                !node2->IsConstructed() || node2->Children()->size() < 1 )
+                !node2->IsConstructed() || node2->Children()->size() < 1)
             {
                 Clear();
                 return false;
@@ -510,7 +511,7 @@ bool tsCertificateParser::LoadCertificate(const tsCryptoData &certData)
                 {
                     tsCertificateExtension ext;
 
-                    if ( !ext.LoadExtension(node2->ChildAt(j)) )
+                    if (!ext.LoadExtension(node2->ChildAt(j)))
                     {
                         Clear();
                         return false;
@@ -528,27 +529,27 @@ bool tsCertificateParser::LoadCertificate(const tsCryptoData &certData)
 
 
     node1 = m_doc->DocumentElement()->Children()->at(1);
-    if ( node1->Tag() != 0x10 || node1->Type() != 0 || !node1->IsConstructed() || node1->Children()->size() < 1 )
+    if (node1->Tag() != 0x10 || node1->Type() != 0 || !node1->IsConstructed() || node1->Children()->size() < 1)
     {
         Clear();
         return false;
     }
     m_signatureAlgorithmBlob = node1;
     node3 = node1->Children()->at(0);
-    if ( node3->Tag() != TlvNode::Tlv_OID || node3->Type() != 0 || node3->IsConstructed() )
+    if (node3->Tag() != TlvNode::Tlv_OID || node3->Type() != 0 || node3->IsConstructed())
     {
         Clear();
         return false;
     }
     m_signatureAlgorithmOID = node3->InnerData();
-    if ( node1->Children()->size() == 2 )
+    if (node1->Children()->size() == 2)
     {
         node3 = node1->Children()->at(1);
         m_signatureAlgorithmParameters = node3;
     }
 
     node1 = m_doc->DocumentElement()->Children()->at(2);
-    if ( node1->Tag() != TlvNode::Tlv_BitString || node1->Type() != 0 || node1->IsConstructed() )
+    if (node1->Tag() != TlvNode::Tlv_BitString || node1->Type() != 0 || node1->IsConstructed())
     {
         Clear();
         return false;
@@ -685,7 +686,7 @@ size_t tsCertificateParser::ExtensionCount() const
 
 const tsCertificateExtension *tsCertificateParser::Extension(size_t index) const
 {
-    if ( index >= ExtensionCount() )
+    if (index >= ExtensionCount())
         return nullptr;
     return &m_extensionList->at(index);
 }
@@ -905,4 +906,281 @@ CA_Certificate_Request::KeyUsageFlags tsCertificateParser::GetKeyUsage() const
 		tmp = (CA_Certificate_Request::KeyUsageFlags)(usage[0] | (256 * usage[1]));
 	}
 	return tmp;
+}
+tscrypto::tsCryptoDate tsCertificateParser::ValidFrom() const
+{
+    return tsCryptoDate(m_start, tsCryptoDate::Zulu);
+}
+tscrypto::tsCryptoDate tsCertificateParser::ValidTo() const
+{
+    return tsCryptoDate(m_end, tsCryptoDate::Zulu);
+}
+std::shared_ptr<tscrypto::AsymmetricKey> tsCertificateParser::PublicKeyObject(bool forSigning) const
+{
+    tsCryptoString oid = m_pubKeyAlgorithm.ToOIDString();
+    tsCryptoString paramOid;
+    std::shared_ptr<tscrypto::AsymmetricKey> key;
+
+    if (m_pubKeyAlgorithmParameters->Tag() == TlvNode::Tlv_OID)
+        paramOid = m_pubKeyAlgorithmParameters->InnerData().ToOIDString();
+
+    if (oid == RSA_ENCRYPT_OID)
+    {
+        std::shared_ptr<tscrypto::RsaKey> rsa = std::dynamic_pointer_cast<tscrypto::RsaKey>(CryptoFactory("KEY-RSA"));
+        _POD_RsaPublicKeyPart keyPart;
+
+        if (!keyPart.Decode(m_publicKey))
+            return nullptr;
+
+        if (!rsa->set_Exponent(keyPart.get_exponent()) || !rsa->set_PublicModulus(keyPart.get_n()))
+            return nullptr;
+        key = rsa;
+    }
+    else if (oid == EC_PUBLIC_KEY_OID)
+    {
+        std::shared_ptr<tscrypto::EccKey> ecc;
+
+        if (paramOid == SECP256R1_CURVE_OID)
+        {
+            ecc = std::dynamic_pointer_cast<tscrypto::EccKey>(CryptoFactory("KEY-P256"));
+        }
+        else if (paramOid == SECP384R1_CURVE_OID)
+        {
+            ecc = std::dynamic_pointer_cast<tscrypto::EccKey>(CryptoFactory("KEY-P384"));
+        }
+        else if (paramOid == SECP521R1_CURVE_OID)
+        {
+            ecc = std::dynamic_pointer_cast<tscrypto::EccKey>(CryptoFactory("KEY-P521"));
+        }
+        else if (paramOid == SECP256K1_CURVE_OID)
+        {
+            ecc = std::dynamic_pointer_cast<tscrypto::EccKey>(CryptoFactory("KEY-P256K1"));
+        }
+        else if (paramOid == CURVE_25519_OID)
+        {
+            if (forSigning)
+            {
+                ecc = std::dynamic_pointer_cast<tscrypto::EccKey>(CryptoFactory("ED25519"));
+            }
+            else
+            {
+                ecc = std::dynamic_pointer_cast<tscrypto::EccKey>(CryptoFactory("X25519"));
+            }
+        }
+        else if (paramOid == TECSEC_NUMSP256D1)
+        {
+            ecc = std::dynamic_pointer_cast<tscrypto::EccKey>(CryptoFactory("numsp256d1"));
+        }
+        else if (paramOid == TECSEC_NUMSP256T1)
+        {
+            ecc = std::dynamic_pointer_cast<tscrypto::EccKey>(CryptoFactory("numsp256t1"));
+        }
+        else if (paramOid == TECSEC_NUMSP384D1)
+        {
+            ecc = std::dynamic_pointer_cast<tscrypto::EccKey>(CryptoFactory("numsp384d1"));
+        }
+        else if (paramOid == TECSEC_NUMSP384T1)
+        {
+            ecc = std::dynamic_pointer_cast<tscrypto::EccKey>(CryptoFactory("numsp384t1"));
+        }
+        else if (paramOid == TECSEC_NUMSP512D1)
+        {
+            ecc = std::dynamic_pointer_cast<tscrypto::EccKey>(CryptoFactory("numsp512d1"));
+        }
+        else if (paramOid == TECSEC_NUMSP512T1)
+        {
+            ecc = std::dynamic_pointer_cast<tscrypto::EccKey>(CryptoFactory("numsp512t1"));
+        }
+        else
+        {
+            return nullptr;
+        }
+        if (!ecc || !ecc->set_Point(m_publicKey))
+            return nullptr;
+        key = ecc;
+    }
+    else if (oid == DHPUBLICNUMBER_OID)
+    {
+        std::shared_ptr<DhParameters> dhParams = std::dynamic_pointer_cast<DhParameters>(CryptoFactory("PARAMETERSET-DH"));
+        std::shared_ptr<tscrypto::DhKey> dh;
+        _POD_DhParameter_gMiddle params;
+
+        if (forSigning)
+        {
+            dh = std::dynamic_pointer_cast<tscrypto::DhKey>(CryptoFactory("KEY-DSA"));
+        }
+        else
+        {
+            dh = std::dynamic_pointer_cast<tscrypto::DhKey>(CryptoFactory("KEY-DH"));
+        }
+        if (!dh || !dhParams)
+            return nullptr;
+
+        if (!params.Decode(m_pubKeyAlgorithmParameters->OuterData()))
+        {
+            return nullptr;
+        }
+        if (!dhParams->set_prime(params.get_p()) || !dhParams->set_subprime(params.get_q()) || !dhParams->set_generator(params.get_g()))
+            return nullptr;
+        if (!dh->set_DomainParameters(dhParams) || !dh->set_PublicKey(m_publicKey))
+            return nullptr;
+        key = dh;
+    }
+    else if (oid == DSA_PARAMETER_SET)
+    {
+        std::shared_ptr<DhParameters> dhParams = std::dynamic_pointer_cast<DhParameters>(CryptoFactory("PARAMETERSET-DH"));
+        std::shared_ptr<tscrypto::DhKey> dh = std::dynamic_pointer_cast<tscrypto::DhKey>(CryptoFactory("KEY-DH"));
+        _POD_DhParameterSet params;
+
+        if (!params.Decode(m_pubKeyAlgorithmParameters->OuterData()))
+        {
+            return nullptr;
+        }
+        if (!dhParams->set_prime(params.get_p()) || !dhParams->set_subprime(params.get_q()) || !dhParams->set_generator(params.get_g()))
+            return nullptr;
+        if (!dh->set_DomainParameters(dhParams) || !dh->set_PublicKey(m_publicKey))
+            return nullptr;
+        key = dh;
+    }
+    else
+    {
+        return nullptr;
+    }
+
+    return key;
+}
+
+bool tsCertificateParser::VerifySignature(std::shared_ptr<tscrypto::AsymmetricKey> parentCertKey) const
+{
+    std::shared_ptr<RsaKey> rsakey;
+    std::shared_ptr<EccKey> ecckey;
+    std::shared_ptr<DhKey> dhkey;
+    std::shared_ptr<Signer> signer;
+    tsCryptoString signerName;
+    SSL_HashAlgorithm hashAlg;
+    SSL_SignatureAlgorithm sigAlg;
+
+    rsakey = std::dynamic_pointer_cast<RsaKey>(parentCertKey);
+    ecckey = std::dynamic_pointer_cast<EccKey>(parentCertKey);
+    dhkey = std::dynamic_pointer_cast<DhKey>(parentCertKey);
+
+    if (!GetCertificateSignatureInfo(m_signatureAlgorithmOID, hashAlg, sigAlg))
+        return false;
+
+    if (!!ecckey)
+    {
+        if (sigAlg != sslsign_ecdsa)
+            return false;
+
+        switch (hashAlg)
+        {
+        case sslhash_sha1:
+            signerName = "SIGN-ECC-SHA1";
+            break;
+        case sslhash_sha224:
+            signerName = "SIGN-ECC-SHA224";
+            break;
+        case sslhash_sha256:
+            signerName = "SIGN-ECC-SHA256";
+            break;
+        case sslhash_sha384:
+            signerName = "SIGN-ECC-SHA384";
+            break;
+        case sslhash_sha512:
+            signerName = "SIGN-ECC-SHA512";
+            break;
+        default:
+            return false;
+        }
+    }
+    else if (!!rsakey)
+    {
+        if (sigAlg != sslsign_rsa)
+            return false;
+
+        switch (hashAlg)
+        {
+        case sslhash_sha1:
+            signerName = "SIGN-RSA-PKCS-SHA1";
+            break;
+        case sslhash_sha224:
+            signerName = "SIGN-RSA-PKCS-SHA224";
+            break;
+        case sslhash_sha256:
+            signerName = "SIGN-RSA-PKCS-SHA256";
+            break;
+        case sslhash_sha384:
+            signerName = "SIGN-RSA-PKCS-SHA384";
+            break;
+        case sslhash_sha512:
+            signerName = "SIGN-RSA-PKCS-SHA512";
+            break;
+        default:
+            return false;
+        }
+    }
+    else if (!!dhkey)
+    {
+        if (sigAlg != sslsign_dsa)
+            return false;
+
+        switch (hashAlg)
+        {
+        case sslhash_sha1:
+            signerName = "SIGN-DSA-SHA1";
+            break;
+        case sslhash_sha224:
+            signerName = "SIGN-DSA-SHA224";
+            break;
+        case sslhash_sha256:
+            signerName = "SIGN-DSA-SHA256";
+            break;
+        case sslhash_sha384:
+            signerName = "SIGN-DSA-SHA384";
+            break;
+        case sslhash_sha512:
+            signerName = "SIGN-DSA-SHA512";
+            break;
+        default:
+            return false;
+        }
+    }
+    else
+        return false;
+
+    signer = std::dynamic_pointer_cast<Signer>(CryptoFactory(signerName));
+
+    if (!signer || !signer->initialize(parentCertKey) || !signer->update(m_signablePart) || !signer->verify(m_certificateSignature))
+        return false;
+    return true;
+}
+
+bool tsCertificateParser::IsCACert() const
+{
+    bool isCA;
+    int max;
+
+    return getBasicConstraintInfo(isCA, max) && isCA;
+}
+
+bool tsCertificateParser::getBasicConstraintInfo(bool& isCA, int32_t& maxNumberIntermediaries) const
+{
+    tsCryptoData extData = getExtensionValue(CERT_BASIC_CONSTRAINTS_OID);
+
+    isCA = false;
+    maxNumberIntermediaries = 0;
+
+    if (extData.empty())
+        return false;
+
+    PKIX::Cert::_POD_BasicConstraints data;
+
+    if (!data.Decode(extData))
+        return false;
+    isCA = data.get_cA();
+    if (data.exists_pathLenConstraint())
+        maxNumberIntermediaries = data.get_pathLenConstraint();
+    else
+        maxNumberIntermediaries = 1000000;
+    return true;
 }

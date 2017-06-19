@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resource version="2.3.0.1" xmlns="http://www.wxwidgets.org/wxxrc">
     <object class="wxWizard" name="ID_AUDIENCESELECTOR" subclass="AudienceSelector2">
-        <style>wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX</style>
+        <style>wxDEFAULT_DIALOG_STYLE|wxCAPTION</style>
         <exstyle>wxWS_EX_BLOCK_EVENTS|wxWIZARD_EX_HELPBUTTON</exstyle>
         <title>Audience Selector</title>
         <object class="wxWizardPage" name="ID_KEYVEIL_LOGIN" subclass="KeyVEILWizardPage">
@@ -131,7 +131,7 @@
                     </object>
                 </object>
                 <object class="sizeritem">
-                    <flag>wxALIGN_LEFT|wxALL</flag>
+                    <flag>wxGROW|wxALL</flag>
                     <border>5</border>
                     <object class="wxStaticText" name="wxID_STATIC">
                         <label>Token Password:</label>
@@ -143,7 +143,6 @@
                     <object class="wxTextCtrl" name="ID_TOKEN_PASSWORD">
                         <tooltip>Enter the password for this token.</tooltip>
                         <style>wxTE_PASSWORD</style>
-                        <enabled>0</enabled>
                         <maxlength>128</maxlength>
                     </object>
                 </object>

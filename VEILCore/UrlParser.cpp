@@ -190,6 +190,8 @@ bool UrlParser::ParseFullUrl(const tscrypto::tsCryptoString& url)
 	remainder = parts->at(0);
 
 	// Split off the optional scheme part here
+    if (!remainder.empty())
+    {
 	char c = remainder[0];
 
 	if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
@@ -216,7 +218,7 @@ bool UrlParser::ParseFullUrl(const tscrypto::tsCryptoString& url)
 		else
 			remainder.DeleteAt(0, 3);
 	}
-
+    }
 	if (_scheme.size() > 0)
 	{
 		// We have a scheme.  Therefore parse the server and port from the path

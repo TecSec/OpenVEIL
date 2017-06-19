@@ -78,22 +78,22 @@ public:
 		tsCryptoData& responderMITMProof, tsCryptoData& sessionKey) override
 	{
 		const CkmAuth_Descriptor *resp = (const CkmAuth_Descriptor *)findCkmAlgorithm("CKMAUTH");
-		tsCryptoData workspace;
+		SmartCryptoWorkspace workspace;
 		uint32_t mitmLen;
 		uint32_t sessionKeyLen;
 
 		if (resp == nullptr || keyAccess == nullptr)
 			return false;
 
-		workspace.resize(resp->getWorkspaceSize(resp));
+		workspace = resp;
 
-		if (!resp->configure(resp, workspace.rawData(), keyAccess, (keyAccess->keyServer() ? &getKey : nullptr),
+		if (!resp->configure(resp, workspace, keyAccess, (keyAccess->keyServer() ? &getKey : nullptr),
 			(keyAccess->keyServer() ? nullptr : &computeZ), hashName.c_str(), macName.c_str(), translateKeyWrapName().c_str(), "KDF", macName.c_str(), _usesMITM))
 		{
 			return false;
 		}
 
-		if (!resp->computeResponderValues(resp, workspace.rawData(), responderParameters.c_str(), (uint32_t)responderParameters.size(), storedKey.c_str(), (uint32_t)storedKey.size(), 
+		if (!resp->computeResponderValues(resp, workspace, responderParameters.c_str(), (uint32_t)responderParameters.size(), storedKey.c_str(), (uint32_t)storedKey.size(), 
 			nullptr, &mitmLen, nullptr, &sessionKeyLen))
 		{
 			responderMITMProof.clear();
@@ -102,7 +102,7 @@ public:
 		}
 		responderMITMProof.resize(mitmLen);
 		sessionKey.resize(sessionKeyLen);
-		if (!resp->computeResponderValues(resp, workspace.rawData(), responderParameters.c_str(), (uint32_t)responderParameters.size(), storedKey.c_str(), (uint32_t)storedKey.size(), 
+		if (!resp->computeResponderValues(resp, workspace, responderParameters.c_str(), (uint32_t)responderParameters.size(), storedKey.c_str(), (uint32_t)storedKey.size(), 
 			responderMITMProof.rawData(), &mitmLen, sessionKey.rawData(), &sessionKeyLen))
 		{
 			responderMITMProof.clear();
@@ -120,8 +120,8 @@ public:
 	{
 		const CkmAuth_Descriptor *init = (const CkmAuth_Descriptor *)findCkmAlgorithm("CKMAUTH");
 		const EccDescriptor* pkDesc = nullptr;
-		tsCryptoData workspace;
-		void* respKeyPair = nullptr;
+		SmartCryptoWorkspace workspace;
+		SmartCryptoKey respKeyPair;
 		uint32_t responderParamLen;
 		uint32_t mitmLen;
 		uint32_t sessionKeyLen;
@@ -130,10 +130,10 @@ public:
 		if (init == nullptr)
 			return false;
 
-		workspace.resize(init->getWorkspaceSize(init));
+		workspace = init;
 
 		if (!initParams.Decode(initiatorParameters) ||
-			!init->configure(init, workspace.rawData(), nullptr, &getKey, nullptr, hashName.c_str(), macName.c_str(), translateKeyWrapName().c_str(), "KDF", macName.c_str(), _usesMITM))
+			!init->configure(init, workspace, nullptr, &getKey, nullptr, hashName.c_str(), macName.c_str(), translateKeyWrapName().c_str(), "KDF", macName.c_str(), _usesMITM))
 		{
 			return false;
 		}
@@ -142,43 +142,37 @@ public:
 		if (pkDesc == nullptr || (respKeyPair = pkDesc->createKeyStructure(pkDesc)) == nullptr ||
 			!pkDesc->addPublicPoint(pkDesc, respKeyPair, initParams.get_responderPublicKey().c_str(), (uint32_t)initParams.get_responderPublicKey().size()))
 		{
-			if (pkDesc != nullptr && respKeyPair != nullptr)
-				pkDesc->freeKeyStructure(pkDesc, respKeyPair);
 			return false;
 		}
 
 		_POD_PBKDF_Parameters& pbParams = initParams.get_authParameters().get_params().get_Pbkdf();
 
-		if (!init->setInitiatorParameters_PBKDF(init, workspace.rawData(), pkDesc, respKeyPair, initParams.get_oidInfo().c_str(), (uint32_t)initParams.get_oidInfo().size(), 
+		if (!init->setInitiatorParameters_PBKDF(init, workspace, pkDesc, respKeyPair, initParams.get_oidInfo().c_str(), (uint32_t)initParams.get_oidInfo().size(), 
 			initParams.get_nonce().c_str(), (uint32_t)initParams.get_nonce().size(), pbParams.get_Salt().c_str(), (uint32_t)pbParams.get_Salt().size(), initParams.get_keySizeInBits(), 
 			pbParams.get_IterationCount(), ts_false, "PBKDF", macName.c_str()))
 		{
-			pkDesc->freeKeyStructure(pkDesc, respKeyPair);
 			return false;
 		}
 
-		if (!init->computeInitiatorValues(init, workspace.rawData(), authenticationInformation.c_str(), (uint32_t)authenticationInformation.size(), nullptr, &responderParamLen, nullptr, &mitmLen,
+		if (!init->computeInitiatorValues(init, workspace, authenticationInformation.c_str(), (uint32_t)authenticationInformation.size(), nullptr, &responderParamLen, nullptr, &mitmLen,
 			nullptr, &sessionKeyLen))
 		{
 			responderParameters.clear();
 			responderMITMProof.clear();
 			sessionKey.clear();
-			pkDesc->freeKeyStructure(pkDesc, respKeyPair);
 			return false;
 		}
 		responderParameters.resize(responderParamLen);
 		responderMITMProof.resize(mitmLen);
 		sessionKey.resize(sessionKeyLen);
-		if (!init->computeInitiatorValues(init, workspace.rawData(), authenticationInformation.c_str(), (uint32_t)authenticationInformation.size(), responderParameters.rawData(), 
+		if (!init->computeInitiatorValues(init, workspace, authenticationInformation.c_str(), (uint32_t)authenticationInformation.size(), responderParameters.rawData(), 
 			&responderParamLen, responderMITMProof.rawData(), &mitmLen, sessionKey.rawData(), &sessionKeyLen))
 		{
 			responderParameters.clear();
 			responderMITMProof.clear();
 			sessionKey.clear();
-			pkDesc->freeKeyStructure(pkDesc, respKeyPair);
 			return false;
 		}
-		pkDesc->freeKeyStructure(pkDesc, respKeyPair);
 		responderParameters.resize(responderParamLen);
 		responderMITMProof.resize(mitmLen);
 		sessionKey.resize(sessionKeyLen);
@@ -189,19 +183,19 @@ public:
 	{
 		const CkmAuth_Descriptor *init = (const CkmAuth_Descriptor *)findCkmAlgorithm("CKMAUTH");
 		const EccDescriptor* pkDesc = nullptr;
-		tsCryptoData workspace;
-		void* respKeyPair = nullptr;
-		void* ephKeyPair = nullptr;
+		SmartCryptoWorkspace workspace;
+		SmartCryptoKey respKeyPair;
+		SmartCryptoKey ephKeyPair;
 		_POD_CkmAuthInitiatorParameters initParams;
 		_POD_CkmAuthResponderParameters respParams;
 
 		if (init == nullptr)
 			return false;
 
-		workspace.resize(init->getWorkspaceSize(init));
+		workspace = init;
 
 		if (!initParams.Decode(initiatorParameters) || !respParams.Decode(responderParameters) ||
-			!init->configure(init, workspace.rawData(), nullptr, &getKey, nullptr, hashName.c_str(), macName.c_str(), translateKeyWrapName().c_str(), "KDF", macName.c_str(), _usesMITM))
+			!init->configure(init, workspace, nullptr, &getKey, nullptr, hashName.c_str(), macName.c_str(), translateKeyWrapName().c_str(), "KDF", macName.c_str(), _usesMITM))
 		{
 			return false;
 		}
@@ -213,35 +207,25 @@ public:
 			!pkDesc->addPrivateKey(pkDesc, ephKeyPair, ephPriv.c_str(), (uint32_t)ephPriv.size())
 			)
 		{
-			if (pkDesc != nullptr && respKeyPair != nullptr)
-				pkDesc->freeKeyStructure(pkDesc, respKeyPair);
-			if (pkDesc != nullptr && respKeyPair != nullptr)
-				pkDesc->freeKeyStructure(pkDesc, ephKeyPair);
 			return false;
 		}
 
 		_POD_PBKDF_Parameters& pbParams = initParams.get_authParameters().get_params().get_Pbkdf();
 
-		if (!init->setInitiatorParameters_PBKDF(init, workspace.rawData(), pkDesc, respKeyPair, initParams.get_oidInfo().c_str(), (uint32_t)initParams.get_oidInfo().size(),
+		if (!init->setInitiatorParameters_PBKDF(init, workspace, pkDesc, respKeyPair, initParams.get_oidInfo().c_str(), (uint32_t)initParams.get_oidInfo().size(),
 			initParams.get_nonce().c_str(), (uint32_t)initParams.get_nonce().size(), pbParams.get_Salt().c_str(), (uint32_t)pbParams.get_Salt().size(), initParams.get_keySizeInBits(),
 			pbParams.get_IterationCount(), ts_false, "PBKDF", macName.c_str()))
 		{
-			pkDesc->freeKeyStructure(pkDesc, respKeyPair);
-			pkDesc->freeKeyStructure(pkDesc, ephKeyPair);
 			return false;
 		}
 
-		if (!init->testInitiatorValues(init, workspace.rawData(), authenticationInformation.c_str(), (uint32_t)authenticationInformation.size(), KGK.c_str(), (uint32_t)KGK.size(),
+		if (!init->testInitiatorValues(init, workspace, authenticationInformation.c_str(), (uint32_t)authenticationInformation.size(), KGK.c_str(), (uint32_t)KGK.size(),
 			pkDesc, ephKeyPair, respParams.get_eKGK().c_str(), (uint32_t)respParams.get_eKGK().size(), respParams.get_initiatorAuthProof().c_str(), (uint32_t)respParams.get_initiatorAuthProof().size(),
 			respParams.get_initiatorMITMProof().c_str(), (uint32_t)respParams.get_initiatorMITMProof().size(), responderMITMProof.c_str(), (uint32_t)responderMITMProof.size(), 
 			sessionKey.c_str(), (uint32_t)sessionKey.size()))
 		{
-			pkDesc->freeKeyStructure(pkDesc, respKeyPair);
-			pkDesc->freeKeyStructure(pkDesc, ephKeyPair);
 			return false;
 		}
-		pkDesc->freeKeyStructure(pkDesc, respKeyPair);
-		pkDesc->freeKeyStructure(pkDesc, ephKeyPair);
 		return true;
 	}
 
@@ -287,7 +271,7 @@ private:
 			tmp.append("AES");
 		return tmp;
 	}
-	static ts_bool getKey(void* keyParams, const uint8_t* keyId, uint32_t keyIdLen, const EccDescriptor** keyDesc, void** keyPair)
+	static ts_bool getKey(void* keyParams, const uint8_t* keyId, uint32_t keyIdLen, const EccDescriptor** keyDesc, CRYPTO_ASYMKEY* keyPair)
 	{
 		authenticationResponderKeyHandler* keyAccess = (authenticationResponderKeyHandler*)keyParams;
 		tsCryptoString keyType;

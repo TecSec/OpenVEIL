@@ -39,7 +39,7 @@ static GetErrorStringFn errorStringFn = &localGetErrorString;
 
 static tscrypto::tsCryptoString localGetErrorString(int /*errorNumber*/)
 {
-	return "unknown error";
+	return "%s";
 }
 
 tscrypto::tsCryptoString GetErrorString(int errorNumber)

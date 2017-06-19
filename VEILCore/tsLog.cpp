@@ -136,6 +136,7 @@ struct LogConfiguration
 	std::vector<std::shared_ptr<tsLogOutput> > _loggers;
 	std::vector<std::shared_ptr<tsLogOutputCreator> > _loggerCreators;
 	std::vector<std::shared_ptr<tsLogMap> > _maps;
+    std::vector<std::shared_ptr<tsDebugConsumer> > m_unfilteredConsumerList;
 	std::vector<std::shared_ptr<tsDebugConsumer> > m_consumerList;
 	tscrypto::tsCryptoString _blacklist;
 	std::shared_ptr<tsJsonPreferencesBase> _JsonPrefs;
@@ -169,7 +170,7 @@ public:
 class tsLogToConsole : public tsLogOutput
 {
 public:
-	virtual void WriteToOutput(const char *msg)
+    virtual void WriteToOutput(const char *msg) override
 	{
 		std::cout << msg << std::endl;
 	}
@@ -178,7 +179,7 @@ public:
 class tsLogToOutputDebugString : public tsLogOutput
 {
 public:
-	virtual void WriteToOutput(const char *msg)
+    virtual void WriteToOutput(const char *msg) override
 	{
 		OutputDebugStringA(msg);
 		OutputDebugStringA("\r\n");
@@ -207,7 +208,7 @@ public:
 			xp_CloseFile(_file);
 		_file = XP_FILE_INVALID;
 	}
-	virtual void WriteToOutput(const char *msg)
+    virtual void WriteToOutput(const char *msg) override
 	{
 		if (_file == XP_FILE_INVALID)
 			return;
@@ -223,7 +224,7 @@ public:
 		//xp_FlushFile(_file);
 	}
 #ifdef SUPPORT_XML_LOGGING
-	virtual bool initialize(const tsXmlNode *node)
+    virtual bool initialize(const tsXmlNode *node) override
 	{
 		if (!tsLogOutput::initialize(node))
 			return false;
@@ -248,7 +249,7 @@ public:
 		return true;
 	}
 #endif // SUPPORT_XML_LOGGING
-	virtual bool initialize(const JSONObject& node)
+    virtual bool initialize(const JSONObject& node) override
 	{
 		if (!tsLogOutput::initialize(node))
 			return false;
@@ -282,7 +283,7 @@ private:
 class tsLogToConsumer : public tsLogOutput
 {
 public:
-	void WriteToLog(const char *loggerName, int level, const char *msg)
+    void WriteToLog(const tscrypto::tsCryptoString& loggerName, int level, tscrypto::tsCryptoString& msg) override
 	{
 		tscrypto::tsCryptoString tmp(getFormatString());
 		tscrypto::tsCryptoString thread;
@@ -316,7 +317,7 @@ public:
 class tsLogToNull : public tsLogOutput
 {
 public:
-	void WriteToLog(const char *loggerName, int level, const char *msg)
+    void WriteToLog(const tscrypto::tsCryptoString& loggerName, int level, tscrypto::tsCryptoString& msg) override
 	{
 		UNREFERENCED_PARAMETER(loggerName);
 		UNREFERENCED_PARAMETER(level);
@@ -352,7 +353,7 @@ void tsLogOutput::setFormatString(const char *formatter)
 	_formatter = formatter;
 }
 
-void tsLogOutput::WriteToLog(const char *loggerName, int level, const char *msg)
+void tsLogOutput::WriteToLog(const tscrypto::tsCryptoString& loggerName, int level, tscrypto::tsCryptoString& msg)
 {
 	tscrypto::tsCryptoString tmp(_formatter);
 	tscrypto::tsCryptoString thread;
@@ -562,11 +563,14 @@ void tsLog::UnregisterAllLoggerCreators()
 	tsLogConfig->_loggerCreators.clear();
 }
 
-void tsLog::WriteToLog(const char *loggerName, int level, const char *msg)
+void tsLog::WriteToLog(const char *_loggerName, int level, const char *_msg)
 {
-	if (!WillLog(loggerName, level))
+    tsCryptoString loggerName(_loggerName), msg(_msg);
+
+    if (!WillLog(_loggerName, level))
 		return;
 	::Configure();
+    WriteToUnfilteredConsumers(loggerName, level, msg);
 	TSAUTOLOCKER locker(tsLogConfig->_lock);
 	if (tsLogConfig->_loggers.size() == 0)
 	{
@@ -575,7 +579,7 @@ void tsLog::WriteToLog(const char *loggerName, int level, const char *msg)
 	std::find_if(tsLogConfig->_maps.begin(), tsLogConfig->_maps.end(), [&](std::shared_ptr<tsLogMap> &map) ->bool {
 		std::shared_ptr<tsLogOutput> outputter;
 
-		if (!map->UseThisOne(loggerName, level))
+        if (!map->UseThisOne(_loggerName, level))
 			return false;
 
 		if (map->OutName() != nullptr && map->OutName()[0] != 0)
@@ -1045,12 +1049,15 @@ void tsLog::Refresh()
 #pragma warning(pop)
 #endif
 
-void tsLog::AddMasterConsumer(tsDebugConsumer *consumer)
+void tsLog::AddMasterConsumer(std::shared_ptr<tsDebugConsumer> consumer)
 {
 	::Configure();
-	if (consumer != NULL)
+    if (!!consumer)
     {
-		tsLogConfig->m_consumerList.push_back(std::shared_ptr<tsDebugConsumer>(consumer));
+        if (consumer->WantsUnfiltered())
+            tsLogConfig->m_unfilteredConsumerList.push_back(consumer);
+        else
+            tsLogConfig->m_consumerList.push_back(consumer);
     }
 }
 
@@ -1061,12 +1068,13 @@ void tsLog::AddMasterConsumer(tsDebugConsumer *consumer)
 //    return 0;
 //}
 
-void tsLog::RemoveMasterConsumer(tsDebugConsumer *consumer)
+void tsLog::RemoveMasterConsumer(std::shared_ptr<tsDebugConsumer> consumer)
 {
 	::Configure();
 	if (consumer != NULL)
     {
-		tsLogConfig->m_consumerList.erase(std::remove_if(tsLogConfig->m_consumerList.begin(), tsLogConfig->m_consumerList.end(), [consumer](std::shared_ptr<tsDebugConsumer>& obj)->bool { return obj.get() == consumer; }), tsLogConfig->m_consumerList.end());
+        tsLogConfig->m_unfilteredConsumerList.erase(std::remove_if(tsLogConfig->m_unfilteredConsumerList.begin(), tsLogConfig->m_unfilteredConsumerList.end(), [consumer](std::shared_ptr<tsDebugConsumer>& obj)->bool { return obj == consumer; }), tsLogConfig->m_unfilteredConsumerList.end());
+        tsLogConfig->m_consumerList.erase(std::remove_if(tsLogConfig->m_consumerList.begin(), tsLogConfig->m_consumerList.end(), [consumer](std::shared_ptr<tsDebugConsumer>& obj)->bool { return obj == consumer; }), tsLogConfig->m_consumerList.end());
     }
 }
 
@@ -1074,6 +1082,7 @@ void tsLog::ClearMasterConsumers()
 {
 	::Configure();
 	tsLogConfig->m_consumerList.clear();
+    tsLogConfig->m_unfilteredConsumerList.clear();
 }
 
 void tsLog::WriteToConsumers(const tscrypto::tsCryptoStringBase &category, int priority, const tscrypto::tsCryptoStringBase &message)
@@ -1082,6 +1091,20 @@ void tsLog::WriteToConsumers(const tscrypto::tsCryptoStringBase &category, int p
 	for (size_t i = 0; i < tsLogConfig->m_consumerList.size(); i++)
     {
 		std::shared_ptr<tsDebugConsumer> consumer = tsLogConfig->m_consumerList[i];
+
+        if (!!consumer)
+        {
+            consumer->WriteLine(category, priority, message);
+        }
+    }
+}
+
+void tsLog::WriteToUnfilteredConsumers(const tscrypto::tsCryptoStringBase &category, int priority, const tscrypto::tsCryptoStringBase &message)
+{
+    ::Configure();
+    for (size_t i = 0; i < tsLogConfig->m_unfilteredConsumerList.size(); i++)
+    {
+        std::shared_ptr<tsDebugConsumer> consumer = tsLogConfig->m_unfilteredConsumerList[i];
 
         if (!!consumer)
         {
@@ -1176,11 +1199,11 @@ bool tsLog::WillLog(const char *loggerName, int level)
 
 	::Configure();
 	TSAUTOLOCKER locker(tsLogConfig->_lock);
-	if (tsLogConfig->_loggers.size() == 0)
+    if (tsLogConfig->_loggers.size() == 0 && tsLogConfig->m_consumerList.empty() && tsLogConfig->m_unfilteredConsumerList.empty())
 	{
 		return false;
 	}
-	if (tsLogConfig->_maps.size() == 0)
+    if (tsLogConfig->_maps.size() == 0 && tsLogConfig->m_consumerList.empty() && tsLogConfig->m_unfilteredConsumerList.empty())
 	{
 		return false;
 	}

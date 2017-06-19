@@ -203,6 +203,12 @@ void SaveSelectionWizardPage::OnSaveFavoritePageChanging( wxWizardEvent& event )
 {
 	AudienceSelector2* wiz = dynamic_cast<AudienceSelector2*>(GetParent());
 
+	if (!event.GetDirection())
+	{
+		event.Skip();
+		return;
+	}
+
 	if (wiz != nullptr && wiz->_vars != nullptr && wiz->_vars->_favoriteManager && !wiz->_vars->_favoriteName.empty() && event.GetDirection())
 	{
 		if (!wiz->_vars->_connector->UpdateFavorite(wiz->_vars->_favoriteId, wiz->_vars->_header->ToBytes()))
@@ -393,6 +399,11 @@ void SaveSelectionWizardPage::updateControls()
 		((wxButton*)FindWindowById(wxID_FORWARD, this->GetParent()))->SetDefault();
 }
 
+bool SaveSelectionWizardPage::skipMe()
+{
+	return false;
+}
+
 
 /*
  * Gets the previous page.
@@ -400,6 +411,10 @@ void SaveSelectionWizardPage::updateControls()
 
 wxWizardPage* SaveSelectionWizardPage::GetPrev() const
 {
+	ISkippablePage* tokPg = dynamic_cast<ISkippablePage*>(prevPage);
+
+	if (tokPg != nullptr && tokPg->skipMe())
+		return prevPage->GetPrev();
     return prevPage;
 }
 
@@ -410,6 +425,10 @@ wxWizardPage* SaveSelectionWizardPage::GetPrev() const
 
 wxWizardPage* SaveSelectionWizardPage::GetNext() const
 {
+	ISkippablePage* tokPg = dynamic_cast<ISkippablePage*>(nextPage);
+
+	if (tokPg != nullptr && tokPg->skipMe())
+		return nextPage->GetNext();
     return nextPage;
 }
 

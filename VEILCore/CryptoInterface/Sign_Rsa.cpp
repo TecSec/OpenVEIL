@@ -43,13 +43,6 @@ public:
 	}
 	virtual ~Sign_Rsa(void)
 	{
-		uint8_t tmp[64];
-		if (hashDesc != nullptr && !hashWorkspace.empty())
-			hashDesc->finish(hashDesc, hashWorkspace.rawData(), tmp, hashDesc->digestSize);
-		hashWorkspace.clear();
-		if (signDesc != nullptr && !workspace.empty())
-			signDesc->finish(signDesc, workspace.rawData());
-		workspace.clear();
 	}
 
     // Signer
@@ -66,15 +59,15 @@ public:
 
 		if (hashDesc != nullptr)
 		{
-			hashWorkspace.clear();
-			hashWorkspace.resize(hashDesc->getWorkspaceSize(hashDesc));
+			hashWorkspace.reset();
+			hashWorkspace = hashDesc;
 
-			if (!hashDesc->init(hashDesc, hashWorkspace.rawData()))
+			if (!hashDesc->init(hashDesc, hashWorkspace))
 				return false;
 		}
-		workspace.resize(signDesc->getWorkspaceSize(signDesc));
+		workspace = signDesc;
 
-		return signDesc->init(signDesc, workspace.rawData(), (const RSA_Descriptor*)access->Descriptor(), access->getKeyPair(), hashDesc, hashWorkspace.rawData());
+		return signDesc->init(signDesc, workspace, (const RSA_Descriptor*)access->Descriptor(), access->getKeyPair(), hashDesc, hashWorkspace);
 	}
 	virtual bool signHash(const tsCryptoData &hashData, tsCryptoData &signature) override
 	{
@@ -84,11 +77,11 @@ public:
 
 		signature.clear();
 
-		if (!signDesc->signHash(signDesc, workspace.rawData(), hashData.c_str(), (uint32_t)hashData.size(), nullptr, &len))
+		if (!signDesc->signHash(signDesc, workspace, hashData.c_str(), (uint32_t)hashData.size(), nullptr, &len))
 			return false;
 
 		signature.resize(len);
-		if (!signDesc->signHash(signDesc, workspace.rawData(), hashData.c_str(), (uint32_t)hashData.size(), signature.rawData(), &len))
+		if (!signDesc->signHash(signDesc, workspace, hashData.c_str(), (uint32_t)hashData.size(), signature.rawData(), &len))
 		{
 			signature.clear();
 			return false;
@@ -101,7 +94,7 @@ public:
 		if (!gFipsState.operational() || signDesc == nullptr || workspace.empty())
 			return false;
 
-		return signDesc->update(signDesc, workspace.rawData(), data.c_str(), (uint32_t)data.size());
+		return signDesc->update(signDesc, workspace, data.c_str(), (uint32_t)data.size());
 	}
 	virtual bool sign(tsCryptoData &signature) override
 	{
@@ -111,11 +104,11 @@ public:
 		uint32_t len;
 		signature.clear();
 
-		if (!signDesc->sign(signDesc, workspace.rawData(), nullptr, &len))
+		if (!signDesc->sign(signDesc, workspace, nullptr, &len))
 			return false;
 
 		signature.resize(len);
-		if (!signDesc->sign(signDesc, workspace.rawData(), signature.rawData(), &len))
+		if (!signDesc->sign(signDesc, workspace, signature.rawData(), &len))
 		{
 			signature.clear();
 			return false;
@@ -128,14 +121,14 @@ public:
 		if (!gFipsState.operational() || signDesc == nullptr || workspace.empty())
 			return false;
 
-		return signDesc->verifyHash(signDesc, workspace.rawData(), hashData.c_str(), (uint32_t)hashData.size(), signature.c_str(), (uint32_t)signature.size());
+		return signDesc->verifyHash(signDesc, workspace, hashData.c_str(), (uint32_t)hashData.size(), signature.c_str(), (uint32_t)signature.size());
 	}
 	virtual bool verify(const tsCryptoData &signature) override
 	{
 		if (!gFipsState.operational() || signDesc == nullptr || workspace.empty())
 			return false;
 
-		return signDesc->verify(signDesc, workspace.rawData(), signature.c_str(), (uint32_t)signature.size());
+		return signDesc->verify(signDesc, workspace, signature.c_str(), (uint32_t)signature.size());
 	}
 	virtual bool finish() override
 	{
@@ -144,8 +137,8 @@ public:
 		if (workspace.empty())
 			return true;
 
-		signDesc->finish(signDesc, workspace.rawData());
-		workspace.clear();
+		signDesc->finish(signDesc, workspace);
+		workspace.reset();
 		return true;
 	}
 	virtual size_t GetHashBlockSize() override
@@ -213,23 +206,23 @@ public:
 					return false;
 				}
 			}
-			hashWorkspace.resize(hashDesc->getWorkspaceSize(hashDesc));
+			hashWorkspace = hashDesc;
 		}
 		else if (parts->size() == 4)
 		{
 			hashDesc = findHashAlgorithm(parts->at(3).c_str());
 			if (hashDesc == nullptr)
 				return false;
-			hashWorkspace.resize(hashDesc->getWorkspaceSize(hashDesc));
+			hashWorkspace = hashDesc;
 		}
 		return true;
 	}
 
 private:
 	const RsaSigner_Descriptor* signDesc;
-	tsCryptoData workspace;
+    SmartCryptoWorkspace workspace;
 	const HASH_Descriptor* hashDesc;
-	tsCryptoData hashWorkspace;
+    SmartCryptoWorkspace hashWorkspace;
 	std::shared_ptr<RsaKey> m_key;
 };
 

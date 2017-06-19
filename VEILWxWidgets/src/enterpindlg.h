@@ -1,13 +1,33 @@
-/////////////////////////////////////////////////////////////////////////////
-// Name:        enterpindlg.h
-// Purpose:     
-// Author:      Roger Butler
-// Modified by: 
-// Created:     21/02/2017 18:07:43
-// RCS-ID:      
-// Copyright:   Copyright (c) 2017, TecSec, Inc.  
-// Licence:     
-/////////////////////////////////////////////////////////////////////////////
+//	Copyright (c) 2017, TecSec, Inc.
+//
+//	Redistribution and use in source and binary forms, with or without
+//	modification, are permitted provided that the following conditions are met:
+//	
+//		* Redistributions of source code must retain the above copyright
+//		  notice, this list of conditions and the following disclaimer.
+//		* Redistributions in binary form must reproduce the above copyright
+//		  notice, this list of conditions and the following disclaimer in the
+//		  documentation and/or other materials provided with the distribution.
+//		* Neither the name of TecSec nor the names of the contributors may be
+//		  used to endorse or promote products derived from this software 
+//		  without specific prior written permission.
+//		 
+//	ALTERNATIVELY, provided that this notice is retained in full, this product
+//	may be distributed under the terms of the GNU General Public License (GPL),
+//	in which case the provisions of the GPL apply INSTEAD OF those given above.
+//		 
+//	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+//	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+//	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+//	DISCLAIMED.  IN NO EVENT SHALL TECSEC BE LIABLE FOR ANY 
+//	DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+//	(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+//	LOSS OF USE, DATA OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+//	ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+//	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+//	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+// Written by Roger Butler
 
 #ifndef _ENTERPINDLG_H_
 #define _ENTERPINDLG_H_
@@ -40,7 +60,7 @@ class PasswordGauge;
 #define ID_ENTERPIN_VERIFY_PASSWORD 10002
 #define ID_ENTERPIN_PASSWORD_STRENGTH 10003
 #define ID_ENTERPIN_STATUS 10100
-#define SYMBOL_ENTERPIN_STYLE wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX|wxTAB_TRAVERSAL
+#define SYMBOL_ENTERPIN_STYLE wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxTAB_TRAVERSAL
 #define SYMBOL_ENTERPIN_TITLE _("Enter Password")
 #define SYMBOL_ENTERPIN_IDNAME ID_ENTERPIN
 #define SYMBOL_ENTERPIN_SIZE wxDefaultSize

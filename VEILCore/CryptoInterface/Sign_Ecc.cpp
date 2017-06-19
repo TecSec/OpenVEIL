@@ -101,10 +101,12 @@ private:
 	std::shared_ptr<Hash> m_hasher;
 	std::shared_ptr<DhEccPrimitives> m_prims;
 	bool m_isEcc;
+    uint32_t m_keySize;
 };
 
 Sign_Ecc::Sign_Ecc(const tsCryptoStringBase& algorithm) :
-	m_isEcc(false)
+	m_isEcc(false),
+    m_keySize(0)
 {
 }
 
@@ -162,6 +164,8 @@ bool Sign_Ecc::initialize(std::shared_ptr<AsymmetricKey> key)
 
     if (!key || !(m_prims = std::dynamic_pointer_cast<DhEccPrimitives>(key)))
         return false;
+
+    m_keySize = (uint32_t)key->KeySize();
 
     if (!!m_hasher)
     {
@@ -233,6 +237,7 @@ bool Sign_Ecc::verifyHash(const tsCryptoData &hashData, const tsCryptoData &sign
     if (!gFipsState.operational())
         return false;
     tsCryptoData r, s;
+    uint32_t keyByteSize = (m_keySize + 7) / 8;
 
     if (!m_prims)
         return false;
@@ -265,7 +270,10 @@ bool Sign_Ecc::verifyHash(const tsCryptoData &hashData, const tsCryptoData &sign
     {
         s.erase(0, 1);
     }
-
+    if (r.size() < keyByteSize)
+        r.padLeft(keyByteSize);
+    if (s.size() < keyByteSize)
+        s.padLeft(keyByteSize);
     if (!m_prims->VerifySignatureForData(hashData, r, s))
         return false;
 

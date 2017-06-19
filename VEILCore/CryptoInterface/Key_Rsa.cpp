@@ -41,8 +41,7 @@ class Key_Rsa : public RsaKeyGenerationParameters, public RsaPrimitives, public 
 public:
 	Key_Rsa() :
 		m_validationReason(kvf_NoFailure),
-		desc(nullptr),
-		keyPair(nullptr)
+		desc(nullptr)
 	{
 		desc = findRsaAlgorithm("RSA");
 		if (desc != nullptr)
@@ -50,9 +49,7 @@ public:
 	}
 	virtual ~Key_Rsa(void)
 	{
-		if (desc != nullptr && keyPair != nullptr)
-			desc->freeKeyStructure(desc, keyPair);
-		keyPair = nullptr;
+		keyPair.reset();
 	}
 
 	// AssymetricKey
@@ -723,7 +720,7 @@ public:
 	virtual bool generateKeyPair(RSA_Key_Gen_Type primeType, const tsCryptoStringBase& hashName, size_t keyLengthInBits, bool forSignature) override
 	{
 		const HASH_Descriptor* hasher;
-		tsCryptoData hashWorkspace;
+		SmartCryptoWorkspace hashWorkspace;
 
 		if (!gFipsState.operational() || desc == nullptr)
 			return false;
@@ -736,9 +733,9 @@ public:
 		hasher = findHashAlgorithm(hashName.c_str());
 		if (hasher == nullptr)
 			return false;
-		hashWorkspace.resize(hasher->getWorkspaceSize(hasher));
+		hashWorkspace = hasher;
 
-		return desc->generateKeyPair(desc, keyPair, (tsalg_rsaKeyGenType)primeType, (uint32_t)keyLengthInBits, hasher, hashWorkspace.rawData(), false) &&
+		return desc->generateKeyPair(desc, keyPair, (tsalg_rsaKeyGenType)primeType, (uint32_t)keyLengthInBits, hasher, hashWorkspace, false) &&
 			ValidateKeys();
 	}
 	virtual bool reserved1() override
@@ -1141,29 +1138,26 @@ public:
 private:
 	tsalg_keyValidationFailureType m_validationReason;
 	const RSA_Descriptor* desc;
-	void* keyPair;
+    SmartCryptoKey keyPair;
 
 	// Inherited via TSALG_Access
-	virtual const void * Descriptor() const override
+	virtual const TSALG_Base_Descriptor * Descriptor() const override
 	{
 		return desc;
 	}
-	virtual void * getKeyPair() const override
+	virtual CRYPTO_ASYMKEY getKeyPair() const override
 	{
 		return keyPair;
 	}
-	virtual uint8_t * getWorkspace() const override
+	virtual CRYPTO_WORKSPACE getWorkspace() const override
 	{
 		return nullptr;
 	}
-	virtual void* detachFromKeyPair() override
+	virtual CRYPTO_ASYMKEY detachFromKeyPair() override
 	{
-		void* tmp = keyPair;
-
-		keyPair = nullptr;
-		return tmp;
+        return keyPair.detach();
 	}
-	virtual void* cloneKeyPair() const override
+	virtual CRYPTO_ASYMKEY cloneKeyPair() const override
 	{
 		if (desc == nullptr || keyPair == nullptr)
 			return nullptr;

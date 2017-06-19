@@ -80,21 +80,12 @@ wxWizardPage *AudienceSelector2::GetFirstPage() const
 { 
 	if (_vars == nullptr || (((!_vars->_connector || !_vars->_connector->isConnected()) || _vars->_connector->errorCode() == 401 || _vars->_connector->errorCode() == 440) && !_vars->_hideKeyVEILLogin))
 		return _keyVeilPage; 
-	return _tokenPage;
+	return _keyVeilPage->GetNext();
 }
 
 void AudienceSelector2::setVariables(audienceSelector2Variables* inVars)
 {
 	_vars = inVars;
-
-	if (_vars != nullptr && _tokenPage != nullptr)
-	{
-		if (_vars->_favoriteManager)
-		{
-			_tokenPage->SetNextPage(_accessGroupPage);
-			_accessGroupPage->SetPrevPage(_tokenPage);
-		}
-	}
 }
 
 /*
@@ -106,7 +97,7 @@ bool AudienceSelector2::Create( wxWindow* parent, wxWindowID id, const wxPoint& 
 ////@begin AudienceSelector2 creation
     SetExtraStyle(wxWS_EX_BLOCK_EVENTS|wxWIZARD_EX_HELPBUTTON);
     wxBitmap wizardBitmap(wxNullBitmap);
-    wxWizard::Create( parent, id, _("Audience Selector"), wizardBitmap, pos, wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX );
+    wxWizard::Create( parent, id, _("Audience Selector"), wizardBitmap, pos, wxDEFAULT_DIALOG_STYLE|wxCAPTION );
 
     CreateControls();
 	////@end AudienceSelector2 creation
@@ -118,36 +109,6 @@ bool AudienceSelector2::Create( wxWindow* parent, wxWindowID id, const wxPoint& 
 
 	// Enable scrolling adaptation
 	SetLayoutAdaptationMode(wxDIALOG_ADAPTATION_MODE_ENABLED);
-
-	//// a wizard page may be either an object of predefined class
-	//m_page1 = new wxWizardPageSimple(this);
-
-	///* wxStaticText *text = */ new wxStaticText(m_page1, wxID_ANY,
-	//	wxT("This wizard doesn't help you\nto do anything at all.\n")
-	//	wxT("\n")
-	//	wxT("The next pages will present you\nwith more useless controls."),
-	//	wxPoint(5, 5)
-	//);
-
-	//// ... or a derived class
-	//wxRadioboxPage *page3 = new wxRadioboxPage(this);
-	//wxValidationPage *page4 = new wxValidationPage(this);
-
-	//// set the page order using a convenience function - could also use
-	//// SetNext/Prev directly as below, but Chain() is shorter, avoids the risk
-	//// of an error and can itself be chained, e.g. you could write
-	//// page3.Chain(page4).Chain(page5) and so on.
-	//page3->Chain(page4);
-
-	//// this page is not a wxWizardPageSimple, so we use SetNext/Prev to insert
-	//// it into the chain of pages
-	//wxCheckboxPage *page2 = new wxCheckboxPage(this, m_page1, page3);
-	//m_page1->SetNext(page2);
-	//page3->SetPrev(page2);
-
-
-	//// allow the wizard to size itself around the pages
-	//GetPageAreaSizer()->Add(m_page1);
 
     return true;
 }
@@ -237,18 +198,6 @@ void AudienceSelector2::CreateControls()
 	_savePage->SetName("Save as Favorite");
 	_savePage->SetPrevPage(_accessGroupPage);
 
-	if (_vars != nullptr)
-	{
-		if (_vars->_hideKeyVEILLogin)
-		{
-			_tokenPage->SetPrevPage(nullptr);
-		}
-		if (_vars->_favoriteManager)
-		{
-			_tokenPage->SetNextPage(_accessGroupPage);
-			_accessGroupPage->SetPrevPage(_tokenPage);
-		}
-	}
 }
 
 void AudienceSelector2::setupLeftPanel()
@@ -320,6 +269,9 @@ void AudienceSelector2::setupLeftPanel()
 	if (label != m_btnNext->GetLabel())
 		m_btnNext->SetLabel(label);
 
+	// Perform fixups for back and next
+	m_btnPrev->Enable(m_firstpage != GetCurrentPage());
+	//m_btnNext->Enable(true);
 	m_btnNext->SetDefault();
 }
 
@@ -330,6 +282,12 @@ void AudienceSelector2::setupLeftPanel()
 bool AudienceSelector2::Run()
 {
 	m_firstpage = _keyVeilPage;
+
+	while (m_firstpage != nullptr && m_firstpage->GetNext() != nullptr)
+		m_firstpage = m_firstpage->GetNext();
+
+	while (m_firstpage != nullptr && m_firstpage->GetPrev() != nullptr)
+		m_firstpage = m_firstpage->GetPrev();
 
 	(void)ShowPage(GetFirstPage(), true /* forward */);
 

@@ -79,7 +79,7 @@ public:
 			return false;
 		}
 		_tokenName = setTo;
-		return false;
+		return true;
 	}
 	virtual tscrypto::tsCryptoData serialNumber() override { return _serialNumber; }
 	virtual GUID id() override { return _id; }

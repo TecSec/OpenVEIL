@@ -146,7 +146,7 @@ void EnterPin::CreateControls()
         edtOldPassword->SetToolTip(_("Enter the current password."));
     itemFlexGridSizer4->Add(edtOldPassword, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
-    lblNewPassword = new wxStaticText( itemDialog1, wxID_STATIC, _("New password:"), wxDefaultPosition, wxDefaultSize, 0 );
+    lblNewPassword = new wxStaticText( itemDialog1, wxID_STATIC, _("New Password:"), wxDefaultPosition, wxDefaultSize, 0 );
     itemFlexGridSizer4->Add(lblNewPassword, 0, wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
     edtNewPassword = new wxTextCtrl( itemDialog1, ID_ENTERPIN_NEW_PASSWORD, wxEmptyString, wxDefaultPosition, wxSize(250, -1), wxTE_PASSWORD );
@@ -154,7 +154,7 @@ void EnterPin::CreateControls()
         edtNewPassword->SetToolTip(_("Enter the new password"));
     itemFlexGridSizer4->Add(edtNewPassword, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
-    lblVerifyPassword = new wxStaticText( itemDialog1, wxID_STATIC, _("Verify password:"), wxDefaultPosition, wxDefaultSize, 0 );
+    lblVerifyPassword = new wxStaticText( itemDialog1, wxID_STATIC, _("Verify Password:"), wxDefaultPosition, wxDefaultSize, 0 );
     itemFlexGridSizer4->Add(lblVerifyPassword, 0, wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxBOTTOM, 5);
 
     edtVerifyPassword = new wxTextCtrl( itemDialog1, ID_ENTERPIN_VERIFY_PASSWORD, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PASSWORD );
@@ -199,6 +199,7 @@ void EnterPin::CreateControls()
 	configureControls();
 	if (_vars != nullptr && _vars->helpId > 0)
 	{
+        btnAbout->Enable(false);
 		btnAbout->Show(false);
 		btnHelp->Show(true);
 	}
@@ -206,6 +207,7 @@ void EnterPin::CreateControls()
 	{
 		btnAbout->Show(true);
 		btnHelp->Show(false);
+        btnHelp->Enable(false);
 	}
 }
 
@@ -222,12 +224,16 @@ void EnterPin::configureControls()
 
 			lblOldPassword->Show(true);
 			edtOldPassword->Show(true);
+            edtOldPassword->Enable(true);
 			lblNewPassword->Show(true);
 			edtNewPassword->Show(true);
+            edtNewPassword->Enable(true);
 			lblVerifyPassword->Show(true);
 			edtVerifyPassword->Show(true);
+            edtVerifyPassword->Enable(true);
 			lblPasswordStrength->Show(true);
 			edtPasswordStrength->Show(true);
+            edtPasswordStrength->Enable(false);
 		}
 		else if (_vars->m_creatingPin)
 		{
@@ -236,25 +242,34 @@ void EnterPin::configureControls()
 			edtPasswordStrength->SetMax(_vars->maxStrength);
 
 			lblOldPassword->Show(false);
+            edtOldPassword->Enable(false);
 			edtOldPassword->Show(false);
 			lblVerifyPassword->Show(true);
+            edtVerifyPassword->Enable(true);
 			edtVerifyPassword->Show(true);
 			lblNewPassword->Show(true);
 			edtNewPassword->Show(true);
+            edtNewPassword->Enable(true);
+            edtNewPassword->SetFocus();
 			lblPasswordStrength->Show(true);
 			edtPasswordStrength->Show(true);
+            edtPasswordStrength->Enable(false);
 		}
 		else
 		{
 			lblNewPassword->Show(true);
 			edtNewPassword->Show(true);
+            edtNewPassword->Enable(true);
 			lblNewPassword->SetLabel("Password:");
 
 			lblOldPassword->Show(false);
+            edtOldPassword->Enable(false);
 			edtOldPassword->Show(false);
 			lblVerifyPassword->Show(false);
+            edtVerifyPassword->Enable(false);
 			edtVerifyPassword->Show(false);
 			lblPasswordStrength->Show(false);
+            edtPasswordStrength->Enable(false);
 			edtPasswordStrength->Show(false);
 		}
 		edtOldPassword->SetMaxLength(_vars->maxLen);

@@ -68,7 +68,7 @@ class wxSimpleHtmlListBox;
  * GroupEditorWizardPage class declaration
  */
 
-class GroupEditorWizardPage: public wxWizardPageSimple
+class GroupEditorWizardPage: public wxWizardPageSimple, public ISkippablePage
 {    
     DECLARE_DYNAMIC_CLASS( GroupEditorWizardPage )
     DECLARE_EVENT_TABLE()
@@ -170,6 +170,9 @@ protected:
 	void BuildIntList(std::shared_ptr<ICmsHeaderAttributeGroup> attrGroup, tscrypto::tsCryptoData &list);
 	void EnableDisableOK();
 	bool FindSelectedAccessGroup(std::shared_ptr<ICmsHeaderAccessGroup>& accessGroup, std::shared_ptr<ICmsHeaderAttributeGroup>& attrs);
+
+	// Inherited via ISkippablePage
+	virtual bool skipMe() override;
 };
 
 #endif

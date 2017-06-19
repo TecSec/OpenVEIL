@@ -158,6 +158,31 @@ public:
 	virtual bool Connect() = 0;
 };
 
+class VEILCORE_API IUdpConnection
+{
+public:
+    virtual ~IUdpConnection(void) {}
+
+    virtual const tscrypto::tsCryptoString &Server() const = 0;
+    virtual void Server(const tscrypto::tsCryptoString &setTo) = 0;
+
+    virtual unsigned short Port() const = 0;
+    virtual void Port(unsigned short setTo) = 0;
+
+    virtual tscrypto::tsCryptoString Errors() const = 0;
+    virtual void ClearErrors() = 0;
+
+    virtual bool SendTo(const tscrypto::tsCryptoData& data, const SOCKADDR_STORAGE& To, int toLen) = 0;
+    virtual bool ReadFrom(SOCKADDR_STORAGE& From, int& fromLen, tscrypto::tsCryptoData& data) = 0;
+
+    virtual bool isConnected() const = 0;
+
+    virtual bool Disconnect() = 0;
+    virtual bool Connect() = 0;
+
+    virtual bool resolveAddress(const tscrypto::tsCryptoStringBase& address, const tscrypto::tsCryptoStringBase& port, sockaddr_storage& addr, int & addrLen, int socketType = SOCK_DGRAM, int family = AF_UNSPEC) = 0;
+    virtual bool addressToString(const struct sockaddr* addr, int addrlen, tscrypto::tsCryptoString& outString) = 0;
+};
 
 class VEILCORE_API ITcpChannel : public ITcpConnection
 {
@@ -246,17 +271,30 @@ private:
 	using ITcpChannel::Receive;
 };
 
+class VEILCORE_API IMessageProcessorCallback
+{
+public:
+    virtual ~IMessageProcessorCallback()
+    {
+    }
+    virtual bool RawSend(const tscrypto::tsCryptoData& data) = 0;
+};
 class VEILCORE_API IMessageProcessorControl
 {
 public:
-	virtual ~IMessageProcessorControl() {}
+    virtual ~IMessageProcessorControl() 
+    {
+    }
 	virtual void clear() = 0;
 	virtual void start(const tscrypto::tsCryptoData& sessionId, const tscrypto::tsCryptoData& sessionKey) = 0; // http message level only
 	virtual bool startTunnel(const tscrypto::tsCryptoString& scheme, std::shared_ptr<ITcpChannel> channel, const tscrypto::tsCryptoString& username = "", const tscrypto::tsCryptoData& password = tscrypto::tsCryptoData()) = 0; // https/httpv message/tunnel 
+    // Added 7.0.55
+    virtual bool startTunnel(const tscrypto::tsCryptoString& scheme, std::shared_ptr<IMessageProcessorCallback> callbacks, const tscrypto::tsCryptoString& username = "", const tscrypto::tsCryptoData& password = tscrypto::tsCryptoData()) = 0; // https/httpv message/tunnel using a callback interface
 };
 
 VEILCORE_API std::shared_ptr<IHttpChannel> CreateHttpChannel();
 VEILCORE_API std::shared_ptr<IJsonChannel> CreateJsonChannel();
 VEILCORE_API std::shared_ptr<ITcpChannel> CreateTcpChannel();
+VEILCORE_API std::shared_ptr<IUdpConnection> CreateUdpConnection();
 VEILCORE_API tscrypto::tsCryptoString UrlEncode(const tscrypto::tsCryptoString& src);
 VEILCORE_API tscrypto::tsCryptoString UrlDecode(const tscrypto::tsCryptoString& src);

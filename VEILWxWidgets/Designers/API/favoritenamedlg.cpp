@@ -137,7 +137,7 @@ void FavoriteNameDlg::CreateControls()
     wxFlexGridSizer* itemFlexGridSizer2 = new wxFlexGridSizer(0, 1, 0, 0);
     itemDialog1->SetSizer(itemFlexGridSizer2);
 
-    wxStaticText* itemStaticText3 = new wxStaticText( itemDialog1, wxID_STATIC, _("Enter the name by which this favorite shall be known:"), wxDefaultPosition, wxDefaultSize, 0 );
+    wxStaticText* itemStaticText3 = new wxStaticText( itemDialog1, wxID_STATIC, _("Enter the name by which this favorite shall be known:"), wxDefaultPosition, wxSize(350, -1), 0 );
     itemFlexGridSizer2->Add(itemStaticText3, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
     edtName = new wxTextCtrl( itemDialog1, ID_NAME, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );

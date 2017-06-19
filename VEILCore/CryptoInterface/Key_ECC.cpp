@@ -35,17 +35,13 @@
 class Key_ECC : public EccKey, public TSName, public DhEccPrimitives, public tscrypto::ICryptoObject, public tscrypto::IInitializableObject, public AlgorithmInfo, public TSALG_Access
 {
 public:
-	Key_ECC() : keyPair(nullptr), m_validationReason(kvf_NoFailure)
+	Key_ECC() : m_validationReason(kvf_NoFailure)
 	{
 		desc = findEccAlgorithm("ECC-P256");
 	}
 	virtual ~Key_ECC(void)
 	{
-		if (desc != nullptr && keyPair != nullptr)
-		{
-			desc->freeKeyStructure(desc, keyPair);
-			keyPair = nullptr;
-		}
+        keyPair.reset();
 	}
 
 	// AssymetricKey
@@ -54,7 +50,7 @@ public:
 		if (desc != nullptr && keyPair != nullptr)
 		{
 			desc->clearKey(desc, keyPair);
-			keyPair = nullptr;
+			keyPair.reset();
 		}
 		m_validationReason = kvf_NoFailure;
 	}
@@ -487,11 +483,33 @@ public:
 			return false;
 		return desc->prehash_signatures;
 	}
-	virtual void set_signatureKey(bool /*setTo*/) override 
+	virtual void set_signatureKey(bool setTo) override 
 	{
+        if (setTo && !signatureKey())
+        {
+            if (desc != nullptr && desc->signingDescriptor != nullptr)
+            {
+                tsCryptoData data = toByteArray();
+                keyPair.reset();
+                desc = desc->signingDescriptor;
+                keyPair = desc->createKeyStructure(desc);
+                fromByteArray(data);
+            }
+        }
 	}
 	virtual void set_encryptionKey(bool /*setTo*/) override 
 	{
+        if (!encryptionKey())
+        {
+            if (desc != nullptr && desc->encryptionDescriptor != nullptr)
+            {
+                tsCryptoData data = toByteArray();
+                keyPair.reset();
+                desc = desc->encryptionDescriptor;
+                keyPair = desc->createKeyStructure(desc);
+                fromByteArray(data);
+            }
+        }
 	}
 
 	// EccKey
@@ -632,14 +650,28 @@ public:
 	}
 	virtual bool VerifySignatureForData(const tsCryptoData &data, const tsCryptoData &r, const tsCryptoData &s) const override
 	{
+        uint32_t keySizeInBytes;
+
 		if (!gFipsState.operational() || !HasPublicKey() || !desc->canSign)
 			return false;
 
+        keySizeInBytes = (desc->keySizeInBits + 7) / 8;
+        if (r.size() != keySizeInBytes || s.size() != keySizeInBytes)
+        {
+            tsCryptoData r1(r), s1(s);
+
+            if (r1.size() < keySizeInBytes)
+                r1.padLeft(keySizeInBytes);
+            if (s1.size() < keySizeInBytes)
+                s1.padLeft(keySizeInBytes);
+            return desc->verifySignatureForData(desc, keyPair, data.c_str(), (uint32_t)data.size(), r1.c_str(), (uint32_t)r1.size(), s1.c_str(), (uint32_t)s1.size());
+        }
+        else
 		return desc->verifySignatureForData(desc, keyPair, data.c_str(), (uint32_t)data.size(), r.c_str(), (uint32_t)r.size(), s.c_str(), (uint32_t)s.size());
 	}
 	virtual bool DH(const tsCryptoData &publicPoint, tsCryptoData &Z) const override
 	{
-		void* secondKey = nullptr;
+        SmartCryptoKey secondKey;
 		uint32_t len;
 		bool retVal;
 
@@ -650,14 +682,12 @@ public:
 		if (secondKey == nullptr || !desc->addPublicPoint(desc, secondKey, publicPoint.c_str(), (uint32_t)publicPoint.size()) ||
 			!desc->computeZ(desc, keyPair, secondKey, nullptr, &len))
 		{
-			desc->freeKeyStructure(desc, secondKey);
 			return false;
 		}
 		Z.clear();
 		Z.resize(len);
 		retVal = desc->computeZ(desc, keyPair, secondKey, Z.rawData(), &len);
 		Z.resize(len);
-		desc->freeKeyStructure(desc, secondKey);
 		if (!retVal)
 			Z.clear();
 		return retVal;
@@ -692,9 +722,7 @@ public:
 		if (TsStrniCmp(algorithm, "ED", 2) == 0)
 			algorithm.insert(0, "ECC-");
 		algorithm.Replace("X25519", "CURVE25519").Replace("_PH", "");
-		if (keyPair != nullptr)
-			desc->freeKeyStructure(desc, keyPair);
-		keyPair = nullptr;
+		keyPair.reset();
 		desc = findEccAlgorithm(algorithm.c_str());
 		if (desc == nullptr)
 			return false;
@@ -703,30 +731,27 @@ public:
 
 private:
 	const EccDescriptor* desc;
-	void *keyPair;
+	SmartCryptoKey keyPair;
 	tsalg_keyValidationFailureType m_validationReason;
 
 	// Inherited via TSALG_Access
-	virtual const void * Descriptor() const override
+	virtual const TSALG_Base_Descriptor * Descriptor() const override
 	{
 		return desc;
 	}
-	virtual void * getKeyPair() const override
+	virtual CRYPTO_ASYMKEY getKeyPair() const override
 	{
 		return keyPair;
 	}
-	virtual uint8_t * getWorkspace() const override
+	virtual CRYPTO_WORKSPACE getWorkspace() const override
 	{
 		return nullptr;
 	}
-	virtual void* detachFromKeyPair() override
+	virtual CRYPTO_ASYMKEY detachFromKeyPair() override
 	{
-		void* tmp = keyPair;
-
-		keyPair = nullptr;
-		return tmp;
+		return keyPair.detach();
 	}
-	virtual void* cloneKeyPair() const override
+	virtual CRYPTO_ASYMKEY cloneKeyPair() const override
 	{
 		if (desc == nullptr || keyPair == nullptr)
 			return nullptr;

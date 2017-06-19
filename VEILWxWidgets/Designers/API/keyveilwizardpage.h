@@ -66,7 +66,7 @@ class KeyVEILWizardPage;
  * KeyVEILWizardPage class declaration
  */
 
-class KeyVEILWizardPage: public wxWizardPage
+class KeyVEILWizardPage: public wxWizardPage, public ISkippablePage
 {    
     DECLARE_DYNAMIC_CLASS( KeyVEILWizardPage )
     DECLARE_EVENT_TABLE()
@@ -152,6 +152,9 @@ public:
     bool _initialized;
 
 	void updateControls();
+
+	// Inherited via ISkippablePage
+	virtual bool skipMe() override;
 };
 
 #endif

@@ -80,6 +80,9 @@ extern tsmod::IObject* CreateTcpMsgProcessor();
 
 extern tsmod::IObject* CreateNotifyPropertyChange();
 extern tsmod::IObject* CreatePropertyMap();
+extern tsmod::IObject* CreateCertificateValidator();
+extern tsmod::IObject* CreateBasicCertificateOptions();
+
 #ifdef _WIN32
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \fn BOOL APIENTRY DllMain( HMODULE , DWORD ul_reason_for_call, LPVOID )
@@ -118,7 +121,7 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 
 static void DoStartup()
 {
-	tsLog::DisallowLogs("ADMIN,SMARTCARD,WINSCARD,CKM7,KeyHlpr,HTTPLOG,HTTPSENT,SRVDATA,TUNNEL,AUTH,SERVICE,HTTPDATA,SSLSTATE");
+	tsLog::DisallowLogs("ADMIN,SMARTCARD,WINSCARD,CKM7,KeyHlpr,HTTPLOG,HTTPSENT,SRVDATA,TUNNEL,AUTH,SERVICE,HTTPDATA,SSLSTATE,CKMCRYPTO");
 #ifndef _WIN32
 	//hDllInstance = (XP_MODULE)(void*)&DoStartup;
 #endif // !_WIN32
@@ -164,6 +167,8 @@ std::shared_ptr<tsmod::IServiceLocator> TopServiceLocator()
 
 		g_ServiceLocator->AddClass("ResourceLoader", CreateResourceLoader);
 		g_ServiceLocator->AddClass("TcpMessageProcessor", CreateTcpMsgProcessor);
+		g_ServiceLocator->AddClass("CertificateValidator", CreateCertificateValidator);
+		g_ServiceLocator->AddClass("BASICCERTOPTIONS", CreateBasicCertificateOptions);
 
 		g_ServiceLocator->AddClass("NotifyPropertyChange", CreateNotifyPropertyChange);
 		g_ServiceLocator->AddClass("PropertyMap", CreatePropertyMap);
@@ -185,6 +190,8 @@ std::shared_ptr<tsmod::IServiceLocator> TopServiceLocator()
 			g_ServiceLocator->DeleteClass("Settings");
 			g_ServiceLocator->DeleteClass("ResourceLoader");
 			g_ServiceLocator->DeleteClass("TcpMessageProcessor");
+			g_ServiceLocator->DeleteClass("CertificateValidator");
+			g_ServiceLocator->DeleteClass("BASICCERTOPTIONS");
 			return true;
 		});
 		// Now run the crypto self-tests

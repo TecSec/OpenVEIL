@@ -143,6 +143,10 @@ void FavoriteSelectionPage::CreateControls()
 
 wxWizardPage* FavoriteSelectionPage::GetPrev() const
 {
+	ISkippablePage* tokPg = dynamic_cast<ISkippablePage*>(prevPage);
+
+	if (tokPg != nullptr && tokPg->skipMe())
+		return prevPage->GetPrev();
     return prevPage;
 }
 
@@ -153,6 +157,10 @@ wxWizardPage* FavoriteSelectionPage::GetPrev() const
 
 wxWizardPage* FavoriteSelectionPage::GetNext() const
 {
+	ISkippablePage* tokPg = dynamic_cast<ISkippablePage*>(nextPage);
+
+	if (tokPg != nullptr && tokPg->skipMe())
+		return nextPage->GetNext();
     return nextPage;
 }
 
@@ -164,6 +172,16 @@ wxWizardPage* FavoriteSelectionPage::GetNext() const
 bool FavoriteSelectionPage::ShowToolTips()
 {
     return true;
+}
+
+bool FavoriteSelectionPage::skipMe()
+{
+	AudienceSelector2* wiz = dynamic_cast<AudienceSelector2*>(GetParent());
+
+	if (wiz == nullptr || wiz->_vars == nullptr)
+		return false;
+
+	return wiz->_vars->_favoriteManager;
 }
 
 /*
@@ -202,12 +220,21 @@ void FavoriteSelectionPage::OnFavoriteSelectionPagePageChanged( wxWizardEvent& e
 	AudienceSelector2* wiz = dynamic_cast<AudienceSelector2*>(GetParent());
 
     event.Skip();
-
+	FindWindowById(wxID_FORWARD, this->GetParent())->Enable(true);
 	_cmbFavorites->Clear();
 
 	if (wiz != nullptr && wiz->_vars != nullptr)
 	{
 		GUID id = GUID_NULL;
+
+		if (!!wiz->_vars->_session && !!!wiz->_vars->_session->HasProfile())
+		{
+			wxBusyCursor busyCursor;
+			wxWindowDisabler disabler;
+			wxBusyInfo busyInfo(_("Retrieving token information..."));
+
+			wiz->_vars->_session->GetProfile();
+		}
 
 		if (!!wiz->_vars->_session && !!wiz->_vars->_session->GetProfile())
 			id = wiz->_vars->_session->GetProfile()->get_EnterpriseId();
@@ -239,6 +266,8 @@ void FavoriteSelectionPage::OnFavoriteSelectionPagePageChanging( wxWizardEvent& 
 	AudienceSelector2* wiz = dynamic_cast<AudienceSelector2*>(GetParent());
 
     event.Skip();
+	FindWindowById(wxID_FORWARD, this->GetParent())->Enable(true);
+
 	if (wiz == nullptr || wiz->_vars == nullptr || !wiz->_vars->_connector ||  !event.GetDirection())
 		return;
 	if (_cmbFavorites->GetSelection() >= 1)

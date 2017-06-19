@@ -44,6 +44,7 @@
 #include "core/tsThread.h"
 #include "TcpConnection.h"
 #include "TcpChannel.h"
+#include "UdpConnection.h"
 #include "core/cryptolocatorwriter.h"
 //#include "core/CryptoInterfacesInternal.h"
 //#include "core/CryptoAlgorithmsInternal.h"

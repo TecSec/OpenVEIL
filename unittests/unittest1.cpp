@@ -54,7 +54,7 @@ TEST(Crypto, SelfTest)
 
 TEST(Crypto, CreateAlgs)
 {
-	EXPECT_TRUE(!!CryptoFactory("DRBG-SHA512"));
+	//EXPECT_TRUE(!!CryptoFactory("DRBG-SHA512"));
 	EXPECT_TRUE(!!CryptoFactory("Sha1"));
 	EXPECT_TRUE(!!CryptoFactory("Sha224"));
 	EXPECT_TRUE(!!CryptoFactory("Sha256"));
@@ -175,15 +175,15 @@ TEST(Crypto, CreateAlgs)
 	EXPECT_TRUE(!!CryptoFactory("PRIME-PROVABLE"));
 	EXPECT_TRUE(!!CryptoFactory("PRIME-PROBABLE"));
 //	EXPECT_TRUE(!!CryptoFactory("PRIME-X9.31"));
-//	EXPECT_TRUE(!!CryptoFactory("PARAMETERSET-DH"));
-//	EXPECT_TRUE(!!CryptoFactory("KEY-DH"));
-//	EXPECT_TRUE(!!CryptoFactory("KEY-DSA"));
+	EXPECT_TRUE(!!CryptoFactory("PARAMETERSET-DH"));
+	EXPECT_TRUE(!!CryptoFactory("KEY-DH"));
+	EXPECT_TRUE(!!CryptoFactory("KEY-DSA"));
 	EXPECT_TRUE(!!CryptoFactory("KEY-RSA"));
 //	EXPECT_TRUE(!!CryptoFactory("KEY-RSA-X9.31"));
 //	EXPECT_TRUE(!!CryptoFactory("ENCODE-RSA-X9.31"));
 //	EXPECT_TRUE(!!CryptoFactory("ENCODE-RSA-PSS"));
 //	EXPECT_TRUE(!!CryptoFactory("ENCODE-RSA-PKCS"));
-	EXPECT_TRUE(!!CryptoFactory("ENCODE-RSA-ENCRYPT-PKCS"));
+	//EXPECT_TRUE(!!CryptoFactory("ENCODE-RSA-ENCRYPT-PKCS"));
 	EXPECT_TRUE(!!CryptoFactory("RSA-OAEP-SHA1"));
 	EXPECT_TRUE(!!CryptoFactory("RSA-OAEP-SHA224"));
 	EXPECT_TRUE(!!CryptoFactory("RSA-OAEP-SHA256"));
@@ -207,6 +207,7 @@ TEST(Crypto, CreateAlgs)
 	EXPECT_TRUE(!!CryptoFactory("SIGN-RSA-PSS-SHA384"));
 	EXPECT_TRUE(!!CryptoFactory("SIGN-RSA-PSS-SHA512"));
 	EXPECT_TRUE(!!CryptoFactory("KEY-P256"));
+    EXPECT_TRUE(!!CryptoFactory("KEY-P256K1"));
 	EXPECT_TRUE(!!CryptoFactory("KEY-P384"));
 	EXPECT_TRUE(!!CryptoFactory("KEY-P521"));
 	EXPECT_TRUE(!!CryptoFactory("SIGN-ECC-SHA1"));
@@ -453,25 +454,25 @@ TEST(Crypto, TDES_CFB8_MMT_Issue_c)
 	tsCryptoData ct1(std::initializer_list<uint8_t>{0x25});
 	tsCryptoData pt1(std::initializer_list<uint8_t>{0x48});
 	tsCryptoData outData;
-	tsCryptoData context;
+	SmartCryptoWorkspace context;
 
 	ASSERT_NE(nullptr, desc);
 
-	context.resize(desc->getWorkspaceSize(desc));
+	context = desc;
 	// First encrypt and make sure it works
 	outData.clear();
 	outData.resize(pt1.size());
-	EXPECT_TRUE(desc->init(desc, context.rawData(), true, key1.c_str(), (uint32_t)key1.size(), iv1.c_str(), (uint32_t)iv1.size(), 0));
-	EXPECT_TRUE(desc->update(desc, context.rawData(), pt1.c_str(), (uint32_t)ct1.size(), outData.rawData()));
-	EXPECT_TRUE(desc->finish(desc, context.rawData()));
+	EXPECT_TRUE(desc->init(desc, context, true, key1.c_str(), (uint32_t)key1.size(), iv1.c_str(), (uint32_t)iv1.size(), 0));
+	EXPECT_TRUE(desc->update(desc, context, pt1.c_str(), (uint32_t)ct1.size(), outData.rawData()));
+	EXPECT_TRUE(desc->finish(desc, context));
 	EXPECT_STREQ(ct1.ToHexStringWithSpaces().c_str(), outData.ToHexStringWithSpaces().c_str());
 
 	// Now see if the decrypt works
 	outData.clear();
 	outData.resize(ct1.size());
-	EXPECT_TRUE(desc->init(desc, context.rawData(), false, key1.c_str(), (uint32_t)key1.size(), iv1.c_str(), (uint32_t)iv1.size(), 0));
-	EXPECT_TRUE(desc->update(desc, context.rawData(), ct1.c_str(), (uint32_t)ct1.size(), outData.rawData()));
-	EXPECT_TRUE(desc->finish(desc, context.rawData()));
+	EXPECT_TRUE(desc->init(desc, context, false, key1.c_str(), (uint32_t)key1.size(), iv1.c_str(), (uint32_t)iv1.size(), 0));
+	EXPECT_TRUE(desc->update(desc, context, ct1.c_str(), (uint32_t)ct1.size(), outData.rawData()));
+	EXPECT_TRUE(desc->finish(desc, context));
 	EXPECT_STREQ(pt1.ToHexStringWithSpaces().c_str(), outData.ToHexStringWithSpaces().c_str());
 }
 
@@ -990,6 +991,417 @@ TEST(TestAsn1CkmHeader, Json) {
 	EXPECT_EQ(tscrypto::tsCryptoData(TEST_HEADER3, tscrypto::tsCryptoData::HEX), output);
 }
 #endif // TEST_JSON
+
+
+TEST(p256, KeyGenLoadVer)
+{
+    std::shared_ptr<EccKey> key = std::dynamic_pointer_cast<EccKey>(CryptoFactory("KEY-P256"));
+    std::shared_ptr<EccKey> key2 = std::dynamic_pointer_cast<EccKey>(CryptoFactory("KEY-P256"));
+    std::shared_ptr<Signer> signer = std::dynamic_pointer_cast<Signer>(CryptoFactory("SIGN-ECC-SHA512"));
+    tsCryptoData testData("90a58fd14742122245095d3b14e4b0a3772983857da23c6763cdc3701cd4a4caef21b1b7161c45b064b5a603e5a34e48", tsCryptoData::HEX);
+    tscrypto::tsCryptoData blob;
+    tscrypto::tsCryptoData signature;
+
+    EXPECT_TRUE(!!key);
+    EXPECT_TRUE(!!key2);
+    key->Clear();
+    EXPECT_TRUE(key->generateKeyPair(false));
+    blob = key->toByteArray();
+    key2->Clear();
+    EXPECT_TRUE(key2->fromByteArray(blob));
+    key2->set_encryptionKey(true);
+    EXPECT_TRUE(key2->ValidateKeys());
+
+    key->Clear();
+    EXPECT_TRUE(key->generateKeyPair(true));
+    blob = key->toByteArray();
+    key2->Clear();
+    EXPECT_TRUE(key2->fromByteArray(blob));
+    key2->set_signatureKey(true);
+    EXPECT_TRUE(key2->ValidateKeys());
+
+    EXPECT_TRUE(signer->initialize(key));
+    EXPECT_TRUE(signer->update(testData));
+    EXPECT_TRUE(signer->sign(signature));
+    EXPECT_TRUE(signer->finish());
+
+    EXPECT_TRUE(signer->initialize(key2));
+    EXPECT_TRUE(signer->update(testData));
+    EXPECT_TRUE(signer->verify(signature));
+    EXPECT_TRUE(signer->finish());
+}
+
+TEST(p256k1, KeyGenLoadVer)
+{
+    std::shared_ptr<EccKey> key = std::dynamic_pointer_cast<EccKey>(CryptoFactory("KEY-P256K1"));
+    std::shared_ptr<EccKey> key2 = std::dynamic_pointer_cast<EccKey>(CryptoFactory("KEY-P256K1"));
+    std::shared_ptr<Signer> signer = std::dynamic_pointer_cast<Signer>(CryptoFactory("SIGN-ECC-SHA512"));
+    tsCryptoData testData("90a58fd14742122245095d3b14e4b0a3772983857da23c6763cdc3701cd4a4caef21b1b7161c45b064b5a603e5a34e48", tsCryptoData::HEX);
+    tscrypto::tsCryptoData blob;
+    tscrypto::tsCryptoData signature;
+
+    EXPECT_TRUE(!!key);
+    EXPECT_TRUE(!!key2);
+    key->Clear();
+    EXPECT_TRUE(key->generateKeyPair(false));
+    blob = key->toByteArray();
+    key2->Clear();
+    EXPECT_TRUE(key2->fromByteArray(blob));
+    key2->set_encryptionKey(true);
+    EXPECT_TRUE(key2->ValidateKeys());
+
+    key->Clear();
+    EXPECT_TRUE(key->generateKeyPair(true));
+    blob = key->toByteArray();
+    key2->Clear();
+    EXPECT_TRUE(key2->fromByteArray(blob));
+    key2->set_signatureKey(true);
+    EXPECT_TRUE(key2->ValidateKeys());
+
+    EXPECT_TRUE(signer->initialize(key));
+    EXPECT_TRUE(signer->update(testData));
+    EXPECT_TRUE(signer->sign(signature));
+    EXPECT_TRUE(signer->finish());
+
+    EXPECT_TRUE(signer->initialize(key2));
+    EXPECT_TRUE(signer->update(testData));
+    EXPECT_TRUE(signer->verify(signature));
+    EXPECT_TRUE(signer->finish());
+}
+TEST(p384, KeyGenLoadVer)
+{
+    std::shared_ptr<EccKey> key = std::dynamic_pointer_cast<EccKey>(CryptoFactory("KEY-P384"));
+    std::shared_ptr<EccKey> key2 = std::dynamic_pointer_cast<EccKey>(CryptoFactory("KEY-P384"));
+    std::shared_ptr<Signer> signer = std::dynamic_pointer_cast<Signer>(CryptoFactory("SIGN-ECC-SHA512"));
+    tsCryptoData testData("90a58fd14742122245095d3b14e4b0a3772983857da23c6763cdc3701cd4a4caef21b1b7161c45b064b5a603e5a34e48", tsCryptoData::HEX);
+    tscrypto::tsCryptoData blob;
+    tscrypto::tsCryptoData signature;
+
+    EXPECT_TRUE(!!key);
+    EXPECT_TRUE(!!key2);
+    key->Clear();
+    EXPECT_TRUE(key->generateKeyPair(false));
+    blob = key->toByteArray();
+    key2->Clear();
+    EXPECT_TRUE(key2->fromByteArray(blob));
+    key2->set_encryptionKey(true);
+    EXPECT_TRUE(key2->ValidateKeys());
+
+    key->Clear();
+    EXPECT_TRUE(key->generateKeyPair(true));
+    blob = key->toByteArray();
+    key2->Clear();
+    EXPECT_TRUE(key2->fromByteArray(blob));
+    key2->set_signatureKey(true);
+    EXPECT_TRUE(key2->ValidateKeys());
+
+    EXPECT_TRUE(signer->initialize(key));
+    EXPECT_TRUE(signer->update(testData));
+    EXPECT_TRUE(signer->sign(signature));
+    EXPECT_TRUE(signer->finish());
+
+    EXPECT_TRUE(signer->initialize(key2));
+    EXPECT_TRUE(signer->update(testData));
+    EXPECT_TRUE(signer->verify(signature));
+    EXPECT_TRUE(signer->finish());
+}
+TEST(p521, KeyGenLoadVer)
+{
+    std::shared_ptr<EccKey> key = std::dynamic_pointer_cast<EccKey>(CryptoFactory("KEY-P521"));
+    std::shared_ptr<EccKey> key2 = std::dynamic_pointer_cast<EccKey>(CryptoFactory("KEY-P521"));
+    std::shared_ptr<Signer> signer = std::dynamic_pointer_cast<Signer>(CryptoFactory("SIGN-ECC-SHA512"));
+    tsCryptoData testData("90a58fd14742122245095d3b14e4b0a3772983857da23c6763cdc3701cd4a4caef21b1b7161c45b064b5a603e5a34e48", tsCryptoData::HEX);
+    tscrypto::tsCryptoData blob;
+    tscrypto::tsCryptoData signature;
+
+    EXPECT_TRUE(!!key);
+    EXPECT_TRUE(!!key2);
+    key->Clear();
+    EXPECT_TRUE(key->generateKeyPair(false));
+    blob = key->toByteArray();
+    key2->Clear();
+    EXPECT_TRUE(key2->fromByteArray(blob));
+    key2->set_encryptionKey(true);
+    EXPECT_TRUE(key2->ValidateKeys());
+
+    key->Clear();
+    EXPECT_TRUE(key->generateKeyPair(true));
+    blob = key->toByteArray();
+    key2->Clear();
+    EXPECT_TRUE(key2->fromByteArray(blob));
+    key2->set_signatureKey(true);
+    EXPECT_TRUE(key2->ValidateKeys());
+
+    EXPECT_TRUE(signer->initialize(key));
+    EXPECT_TRUE(signer->update(testData));
+    EXPECT_TRUE(signer->sign(signature));
+    EXPECT_TRUE(signer->finish());
+
+    EXPECT_TRUE(signer->initialize(key2));
+    EXPECT_TRUE(signer->update(testData));
+    EXPECT_TRUE(signer->verify(signature));
+    EXPECT_TRUE(signer->finish());
+}
+TEST(x25519, KeyGenLoadVer)
+{
+    std::shared_ptr<EccKey> key = std::dynamic_pointer_cast<EccKey>(CryptoFactory("X25519"));
+    std::shared_ptr<EccKey> key2 = std::dynamic_pointer_cast<EccKey>(CryptoFactory("X25519"));
+    std::shared_ptr<Signer> signer = std::dynamic_pointer_cast<Signer>(CryptoFactory("SIGN-ECC-SHA512"));
+    tsCryptoData testData("90a58fd14742122245095d3b14e4b0a3772983857da23c6763cdc3701cd4a4caef21b1b7161c45b064b5a603e5a34e48", tsCryptoData::HEX);
+    tscrypto::tsCryptoData blob;
+    tscrypto::tsCryptoData signature;
+
+    EXPECT_TRUE(!!key);
+    EXPECT_TRUE(!!key2);
+    key->Clear();
+    EXPECT_TRUE(key->generateKeyPair(false));
+    blob = key->toByteArray();
+    key2->Clear();
+    EXPECT_TRUE(key2->fromByteArray(blob));
+    key2->set_encryptionKey(true);
+    EXPECT_TRUE(key2->ValidateKeys());
+
+    key->Clear();
+    EXPECT_TRUE(key->generateKeyPair(true));
+    blob = key->toByteArray();
+    key2->Clear();
+    EXPECT_TRUE(key2->fromByteArray(blob));
+    key2->set_signatureKey(true);
+    EXPECT_TRUE(key2->ValidateKeys());
+
+    EXPECT_TRUE(signer->initialize(key));
+    EXPECT_TRUE(signer->update(testData));
+    EXPECT_TRUE(signer->sign(signature));
+    EXPECT_TRUE(signer->finish());
+
+    EXPECT_TRUE(signer->initialize(key2));
+    EXPECT_TRUE(signer->update(testData));
+    EXPECT_TRUE(signer->verify(signature));
+    EXPECT_TRUE(signer->finish());
+}
+TEST(NUMSP256D1, KeyGenLoadVer)
+{
+    std::shared_ptr<EccKey> key = std::dynamic_pointer_cast<EccKey>(CryptoFactory("NUMSP256D1"));
+    std::shared_ptr<EccKey> key2 = std::dynamic_pointer_cast<EccKey>(CryptoFactory("NUMSP256D1"));
+    std::shared_ptr<Signer> signer = std::dynamic_pointer_cast<Signer>(CryptoFactory("SIGN-ECC-SHA512"));
+    tsCryptoData testData("90a58fd14742122245095d3b14e4b0a3772983857da23c6763cdc3701cd4a4caef21b1b7161c45b064b5a603e5a34e48", tsCryptoData::HEX);
+    tscrypto::tsCryptoData blob;
+    tscrypto::tsCryptoData signature;
+
+    EXPECT_TRUE(!!key);
+    EXPECT_TRUE(!!key2);
+    key->Clear();
+    EXPECT_TRUE(key->generateKeyPair(false));
+    blob = key->toByteArray();
+    key2->Clear();
+    EXPECT_TRUE(key2->fromByteArray(blob));
+    key2->set_encryptionKey(true);
+    EXPECT_TRUE(key2->ValidateKeys());
+
+    key->Clear();
+    EXPECT_TRUE(key->generateKeyPair(true));
+    blob = key->toByteArray();
+    key2->Clear();
+    EXPECT_TRUE(key2->fromByteArray(blob));
+    key2->set_signatureKey(true);
+    EXPECT_TRUE(key2->ValidateKeys());
+
+    EXPECT_TRUE(signer->initialize(key));
+    EXPECT_TRUE(signer->update(testData));
+    EXPECT_TRUE(signer->sign(signature));
+    EXPECT_TRUE(signer->finish());
+
+    EXPECT_TRUE(signer->initialize(key2));
+    EXPECT_TRUE(signer->update(testData));
+    EXPECT_TRUE(signer->verify(signature));
+    EXPECT_TRUE(signer->finish());
+}
+TEST(NUMSP256T1, KeyGenLoadVer)
+{
+    std::shared_ptr<EccKey> key = std::dynamic_pointer_cast<EccKey>(CryptoFactory("NUMSP256T1"));
+    std::shared_ptr<EccKey> key2 = std::dynamic_pointer_cast<EccKey>(CryptoFactory("NUMSP256T1"));
+    std::shared_ptr<Signer> signer = std::dynamic_pointer_cast<Signer>(CryptoFactory("SIGN-ECC-SHA512"));
+    tsCryptoData testData("90a58fd14742122245095d3b14e4b0a3772983857da23c6763cdc3701cd4a4caef21b1b7161c45b064b5a603e5a34e48", tsCryptoData::HEX);
+    tscrypto::tsCryptoData blob;
+    tscrypto::tsCryptoData signature;
+
+    EXPECT_TRUE(!!key);
+    EXPECT_TRUE(!!key2);
+    key->Clear();
+    EXPECT_TRUE(key->generateKeyPair(false));
+    blob = key->toByteArray();
+    key2->Clear();
+    EXPECT_TRUE(key2->fromByteArray(blob));
+    key2->set_encryptionKey(true);
+    EXPECT_TRUE(key2->ValidateKeys());
+
+    key->Clear();
+    EXPECT_TRUE(key->generateKeyPair(true));
+    blob = key->toByteArray();
+    key2->Clear();
+    EXPECT_TRUE(key2->fromByteArray(blob));
+    key2->set_signatureKey(true);
+    EXPECT_TRUE(key2->ValidateKeys());
+
+    EXPECT_TRUE(signer->initialize(key));
+    EXPECT_TRUE(signer->update(testData));
+    EXPECT_TRUE(signer->sign(signature));
+    EXPECT_TRUE(signer->finish());
+
+    EXPECT_TRUE(signer->initialize(key2));
+    EXPECT_TRUE(signer->update(testData));
+    EXPECT_TRUE(signer->verify(signature));
+    EXPECT_TRUE(signer->finish());
+}
+TEST(NUMSP384D1, KeyGenLoadVer)
+{
+    std::shared_ptr<EccKey> key = std::dynamic_pointer_cast<EccKey>(CryptoFactory("NUMSP384D1"));
+    std::shared_ptr<EccKey> key2 = std::dynamic_pointer_cast<EccKey>(CryptoFactory("NUMSP384D1"));
+    std::shared_ptr<Signer> signer = std::dynamic_pointer_cast<Signer>(CryptoFactory("SIGN-ECC-SHA512"));
+    tsCryptoData testData("90a58fd14742122245095d3b14e4b0a3772983857da23c6763cdc3701cd4a4caef21b1b7161c45b064b5a603e5a34e48", tsCryptoData::HEX);
+    tscrypto::tsCryptoData blob;
+    tscrypto::tsCryptoData signature;
+
+    EXPECT_TRUE(!!key);
+    EXPECT_TRUE(!!key2);
+    key->Clear();
+    EXPECT_TRUE(key->generateKeyPair(false));
+    blob = key->toByteArray();
+    key2->Clear();
+    EXPECT_TRUE(key2->fromByteArray(blob));
+    key2->set_encryptionKey(true);
+    EXPECT_TRUE(key2->ValidateKeys());
+
+    key->Clear();
+    EXPECT_TRUE(key->generateKeyPair(true));
+    blob = key->toByteArray();
+    key2->Clear();
+    EXPECT_TRUE(key2->fromByteArray(blob));
+    key2->set_signatureKey(true);
+    EXPECT_TRUE(key2->ValidateKeys());
+
+    EXPECT_TRUE(signer->initialize(key));
+    EXPECT_TRUE(signer->update(testData));
+    EXPECT_TRUE(signer->sign(signature));
+    EXPECT_TRUE(signer->finish());
+
+    EXPECT_TRUE(signer->initialize(key2));
+    EXPECT_TRUE(signer->update(testData));
+    EXPECT_TRUE(signer->verify(signature));
+    EXPECT_TRUE(signer->finish());
+}
+TEST(NUMSP384T1, KeyGenLoadVer)
+{
+    std::shared_ptr<EccKey> key = std::dynamic_pointer_cast<EccKey>(CryptoFactory("NUMSP384T1"));
+    std::shared_ptr<EccKey> key2 = std::dynamic_pointer_cast<EccKey>(CryptoFactory("NUMSP384T1"));
+    std::shared_ptr<Signer> signer = std::dynamic_pointer_cast<Signer>(CryptoFactory("SIGN-ECC-SHA512"));
+    tsCryptoData testData("90a58fd14742122245095d3b14e4b0a3772983857da23c6763cdc3701cd4a4caef21b1b7161c45b064b5a603e5a34e48", tsCryptoData::HEX);
+    tscrypto::tsCryptoData blob;
+    tscrypto::tsCryptoData signature;
+
+    EXPECT_TRUE(!!key);
+    EXPECT_TRUE(!!key2);
+    key->Clear();
+    EXPECT_TRUE(key->generateKeyPair(false));
+    blob = key->toByteArray();
+    key2->Clear();
+    EXPECT_TRUE(key2->fromByteArray(blob));
+    key2->set_encryptionKey(true);
+    EXPECT_TRUE(key2->ValidateKeys());
+
+    key->Clear();
+    EXPECT_TRUE(key->generateKeyPair(true));
+    blob = key->toByteArray();
+    key2->Clear();
+    EXPECT_TRUE(key2->fromByteArray(blob));
+    key2->set_signatureKey(true);
+    EXPECT_TRUE(key2->ValidateKeys());
+
+    EXPECT_TRUE(signer->initialize(key));
+    EXPECT_TRUE(signer->update(testData));
+    EXPECT_TRUE(signer->sign(signature));
+    EXPECT_TRUE(signer->finish());
+
+    EXPECT_TRUE(signer->initialize(key2));
+    EXPECT_TRUE(signer->update(testData));
+    EXPECT_TRUE(signer->verify(signature));
+    EXPECT_TRUE(signer->finish());
+}
+TEST(NUMSP512D1, KeyGenLoadVer)
+{
+    std::shared_ptr<EccKey> key = std::dynamic_pointer_cast<EccKey>(CryptoFactory("NUMSP512D1"));
+    std::shared_ptr<EccKey> key2 = std::dynamic_pointer_cast<EccKey>(CryptoFactory("NUMSP512D1"));
+    std::shared_ptr<Signer> signer = std::dynamic_pointer_cast<Signer>(CryptoFactory("SIGN-ECC-SHA512"));
+    tsCryptoData testData("90a58fd14742122245095d3b14e4b0a3772983857da23c6763cdc3701cd4a4caef21b1b7161c45b064b5a603e5a34e48", tsCryptoData::HEX);
+    tscrypto::tsCryptoData blob;
+    tscrypto::tsCryptoData signature;
+
+    EXPECT_TRUE(!!key);
+    EXPECT_TRUE(!!key2);
+    key->Clear();
+    EXPECT_TRUE(key->generateKeyPair(false));
+    blob = key->toByteArray();
+    key2->Clear();
+    EXPECT_TRUE(key2->fromByteArray(blob));
+    key2->set_encryptionKey(true);
+    EXPECT_TRUE(key2->ValidateKeys());
+
+    key->Clear();
+    EXPECT_TRUE(key->generateKeyPair(true));
+    blob = key->toByteArray();
+    key2->Clear();
+    EXPECT_TRUE(key2->fromByteArray(blob));
+    key2->set_signatureKey(true);
+    EXPECT_TRUE(key2->ValidateKeys());
+
+    EXPECT_TRUE(signer->initialize(key));
+    EXPECT_TRUE(signer->update(testData));
+    EXPECT_TRUE(signer->sign(signature));
+    EXPECT_TRUE(signer->finish());
+
+    EXPECT_TRUE(signer->initialize(key2));
+    EXPECT_TRUE(signer->update(testData));
+    EXPECT_TRUE(signer->verify(signature));
+    EXPECT_TRUE(signer->finish());
+}
+TEST(NUMSP512T1, KeyGenLoadVer)
+{
+    std::shared_ptr<EccKey> key = std::dynamic_pointer_cast<EccKey>(CryptoFactory("NUMSP512T1"));
+    std::shared_ptr<EccKey> key2 = std::dynamic_pointer_cast<EccKey>(CryptoFactory("NUMSP512T1"));
+    std::shared_ptr<Signer> signer = std::dynamic_pointer_cast<Signer>(CryptoFactory("SIGN-ECC-SHA512"));
+    tsCryptoData testData("90a58fd14742122245095d3b14e4b0a3772983857da23c6763cdc3701cd4a4caef21b1b7161c45b064b5a603e5a34e48", tsCryptoData::HEX);
+    tscrypto::tsCryptoData blob;
+    tscrypto::tsCryptoData signature;
+
+    EXPECT_TRUE(!!key);
+    EXPECT_TRUE(!!key2);
+    key->Clear();
+    EXPECT_TRUE(key->generateKeyPair(false));
+    blob = key->toByteArray();
+    key2->Clear();
+    EXPECT_TRUE(key2->fromByteArray(blob));
+    key2->set_encryptionKey(true);
+    EXPECT_TRUE(key2->ValidateKeys());
+
+    key->Clear();
+    EXPECT_TRUE(key->generateKeyPair(true));
+    blob = key->toByteArray();
+    key2->Clear();
+    EXPECT_TRUE(key2->fromByteArray(blob));
+    key2->set_signatureKey(true);
+    EXPECT_TRUE(key2->ValidateKeys());
+
+    EXPECT_TRUE(signer->initialize(key));
+    EXPECT_TRUE(signer->update(testData));
+    EXPECT_TRUE(signer->sign(signature));
+    EXPECT_TRUE(signer->finish());
+
+    EXPECT_TRUE(signer->initialize(key2));
+    EXPECT_TRUE(signer->update(testData));
+    EXPECT_TRUE(signer->verify(signature));
+    EXPECT_TRUE(signer->finish());
+}
+
 
 class myEnv : public ::testing::Environment{
 public:

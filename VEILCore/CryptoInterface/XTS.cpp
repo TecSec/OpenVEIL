@@ -44,7 +44,6 @@ public:
 	}    
 	virtual ~XTSImpl(void)
 	{
-		m_context.clear();
 		desc = nullptr;
 	}
 
@@ -60,8 +59,8 @@ public:
 
 		m_keySizeInBits = (int)key.size() * 8;
 
-		m_context.clear();
-		m_context.resize(desc->getWorkspaceSize(desc));
+		m_context.reset();
+		m_context = desc;
 		m_forEncrypt = forEncrypt;
 
 		tsCryptoString name(m_baseName);
@@ -69,7 +68,7 @@ public:
 		name.append((key.size() * 8));
 		SetName(name);
 
-		return desc->init(desc, m_context.rawData(), key.c_str(), (uint32_t)key.size());
+		return desc->init(desc, m_context, key.c_str(), (uint32_t)key.size());
 	}
 	virtual bool update(tsCryptoData &sector, size_t sectorSizeInBits, const tsCryptoData &sectorAddress) override
 	{
@@ -92,11 +91,11 @@ public:
 		bool retVal;
 		if (m_forEncrypt)
 		{
-			retVal = desc->encrypt(desc, m_context.rawData(), sector.rawData(), (unsigned int)sectorSizeInBits, sectorAddress.c_str());
+			retVal = desc->encrypt(desc, m_context, sector.rawData(), (unsigned int)sectorSizeInBits, sectorAddress.c_str());
 		}
 		else
 		{
-			retVal = desc->decrypt(desc, m_context.rawData(), sector.rawData(), (unsigned int)sectorSizeInBits, sectorAddress.c_str());
+			retVal = desc->decrypt(desc, m_context, sector.rawData(), (unsigned int)sectorSizeInBits, sectorAddress.c_str());
 		}
 		if (!retVal)
 		{
@@ -134,8 +133,8 @@ public:
 		if (m_context.empty())
 			return false;
 
-		bool retVal = desc->finish(desc, m_context.rawData());
-		m_context.clear();
+		bool retVal = desc->finish(desc, m_context);
+		m_context.reset();
 		m_keySizeInBits = 0;
 		return retVal;
 	}
@@ -207,7 +206,7 @@ protected:
 #endif // 0
 
 private:
-    tsCryptoData m_context;
+    SmartCryptoWorkspace m_context;
 	const XTS_Descriptor* desc;
     bool m_forEncrypt;
     tsCryptoString m_baseName;
@@ -220,7 +219,7 @@ private:
 		tsCryptoStringList parts;
 
 		desc = nullptr;
-		m_context.clear();
+		m_context.reset();
 		SetName(algorithm);
 		parts = algorithm.split('-');
 		if (parts->size() == 1)

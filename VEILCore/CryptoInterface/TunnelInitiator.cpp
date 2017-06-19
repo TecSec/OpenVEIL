@@ -46,9 +46,6 @@ public:
 	virtual ~TunnelInitiatorImpl(void)
 	{
 		StopTunnel();
-		if (desc != nullptr && !workspace.empty())
-			desc->finish(desc, workspace.rawData());
-		workspace.clear();
 	}
 
 	// Selftests
@@ -81,7 +78,7 @@ public:
 		pVal = 0;
 		if (desc == nullptr)
 			return false;
-		pVal = desc->getMessageAuthBitSize(desc, workspace.rawData());
+		pVal = desc->getMessageAuthBitSize(desc, workspace);
 		return true;
 	}
 	virtual bool GetMessageAuth(tsCryptoData& pVal) override
@@ -90,11 +87,11 @@ public:
 
 		if (desc == nullptr || workspace.empty())
 			return false;
-		if (!desc->getMessageAuth(desc, workspace.rawData(), nullptr, &len) || len == 0)
+		if (!desc->getMessageAuth(desc, workspace, nullptr, &len) || len == 0)
 			return false;
 
 		pVal.resize(len);
-		if (!desc->getMessageAuth(desc, workspace.rawData(), pVal.rawData(), &len) || len == 0)
+		if (!desc->getMessageAuth(desc, workspace, pVal.rawData(), &len) || len == 0)
 			return false;
 		pVal.resize(len);
 		return true;
@@ -103,7 +100,7 @@ public:
 	{
 		if (desc == nullptr || workspace.empty())
 			return false;
-		return desc->tunnelActive(desc, workspace.rawData());
+		return desc->tunnelActive(desc, workspace);
 	}
 	virtual bool StartTunnel(const char* username, authenticationInitiatorTunnelKeyHandler* authHandler, authenticationControlDataCommunications* ctrlChannel) override
 	{
@@ -112,19 +109,19 @@ public:
 
 		if (workspace.empty())
 		{
-			workspace.resize(desc->getWorkspaceSize(desc));
-			if (!desc->configure(desc, workspace.rawData(), _encAlg.c_str(), _tagAlg.c_str(), _kdfAlg.c_str(), _kdfMacAlg.c_str()))
+			workspace = desc;
+			if (!desc->configure(desc, workspace, _encAlg.c_str(), _tagAlg.c_str(), _kdfAlg.c_str(), _kdfMacAlg.c_str()))
 				return false;
 			// Establish callbacks here
 
-			if (!desc->set_sendControlDataFunction(desc, workspace.rawData(), this, &ctrl_sendControlData) ||
-				!desc->set_sendReceivedDataFunction(desc, workspace.rawData(), this, &ctrl_sendReceivedData) ||
-				!desc->set_stateChangedFunction(desc, workspace.rawData(), this, &event_stateChanged) ||
-				!desc->set_failedEventFunction(desc, workspace.rawData(), this, &event_failed) ||
-				!desc->set_loggedOutEventFunction(desc, workspace.rawData(), this, &event_loggedOut) ||
-				!desc->set_AuthInfoFunction(desc, workspace.rawData(), this, &getAuthenticationInformationFn) ||
-				!desc->set_onPacketReceived(desc, workspace.rawData(), this, &onPacketReceived) ||
-				!desc->set_onPacketSent(desc, workspace.rawData(), this, &onPacketSent)
+			if (!desc->set_sendControlDataFunction(desc, workspace, this, &ctrl_sendControlData) ||
+				!desc->set_sendReceivedDataFunction(desc, workspace, this, &ctrl_sendReceivedData) ||
+				!desc->set_stateChangedFunction(desc, workspace, this, &event_stateChanged) ||
+				!desc->set_failedEventFunction(desc, workspace, this, &event_failed) ||
+				!desc->set_loggedOutEventFunction(desc, workspace, this, &event_loggedOut) ||
+				!desc->set_AuthInfoFunction(desc, workspace, this, &getAuthenticationInformationFn) ||
+				!desc->set_onPacketReceived(desc, workspace, this, &onPacketReceived) ||
+				!desc->set_onPacketSent(desc, workspace, this, &onPacketSent)
 				)
 			{
 				return false;
@@ -134,7 +131,7 @@ public:
 		_keyHandler = authHandler;
 		_ctrlChannel = ctrlChannel;
 
-		if (!desc->startTunnel(desc, workspace.rawData(), username))
+		if (!desc->startTunnel(desc, workspace, username))
 			return false;
 		return true;
 	}
@@ -145,21 +142,21 @@ public:
 
 		_keyHandler = nullptr;
 		_ctrlChannel = nullptr;
-		return desc->stopTunnel(desc, workspace.rawData());
+		return desc->stopTunnel(desc, workspace);
 	}
 	virtual bool Logout() override
 	{
 		if (desc == nullptr || workspace.empty())
 			return false;
 
-		return desc->logout(desc, workspace.rawData());
+		return desc->logout(desc, workspace);
 	}
 	virtual bool ReceiveData(const tsCryptoData& src) override
 	{
 		if (desc == nullptr || workspace.empty())
 			return false;
 
-		if (!desc->receiveData(desc, workspace.rawData(), src.c_str(), (uint32_t)src.size()))
+		if (!desc->receiveData(desc, workspace, src.c_str(), (uint32_t)src.size()))
 			return false;
 		
 		return true;
@@ -169,7 +166,7 @@ public:
 		if (desc == nullptr || workspace.empty())
 			return false;
 
-		if (!desc->sendData(desc, workspace.rawData(), src.c_str(), (uint32_t)src.size()))
+		if (!desc->sendData(desc, workspace, src.c_str(), (uint32_t)src.size()))
 			return false;
 
 		return true;
@@ -179,7 +176,7 @@ public:
 		if (desc == nullptr || workspace.empty())
 			return false;
 
-		tsCryptoData OID(desc->getMessageEncryptionOID(desc, workspace.rawData()), tsCryptoData::OID);
+		tsCryptoData OID(desc->getMessageEncryptionOID(desc, workspace), tsCryptoData::OID);
 		if (OID.empty())
 			return false;
 
@@ -192,7 +189,7 @@ public:
 		if (desc == nullptr || workspace.empty())
 			return false;
 
-		tsCryptoData OID(desc->getMessageHashOID(desc, workspace.rawData()), tsCryptoData::OID);
+		tsCryptoData OID(desc->getMessageHashOID(desc, workspace), tsCryptoData::OID);
 		if (OID.empty())
 			return false;
 
@@ -200,7 +197,7 @@ public:
 		alg.set_oid(OID);
 		return true;
 	}
-	virtual bool SetOnPacketRecievedCallback(std::function<void(uint8_t packetType, const uint8_t* data, uint32_t dataLen)> func)
+	virtual bool SetOnPacketReceivedCallback(std::function<void(uint8_t packetType, const uint8_t* data, uint32_t dataLen)> func)
 	{
 		_packetReceivedFn = func;
 		return true;
@@ -267,7 +264,7 @@ public:
 
 private:
 	const CkmTunnelInitiator_Descriptor* desc;
-	tsCryptoData workspace;
+    SmartCryptoWorkspace workspace;
 	tsCryptoString _encAlg;
 	tsCryptoString _tagAlg;
 	tsCryptoString _kdfAlg;
@@ -277,7 +274,7 @@ private:
 	std::function<void(uint8_t packetType, const uint8_t* data, uint32_t dataLen)> _packetReceivedFn;
 	std::function<void(uint8_t packetType, const uint8_t* data, uint32_t dataLen)> _packetSentFn;
 
-	static ts_bool ctrl_sendControlData(const struct CkmTunnelInitiator_Descriptor* desc, uint8_t* workspace, void *params, const uint8_t* dest, uint32_t dataLen)
+	static ts_bool ctrl_sendControlData(const struct CkmTunnelInitiator_Descriptor* desc, CRYPTO_WORKSPACE workspace, void *params, const uint8_t* dest, uint32_t dataLen)
 	{
 		TunnelInitiatorImpl* This = (TunnelInitiatorImpl*)params;
 		tsCryptoData tmp(dest, dataLen);
@@ -285,7 +282,7 @@ private:
 			return ts_false;
 		return This->_ctrlChannel->sendControlData(tmp);
 	}
-	static ts_bool ctrl_sendReceivedData(const struct CkmTunnelInitiator_Descriptor* desc, uint8_t* workspace, void *params, const uint8_t* dest, uint32_t dataLen)
+	static ts_bool ctrl_sendReceivedData(const struct CkmTunnelInitiator_Descriptor* desc, CRYPTO_WORKSPACE workspace, void *params, const uint8_t* dest, uint32_t dataLen)
 	{
 		TunnelInitiatorImpl* This = (TunnelInitiatorImpl*)params;
 		tsCryptoData tmp(dest, dataLen);
@@ -293,28 +290,28 @@ private:
 			return ts_false;
 		return This->_ctrlChannel->sendReceivedData(tmp);
 	}
-	static void event_stateChanged(const struct CkmTunnelInitiator_Descriptor* desc, uint8_t* workspace, void* params, ts_bool isActive, uint32_t currentState)
+	static void event_stateChanged(const struct CkmTunnelInitiator_Descriptor* desc, CRYPTO_WORKSPACE workspace, void* params, ts_bool isActive, uint32_t currentState)
 	{
 		TunnelInitiatorImpl* This = (TunnelInitiatorImpl*)params;
 		if (This == nullptr || This->_ctrlChannel == nullptr)
 			return;
 		return This->_ctrlChannel->stateChanged(isActive, currentState);
 	}
-	static void event_failed(const struct CkmTunnelInitiator_Descriptor* desc, uint8_t* workspace, void* params, const char *message)
+	static void event_failed(const struct CkmTunnelInitiator_Descriptor* desc, CRYPTO_WORKSPACE workspace, void* params, const char *message)
 	{
 		TunnelInitiatorImpl* This = (TunnelInitiatorImpl*)params;
 		if (This == nullptr || This->_ctrlChannel == nullptr)
 			return;
 		return This->_ctrlChannel->failed(message);
 	}
-	static void event_loggedOut(const struct CkmTunnelInitiator_Descriptor* desc, uint8_t* workspace, void* params)
+	static void event_loggedOut(const struct CkmTunnelInitiator_Descriptor* desc, CRYPTO_WORKSPACE workspace, void* params)
 	{
 		TunnelInitiatorImpl* This = (TunnelInitiatorImpl*)params;
 		if (This == nullptr || This->_ctrlChannel == nullptr)
 			return;
 		return This->_ctrlChannel->loggedOut();
 	}
-	static ts_bool getAuthenticationInformationFn(const struct CkmTunnelInitiator_Descriptor* desc, uint8_t* workspace, void* params, 
+	static ts_bool getAuthenticationInformationFn(const struct CkmTunnelInitiator_Descriptor* desc, CRYPTO_WORKSPACE workspace, void* params,
 		const uint8_t* serverRequirements, uint32_t serverRequirementsLen, uint8_t* pVal, uint32_t* pValLen)
 	{
 		TunnelInitiatorImpl* This = (TunnelInitiatorImpl*)params;
@@ -338,14 +335,14 @@ private:
 		memcpy(pVal, outTmp.c_str(), *pValLen);
 		return ts_true;
 	}
-	static void onPacketReceived(const struct CkmTunnelInitiator_Descriptor* desc, uint8_t* workspace, void* params, uint8_t packetType, const uint8_t* packetData, uint32_t packetDataLen)
+	static void onPacketReceived(const struct CkmTunnelInitiator_Descriptor* desc, CRYPTO_WORKSPACE workspace, void* params, uint8_t packetType, const uint8_t* packetData, uint32_t packetDataLen)
 	{
 		TunnelInitiatorImpl* This = (TunnelInitiatorImpl*)params;
 		if (This == nullptr || !This->_packetReceivedFn)
 			return;
 		This->_packetReceivedFn(packetType, packetData, packetDataLen);
 	}
-	static void onPacketSent(const struct CkmTunnelInitiator_Descriptor* desc, uint8_t* workspace, void* params, uint8_t packetType, const uint8_t* packetData, uint32_t packetDataLen)
+	static void onPacketSent(const struct CkmTunnelInitiator_Descriptor* desc, CRYPTO_WORKSPACE workspace, void* params, uint8_t packetType, const uint8_t* packetData, uint32_t packetDataLen)
 	{
 		TunnelInitiatorImpl* This = (TunnelInitiatorImpl*)params;
 		if (This == nullptr || !This->_packetSentFn)

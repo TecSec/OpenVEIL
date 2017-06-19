@@ -42,7 +42,7 @@ public:
 		calc = (const CkmAuthCalc_Descriptor *)findCkmAlgorithm("CKMAUTH-CALC");
 		macName = "HMAC-SHA512";
 		hashName = "SHA512";
-		workspace.resize(calc->getWorkspaceSize(calc));
+		workspace = calc;
 		_pbkdfHashAlg = "HMAC-SHA512";
 	}
 	virtual ~ServerAuthenticationCalculatorPbkdfImpl(void)
@@ -91,14 +91,14 @@ public:
 		if (!TSGenerateRandom(seed, 32))
 			return false;
 
-		if (!calc->init_pbkdf(calc, workspace.rawData(), _pbkdfHashAlg.c_str(), iterCount, seed.c_str(), (uint32_t)seed.size()))
+		if (!calc->init_pbkdf(calc, workspace, _pbkdfHashAlg.c_str(), iterCount, seed.c_str(), (uint32_t)seed.size()))
 		{
 			return false;
 		}
 
 		storedKey.resize(storedKeyLen);
 		authenticationParameters.resize(authOutputLen);
-		if (!calc->computeServerAuth(calc, workspace.rawData(), macName.c_str(), hashName.c_str(), authInfo.c_str(), (uint32_t)authInfo.size(), authenticationParameters.rawData(), &authOutputLen, storedKey.rawData(), &storedKeyLen))
+		if (!calc->computeServerAuth(calc, workspace, macName.c_str(), hashName.c_str(), authInfo.c_str(), (uint32_t)authInfo.size(), authenticationParameters.rawData(), &authOutputLen, storedKey.rawData(), &storedKeyLen))
 		{
 			storedKey.clear();
 			authenticationParameters.clear();
@@ -122,8 +122,8 @@ public:
 
 		salt = params.get_params().get_Pbkdf().get_Salt();
 		return 
-			calc->init_pbkdf(calc, workspace.rawData(), _pbkdfHashAlg.c_str(), params.get_params().get_Pbkdf().get_IterationCount(), salt.c_str(), (uint32_t)salt.size()) &&
-		    calc->validateServerAuth(calc, workspace.rawData(), macName.c_str(), hashName.c_str(), authInfo.c_str(), (uint32_t)authInfo.size(), storedKey.c_str(), (uint32_t)storedKey.size());
+			calc->init_pbkdf(calc, workspace, _pbkdfHashAlg.c_str(), params.get_params().get_Pbkdf().get_IterationCount(), salt.c_str(), (uint32_t)salt.size()) &&
+		    calc->validateServerAuth(calc, workspace, macName.c_str(), hashName.c_str(), authInfo.c_str(), (uint32_t)authInfo.size(), storedKey.c_str(), (uint32_t)storedKey.size());
 	}
 
 	// tscrypto::IInitializableObject
@@ -153,7 +153,7 @@ private:
 	const CkmAuthCalc_Descriptor *calc;
 	tsCryptoString macName;
 	tsCryptoString hashName;
-	tsCryptoData workspace;
+    SmartCryptoWorkspace workspace;
 	tsCryptoString _pbkdfHashAlg;
 };
 

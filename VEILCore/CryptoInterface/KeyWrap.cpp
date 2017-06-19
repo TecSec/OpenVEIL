@@ -62,7 +62,7 @@ public:
 		name += "-";
 		name.append((key.size() * 8));
 		SetName(name);
-		return desc->init(desc, workspace.rawData(), key.c_str(), (uint32_t)key.size());
+		return desc->init(desc, workspace, key.c_str(), (uint32_t)key.size());
 	}
 	virtual bool initializeWithAsymmetricKey(std::shared_ptr<tscrypto::ICryptoObject>& key)
 	{
@@ -78,12 +78,12 @@ public:
 		if (!gFipsState.operational() || desc == nullptr || workspace.empty())
 			return false;
 
-		if (!desc->wrap(desc, workspace.rawData(), inputData.c_str(), inLen, pad.c_str(), (uint32_t)pad.size(), nullptr, &len))
+		if (!desc->wrap(desc, workspace, inputData.c_str(), inLen, pad.c_str(), (uint32_t)pad.size(), nullptr, &len))
 			return false;
 
 		outputData.resize(len);
 
-		if (!desc->wrap(desc, workspace.rawData(), inputData.c_str(), inLen, pad.c_str(), (uint32_t)pad.size(), outputData.rawData(), &len))
+		if (!desc->wrap(desc, workspace, inputData.c_str(), inLen, pad.c_str(), (uint32_t)pad.size(), outputData.rawData(), &len))
 		{
 			outputData.clear();
 			return false;
@@ -101,12 +101,12 @@ public:
 		if (!gFipsState.operational() || desc == nullptr || workspace.empty())
 			return false;
 
-		if (!desc->unwrap(desc, workspace.rawData(), inputData.c_str(), inLen, pad.c_str(), (uint32_t)pad.size(), nullptr, &len))
+		if (!desc->unwrap(desc, workspace, inputData.c_str(), inLen, pad.c_str(), (uint32_t)pad.size(), nullptr, &len))
 			return false;
 
 		outputData.resize(len);
 
-		if (!desc->unwrap(desc, workspace.rawData(), inputData.c_str(), inLen, pad.c_str(), (uint32_t)pad.size(), outputData.rawData(), &len))
+		if (!desc->unwrap(desc, workspace, inputData.c_str(), inLen, pad.c_str(), (uint32_t)pad.size(), outputData.rawData(), &len))
 		{
 			outputData.clear();
 			return false;
@@ -121,14 +121,14 @@ public:
 		if (desc == nullptr || workspace.empty())
 			return false;
 
-		return desc->canWrap(desc, workspace.rawData(), keyToWrap.c_str(), (uint32_t)keyToWrap.size());
+		return desc->canWrap(desc, workspace, keyToWrap.c_str(), (uint32_t)keyToWrap.size());
 	}
 	virtual bool CanUnwrap(const tsCryptoData &keyToUnwrap) override
 	{
 		if (desc == nullptr || workspace.empty())
 			return false;
 
-		return desc->canUnwrap(desc, workspace.rawData(), keyToUnwrap.c_str(), (uint32_t)keyToUnwrap.size());
+		return desc->canUnwrap(desc, workspace, keyToUnwrap.c_str(), (uint32_t)keyToUnwrap.size());
 	}
 	virtual size_t minimumKeySizeInBits() const override
 	{
@@ -208,14 +208,14 @@ public:
 		}
 		if (desc == nullptr)
 			return false;
-		workspace.resize(desc->getWorkspaceSize(desc));
+		workspace = desc;
 		SetName(algorithm);
 		return true;
 	}
 
 private:
 	const KeyTransport_Descriptor* desc;
-	tsCryptoData workspace;
+    SmartCryptoWorkspace workspace;
 };
 
 tscrypto::ICryptoObject* CreateKeyWrap()

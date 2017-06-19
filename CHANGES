@@ -42,3 +42,8 @@ Changes for 1/27/2016
 
 Changes for 7.0.41
  * Updated for the new C crypto library TSALG
+
+ Changes for 7.0.56
+ * Support for UDP clients
+ * Numerous changes for the newer crypto API (adds some type safety)
+ * Assorted bug fixes

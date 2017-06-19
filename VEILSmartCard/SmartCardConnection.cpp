@@ -879,6 +879,41 @@ public:
 			return 0;
 		return _card->Status();
 	}
+    virtual void OperationFailed(const tscrypto::tsCryptoString& message)
+    {
+        m_command.Command = SmartCardCommand::scc_OperationFailed;
+        m_command.Data = message.ToUTF8Data();
+
+        LOG(debugSmartCard, "Operation failed with message '" << message << "'");
+        if (!!_detailLogger)
+            _detailLogger(tsCryptoString("    ;+ Operation failed with message '") + message + "'");
+
+        _stillProcessing = false;
+
+        PrepareForCommand();
+        DoCommand();
+        m_firstCommand = true;
+        _connectionActive = false;
+        m_failed = true;
+    }
+    virtual void CardUpdated(const tscrypto::tsCryptoString& message)
+    {
+        if (m_failed)
+            return;
+        m_command.Command = SmartCardCommand::scc_CardUpdated;
+        m_command.Data = message.ToUTF8Data();
+
+        LOG(debugSmartCard, "Card updated");
+        if (!!_detailLogger)
+            _detailLogger("    ;+ Card updated");
+
+        _stillProcessing = false;
+
+        PrepareForCommand();
+        DoCommand();
+        m_firstCommand = true;
+        _connectionActive = false;
+    }
 
 protected:
 	// If we are doing single threaded communications then these three functions have the following use:

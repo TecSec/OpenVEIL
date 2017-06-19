@@ -43,7 +43,7 @@ class FavoriteSelectionPage;
  * FavoriteSelectionPage class declaration
  */
 
-class FavoriteSelectionPage: public wxWizardPage
+class FavoriteSelectionPage: public wxWizardPage, public ISkippablePage
 {    
     DECLARE_DYNAMIC_CLASS( FavoriteSelectionPage )
     DECLARE_EVENT_TABLE()
@@ -110,6 +110,10 @@ public:
 	wxWizardPage* prevPage;
 	void SetNextPage(wxWizardPage* setTo) { nextPage = setTo; }
 	void SetPrevPage(wxWizardPage* setTo) { prevPage = setTo; }
+
+
+	// Inherited via ISkippablePage
+	virtual bool skipMe() override;
 
 };
 

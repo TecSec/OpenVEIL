@@ -77,7 +77,7 @@ public:
 	}
 
 private:
-    tsCryptoData m_context;
+    SmartCryptoWorkspace m_context;
 	const AEAD_Descriptor* desc;
 
     tsCryptoString m_baseName;
@@ -93,7 +93,7 @@ private:
 		tsCryptoString algorithm(fullName);
 		tsCryptoStringList parts;
 
-		m_context.clear();
+		m_context.reset();
 		desc = findAEADAlgorithm(algorithm.c_str());
 		if (desc == nullptr)
 		{
@@ -137,7 +137,7 @@ AEAD::AEAD() :
 
 AEAD::~AEAD(void)
 {
-	m_context.clear();
+	m_context.reset();
 	desc = nullptr;
 }
 
@@ -157,15 +157,15 @@ bool AEAD::initialize(const tsCryptoData &key)
     m_tagLen = 16;
     m_nonce.clear();
 
-	m_context.clear();
-	m_context.resize(desc->getWorkspaceSize(desc));
+	m_context.reset();
+	m_context = desc;
 
     tsCryptoString name(m_baseName);
     name += "-";
     name.append((key.size() * 8));
     SetName(name);
 
-	return desc->init(desc, m_context.rawData(), key.c_str(), (uint32_t)key.size());
+	return desc->init(desc, m_context, key.c_str(), (uint32_t)key.size());
 }
 
 bool AEAD::finish()
@@ -182,8 +182,8 @@ bool AEAD::finish()
 	if (m_context.empty())
 		return false;
 
-    bool retVal = desc->finish(desc, m_context.rawData());
-	m_context.clear();
+    bool retVal = desc->finish(desc, m_context);
+	m_context.reset();
     return retVal;
 }
 
@@ -203,7 +203,7 @@ bool AEAD::encryptMessage(const tsCryptoData &ivec, const tsCryptoData &header, 
     tag.clear();
     tag.resize(requiredTagLength);
 
-    bool retVal = desc->encryptMessage(desc, m_context.rawData(), ivec.c_str(), (uint32_t)ivec.size(), header.c_str(), (uint32_t)header.size(), data.rawData(), (uint32_t)data.size(), (uint32_t)requiredTagLength, tag.rawData());
+    bool retVal = desc->encryptMessage(desc, m_context, ivec.c_str(), (uint32_t)ivec.size(), header.c_str(), (uint32_t)header.size(), data.rawData(), (uint32_t)data.size(), (uint32_t)requiredTagLength, tag.rawData());
 
     if (!retVal)
     {
@@ -222,7 +222,7 @@ bool AEAD::decryptMessage(const tsCryptoData &ivec, const tsCryptoData &header, 
 	if (m_context.empty())
 		return false;
 
-    bool retVal = desc->decryptMessage(desc, m_context.rawData(), ivec.c_str(), (uint32_t)ivec.size(), header.c_str(), (uint32_t)header.size(), data.rawData(), (uint32_t)data.size(), tag.c_str(), (uint32_t)tag.size());
+    bool retVal = desc->decryptMessage(desc, m_context, ivec.c_str(), (uint32_t)ivec.size(), header.c_str(), (uint32_t)header.size(), data.rawData(), (uint32_t)data.size(), tag.c_str(), (uint32_t)tag.size());
 
     if (!retVal)
     {
@@ -240,7 +240,7 @@ bool AEAD::startMessage(const tsCryptoData &ivec, uint64_t headerLength, uint64_
 	if (m_context.empty())
 		return false;
 
-    bool retVal = desc->startMessage(desc, m_context.rawData(), ivec.c_str(), (uint32_t)ivec.size(), headerLength, messageLength, (uint32_t)tagLength);
+    bool retVal = desc->startMessage(desc, m_context, ivec.c_str(), (uint32_t)ivec.size(), headerLength, messageLength, (uint32_t)tagLength);
 
     return retVal;
 }
@@ -254,7 +254,7 @@ bool AEAD::authenticateHeader(const tsCryptoData &header)
 	if (m_context.empty())
 		return false;
 
-    bool retVal = desc->authenticateHeader(desc, m_context.rawData(), header.c_str(), (uint32_t)header.size());
+    bool retVal = desc->authenticateHeader(desc, m_context, header.c_str(), (uint32_t)header.size());
 
     return retVal;
 }
@@ -268,7 +268,7 @@ bool AEAD::encrypt(tsCryptoData &data)
 	if (m_context.empty())
 		return false;
 
-    bool retVal = desc->encrypt(desc, m_context.rawData(), data.rawData(), (uint32_t)data.size());
+    bool retVal = desc->encrypt(desc, m_context, data.rawData(), (uint32_t)data.size());
 
     if (!retVal)
     {
@@ -286,7 +286,7 @@ bool AEAD::decrypt(tsCryptoData &data)
 	if (m_context.empty())
 		return false;
 
-    bool retVal = desc->decrypt(desc, m_context.rawData(), data.rawData(), (uint32_t)data.size());
+    bool retVal = desc->decrypt(desc, m_context, data.rawData(), (uint32_t)data.size());
 
     if (!retVal)
     {
@@ -308,7 +308,7 @@ bool AEAD::computeTag(size_t requiredTagLength, tsCryptoData &tag)
 
     tag.resize(requiredTagLength);
 
-    bool retVal = desc->computeTag(desc, m_context.rawData(), (uint32_t)requiredTagLength, tag.rawData());
+    bool retVal = desc->computeTag(desc, m_context, (uint32_t)requiredTagLength, tag.rawData());
 
     if (!retVal)
     {

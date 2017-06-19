@@ -50,9 +50,9 @@ public:
 		if (!gFipsState.operational() || desc == nullptr)
 			return false;
 
-		context.resize(desc->getWorkspaceSize(desc));
+		context = desc;
 
-		return desc->init(desc, context.rawData(), key.c_str(), (uint32_t)key.size());
+		return desc->init(desc, context, key.c_str(), (uint32_t)key.size());
 	}
 	virtual bool update(const tsCryptoData &data) override
 	{
@@ -61,7 +61,7 @@ public:
 
 		if (data.size() > 0)
 		{
-			return desc->update(desc, context.rawData(), data.c_str(), (uint32_t)data.size());
+			return desc->update(desc, context, data.c_str(), (uint32_t)data.size());
 		}
 		return true;
 	}
@@ -72,10 +72,10 @@ public:
 
 		digest.clear();
 		digest.resize(desc->getDigestSize(desc));
-		bool retVal = desc->finish(desc, context.rawData(), digest.rawData(), (uint32_t)digest.size());
+		bool retVal = desc->finish(desc, context, digest.rawData(), (uint32_t)digest.size());
 		if (!retVal)
 			digest.clear();
-		context.clear();
+		context.reset();
 		return retVal;
 	}
 	virtual size_t GetBlockSize() override
@@ -138,7 +138,7 @@ public:
 	{
 		tsCryptoString algorithm(fullName);
 
-		context.clear();
+		context.reset();
 		desc = nullptr;
 		if (TsStrniCmp(algorithm, "HMAC", 4) == 0)
 		{
@@ -215,7 +215,7 @@ public:
 	}
 
 private:
-    tsCryptoData context;
+    SmartCryptoWorkspace context;
 	const MAC_Descriptor* desc;
 };
 

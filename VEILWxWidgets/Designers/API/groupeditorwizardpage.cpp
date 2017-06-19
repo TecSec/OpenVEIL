@@ -199,6 +199,9 @@ void GroupEditorWizardPage::OnSelectAudiencesPageChanged( wxWizardEvent& event )
 	_btnEdit->Enable(true);
 	_btnDelete->Enable(true);
 
+    _profile.reset();
+    _ActiveCryptoGroup = nullptr;
+    //if (!HasProfile())
 	{
 		wxBusyCursor busyCursor;
 		wxWindowDisabler disabler;
@@ -254,7 +257,7 @@ void GroupEditorWizardPage::OnSelectAudiencesPageChanged( wxWizardEvent& event )
 					}
 					else
 					{
-						_groupList->Enable(false);
+						//_groupList->Enable(false);
 						_btnAdd->Enable(false);
 						_btnEdit->Enable(false);
 						_btnDelete->Enable(false);
@@ -705,6 +708,8 @@ Asn1::CTS::_POD_CryptoGroup* GroupEditorWizardPage::GetCGbyGuid(const GUID& id)
 	if (!HasSession() || !HasProfile())
 		return nullptr;
 
+    if (GetProfile()->exists_cryptoGroupList())
+    {
 	for (size_t i = 0; i < GetProfile()->get_cryptoGroupList()->size(); i++)
 	{
 		if (GetProfile()->get_cryptoGroupList()->get_at(i).get_Id() == id)
@@ -712,11 +717,12 @@ Asn1::CTS::_POD_CryptoGroup* GroupEditorWizardPage::GetCGbyGuid(const GUID& id)
 			return &GetProfile()->get_cryptoGroupList()->get_at(i);
 		}
 	}
+    }
 	return nullptr;
 }
 int GroupEditorWizardPage::findCgByGuid(const GUID& id)
 {
-	if (!HasSession() || !HasProfile() || GetProfile()->get_cryptoGroupList()->size() == 0)
+    if (!HasSession() || !HasProfile() || !GetProfile()->exists_cryptoGroupList() || GetProfile()->get_cryptoGroupList()->size() == 0)
 		return -1;
 
 	for (size_t i = 0; i < GetProfile()->get_cryptoGroupList()->size(); i++)
@@ -785,7 +791,7 @@ bool GroupEditorWizardPage::RebuildAccessGroupList()
 			sel = (int)_groupList->GetCount() - 1;
 		}
 		SetItemSelected(sel);
-		_groupList->Enable(accessGroupCount > 0);
+        //_groupList->Enable(accessGroupCount > 0);
 	}
 	UpdateDialogControls();
 	return true;
@@ -800,10 +806,11 @@ tscrypto::tsCryptoString GroupEditorWizardPage::BuildAttrsLine(std::shared_ptr<I
 	std::shared_ptr<ICmsHeaderAttributeListExtension> attrList;
 	std::shared_ptr<ICmsHeaderExtension> ext;
 	tscrypto::tsCryptoString name;
+    tscrypto::tsCryptoString out;
 	tscrypto::tsCryptoString list;
 	AudienceSelector2* wiz = dynamic_cast<AudienceSelector2*>(GetParent());
 
-    if (wiz == nullptr || wiz->_vars == nullptr || _ActiveCryptoGroup == nullptr || 
+    if (wiz == nullptr || wiz->_vars == nullptr || 
 		!wiz->_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) ||
 		!(attrList = std::dynamic_pointer_cast<ICmsHeaderAttributeListExtension>(ext)))
 	{
@@ -820,8 +827,11 @@ tscrypto::tsCryptoString GroupEditorWizardPage::BuildAttrsLine(std::shared_ptr<I
 		{
 			id = headerAttr->GetAttributeGUID();
 
+            if (_ActiveCryptoGroup != nullptr)
 			attr = _ActiveCryptoGroup->get_AttributeById(id);
-			if (!!attr)
+            else
+                attr = nullptr;
+            if (attr != nullptr)
 			{
 				name = attr->get_Name();
 				if (name.size() == 0)
@@ -833,6 +843,8 @@ tscrypto::tsCryptoString GroupEditorWizardPage::BuildAttrsLine(std::shared_ptr<I
 			{
 				name.Format("<attr %s>", TSGuidToString(id).c_str());
 			}
+            TSPatchValueForXML(name, out);
+            name = out;
 			if (list.size() > 0)
 			{
 				list += " <strong>and</strong> ";
@@ -1085,6 +1097,11 @@ bool GroupEditorWizardPage::FindSelectedAccessGroup(std::shared_ptr<ICmsHeaderAc
     return false;
 }
 
+bool GroupEditorWizardPage::skipMe()
+{
+	return false;
+}
+
 
 /*
  * Gets the previous page.
@@ -1092,6 +1109,10 @@ bool GroupEditorWizardPage::FindSelectedAccessGroup(std::shared_ptr<ICmsHeaderAc
 
 wxWizardPage* GroupEditorWizardPage::GetPrev() const
 {
+	ISkippablePage* tokPg = dynamic_cast<ISkippablePage*>(prevPage);
+
+	if (tokPg != nullptr && tokPg->skipMe())
+		return prevPage->GetPrev();
     return prevPage;
 }
 
@@ -1102,6 +1123,10 @@ wxWizardPage* GroupEditorWizardPage::GetPrev() const
 
 wxWizardPage* GroupEditorWizardPage::GetNext() const
 {
+	ISkippablePage* tokPg = dynamic_cast<ISkippablePage*>(nextPage);
+
+	if (tokPg != nullptr && tokPg->skipMe())
+		return nextPage->GetNext();
     return nextPage;
 }
 

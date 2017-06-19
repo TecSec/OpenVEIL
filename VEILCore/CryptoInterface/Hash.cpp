@@ -80,15 +80,15 @@ public:
 		}
 		if (desc != nullptr)
 		{
-			context.clear();
-			context.resize(desc->getWorkspaceSize(desc));
+			context.reset();
+			context = desc;
 		}
 		SetName(fullName);
-		context.clear();
+		context.reset();
 		return true;
 	}
 private:
-    tsCryptoData context;
+    SmartCryptoWorkspace context;
 	const HASH_Descriptor* desc;
 };
 
@@ -102,24 +102,24 @@ Hash_Alg::Hash_Alg(const tsCryptoStringBase& algorithm)
 	desc = findHashAlgorithm(parts->back().c_str());
 	if (desc != nullptr)
 	{
-		context.resize(desc->getWorkspaceSize(desc));
+		context = desc;
 	}
 	SetName(algorithm);
-	context.clear();
+	context.reset();
 }
 
 Hash_Alg::~Hash_Alg(void)
 {
-	context.clear();
+	context.reset();
 }
 
 bool Hash_Alg::initialize()
 {
     if (!gFipsState.operational())
         return false;
-	context.clear();
-	context.resize(desc->getWorkspaceSize(desc));
-    return desc->init(desc, context.rawData());
+	context.reset();
+	context = desc;
+    return desc->init(desc, context);
 }
 
 bool Hash_Alg::update(const tsCryptoData &data)
@@ -130,7 +130,7 @@ bool Hash_Alg::update(const tsCryptoData &data)
 		return false;
 	if (data.size() > 0)
     {
-		return desc->update(desc, context.rawData(), data.c_str(), (uint32_t)data.size());
+		return desc->update(desc, context, data.c_str(), (uint32_t)data.size());
     }
     return true;
 }
@@ -142,7 +142,7 @@ bool Hash_Alg::finish(tsCryptoData &digest)
     digest.resize(desc->digestSize);
 	if (!context.empty())
 	{
-		if (!desc->finish(desc, context.rawData(), digest.rawData(), (uint32_t)digest.size()))
+		if (!desc->finish(desc, context, digest.rawData(), (uint32_t)digest.size()))
 		{
 			digest.clear();
 			return false;

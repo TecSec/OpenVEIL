@@ -42,7 +42,6 @@ class DhKeyImpl : public DhKey, public TSName,
 public:
     DhKeyImpl(const tsCryptoStringBase& algorithm) :
 		desc(nullptr),
-		dhKey(nullptr),
 		reason(kvf_NoFailure)
 	{
 		desc = findDhAlgorithm("DH");
@@ -50,12 +49,8 @@ public:
 	}
     virtual ~DhKeyImpl(void)
 	{
-		if (desc != nullptr && dhKey != nullptr)
-		{
-			desc->freeKeyStructure(desc, dhKey);
-		}
 		desc = nullptr;
-		dhKey = nullptr;
+		dhKey.reset();
 	}
 
     // AssymetricKey
@@ -287,13 +282,11 @@ public:
 
 		if (!gFipsState.operational())
 			return false;
-		if (dhKey != nullptr)
-			desc->freeKeyStructure(desc, dhKey);
-		dhKey = nullptr;
+		dhKey.reset();
 		dhParams = setTo;
 		if (!!dhParams && !!ts)
 		{
-			dhKey = desc->createKeyStructure(desc, (const DH_Parameters_Descriptor*)ts->Descriptor(), ts->getKeyPair());
+			dhKey = desc->createKeyStructure(desc, (const DH_Parameters_Descriptor*)ts->Descriptor(), (CRYPTO_DH_PARAMS)ts->getKeyPair());
 			return dhKey != nullptr;
 		}
 		return true;
@@ -409,25 +402,23 @@ public:
 	}
 
 	// Inherited via TSALG_Access
-	virtual const void * Descriptor() const override
+	virtual const TSALG_Base_Descriptor * Descriptor() const override
 	{
 		return desc;
 	}
-	virtual void * getKeyPair() const override
+	virtual CRYPTO_ASYMKEY getKeyPair() const override
 	{
 		return dhKey;
 	}
-	virtual uint8_t * getWorkspace() const override
+	virtual CRYPTO_WORKSPACE getWorkspace() const override
 	{
 		return nullptr;
 	}
-	virtual void * detachFromKeyPair() override
+	virtual CRYPTO_ASYMKEY detachFromKeyPair() override
 	{
-		void* key = dhKey;
-		dhKey = nullptr;
-		return key;
+        return (CRYPTO_ASYMKEY)dhKey.detach();
 	}
-	virtual void * cloneKeyPair() const override
+	virtual CRYPTO_ASYMKEY cloneKeyPair() const override
 	{
 		if (desc == nullptr || dhKey == nullptr)
 			return nullptr;
@@ -436,7 +427,7 @@ public:
 
 private:
 	const DH_Descriptor* desc;
-	void *dhKey;
+	SmartCryptoKey dhKey;
 	tsalg_keyValidationFailureType reason;
 	std::shared_ptr<tscrypto::DhParameters> dhParams;
 };

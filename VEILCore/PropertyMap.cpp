@@ -164,17 +164,10 @@ public:
 		if (queryString.empty())
 			return false;
 		size_t pos = queryString.find('?');
-		if (pos > 0 && pos < tscrypto::tsCryptoString::npos)
-			return false;
+        if (pos < 0 || pos == tscrypto::tsCryptoString::npos)
+            return true;
 
-		if (queryString.front() != '?')
-		{
-			str = "http://dummy?" + queryString;
-		}
-		else
-		{
-			str = "http://dummy" + queryString;
-		}
+        str = "dummy" + queryString;
 		if (!parser.ParseFullUrl(str))
 			return false;
 		for (auto& nv : *parser.getParameters())
