@@ -1422,7 +1422,7 @@ protected:
 		}
 
 		// TODO:  Reenable the last term once we implement PKI
-		if (name.size() > 0 && TsStrCmp(name, AS_SEL_DOM_STR) != 0 && accessGroupCount > 0)// || mySelectedCertVector.size() > 0)
+		if (name.size() > 0 && TsStrCmp(name.c_str(), AS_SEL_DOM_STR) != 0 && accessGroupCount > 0)// || mySelectedCertVector.size() > 0)
 		{
 			//UINT nResponse = ::MessageBox(_hDlg, "Selecting a favorite will cause all current Attribute and certificate selections to be lost.\n\n Do you wish to continue?", "Warning", MB_YESNO | MB_ICONINFORMATION);
 			UINT nResponse = ::MessageBoxA(_hDlg, "Selecting a favorite will cause all current Attribute selections to be lost.\n\n Do you wish to continue?", "Warning", MB_YESNO | MB_ICONINFORMATION);
@@ -3028,7 +3028,7 @@ protected:
 				!!(attrGroup = std::dynamic_pointer_cast<ICmsHeaderAttributeGroup>(andGroup)))
 			{
 				line = BuildAttrsLine(attrGroup);
-				if (TsStrCmp(line, name) == 0)
+				if (TsStrCmp(line.c_str(), name) == 0)
 				{
 					attrs = attrGroup;
 					accessGroup = andGroup;

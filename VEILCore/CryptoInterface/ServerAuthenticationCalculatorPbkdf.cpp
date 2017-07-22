@@ -85,7 +85,7 @@ public:
 		if (!gFipsState.operational() || calc == nullptr || macName.empty() || _pbkdfHashAlg.empty())
 			return false;
 
-		if (TsStriCmp(_pbkdfHashAlg, "SHA1") != 0 || TsStriCmp(_pbkdfHashAlg, "HMAC-SHA1") != 0)
+		if (TsStriCmp(_pbkdfHashAlg.c_str(), "SHA1") != 0 || TsStriCmp(_pbkdfHashAlg.c_str(), "HMAC-SHA1") != 0)
 			iterCount = 1000;
 
 		if (!TSGenerateRandom(seed, 32))
@@ -139,7 +139,7 @@ public:
 		if (tmp[0] == '-')
 			tmp.DeleteAt(0, 1);
 
-		if (TsStrniCmp(tmp, "PBKDF2-", 7) != 0)
+		if (TsStrniCmp(tmp.c_str(), "PBKDF2-", 7) != 0)
 			return false;
 		tmp.DeleteAt(0, 7);
 		this->_pbkdfHashAlg = "HMAC-" + tmp;

@@ -319,13 +319,13 @@ protected:
 									if (readerState.dwCurrentState & SCARD_STATE_PRESENT)
 									{
 										tscrypto::tsCryptoString name(readerState.szReader);
-										if (std::find_if(cardsRemoved->begin(), cardsRemoved->end(), [&name](tscrypto::tsCryptoString& str) {return TsStriCmp(name, str) == 0; }) == cardsRemoved->end())
+										if (std::find_if(cardsRemoved->begin(), cardsRemoved->end(), [&name](tscrypto::tsCryptoString& str) {return TsStriCmp(name.c_str(), str.c_str()) == 0; }) == cardsRemoved->end())
 											cardsRemoved->push_back(name);
 									}
 									if (readerState.dwEventState & SCARD_STATE_PRESENT)
 									{
 										tscrypto::tsCryptoString name(readerState.szReader);
-										if (std::find_if(cardsAdded->begin(), cardsAdded->end(), [&name](tscrypto::tsCryptoString& str) {return TsStriCmp(name, str) == 0; }) == cardsAdded->end())
+										if (std::find_if(cardsAdded->begin(), cardsAdded->end(), [&name](tscrypto::tsCryptoString& str) {return TsStriCmp(name.c_str(), str.c_str()) == 0; }) == cardsAdded->end())
 											cardsAdded->push_back(name);
 									}
 								}
@@ -336,7 +336,7 @@ protected:
 										if (readerState.dwCurrentState & SCARD_STATE_PRESENT)
 										{
 											tscrypto::tsCryptoString name(readerState.szReader);
-											if (std::find_if(cardsRemoved->begin(), cardsRemoved->end(), [&name](tscrypto::tsCryptoString& str) {return TsStriCmp(name, str) == 0; }) == cardsRemoved->end())
+											if (std::find_if(cardsRemoved->begin(), cardsRemoved->end(), [&name](tscrypto::tsCryptoString& str) {return TsStriCmp(name.c_str(), str.c_str()) == 0; }) == cardsRemoved->end())
 												cardsRemoved->push_back(name);
 										}
 									}
@@ -345,7 +345,7 @@ protected:
 										if ((readerState.dwEventState & SCARD_STATE_MUTE) == 0)
 										{
 											tscrypto::tsCryptoString name(readerState.szReader);
-											if (std::find_if(cardsAdded->begin(), cardsAdded->end(), [&name](tscrypto::tsCryptoString& str) {return TsStriCmp(name, str) == 0; }) == cardsAdded->end())
+											if (std::find_if(cardsAdded->begin(), cardsAdded->end(), [&name](tscrypto::tsCryptoString& str) {return TsStriCmp(name.c_str(), str.c_str()) == 0; }) == cardsAdded->end())
 												cardsAdded->push_back(name);
 										}
 									}
@@ -573,7 +573,7 @@ protected:
 				for (size_t i = 1; i < _readers.size(); i++)
 				{
 					tscrypto::tsCryptoString name = _readers[i].szReader;
-					auto it = std::find_if(readersAdded->begin(), readersAdded->end(), [&name](tscrypto::tsCryptoString& str)->bool { return TsStriCmp(name, str) == 0; });
+					auto it = std::find_if(readersAdded->begin(), readersAdded->end(), [&name](tscrypto::tsCryptoString& str)->bool { return TsStriCmp(name.c_str(), str.c_str()) == 0; });
 
 					if (it != readersAdded->end())
 					{

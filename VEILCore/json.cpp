@@ -120,17 +120,17 @@ static void processIndexing(JSONElement* startNode, tsCryptoStringList parts, Js
 	if (parts->size() > 0 && parts->at(0).size() != 0)
 	{
 		// TODO:  Possibly support functions here
-		start = TsStrToInt(parts->at(0));
+		start = TsStrToInt(parts->at(0).c_str());
 	}
 	if (parts->size() > 1 && parts->at(1).size() != 0)
 	{
 		// TODO:  Possibly support functions here
-		end = TsStrToInt(parts->at(1));
+		end = TsStrToInt(parts->at(1).c_str());
 	}
 	if (parts->size() > 2 && parts->at(2).size() != 0)
 	{
 		// TODO:  Possibly support functions here
-		step = TsStrToInt(parts->at(2));
+		step = TsStrToInt(parts->at(2).c_str());
 	}
 
 	if (start < 0)
@@ -1086,10 +1086,10 @@ tsCryptoString JSONField::ToXML(const tsCryptoStringBase& arrayNode) const
 	else if (name.size() == 0)
 	{
 		name = arrayNode;
-		if (TsStrLen(arrayNode) > 10 && strcmp(&arrayNode[TsStrLen(arrayNode) - 10], "Collection") == 0)
+		if (TsStrLen(arrayNode.c_str()) > 10 && strcmp(&arrayNode[TsStrLen(arrayNode.c_str()) - 10], "Collection") == 0)
 		{
 			wasCollection = true;
-			name.DeleteAt(TsStrLen(arrayNode) - 10, 10);
+			name.DeleteAt(TsStrLen(arrayNode.c_str()) - 10, 10);
 		}
 	}
 

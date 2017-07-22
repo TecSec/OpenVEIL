@@ -189,7 +189,7 @@ protected:
 			buff.clear();
 			buff.resize(512);
 			GetUserObjectInformation(station, UOI_NAME, buff.rawData(), (DWORD)buff.size(), &count);
-			if (TsStrStr(buff, ("WinSta0")) == NULL)
+			if (TsStrStr(buff.c_str(), ("WinSta0")) == NULL)
 			{
 				EndDialog(hDlg, IDCANCEL);
 			}
@@ -219,7 +219,7 @@ protected:
 		_pinBuffer.clear();
 		_pinBuffer.resize(100);
 		GetDlgItemTextA(hDlg, IDC_PASSWORD, _pinBuffer.rawData(), (int)_pinBuffer.size());
-		if ((int)TsStrLen(_pinBuffer) < KEYVEIL_MIN_PIN_LEN)
+		if ((int)TsStrLen(_pinBuffer.c_str()) < KEYVEIL_MIN_PIN_LEN)
 		{
 			char buff[MAX_PATH + 1];
 
@@ -232,7 +232,7 @@ protected:
 		}
 		else
 		{
-			_pinBuffer.resize(TsStrLen(_pinBuffer));
+			_pinBuffer.resize(TsStrLen(_pinBuffer.c_str()));
 			switch (_connector->connect(_url, _username, _pinBuffer))
 			{
 			case ConnectionStatus::connStatus_BadAuth:

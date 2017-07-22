@@ -111,7 +111,7 @@ public:
 		}
 		kdfMacWorkspace.reset();
 
-		if (TsStrniCmp(Name, "KDF-", 4) == 0)
+		if (TsStrniCmp(Name.c_str(), "KDF-", 4) == 0)
 			Name.erase(0, 4);
 
 		kdfMacDesc = findMacAlgorithm(Name.c_str());

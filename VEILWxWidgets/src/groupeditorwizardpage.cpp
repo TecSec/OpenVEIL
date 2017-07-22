@@ -1085,7 +1085,7 @@ bool GroupEditorWizardPage::FindSelectedAccessGroup(std::shared_ptr<ICmsHeaderAc
             !!(attrGroup = std::dynamic_pointer_cast<ICmsHeaderAttributeGroup>(andGroup)))
         {
             line = BuildAttrsLine(attrGroup, index == 0);
-            if (TsStrCmp(line, name) == 0)
+            if (TsStrCmp(line.c_str(), name.c_str()) == 0)
             {
                 attrs = attrGroup;
                 accessGroup = andGroup;

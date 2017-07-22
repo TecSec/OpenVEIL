@@ -703,7 +703,7 @@ public:
 			for (size_t i = 0; i < __headers->size(); i++)
 			{
 				_headers->push_back(__headers->at(i));
-				if (TsStriCmp(__headers->at(i).m_Name, "Accept-Encoding") == 0)
+				if (TsStriCmp(__headers->at(i).m_Name.c_str(), "Accept-Encoding") == 0)
 					hasAcceptEncoding = true;
 			}
 		}
@@ -853,7 +853,7 @@ public:
 			return false;
 		}
 
-		while (TsStrToInt(hdr->status()) == 100)
+		while (TsStrToInt(hdr->status().c_str()) == 100)
 		{
 			//
 			// We got a continue command from the server.  Eat it and reparse using any remaining data
@@ -960,7 +960,7 @@ protected:
 	{
 		const HttpAttribute* attr = header->attributeByName("Content-Encoding");
 
-		if (attr != nullptr && TsStriCmp(attr->m_Value, "deflate") == 0)
+		if (attr != nullptr && TsStriCmp(attr->m_Value.c_str(), "deflate") == 0)
 		{
 			tscrypto::tsCryptoData tmp;
 
@@ -969,7 +969,7 @@ protected:
 			header->dataPart(tmp);
 		}
 
-		if (attr != nullptr && TsStriCmp(attr->m_Value, "gzip") == 0)
+		if (attr != nullptr && TsStriCmp(attr->m_Value.c_str(), "gzip") == 0)
 		{
 			tscrypto::tsCryptoData tmp;
 

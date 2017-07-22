@@ -736,13 +736,11 @@
     typedef double DATE;
     extern "C" BOOL FileTimeToSystemTime(const FILETIME* ft, SYSTEMTIME* tm);
     #define FILETIME_TO_INT64(a) ((int64_t)(a))
-    typedef uint16_t ts_wchar;
 #else
 	#ifdef MINGW
 		#undef __uuidof
 		#define __uuidof(a) IID_##a
 	#endif
-    typedef wchar_t ts_wchar;
 #endif
 #ifndef HAVE_FOPEN_S
     #if defined(HAVE_FOPEN)

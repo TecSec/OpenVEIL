@@ -684,7 +684,7 @@ int main(int argc, char* argv[])
 						tscrypto::tsCryptoString dir, file, ext;
 
 						xp_SplitPath(inputFile, dir, file, ext);
-						if (TsStriCmp(ext, ".ckm") != 0)
+						if (TsStriCmp(ext.c_str(), ".ckm") != 0)
 						{
 							ERROR("Output File not specified and input file does not have a .ckm extension.");
 							return 54;

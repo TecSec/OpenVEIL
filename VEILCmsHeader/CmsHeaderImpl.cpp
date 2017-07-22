@@ -3558,7 +3558,7 @@ tscrypto::tsCryptoString CmsHeaderImpl::GetDebugJsonString()
 
 tscrypto::tsCryptoString CmsHeaderImpl::toString(const tscrypto::tsCryptoString& type)
 {
-	if (TsStriCmp(type, "JSONRECIPE") == 0)
+	if (TsStriCmp(type.c_str(), "JSONRECIPE") == 0)
 	{
 		Asn1::CTS::_POD_CkmRecipe recipe;
 
@@ -3566,7 +3566,7 @@ tscrypto::tsCryptoString CmsHeaderImpl::toString(const tscrypto::tsCryptoString&
 			return "";
 		return recipe.toJSON().ToJSON();
 	}
-	else if (TsStriCmp(type, "JSONDEBUG") == 0)
+	else if (TsStriCmp(type.c_str(), "JSONDEBUG") == 0)
 	{
 		return GetDebugJsonString();
 	}

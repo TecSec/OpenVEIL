@@ -77,7 +77,7 @@ if(ANDROID)
 endif()
 add_precompiled_header(VEILCmsHeader stdafx.h FORCEINCLUDE SOURCE_CXX stdafx.cpp)
 
-TARGET_LINK_LIBRARIES(VEILCmsHeader VEILCore)
+TARGET_LINK_LIBRARIES(VEILCmsHeader VEILCore TS_SUP_DLL)
 set_target_properties(VEILCmsHeader PROPERTIES FOLDER "Modules")
 if(NOT ANDROID)
 	set_target_properties(VEILCmsHeader PROPERTIES VERSION ${${VEILCORENAME_U}_VERSION} SOVERSION ${${VEILCORENAME_U}_SO_VERSION})

@@ -29,6 +29,9 @@
 #
 # Written by Roger Butler
 
+#
+# This section is used to set the basic configuration for CMAKE
+#
 LIST(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmakemodules)
 if(POLICY CMP0005)
     cmake_policy(SET CMP0005 NEW)
@@ -96,7 +99,6 @@ endif(MINGW)
 include(precompiled.header)
 include (tecsec_installdirs)
 
-
 #
 # Configure some of the Linux SO parameters
 #
@@ -119,7 +121,7 @@ endif(APPLE)
 
 set(${VEILCORENAME_U}_MAJOR_VERSION 7)
 set(${VEILCORENAME_U}_MINOR_VERSION 0)
-set(${VEILCORENAME_U}_REVISION_VERSION 56)
+set(${VEILCORENAME_U}_REVISION_VERSION 58)
 set(${VEILCORENAME_U}_BUILD_VERSION 0)
 set(OSX_FRAMEWORK_VERSION A)
 

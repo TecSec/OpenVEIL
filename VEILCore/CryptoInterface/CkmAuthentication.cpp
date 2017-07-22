@@ -248,7 +248,7 @@ public:
 		hashName = parts->at(1);
 		macName = parts->at(2);
 		keyTransportName = parts->at(3);
-		_usesMITM = TsStriCmp(parts->at(4), "NO-MITM") != 0;
+		_usesMITM = TsStriCmp(parts->at(4).c_str(), "NO-MITM") != 0;
 		return true;
 	}
 private:

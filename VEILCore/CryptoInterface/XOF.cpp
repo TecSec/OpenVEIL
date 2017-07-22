@@ -127,7 +127,7 @@ public:
 
 		if (parts->size() > 1)
 		{
-			outputSize = TsStrToInt(parts->at(1));
+			outputSize = TsStrToInt(parts->at(1).c_str());
 		}
 		if (outputSize < 16)
 			outputSize = bitSize * 2;

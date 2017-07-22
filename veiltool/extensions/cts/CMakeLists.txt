@@ -53,7 +53,7 @@ add_library(cts SHARED
 add_precompiled_header(cts stdafx.h FORCEINCLUDE SOURCE_CXX stdafx.cpp)
 set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/cts.rc PROPERTIES COMPILE_DEFINITIONS RC_COMPILED)
 set_target_properties(cts PROPERTIES FOLDER "Tools/veilExtensions")
-TARGET_LINK_LIBRARIES(cts VEILCore)
+TARGET_LINK_LIBRARIES(cts VEILCore TS_SUP_DLL)
 set_target_properties(cts PROPERTIES 
 	SUFFIX ".veil"  
 	)

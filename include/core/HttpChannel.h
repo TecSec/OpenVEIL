@@ -172,8 +172,8 @@ public:
     virtual tscrypto::tsCryptoString Errors() const = 0;
     virtual void ClearErrors() = 0;
 
-    virtual bool SendTo(const tscrypto::tsCryptoData& data, const SOCKADDR_STORAGE& To, int toLen) = 0;
-    virtual bool ReadFrom(SOCKADDR_STORAGE& From, int& fromLen, tscrypto::tsCryptoData& data) = 0;
+    virtual bool SendTo(const tscrypto::tsCryptoData& data, const struct sockaddr_storage& To, int toLen) = 0;
+    virtual bool ReadFrom(struct sockaddr_storage& From, int& fromLen, tscrypto::tsCryptoData& data) = 0;
 
     virtual bool isConnected() const = 0;
 

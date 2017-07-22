@@ -4,7 +4,7 @@
         <style>wxDEFAULT_DIALOG_STYLE|wxCAPTION|wxRESIZE_BORDER|wxTAB_TRAVERSAL</style>
         <exstyle>wxWS_EX_VALIDATE_RECURSIVELY|wxWS_EX_BLOCK_EVENTS</exstyle>
         <size>400,300</size>
-        <title>About CKM</title>
+        <title>About VEIL</title>
         <centered>1</centered>
         <object class="wxFlexGridSizer">
             <cols>1</cols>

@@ -204,7 +204,7 @@ const tscrypto::tsCryptoString &TcpConnection::Server() const
 }
 void TcpConnection::Server(const tscrypto::tsCryptoString &setTo)
 {
-	if (TsStriCmp(m_server, setTo) != 0)
+	if (TsStriCmp(m_server.c_str(), setTo.c_str()) != 0)
 	{
 		if (!!_stack)
 		{
@@ -504,7 +504,7 @@ bool TcpConnection::Connect()
 	if (m_isConnected)
 		return true;
 
-	if (TsStrniCmp(m_server, "local:", 6) == 0)
+	if (TsStrniCmp(m_server.c_str(), "local:", 6) == 0)
 	{
 		tsCryptoString name(m_server);
 

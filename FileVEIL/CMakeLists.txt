@@ -58,7 +58,7 @@ endif()
 add_precompiled_header(FileVEIL stdafx.h FORCEINCLUDE SOURCE_CXX stdafx.cpp)
 
 set_target_properties(FileVEIL PROPERTIES FOLDER "Tools")
-TARGET_LINK_LIBRARIES(FileVEIL VEILCore VEILCmsHeader VEILFileSupport)
+TARGET_LINK_LIBRARIES(FileVEIL VEILCore VEILCmsHeader VEILFileSupport TS_SUP_DLL)
 set_target_properties(FileVEIL PROPERTIES OUTPUT_NAME veilfile)
 if(UNIX)
     set_target_properties(FileVEIL PROPERTIES OUTPUT_NAME_DEBUG veilfile.debug)

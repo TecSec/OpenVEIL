@@ -264,11 +264,11 @@ public:
 							tsCryptoString eccName = curvename;
 
 							eccName.Replace("KEY-", "ECC-");
-							if (TsStrniCmp(eccName, "NUMSP", 5) == 0)
+							if (TsStrniCmp(eccName.c_str(), "NUMSP", 5) == 0)
 								eccName.insert(0, "ECC-");
-							if (TsStrniCmp(eccName, "X", 1) == 0)
+							if (TsStrniCmp(eccName.c_str(), "X", 1) == 0)
 								eccName.Replace("X", "ECC-CURVE", 1);
-							if (TsStrniCmp(eccName, "ED", 2) == 0)
+							if (TsStrniCmp(eccName.c_str(), "ED", 2) == 0)
 								eccName.insert(0, "ECC-").Replace("_PH", "");
 
 							desc = findEccAlgorithm(eccName.c_str());
@@ -331,11 +331,11 @@ public:
 					tsCryptoString eccName = curvename;
 
 					eccName.Replace("KEY-", "ECC-");
-					if (TsStrniCmp(eccName, "NUMSP", 5) == 0)
+					if (TsStrniCmp(eccName.c_str(), "NUMSP", 5) == 0)
 						eccName.insert(0, "ECC-");
-					if (TsStrniCmp(eccName, "X", 1) == 0)
+					if (TsStrniCmp(eccName.c_str(), "X", 1) == 0)
 						eccName.Replace("X", "ECC-CURVE", 1);
-					if (TsStrniCmp(eccName, "ED", 2) == 0)
+					if (TsStrniCmp(eccName.c_str(), "ED", 2) == 0)
 						eccName.insert(0, "ECC-").Replace("_PH", "");
 
 					desc = findEccAlgorithm(eccName.c_str());
@@ -377,11 +377,11 @@ public:
 			tsCryptoString eccName = curvename;
 
 			eccName.Replace("KEY-", "ECC-");
-			if (TsStrniCmp(eccName, "NUMSP", 5) == 0)
+			if (TsStrniCmp(eccName.c_str(), "NUMSP", 5) == 0)
 				eccName.insert(0, "ECC-");
-			if (TsStrniCmp(eccName, "X", 1) == 0)
+			if (TsStrniCmp(eccName.c_str(), "X", 1) == 0)
 				eccName.Replace("X", "ECC-CURVE", 1);
-			if (TsStrniCmp(eccName, "ED", 2) == 0)
+			if (TsStrniCmp(eccName.c_str(), "ED", 2) == 0)
 				eccName.insert(0, "ECC-").Replace("_PH", "");
 
 			desc = findEccAlgorithm(eccName.c_str());
@@ -715,11 +715,11 @@ public:
 		SetName(algorithm);
 		algorithm.ToUpper();
 		algorithm.Replace("KEY-", "ECC-");
-		if (TsStrniCmp(algorithm, "NUMSP", 5) == 0)
+		if (TsStrniCmp(algorithm.c_str(), "NUMSP", 5) == 0)
 			algorithm.insert(0, "ECC-");
-		if (TsStrniCmp(algorithm, "X", 1) == 0)
+		if (TsStrniCmp(algorithm.c_str(), "X", 1) == 0)
 			algorithm.Replace("X", "ECC-CURVE", 1);
-		if (TsStrniCmp(algorithm, "ED", 2) == 0)
+		if (TsStrniCmp(algorithm.c_str(), "ED", 2) == 0)
 			algorithm.insert(0, "ECC-");
 		algorithm.Replace("X25519", "CURVE25519").Replace("_PH", "");
 		keyPair.reset();

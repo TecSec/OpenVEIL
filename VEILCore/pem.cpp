@@ -49,13 +49,13 @@ static bool processArmoredLines(tscrypto::tsCryptoStringList lines, TSNamedBinar
 		txt = line;
 		txt.Trim();
 
-		if (TsStrnCmp(txt, "-----", 5) == 0)
+		if (TsStrnCmp(txt.c_str(), "-----", 5) == 0)
 		{
 			tscrypto::tsCryptoString markerLine(txt);
 
 			// We may have a marker.
 			markerLine.Trim(" -"); // Remove the marker prefix and suffix
-			if (TsStrniCmp(markerLine, "BEGIN ", 6) == 0 && state == TextArea)
+			if (TsStrniCmp(markerLine.c_str(), "BEGIN ", 6) == 0 && state == TextArea)
 			{
 				markerLine.DeleteAt(0, 6); // Remove the BEGIN to get to the Name
 				if (value.size() > 0)
@@ -72,7 +72,7 @@ static bool processArmoredLines(tscrypto::tsCryptoStringList lines, TSNamedBinar
 				attrName.clear();
 				attrValue.clear();
 			}
-			else if (TsStrniCmp(markerLine, "END ", 4) == 0 && state != TextArea)
+			else if (TsStrniCmp(markerLine.c_str(), "END ", 4) == 0 && state != TextArea)
 			{
 				TSNamedBinarySection section;
 
@@ -99,7 +99,7 @@ static bool processArmoredLines(tscrypto::tsCryptoStringList lines, TSNamedBinar
 		{
 			if (state == StartOfSection)
 			{
-				if (TsStrChr(txt, ':') != nullptr)
+				if (TsStrChr(txt.c_str(), ':') != nullptr)
 				{
 					state = Attributes;
 				}
@@ -132,7 +132,7 @@ static bool processArmoredLines(tscrypto::tsCryptoStringList lines, TSNamedBinar
 						map.AddItem(attrName, attrValue);
 					attrName.clear();
 					attrValue.clear();
-					if (TsStrChr(txt, ':') != nullptr)
+					if (TsStrChr(txt.c_str(), ':') != nullptr)
 					{
 						tscrypto::tsCryptoStringList list = txt.split(':', 2);
 						attrName = list->at(0);

@@ -69,7 +69,7 @@ public:
 	}
 	virtual const HttpAttribute* attributeByName(const char *index) const override
 	{
-		auto it = std::find_if(m_attributes.begin(), m_attributes.end(), [&index](const HttpAttribute& attr)->bool { return TsStriCmp(index, attr.m_Name) == 0; });
+		auto it = std::find_if(m_attributes.begin(), m_attributes.end(), [&index](const HttpAttribute& attr)->bool { return TsStriCmp(index, attr.m_Name.c_str()) == 0; });
 		if (it == m_attributes.end())
 			return nullptr;
 		return &*it;
@@ -181,16 +181,16 @@ HttpHeader::ReadCode HttpHeader::ReadStream(std::shared_ptr<ITcpConnection> chan
 
 							if (p == nullptr || p->m_Value.size() == 0)
 							{
-								if (TsStrToInt(m_status) != 200)
+							if (TsStrToInt(m_status.c_str()) != 200)
 								{
 									m_parseState = pse_Done;
-									m_errorCode = (WORD)TsStrToInt(m_status);
+								m_errorCode = (WORD)TsStrToInt(m_status.c_str());
 									return hh_Success;
 								}
 								m_errors += "Malformed response - no content-length attribute\n";
 								return hh_Failure;
 							}
-							requiredDataLength = TsStrToInt(p->m_Value);
+						requiredDataLength = TsStrToInt(p->m_Value.c_str());
 							if ((int)m_dataPart.size() >= requiredDataLength && m_parseState == pse_InData)
 								m_parseState = pse_Done;
 						}
@@ -206,7 +206,7 @@ HttpHeader::ReadCode HttpHeader::ReadStream(std::shared_ptr<ITcpConnection> chan
 	} while (m_parseState != pse_Done && m_parseState != pse_Error);
 
 
-	m_errorCode = (WORD)TsStrToInt(m_status);
+	m_errorCode = (WORD)TsStrToInt(m_status.c_str());
 	return hh_Success;
 }
 

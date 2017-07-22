@@ -280,7 +280,7 @@
           <string name="proxy-Platform">"&lt;Any platform&gt;"</string>
           <string name="proxy-Texture">""</string>
           <string name="proxy-Texture style">"Tiled"</string>
-          <string name="proxy-Title">"About CKM"</string>
+          <string name="proxy-Title">"About VEIL"</string>
           <string name="proxy-Tooltip text">""</string>
           <long name="proxy-Width">400</long>
           <string name="proxy-Window kind">"wxDialog"</string>
@@ -8572,6 +8572,7 @@ This software is provided 'as is' with no explicit or implied warranties in resp
           <string name="proxy-Data class manager window">""</string>
           <string name="proxy-Data class name">""</string>
           <string name="proxy-Data source">""</string>
+          <bool name="proxy-Dialog units">0</bool>
           <bool name="proxy-Enabled">1</bool>
           <string name="proxy-Event sources">""</string>
           <string name="proxy-Font">""</string>

@@ -127,6 +127,7 @@ echo for %%%%i in (debug release) do ( >> buildall-vc%COMPILERVERSION%.cmd
 echo    for %%%%j in (vc%COMPILERVERSION%) do ( >> buildall-vc%COMPILERVERSION%.cmd
 echo      for %%%%k in (x86 x64) do ( >> buildall-vc%COMPILERVERSION%.cmd
 echo 		pushd vs%%%%i-%%%%j-%%%%k >> buildall-vc%COMPILERVERSION%.cmd
+echo        call resetenv >> buildall-vc%COMPILERVERSION%.cmd
 echo        call cmake . >> buildall-vc%COMPILERVERSION%.cmd
 echo        call install.cmd >> buildall-vc%COMPILERVERSION%.cmd
 echo        if errorlevel 1 ( >> buildall-vc%COMPILERVERSION%.cmd
@@ -149,6 +150,7 @@ echo    for %%%%j in (vc%COMPILERVERSION%) do ( >> buildrelease-vc%COMPILERVERSI
 echo      for %%%%k in (x86 x64) do ( >> buildrelease-vc%COMPILERVERSION%.cmd
 echo 		pushd vs%%%%i-%%%%j-%%%%k >> buildrelease-vc%COMPILERVERSION%.cmd
 echo        call clean.cmd >> buildrelease-vc%COMPILERVERSION%.cmd
+echo        call resetenv >> buildrelease-vc%COMPILERVERSION%.cmd
 echo        call cmake . >> buildrelease-vc%COMPILERVERSION%.cmd
 echo        call install.cmd >> buildrelease-vc%COMPILERVERSION%.cmd
 echo        if errorlevel 1 ( >> buildrelease-vc%COMPILERVERSION%.cmd
@@ -195,13 +197,13 @@ goto :eof
 :makefolderscripts
   echo @echo off > build.cmd
   echo call resetenv >> build.cmd
-  echo call msbuild  /p:Configuration=%2 /p:Platform=%1 ALL_BUILD.vcxproj >> build.cmd
+  echo call msbuild /m /p:Configuration=%2 /p:Platform=%1 ALL_BUILD.vcxproj >> build.cmd
   echo @echo off > install.cmd
   echo call resetenv >> install.cmd
-  echo call msbuild /p:Configuration=%2 /p:Platform=%1 INSTALL.vcxproj >> install.cmd
+  echo call msbuild /m /p:Configuration=%2 /p:Platform=%1 INSTALL.vcxproj >> install.cmd
   echo @echo off > clean.cmd
   echo call resetenv >> clean.cmd
-  echo call msbuild /target:clean /p:Configuration=%2 /p:Platform=%1 ALL_BUILD.vcxproj >> clean.cmd
+  echo call msbuild /m /target:clean /p:Configuration=%2 /p:Platform=%1 ALL_BUILD.vcxproj >> clean.cmd
   exit /b
   
   

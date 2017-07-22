@@ -357,7 +357,7 @@ void AttributeSelectorGrid::OnOkClick(wxCommandEvent& event)
 							tscrypto::tsCryptoStringList parts = tscrypto::tsCryptoString(name.c_str().AsChar()).split("~");
 							int id = 0;
 							if (parts->size() > 1)
-								id = TsStrToInt(parts->at(1));
+								id = TsStrToInt(parts->at(1).c_str());
 							GUID attributeGuid = _GuidMap[id];
 
 							int idx = FindAttrIndex(_vars->_attrsList, attributeGuid);
@@ -485,7 +485,7 @@ void AttributeSelectorGrid::MarkIncomingAttributes()
 				{
 					tscrypto::tsCryptoStringList parts = tscrypto::tsCryptoString(name.c_str().AsChar()).split("~");
 				if (parts->size() > 1)
-					id = TsStrToInt(parts->at(1));
+						id = TsStrToInt(parts->at(1).c_str());
 					wName = name.c_str().AsChar();
 				if (wName[0] == '-')
 				{

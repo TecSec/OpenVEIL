@@ -84,6 +84,7 @@ else()
 		VEILCmsHeader
 		zlib
 		bz2Static
+        TS_SUP_DLL
 		)
 endif()
 

@@ -1396,10 +1396,10 @@ BOOL     tscrypto::xp_PathSearch(const tsCryptoStringBase &fileName, tsCryptoStr
 
     if ( xp_GetModuleFileName(XP_MODULE_INVALID, tmpPath) )
     {
-		if ( TsStrrChr(tmpPath, XP_PATH_SEP_CHAR) != 0 )
+		if ( TsStrrChr(tmpPath.c_str(), XP_PATH_SEP_CHAR) != 0 )
         {
             TsStrrChr(tmpPath.rawData(), XP_PATH_SEP_CHAR)[1] = 0;
-			tmpPath.resize(TsStrLen(tmpPath));
+			tmpPath.resize(TsStrLen(tmpPath.c_str()));
             tmpPath += fileName;
             if ( xp_FileExists(tmpPath) )
             {
@@ -1557,7 +1557,7 @@ BOOL     tscrypto::xp_SearchThisPath(const tsCryptoStringBase &fileName, const t
         TsStrCpy(iPath, sizeof(iPath) / sizeof(iPath[0]), p);
         if ( iPath[TsStrLen(iPath) - 1] != XP_PATH_SEP_CHAR )
             TsStrCat(iPath, sizeof(iPath) / sizeof(iPath[0]), XP_PATH_SEP_STR);
-        TsStrCat(iPath, sizeof(iPath) / sizeof(iPath[0]), fileName);
+        TsStrCat(iPath, sizeof(iPath) / sizeof(iPath[0]), fileName.c_str());
         if ( xp_FileExists(iPath) )
         {
 			path = iPath;

@@ -57,7 +57,7 @@ Other important CMake variables:
 
 Compilation Options:
    CMAKE_BUILD_TYPE:               ${CMAKE_BUILD_TYPE}
-   CMAKE_C_COMPILER CMAKE_C_FLAGS: ${CMAKE_C_COMPILER}
+   CMAKE_C_COMPILER:               ${CMAKE_C_COMPILER}
    CMAKE_C_FLAGS:                  ${CMAKE_C_FLAGS}
    CMAKE_CXX_FLAGS:                ${CMAKE_CXX_FLAGS}
    CMAKE_CXX_FLAGS_DEBUG:          ${CMAKE_CXX_FLAGS_DEBUG}

@@ -230,7 +230,7 @@ bool UrlParser::ParseFullUrl(const tscrypto::tsCryptoString& url)
 		// Now split the server and port
 		parts = remainder.split(':', 2);
 		if (parts->size() > 1)
-			_port = TsStrToInt(parts->at(1));
+            _port = TsStrToInt(parts->at(1).c_str());
 		_server = decodeServer(parts->at(0));
 	}
 	else
@@ -297,11 +297,11 @@ int UrlParser::getPort() const
 {
 	if (_port == 0)
 	{
-		if (TsStriCmp(getScheme(), "http") == 0)
+        if (TsStriCmp(getScheme().c_str(), "http") == 0)
 			return 80;
-		if (TsStriCmp(getScheme(), "https") == 0)
+        if (TsStriCmp(getScheme().c_str(), "https") == 0)
 			return 443;
-		if (TsStriCmp(getScheme(), "httpv") == 0)
+        if (TsStriCmp(getScheme().c_str(), "httpv") == 0)
 			return 8001;
 	}
 	return _port;

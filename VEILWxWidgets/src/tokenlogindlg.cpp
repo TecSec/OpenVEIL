@@ -229,7 +229,7 @@ void TokenLogin::OnOkClick( wxCommandEvent& event )
         return;
 
     _vars->_pinBuffer = edtPassword->GetValue().c_str().AsChar();
-    if ((int)TsStrLen(_vars->_pinBuffer) < _vars->_minLen)
+    if ((int)TsStrLen(_vars->_pinBuffer.c_str()) < _vars->_minLen)
     {
         char buff[MAX_PATH + 1];
 
@@ -242,7 +242,7 @@ void TokenLogin::OnOkClick( wxCommandEvent& event )
     }
     else
     {
-        _vars->_pinBuffer.resize(TsStrLen(_vars->_pinBuffer));
+        _vars->_pinBuffer.resize(TsStrLen(_vars->_pinBuffer.c_str()));
         LoginStatus result = _vars->_session->Login(_vars->_pinBuffer);
         switch (result)
         {

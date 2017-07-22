@@ -132,7 +132,7 @@ tsCryptoData tsDnPart::NameAsOID() const
 {
 	for (size_t i = 0; i < sizeof(gNameTable) / sizeof(gNameTable[0]); i++)
 	{
-		if (TsStriCmp(gNameTable[i].name, _name) == 0)
+		if (TsStriCmp(gNameTable[i].name, _name.c_str()) == 0)
 			return tsCryptoData(gNameTable[i].oid, tsCryptoData::OID);
 	}
 	return tsCryptoData(_name, tsCryptoData::OID);
@@ -145,7 +145,7 @@ void tsDnPart::NameAsOID(const tsCryptoStringBase& oid)
 {
 	for (size_t i = 0; i < sizeof(gNameTable) / sizeof(gNameTable[0]); i++)
 	{
-		if (TsStrCmp(oid, gNameTable[i].oid) == 0)
+		if (TsStrCmp(oid.c_str(), gNameTable[i].oid) == 0)
 		{
 			_name = gNameTable[i].name;
 			return;
@@ -597,7 +597,7 @@ tsDnPart* tsDistinguishedName::findPartByName(const char* name)
 {
 	for (size_t i = 0; i < partCount(); i++)
 	{
-		if (TsStriCmp(part(i).Name(), name) == 0)
+		if (TsStriCmp(part(i).Name().c_str(), name) == 0)
 			return &part(i);
 	}
 

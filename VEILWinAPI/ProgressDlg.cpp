@@ -355,7 +355,7 @@ private:
 		// don't change the window text if the percentage hasn't changed
 		strCur.resize(512);
 		GetWindowTextA(m_hWnd, strCur.rawData(), (int)strCur.size());
-		strCur.resize(TsStrLen(strCur));
+		strCur.resize(TsStrLen(strCur.c_str()));
 		if (strCur != strBuf)
 			SetWindowTextA(m_hWnd, strBuf.c_str());
 	}
@@ -397,7 +397,7 @@ private:
 		// don't change the window text if the percentage hasn't changed
 		strCur.resize(512);
 		GetWindowTextA(m_hWnd, strCur.rawData(), (int)strCur.size());
-		strCur.resize(TsStrLen(strCur));
+		strCur.resize(TsStrLen(strCur.c_str()));
 		if (strCur != strBuf)
 			SetWindowTextA(m_hWnd, strBuf.c_str());
 	}

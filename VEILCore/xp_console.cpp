@@ -902,7 +902,7 @@ void xp_console::GetPin(tscrypto::tsCryptoString& enteredPin, uint32_t len, cons
 	SetConsoleMode(h, md & ~ENABLE_ECHO_INPUT);
 
 	fgets(enteredPin.rawData(), len, stdin);
-	enteredPin.resize(TsStrLen(enteredPin));
+	enteredPin.resize(TsStrLen(enteredPin.c_str()));
 	enteredPin.TrimEnd("\r\n");
 
 	/* reset echo */

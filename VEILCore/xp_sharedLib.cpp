@@ -171,7 +171,7 @@ BOOL tscrypto::xp_GetModuleFileName(XP_MODULE module, tsCryptoStringBase &name)
 	name.clear();
 	name.resize(MAX_PATH);
     BOOL retVal = GetModuleFileNameA((HINSTANCE)module, name.data(), (DWORD)name.size());
-	name.resize(TsStrLen(name));
+	name.resize(TsStrLen(name.c_str()));
 	return retVal;
 #else
     if ( module == XP_MODULE_INVALID )

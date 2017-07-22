@@ -65,7 +65,7 @@ const tscrypto::tsCryptoString &UdpConnection::Server() const
 }
 void UdpConnection::Server(const tscrypto::tsCryptoString &setTo)
 {
-    if (TsStriCmp(m_server, setTo) != 0)
+    if (TsStriCmp(m_server.c_str(), setTo.c_str()) != 0)
     {
 #ifdef _WIN32
         closesocket(m_socket);
@@ -109,7 +109,7 @@ void UdpConnection::ClearErrors()
 {
     m_errors.clear();
 }
-bool UdpConnection::SendTo(const tscrypto::tsCryptoData& data, const SOCKADDR_STORAGE& To, int toLen)
+bool UdpConnection::SendTo(const tscrypto::tsCryptoData& data, const struct sockaddr_storage& To, int toLen)
 {
     //	int64_t start = GetTicks();
     //sockaddr_storage toAddr;
@@ -169,7 +169,7 @@ bool UdpConnection::SendTo(const tscrypto::tsCryptoData& data, const SOCKADDR_ST
 #endif // _WIN32
             {
                 m_errors += "Unable to reconnect and send the request\n";
-                _errorSignals.Fire(this, m_errors);
+                //_errorSignals.Fire(this, m_errors);
                 return false;
             }
 
@@ -180,7 +180,7 @@ bool UdpConnection::SendTo(const tscrypto::tsCryptoData& data, const SOCKADDR_ST
             m_errors += "Error ";
             m_errors << errno;
             m_errors += " occurred while attempting to send the request\n";
-            _errorSignals.Fire(this, m_errors);
+            //_errorSignals.Fire(this, m_errors);
             return false;
         }
 #endif
@@ -190,7 +190,7 @@ bool UdpConnection::SendTo(const tscrypto::tsCryptoData& data, const SOCKADDR_ST
     LOG(httpData, "Raw Sent:" << tscrypto::endl << data.ToHexDump());
     return true;
 }
-bool UdpConnection::ReadFrom(SOCKADDR_STORAGE& From, int& fromLen, tscrypto::tsCryptoData& data)
+bool UdpConnection::ReadFrom(struct sockaddr_storage& From, int& fromLen, tscrypto::tsCryptoData& data)
 {
     int len;
     tscrypto::tsCryptoData buff;
@@ -201,11 +201,13 @@ bool UdpConnection::ReadFrom(SOCKADDR_STORAGE& From, int& fromLen, tscrypto::tsC
 
     buff.resize(targetLength);
 
-    fromLen = sizeof(SOCKADDR_STORAGE);
+    fromLen = sizeof(struct sockaddr_storage);
 #ifdef _WIN32
     len = recvfrom(m_socket, (char*)buff.rawData(), targetLength, MSG_PEEK, (sockaddr*)&From, &fromLen);
 #else
-    len = recvfrom((int)m_socket, (char*)buff.rawData(), targetLength, MSG_PEEK, (sockaddr*)&From, &fromLen);
+    socklen_t frmlen = fromLen;
+    len = recvfrom((int)m_socket, (char*)buff.rawData(), targetLength, MSG_PEEK, (sockaddr*)&From, &frmlen);
+    fromLen = frmlen;
 #endif
 
     //
@@ -219,7 +221,8 @@ bool UdpConnection::ReadFrom(SOCKADDR_STORAGE& From, int& fromLen, tscrypto::tsC
 #ifdef _WIN32
         len = recvfrom(m_socket, (char*)buff.rawData(), len, 0, (sockaddr*)&From, &fromLen);
 #else
-        len = recvfrom((int)m_socket, (char*)buff.rawData(), len, 0, (sockaddr*)&From, &fromLen);
+        len = recvfrom((int)m_socket, (char*)buff.rawData(), len, 0, (sockaddr*)&From, &frmlen);
+        fromLen = frmlen;
 #endif
         if (len > 0)
         {
@@ -301,7 +304,7 @@ bool UdpConnection::Disconnect()
     m_isConnected = false;
     return true;
 }
-bool UdpConnection::resolveAddress(const tscrypto::tsCryptoStringBase& address, const tscrypto::tsCryptoStringBase& port, sockaddr_storage& sockAddr, int & addrLen, int socketType, int family)
+bool UdpConnection::resolveAddress(const tscrypto::tsCryptoStringBase& address, const tscrypto::tsCryptoStringBase& port, struct sockaddr_storage& sockAddr, int & addrLen, int socketType, int family)
 {
     struct addrinfo hints, *res, *p;
     int status;
@@ -421,7 +424,11 @@ bool UdpConnection::Connect()
         {
             memcpy(&m_serverInfo, p->ai_addr, p->ai_addrlen);
 
+#ifndef _WIN32
+            if (bind((int)m_socket, p->ai_addr, (int)p->ai_addrlen) == SOCKET_ERROR)
+#else
             if (bind(m_socket, p->ai_addr, (int)p->ai_addrlen) == SOCKET_ERROR)
+#endif
             {
 #ifdef _WIN32
                 LOG(FrameworkInfo1, "Unable to bind to the socket [" << WSAGetLastError() << " - " << ipstr << ":" << portStr << "]");

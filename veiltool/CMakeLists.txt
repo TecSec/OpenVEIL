@@ -78,7 +78,7 @@ Source_Group(Commands FILES
 	)
 	
 set_target_properties(veiltool PROPERTIES FOLDER "Tools")
-TARGET_LINK_LIBRARIES(veiltool VEILCore)
+TARGET_LINK_LIBRARIES(veiltool VEILCore TS_SUP_DLL)
 set_target_properties(veiltool PROPERTIES OUTPUT_NAME veil)
 if(UNIX)
     set_target_properties(veiltool PROPERTIES OUTPUT_NAME_DEBUG veil.debug)

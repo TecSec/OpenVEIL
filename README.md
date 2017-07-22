@@ -14,10 +14,10 @@ We use an out of source build process.  The project/make files and output
 can be found in the build folder that is created by the bootstrap.
 
 ### Requirements
-- VEIL Cryptographic Library 7.0.2 or later (Contact TecSec, Inc.)
+- VEIL Cryptographic Library 7.1.7 or later (Contact TecSec, Inc.)
 - Windows
   - CMake 3.3+
-  - Visual Studio 2013 or Visual Studio 2015 or mingw-w64.
+  - Visual Studio 2015 or Visual Studio 2017 or mingw-w64.
 - Linux
   - CMake 3.3+
   - GCC 4.8.2+
@@ -33,16 +33,15 @@ can be found in the build folder that is created by the bootstrap.
 2. Go to the directory of the repository in a command prompt
 3. `cd make\windows`
 4. Run the following command to bootstrap x86 and x64(Debug and Release)
-  - If Visual Studio 2015:
-    - `bootstrap_VS2015.cmd`
-  - If Visual Studio 2013:
-    - `bootstrap_VS2013.cmd`
+    - `bootstrap_VS.cmd xx`
+    
+        where xx is the VS compiler number (14 for VS2015 or 15 for VS2017)
 5. `cd ..\..\Build`
 6. Run the following command to build x86 and x64(Debug and Release)
   - If Visual Studio 2015:
     - `buildall-vc14.cmd`
-  - If Visual Studio 2013:
-    - `buildall-vc12.cmd`
+  - If Visual Studio 2017:
+    - `buildall-vc15.cmd`
 7. After the build is complete there should be a C:\TecSec\OpenVEIL_7-0 directory. Within that
 directory there is a folder depending on which version of Visual Studio was used. Within that
 directory there is a bin directory that has DLLs and executables for OpenVEIL. Directories

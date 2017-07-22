@@ -54,7 +54,7 @@ add_library(filetool SHARED
 add_precompiled_header(filetool stdafx.h FORCEINCLUDE SOURCE_CXX stdafx.cpp)
 set_source_files_properties(filetool.rc PROPERTIES COMPILE_DEFINITIONS RC_COMPILED)
 set_target_properties(filetool PROPERTIES FOLDER "Tools/veilExtensions")
-TARGET_LINK_LIBRARIES(filetool VEILCore VEILCmsHeader VEILFileSupport)
+TARGET_LINK_LIBRARIES(filetool VEILCore VEILCmsHeader VEILFileSupport TS_SUP_DLL)
 set_target_properties(filetool PROPERTIES 
 	SUFFIX ".veil"  
 	)

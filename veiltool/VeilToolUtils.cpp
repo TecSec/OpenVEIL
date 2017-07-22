@@ -146,7 +146,7 @@ protected:
 		if (list.size() > 1)
 		{
 			std::sort(list.begin(), list.end(), [](std::shared_ptr<tsmod::IVeilToolCommand> left, std::shared_ptr<tsmod::IVeilToolCommand> right) {
-				return TsStriCmp(left->getCommandName(), right->getCommandName()) < 0;
+				return TsStriCmp(left->getCommandName().c_str(), right->getCommandName().c_str()) < 0;
 			});
 		}
 
@@ -189,7 +189,7 @@ public:
 		std::vector<std::shared_ptr<tsmod::IVeilToolCommand> > list = ::TopServiceLocator()->get_group<tsmod::IVeilToolCommand>("/COMMANDS/", false);
 
 		std::sort(list.begin(), list.end(), [](std::shared_ptr<tsmod::IVeilToolCommand> left, std::shared_ptr<tsmod::IVeilToolCommand> right) {
-			return TsStriCmp(left->getCommandName(), right->getCommandName()) < 0;
+			return TsStriCmp(left->getCommandName().c_str(), right->getCommandName().c_str()) < 0;
 		});
 
 		ts_out << BoldWhite << "VEIL Tool Options" << ::endl << "================================" << ::endl;
@@ -215,7 +215,7 @@ public:
 		else
 		{
 			ts_out << BoldGreen;
-			if (TsStrLen(left) > 24)
+			if (TsStrLen(left.c_str()) > 24)
 			{
 				ts_out << left << ::endl << "\t\t\t " << BoldWhite;
 			}

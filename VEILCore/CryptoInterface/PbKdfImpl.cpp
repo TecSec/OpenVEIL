@@ -70,7 +70,7 @@ public:
 			return false;
 		}
 
-		if (TsStrniCmp(hmacName, "HMAC-", 5) != 0)
+		if (TsStrniCmp(hmacName.c_str(), "HMAC-", 5) != 0)
 		{
 			macDesc = findMacAlgorithm(("HMAC-" + hmacName).c_str());
 		}
@@ -108,7 +108,7 @@ public:
 			return false;
 		}
 
-		if (TsStrniCmp(hmacName, "HMAC-", 5) != 0)
+		if (TsStrniCmp(hmacName.c_str(), "HMAC-", 5) != 0)
 		{
 			macDesc = findMacAlgorithm(("HMAC-" + hmacName).c_str());
 		}

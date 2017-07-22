@@ -856,7 +856,7 @@ void AudienceSelectorDlg::OnFavoritelistSelected( wxCommandEvent& event )
     }
 
     // TODO:  Reenable the last term once we implement PKI
-    if (name.size() > 0 && TsStrCmp(name, AS_SEL_DOM_STR) != 0 && accessGroupCount > 0)// || mySelectedCertVector.size() > 0)
+    if (name.size() > 0 && TsStrCmp(name.c_str(), AS_SEL_DOM_STR) != 0 && accessGroupCount > 0)// || mySelectedCertVector.size() > 0)
     {
         //int nResponse = ::MessageBox(_hDlg, "Selecting a favorite will cause all current Attribute and certificate selections to be lost.\n\n Do you wish to continue?", "Warning", wxYES_NO | wxICON_INFORMATION);
         int nResponse = ::wxTsMessageBox("Selecting a favorite will cause all current Attribute selections to be lost.\n\n Do you wish to continue?", "Warning", wxYES_NO | wxICON_INFORMATION);
@@ -1712,7 +1712,7 @@ BOOL AudienceSelectorDlg::QueryAndClearAccessGroups()
 		name = lstGroups->GetString(0).c_str().AsChar();
 		/* If there is one item in the list and it is the text string AS_SEL_DOM_STR, don't
 		pop up the warning message. */
-		if (lstGroups->GetCount() != 1 || TsStrCmp(name, AS_SEL_DOM_STR) != 0)
+		if (lstGroups->GetCount() != 1 || TsStrCmp(name.c_str(), AS_SEL_DOM_STR) != 0)
 		{
 			int nResponse = ::wxTsMessageBox("Changing Tokens will cause all current Attribute selections to be lost.\n\n Do you wish to continue?", "Warning", wxYES_NO | wxICON_INFORMATION);
 
@@ -1884,7 +1884,7 @@ void AudienceSelectorDlg::EnableDisableOK()
 			tscrypto::tsCryptoString name;
 
 			name = lstGroups->GetString(0).c_str().AsChar();
-			if (TsStrCmp(name, AS_SEL_DOM_STR) != 0)
+			if (TsStrCmp(name.c_str(), AS_SEL_DOM_STR) != 0)
 			{
 				bEnableOK = TRUE;
 				bEnableFav = TRUE;
@@ -2217,7 +2217,7 @@ bool AudienceSelectorDlg::FindSelectedAccessGroup(std::shared_ptr<ICmsHeaderAcce
 			!!(attrGroup = std::dynamic_pointer_cast<ICmsHeaderAttributeGroup>(andGroup)))
 		{
 			line = BuildAttrsLine(attrGroup);
-			if (TsStrCmp(line, name) == 0)
+			if (TsStrCmp(line.c_str(), name.c_str()) == 0)
 			{
 				attrs = attrGroup;
 				accessGroup = andGroup;

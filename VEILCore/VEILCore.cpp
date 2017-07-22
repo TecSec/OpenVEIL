@@ -971,7 +971,7 @@ protected:
 
 			if (tmp[0] == '`' || tmp[0] == '&' || tmp[0] == '~')
 				tmp.DeleteAt(0, 1);
-			if (TsStrCmp(name, tmp) == 0)
+			if (TsStrCmp(name, tmp.c_str()) == 0)
 			{
 				return &entries[i];
 			}
@@ -1767,7 +1767,7 @@ bool xp_LaunchBrowser(const tscrypto::tsCryptoStringBase& _url)
 
 
 	tsCryptoString browser = getenv("BROWSER");
-	if (browser.empty) 
+	if (browser.empty()) 
 		return false;
 
 	char *args[3];

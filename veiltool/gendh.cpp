@@ -356,7 +356,7 @@ protected:
 			return false;
 		}
 		auto it = std::find_if(sections->begin(), sections->end(), [](TSNamedBinarySection& section) {
-			return TsStriCmp(section.Name, "DSA PARAMETERS") == 0;
+			return TsStriCmp(section.Name.c_str(), "DSA PARAMETERS") == 0;
 		});
 		if (it == sections->end())
 			return false;

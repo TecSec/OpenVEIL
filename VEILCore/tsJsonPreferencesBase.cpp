@@ -512,12 +512,12 @@ bool tsJsonPreferencesBase::saveConfigurationChanges(JsonConfigLocation location
 							{
 								tscrypto::tsCryptoString val(_preferenceItems->at(i).Value);
 
-								if (TsStriCmp(val, "true") == 0)
+                                if (TsStriCmp(val.c_str(), "true") == 0)
 									(reinterpret_cast<JSONField*>(node))->Value(true);
-								else if (TsStriCmp(val, "false") == 0)
+                                else if (TsStriCmp(val.c_str(), "false") == 0)
 									(reinterpret_cast<JSONField*>(node))->Value(false);
 								else if (IsNumber(val))
-									(reinterpret_cast<JSONField*>(node))->Value(TsStrToInt64(val));
+                                    (reinterpret_cast<JSONField*>(node))->Value(TsStrToInt64(val.c_str()));
 								else
 									(reinterpret_cast<JSONField*>(node))->Value(_preferenceItems->at(i).Value);
 
@@ -628,7 +628,7 @@ JsonPreferenceItem tsJsonPreferencesBase::findPreferenceItem(const tscrypto::tsC
 	for (int i = 0; i < count; i++)
 	{
 		JsonPreferenceItem item = getPreferenceItem(i);
-		if (TsStriCmp(item.Path, path) == 0)
+        if (TsStriCmp(item.Path.c_str(), path.c_str()) == 0)
 			return item;
 	}
 	return JsonPreferenceItem(path, "", jc_NotFound);
@@ -641,7 +641,7 @@ bool tsJsonPreferencesBase::setPreferenceItem(const JsonPreferenceItem &item)
 	for (int i = 0; i < count; i++)
 	{
 		JsonPreferenceItem itm = getPreferenceItem(i);
-		if (TsStriCmp(itm.Path, item.Path) == 0)
+        if (TsStriCmp(itm.Path.c_str(), item.Path.c_str()) == 0)
 		{
 			if (OverwriteEntry(item.Path, itm.Location, item.Location))
 			{

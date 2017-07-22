@@ -36,6 +36,8 @@
 
 #pragma once
 
+#include "utilities_interface.h"
+
 #ifdef NO_LOGGING
 #define LOG(a,...)
 #define TSRETURN_ERROR(a,b) b

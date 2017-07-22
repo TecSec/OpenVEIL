@@ -1398,7 +1398,7 @@ public:
 
         for (int i = 0; i < (int)size(); i++)
         {
-            if (TsStriCmp(_algs[i].algName, tmpAlgName) == 0)
+            if (TsStriCmp(_algs[i].algName.c_str(), tmpAlgName.c_str()) == 0)
             {
                 return _algs[i].algId;
             }
@@ -1412,7 +1412,7 @@ public:
 
         for (int i = 0; i < (int)size(); i++)
         {
-            if (TsStriCmp(_algs[i].algName, tmpAlgName) == 0)
+            if (TsStriCmp(_algs[i].algName.c_str(), tmpAlgName.c_str()) == 0)
             {
                 return _algs[i].algOid;
             }
@@ -1426,7 +1426,7 @@ public:
 
         for (int i = 0; i < (int)size(); i++)
         {
-            if (TsStriCmp(_algs[i].algOid, tmpOid) == 0)
+            if (TsStriCmp(_algs[i].algOid.c_str(), tmpOid.c_str()) == 0)
             {
                 return _algs[i].algName;
             }
@@ -1439,7 +1439,7 @@ public:
 
         for (int i = 0; i < (int)size(); i++)
         {
-            if (TsStriCmp(_algs[i].algOid, tmpOid) == 0)
+            if (TsStriCmp(_algs[i].algOid.c_str(), tmpOid.c_str()) == 0)
             {
                 return _algs[i].algId;
             }
@@ -3431,7 +3431,7 @@ bool tscrypto::TSBuildRSAKeyFromBlob(const tsCryptoData &blob, std::shared_ptr<R
         return false;
     }
     oidStr = alg->Children()->at(0)->InnerData().ToOIDString();
-    if (TsStrCmp(oidStr, tsCryptoString(RSA_ENCRYPT_OID)) == 0)
+    if (TsStrCmp(oidStr.c_str(), tsCryptoString(RSA_ENCRYPT_OID).c_str()) == 0)
     {
         tsCryptoData e, n;
 
@@ -3449,7 +3449,7 @@ bool tscrypto::TSBuildRSAKeyFromBlob(const tsCryptoData &blob, std::shared_ptr<R
         if (!rsaAlg->IsPublicLoaded())
             return false;
     }
-    else if (TsStrCmp(oidStr, tsCryptoString(TECSEC_RSA_PRIVATE_KEY_BLOB)) == 0)
+    else if (TsStrCmp(oidStr.c_str(), tsCryptoString(TECSEC_RSA_PRIVATE_KEY_BLOB).c_str()) == 0)
     {
         tsCryptoData e, n, d, p, q, dp, dq, qInv;
 

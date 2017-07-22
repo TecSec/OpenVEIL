@@ -649,19 +649,19 @@ tsCryptoStringList CryptoLocator_t::ObjectGroup(const tscrypto::tsCryptoStringBa
 	AutoReaderLock lock(*this);
 	for (auto iter = _singleton_objects.begin(); iter != _singleton_objects.end(); iter++)
 	{
-		if (TsStrnCmp(id, iter->first, id.size()) == 0)
+		if (TsStrnCmp(id.c_str(), iter->first.c_str(), id.size()) == 0)
 			tmp->push_back(path + iter->first);
 	}
 	if (!onlyInstantiatedSingletons)
 	{
 		for (auto iter = _singleton_classes.begin(); iter != _singleton_classes.end(); iter++)
 		{
-			if (TsStrnCmp(id, iter->first, id.size()) == 0)
+			if (TsStrnCmp(id.c_str(), iter->first.c_str(), id.size()) == 0)
 				tmp->push_back(path + iter->first);
 		}
 		for (auto iter = _classes.begin(); iter != _classes.end(); iter++)
 		{
-			if (TsStrnCmp(id, iter->first, id.size()) == 0)
+			if (TsStrnCmp(id.c_str(), iter->first.c_str(), id.size()) == 0)
 				tmp->push_back(path + iter->first);
 		}
 	}

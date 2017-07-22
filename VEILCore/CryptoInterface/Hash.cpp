@@ -69,7 +69,7 @@ public:
 	{
 		tsCryptoString algName(fullName);
 
-		if (TsStrniCmp(algName, "HASH-", 5) == 0)
+		if (TsStrniCmp(algName.c_str(), "HASH-", 5) == 0)
 			algName.erase(0, 5);
 		algName.ToUpper();
 		desc = findHashAlgorithm(algName.c_str());

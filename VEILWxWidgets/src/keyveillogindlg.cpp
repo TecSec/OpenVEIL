@@ -260,7 +260,7 @@ void KeyVEILLoginDlg::OnOkClick( wxCommandEvent& event )
 
     event.StopPropagation();
 
-    if ((int)TsStrLen(_vars->_pinBuffer) < KEYVEIL_MIN_PIN_LEN)
+    if ((int)TsStrLen(_vars->_pinBuffer.c_str()) < KEYVEIL_MIN_PIN_LEN)
     {
         char buff[MAX_PATH + 1];
 
@@ -273,7 +273,7 @@ void KeyVEILLoginDlg::OnOkClick( wxCommandEvent& event )
     }
     else
     {
-        _vars->_pinBuffer.resize(TsStrLen(_vars->_pinBuffer));
+        _vars->_pinBuffer.resize(TsStrLen(_vars->_pinBuffer.c_str()));
 
         wxBusyCursor busyCursor;
         wxWindowDisabler disabler;

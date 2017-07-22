@@ -118,38 +118,38 @@ public:
 	 *
 	 * \return .
 	 */
-	int valueAsNumber() const { return TsStrToInt(Value); }
+	int valueAsNumber() const { return TsStrToInt(Value.c_str()); }
 	/**
 	 * \brief Gets the value as int 64.
 	 *
 	 * \return .
 	 */
-	int64_t valueAsInt64() const { return TsStrToInt64(Value); }
+	int64_t valueAsInt64() const { return TsStrToInt64(Value.c_str()); }
 	/**
 	 * \brief Determines if we can value as bool.
 	 *
 	 * \return true if it succeeds, false if it fails.
 	 */
-	bool valueAsBool() const { return TsStrToInt64(Value) != 0 || TsStriCmp(Value, "true") == 0; }
+	bool valueAsBool() const { return TsStrToInt64(Value.c_str()) != 0 || TsStriCmp(Value.c_str(), "true") == 0; }
 	/**
 	 * \brief Sets value as number.
 	 *
 	 * \param setTo The set to.
 	 */
-	void setValueAsNumber(int setTo) { char buff[20]; Value.clear(); tscrypto::TsSnPrintf(buff, sizeof(buff) / sizeof(char), ("%d"), setTo); Value = buff; }
+	void setValueAsNumber(int setTo) { char buff[20]; Value.clear(); TsSnPrintf(buff, sizeof(buff) / sizeof(char), ("%d"), setTo); Value = buff; }
 	/**
 	 * \brief Sets value as int 64.
 	 *
 	 * \param setTo The set to.
 	 */
-	void setValueAsInt64(int64_t setTo) { char buff[60]; Value.clear(); tscrypto::TsSnPrintf(buff, sizeof(buff) / sizeof(char), ("%lld"), setTo); Value = buff; }
+	void setValueAsInt64(int64_t setTo) { char buff[60]; Value.clear(); TsSnPrintf(buff, sizeof(buff) / sizeof(char), ("%lld"), setTo); Value = buff; }
 	/**
 	 * \brief Sets value as bool.
 	 *
 	 * \param setTo true to set to.
 	 */
 	void setValueAsBool(bool setTo) { Value = setTo ? "true" : "false"; }
-	bool operator==(const JsonPreferenceItem& obj) const { return TsStrCmp(Path, obj.Path) == 0; }
+	bool operator==(const JsonPreferenceItem& obj) const { return TsStrCmp(Path.c_str(), obj.Path.c_str()) == 0; }
 };
 
 class tsJsonPreferencesBase;

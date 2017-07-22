@@ -1037,7 +1037,7 @@ protected:
 			}
 			else if ((str)[0] == 'i')
 			{
-				iter = TsStrToInt(str.substring(2, str.size() - 2));
+				iter = TsStrToInt(str.substring(2, str.size() - 2).c_str());
 			}
 			else if ((str)[0] == 'm')
 			{

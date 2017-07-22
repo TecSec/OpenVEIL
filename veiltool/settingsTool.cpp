@@ -277,17 +277,17 @@ protected:
 		{
 			(dynamic_cast<JSONField*>(ele))->Value(nullptr);
 		}
-		else if (TsStriCmp(value, "true") == 0)
+		else if (TsStriCmp(value.c_str(), "true") == 0)
 		{
 			(dynamic_cast<JSONField*>(ele))->Value(true);
 		}
-		else if (TsStriCmp(value, "false") == 0)
+		else if (TsStriCmp(value.c_str(), "false") == 0)
 		{
 			(dynamic_cast<JSONField*>(ele))->Value(false);
 		}
 		else if (IsNumber(value))
 		{
-			(dynamic_cast<JSONField*>(ele))->Value(TsStrToInt64(value));
+			(dynamic_cast<JSONField*>(ele))->Value(TsStrToInt64(value.c_str()));
 		}
 		else
 		{

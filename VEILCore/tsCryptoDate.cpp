@@ -162,7 +162,7 @@ bool tscrypto::JulianToSYSTEMTIME(double dtSrc, SYSTEMTIME *tmDest)
 	int32_t n4Yr;              // Year within 4 year block (0,1,2 or 3)
 	bool bLeap4 = true;     // TRUE if 4 year block includes leap year
 
-	double dblDate = dtSrc; // tempory serial date
+	double dblDate = dtSrc; // temporary serial date
 
 	// Round to the second
 	dblDate += ((dtSrc > 0.0) ? HALF_SECOND : -HALF_SECOND);

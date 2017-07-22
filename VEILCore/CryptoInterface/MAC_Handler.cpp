@@ -140,13 +140,13 @@ public:
 
 		context.reset();
 		desc = nullptr;
-		if (TsStrniCmp(algorithm, "HMAC", 4) == 0)
+		if (TsStrniCmp(algorithm.c_str(), "HMAC", 4) == 0)
 		{
 			if (algorithm.size() <= 5)
 			{
 				algorithm = "HMAC-SHA512";
 			}
-			else if (TsStriCmp(algorithm, "HMAC-SHA3") == 0)
+			else if (TsStriCmp(algorithm.c_str(), "HMAC-SHA3") == 0)
 			{
 				algorithm += "-512";
 			}
@@ -157,7 +157,7 @@ public:
 			SetName(algorithm);
 			desc = findMacAlgorithm(algName.c_str());
 		}
-		else if (TsStrniCmp(algorithm, "CMAC", 4) == 0)
+		else if (TsStrniCmp(algorithm.c_str(), "CMAC", 4) == 0)
 		{
 			if (algorithm.size() < 6)
 			{
@@ -202,7 +202,7 @@ public:
 				SetName(name);
 			}
 		}
-		else if (TsStrniCmp(algorithm, "POLY1305", 8) == 0)
+		else if (TsStrniCmp(algorithm.c_str(), "POLY1305", 8) == 0)
 		{
 			algorithm = "POLY1305";
 			SetName("POLY1305");

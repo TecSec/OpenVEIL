@@ -47,8 +47,8 @@ public:
 
     virtual tscrypto::tsCryptoString Errors() const override;
     virtual void ClearErrors() override;
-    virtual bool SendTo(const tscrypto::tsCryptoData& data, const SOCKADDR_STORAGE& To, int toLen) override;
-    virtual bool ReadFrom(SOCKADDR_STORAGE& From, int& fromLen, tscrypto::tsCryptoData& data) override;
+    virtual bool SendTo(const tscrypto::tsCryptoData& data, const struct sockaddr_storage& To, int toLen) override;
+    virtual bool ReadFrom(struct sockaddr_storage& From, int& fromLen, tscrypto::tsCryptoData& data) override;
 
     virtual bool isConnected() const override;
 

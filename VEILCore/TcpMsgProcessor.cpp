@@ -757,12 +757,12 @@ protected:
 
         _transportState = IHttpChannelProcessor::login;
 
-        if (TsStriCmp(scheme, "https") == 0)
+        if (TsStriCmp(scheme.c_str(), "https") == 0)
         {
             if (!(_tunnel = CryptoLocator()->get_instance<IClientTunnel>("PROTOCOL_SSL_CLIENT")))
                 return false;
 	}
-        else if (TsStriCmp(scheme, "httpv") == 0)
+        else if (TsStriCmp(scheme.c_str(), "httpv") == 0)
         {
             if (!(_tunnel = std::dynamic_pointer_cast<IClientTunnel>(CryptoFactory("TUNNEL-INITIATOR"))))
                 return false;

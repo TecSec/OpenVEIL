@@ -49,7 +49,7 @@ if(ANDROID)
 	set_target_properties(VEILSmartCard_s PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
 endif()
 add_precompiled_header(VEILSmartCard_s stdafx.h FORCEINCLUDE SOURCE_CXX stdafx.cpp)
-set_target_properties(VEILSmartCard_s PROPERTIES FOLDER "Modules/Static" COMPILE_DEFINITIONS "VEILSMARTCARD_STATIC;VEILCORE_STATIC;_STATIC_TSALG")
+set_target_properties(VEILSmartCard_s PROPERTIES FOLDER "Modules/Static" COMPILE_DEFINITIONS "VEILSMARTCARD_STATIC;VEILCORE_STATIC;_STATIC_TSALG;_STATIC_TS_SUP")
 
 if(APPLE)
 else()

@@ -295,7 +295,7 @@ public:
 #else
         vsnprintf(m_outMessage.rawData(), m_outMessage.size(), fmt.c_str(), args);
 #endif
-        m_outMessage.resize((uint32_t)tscrypto::TsStrLen(m_outMessage.c_str()));
+        m_outMessage.resize((uint32_t)TsStrLen(m_outMessage.c_str()));
         return *this;
     }
 
@@ -526,7 +526,7 @@ public:
 #else
         vsnprintf(m_outMessage.rawData(), m_outMessage.size(), fmt.c_str(), args);
 #endif
-        m_outMessage.resize((uint32_t)tscrypto::TsStrLen(m_outMessage.c_str()));
+        m_outMessage.resize((uint32_t)TsStrLen(m_outMessage.c_str()));
         return *this;
     }
 

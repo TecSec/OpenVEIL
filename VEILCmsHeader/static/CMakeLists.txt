@@ -50,7 +50,7 @@ if(ANDROID)
 endif()
 add_precompiled_header(VEILCmsHeader_s stdafx.h FORCEINCLUDE SOURCE_CXX stdafx.cpp)
 
-set_target_properties(VEILCmsHeader_s PROPERTIES FOLDER "Modules/Static" COMPILE_DEFINITIONS "VEILCMSHEADER_STATIC;VEILCORE_STATIC;_STATIC_TSALG")
+set_target_properties(VEILCmsHeader_s PROPERTIES FOLDER "Modules/Static" COMPILE_DEFINITIONS "VEILCMSHEADER_STATIC;VEILCORE_STATIC;_STATIC_TSALG;_STATIC_TS_SUP")
 
 if(APPLE)
 else()

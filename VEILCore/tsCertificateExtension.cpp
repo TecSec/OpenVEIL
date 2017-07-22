@@ -652,7 +652,7 @@ tsCertificateExtension::tsCertificateExtension(const tsCryptoData &OID, bool cri
 	m_oidString = m_oid.ToOIDString();
 	for (int i = 0; i < (int)(sizeof(gNameList) / sizeof(gNameList[0])); i++)
 	{
-		if ( TsStrCmp(gNameList[i].oid, m_oidString) == 0 )
+		if ( TsStrCmp(gNameList[i].oid, m_oidString.c_str()) == 0 )
 		{
 			m_extName = gNameList[i].name;
 			break;
@@ -751,7 +751,7 @@ bool tsCertificateExtension::LoadExtension(std::shared_ptr<TlvNode> node)
 
 	for (int i = 0; i < (int)(sizeof(gNameList) / sizeof(gNameList[0])); i++)
 	{
-		if ( TsStrCmp(gNameList[i].oid, m_oidString) == 0 )
+		if ( TsStrCmp(gNameList[i].oid, m_oidString.c_str()) == 0 )
 		{
 			m_extName = gNameList[i].name;
 			break;
@@ -798,7 +798,7 @@ void tsCertificateExtension::OID(tsCryptoData &setTo)
 	m_oidString = m_oid.ToOIDString();
 	for (int i = 0; i < (int)(sizeof(gNameList) / sizeof(gNameList[0])); i++)
 	{
-		if ( TsStrCmp(gNameList[i].oid, m_oidString) == 0 )
+		if ( TsStrCmp(gNameList[i].oid, m_oidString.c_str()) == 0 )
 		{
 			m_extName = gNameList[i].name;
 			break;

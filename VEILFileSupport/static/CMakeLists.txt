@@ -47,7 +47,7 @@ add_dependencies(VEILFileSupport_s VEILFileSupport)
 if(ANDROID)
 	set_target_properties(VEILFileSupport_s PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
 endif()
-set_target_properties(VEILFileSupport_s PROPERTIES COMPILE_DEFINITIONS "VEILFILESUPPORT_STATIC;VEILCORE_STATIC;VEILCMSHEADER_STATIC;_STATIC_TSALG")
+set_target_properties(VEILFileSupport_s PROPERTIES COMPILE_DEFINITIONS "VEILFILESUPPORT_STATIC;VEILCORE_STATIC;VEILCMSHEADER_STATIC;_STATIC_TSALG;_STATIC_TS_SUP")
 add_precompiled_header(VEILFileSupport_s stdafx.h FORCEINCLUDE SOURCE_CXX stdafx.cpp)
 
 set_target_properties(VEILFileSupport_s PROPERTIES FOLDER "Modules/Static")

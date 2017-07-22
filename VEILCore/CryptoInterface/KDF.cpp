@@ -203,7 +203,7 @@ public:
 		{
 			tsCryptoString name = &algorithm.c_str()[4];
 
-			if (TsStrniCmp(name, "HASH-", 5) == 0)
+			if (TsStrniCmp(name.c_str(), "HASH-", 5) == 0)
 				name.erase(0, 5);
 
 			name.ToUpper().Replace("SHA3-", "SHA3_");

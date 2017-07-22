@@ -1554,7 +1554,7 @@ void  tsCryptoData::FromBase64(const tsCryptoStringBase& pInput, bool base64Url,
 	{
 		return;
 	}
-	ulInSize = TsStrLen(pInput);
+	ulInSize = TsStrLen(pInput.c_str());
 
 	if (ulInSize == 0)
 	{
@@ -1836,11 +1836,11 @@ void tsCryptoData::FromOIDString(const tsCryptoStringBase& inValue)
 	{
 		if (partNumber == 1)
 		{
-			value = value * 40 + TsStrToLong(p);
+			value = value * 40 + TsStrToInt(p);
 		}
 		else
 		{
-			value = TsStrToLong(p);
+			value = TsStrToInt(p);
 		}
 		if (partNumber != 0)
 		{

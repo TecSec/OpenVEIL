@@ -99,6 +99,36 @@ CryptoUtf16::CryptoUtf16(const_pointer data) : m_data(nullptr), m_used(0), m_all
 		}
 	}
 }
+#ifndef _WIN32
+CryptoUtf16::CryptoUtf16(size_type count, wchar_t data) : m_data(nullptr), m_used(0), m_allocated(-1)
+{
+	const UTF32* p = (const UTF32*)&data;
+	UTF16* d;
+	size_type len = count * UTF32toUTF16Length(p, p + 1, false, lenientConversion);
+	resize(len);
+	d = (UTF16*)m_data;
+	ConvertUTF32toUTF16(&p, p + 1, &d, d + m_used, false, lenientConversion);
+}
+CryptoUtf16::CryptoUtf16(const wchar_t* data) : m_data(nullptr), m_used(0), m_allocated(-1)
+{
+	const UTF32* p = (const UTF32*)data;
+	size_type dataLen = wcslen(data);
+	UTF16* d;
+	size_type len = UTF32toUTF16Length(p, p + dataLen, false, lenientConversion);
+	resize(len);
+	d = (UTF16*)m_data;
+	ConvertUTF32toUTF16(&p, p + dataLen, &d, d + m_used, false, lenientConversion);
+}
+CryptoUtf16::CryptoUtf16(const wchar_t* data, size_type count) : m_data(nullptr), m_used(0), m_allocated(-1)
+{
+	const UTF32* p = (const UTF32*)data;
+	UTF16* d;
+	size_type len = UTF32toUTF16Length(p, p + count, false, lenientConversion);
+	resize(len);
+	d = (UTF16*)m_data;
+	ConvertUTF32toUTF16(&p, p + count, &d, d + m_used, false, lenientConversion);
+}
+#endif // _WIN32
 CryptoUtf16::CryptoUtf16(const CryptoUtf16 &obj) : m_data(nullptr), m_used(0), m_allocated(-1)
 {
 	if (obj.size() == 0)

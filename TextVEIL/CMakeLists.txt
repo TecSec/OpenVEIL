@@ -67,6 +67,7 @@ TARGET_LINK_LIBRARIES(TextVEIL
 	VEILCmsHeader
 	VEILFileSupport
 	VEILWxWidgets
+    TS_SUP_DLL
 	)
 if(UNIX)
     set_target_properties(TextVEIL PROPERTIES OUTPUT_NAME_DEBUG TextVEIL.debug)

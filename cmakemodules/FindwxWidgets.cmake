@@ -411,20 +411,29 @@ if(wxWidgets_FIND_STYLE STREQUAL "win32")
           list(APPEND wxWidgets_LIBRARIES_RELEASE
             ${WX_${LIB}}
             )
-		  if(WIN32)
+		  if(WIN32 AND NOT BUILD_SHARED_LIBS)
+        if(${TS_X_PLATFORM} STREQUAL "x64")
 				string(REPLACE ".lib" "_${TS_TOOLSET}0_${TS_X_PLATFORM}_tecsec.dll" __tmp "${WX_${LIB}d}")
+        else()
+          string(REPLACE ".lib" "_${TS_TOOLSET}0_tecsec.dll" __tmp "${WX_${LIB}d}")
+        endif()
 			string(REPLACE "wxmsw31u" "wxmsw311u" __tmp "${__tmp}")
 			string(REPLACE "wxbase31u" "wxbase311u" __tmp "${__tmp}")
 			  list(APPEND wxWidgets_DLLS_DEBUG
 				${__tmp}
 				)
+        if(${TS_X_PLATFORM} STREQUAL "x64")
 				string(REPLACE ".lib" "_${TS_TOOLSET}0_${TS_X_PLATFORM}_tecsec.dll" __tmp "${WX_${LIB}}")
+        else()
+          string(REPLACE ".lib" "_${TS_TOOLSET}0_tecsec.dll" __tmp "${WX_${LIB}}")
+        endif()
 			string(REPLACE "wxmsw31u" "wxmsw311u" __tmp "${__tmp}")
 			string(REPLACE "wxbase31u" "wxbase311u" __tmp "${__tmp}")
 			  list(APPEND wxWidgets_DLLS_RELEASE
 				${__tmp}
 				)
-		  endif(WIN32)
+      elseif(WIN32)
+		  endif(WIN32 AND NOT BUILD_SHARED_LIBS)
         else()
           DBG_MSG_V("- not found due to missing WX_${LIB}=${WX_${LIB}} or WX_${LIB}d=${WX_${LIB}d}")
           set(wxWidgets_FOUND FALSE)

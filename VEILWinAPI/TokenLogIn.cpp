@@ -208,7 +208,7 @@ protected:
 				buff.clear();
 				buff.resize(512);
 				GetUserObjectInformation(station, UOI_NAME, buff.rawData(), (DWORD)buff.size(), &count);
-				if (TsStrStr(buff, ("WinSta0")) == NULL)
+				if (TsStrStr(buff.c_str(), ("WinSta0")) == NULL)
 				{
 					params->_result = E_FAIL;
 					EndDialog(hWnd, IDCANCEL);
@@ -232,7 +232,7 @@ protected:
 					params->_pinBuffer.clear();
 					params->_pinBuffer.resize(100);
 					GetDlgItemTextA(hWnd, IDC_PASSWORD, params->_pinBuffer.rawData(), (int)params->_pinBuffer.size());
-					if ((int)TsStrLen(params->_pinBuffer) < params->_minLen)
+					if ((int)TsStrLen(params->_pinBuffer.c_str()) < params->_minLen)
 					{
 						char buff[MAX_PATH + 1];
 
@@ -245,7 +245,7 @@ protected:
 					}
 					else
 					{
-						params->_pinBuffer.resize(TsStrLen(params->_pinBuffer));
+						params->_pinBuffer.resize(TsStrLen(params->_pinBuffer.c_str()));
 						params->_result = params->_session->Login(params->_pinBuffer);
 						switch ((LoginStatus)params->_result)
 						{

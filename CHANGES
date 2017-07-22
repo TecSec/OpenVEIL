@@ -47,3 +47,7 @@ Changes for 7.0.41
  * Support for UDP clients
  * Numerous changes for the newer crypto API (adds some type safety)
  * Assorted bug fixes
+
+ Changes for 7.0.58
+ * Partial support for the new OS Adaption Layer (OAL) written in C and adopted by the crypto system - some breaking changes but simple to fixed
+ 

@@ -77,6 +77,11 @@ namespace tscrypto {
 		CryptoUtf16(const CryptoUtf16 &obj, size_type pos, size_type count);
 		CryptoUtf16(const_pointer data, size_type count);
 		CryptoUtf16(const_pointer data);
+#ifndef _WIN32
+		CryptoUtf16(size_type count, wchar_t data);
+		CryptoUtf16(const wchar_t* data);
+		CryptoUtf16(const wchar_t* data, size_type count);
+#endif // _WIN32
 		template <class InputIt>
 		CryptoUtf16(InputIt first, InputIt last) :
 			m_data(nullptr),

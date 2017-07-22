@@ -1017,7 +1017,7 @@ tsCryptoDate TlvNode::InnerDataAsDateTime() const
 	{
 		if (date.size() != 13 || date[12] != 'Z')
 			return tsCryptoDate();
-		if (TsStrToInt(date.substring(0, 2)) < 50)
+		if (TsStrToInt(date.substring(0, 2).c_str()) < 50)
 			date.prepend("20");
 		else
 			date.prepend("19");

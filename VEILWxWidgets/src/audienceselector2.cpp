@@ -241,10 +241,11 @@ void AudienceSelector2::setupLeftPanel()
 		wxStaticText* itemStaticText11 = new wxStaticText(leftPanel, wxID_STATIC, page->GetName(), wxDefaultPosition, wxDefaultSize, 0);
 		if (page == GetCurrentPage())
 		{
-			wxFont font = itemStaticText11->GetFont();
-			font.SetPointSize(font.GetPointSize() + 1);
-			font.SetWeight(wxFONTWEIGHT_BOLD);
-			itemStaticText11->SetFont(font);
+            itemStaticText11->SetForegroundColour(wxColour(255, 255, 255));
+			//wxFont font = itemStaticText11->GetFont();
+			//font.SetPointSize(font.GetPointSize() + 1);
+			//font.SetWeight(wxFONTWEIGHT_BOLD);
+			//itemStaticText11->SetFont(font);
 		}
 		leftPanelSizer->Add(itemStaticText11, 0, wxGROW | wxALIGN_CENTER_VERTICAL | wxLEFT | wxRIGHT, 25);
 		count++;

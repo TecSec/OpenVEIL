@@ -239,7 +239,7 @@ public:
 
 				if (list->size() > 1)
 				{
-					if (TsStriCmp(list->at(0), "filename") == 0)
+					if (TsStriCmp(list->at(0).c_str(), "filename") == 0)
 					{
 						filename = list->at(1);
 					}

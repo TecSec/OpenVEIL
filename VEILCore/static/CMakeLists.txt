@@ -59,7 +59,7 @@ else()
     # add_precompiled_header(VEILCore_s include/stdafx.h FORCEINCLUDE SOURCE_CXX stdafx.cpp)
 endif(WIN32)
 
-set_target_properties(VEILCore_s PROPERTIES FOLDER "Modules/Static" COMPILE_DEFINITIONS "VEILCORE_STATIC;_STATIC_TSALG")
+set_target_properties(VEILCore_s PROPERTIES FOLDER "Modules/Static" COMPILE_DEFINITIONS "VEILCORE_STATIC;_STATIC_TSALG;_STATIC_TS_SUP")
 
 if(APPLE)
 else()

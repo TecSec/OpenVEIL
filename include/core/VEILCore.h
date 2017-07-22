@@ -660,7 +660,7 @@ public:
 
 	bool operator()(const tscrypto::tsCryptoStringBase & str) const
 	{
-		return TsStrToInt(str) != 0;
+        return TsStrToInt(str.c_str()) != 0;
 	}
 
 #ifdef INCLUDE_DATASET
@@ -710,7 +710,7 @@ public:
 
 	int operator()(const tscrypto::tsCryptoStringBase & str) const
 	{
-		return TsStrToInt(str);
+        return TsStrToInt(str.c_str());
 	}
 
 	int operator()(GUID data) const
