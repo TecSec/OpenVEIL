@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -36,129 +36,129 @@ using namespace tscrypto;
 class Prime_Probable :
      public ProbablePrime,
      public TSName,
-	 public tscrypto::ICryptoObject, 
-	 public tscrypto::IInitializableObject, 
-	 public AlgorithmInfo
+     public tscrypto::ICryptoObject, 
+     public tscrypto::IInitializableObject, 
+     public AlgorithmInfo
 {
 public:
-	Prime_Probable()
-	{
-		SetName("PRIME-PROBABLE");
-		desc = findProbablePrimeAlgorithm("FIPS186-3-PROBABLE-PRIME");
-	}
-	virtual ~Prime_Probable(void)
-	{
-	}
+    Prime_Probable()
+    {
+        SetName("PRIME-PROBABLE");
+        desc = tsFindProbablePrimeAlgorithm("FIPS186-3-PROBABLE-PRIME");
+    }
+    virtual ~Prime_Probable(void)
+    {
+    }
 
     // Prime
     virtual bool GeneratePrime(size_t bitLength, size_t rounds, bool strongPrime, tsCryptoData &prime) override
-	{
-		if (!gFipsState.operational() || desc == nullptr)
-			return false;
+    {
+        if (!gFipsState.operational() || desc == nullptr)
+            return false;
 
-		prime.resize((bitLength + 7) / 8);
-		bool retVal = desc->generatePrime(desc, (uint32_t)bitLength, (uint32_t)rounds, strongPrime, prime.rawData());
-		if (!retVal)
-			prime.clear();
-		return retVal;
-	}
-	virtual bool ComputeRounds(bool forRSA, size_t primebitLength, size_t subprimebitLength, bool use100Probability, size_t &subprimeRounds, size_t &primeRounds, bool &useStrong) override
-	{
-		uint32_t subRound, round;
-		ts_bool UseStrong;
+        prime.resize((bitLength + 7) / 8);
+        bool retVal = desc->generatePrime(desc, (uint32_t)bitLength, (uint32_t)rounds, strongPrime, prime.rawData());
+        if (!retVal)
+            prime.clear();
+        return retVal;
+    }
+    virtual bool ComputeRounds(bool forRSA, size_t primebitLength, size_t subprimebitLength, bool use100Probability, size_t &subprimeRounds, size_t &primeRounds, bool &useStrong) override
+    {
+        uint32_t subRound, round;
+        ts_bool UseStrong;
 
-		if (!gFipsState.operational() || desc == nullptr)
-			return false;
+        if (!gFipsState.operational() || desc == nullptr)
+            return false;
 
-		bool retVal = desc->computeRounds(desc, forRSA, (uint32_t)primebitLength, (uint32_t)subprimebitLength, use100Probability, &subRound, &round, &UseStrong);
+        bool retVal = desc->computeRounds(desc, forRSA, (uint32_t)primebitLength, (uint32_t)subprimebitLength, use100Probability, &subRound, &round, &UseStrong);
 
-		if (retVal)
-		{
-			subprimeRounds = subRound;
-			primeRounds = round;
-			useStrong = UseStrong;
-		}
+        if (retVal)
+        {
+            subprimeRounds = subRound;
+            primeRounds = round;
+            useStrong = UseStrong;
+        }
 
-		return retVal;
-	}
-	virtual bool IsComposite(size_t rounds, bool strongPrime, const tsCryptoData &candidate) override
-	{
-		if (!gFipsState.operational() || desc == nullptr)
-			return false;
-		return desc->isComposite(desc, (uint32_t)rounds, strongPrime, candidate.c_str(), (uint32_t)candidate.size());
-	}
-	virtual bool IsCompositeAndNotPowerOfAPrime(size_t rounds, bool strongPrime, const tsCryptoData &candidate) override
-	{
-		if (!gFipsState.operational() || desc == nullptr)
-			return false;
-		return desc->isCompositeAndNotPowerOfAPrime(desc, (uint32_t)rounds, strongPrime, candidate.c_str(), (uint32_t)candidate.size());
-	}
-	virtual bool NextPrime(size_t rounds, bool strongPrime, tsCryptoData &value) override
-	{
-		if (!gFipsState.operational() || desc == nullptr)
-			return false;
-		if (value.size() == 0)
-			return false;
+        return retVal;
+    }
+    virtual bool IsComposite(size_t rounds, bool strongPrime, const tsCryptoData &candidate) override
+    {
+        if (!gFipsState.operational() || desc == nullptr)
+            return false;
+        return desc->isComposite(desc, (uint32_t)rounds, strongPrime, candidate.c_str(), (uint32_t)candidate.size());
+    }
+    virtual bool IsCompositeAndNotPowerOfAPrime(size_t rounds, bool strongPrime, const tsCryptoData &candidate) override
+    {
+        if (!gFipsState.operational() || desc == nullptr)
+            return false;
+        return desc->isCompositeAndNotPowerOfAPrime(desc, (uint32_t)rounds, strongPrime, candidate.c_str(), (uint32_t)candidate.size());
+    }
+    virtual bool NextPrime(size_t rounds, bool strongPrime, tsCryptoData &value) override
+    {
+        if (!gFipsState.operational() || desc == nullptr)
+            return false;
+        if (value.size() == 0)
+            return false;
 
-		value[value.size() - 1] |= 1; // force to be odd
-		return desc->nextPrime(desc, (uint32_t)rounds, strongPrime, value.rawData(), (uint32_t)value.size());
-	}
-	virtual bool ComputeCompositePrime(size_t primeLengthInBits, size_t primeRounds, const tsCryptoData &r1, const tsCryptoData &r2, const tsCryptoData &exponent, tsCryptoData &X, 
-		tsCryptoData &prime) override
-	{
-		uint32_t XLen = 0;
-		uint32_t primeLen = 0;
+        value[value.size() - 1] |= 1; // force to be odd
+        return desc->nextPrime(desc, (uint32_t)rounds, strongPrime, value.rawData(), (uint32_t)value.size());
+    }
+    virtual bool ComputeCompositePrime(size_t primeLengthInBits, size_t primeRounds, const tsCryptoData &r1, const tsCryptoData &r2, const tsCryptoData &exponent, tsCryptoData &X, 
+        tsCryptoData &prime) override
+    {
+        uint32_t XLen = 0;
+        uint32_t primeLen = 0;
 
-		if (!gFipsState.operational() || desc == nullptr)
-			return false;
+        if (!gFipsState.operational() || desc == nullptr)
+            return false;
 
-		if (!desc->computeCompositePrime(desc, (uint32_t)primeLengthInBits, (uint32_t)primeRounds, r1.c_str(), (uint32_t)r1.size(), r2.c_str(), (uint32_t)r2.size(), exponent.c_str(), (uint32_t)exponent.size(),
-			NULL, &XLen, NULL, &primeLen))
-		{
-			return false;
-		}
-		prime.resize(primeLen);
-		X.resize(XLen);
-		if (!desc->computeCompositePrime(desc, (uint32_t)primeLengthInBits, (uint32_t)primeRounds, r1.c_str(), (uint32_t)r1.size(), r2.c_str(), (uint32_t)r2.size(), exponent.c_str(), (uint32_t)exponent.size(),
-			X.rawData(), &XLen, prime.rawData(), &primeLen))
-		{
-			prime.clear();
-			X.clear();
-			return false;
-		}
-		prime.resize(primeLen);
-		X.resize(XLen);
-		return true;
-	}
+        if (!desc->computeCompositePrime(desc, (uint32_t)primeLengthInBits, (uint32_t)primeRounds, r1.c_str(), (uint32_t)r1.size(), r2.c_str(), (uint32_t)r2.size(), exponent.c_str(), (uint32_t)exponent.size(),
+            NULL, &XLen, NULL, &primeLen))
+        {
+            return false;
+        }
+        prime.resize(primeLen);
+        X.resize(XLen);
+        if (!desc->computeCompositePrime(desc, (uint32_t)primeLengthInBits, (uint32_t)primeRounds, r1.c_str(), (uint32_t)r1.size(), r2.c_str(), (uint32_t)r2.size(), exponent.c_str(), (uint32_t)exponent.size(),
+            X.rawData(), &XLen, prime.rawData(), &primeLen))
+        {
+            prime.clear();
+            X.clear();
+            return false;
+        }
+        prime.resize(primeLen);
+        X.resize(XLen);
+        return true;
+    }
 
     // AlgorithmInfo
     virtual tsCryptoString AlgorithmName() const override
-	{
-		return GetName();
-	}
-	virtual tsCryptoString AlgorithmOID() const override
-	{
-		return LookUpAlgOID(GetName());
-	}
-	virtual TS_ALG_ID AlgorithmID() const override
-	{
-		return LookUpAlgID(GetName());
-	}
+    {
+        return GetName();
+    }
+    virtual tsCryptoString AlgorithmOID() const override
+    {
+        return LookUpAlgOID(GetName());
+    }
+    virtual TS_ALG_ID AlgorithmID() const override
+    {
+        return LookUpAlgID(GetName());
+    }
 
-	// tscrypto::IInitializableObject
-	virtual bool InitializeWithFullName(const tscrypto::tsCryptoStringBase& fullName) override
-	{
-		tsCryptoString algorithm(fullName);
+    // tscrypto::IInitializableObject
+    virtual bool InitializeWithFullName(const tscrypto::tsCryptoStringBase& fullName) override
+    {
+        tsCryptoString algorithm(fullName);
 
-		SetName(algorithm);
-		return true;
-	}
+        SetName(algorithm);
+        return true;
+    }
 protected:
-	const ProbablePrimeDescriptor* desc;
+    const TSProbablePrimeDescriptor* desc;
 };
 tscrypto::ICryptoObject* CreateProbablePrime()
 {
-	return dynamic_cast<tscrypto::ICryptoObject*>(new Prime_Probable);
+    return dynamic_cast<tscrypto::ICryptoObject*>(new Prime_Probable);
 }
 
 #if 0
@@ -166,8 +166,8 @@ bool Prime_Probable::runTests(bool runDetailedTests)
 {
     if (!gFipsState.operational())
         return false;
-	RsaNumber n = 20003;
-	RsaNumber a = 1236;
+    RsaNumber n = 20003;
+    RsaNumber a = 1236;
 
     if (InnerJacobi(n, a) != 1)
     {

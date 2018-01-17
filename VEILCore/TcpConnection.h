@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -31,7 +31,7 @@
 
 #include "stdafx.h"
 
-extern const char *resolveSocketError(DWORD error);
+extern const char *resolveSocketError(uint32_t error);
 
 class TcpConnection : public ITcpConnection, public INetworkConnectionEvents, public tsmod::IObject
 {

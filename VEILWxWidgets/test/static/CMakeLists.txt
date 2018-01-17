@@ -1,4 +1,4 @@
-#	Copyright (c) 2017, TecSec, Inc.
+#	Copyright (c) 2018, TecSec, Inc.
 #
 #	Redistribution and use in source and binary forms, with or without
 #	modification, are permitted provided that the following conditions are met:
@@ -49,7 +49,7 @@ if(ANDROID)
 	set_target_properties(VEILwxWinApiSample_s PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
 endif()
 add_precompiled_header(VEILwxWinApiSample_s stdafx.h FORCEINCLUDE SOURCE_CXX stdafx.cpp)
-TARGET_LINK_LIBRARIES(VEILwxWinApiSample_s VEILCore_s VEILWxWidgets_s TSALG_s VEILCmsHeader_s)
+TARGET_LINK_LIBRARIES(VEILwxWinApiSample_s VEILCore_s VEILWxWidgets_s CyberVEIL VEILCmsHeader_s)
 if(WIN32)
 	TARGET_LINK_LIBRARIES(VEILwxWinApiSample_s ws2_32 Comctl32 Rpcrt4)
 else()
@@ -68,6 +68,6 @@ else()
 	endif()
 endif()
 set_target_properties(VEILwxWinApiSample_s PROPERTIES FOLDER "Modules/Static" VERSION ${VEIL_VERSION} SOVERSION ${VEIL_SO_VERSION} COMPILE_DEFINITIONS OPAQUEVEILWXWIDGETSDEF)
-set_target_properties(VEILwxWinApiSample_s PROPERTIES COMPILE_DEFINITIONS "VEILCORE_STATIC;VEILWXWIDGETS_STATIC;_STATIC_TSALG;VEILCMSHEADER_STATIC;VEILFILESUPPORT_STATIC")
+set_target_properties(VEILwxWinApiSample_s PROPERTIES COMPILE_DEFINITIONS "VEILCORE_STATIC;VEILWXWIDGETS_STATIC;_STATIC_CYBERVEIL;VEILCMSHEADER_STATIC;VEILFILESUPPORT_STATIC")
 
 install(TARGETS VEILwxWinApiSample_s ARCHIVE DESTINATION ${LIB_DIR} LIBRARY DESTINATION ${SHLIB_DIR} RUNTIME DESTINATION ${BIN_DIR})

@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -37,34 +37,7 @@
 
 #pragma once
 
-/// <summary>name value pair for the tsAttributeMap class</summary>
-struct __tsAttributeMapItem
-{
-	static void *operator new(std::size_t count) {
-		return tscrypto::cryptoNew(count);
-	}
-	static void *operator new[](std::size_t count) {
-		return tscrypto::cryptoNew(count);
-	}
-	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
-	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
-
-	tscrypto::tsCryptoString m_name;
-	tscrypto::tsCryptoString m_value;
-	tscrypto::tsCryptoString m_tag;
-	bool operator==(const __tsAttributeMapItem& obj) const { return m_name == obj.m_name; }
-	bool operator<(const __tsAttributeMapItem& obj) const { return m_name < obj.m_name; }
-};
-
-#if defined(_WIN32) || defined(VEILCORE_EXPORTS)
-#pragma warning(push)
-#pragma warning(disable:4231)
-VEILCORE_TEMPLATE_EXTERN template class VEILCORE_API tscrypto::ICryptoContainerWrapper<__tsAttributeMapItem>;
-VEILCORE_TEMPLATE_EXTERN template class VEILCORE_API std::shared_ptr<tscrypto::ICryptoContainerWrapper<__tsAttributeMapItem>>;
-#pragma warning(pop)
-#endif // defined
-
-typedef std::shared_ptr<tscrypto::ICryptoContainerWrapper<__tsAttributeMapItem>> tsAttributeMapItemList;
+//typedef std::vector<__tsAttributeMapItem> tsAttributeMapItemList;
 
 /// <summary>definition of a Named value collection object</summary>
 class VEILCORE_API tsAttributeMap
@@ -86,7 +59,10 @@ public:
 	///
 	/// <param name="obj">.</param>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	tsAttributeMap(const tsAttributeMap &obj);
+    tsAttributeMap(TSNAME_VALUE_LIST list); // Takes ownership of the list data
+    tsAttributeMap(TSNAME_VALUE_LIST&& list); // Takes ownership of the list
+    tsAttributeMap(const tsAttributeMap &obj);
+    tsAttributeMap(tsAttributeMap &&obj);
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Destructor.</summary>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -100,6 +76,7 @@ public:
 	/// <returns>A reference to this object.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	tsAttributeMap &operator = (const tsAttributeMap &obj);
+	tsAttributeMap &operator = (tsAttributeMap &&obj);
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Returns the number of name value pairs contained in this container</summary>
 	///
@@ -121,7 +98,7 @@ public:
 	///
 	/// <returns>the attribute value</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	tscrypto::tsCryptoString item(const tscrypto::tsCryptoString &name) const;
+	tscrypto::tsCryptoString item(const tscrypto::tsCryptoStringBase &name) const;
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Returns the named attribute value as an integer.</summary>
 	///
@@ -130,7 +107,7 @@ public:
 	///
 	/// <returns>the attribute value as an integer or the default value if the attribute does not exist</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	int itemAsNumber(const tscrypto::tsCryptoString &name, int defaultValue) const;
+	int itemAsNumber(const tscrypto::tsCryptoStringBase &name, int defaultValue) const;
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Returns the named attribute value as a boolean.</summary>
 	///
@@ -139,7 +116,7 @@ public:
 	///
 	/// <returns>the attribute value as a boolean or the default value if the attribute does not exist</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	bool itemAsBoolean(const tscrypto::tsCryptoString &name, bool defaultValue) const;
+	bool itemAsBoolean(const tscrypto::tsCryptoStringBase &name, bool defaultValue) const;
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Query if there is an attribute called 'name'.</summary>
 	///
@@ -147,7 +124,7 @@ public:
 	///
 	/// <returns>true if the attribute exists, false if not.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	bool hasItem(const tscrypto::tsCryptoString &name) const;
+	bool hasItem(const tscrypto::tsCryptoStringBase &name) const;
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Returns the attribute name for the specified attribute number</summary>
 	///
@@ -164,7 +141,8 @@ public:
 	///
 	/// <returns>true if it succeeds, false if it fails.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	bool AddItem(const tscrypto::tsCryptoString &name, const tscrypto::tsCryptoString &value);
+	bool AddItem(const tscrypto::tsCryptoStringBase &name, const tscrypto::tsCryptoStringBase &value);
+    bool RenameItem(const tscrypto::tsCryptoStringBase &oldName, const tscrypto::tsCryptoStringBase &newName);
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Adds an attribute to the list.</summary>
 	///
@@ -173,7 +151,7 @@ public:
 	///
 	/// <returns>true if it succeeds, false if it fails.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	bool AddItem(const tscrypto::tsCryptoString &name, int value);
+	bool AddItem(const tscrypto::tsCryptoStringBase &name, int value);
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Remove all attributes from the list.</summary>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -189,25 +167,25 @@ public:
 	///
 	/// <param name="name">the attribute name to remove</param>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	void RemoveItem(const tscrypto::tsCryptoString &name);
+	void RemoveItem(const tscrypto::tsCryptoStringBase &name);
 	/**
 	 * \brief Removes if described by func.
 	 *
 	 * \param func The function.
 	 */
-	void remove_if(std::function<bool(const __tsAttributeMapItem& item)> func);
+	void remove_if(std::function<bool(const char* name, const char* item)> func);
 	/**
 	 * \brief Foreaches the given function.
 	 *
 	 * \param [in,out] func The function.
 	 */
-	void foreach(std::function<void(__tsAttributeMapItem& item)> func);
+	void foreach(std::function<void(const char* name, const char* item)> func);
 	/**
 	 * \brief Foreaches the given function.
 	 *
 	 * \param func The function.
 	 */
-	void foreach(std::function<void(const __tsAttributeMapItem& item)> func) const;
+	void foreach(std::function<void(const char* name, const char* item)> func) const;
 	/**
 	 * \brief First value that.
 	 *
@@ -215,7 +193,7 @@ public:
 	 *
 	 * \return A tscrypto::tsCryptoString.
 	 */
-	tscrypto::tsCryptoString first_value_that(std::function<bool(const __tsAttributeMapItem& item)> func) const;
+	tscrypto::tsCryptoString first_value_that(std::function<bool(const char* name, const char* item)> func) const;
 	/**
 	 * \brief First name that.
 	 *
@@ -223,13 +201,13 @@ public:
 	 *
 	 * \return A tscrypto::tsCryptoString.
 	 */
-	tscrypto::tsCryptoString first_name_that(std::function<bool(const __tsAttributeMapItem& item)> func) const;
+	tscrypto::tsCryptoString first_name_that(std::function<bool(const char* name, const char* item)> func) const;
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Converts this list to Xml</summary>
 	///
 	/// <param name="xml">the destination of the xml</param>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	void ToXML(tscrypto::tsCryptoString &xml) const;
+	void ToXML(tscrypto::tsCryptoStringBase &xml) const;
 	/**
 	 * \brief Converts the values into fields in the JSONObject.
 	 *
@@ -251,9 +229,10 @@ public:
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	//void operator delete(void *ptr);
 	tscrypto::tsCryptoString tag(size_t index) const;
-	void tag(size_t index, const tscrypto::tsCryptoString& setTo);
-	tscrypto::tsCryptoString tag(const tscrypto::tsCryptoString &name) const;
-	void tag(const tscrypto::tsCryptoString &name, const tscrypto::tsCryptoString& setTo);
+	void tag(size_t index, const tscrypto::tsCryptoStringBase& setTo);
+	tscrypto::tsCryptoString tag(const tscrypto::tsCryptoStringBase &name) const;
+	void tag(const tscrypto::tsCryptoStringBase &name, const tscrypto::tsCryptoStringBase& setTo);
+
 protected:
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Copies the attributes from the specified list</summary>
@@ -261,9 +240,10 @@ protected:
 	/// <param name="obj">the list to copy</param>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	void copyFrom(const tsAttributeMap &obj);
+	void moveFrom(tsAttributeMap &&obj);
 
 protected:
-	tsAttributeMapItemList m_list;
+	mutable TSNAME_VALUE_LIST _list;
 };
 
 #endif // __TSATTRIBUTEMAP_H__

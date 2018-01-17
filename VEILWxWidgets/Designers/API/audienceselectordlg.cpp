@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -935,7 +935,7 @@ void AudienceSelectorDlg::OnFavoritelistSelected( wxCommandEvent& event )
     }
 
     //BOOL bContinue ;
-    BOOL bLoaded = FALSE;
+    bool bLoaded = false;
     //Load the cryptogroup for Token selected, login and load the attributes
     //Then check the Favorites cryptogroup and attributes with that of the Token
     //if not matched, give the user the opportunity to select another Token
@@ -1395,7 +1395,7 @@ int AudienceSelectorDlg::findCgByGuid(const GUID& id)
 	return -1;
 }
 
-BOOL AudienceSelectorDlg::LoadFavoriteForToken(std::shared_ptr<IFavorite> fav, std::shared_ptr<ICmsHeader> favHeader)
+bool AudienceSelectorDlg::LoadFavoriteForToken(std::shared_ptr<IFavorite> fav, std::shared_ptr<ICmsHeader> favHeader)
 {
 	//    int index;
 	//    int count;
@@ -1453,7 +1453,7 @@ BOOL AudienceSelectorDlg::LoadFavoriteForToken(std::shared_ptr<IFavorite> fav, s
 		{
 			//fav->Delete();
 			cmbFavorites->SetSelection(0);
-			return FALSE;
+			return false;
 		}
 		fav_header->FromBytes(fav->headerData());
 
@@ -1461,7 +1461,7 @@ BOOL AudienceSelectorDlg::LoadFavoriteForToken(std::shared_ptr<IFavorite> fav, s
 		{
 			//fav->Delete();
 			cmbFavorites->SetSelection(0);
-			return FALSE;
+			return false;
 		}
 		if (!!hCG && !!_vars->_session)
 		{
@@ -1495,7 +1495,7 @@ BOOL AudienceSelectorDlg::LoadFavoriteForToken(std::shared_ptr<IFavorite> fav, s
 			{
 				cmbTokens->SetSelection(-1);
 				_vars->_session.reset();
-				return FALSE;
+				return false;
 			}
 		}
 		//else
@@ -1632,7 +1632,7 @@ tscrypto::tsCryptoString AudienceSelectorDlg::BuildAttrsLine(std::shared_ptr<ICm
 
 	return list;
 }
-BOOL AudienceSelectorDlg::RebuildAccessGroupList()
+bool AudienceSelectorDlg::RebuildAccessGroupList()
 {
 	tscrypto::tsCryptoString line;
 
@@ -1657,7 +1657,7 @@ BOOL AudienceSelectorDlg::RebuildAccessGroupList()
 
 		if (!ext || !(extGroup = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(ext)))
 		{
-			return TRUE;
+			return true;
 		}
 		ext.reset();
 
@@ -1692,7 +1692,7 @@ BOOL AudienceSelectorDlg::RebuildAccessGroupList()
 		lstGroups->Enable(accessGroupCount > 0);
 	}
 	UpdateDialogControls();
-	return TRUE;
+	return true;
 }
 void AudienceSelectorDlg::SetItemSelected(int index)
 {
@@ -1703,7 +1703,7 @@ void AudienceSelectorDlg::AddGroupText(const char *text)
 	lstGroups->Append(text);
 	UpdateDialogControls();
 }
-BOOL AudienceSelectorDlg::QueryAndClearAccessGroups()
+bool AudienceSelectorDlg::QueryAndClearAccessGroups()
 {
 	if (lstGroups->GetCount() > 0)
 	{
@@ -1720,7 +1720,7 @@ BOOL AudienceSelectorDlg::QueryAndClearAccessGroups()
 			{
 				// Restore the value to the prior selection
 				cmbTokens->SetSelection(_LastTokenSelection);
-				return FALSE;
+				return false;
 			}
 		}
 
@@ -1729,19 +1729,19 @@ BOOL AudienceSelectorDlg::QueryAndClearAccessGroups()
 		AddGroupText(AS_SEL_DOM_STR);
 		lstGroups->Enable(false);
 	}
-	return TRUE;
+	return true;
 }
 //
 // when called by other functions we don't auto-select a CryptoGroup
 //
-BOOL AudienceSelectorDlg::ChangeToken()
+bool AudienceSelectorDlg::ChangeToken()
 {
 	int index;
 
 	// return false if nothing is selected
 	index = (int)cmbTokens->GetSelection();
 	if (0 > index) {
-		return FALSE;
+		return false;
 	}
 
 	// empty the CryptoGroup combo box and free any memory being used
@@ -1786,7 +1786,7 @@ BOOL AudienceSelectorDlg::ChangeToken()
 		name = cmbTokens->GetString(index).c_str().AsChar();
 		name << "  Unable to change Token.";
 		wxTsMessageBox(name.c_str(), "Error", wxOK);
-		return FALSE;
+		return false;
 	}
 	if (_vars != nullptr)
 		_vars->_session = tok->openSession();
@@ -1797,7 +1797,7 @@ BOOL AudienceSelectorDlg::ChangeToken()
 		name = cmbTokens->GetString(index).c_str().AsChar();
 		name << "  Unable to change Token.";
 		wxTsMessageBox(name.c_str(), "Error", wxOK);
-		return FALSE;
+		return false;
 	}
 
 	EnableDisableOK();
@@ -1830,7 +1830,7 @@ BOOL AudienceSelectorDlg::ChangeToken()
 		UpdateDialogControls();
 	}
 
-	return TRUE;
+	return true;
 }
 void AudienceSelectorDlg::UpdateDialogControls()
 {
@@ -1867,8 +1867,8 @@ void AudienceSelectorDlg::UpdateDialogControls()
 void AudienceSelectorDlg::EnableDisableOK()
 {
 	int attributeCount = 0;
-	BOOL bEnableOK = FALSE;
-	BOOL bEnableFav = FALSE;
+	bool bEnableOK = false;
+	bool bEnableFav = false;
 
 	if (_vars == nullptr)
 		return;
@@ -1886,14 +1886,14 @@ void AudienceSelectorDlg::EnableDisableOK()
 			name = lstGroups->GetString(0).c_str().AsChar();
 			if (TsStrCmp(name, AS_SEL_DOM_STR) != 0)
 			{
-				bEnableOK = TRUE;
-				bEnableFav = TRUE;
+				bEnableOK = true;
+				bEnableFav = true;
 			}
 		}
 		else
 		{
-			bEnableOK = TRUE;
-			bEnableFav = TRUE;
+			bEnableOK = true;
+			bEnableFav = true;
 		}
 	}
 
@@ -1903,8 +1903,8 @@ void AudienceSelectorDlg::EnableDisableOK()
 	//        bEnableOK = TRUE;
 	//		bEnableFav = TRUE;
 	//	}
-	btnOK->Enable(bEnableOK != FALSE);
-	btnCreateFavorite->Enable(bEnableFav != FALSE);
+	btnOK->Enable(bEnableOK != false);
+	btnCreateFavorite->Enable(bEnableFav != false);
 	btnDeleteFavorite->Enable(_vars->_favoriteManager && _CurFavIndex > 0);
 }
 bool AudienceSelectorDlg::InitTokenInfoList()
@@ -2086,7 +2086,7 @@ void AudienceSelectorDlg::OnTokenRemove(wxTokenEvent& event)
 		}
 	}
 }
-BOOL AudienceSelectorDlg::CheckAccessGroup(std::shared_ptr<ICmsHeaderAttributeGroup> newAttrs)
+bool AudienceSelectorDlg::CheckAccessGroup(std::shared_ptr<ICmsHeaderAttributeGroup> newAttrs)
 {
 	int index;
 	int matchCount = 0;
@@ -2104,7 +2104,7 @@ BOOL AudienceSelectorDlg::CheckAccessGroup(std::shared_ptr<ICmsHeaderAttributeGr
 	if (_vars == nullptr || !_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) ||
 		!(groupList = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(ext)))
 	{
-		return FALSE;
+		return false;
 	}
 
 	attrListCount = (int)groupList->GetAccessGroupCount();
@@ -2128,7 +2128,7 @@ BOOL AudienceSelectorDlg::CheckAccessGroup(std::shared_ptr<ICmsHeaderAttributeGr
 	//
 	if (matchCount != 1)
 	{
-		return FALSE;
+		return false;
 	}
 	//
 	// Now clear the attrs in the new attr list and put the sorted attrs into the list.
@@ -2140,7 +2140,7 @@ BOOL AudienceSelectorDlg::CheckAccessGroup(std::shared_ptr<ICmsHeaderAttributeGr
 	{
 		newAttrs->AddAttributeIndex(((DWORD*)newList.c_str())[index]);
 	}
-	return TRUE;
+	return true;
 }
 void AudienceSelectorDlg::BuildIntList(std::shared_ptr<ICmsHeaderAttributeGroup> attrGroup, tscrypto::tsCryptoData &list)
 {

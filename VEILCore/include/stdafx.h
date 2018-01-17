@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -54,39 +54,39 @@
 class TSName
 {
 public:
-	tscrypto::tsCryptoString GetName() const { return _name; }
-	void SetName(const tscrypto::tsCryptoStringBase& setTo) { _name = setTo; }
+    tscrypto::tsCryptoString GetName() const { return _name; }
+    void SetName(const tscrypto::tsCryptoStringBase& setTo) { _name = setTo; }
 private:
-	tscrypto::tsCryptoString _name;
+    tscrypto::tsCryptoString _name;
 };
 
 template <class T, int Align = 16>
 class AlignedObj
 {
 public:
-	AlignedObj() {
-		memset(buf, 0, sizeof(buf));
-		new (buf + Align - (((INT_PTR)this) & (Align - 1))) T();
-	}
-	~AlignedObj() {
-		reinterpret_cast<T*>(buf + Align - (((INT_PTR)this) & (Align - 1)))->~T();
-		memset(buf, 0, sizeof(buf));
-	}
+    AlignedObj() {
+        memset(buf, 0, sizeof(buf));
+        new (buf + Align - (((intptr_t)this) & (Align - 1))) T();
+    }
+    ~AlignedObj() {
+        reinterpret_cast<T*>(buf + Align - (((intptr_t)this) & (Align - 1)))->~T();
+        memset(buf, 0, sizeof(buf));
+    }
 
-	void clear() {
-		*((T*)(buf + Align - (((INT_PTR)this) & (Align - 1)))) = T();
-	}
+    void clear() {
+        *((T*)(buf + Align - (((intptr_t)this) & (Align - 1)))) = T();
+    }
 
-	T* operator&() { return (T*)(buf + Align - (((INT_PTR)this) & (Align - 1))); }
-	const T* operator&() const { return (T*)(buf + Align - (((INT_PTR)this) & (Align - 1))); }
-	T& operator*() { return *(T*)(buf + Align - (((INT_PTR)this) & (Align - 1))); }
-	const T& operator*() const { return *(T*)(buf + Align - (((INT_PTR)this) & (Align - 1))); }
-	T* operator->() { return (T*)(buf + Align - (((INT_PTR)this) & (Align - 1))); }
-	const T* operator->() const { return (T*)(buf + Align - (((INT_PTR)this) & (Align - 1))); }
-	//	T& operator->*() { return *(T*)(buf + Align - (((INT_PTR)this) & (Align - 1))); }
-	//	const T& operator->*() const { return *(T*)(buf + Align - (((INT_PTR)this) & (Align - 1))); }
+    T* operator&() { return (T*)(buf + Align - (((intptr_t)this) & (Align - 1))); }
+    const T* operator&() const { return (T*)(buf + Align - (((intptr_t)this) & (Align - 1))); }
+    T& operator*() { return *(T*)(buf + Align - (((intptr_t)this) & (Align - 1))); }
+    const T& operator*() const { return *(T*)(buf + Align - (((intptr_t)this) & (Align - 1))); }
+    T* operator->() { return (T*)(buf + Align - (((intptr_t)this) & (Align - 1))); }
+    const T* operator->() const { return (T*)(buf + Align - (((intptr_t)this) & (Align - 1))); }
+    //	T& operator->*() { return *(T*)(buf + Align - (((intptr_t)this) & (Align - 1))); }
+    //	const T& operator->*() const { return *(T*)(buf + Align - (((INTintptr_t_PTR)this) & (Align - 1))); }
 private:
-	char buf[sizeof(T) + Align];
+    char buf[sizeof(T) + Align];
 };
 
 namespace tscrypto {
@@ -95,312 +95,312 @@ class CryptoContainerWrapper
     : public ICryptoContainerWrapper<baseType> /*, public
                                                   tscrypto::ICryptoObject*/
 {
-	public:
-		typedef typename std::vector<baseType> listType;
-		typedef size_t size_type;
-		typedef ptrdiff_t difference_type;
-		typedef const baseType& const_reference;
-		typedef baseType& reference;
-		typedef baseType* pointer;
-		typedef const baseType* const_pointer;
+    public:
+        typedef typename std::vector<baseType> listType;
+        typedef size_t size_type;
+        typedef ptrdiff_t difference_type;
+        typedef const baseType& const_reference;
+        typedef baseType& reference;
+        typedef baseType* pointer;
+        typedef const baseType* const_pointer;
 
-		typedef CryptoIterator<ICryptoContainerWrapper<baseType>> iterator;
-		typedef const_CryptoIterator<ICryptoContainerWrapper<baseType>> const_iterator;
-		typedef std::reverse_iterator<iterator> reverse_iterator;
-		typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+        typedef CryptoIterator<ICryptoContainerWrapper<baseType>> iterator;
+        typedef const_CryptoIterator<ICryptoContainerWrapper<baseType>> const_iterator;
+        typedef std::reverse_iterator<iterator> reverse_iterator;
+        typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
-		CryptoContainerWrapper()
-		{}
-		//CryptoContainerWrapper(std::initializer_list<baseType> ilist) : _list(ilist)
-		//{}
-		CryptoContainerWrapper(std::vector<baseType>& list) : _list(list)
-		{}
-		CryptoContainerWrapper(const CryptoContainerWrapper& obj) : _list(obj.list)
-		{}
-		CryptoContainerWrapper(CryptoContainerWrapper&& obj) : _list(std::move(obj.list))
-		{}
+        CryptoContainerWrapper()
+        {}
+        //CryptoContainerWrapper(std::initializer_list<baseType> ilist) : _list(ilist)
+        //{}
+        CryptoContainerWrapper(std::vector<baseType>& list) : _list(list)
+        {}
+        CryptoContainerWrapper(const CryptoContainerWrapper& obj) : _list(obj.list)
+        {}
+        CryptoContainerWrapper(CryptoContainerWrapper&& obj) : _list(std::move(obj.list))
+        {}
 
-		CryptoContainerWrapper& operator=(const std::vector<baseType>& list)
-		{
-			_list = list;
-			return *this;
-		}
-		CryptoContainerWrapper& operator=(std::vector<baseType>&& list)
-		{
-			_list = std::move(list);
-			return *this;
-		}
-		virtual CryptoContainerWrapper& operator=(const CryptoContainerWrapper<baseType>& obj)
-		{
-			const CryptoContainerWrapper<baseType> *p = dynamic_cast<const CryptoContainerWrapper<baseType> *>(&obj);
-			if (p != nullptr && p != this)
-			{
-				_list = p->_list;
-			}
-			return *this;
-		}
-		virtual CryptoContainerWrapper& operator=(CryptoContainerWrapper<baseType>&& obj)
-		{
-			CryptoContainerWrapper<baseType> *p = dynamic_cast<CryptoContainerWrapper<baseType> *>(&obj);
-			if (p != nullptr && p != this)
-			{
-				_list = std::move(p->_list);
-			}
-			return *this;
-		}
-		virtual CryptoContainerWrapper& operator=(const ICryptoContainerWrapper<baseType>& obj) override
-		{
-			const CryptoContainerWrapper<baseType> *p = dynamic_cast<const CryptoContainerWrapper<baseType> *>(&obj);
-			if (p != nullptr && p != this)
-			{
-				_list = p->_list;
-			}
-			return *this;
-		}
-		virtual CryptoContainerWrapper& operator=(ICryptoContainerWrapper<baseType>&& obj) override
-		{
-			CryptoContainerWrapper<baseType> *p = dynamic_cast<CryptoContainerWrapper<baseType> *>(&obj);
-			if (p != nullptr && p != this)
-			{
-				_list = std::move(p->_list);
-			}
-			return *this;
-		}
-		//virtual CryptoContainerWrapper& operator=(std::initializer_list<baseType> ilist) override
-		//{
-		//	_list = ilist;
-		//	return *this;
-		//}
+        CryptoContainerWrapper& operator=(const std::vector<baseType>& list)
+        {
+            _list = list;
+            return *this;
+        }
+        CryptoContainerWrapper& operator=(std::vector<baseType>&& list)
+        {
+            _list = std::move(list);
+            return *this;
+        }
+        virtual CryptoContainerWrapper& operator=(const CryptoContainerWrapper<baseType>& obj)
+        {
+            const CryptoContainerWrapper<baseType> *p = dynamic_cast<const CryptoContainerWrapper<baseType> *>(&obj);
+            if (p != nullptr && p != this)
+            {
+                _list = p->_list;
+            }
+            return *this;
+        }
+        virtual CryptoContainerWrapper& operator=(CryptoContainerWrapper<baseType>&& obj)
+        {
+            CryptoContainerWrapper<baseType> *p = dynamic_cast<CryptoContainerWrapper<baseType> *>(&obj);
+            if (p != nullptr && p != this)
+            {
+                _list = std::move(p->_list);
+            }
+            return *this;
+        }
+        virtual CryptoContainerWrapper& operator=(const ICryptoContainerWrapper<baseType>& obj) override
+        {
+            const CryptoContainerWrapper<baseType> *p = dynamic_cast<const CryptoContainerWrapper<baseType> *>(&obj);
+            if (p != nullptr && p != this)
+            {
+                _list = p->_list;
+            }
+            return *this;
+        }
+        virtual CryptoContainerWrapper& operator=(ICryptoContainerWrapper<baseType>&& obj) override
+        {
+            CryptoContainerWrapper<baseType> *p = dynamic_cast<CryptoContainerWrapper<baseType> *>(&obj);
+            if (p != nullptr && p != this)
+            {
+                _list = std::move(p->_list);
+            }
+            return *this;
+        }
+        //virtual CryptoContainerWrapper& operator=(std::initializer_list<baseType> ilist) override
+        //{
+        //	_list = ilist;
+        //	return *this;
+        //}
 
-		virtual void assign(size_type count, const_reference value) override
-		{
-			_list.assign(count, value);
-		}
+        virtual void assign(size_type count, const_reference value) override
+        {
+            _list.assign(count, value);
+        }
 
-		virtual void assign(const_iterator insertBegin, const_iterator insertEnd) override
-		{
-			_list.assign(insertBegin, insertEnd);
-		}
+        virtual void assign(const_iterator insertBegin, const_iterator insertEnd) override
+        {
+            _list.assign(insertBegin, insertEnd);
+        }
 
-		//virtual void assign(std::initializer_list<baseType> ilist) override
-		//{
-		//	_list.assign(ilist);
-		//}
+        //virtual void assign(std::initializer_list<baseType> ilist) override
+        //{
+        //	_list.assign(ilist);
+        //}
 
-		virtual baseType& operator[](size_type index) override
-		{
-			return _list[index];
-		}
-		virtual const baseType& operator[](size_type index) const override
-		{
-			return _list[index];
-		}
-		virtual baseType& at(size_type index) override
-		{
-			return _list[index];
-		}
-		virtual const baseType& at(size_type index) const override
-		{
-			return _list[index];
-		}
+        virtual baseType& operator[](size_type index) override
+        {
+            return _list[index];
+        }
+        virtual const baseType& operator[](size_type index) const override
+        {
+            return _list[index];
+        }
+        virtual baseType& at(size_type index) override
+        {
+            return _list[index];
+        }
+        virtual const baseType& at(size_type index) const override
+        {
+            return _list[index];
+        }
 
-		virtual reference front() override
-		{
-			return _list.front();
-		}
-		virtual const_reference front() const override
-		{
-			return _list.front();
-		}
-		virtual reference back() override
-		{
-			return _list.back();
-		}
-		virtual const_reference back() const override
-		{
-			return _list.back();
-		}
-		virtual pointer data() override
-		{
-			return _list.data();
-		}
-		virtual const_pointer data() const override
-		{
-			return _list.data();
-		}
-		virtual iterator begin()  override
-		{
-			return iterator(std::dynamic_pointer_cast<ICryptoContainerWrapper<baseType>>(_me.lock()));
-		}
-		virtual const_iterator begin() const  override
-		{
-			return const_iterator(std::dynamic_pointer_cast<ICryptoContainerWrapper<baseType>>(_me.lock()));
-		}
-		virtual iterator end()  override
-		{
-			return iterator(std::dynamic_pointer_cast<ICryptoContainerWrapper<baseType>>(_me.lock()), _list.size());
-		}
-		virtual const_iterator end() const  override
-		{
-			return const_iterator(std::dynamic_pointer_cast<ICryptoContainerWrapper<baseType>>(_me.lock()), _list.size());
-		}
-		virtual const_iterator cbegin() const  override
-		{
-			return const_iterator(std::dynamic_pointer_cast<ICryptoContainerWrapper<baseType>>(_me.lock()));
-		}
-		virtual const_iterator cend() const  override
-		{
-			return const_iterator(std::dynamic_pointer_cast<ICryptoContainerWrapper<baseType>>(_me.lock()), _list.size());
-		}
-		virtual reverse_iterator rbegin()  override
-		{
-			return reverse_iterator(end());
-		}
-		virtual reverse_iterator rend()  override
-		{
-			return reverse_iterator(begin());
-		}
-		virtual const_reverse_iterator crbegin() const  override
-		{
-			return const_reverse_iterator(cend());
-		}
-		virtual const_reverse_iterator crend() const  override
-		{
-			return const_reverse_iterator(cbegin());
-		}
-		virtual bool empty() const override
-		{
-			return _list.empty();
-		}
-		virtual size_type size() const override
-		{
-			return _list.size();
-		}
-		virtual size_type max_size() const override
-		{
-			return _list.max_size();
-		}
-		virtual size_type capacity() const override
-		{
-			return _list.capacity();
-		}
-		virtual void reserve(size_type setTo) override
-		{
-			_list.reserve(setTo);
-		}
-		virtual void shrink_to_fit() override
-		{
-			_list.shrink_to_fit();
-		}
-		virtual void clear() override
-		{
-			_list.clear();
-		}
-		virtual iterator insert(const_iterator pos, const_reference data) override
-		{
-			typename listType::iterator it1 = _list.insert(_list.begin() + (pos - begin()), data);
-			size_type idx = it1 - _list.begin();
-			return iterator(std::dynamic_pointer_cast<ICryptoContainerWrapper<baseType>>(_me.lock()), idx);
-		}
-		virtual iterator insert(const_iterator pos, baseType&& data) override
-		{
-			typename listType::iterator it1 = _list.insert(_list.begin() + (pos - begin()), std::move(data));
-			size_type idx = it1 - _list.begin();
-			return iterator(std::dynamic_pointer_cast<ICryptoContainerWrapper<baseType>>(_me.lock()), idx);
-		}
-		//virtual iterator insert(const_iterator pos, size_type count, const_reference data) override
-		//{
-		//	typename listType::iterator it1 = _list.insert(_list.begin() + (pos - begin()), count, data);
-		//	size_type idx = it1 - _list.begin();
-		//	return iterator(std::dynamic_pointer_cast<ICryptoContainerWrapper<baseType>>(_me.lock()), idx);
-		//}
-		//virtual iterator insert(const_iterator pos, const_iterator insertBegin, const_iterator insertEnd) override
-		//{
-		//	size_type idx1 = (pos - cbegin());
-		//	size_type idx2 = (insertBegin - cbegin());
-		//	size_type idx3 = (insertEnd - cbegin());
-		//	typename listType::iterator it1 = _list.insert(_list.begin() + idx1, _list.cbegin() + idx2, _list.cbegin() + idx3);
-		//	size_type idx = it1 - _list.begin();
-		//	return iterator(std::dynamic_pointer_cast<ICryptoContainerWrapper<baseType>>(_me.lock()), idx);
-		//}
-		//virtual iterator insert(const_iterator pos, std::initializer_list<baseType> ilist) override
-		//{
-		//	size_type idx1 = pos - cbegin();
-		//	typename listType::iterator it1 = _list.insert(_list.begin() + idx1, ilist);
-		//	size_type idx = it1 - _list.begin();
-		//	return iterator(std::dynamic_pointer_cast<ICryptoContainerWrapper<baseType>>(_me.lock()), idx);
-		//}
-		virtual iterator erase(const_iterator it) override
-		{
-			auto newEnd = _list.erase(_list.begin() + (it - begin()));
-			return iterator(std::dynamic_pointer_cast<ICryptoContainerWrapper<baseType>>(_me.lock()), newEnd - _list.begin());
-		}
-		virtual iterator erase(const_iterator first, const_iterator last) override
-		{
-			auto newEnd = _list.erase(_list.begin() + (first - begin()), _list.begin() + (last - begin()));
-			return iterator(std::dynamic_pointer_cast<ICryptoContainerWrapper<baseType>>(_me.lock()), newEnd - _list.begin());
-		}
-		virtual void push_back(const_reference value) override
-		{
-			_list.push_back(value);
-		}
-		virtual void push_back(baseType&& value) override
-		{
-			_list.push_back(std::move(value));
-		}
-		virtual void pop_back() override
-		{
-			_list.pop_back();
-		}
-		virtual void resize(size_type newSize) override
-		{
-			_list.resize(newSize);
-		}
-		virtual void resize(size_type newSize, const_reference value) override
-		{
-			_list.resize(newSize, value);
-		}
-		virtual void swapIndices(size_type left, size_type right)  override
-		{
-			auto it = _list.begin();
+        virtual reference front() override
+        {
+            return _list.front();
+        }
+        virtual const_reference front() const override
+        {
+            return _list.front();
+        }
+        virtual reference back() override
+        {
+            return _list.back();
+        }
+        virtual const_reference back() const override
+        {
+            return _list.back();
+        }
+        virtual pointer data() override
+        {
+            return _list.data();
+        }
+        virtual const_pointer data() const override
+        {
+            return _list.data();
+        }
+        virtual iterator begin()  override
+        {
+            return iterator(std::dynamic_pointer_cast<ICryptoContainerWrapper<baseType>>(_me.lock()));
+        }
+        virtual const_iterator begin() const  override
+        {
+            return const_iterator(std::dynamic_pointer_cast<ICryptoContainerWrapper<baseType>>(_me.lock()));
+        }
+        virtual iterator end()  override
+        {
+            return iterator(std::dynamic_pointer_cast<ICryptoContainerWrapper<baseType>>(_me.lock()), _list.size());
+        }
+        virtual const_iterator end() const  override
+        {
+            return const_iterator(std::dynamic_pointer_cast<ICryptoContainerWrapper<baseType>>(_me.lock()), _list.size());
+        }
+        virtual const_iterator cbegin() const  override
+        {
+            return const_iterator(std::dynamic_pointer_cast<ICryptoContainerWrapper<baseType>>(_me.lock()));
+        }
+        virtual const_iterator cend() const  override
+        {
+            return const_iterator(std::dynamic_pointer_cast<ICryptoContainerWrapper<baseType>>(_me.lock()), _list.size());
+        }
+        virtual reverse_iterator rbegin()  override
+        {
+            return reverse_iterator(end());
+        }
+        virtual reverse_iterator rend()  override
+        {
+            return reverse_iterator(begin());
+        }
+        virtual const_reverse_iterator crbegin() const  override
+        {
+            return const_reverse_iterator(cend());
+        }
+        virtual const_reverse_iterator crend() const  override
+        {
+            return const_reverse_iterator(cbegin());
+        }
+        virtual bool empty() const override
+        {
+            return _list.empty();
+        }
+        virtual size_type size() const override
+        {
+            return _list.size();
+        }
+        virtual size_type max_size() const override
+        {
+            return _list.max_size();
+        }
+        virtual size_type capacity() const override
+        {
+            return _list.capacity();
+        }
+        virtual void reserve(size_type setTo) override
+        {
+            _list.reserve(setTo);
+        }
+        virtual void shrink_to_fit() override
+        {
+            _list.shrink_to_fit();
+        }
+        virtual void clear() override
+        {
+            _list.clear();
+        }
+        virtual iterator insert(const_iterator pos, const_reference data) override
+        {
+            typename listType::iterator it1 = _list.insert(_list.begin() + (pos - begin()), data);
+            size_type idx = it1 - _list.begin();
+            return iterator(std::dynamic_pointer_cast<ICryptoContainerWrapper<baseType>>(_me.lock()), idx);
+        }
+        virtual iterator insert(const_iterator pos, baseType&& data) override
+        {
+            typename listType::iterator it1 = _list.insert(_list.begin() + (pos - begin()), std::move(data));
+            size_type idx = it1 - _list.begin();
+            return iterator(std::dynamic_pointer_cast<ICryptoContainerWrapper<baseType>>(_me.lock()), idx);
+        }
+        //virtual iterator insert(const_iterator pos, size_type count, const_reference data) override
+        //{
+        //	typename listType::iterator it1 = _list.insert(_list.begin() + (pos - begin()), count, data);
+        //	size_type idx = it1 - _list.begin();
+        //	return iterator(std::dynamic_pointer_cast<ICryptoContainerWrapper<baseType>>(_me.lock()), idx);
+        //}
+        //virtual iterator insert(const_iterator pos, const_iterator insertBegin, const_iterator insertEnd) override
+        //{
+        //	size_type idx1 = (pos - cbegin());
+        //	size_type idx2 = (insertBegin - cbegin());
+        //	size_type idx3 = (insertEnd - cbegin());
+        //	typename listType::iterator it1 = _list.insert(_list.begin() + idx1, _list.cbegin() + idx2, _list.cbegin() + idx3);
+        //	size_type idx = it1 - _list.begin();
+        //	return iterator(std::dynamic_pointer_cast<ICryptoContainerWrapper<baseType>>(_me.lock()), idx);
+        //}
+        //virtual iterator insert(const_iterator pos, std::initializer_list<baseType> ilist) override
+        //{
+        //	size_type idx1 = pos - cbegin();
+        //	typename listType::iterator it1 = _list.insert(_list.begin() + idx1, ilist);
+        //	size_type idx = it1 - _list.begin();
+        //	return iterator(std::dynamic_pointer_cast<ICryptoContainerWrapper<baseType>>(_me.lock()), idx);
+        //}
+        virtual iterator erase(const_iterator it) override
+        {
+            auto newEnd = _list.erase(_list.begin() + (it - begin()));
+            return iterator(std::dynamic_pointer_cast<ICryptoContainerWrapper<baseType>>(_me.lock()), newEnd - _list.begin());
+        }
+        virtual iterator erase(const_iterator first, const_iterator last) override
+        {
+            auto newEnd = _list.erase(_list.begin() + (first - begin()), _list.begin() + (last - begin()));
+            return iterator(std::dynamic_pointer_cast<ICryptoContainerWrapper<baseType>>(_me.lock()), newEnd - _list.begin());
+        }
+        virtual void push_back(const_reference value) override
+        {
+            _list.push_back(value);
+        }
+        virtual void push_back(baseType&& value) override
+        {
+            _list.push_back(std::move(value));
+        }
+        virtual void pop_back() override
+        {
+            _list.pop_back();
+        }
+        virtual void resize(size_type newSize) override
+        {
+            _list.resize(newSize);
+        }
+        virtual void resize(size_type newSize, const_reference value) override
+        {
+            _list.resize(newSize, value);
+        }
+        virtual void swapIndices(size_type left, size_type right)  override
+        {
+            auto it = _list.begin();
 
-			baseType tmp = *(it + left);
-			*(it + left) = *(it + right);
-			*(it + right) = tmp;
+            baseType tmp = *(it + left);
+            *(it + left) = *(it + right);
+            *(it + right) = tmp;
 
-			//		std::swap(it + left, it + right);
-		}
-		virtual std::shared_ptr<ICryptoContainerWrapper<baseType>> cloneContainer() const override
-		{
-			std::shared_ptr<ICryptoContainerWrapper<baseType>> tmp = std::shared_ptr<ICryptoContainerWrapper<baseType> >(new CryptoContainerWrapper<baseType>());
-			std::dynamic_pointer_cast<CryptoContainerWrapper<baseType>>(tmp)->setSharedPtr(tmp);
-			((CryptoContainerWrapper<baseType>*)tmp.get())->_list = _list;
-			return tmp;
-		}
-		void setSharedPtr(std::shared_ptr<ICryptoContainerWrapper<baseType>> ptr) { _me = ptr; }
-	protected:
-		std::weak_ptr<ICryptoContainerWrapper<baseType>> _me;
+            //		std::swap(it + left, it + right);
+        }
+        virtual std::shared_ptr<ICryptoContainerWrapper<baseType>> cloneContainer() const override
+        {
+            std::shared_ptr<ICryptoContainerWrapper<baseType>> tmp = std::shared_ptr<ICryptoContainerWrapper<baseType> >(new CryptoContainerWrapper<baseType>());
+            std::dynamic_pointer_cast<CryptoContainerWrapper<baseType>>(tmp)->setSharedPtr(tmp);
+            ((CryptoContainerWrapper<baseType>*)tmp.get())->_list = _list;
+            return tmp;
+        }
+        void setSharedPtr(std::shared_ptr<ICryptoContainerWrapper<baseType>> ptr) { _me = ptr; }
+    protected:
+        std::weak_ptr<ICryptoContainerWrapper<baseType>> _me;
 
-	private:
-		std::vector<baseType> _list;
-	};
+    private:
+        std::vector<baseType> _list;
+    };
 
-	template <typename T>
-	std::shared_ptr<ICryptoContainerWrapper<T> > CreateContainer()
-	{
-		std::shared_ptr<ICryptoContainerWrapper<T>> tmp = std::shared_ptr<ICryptoContainerWrapper<T> >(new CryptoContainerWrapper<T>());
-		std::dynamic_pointer_cast<CryptoContainerWrapper<T>>(tmp)->setSharedPtr(tmp);
-		return tmp;
-	}
+    template <typename T>
+    std::shared_ptr<ICryptoContainerWrapper<T> > CreateContainer()
+    {
+        std::shared_ptr<ICryptoContainerWrapper<T>> tmp = std::shared_ptr<ICryptoContainerWrapper<T> >(new CryptoContainerWrapper<T>());
+        std::dynamic_pointer_cast<CryptoContainerWrapper<T>>(tmp)->setSharedPtr(tmp);
+        return tmp;
+    }
 }
 
 class IHttpHeader : public IHttpResponse
 {
 public:
-	typedef enum { hh_CloseSocket, hh_Success, hh_Failure } ReadCode;
+    typedef enum { hh_CloseSocket, hh_Success, hh_Failure } ReadCode;
 
     virtual ReadCode ReadStream(std::shared_ptr<ITcpConnection> channel, const tscrypto::tsCryptoData& leadin, std::shared_ptr<IHttpChannelProcessor>& processor) = 0;
-	virtual void clear() = 0;
+    virtual void clear() = 0;
 };
 
 //bool IsSmallPrimeComposite(const RsaNumber &number);
@@ -451,16 +451,11 @@ extern _tsTraceInfoExt *_gTsTraceModuleExt;
 // from tsSignal.cpp
 struct tsStringSignalItem
 {
-	int cookie;
-	std::function<void(const tscrypto::tsCryptoString&)> func;
+    int cookie;
+    std::function<void(const tscrypto::tsCryptoString&)> func;
 };
 typedef std::vector<tsStringSignalItem> tsStringSignalList;
 extern uint32_t tsStringSignalCookie;
-
-// from xp_sharedLib.cpp
-#ifndef _WIN32
-extern const char *gLastDLError;
-#endif // _WIN32
 
 // from TLSCiperSuiteProcessor.cpp
 #ifndef NO_LOGGING
@@ -472,13 +467,13 @@ extern tsTraceStream gSslState;
 //
 
 namespace tscrypto {
-	//extern bool IsSmallPrimeComposite(const RsaNumber &number);
-	//extern int MRComposite(size_t rounds, const RsaNumber &w); // 0 not composite, 1 Composite with factor, 2 composite and not a power of a prime, -1 RNG failure
-	//extern int FindNegOneJacobi(const RsaNumber &n);
-	//extern bool JacobiComposite(int jacobi, const RsaNumber &C);
-	//extern int InnerJacobi(const RsaNumber &n, RsaNumber &A);
+    //extern bool IsSmallPrimeComposite(const RsaNumber &number);
+    //extern int MRComposite(size_t rounds, const RsaNumber &w); // 0 not composite, 1 Composite with factor, 2 composite and not a power of a prime, -1 RNG failure
+    //extern int FindNegOneJacobi(const RsaNumber &n);
+    //extern bool JacobiComposite(int jacobi, const RsaNumber &C);
+    //extern int InnerJacobi(const RsaNumber &n, RsaNumber &A);
 
-	//extern void initializeBaseEccCurves();
+    //extern void initializeBaseEccCurves();
 }
 
 using namespace tscrypto;

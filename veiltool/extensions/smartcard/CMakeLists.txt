@@ -1,4 +1,4 @@
-#	Copyright (c) 2017, TecSec, Inc.
+#	Copyright (c) 2018, TecSec, Inc.
 #
 #	Redistribution and use in source and binary forms, with or without
 #	modification, are permitted provided that the following conditions are met:
@@ -56,7 +56,11 @@ add_library(smartcard SHARED
 add_precompiled_header(smartcard stdafx.h FORCEINCLUDE SOURCE_CXX stdafx.cpp)
 set_source_files_properties(smartcard.rc PROPERTIES COMPILE_DEFINITIONS RC_COMPILED)
 set_target_properties(smartcard PROPERTIES FOLDER "Tools/veilExtensions")
-TARGET_LINK_LIBRARIES(smartcard VEILCore VEILSmartCard)
+if(APPLE)
+    TARGET_LINK_LIBRARIES(smartcard VEILCore ${CyberVEIL_TARGET})
+else()
+    TARGET_LINK_LIBRARIES(smartcard VEILCore CyberVEIL)
+endif(APPLE)
 set_target_properties(smartcard PROPERTIES 
 	SUFFIX ".veil"  
 	)

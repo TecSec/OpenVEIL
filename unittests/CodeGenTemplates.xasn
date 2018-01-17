@@ -223,7 +223,6 @@
       <ID Name="TECSEC_KDF_HASH_SHA256_OID" Value="{TECSEC_KDF_ALGS_OID}.10" Exported="true"/>
       <ID Name="TECSEC_KDF_HASH_SHA384_OID" Value="{TECSEC_KDF_ALGS_OID}.11" Exported="true"/>
       <ID Name="TECSEC_KDF_HASH_SHA512_OID" Value="{TECSEC_KDF_ALGS_OID}.12" Exported="true"/>
-      <ID Name="TECSEC_KDF_PBKDF2_OID" Value="{TECSEC_KDF_ALGS_OID}.13" Exported="true"/>
       <ID Name="TECSEC_KDF_HASH_MD5_OID" Value="{TECSEC_KDF_ALGS_OID}.14" Exported="true"/>
       <ID Name="TECSEC_KDF_HMAC_MD5_OID" Value="{TECSEC_KDF_ALGS_OID}.15" Exported="true"/>
       <ID Name="TECSEC_KDF_HASH_RIPEMD160_OID" Value="{TECSEC_KDF_ALGS_OID}.16" Exported="true"/>
@@ -272,7 +271,6 @@
       <ID Name="TECSEC_CMAC_OID" Value="{TECSEC_GENERAL_ALGS}.3" Exported="true"/>
       <ID Name="TECSEC_CMAC_AES_OID" Value="{TECSEC_GENERAL_ALGS}.4" Exported="true"/>
       <ID Name="TECSEC_HMAC_OID" Value="{TECSEC_GENERAL_ALGS}.5" Exported="true"/>
-      <ID Name="TECSEC_KEYWRAP_AES_OID" Value="{TECSEC_GENERAL_ALGS}.6" Exported="true"/>
       <ID Name="TECSEC_KEYWRAP_TDES_OID" Value="{TECSEC_GENERAL_ALGS}.7" Exported="true"/>
       <ID Name="TECSEC_KDF_CMAC_OID" Value="{TECSEC_GENERAL_ALGS}.8" Exported="true"/>
       <ID Name="TECSEC_KDF_HMAC_OID" Value="{TECSEC_GENERAL_ALGS}.9" Exported="true"/>
@@ -454,14 +452,12 @@
       <ID Name="NIST_HASH_OID" Value="{NIST_ALGS_OID}.2" Exported="true"/>
       <ID Name="NIST_SHA256_OID" Value="{NIST_ALGS_OID}.2.1" Exported="true"/>
       <ID Name="NIST_SHA384_OID" Value="{NIST_ALGS_OID}.2.2" Exported="true"/>
-      <ID Name="NIST_SHA512_OID" Value="{NIST_ALGS_OID}.2.3" Exported="true"/>
       <ID Name="NIST_SHA224_OID" Value="{NIST_ALGS_OID}.2.4" Exported="true"/>
       <ID Name="SHA1_OID" Value="1.3.14.3.2.26" Exported="true"/>
       <ID Name="RSADSI_HMAC_SHA1_OID" Value="1.2.840.113549.2.7" Exported="true"/>
       <ID Name="RSADSI_HMAC_SHA224_OID" Value="1.2.840.113549.2.8" Exported="true"/>
       <ID Name="RSADSI_HMAC_SHA256_OID" Value="1.2.840.113549.2.9" Exported="true"/>
       <ID Name="RSADSI_HMAC_SHA384_OID" Value="1.2.840.113549.2.10" Exported="true"/>
-      <ID Name="RSADSI_HMAC_SHA512_OID" Value="1.2.840.113549.2.11" Exported="true"/>
       <ID Name="OSI_DES_EDE" Value="1.3.14.3.2.17" Exported="true"/>
       <ID Name="ANSI_X9_52_DES_3EDE_CBC" Value="1.2.840.113549.3.7" Exported="true"/>
       <ID Name="ANSI_X9_52_DES_3EDE_ECB" Value="1.2.840.113549.3.17" Exported="true"/>
@@ -473,29 +469,17 @@
       <ID Name="NIST_P256_CURVE_OID" Value="1.2.840.10045.3.1.7" Exported="true"/>
       <ID Name="NIST_P384_CURVE_OID" Value="1.3.132.0.34" Exported="true"/>
       <ID Name="NIST_P521_CURVE_OID" Value="1.3.132.0.35" Exported="true"/>
-      <ID Name="DSA_SHA1_OID" Value="1.2.840.10040.4.3" Exported="true"/>
       <ID Name="DSA_SHA224_OID" Value="{NIST_ALGS_OID}.3.1" Exported="true"/>
       <ID Name="DSA_SHA256_OID" Value="{NIST_ALGS_OID}.3.2" Exported="true"/>
-      <ID Name="ECDSA_SHA1_OID" Value="1.2.840.10045.4.1" Exported="true"/>
-      <ID Name="ECDSA_SHA224_OID" Value="1.2.840.10045.4.3.1" Exported="true"/>
-      <ID Name="ECDSA_SHA256_OID" Value="1.2.840.10045.4.3.2" Exported="true"/>
-      <ID Name="ECDSA_SHA384_OID" Value="1.2.840.10045.4.3.3" Exported="true"/>
-      <ID Name="ECDSA_SHA512_OID" Value="1.2.840.10045.4.3.4" Exported="true"/>
       <ID Name="EC_PUBLIC_KEY_OID" Value="1.2.840.10045.2.1" Exported="true"/>
-      <ID Name="RSA_SHA1_SIGN_OID" Value="1.2.840.113549.1.1.5" Exported="true"/>
       <ID Name="RSA_OAEP_ENCRYPTION_OID" Value="1.2.840.113549.1.1.6" Exported="true"/>
       <ID Name="RSAES_OAEP_OID" Value="1.2.840.113549.1.1.7" Exported="true"/>
       <ID Name="RSASSA_PSS_OID" Value="1.2.840.113549.1.1.10" Exported="true"/>
-      <ID Name="RSA_SHA256_SIGN_OID" Value="1.2.840.113549.1.1.11" Exported="true"/>
-      <ID Name="RSA_SHA384_SIGN_OID" Value="1.2.840.113549.1.1.12" Exported="true"/>
-      <ID Name="RSA_SHA512_SIGN_OID" Value="1.2.840.113549.1.1.13" Exported="true"/>
-      <ID Name="RSA_SHA224_SIGN_OID" Value="1.2.840.113549.1.1.14" Exported="true"/>
       <ID Name="RSA_ENCRYPT_OID" Value="1.2.840.113549.1.1.1" Exported="true"/>
       <ID Name="TDES_KEYWRAP_OID" Value="1.2.840.113549.1.9.16.3.6" Exported="true"/>
       <ID Name="IEEE_OID" Value="1.3.111.2" Exported="true"/>
       <ID Name="IEEE_1619_OID" Value="1.3.111.2.1619.0" Exported="true"/>
       <ID Name="IEEE_1619_CRYPTOALG_OID" Value="1.3.111.2.1619.0.1" Exported="true"/>
-      <ID Name="DSA_PARAMETER_SET" Value="1.2.840.10040.4.1" Exported="true"/>
       <ID Name="DHPUBLICNUMBER_OID" Value="1.2.840.10046.2.1" Exported="true"/>
       <ID Name="RC2_CBC_OID" Value="1.2.840.113549.3.2" Exported="true"/>
       <ID Name="RC2_ECB_OID" Value="1.2.840.113549.3.3" Exported="true"/>
@@ -892,36 +876,36 @@
         <ID Name="persist_Both" Value="3"/>
       </NamedInt>
 
-      <NamedInt Name="SSL_HashAlgorithm" BaseType="int32_t" Exported="true">
-        <ID Name="sslhash_none" Value="0"/>
+      <NamedInt Name="TSSslHashAlgorithm" BaseType="int32_t" Exported="true">
+        <ID Name="tsSslhash_none" Value="0"/>
         <ID Name="sslhash_md5" Value="1"/>
-        <ID Name="sslhash_sha1" Value="2"/>
-        <ID Name="sslhash_sha224" Value="3"/>
-        <ID Name="sslhash_sha256" Value="4"/>
-        <ID Name="sslhash_sha384" Value="5"/>
-        <ID Name="sslhash_sha512" Value="6"/>
+        <ID Name="tsSslhash_sha1" Value="2"/>
+        <ID Name="tsSslhash_sha224" Value="3"/>
+        <ID Name="tsSslhash_sha256" Value="4"/>
+        <ID Name="tsSslhash_sha384" Value="5"/>
+        <ID Name="tsSslhash_sha512" Value="6"/>
       </NamedInt>
 
-      <NamedInt Name="SSL_SignatureAlgorithm" BaseType="int32_t" Exported="true">
-        <ID Name="sslsign_anonymous" Value="0"/>
-        <ID Name="sslsign_rsa" Value="1"/>
-        <ID Name="sslsign_dsa" Value="2"/>
-        <ID Name="sslsign_ecdsa" Value="3"/>
+      <NamedInt Name="TSSslSignatureAlgorithm" BaseType="int32_t" Exported="true">
+        <ID Name="tsSslsign_anonymous" Value="0"/>
+        <ID Name="tsSslsign_rsa" Value="1"/>
+        <ID Name="tsSslsign_dsa" Value="2"/>
+        <ID Name="tsSslsign_ecdsa" Value="3"/>
       </NamedInt>
 
       <NamedInt Name="SSL_KeyExchangeAlgorithm" BaseType="int32_t" Exported="true">
         <Description> may be extended (e.g. for ECDH - see [TLSECC]) </Description>
         <ID Name="sslke_anonymous" Value="0"/>
-        <ID Name="sslke_dhe" Value="1"/>
+        <ID Name="tsSslke_dhe" Value="1"/>
         <ID Name="sslke_rsa" Value="2"/>
         <ID Name="sslke_dh" Value="3"/>
         <ID Name="sslke_ec_diffie_hellman" Value="4"/>
-        <ID Name="sslke_ec_diffie_hellman_ephemeral" Value="5"/>
-        <ID Name="sslke_psk" Value="6"/>
-        <ID Name="sslke_dhe_psk" Value="7"/>
-        <ID Name="sslke_rsa_psk" Value="8"/>
-        <ID Name="sslke_ecdhe_psk" Value="9"/>
-        <ID Name="sslke_ckmauth" Value="10"/>
+        <ID Name="tsSslke_ec_diffie_hellman_ephemeral" Value="5"/>
+        <ID Name="tsSslke_psk" Value="6"/>
+        <ID Name="tsSslke_dhe_psk" Value="7"/>
+        <ID Name="tsSslke_rsa_psk" Value="8"/>
+        <ID Name="tsSslke_ecdhe_psk" Value="9"/>
+        <ID Name="tsSslke_ckmauth" Value="10"/>
       </NamedInt>
 
       <NamedInt Name="SSL_NamedCurve" BaseType="uint16_t" Exported="true">
@@ -1047,41 +1031,41 @@
       </NamedInt>
 
       <NamedInt Name="SslCompressionMethod" BaseType="uint8_t" Exported="true">
-        <ID Name="ssl_NoCompression" Value="0"/>
-        <ID Name="ssl_DeflateCompression" Value="1"/>
+        <ID Name="tsssl_NoCompression" Value="0"/>
+        <ID Name="tsssl_DeflateCompression" Value="1"/>
       </NamedInt>
 
-      <NamedInt Name="SSL_AlertDescription" BaseType="uint16_t" Exported="true">
-        <ID Name="sslalert_no_error" Value="1024"/>
-        <ID Name="sslalert_close_notify" Value="0"/>
-        <ID Name="sslalert_unexpected_message" Value="10"/>
+      <NamedInt Name="TSSslAlertDescription" BaseType="uint16_t" Exported="true">
+        <ID Name="tsSslalert_no_error" Value="1024"/>
+        <ID Name="tsSslalert_close_notify" Value="0"/>
+        <ID Name="tsSslalert_unexpected_message" Value="10"/>
         <ID Name="sslalert_bad_record_mac" Value="20"/>
         <ID Name="sslalert_decryption_failed_RESERVED" Value="21"/>
-        <ID Name="sslalert_record_overflow" Value="22"/>
+        <ID Name="tsSslalert_record_overflow" Value="22"/>
         <ID Name="sslalert_decompression_failure" Value="30"/>
-        <ID Name="sslalert_handshake_failure" Value="40"/>
+        <ID Name="tsSslalert_handshake_failure" Value="40"/>
         <ID Name="sslalert_no_certificate_RESERVED" Value="41"/>
-        <ID Name="sslalert_bad_certificate" Value="42"/>
-        <ID Name="sslalert_unsupported_certificate" Value="43"/>
-        <ID Name="sslalert_certificate_revoked" Value="44"/>
-        <ID Name="sslalert_certificate_expired" Value="45"/>
-        <ID Name="sslalert_certificate_unknown" Value="46"/>
+        <ID Name="tsSslalert_bad_certificate" Value="42"/>
+        <ID Name="tsSslalert_unsupported_certificate" Value="43"/>
+        <ID Name="tsSslalert_certificate_revoked" Value="44"/>
+        <ID Name="tsSslalert_certificate_expired" Value="45"/>
+        <ID Name="tsSslalert_certificate_unknown" Value="46"/>
         <ID Name="sslalert_illegal_parameter" Value="47"/>
         <ID Name="sslalert_unknown_ca" Value="48"/>
         <ID Name="sslalert_access_denied" Value="49"/>
-        <ID Name="sslalert_decode_error" Value="50"/>
+        <ID Name="tsSslalert_decode_error" Value="50"/>
         <ID Name="sslalert_decrypt_error" Value="51"/>
         <ID Name="sslalert_export_restriction_RESERVED" Value="60"/>
-        <ID Name="sslalert_protocol_version" Value="70"/>
+        <ID Name="tsSslalert_protocol_version" Value="70"/>
         <ID Name="sslalert_insufficient_security" Value="71"/>
         <ID Name="sslalert_internal_error" Value="80"/>
         <ID Name="sslalert_user_canceled" Value="90"/>
         <ID Name="sslalert_no_renegotiation" Value="100"/>
-        <ID Name="sslalert_unsupported_extension" Value="110"/>
+        <ID Name="tsSslalert_unsupported_extension" Value="110"/>
         <ID Name="sslalert_unknown_psk_identity" Value="115"/>
       </NamedInt>
 
-      <NamedInt Name="SSL_EXTENSION" BaseType="uint16_t" Exported="true">
+      <NamedInt Name="TSSslExtension" BaseType="uint16_t" Exported="true">
         <ID Name="TLS_EXT_server_name" Value="0">
           <Description>[RFC6066] </Description>
         </ID>
@@ -1112,13 +1096,13 @@
         <ID Name="TLS_EXT_cert_type" Value="9">
           <Description>[RFC6091] </Description>
         </ID>
-        <ID Name="TLS_EXT_supported_groups" Value="10">
+        <ID Name="tsTlsExt_supported_groups" Value="10">
           <Description>[RFC4492][RFC-ietf-tls-negotiated-ff-dhe-10] </Description>
         </ID>
-        <ID Name="TLS_EXT_ec_point_formats" Value="11">
+        <ID Name="tsTlsExt_ec_point_formats" Value="11">
           <Description>[RFC4492] </Description>
         </ID>
-        <ID Name="TLS_EXT_srp" Value="12">
+        <ID Name="tsTlsExt_srp" Value="12">
           <Description>[RFC5054] </Description>
         </ID>
         <ID Name="TLS_EXT_signature_algorithms" Value="13">
@@ -1151,7 +1135,7 @@
         <ID Name="TLS_EXT_encrypt_then_mac" Value="22">
           <Description>[RFC7366] </Description>
         </ID>
-        <ID Name="TLS_EXT_extended_master_secret" Value="23">
+        <ID Name="tsTlsExt_extended_master_secret" Value="23">
           <Description>[RFC7627] </Description>
         </ID>
         <ID Name="TLS_EXT_SessionTicket" Value="35">
@@ -1160,33 +1144,33 @@
         <ID Name="TLS_EXT_renegotiation_info" Value="65281">
           <Description>[RFC5746] </Description>
         </ID>
-        <ID Name="TLS_EXT_CkmAuth" Value="23498">
+        <ID Name="tsTlsExt_CkmAuth" Value="23498">
           <Description>ckmauth </Description>
         </ID>
       </NamedInt>
 
-      <NamedInt Name="SSL_CONNECTION_STATE" BaseType="int" Exported="true">
-        <ID Name="ssl_conn_Hello_Request" Value="0"/>
-        <ID Name="ssl_conn_Client_Hello" Value="1"/>
-        <ID Name="ssl_conn_Server_Hello" Value="2"/>
-        <ID Name="ssl_conn_Server_Certificate" Value="3"/>
-        <ID Name="ssl_conn_Client_Certificate_Request" Value="4"/>
-        <ID Name="ssl_conn_Server_Key_Exchange" Value="5"/>
-        <ID Name="ssl_conn_Server_Hello_Done" Value="6"/>
-        <ID Name="ssl_conn_Client_Key_Exchange" Value="7"/>
-        <ID Name="ssl_conn_Client_Certificate" Value="8"/>
-        <ID Name="ssl_conn_Client_Certificate_Verify" Value="9"/>
-        <ID Name="ssl_conn_Client_Send_Change_Cipher_Spec" Value="10"/>
-        <ID Name="ssl_conn_Client_Finished" Value="11"/>
-        <ID Name="ssl_conn_Server_Send_Change_Cipher_Spec" Value="12"/>
-        <ID Name="ssl_conn_Server_Finished" Value="13"/>
-        <ID Name="ssl_conn_Active" Value="14"/>
-        <ID Name="ssl_conn_ProtocolReset" Value="15"/>
-        <ID Name="ssl_conn_ProtocolClosed" Value="16"/>
-        <ID Name="ssl_conn_Logout" Value="17"/>
+      <NamedInt Name="TSSslConnectionState" BaseType="int" Exported="true">
+        <ID Name="tsSslConn_Hello_Request" Value="0"/>
+        <ID Name="tsSslConn_Client_Hello" Value="1"/>
+        <ID Name="tsSslConn_Server_Hello" Value="2"/>
+        <ID Name="tsSslConn_Server_Certificate" Value="3"/>
+        <ID Name="tsSslConn_Client_Certificate_Request" Value="4"/>
+        <ID Name="tsSslConn_Server_Key_Exchange" Value="5"/>
+        <ID Name="tsSslConn_Server_Hello_Done" Value="6"/>
+        <ID Name="tsSslConn_Client_Key_Exchange" Value="7"/>
+        <ID Name="tsSslConn_Client_Certificate" Value="8"/>
+        <ID Name="tsSslConn_Client_Certificate_Verify" Value="9"/>
+        <ID Name="tsSslConn_Client_Send_Change_Cipher_Spec" Value="10"/>
+        <ID Name="tsSslConn_Client_Finished" Value="11"/>
+        <ID Name="tsSslConn_Server_Send_Change_Cipher_Spec" Value="12"/>
+        <ID Name="tsSslConn_Server_Finished" Value="13"/>
+        <ID Name="tsSslConn_Active" Value="14"/>
+        <ID Name="tsSslConn_ProtocolReset" Value="15"/>
+        <ID Name="tsSslConn_ProtocolClosed" Value="16"/>
+        <ID Name="tsSslConn_Logout" Value="17"/>
       </NamedInt>
 
-      <NamedInt Name="SSL_CIPHER" BaseType="uint16_t" Exported="true">
+      <NamedInt Name="TSSslCipher" BaseType="uint16_t" Exported="true">
         <ID Name="TLS_NULL_WITH_NULL_NULL" Value="0x0000"/>
         <ID Name="TLS_RSA_WITH_NULL_MD5" Value="0x0001"/>
         <ID Name="TLS_RSA_WITH_NULL_SHA" Value="0x0002"/>

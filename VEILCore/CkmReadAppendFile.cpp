@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -95,7 +95,7 @@ protected:
 	virtual ~CkmReadAppendFile(void);
 
 private:
-	FILE *m_file;
+	TSFILE m_file;
 	int64_t m_dataLength;
 	tscrypto::tsCryptoString m_filename;
 	bool m_writerDone;
@@ -133,22 +133,9 @@ CkmReadAppendFile::CkmReadAppendFile(const tscrypto::tsCryptoString& filename) :
     m_callbackReturn(true),
     m_bytesRead(0)
 {
-#ifdef _WIN32
-    m_file = _fsopen(filename.c_str(), ("wb+"), _SH_DENYNO);
-#else
-    m_file = fopen(filename.c_str(), ("wb+"));
-#endif // _WIN32
-    if (m_file != NULL)
+    if (tsFOpen(&m_file, filename.c_str(), ("wb+"), tsShare_DenyNO) == 0)
     {
-#ifdef HAVE__FSEEKI64
-        _fseeki64(m_file, 0, SEEK_END);
-        m_dataLength = _ftelli64(m_file);
-        _fseeki64(m_file, 0, SEEK_SET);
-#else
-        fseek(m_file, 0, SEEK_END);
-        m_dataLength = ftell(m_file);
-        fseek(m_file, 0, SEEK_SET);
-#endif // HAVE__FSEEKI64
+        m_dataLength = tsGetFileSize64FromHandle(m_file);
     }
     else
     {
@@ -180,7 +167,7 @@ bool CkmReadAppendFile::IsEndOfFile() const
 
     if (m_file == NULL)
         return true;
-    if (m_writerDone && feof(m_file) != 0)
+    if (m_writerDone && tsIsEOF(m_file) != 0)
     {
 		if (raf_DebugFifoSummary) { LOG(FrameworkInfo1, "Is EOF for " << m_filename); }
         return TSRETURN(("True"),true);
@@ -218,11 +205,7 @@ int64_t CkmReadAppendFile::CurrentPosition() const
 {
     if (m_file == NULL)
         return 0;
-#ifdef HAVE__FSEEKI64
-    return _ftelli64(m_file);
-#else
-    return ftell(m_file);
-#endif // HAVE__FSEEKI64
+    return tsGetFilePosition64FromHandle(m_file);
 }
 
 tscrypto::tsCryptoString CkmReadAppendFile::DataName() const
@@ -232,26 +215,14 @@ tscrypto::tsCryptoString CkmReadAppendFile::DataName() const
 
 void CkmReadAppendFile::SetDataName(const tscrypto::tsCryptoString& setTo)
 {
-    MY_UNREFERENCED_PARAMETER(setTo);
+    UNREFERENCED_PARAMETER(setTo);
     ResetWriter();
-    fclose (m_file);
-    xp_DeleteFile(m_filename);
-#ifdef _WIN32
-    m_file = _fsopen(setTo.c_str(), ("wb+"), _SH_DENYNO);
-#else
-    m_file = fopen(setTo.c_str(), ("wb+"));
-#endif // _WIN32
-    if (m_file != NULL)
+    tsCloseFile(m_file);
+    tsDeleteFile(m_filename.c_str());
+
+    if (tsFOpen(&m_file, setTo.c_str(), ("wb+"), tsShare_DenyNO) == 0)
     {
-#ifdef HAVE__FSEEKI64
-        _fseeki64(m_file, 0, SEEK_END);
-        m_dataLength = _ftelli64(m_file);
-        _fseeki64(m_file, 0, SEEK_SET);
-#else
-        fseek(m_file, 0, SEEK_END);
-        m_dataLength = ftell(m_file);
-        fseek(m_file, 0, SEEK_SET);
-#endif // HAVE__FSEEKI64
+        m_dataLength = tsGetFileSize64FromHandle(m_file);
         m_filename = setTo;
     }
     else
@@ -265,7 +236,7 @@ void CkmReadAppendFile::Close()
     TSAUTOLOCKER locker(m_accessLock);
 
     if (m_file != NULL)
-        fclose(m_file);
+        tsCloseFile(m_file);
     m_file = NULL;
     WriterDone();
     m_writerDoneEvent.Set();
@@ -278,11 +249,7 @@ bool CkmReadAppendFile::GoToPosition(int64_t setTo)
     if (m_file == NULL)
         return false;
 
-#ifdef HAVE__FSEEKI64
-    return _fseeki64(m_file, setTo, SEEK_SET) == 0;
-#else
-    return fseek(m_file, setTo, SEEK_SET) == 0;
-#endif // HAVE__FSEEKI64
+    return tsSeekFilePosition64FromHandle(m_file, setTo, SEEK_SET) == 0;
 }
 
 int64_t CkmReadAppendFile::Seek(int origin, int64_t position)
@@ -290,11 +257,7 @@ int64_t CkmReadAppendFile::Seek(int origin, int64_t position)
     if (m_file == NULL)
         return CurrentPosition();
 
-#ifdef HAVE__FSEEKI64
-    _fseeki64(m_file, position, origin);
-#else
-    fseek(m_file, position, origin);
-#endif // HAVE__FSEEKI64
+    tsSeekFilePosition64FromHandle(m_file, position, origin);
     return CurrentPosition();
 }
 
@@ -319,18 +282,12 @@ bool CkmReadAppendFile::WriteData(const tscrypto::tsCryptoData &data)
             return TSRETURN(("false"),false);
 
         int64_t readPos = CurrentPosition();
-#ifdef HAVE__FSEEKI64
-        _fseeki64(m_file, 0, SEEK_END);
-#else
-        fseek(m_file, 0, SEEK_END);
-#endif // HAVE__FSEEKI64
-        count = (int)fwrite(data.c_str(), 1, data.size(), m_file);
+
+        tsSeekFilePosition64FromHandle(m_file, 0, SEEK_END);
+        count = (int)tsWriteFile(data.c_str(), 1, (uint32_t)data.size(), m_file);
         int64_t len = CurrentPosition();
-#ifdef HAVE__FSEEKI64
-        _fseeki64(m_file,readPos, SEEK_SET);
-#else
-        fseek(m_file, readPos, SEEK_SET);
-#endif // HAVE__FSEEKI64
+
+        tsSeekFilePosition64FromHandle(m_file, readPos, SEEK_SET);
         if (len > m_dataLength)
             m_dataLength = len;
 		if (raf_DebugFifoIOSummary) { LOG(FrameworkInfo1, "Wrote " << (int)data.size() << " bytes to " << m_filename); }
@@ -377,18 +334,11 @@ bool CkmReadAppendFile::WriteData(const tscrypto::tsCryptoData &data, int offset
             return TSRETURN(("false"),false);
 
         int64_t readPos = CurrentPosition();
-#ifdef HAVE__FSEEKI64
-        _fseeki64(m_file, 0, SEEK_END);
-#else
-        fseek(m_file, 0, SEEK_END);
-#endif // HAVE__FSEEKI64
-        count = (int)fwrite(&data.c_str()[offset], 1, length, m_file);
+        tsSeekFilePosition64FromHandle(m_file, 0, SEEK_END);
+        count = (int)tsWriteFile(&data.c_str()[offset], 1, length, m_file);
         int64_t len = CurrentPosition();
-#ifdef HAVE__FSEEKI64
-        _fseeki64(m_file,readPos, SEEK_SET);
-#else
-        fseek(m_file, readPos, SEEK_SET);
-#endif // HAVE__FSEEKI64
+
+        tsSeekFilePosition64FromHandle(m_file, readPos, SEEK_SET);
         if (len > m_dataLength)
             m_dataLength = len;
 		if (raf_DebugFifoIOSummary) { LOG(FrameworkInfo1, "Wrote " << length << " bytes to " << m_filename); }
@@ -426,7 +376,7 @@ bool CkmReadAppendFile::Flush()
     }
     if (m_file == NULL)
         return false;
-    if (fflush(m_file) != 0)
+    if (tsFlushFile(m_file) != 0)
     {
         Close();
         return TSRETURN(("false"),false);
@@ -441,22 +391,14 @@ bool CkmReadAppendFile::Truncate()
 {
     if (m_file == NULL)
         return false;
-#ifdef _WIN32
-    return (_chsize_s(_fileno(m_file), CurrentPosition()) == 0);
-#else
-    return (ftruncate(fileno(m_file), CurrentPosition()) == 0);
-#endif // _WIN32
+    return tsSetFileSize64(m_file, CurrentPosition());
 }
 
 bool CkmReadAppendFile::SetFileSize(int64_t setTo)
 {
     if (m_file == NULL || setTo < 0)
         return false;
-#ifdef _WIN32
-    return (_chsize_s(_fileno(m_file), setTo) == 0);
-#else
-    return (ftruncate(fileno(m_file), setTo) == 0);
-#endif // _WIN32
+    return tsSetFileSize64(m_file, setTo);
 }
 
 bool CkmReadAppendFile::CanPrepend() const
@@ -466,7 +408,7 @@ bool CkmReadAppendFile::CanPrepend() const
 
 bool CkmReadAppendFile::Prepend(const tscrypto::tsCryptoData &data)
 {
-    MY_UNREFERENCED_PARAMETER(data);
+    UNREFERENCED_PARAMETER(data);
     return false;
 }
 #pragma endregion
@@ -483,13 +425,13 @@ bool CkmReadAppendFile::ReadData(int byteCount, tscrypto::tsCryptoData &data)
 
     data.resize(byteCount);
 
-    int count = (int)fread(data.rawData(), 1, byteCount, m_file);
+    int count = (int)tsReadFile(data.rawData(), 1, byteCount, m_file);
 
     data.resize(count);
 //	m_bytesRead += count;
 	if (raf_DebugFifoIOSummary) { LOG(FrameworkInfo1, "Read " << count << " bytes from " << m_filename) };
 
-    bool retVal = (ferror(m_file) == 0);
+    bool retVal = (tsGetFileError(m_file) == 0);
     return TSRETURN(("Returns ~~ with %d bytes of data", count),retVal);
 }
 
@@ -510,7 +452,7 @@ int CkmReadAppendFile::ReadData(int byteCount, int dataOffset, tscrypto::tsCrypt
         data.resize(dataOffset + byteCount);
     }
 
-    int count = (int)fread(&data.rawData()[dataOffset], 1, byteCount, m_file);
+    int count = (int)tsReadFile(&data.rawData()[dataOffset], 1, byteCount, m_file);
 
 //	m_bytesRead += count;
 	if (raf_DebugFifoIOSummary) { LOG(FrameworkInfo1, "Read " << count << " bytes from " << m_filename); }
@@ -639,13 +581,13 @@ bool CkmReadAppendFile::PeekData(int byteCount, tscrypto::tsCryptoData &data)
     data.resize(byteCount);
 
     int64_t readPos = CurrentPosition();
-    int count = (int)fread(data.rawData(), 1, byteCount, m_file);
+    int count = (int)tsReadFile(data.rawData(), 1, byteCount, m_file);
     GoToPosition(readPos);
 
     data.resize(count);
 	if (raf_DebugFifoIOSummary) { LOG(FrameworkInfo1, "Read " << count << " bytes from " << m_filename); }
 
-    bool retVal = (ferror(m_file) == 0);
+    bool retVal = (tsGetFileError(m_file) == 0);
     return TSRETURN(("Returns ~~ with %d bytes of data", count),retVal);
 }
 
@@ -667,7 +609,7 @@ int CkmReadAppendFile::PeekData(int byteCount, int dataOffset, tscrypto::tsCrypt
     }
 
     int64_t readPos = CurrentPosition();
-    int count = (int)fread(&data.rawData()[dataOffset], 1, byteCount, m_file);
+    int count = (int)tsReadFile(&data.rawData()[dataOffset], 1, byteCount, m_file);
     GoToPosition(readPos);
 
 	if (raf_DebugFifoIOSummary) { LOG(FrameworkInfo1, "Read " << count << " bytes from " << m_filename); }
@@ -676,15 +618,15 @@ int CkmReadAppendFile::PeekData(int byteCount, int dataOffset, tscrypto::tsCrypt
 }
 bool CkmReadAppendFile::UnreadData(const tscrypto::tsCryptoData &data)
 {
-    MY_UNREFERENCED_PARAMETER(data);
+    UNREFERENCED_PARAMETER(data);
     return false;
 }
 
 bool CkmReadAppendFile::UnreadData(const tscrypto::tsCryptoData &data, int offset, int length)
 {
-    MY_UNREFERENCED_PARAMETER(data);
-    MY_UNREFERENCED_PARAMETER(offset);
-    MY_UNREFERENCED_PARAMETER(length);
+    UNREFERENCED_PARAMETER(data);
+    UNREFERENCED_PARAMETER(offset);
+    UNREFERENCED_PARAMETER(length);
     return false;
 }
 
@@ -705,18 +647,11 @@ bool CkmReadAppendFile::WriteDataAndFinish(const tscrypto::tsCryptoData &data)
             return TSRETURN(("false"),false);
 
         int64_t readPos = CurrentPosition();
-#ifdef HAVE__FSEEKI64
-        _fseeki64(m_file, 0, SEEK_END);
-#else
-        fseek(m_file, 0, SEEK_END);
-#endif // HAVE__FSEEKI64
-        count = (int)fwrite(data.c_str(), 1, data.size(), m_file);
+        tsSeekFilePosition64FromHandle(m_file, 0, SEEK_END);
+        count = (int)tsWriteFile(data.c_str(), 1, (uint32_t)data.size(), m_file);
         int64_t len = CurrentPosition();
-#ifdef HAVE__FSEEKI64
-        _fseeki64(m_file, readPos, SEEK_SET);
-#else
-        fseek(m_file, readPos, SEEK_SET);
-#endif // HAVE__FSEEKI64
+
+        tsSeekFilePosition64FromHandle(m_file, readPos, SEEK_SET);
         if (len > m_dataLength)
             m_dataLength = len;
 		if (raf_DebugFifoIOSummary) { LOG(FrameworkInfo1, "Wrote " << (int)data.size() << " bytes to " << m_filename); }
@@ -764,18 +699,11 @@ bool CkmReadAppendFile::WriteDataAndFinish(const tscrypto::tsCryptoData &data, i
             return TSRETURN(("false"),false);
 
         int64_t readPos = CurrentPosition();
-#ifdef HAVE__FSEEKI64
-        _fseeki64(m_file, 0, SEEK_END);
-#else
-        fseek(m_file, 0, SEEK_END);
-#endif // HAVE__FSEEKI64
-        count = (int)fwrite(&data.c_str()[offset], 1, length, m_file);
+        tsSeekFilePosition64FromHandle(m_file, 0, SEEK_END);
+        count = (int)tsWriteFile(&data.c_str()[offset], 1, length, m_file);
         int64_t len = CurrentPosition();
-#ifdef HAVE__FSEEKI64
-        _fseeki64(m_file, readPos, SEEK_SET);
-#else
-        fseek(m_file, readPos, SEEK_SET);
-#endif // HAVE__FSEEKI64
+
+        tsSeekFilePosition64FromHandle(m_file, readPos, SEEK_SET);
         if (len > m_dataLength)
             m_dataLength = len;
 		if (raf_DebugFifoIOSummary) { LOG(FrameworkInfo1, "Wrote " << length << " bytes to " << m_filename); }

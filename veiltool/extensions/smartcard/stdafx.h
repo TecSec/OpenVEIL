@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -39,13 +39,25 @@
 #include "targetver.h"
 #endif // _WIN32
 
+#ifdef __APPLE__
+#   include "PCSC/winscard.h"
+#   include "PCSC/pcsclite.h"
+typedef uint32_t* LPDWORD;
+#define ERROR_SUCCESS 0
+#endif
+
 #include "VEIL.h"
+
+#if defined(__linux)
+#   include "winscard.h"
+#   include "pcsclite.h"
+#define ERROR_SUCCESS 0
+#endif
+
 #include "core/SimpleOpt.h"
 #include <iostream>
 using namespace std;
 using namespace tscrypto;
-
-#include "VEILSmartCard.h"
 
 #include "core/IVeilToolCommand.h"
 #include "core/IOutputCollector.h"
@@ -54,21 +66,21 @@ using namespace tscrypto;
 class SmartCardTransaction
 {
 public:
-	SmartCardTransaction(std::shared_ptr<ISmartCardConnection> connection) : _connection2(connection), _alreadyHadTransaction(false)
+	SmartCardTransaction(TSSMARTCARD_CONNECTION connection) : _connection2(connection), _alreadyHadTransaction(false)
 	{
 		if (!!_connection2)
 		{
-			_alreadyHadTransaction = connection->IsInTransaction();
+            _alreadyHadTransaction = tsSmartcardIsInTransaction(connection);
 			if (!_alreadyHadTransaction)
-				connection->StartTransaction();
+				tsSmartcardStartTransaction(connection);
 		}
 	}
-	bool ExitTransaction(SCardDisposition disposition)
+	bool ExitTransaction(bool reset)
 	{
 		if (_connection2 != nullptr && !_alreadyHadTransaction)
 		{
 			_alreadyHadTransaction = false;
-			_connection2->FinishTransaction(disposition == SCardResetCard);
+            tsSmartcardFinishTransaction(_connection2, reset);
 			_connection2 = nullptr;
 			return true;
 		}
@@ -78,25 +90,26 @@ public:
 	{
 		if (_connection2 != nullptr && !_alreadyHadTransaction)
 		{
-			_connection2->FinishTransaction(false);
-		}
+            tsSmartcardFinishTransaction(_connection2, false);
+        }
 	}
 private:
-	std::shared_ptr<ISmartCardConnection> _connection2;
+    TSSMARTCARD_CONNECTION _connection2;
 	bool _alreadyHadTransaction;
 };
 
-class SmartCardChanges : public ICkmWinscardChange
-{
-public:
-	SmartCardChanges(std::function<void(const tscrypto::tsCryptoString& readerName)> onInsert) : _onInsert(onInsert) {};
-	~SmartCardChanges() {};
-
-	virtual void readerAdded(const tscrypto::tsCryptoString &name) { }
-	virtual void readerRemoved(const tscrypto::tsCryptoString &name) { }
-	virtual void cardInserted(const tscrypto::tsCryptoString &name) { _onInsert(name); }
-	virtual void cardRemoved(const tscrypto::tsCryptoString &name) { }
-
-private:
-	std::function<void(const tscrypto::tsCryptoString& readerName)> _onInsert;
-};
+// TODO:  remove me when done merging to C code
+//class SmartCardChanges : public ICkmWinscardChange
+//{
+//public:
+//	SmartCardChanges(std::function<void(const tscrypto::tsCryptoString& readerName)> onInsert) : _onInsert(onInsert) {};
+//	~SmartCardChanges() {};
+//
+//	virtual void readerAdded(const tscrypto::tsCryptoString &name) { }
+//	virtual void readerRemoved(const tscrypto::tsCryptoString &name) { }
+//	virtual void cardInserted(const tscrypto::tsCryptoString &name) { _onInsert(name); }
+//	virtual void cardRemoved(const tscrypto::tsCryptoString &name) { }
+//
+//private:
+//	std::function<void(const tscrypto::tsCryptoString& readerName)> _onInsert;
+//};

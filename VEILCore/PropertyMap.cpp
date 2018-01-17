@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -181,8 +181,8 @@ public:
 		UrlParser parser;
 		NameValueList list = CreateNameValueList();
 
-		_map.foreach([list](const __tsAttributeMapItem& item) {
-			list->push_back(NameValue(item.m_name, item.m_value));
+		_map.foreach([list](const char* name, const char*value) {
+			list->push_back(NameValue(name, value));
 		});
 		parser.setParameters(list);
 		parser.setHash("");

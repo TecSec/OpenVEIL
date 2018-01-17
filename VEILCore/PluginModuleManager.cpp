@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -178,16 +178,16 @@ std::shared_ptr<tsmod::IPluginModule> PluginModuleManager::FindModule(const tscr
 void PluginModuleManager::LoadModulesOfType(const tscrypto::tsCryptoStringBase& pattern, tsmod::IReportError* log, std::function<void(std::function<bool()>)> registerCleanup)
 {
 #ifndef ANDROID
-    tsCryptoString name;
+    char name[MAX_PATH] = { 0, };
     
 // #ifdef _DEBUG
 // printf ("Searching for modules:  %s\n", pattern.c_str());
 // #endif
 
-	XP_FileListHandle files = xp_GetFileListHandle(pattern);
-	DWORD count;
+	TSFileListHandle files = tsGetFileListHandle(pattern.c_str());
+	uint32_t count;
 
-	if (files == XP_FILELIST_INVALID)
+	if (files == nullptr)
 	{
 // #ifdef _DEBUG
 // printf ("  None found\n");
@@ -195,18 +195,18 @@ void PluginModuleManager::LoadModulesOfType(const tscrypto::tsCryptoStringBase& 
 		return;
 	}
 
-	auto cleanup = finally([&files]() {xp_CloseFileList(files);});
+	auto cleanup = finally([&files]() {tsCloseFileList(files);});
 
-	count = (DWORD)xp_GetFileCount(files);
+	count = (uint32_t)tsGetFileCount(files);
 
-	for (DWORD i = 0; i < count; i++)
+	for (uint32_t i = 0; i < count; i++)
 	{
-		if (xp_GetFileName(files, i, name))
+		if (tsGetFileName(files, i, name, sizeof(name)))
 		{
 // #ifdef _DEBUG
 // printf ("  found: %s\n", name.c_str());
 // #endif
-			LoadModule(name.c_str(), log, registerCleanup);
+			LoadModule(name, log, registerCleanup);
 		}
 	}
 #endif // ANDROID
@@ -214,15 +214,15 @@ void PluginModuleManager::LoadModulesOfType(const tscrypto::tsCryptoStringBase& 
 void PluginModuleManager::LoadModulesOfTypeForService(const tscrypto::tsCryptoStringBase& pattern, tsmod::IReportError* log, std::shared_ptr<tsmod::IServiceLocator> servLoc, std::function<void(std::function<bool()>)> registerCleanup)
 {
 #ifndef ANDROID
-	XP_FileListHandle files = xp_GetFileListHandle(pattern);
-	DWORD count;
-    tsCryptoString name;
+	TSFileListHandle files = tsGetFileListHandle(pattern.c_str());
+	uint32_t count;
+    char name[MAX_PATH] = { 0, };
     
 // #ifdef _DEBUG
 // printf ("Searching for modules:  %s\n", pattern.c_str());
 // #endif
 
-	if (files == XP_FILELIST_INVALID)
+	if (files == NULL)
 	{
 // #ifdef _DEBUG
 // printf ("  None found\n");
@@ -230,18 +230,18 @@ void PluginModuleManager::LoadModulesOfTypeForService(const tscrypto::tsCryptoSt
 		return;
 	}
 
-	auto cleanup = finally([&files]() {xp_CloseFileList(files);});
+	auto cleanup = finally([&files]() {tsCloseFileList(files);});
 
-	count = (DWORD)xp_GetFileCount(files);
+	count = (uint32_t)tsGetFileCount(files);
 
-	for (DWORD i = 0; i < count; i++)
+	for (uint32_t i = 0; i < count; i++)
 	{
-		if (xp_GetFileName(files, i, name))
+		if (tsGetFileName(files, i, name, sizeof(name)))
 		{
 // #ifdef _DEBUG
 // printf ("  found: %s\n", name.c_str());
 // #endif
-			LoadModuleForService(name.c_str(), log, servLoc, registerCleanup);
+			LoadModuleForService(name, log, servLoc, registerCleanup);
 		}
 	}
 #endif // ANDROID

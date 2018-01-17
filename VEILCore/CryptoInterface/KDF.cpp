@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -38,12 +38,10 @@ class KDF : public KeyDerivationFunction, public TSName, public tscrypto::ICrypt
 public:
 	KDF()
 	{
-		desc = findKdfAlgorithm("KDF");
+		desc = tsFindKdfAlgorithm("KDF");
 		if (desc != nullptr)
 			workspace = desc;
-		macDesc = findMacAlgorithm("SHA512");
-		if (macDesc != nullptr)
-			macWorkspace = macDesc;
+		macName = "SHA512";
 	}
 	virtual ~KDF(void)
 	{
@@ -52,25 +50,25 @@ public:
     // KeyDerivationFunction
     virtual bool initialize() override
 	{
-		if (!gFipsState.operational() || desc == nullptr || macDesc == nullptr)
+		if (!gFipsState.operational() || desc == nullptr)
 			return false;
 
-		if (!desc->configure(desc, workspace, macDesc, macWorkspace))
+		if (!desc->configure(desc, workspace, macName.c_str()))
 			return false;
 		return desc->init(desc, workspace);
 	}
 	virtual bool initializeWithKey(const tsCryptoData &key) override
 	{
-		if (!gFipsState.operational() || desc == nullptr || macDesc == nullptr)
+		if (!gFipsState.operational() || desc == nullptr)
 			return false;
 
-		if (!desc->configure(desc, workspace, macDesc, macWorkspace))
+		if (!desc->configure(desc, workspace, macName.c_str()))
 			return false;
 		return desc->initWithKey(desc, workspace, key.c_str(), (uint32_t)key.size());
 	}
 	virtual bool Derive_X9_63_Counter(const tsCryptoData &Z, const tsCryptoData &otherInfo, size_t outputBitLength, tsCryptoData &output) override
 	{
-		if (!gFipsState.operational() || desc == nullptr || macDesc == nullptr)
+		if (!gFipsState.operational() || desc == nullptr)
 			return false;
 
 		output.resize((outputBitLength + 7) / 8);
@@ -82,7 +80,7 @@ public:
 	virtual bool Derive_SP800_108_Counter(bool containsBitLength, size_t bytesOfBitLength, bool containsLabel, int32_t counterLocation, size_t counterByteLength, const tsCryptoData &Label,
 		const tsCryptoData &Context, size_t outputBitLength, tsCryptoData &output) override
 	{
-		if (!gFipsState.operational() || desc == nullptr || macDesc == nullptr)
+		if (!gFipsState.operational() || desc == nullptr)
 			return false;
 
 		output.resize((outputBitLength + 7) / 8);
@@ -94,11 +92,11 @@ public:
 	}
 	virtual bool Derive_SP800_108_Feedback(Kdf_feedbackCounterLocation counterLocation, uint32_t counterByteLength, bool containsBitLength, uint32_t bytesOfBitLength, bool containsLabel, const tsCryptoData &feedbackIV, const tsCryptoStringBase &Label, const tsCryptoData &Context, size_t outputBitLength, tsCryptoData &output) override
 	{
-		if (!gFipsState.operational() || desc == nullptr || macDesc == nullptr)
+		if (!gFipsState.operational() || desc == nullptr)
 			return false;
 
 		output.resize((outputBitLength + 7) / 8);
-		bool retVal = desc->derive_SP800_108_Feedback(desc, workspace, (kdf_feedbackCounterLocation)counterLocation, counterByteLength, containsBitLength, bytesOfBitLength, containsLabel, feedbackIV.c_str(), (uint32_t)feedbackIV.size(), (uint8_t*)Label.c_str(), (uint32_t)Label.size(),
+		bool retVal = desc->derive_SP800_108_Feedback(desc, workspace, (TSkdf_feedbackCounterLocation)counterLocation, counterByteLength, containsBitLength, bytesOfBitLength, containsLabel, feedbackIV.c_str(), (uint32_t)feedbackIV.size(), (uint8_t*)Label.c_str(), (uint32_t)Label.size(),
 			Context.c_str(), (uint32_t)Context.size(), (uint32_t)outputBitLength, output.rawData());
 		if (!retVal)
 			output.clear();
@@ -106,7 +104,7 @@ public:
 	}
 	virtual bool Derive_SP800_56A_Counter(const tsCryptoData &Z, const tsCryptoData &otherInfo, size_t outputBitLength, tsCryptoData &output) override
 	{
-		if (!gFipsState.operational() || desc == nullptr || macDesc == nullptr)
+		if (!gFipsState.operational() || desc == nullptr)
 			return false;
 
 		output.resize((outputBitLength + 7) / 8);
@@ -118,7 +116,7 @@ public:
 	}
 	virtual bool Derive_SP800_56A_Feedback(bool includeCounter, const tsCryptoData &feedbackIV, const tsCryptoData &Z, const tsCryptoData &otherInfo, size_t outputBitLength, tsCryptoData &output) override
 	{
-		if (!gFipsState.operational() || desc == nullptr || macDesc == nullptr)
+		if (!gFipsState.operational() || desc == nullptr)
 			return false;
 
 		output.resize((outputBitLength + 7) / 8);
@@ -130,7 +128,7 @@ public:
 	}
 	virtual bool Derive_SCP03(uint8_t type, size_t outputBitLength, const tsCryptoData &Context, tsCryptoData &output) override
 	{
-		if (!gFipsState.operational() || desc == nullptr || macDesc == nullptr)
+		if (!gFipsState.operational() || desc == nullptr)
 			return false;
 
 		output.resize((outputBitLength + 7) / 8);
@@ -142,7 +140,7 @@ public:
 	virtual bool Derive_Raw(bool includeCounter, bool useFeedback, const tsCryptoData &feedbackIV, const tsCryptoData &Context, size_t counterLength, size_t counterStart,
 		size_t feedbackPosition, size_t outputBitLength, tsCryptoData &output) override
 	{
-		if (!gFipsState.operational() || desc == nullptr || macDesc == nullptr)
+		if (!gFipsState.operational() || desc == nullptr)
 			return false;
 
 		output.resize((outputBitLength + 7) / 8);
@@ -154,22 +152,22 @@ public:
 	}
 	virtual bool finish() override
 	{
-		if (!gFipsState.operational() || desc == nullptr || macDesc == nullptr)
+		if (!gFipsState.operational() || desc == nullptr)
 			return false;
 
 		return desc->finish(desc, workspace);
 	}
 	virtual size_t GetBlockSize() override
 	{
-		if (desc == nullptr || macDesc == nullptr)
+		if (desc == nullptr)
 			return 0;
-		return macDesc->getBlockSize(macDesc);
+        return desc->getBlockSize(desc, workspace);
 	}
 	virtual size_t GetDigestSize() override
 	{
-		if (desc == nullptr || macDesc == nullptr)
+		if (desc == nullptr)
 			return 0;
-		return macDesc->getDigestSize(macDesc);
+		return desc->getDigestSize(desc, workspace);
 	}
 
     // AlgorithmInfo
@@ -192,36 +190,28 @@ public:
 		tsCryptoString algorithm(fullName);
 
 		SetName(algorithm);
-		macWorkspace.reset();
-		macDesc = nullptr;
 		if (algorithm.size() < 5)
 		{
-			macDesc = findMacAlgorithm("SHA512");
+            macName = "SHA512";
 			SetName("KDF-SHA512");
 		}
 		else
 		{
 			tsCryptoString name = &algorithm.c_str()[4];
 
-			if (TsStrniCmp(name.c_str(), "HASH-", 5) == 0)
+			if (tsStrniCmp(name.c_str(), "HASH-", 5) == 0)
 				name.erase(0, 5);
 
 			name.ToUpper().Replace("SHA3-", "SHA3_");
-			macDesc = findMacAlgorithm(name.c_str());
+            macName = name;
 		}
-		if (macDesc == nullptr)
-		{
-			return false;
-		}
-		macWorkspace = macDesc;
 		return true;
 	}
 
 private:
-	const KDF_Descriptor* desc;
+	const TSKdfDescriptor* desc;
 	SmartCryptoWorkspace workspace;
-	const MAC_Descriptor* macDesc;
-	SmartCryptoWorkspace macWorkspace;
+    tsCryptoString macName;
 };
 
 tscrypto::ICryptoObject* CreateKDF()

@@ -54,7 +54,7 @@
                         <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
                         <border>5</border>
                         <object class="wxStaticText" name="wxID_STATIC">
-                            <label>-  a CKM ® enabled application</label>
+                            <label>-  a CKM Â® enabled application</label>
                         </object>
                     </object>
                 </object>

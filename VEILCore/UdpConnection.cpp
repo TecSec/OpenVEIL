@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -35,7 +35,7 @@
 #define MIN(a,b) ((a)<(b)?(a):(b))
 #endif // MIN
 #pragma region support functions
-extern const char *resolveSocketError(DWORD error);
+extern const char *resolveSocketError(uint32_t error);
 #pragma endregion
 
 UdpConnection::UdpConnection() :
@@ -65,7 +65,7 @@ const tscrypto::tsCryptoString &UdpConnection::Server() const
 }
 void UdpConnection::Server(const tscrypto::tsCryptoString &setTo)
 {
-    if (TsStriCmp(m_server.c_str(), setTo.c_str()) != 0)
+    if (tsStriCmp(m_server.c_str(), setTo.c_str()) != 0)
     {
 #ifdef _WIN32
         closesocket(m_socket);

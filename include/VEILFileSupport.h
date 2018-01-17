@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -92,7 +92,7 @@ public:
     ///
     /// <returns>the number of files in this list.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual DWORD   FileCount() = 0;
+    virtual uint32_t   FileCount() = 0;
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Removes the file described by index.</summary>
     ///
@@ -100,7 +100,7 @@ public:
     ///
     /// <returns>S_OK for success or a standard COM error code for failure.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual bool RemoveFile(DWORD index) = 0;
+    virtual bool RemoveFile(uint32_t index) = 0;
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Gets the file name.</summary>
     ///
@@ -109,7 +109,7 @@ public:
     ///
     /// <returns>S_OK for success or a standard COM error code for failure.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual bool GetFileName(DWORD index, tscrypto::tsCryptoString& name) = 0;
+    virtual bool GetFileName(uint32_t index, tscrypto::tsCryptoString& name) = 0;
 };
 
 struct VEILFILESUPPORT_EXPORT FileVEILFileOp_recoveredKey
@@ -604,7 +604,7 @@ public:
 	///
 	/// <returns>S_OK for success or a standard COM error for failure.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual bool padHeaderToSize(std::shared_ptr<ICmsHeaderBase> header, DWORD size) = 0;
+	virtual bool padHeaderToSize(std::shared_ptr<ICmsHeaderBase> header, uint32_t size) = 0;
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Modifies a CKM 7 header and preloads the encryption parameters in preparation of
 	/// creating the working key.</summary>
@@ -630,7 +630,7 @@ public:
 	///
 	/// <returns>The size in bytes that is reserved for the CKM header in the data stream.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual DWORD   ReservedHeaderLength() const = 0;
+	virtual uint32_t   ReservedHeaderLength() const = 0;
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Sets the ICKMKeyGenCallback callback interface.</summary>
 	///

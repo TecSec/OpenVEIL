@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -240,7 +240,7 @@ public:
 								utils->console() << " " << ::endl;
 							}
 
-							if (!xp_WriteBytes(filename, section.Contents))
+							if (!tsWriteByteArray(filename.c_str(), section.Contents.c_str(), (uint32_t)section.Contents.size()))
 							{
 								OutputError("ERROR:  Unable to write file '%s'", filename.c_str());
 							}

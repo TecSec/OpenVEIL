@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -77,7 +77,7 @@ protected:
 	XP_WINDOW  _parent;
 	tscrypto::tsCryptoString    _name;
 
-	static INT_PTR CALLBACK	EnterFavoriteNameProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+	static intptr_t CALLBACK	EnterFavoriteNameProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		FavoriteName *params = (FavoriteName*)GetWindowLongPtr(hWnd, DWLP_USER);
 
@@ -103,13 +103,13 @@ protected:
 
 				memset(buff, 0, sizeof(buff));
 				GetUserObjectInformation(station, UOI_NAME, buff, sizeof(buff), &count);
-				if (TsStrStr(buff, ("WinSta0")) == NULL)
+				if (tsStrStr(buff, ("WinSta0")) == NULL)
 				{
 					EndDialog(hWnd, IDCANCEL);
 				}
 			}
 		}
-		return (INT_PTR)TRUE;
+		return (intptr_t)TRUE;
 
 		case WM_COMMAND:
 			if (LOWORD(wParam) == IDC_FAVORITE_NAME && HIWORD(wParam) == EN_CHANGE)
@@ -118,8 +118,8 @@ protected:
 
 				GetDlgItemTextA(hWnd, IDC_FAVORITE_NAME, value1, sizeof(value1));
 
-				EnableWindow(GetDlgItem(hWnd, IDOK), (int)TsStrLen(value1) >= 1);
-				return (INT_PTR)TRUE;
+				EnableWindow(GetDlgItem(hWnd, IDOK), (int)tsStrLen(value1) >= 1);
+				return (intptr_t)TRUE;
 			}
 			else if (LOWORD(wParam) == IDOK)
 			{
@@ -127,24 +127,24 @@ protected:
 
 				GetDlgItemTextA(hWnd, IDC_FAVORITE_NAME, value1, sizeof(value1));
 
-				if ((int)TsStrLen(value1) < 1)
+				if ((int)tsStrLen(value1) < 1)
 				{
 					MessageBox(hWnd, tscrypto::tsCryptoString().Format("The favorite name is empty.").c_str(), "Error", MB_ICONSTOP | MB_OK);
-					return (INT_PTR)FALSE;
+					return (intptr_t)FALSE;
 				}
 
 				params->_name = value1;
 				EndDialog(hWnd, LOWORD(wParam));
-				return (INT_PTR)TRUE;
+				return (intptr_t)TRUE;
 			}
 			else if (LOWORD(wParam) == IDCANCEL)
 			{
 				EndDialog(hWnd, LOWORD(wParam));
-				return (INT_PTR)TRUE;
+				return (intptr_t)TRUE;
 			}
 			break;
 		}
-		return (INT_PTR)FALSE;
+		return (intptr_t)FALSE;
 	}
 
 };

@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -36,7 +36,7 @@ using namespace tscrypto;
 class AEAD : public TSName, public MAC2, public CCM_GCM, public tscrypto::ICryptoObject, public tscrypto::IInitializableObject, public AlgorithmInfo
 {
 public:
-	AEAD();
+    AEAD();
     virtual ~AEAD(void);
 
     // CCM
@@ -50,9 +50,9 @@ public:
     virtual bool decrypt(tsCryptoData &data) override;
     virtual bool computeTag(size_t requiredTagLength, tsCryptoData &tag) override;
     virtual bool requiresKey() const override;
-	virtual size_t minimumKeySizeInBits() const override;
-	virtual size_t maximumKeySizeInBits() const override;
-	virtual size_t keySizeIncrementInBits() const override;
+    virtual size_t minimumKeySizeInBits() const override;
+    virtual size_t maximumKeySizeInBits() const override;
+    virtual size_t keySizeIncrementInBits() const override;
 
     // MAC2
     virtual bool update(const tsCryptoData &data) override;
@@ -70,15 +70,15 @@ public:
     virtual tsCryptoString AlgorithmOID() const override;
     virtual TS_ALG_ID AlgorithmID() const override;
 
-	// tscrypto::IInitializableObject
-	virtual bool InitializeWithFullName(const tscrypto::tsCryptoStringBase& fullName) override
-	{
-		return PrepareClass(fullName);
-	}
+    // tscrypto::IInitializableObject
+    virtual bool InitializeWithFullName(const tscrypto::tsCryptoStringBase& fullName) override
+    {
+        return PrepareClass(fullName);
+    }
 
 private:
     SmartCryptoWorkspace m_context;
-	const AEAD_Descriptor* desc;
+    const TSAeadDescriptor* desc;
 
     tsCryptoString m_baseName;
 
@@ -86,59 +86,59 @@ private:
     tsCryptoData m_macData;
     size_t m_tagLen;
     tsCryptoData m_nonce;
-	size_t m_keySizeInBits;
+    size_t m_keySizeInBits;
 
-	bool PrepareClass(const tsCryptoStringBase& fullName)
-	{
-		tsCryptoString algorithm(fullName);
-		tsCryptoStringList parts;
+    bool PrepareClass(const tsCryptoStringBase& fullName)
+    {
+        tsCryptoString algorithm(fullName);
+        tsCryptoStringList parts;
 
-		m_context.reset();
-		desc = findAEADAlgorithm(algorithm.c_str());
-		if (desc == nullptr)
-		{
-			parts = algorithm.split('-');
-			if (parts->size() > 2)
-			{
-				tsCryptoString name;
-				name << parts->at(0) << "-" << parts->at(1);
-				desc = findAEADAlgorithm(name.c_str());
-			}
-			if (desc == nullptr)
-			{
-				tsCryptoString name;
-				name << parts->at(0) << "-AES";
-				desc = findAEADAlgorithm(name.c_str());
-			}
-		}
-		SetName(algorithm);
+        m_context.reset();
+        desc = tsFindAEADAlgorithm(algorithm.c_str());
+        if (desc == nullptr)
+        {
+            parts = algorithm.split('-');
+            if (parts->size() > 2)
+            {
+                tsCryptoString name;
+                name << parts->at(0) << "-" << parts->at(1);
+                desc = tsFindAEADAlgorithm(name.c_str());
+            }
+            if (desc == nullptr)
+            {
+                tsCryptoString name;
+                name << parts->at(0) << "-AES";
+                desc = tsFindAEADAlgorithm(name.c_str());
+            }
+        }
+        SetName(algorithm);
 
-		if (desc == nullptr)
-			return false;
+        if (desc == nullptr)
+            return false;
 
-		m_baseName = GetName();
+        m_baseName = GetName();
 
-		return true;
-	}
+        return true;
+    }
 };
 
 tscrypto::ICryptoObject* CreateAEAD()
 {
-	return dynamic_cast<tscrypto::ICryptoObject*>(new AEAD());
+    return dynamic_cast<tscrypto::ICryptoObject*>(new AEAD());
 }
 
 AEAD::AEAD() :
     m_tagLen (16),
-	m_keySizeInBits(0),
-	desc(nullptr)
+    m_keySizeInBits(0),
+    desc(nullptr)
 {
-	PrepareClass("GCM-AES");
+    PrepareClass("GCM-AES");
 }
 
 AEAD::~AEAD(void)
 {
-	m_context.reset();
-	desc = nullptr;
+    m_context.reset();
+    desc = nullptr;
 }
 
 bool AEAD::initialize(const tsCryptoData &key)
@@ -152,20 +152,20 @@ bool AEAD::initialize(const tsCryptoData &key)
     if (!isUsableKey(key))
         return false;
 
-	m_keySizeInBits = (int)key.size() * 8;
+    m_keySizeInBits = (int)key.size() * 8;
     m_macData.clear();
     m_tagLen = 16;
     m_nonce.clear();
 
-	m_context.reset();
-	m_context = desc;
+    m_context.reset();
+    m_context = desc;
 
     tsCryptoString name(m_baseName);
     name += "-";
     name.append((key.size() * 8));
     SetName(name);
 
-	return desc->init(desc, m_context, key.c_str(), (uint32_t)key.size());
+    return desc->init(desc, m_context, key.c_str(), (uint32_t)key.size());
 }
 
 bool AEAD::finish()
@@ -173,17 +173,17 @@ bool AEAD::finish()
     m_macData.clear();
     m_tagLen = 16;
     m_nonce.clear();
-	m_keySizeInBits = 0;
+    m_keySizeInBits = 0;
 
     if (!gFipsState.operational())
         return false;
     if (desc == nullptr)
         return false;
-	if (m_context.empty())
-		return false;
+    if (m_context.empty())
+        return false;
 
     bool retVal = desc->finish(desc, m_context);
-	m_context.reset();
+    m_context.reset();
     return retVal;
 }
 
@@ -195,10 +195,10 @@ bool AEAD::encryptMessage(const tsCryptoData &ivec, const tsCryptoData &header, 
         return false;
     if (requiredTagLength < desc->minimumTagSize || requiredTagLength > desc->maximumTagSize)
         return false;
-	if (desc->tagSizeIncrement > 1 && (requiredTagLength & (desc->tagSizeIncrement - 1)) != 0)
-		return false;
-	if (m_context.empty())
-		return false;
+    if (desc->tagSizeIncrement > 1 && (requiredTagLength & (desc->tagSizeIncrement - 1)) != 0)
+        return false;
+    if (m_context.empty())
+        return false;
 
     tag.clear();
     tag.resize(requiredTagLength);
@@ -219,8 +219,8 @@ bool AEAD::decryptMessage(const tsCryptoData &ivec, const tsCryptoData &header, 
         return false;
     if (desc == nullptr)
         return false;
-	if (m_context.empty())
-		return false;
+    if (m_context.empty())
+        return false;
 
     bool retVal = desc->decryptMessage(desc, m_context, ivec.c_str(), (uint32_t)ivec.size(), header.c_str(), (uint32_t)header.size(), data.rawData(), (uint32_t)data.size(), tag.c_str(), (uint32_t)tag.size());
 
@@ -237,8 +237,8 @@ bool AEAD::startMessage(const tsCryptoData &ivec, uint64_t headerLength, uint64_
         return false;
     if (desc == nullptr)
         return false;
-	if (m_context.empty())
-		return false;
+    if (m_context.empty())
+        return false;
 
     bool retVal = desc->startMessage(desc, m_context, ivec.c_str(), (uint32_t)ivec.size(), headerLength, messageLength, (uint32_t)tagLength);
 
@@ -251,8 +251,8 @@ bool AEAD::authenticateHeader(const tsCryptoData &header)
         return false;
     if (desc == nullptr)
         return false;
-	if (m_context.empty())
-		return false;
+    if (m_context.empty())
+        return false;
 
     bool retVal = desc->authenticateHeader(desc, m_context, header.c_str(), (uint32_t)header.size());
 
@@ -265,8 +265,8 @@ bool AEAD::encrypt(tsCryptoData &data)
         return false;
     if (desc == nullptr)
         return false;
-	if (m_context.empty())
-		return false;
+    if (m_context.empty())
+        return false;
 
     bool retVal = desc->encrypt(desc, m_context, data.rawData(), (uint32_t)data.size());
 
@@ -283,8 +283,8 @@ bool AEAD::decrypt(tsCryptoData &data)
         return false;
     if (desc == nullptr)
         return false;
-	if (m_context.empty())
-		return false;
+    if (m_context.empty())
+        return false;
 
     bool retVal = desc->decrypt(desc, m_context, data.rawData(), (uint32_t)data.size());
 
@@ -303,8 +303,8 @@ bool AEAD::computeTag(size_t requiredTagLength, tsCryptoData &tag)
         return false;
     if (requiredTagLength < 1 || requiredTagLength > 16)
         return false;
-	if (m_context.empty())
-		return false;
+    if (m_context.empty())
+        return false;
 
     tag.resize(requiredTagLength);
 
@@ -320,29 +320,29 @@ bool AEAD::computeTag(size_t requiredTagLength, tsCryptoData &tag)
 #if 0
 bool AEAD::runTests(bool runDetailedTests)
 {
-	bool testPassed = false;
+    bool testPassed = false;
 
-	if (!gFipsState.operational())
-		return false;
-	if (desc == nullptr)
-		return false;
+    if (!gFipsState.operational())
+        return false;
+    if (desc == nullptr)
+        return false;
 
-	std::shared_ptr<TSExtensibleSelfTest> exSelfTest = std::dynamic_pointer_cast<TSExtensibleSelfTest>(CryptoFactory(&m_baseName.c_str()[4]));
+    std::shared_ptr<TSExtensibleSelfTest> exSelfTest = std::dynamic_pointer_cast<TSExtensibleSelfTest>(CryptoFactory(&m_baseName.c_str()[4]));
 
-	if (!exSelfTest)
-		exSelfTest.reset();
+    if (!exSelfTest)
+        exSelfTest.reset();
 
-	if (!!exSelfTest)
-	{
-		testPassed = exSelfTest->RunSelfTestsFor("CCM", _me.lock(), runDetailedTests);
-	}
+    if (!!exSelfTest)
+    {
+        testPassed = exSelfTest->RunSelfTestsFor("CCM", _me.lock(), runDetailedTests);
+    }
 
-	if (!testPassed)
-	{
-		gFipsState.testFailed();
-		return false;
-	}
-	return true;
+    if (!testPassed)
+    {
+        gFipsState.testFailed();
+        return false;
+    }
+    return true;
 }
 #endif // 0
 
@@ -411,11 +411,11 @@ bool AEAD::isUsableKey(const tsCryptoData &key)
     if (desc == nullptr)
         return false;
 
-	for (uint32_t i = desc->minimumKeySize; i <= desc->maximumKeySize; i += desc->keySizeIncrement)
-	{
-		if (key.size() * 8 == i)
-			return true;
-	}
+    for (uint32_t i = desc->minimumKeySize; i <= desc->maximumKeySize; i += desc->keySizeIncrement)
+    {
+        if (key.size() * 8 == i)
+            return true;
+    }
     return false;
 }
 
@@ -471,24 +471,24 @@ bool AEAD::requiresKey() const
 
 size_t AEAD::minimumKeySizeInBits() const
 {
-	if (desc == nullptr)
-		return 0;
+    if (desc == nullptr)
+        return 0;
 
-	return m_keySizeInBits == 0 ? desc->minimumKeySize : m_keySizeInBits;
+    return m_keySizeInBits == 0 ? desc->minimumKeySize : m_keySizeInBits;
 }
 
 size_t AEAD::maximumKeySizeInBits() const
 {
-	if (desc == nullptr)
-		return 0;
+    if (desc == nullptr)
+        return 0;
 
-	return m_keySizeInBits == 0 ? desc->maximumKeySize : m_keySizeInBits;
+    return m_keySizeInBits == 0 ? desc->maximumKeySize : m_keySizeInBits;
 }
 
 size_t AEAD:: keySizeIncrementInBits() const
 {
-	if (desc == nullptr)
-		return 0;
+    if (desc == nullptr)
+        return 0;
 
-	return m_keySizeInBits == 0 ? desc->keySizeIncrement : 0;
+    return m_keySizeInBits == 0 ? desc->keySizeIncrement : 0;
 }

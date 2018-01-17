@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -36,58 +36,58 @@
 class VEILCORE_API IChannelProcessor
 {
 public:
-	typedef enum {
-		inactive,
-		login,
-		logout,
-		active
-	} TransportState;
+    typedef enum {
+        inactive,
+        login,
+        logout,
+        active
+    } TransportState;
 
-	virtual bool WrapTransport(tscrypto::tsCryptoData& content) = 0;
-	virtual bool UnwrapTransport(tscrypto::tsCryptoData& content) = 0;
-	virtual bool Logout() = 0;
+    virtual bool WrapTransport(tscrypto::tsCryptoData& content) = 0;
+    virtual bool UnwrapTransport(tscrypto::tsCryptoData& content) = 0;
+    virtual bool Logout() = 0;
 
-	virtual TransportState GetTransportState() = 0;
-	virtual bool isAuthenticated() const = 0;
+    virtual TransportState GetTransportState() = 0;
+    virtual bool isAuthenticated() const = 0;
 
-	virtual ~IChannelProcessor() {}
-	virtual tscrypto::tsCryptoString failureReason() const = 0;
+    virtual ~IChannelProcessor() {}
+    virtual tscrypto::tsCryptoString failureReason() const = 0;
 
-	// TLS 1.2 control - Added 7.0.23 
-	virtual void ClearTlsCipherList() = 0;
-	virtual void SetCipherList(SSL_CIPHER* list, size_t count) = 0;
-	virtual void AddCipher(SSL_CIPHER cipher) = 0;
-	virtual void RegisterCertificateVerifier(std::function<SSL_AlertDescription(const tscrypto::tsCryptoDataList& certificate, SSL_CIPHER cipher)> func) = 0;
-	virtual void RegisterPSKCallback(std::function<bool(const tscrypto::tsCryptoData& hint, tscrypto::tsCryptoData& identity, tscrypto::tsCryptoData& psk)> func) = 0;
-	virtual tscrypto::tsCryptoString CkmAuthUsername() const = 0;
-	virtual void CkmAuthUsername(const tscrypto::tsCryptoString& setTo) = 0;
-	// Added 7.0.40
-	virtual bool shouldCloseAfterTransmit() = 0;
+    // TLS 1.2 control - Added 7.0.23 
+    virtual void ClearTlsCipherList() = 0;
+    virtual void SetCipherList(TSSslCipher* list, size_t count) = 0;
+    virtual void AddCipher(TSSslCipher cipher) = 0;
+    virtual void RegisterCertificateVerifier(std::function<TSSslAlertDescription(const tscrypto::tsCryptoDataList& certificate, TSSslCipher cipher)> func) = 0;
+    virtual void RegisterPSKCallback(std::function<bool(const tscrypto::tsCryptoData& hint, tscrypto::tsCryptoData& identity, tscrypto::tsCryptoData& psk)> func) = 0;
+    virtual tscrypto::tsCryptoString CkmAuthUsername() const = 0;
+    virtual void CkmAuthUsername(const tscrypto::tsCryptoString& setTo) = 0;
+    // Added 7.0.40
+    virtual bool shouldCloseAfterTransmit() = 0;
 };
 
 class VEILCORE_API IChannelProcessorEvents
 {
 public:
-	virtual ~IChannelProcessorEvents()
-	{
-	}
-	virtual size_t AddOnLogin(std::function<void(const tsmod::IObject*)> func) = 0;
-	virtual void RemoveOnLogin(size_t cookie) = 0;
+    virtual ~IChannelProcessorEvents()
+    {
+    }
+    virtual size_t AddOnLogin(std::function<void(const tsmod::IObject*)> func) = 0;
+    virtual void RemoveOnLogin(size_t cookie) = 0;
 
-	virtual size_t AddOnLogout(std::function<void(const tsmod::IObject*)> func) = 0;
-	virtual void RemoveOnLogout(size_t cookie) = 0;
+    virtual size_t AddOnLogout(std::function<void(const tsmod::IObject*)> func) = 0;
+    virtual void RemoveOnLogout(size_t cookie) = 0;
 
-	virtual size_t AddOnStateChanged(std::function<void(const tsmod::IObject*, uint32_t currentState)> func) = 0;
-	virtual void RemoveOnStateChanged(size_t cookie) = 0;
+    virtual size_t AddOnStateChanged(std::function<void(const tsmod::IObject*, uint32_t currentState)> func) = 0;
+    virtual void RemoveOnStateChanged(size_t cookie) = 0;
 
-	virtual size_t AddOnFailure(std::function<void(const tsmod::IObject*, const tscrypto::tsCryptoStringBase&)> func) = 0;
-	virtual void RemoveOnFailure(size_t cookie) = 0;
+    virtual size_t AddOnFailure(std::function<void(const tsmod::IObject*, const tscrypto::tsCryptoStringBase&)> func) = 0;
+    virtual void RemoveOnFailure(size_t cookie) = 0;
 
-	virtual size_t AddOnPacketReceived(std::function<void(const tsmod::IObject*, uint8_t packetType, const uint8_t* data, uint32_t dataLen)> func) = 0;
-	virtual void RemoveOnPacketReceived(size_t cookie) = 0;
+    virtual size_t AddOnPacketReceived(std::function<void(const tsmod::IObject*, uint8_t packetType, const uint8_t* data, uint32_t dataLen)> func) = 0;
+    virtual void RemoveOnPacketReceived(size_t cookie) = 0;
 
-	virtual size_t AddOnPacketSent(std::function<void(const tsmod::IObject*, uint8_t packetType, const uint8_t* data, uint32_t dataLen)> func) = 0;
-	virtual void RemoveOnPacketSent(size_t cookie) = 0;
+    virtual size_t AddOnPacketSent(std::function<void(const tsmod::IObject*, uint8_t packetType, const uint8_t* data, uint32_t dataLen)> func) = 0;
+    virtual void RemoveOnPacketSent(size_t cookie) = 0;
 };
 
 #ifdef _MSC_VER
@@ -104,58 +104,58 @@ extern VEILCORE_API HttpAttributeList CreateHttpAttributeList();
 class VEILCORE_API IHttpChannelProcessor : public IChannelProcessor
 {
 public:
-	virtual bool WrapMessage(tscrypto::tsCryptoString& verb, tscrypto::tsCryptoString& destination, tscrypto::tsCryptoData &body, tscrypto::tsCryptoString& mimeType, HttpAttributeList headers) = 0;
-	virtual bool UnwrapMessage(IHttpResponse *header) = 0;
+    virtual bool WrapMessage(tscrypto::tsCryptoString& verb, tscrypto::tsCryptoString& destination, tscrypto::tsCryptoData &body, tscrypto::tsCryptoString& mimeType, HttpAttributeList headers) = 0;
+    virtual bool UnwrapMessage(IHttpResponse *header) = 0;
 
-	virtual ~IHttpChannelProcessor() {}
+    virtual ~IHttpChannelProcessor() {}
 };
 
 class VEILCORE_API IJsonChannelProcessor : public IChannelProcessor
 {
 public:
-	virtual bool WrapMessage(tscrypto::JSONObject &body) = 0;
-	virtual bool UnwrapMessage(tscrypto::JSONObject &body) = 0;
+    virtual bool WrapMessage(tscrypto::JSONObject &body) = 0;
+    virtual bool UnwrapMessage(tscrypto::JSONObject &body) = 0;
 
-	virtual ~IJsonChannelProcessor() {}
+    virtual ~IJsonChannelProcessor() {}
 };
 
 class VEILCORE_API INetworkConnectionEvents
 {
 public:
-	virtual ~INetworkConnectionEvents()
-	{
-	}
-	virtual size_t AddOnConnect(std::function<void(const tsmod::IObject*)> func) = 0;
-	virtual void RemoveOnConnect(size_t cookie) = 0;
+    virtual ~INetworkConnectionEvents()
+    {
+    }
+    virtual size_t AddOnConnect(std::function<void(const tsmod::IObject*)> func) = 0;
+    virtual void RemoveOnConnect(size_t cookie) = 0;
 
-	virtual size_t AddOnError(std::function<void(const tsmod::IObject*, const tscrypto::tsCryptoStringBase&)> func) = 0;
-	virtual void RemoveOnError(size_t cookie) = 0;
+    virtual size_t AddOnError(std::function<void(const tsmod::IObject*, const tscrypto::tsCryptoStringBase&)> func) = 0;
+    virtual void RemoveOnError(size_t cookie) = 0;
 
-	virtual size_t AddOnDisconnect(std::function<void(const tsmod::IObject*)> func) = 0;
-	virtual void RemoveOnDisconnect(size_t cookie) = 0;
+    virtual size_t AddOnDisconnect(std::function<void(const tsmod::IObject*)> func) = 0;
+    virtual void RemoveOnDisconnect(size_t cookie) = 0;
 };
 
 class VEILCORE_API ITcpConnection
 {
 public:
-	virtual ~ITcpConnection(void) {}
+    virtual ~ITcpConnection(void) {}
 
-	virtual const tscrypto::tsCryptoString &Server() const = 0;
-	virtual void Server(const tscrypto::tsCryptoString &setTo) = 0;
+    virtual const tscrypto::tsCryptoString &Server() const = 0;
+    virtual void Server(const tscrypto::tsCryptoString &setTo) = 0;
 
-	virtual unsigned short Port() const = 0;
-	virtual void Port(unsigned short setTo) = 0;
+    virtual unsigned short Port() const = 0;
+    virtual void Port(unsigned short setTo) = 0;
 
-	virtual tscrypto::tsCryptoString Errors() const = 0;
-	virtual void ClearErrors() = 0;
+    virtual tscrypto::tsCryptoString Errors() const = 0;
+    virtual void ClearErrors() = 0;
 
-	virtual bool RawSend(const tscrypto::tsCryptoData& data) = 0;
-	virtual bool RawReceive(tscrypto::tsCryptoData& data, size_t size = 5000) = 0;
+    virtual bool RawSend(const tscrypto::tsCryptoData& data) = 0;
+    virtual bool RawReceive(tscrypto::tsCryptoData& data, size_t size = 5000) = 0;
 
-	virtual bool isConnected() const = 0;
+    virtual bool isConnected() const = 0;
 
-	virtual bool Disconnect() = 0;
-	virtual bool Connect() = 0;
+    virtual bool Disconnect() = 0;
+    virtual bool Connect() = 0;
 };
 
 class VEILCORE_API IUdpConnection
@@ -187,71 +187,71 @@ public:
 class VEILCORE_API ITcpChannel : public ITcpConnection
 {
 public:
-	virtual ~ITcpChannel(void) {}
+    virtual ~ITcpChannel(void) {}
 
-	virtual bool Send(const tscrypto::tsCryptoData& data) = 0;
-	virtual void SendLogout() = 0;
-	virtual bool Receive(tscrypto::tsCryptoData& data, size_t size = 5000) = 0;
+    virtual bool Send(const tscrypto::tsCryptoData& data) = 0;
+    virtual void SendLogout() = 0;
+    virtual bool Receive(tscrypto::tsCryptoData& data, size_t size = 5000) = 0;
 
-	virtual bool isAuthenticated() const = 0;
+    virtual bool isAuthenticated() const = 0;
 
-	virtual std::shared_ptr<IChannelProcessor> getChannelProcessor() const = 0;
-	virtual void setChannelProcessor(std::shared_ptr<IChannelProcessor> setTo) = 0;
+    virtual std::shared_ptr<IChannelProcessor> getChannelProcessor() const = 0;
+    virtual void setChannelProcessor(std::shared_ptr<IChannelProcessor> setTo) = 0;
 
-	// Added 7.0.15 to force the handling of the authentication when httpv is used.
-	virtual bool processAuthenticationMessages() = 0;
+    // Added 7.0.15 to force the handling of the authentication when httpv is used.
+    virtual bool processAuthenticationMessages() = 0;
 };
 
 class VEILCORE_API IWebSocket : public ITcpConnection
 {
 public:
-	typedef enum {
-		Normal = 1000,
-		GoingAway = 1001,
-		ProtocolError = 1002,
-		UnsupportedData = 1003,
+    typedef enum {
+        Normal = 1000,
+        GoingAway = 1001,
+        ProtocolError = 1002,
+        UnsupportedData = 1003,
 
-		NoStatusRcvd = 1005,
-		AbnormalClosure = 1006,
-		InvalidPayloadData = 1007,
-		PolicyViolation = 1008,
-		MessageTooBig = 1009,
-		MandatoryExt = 1010,
-		InternalError = 1011,
-		ServiceRestart = 1012,
-		TryAgainLater = 1013,
-		TlsHandshake = 1015,
+        NoStatusRcvd = 1005,
+        AbnormalClosure = 1006,
+        InvalidPayloadData = 1007,
+        PolicyViolation = 1008,
+        MessageTooBig = 1009,
+        MandatoryExt = 1010,
+        InternalError = 1011,
+        ServiceRestart = 1012,
+        TryAgainLater = 1013,
+        TlsHandshake = 1015,
 
-		FirstPrivate = 4000,
-		LastPrivate = 4999,
-	} ClosureCode;
+        FirstPrivate = 4000,
+        LastPrivate = 4999,
+    } ClosureCode;
 
-	virtual ~IWebSocket() {}
+    virtual ~IWebSocket() {}
 
-	virtual bool SendBinary(bool finalBlock, const tscrypto::tsCryptoData& data) = 0;
-	virtual bool SendText(bool finalBlock, const tscrypto::tsCryptoString& data) = 0;
-	virtual bool CloseChannel(ClosureCode code, const tscrypto::tsCryptoData& otherData) = 0;
-	virtual bool Ping(const tscrypto::tsCryptoData& otherData) = 0;
-	virtual bool setOnBinaryFrameReceived(std::function<bool(bool finalBlock, const tscrypto::tsCryptoData& data)> setTo) = 0;
-	virtual bool setOnTextFrameReceived(std::function<bool(bool finalBlock, const tscrypto::tsCryptoString& data)> setTo) = 0;
-	virtual bool setOnPongReceived(std::function<bool()> setTo) = 0;
-	virtual bool setOnCloseReceived(std::function<bool()> setTo) = 0;
-	virtual tscrypto::tsCryptoString protocolSelected() const = 0;
-	virtual tscrypto::tsCryptoString extensionsSelected() const = 0;
+    virtual bool SendBinary(bool finalBlock, const tscrypto::tsCryptoData& data) = 0;
+    virtual bool SendText(bool finalBlock, const tscrypto::tsCryptoString& data) = 0;
+    virtual bool CloseChannel(ClosureCode code, const tscrypto::tsCryptoData& otherData) = 0;
+    virtual bool Ping(const tscrypto::tsCryptoData& otherData) = 0;
+    virtual bool setOnBinaryFrameReceived(std::function<bool(bool finalBlock, const tscrypto::tsCryptoData& data)> setTo) = 0;
+    virtual bool setOnTextFrameReceived(std::function<bool(bool finalBlock, const tscrypto::tsCryptoString& data)> setTo) = 0;
+    virtual bool setOnPongReceived(std::function<bool()> setTo) = 0;
+    virtual bool setOnCloseReceived(std::function<bool()> setTo) = 0;
+    virtual tscrypto::tsCryptoString protocolSelected() const = 0;
+    virtual tscrypto::tsCryptoString extensionsSelected() const = 0;
 };
 
 class VEILCORE_API IHttpChannel //: public ITcpChannel
 {
 public:
-	virtual ~IHttpChannel(void) {}
+    virtual ~IHttpChannel(void) {}
 
-	virtual bool Send(const tscrypto::tsCryptoString& verb, const tscrypto::tsCryptoString& destination, const tscrypto::tsCryptoData &body, const tscrypto::tsCryptoString& mimeType, HttpAttributeList headers = nullptr) = 0;
-	virtual bool Receive(IHttpResponse *header) = 0;
-	virtual bool Transceive(const tscrypto::tsCryptoString& verb, const tscrypto::tsCryptoString& destination, const tscrypto::tsCryptoData &body, const tscrypto::tsCryptoString& mimeType, IHttpResponse *header, HttpAttributeList requestHeaders = nullptr) = 0;
+    virtual bool Send(const tscrypto::tsCryptoString& verb, const tscrypto::tsCryptoString& destination, const tscrypto::tsCryptoData &body, const tscrypto::tsCryptoString& mimeType, HttpAttributeList headers = nullptr) = 0;
+    virtual bool Receive(IHttpResponse *header) = 0;
+    virtual bool Transceive(const tscrypto::tsCryptoString& verb, const tscrypto::tsCryptoString& destination, const tscrypto::tsCryptoData &body, const tscrypto::tsCryptoString& mimeType, IHttpResponse *header, HttpAttributeList requestHeaders = nullptr) = 0;
 
-	virtual std::shared_ptr<IHttpChannelProcessor> getHttpChannelProcessor() const = 0;
-	virtual std::shared_ptr<IWebSocket> UpgradeToWebSocket(const tscrypto::tsCryptoString& url, const tscrypto::tsCryptoString& protocols, const tscrypto::tsCryptoString& extensions) = 0;
-	virtual std::shared_ptr<ITcpChannel> GetBaseChannel() = 0; // Workaround for std::dynamic_pointer_cast not working with the HttpChannel complex class
+    virtual std::shared_ptr<IHttpChannelProcessor> getHttpChannelProcessor() const = 0;
+    virtual std::shared_ptr<IWebSocket> UpgradeToWebSocket(const tscrypto::tsCryptoString& url, const tscrypto::tsCryptoString& protocols, const tscrypto::tsCryptoString& extensions) = 0;
+    virtual std::shared_ptr<ITcpChannel> GetBaseChannel() = 0; // Workaround for std::dynamic_pointer_cast not working with the HttpChannel complex class
 //private:
 //	using ITcpChannel::Send;
 //	using ITcpChannel::Receive;
@@ -260,15 +260,15 @@ public:
 class VEILCORE_API IJsonChannel : public ITcpChannel
 {
 public:
-	virtual ~IJsonChannel(void) {}
+    virtual ~IJsonChannel(void) {}
 
-	virtual bool Send(const tscrypto::JSONObject &data) = 0;
-	virtual bool Receive(tscrypto::JSONObject &data) = 0;
+    virtual bool Send(const tscrypto::JSONObject &data) = 0;
+    virtual bool Receive(tscrypto::JSONObject &data) = 0;
 
-	virtual std::shared_ptr<IJsonChannelProcessor> getJsonChannelProcessor() const = 0;
+    virtual std::shared_ptr<IJsonChannelProcessor> getJsonChannelProcessor() const = 0;
 private:
-	using ITcpChannel::Send;
-	using ITcpChannel::Receive;
+    using ITcpChannel::Send;
+    using ITcpChannel::Receive;
 };
 
 class VEILCORE_API IMessageProcessorCallback
@@ -285,9 +285,9 @@ public:
     virtual ~IMessageProcessorControl() 
     {
     }
-	virtual void clear() = 0;
-	virtual void start(const tscrypto::tsCryptoData& sessionId, const tscrypto::tsCryptoData& sessionKey) = 0; // http message level only
-	virtual bool startTunnel(const tscrypto::tsCryptoString& scheme, std::shared_ptr<ITcpChannel> channel, const tscrypto::tsCryptoString& username = "", const tscrypto::tsCryptoData& password = tscrypto::tsCryptoData()) = 0; // https/httpv message/tunnel 
+    virtual void clear() = 0;
+    virtual void start(const tscrypto::tsCryptoData& sessionId, const tscrypto::tsCryptoData& sessionKey) = 0; // http message level only
+    virtual bool startTunnel(const tscrypto::tsCryptoString& scheme, std::shared_ptr<ITcpChannel> channel, const tscrypto::tsCryptoString& username = "", const tscrypto::tsCryptoData& password = tscrypto::tsCryptoData()) = 0; // https/httpv message/tunnel 
     // Added 7.0.55
     virtual bool startTunnel(const tscrypto::tsCryptoString& scheme, std::shared_ptr<IMessageProcessorCallback> callbacks, const tscrypto::tsCryptoString& username = "", const tscrypto::tsCryptoData& password = tscrypto::tsCryptoData()) = 0; // https/httpv message/tunnel using a callback interface
 };

@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -60,29 +60,6 @@ public:
 	/// <summary>Destructor.</summary>
 	~tsXmlParser();
 
-#ifdef HAVE_BSTR
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// <summary>Parses the specified XML using the callback interface.</summary>
-	///
-	/// <param name="xml">	   The XML.</param>
-	/// <param name="callback">[in] The callback interface.</param>
-	/// <param name="Results"> [in,out] The results.</param>
-	///
-	/// <returns>true if it succeeds, false if it fails.</returns>
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	bool Parse(const ts_wchar * xml, tsXmlParserCallback *callback, tscrypto::tsCryptoStringBase &Results);
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// <summary>Parses the specified XML using the callback interface.</summary>
-	///
-	/// <param name="xml">	   The XML.</param>
-	/// <param name="len">	   The length of the XML.</param>
-	/// <param name="callback">[in] The callback interface.</param>
-	/// <param name="Results"> [in,out] The results.</param>
-	///
-	/// <returns>true if it succeeds, false if it fails.</returns>
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	bool Parse(const ts_wchar * xml, size_t len, tsXmlParserCallback *callback, tscrypto::tsCryptoStringBase &Results);
-#endif // HAVE_BSTR
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Parses the specified XML using the callback interface.</summary>
 	///
@@ -103,17 +80,6 @@ public:
 	/// <returns>true if it succeeds, false if it fails.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	bool Parse(const char *xml, tsXmlParserCallback *callback, tscrypto::tsCryptoStringBase &Results);
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// <summary>Parses the specified XML using the callback interface.</summary>
-	///
-	/// <param name="xml">	   The XML.</param>
-	/// <param name="len">	   The length of the XML.</param>
-	/// <param name="callback">[in] The callback interface.</param>
-	/// <param name="Results"> [in,out] The results.</param>
-	///
-	/// <returns>true if it succeeds, false if it fails.</returns>
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	bool Parse(const char *xml, size_t len, tsXmlParserCallback *callback, tscrypto::tsCryptoStringBase &Results);
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	///// <summary>Object allocation operator.</summary>
@@ -131,132 +97,17 @@ public:
 	//void operator delete(void *ptr);
 
 protected:
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// <summary>Parses the XML.</summary>
-	///
-	/// <param name="Results">[in,out] The error results.</param>
-	///
-	/// <returns>The parser error code for this tag.</returns>
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	tsXmlParserCallback::resultCodes Parse(tscrypto::tsCryptoStringBase &Results);
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// <summary>Removes whitespace from the current position of the internal XML string.</summary>
-	///
-	/// <param name="Results">[in,out] The error results.</param>
-	///
-	/// <returns>true if it succeeds, false if it fails.</returns>
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	bool EatWhitespace(tscrypto::tsCryptoStringBase &Results);
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// <summary>Eat whitespace without setting any errors.</summary>
-	///
-	/// <param name="Results">[in,out] The error results.</param>
-	///
-	/// <returns>true if it succeeds, false if it fails.</returns>
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	bool EatWhitespaceQuiet(tscrypto::tsCryptoStringBase &Results);
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// <summary>Parse a doubly quoted string from the specified position in the XML buffer.</summary>
-	///
-	/// <param name="Start">  The starting point.</param>
-	/// <param name="Results">[in,out] The error results.</param>
-	///
-	/// <returns>true if it succeeds, false if it fails.</returns>
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	bool ParseQuotedString(const char **Start, tscrypto::tsCryptoStringBase &Results);
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// <summary>Parse a name from the specified position in the XML buffer.</summary>
-	///
-	/// <param name="Start">  The starting point.</param>
-	/// <param name="Results">[in,out] The error results.</param>
-	///
-	/// <returns>true if it succeeds, false if it fails.</returns>
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	bool ParseName(const char **Start, tscrypto::tsCryptoStringBase &Results);
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// <summary>Parse a node from the current position in the XML string.</summary>
-	///
-	/// <param name="Results">[in,out] The error results.</param>
-	///
-	/// <returns>The parser error code for this tag.</returns>
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	tsXmlParserCallback::resultCodes ParseNode(tscrypto::tsCryptoStringBase &Results);
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// <summary>Parse a text node from the current position in the XML string.</summary>
-	///
-	/// <param name="Results">[in,out] The error results.</param>
-	///
-	/// <returns>The parser error code for this tag.</returns>
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	tsXmlParserCallback::resultCodes ParseTextNode(tscrypto::tsCryptoStringBase &Results);
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// <summary>Parse an attribute from the current position in the XML buffer.</summary>
-	///
-	/// <param name="Results">[in,out] The error results.</param>
-	///
-	/// <returns>The parser error code for this tag.</returns>
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	tsXmlParserCallback::resultCodes ParseAttribute(tscrypto::tsCryptoStringBase &Results);
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// <summary>Parse a comment from the current position in the XML buffer.</summary>
-	///
-	/// <param name="Results">[in,out] The error results.</param>
-	///
-	/// <returns>The parser error code for this tag.</returns>
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	tsXmlParserCallback::resultCodes ParseComment(tscrypto::tsCryptoStringBase &Results);
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// <summary>Parse a cdata definition from the current position in the XML buffer.</summary>
-	///
-	/// <param name="Results">[in,out] The error results.</param>
-	///
-	/// <returns>The parser error code for this tag.</returns>
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	tsXmlParserCallback::resultCodes ParseCData(tscrypto::tsCryptoStringBase &Results);
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// <summary>Parse a processing instruction from the current position in the XML buffer.</summary>
-	///
-	/// <param name="Results">[in,out] The error results.</param>
-	///
-	/// <returns>The parser error code for this tag.</returns>
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	tsXmlParserCallback::resultCodes ParseProcessingInstruction(tscrypto::tsCryptoStringBase &Results);
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// <summary>Parse a metadata instruction from the current position in the XML buffer.</summary>
-	///
-	/// <param name="Results">[in,out] The error results.</param>
-	///
-	/// <returns>The parser error code for this tag.</returns>
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	tsXmlParserCallback::resultCodes ParseMetadataInstruction(tscrypto::tsCryptoStringBase &Results);
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// <summary>Query if 'c' is valid for the start of a name character.</summary>
-	///
-	/// <param name="c">The character to test.</param>
-	///
-	/// <returns>true if starting name character, false if not.</returns>
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	bool IsStartingNameChar(char c);
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// <summary>Query if 'c' is valid for the second or later character in a name.</summary>
-	///
-	/// <param name="c">The character to test.</param>
-	///
-	/// <returns>true if name character, false if not.</returns>
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	bool IsNameChar(char c);
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// <summary>Searches for the matching end node.</summary>
-	///
-	/// <param name="Name">			  The node name.</param>
-	/// <param name="EndNodePosition">[in,out] The end node position.</param>
-	/// <param name="EndNodeEnd">	  [in,out] The end node end.</param>
-	/// <param name="Results">		  [in,out] The error results.</param>
-	///
-	/// <returns>true if it succeeds, false if it fails.</returns>
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	bool FindEndNode(const char *Name, size_t &EndNodePosition, size_t &EndNodeEnd, tscrypto::tsCryptoStringBase &Results);
+    static TSXmlParserCallbackResultCodes xml_processInstruction(void* params, const char* name, uint32_t nameLen, TSNAME_VALUE_LIST attributes, const char* contents, uint32_t contentsLen);
+    static TSXmlParserCallbackResultCodes xml_startNode(void* params, const char* nodeName, uint32_t nodeNameLen, TSNAME_VALUE_LIST attributes, const char* innerXmlStart, const char* innerXmlEnd, ts_bool singleNode);
+    static TSXmlParserCallbackResultCodes xml_endNode(void* params, const char* nodeName, uint32_t nodeNameLen);
+    static TSXmlParserCallbackResultCodes xml_comment(void* params, const char* commentStart, const char* commentEnd);
+    static TSXmlParserCallbackResultCodes xml_cdata(void* params, const char* cdataStart, const char* cdataEnd);
+    static TSXmlParserCallbackResultCodes xml_text(void* params, const char* textStart, const char* textEnd);
+    static TSXmlParserCallbackResultCodes xml_whitespace(void* params, const char* whitespaceStart, const char* whitespaceEnd);
+    static void xml_reportError(void* params, const char* errorMessage);
+
+    static TSXmlParserCallback gXmlCallbacks;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Logs an error into the error string.</summary>
@@ -267,12 +118,9 @@ protected:
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	void LogError(tscrypto::tsCryptoStringBase &Results, int32_t number, const char *value);
 protected:
-	tscrypto::tsCryptoString    			 m_xml;
-	size_t      		 m_position;
-	tsAttributeMap		 m_attributes;
+
+    tscrypto::tsCryptoString m_results;
 	tsXmlParserCallback *m_callback;
-	uint32_t             m_nodeLevel;
-	uint32_t             m_regularNodeCountLevel1;
 };
 
 #endif

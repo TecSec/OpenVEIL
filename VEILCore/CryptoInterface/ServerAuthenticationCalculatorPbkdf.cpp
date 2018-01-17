@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -37,131 +37,131 @@ using namespace tscrypto;
 class ServerAuthenticationCalculatorPbkdfImpl : public ServerAuthenticationCalculator, public TSName, public Selftest, public tscrypto::ICryptoObject, public tscrypto::IInitializableObject, public AlgorithmInfo
 {
 public:
-	ServerAuthenticationCalculatorPbkdfImpl(const tsCryptoStringBase& algorithm)
-	{
-		calc = (const CkmAuthCalc_Descriptor *)findCkmAlgorithm("CKMAUTH-CALC");
-		macName = "HMAC-SHA512";
-		hashName = "SHA512";
-		workspace = calc;
-		_pbkdfHashAlg = "HMAC-SHA512";
-	}
-	virtual ~ServerAuthenticationCalculatorPbkdfImpl(void)
-	{
-	}
+    ServerAuthenticationCalculatorPbkdfImpl(const tsCryptoStringBase& algorithm)
+    {
+        calc = (const TSCkmAuthCalcDescriptor *)tsFindCkmAlgorithm("CKMAUTH-CALC");
+        macName = "HMAC-SHA512";
+        hashName = "SHA512";
+        workspace = calc;
+        _pbkdfHashAlg = "HMAC-SHA512";
+    }
+    virtual ~ServerAuthenticationCalculatorPbkdfImpl(void)
+    {
+    }
 
     // Selftests
     virtual bool runTests(bool runDetailedTests) override
-	{
-		MY_UNREFERENCED_PARAMETER(runDetailedTests);
-		if (!gFipsState.operational())
-			return false;
+    {
+        UNREFERENCED_PARAMETER(runDetailedTests);
+        if (!gFipsState.operational())
+            return false;
 
-		// TODO:  Need tests here (hard to do since random seed is generated...)
+        // TODO:  Need tests here (hard to do since random seed is generated...)
 
-		return true;
-	}
+        return true;
+    }
 
     // AlgorithmInfo
     virtual tsCryptoString  AlgorithmName() const override
-	{
-		return GetName();
-	}
-	virtual tsCryptoString  AlgorithmOID() const override
-	{
-		return LookUpAlgOID(GetName());
-	}
-	virtual TS_ALG_ID AlgorithmID() const override
-	{
-		return LookUpAlgID(GetName());
-	}
+    {
+        return GetName();
+    }
+    virtual tsCryptoString  AlgorithmOID() const override
+    {
+        return LookUpAlgOID(GetName());
+    }
+    virtual TS_ALG_ID AlgorithmID() const override
+    {
+        return LookUpAlgID(GetName());
+    }
 
     // ServerAuthenticationCalculator
-	virtual bool computeServerAuthenticationParameters(const tsCryptoData& authInfo, tsCryptoData& authenticationParameters, tsCryptoData& storedKey) override
-	{
-		tsCryptoData seed;
-		int iterCount = 4096;
-		uint32_t storedKeyLen = 1024, authOutputLen = 1500;
+    virtual bool computeServerAuthenticationParameters(const tsCryptoData& authInfo, tsCryptoData& authenticationParameters, tsCryptoData& storedKey) override
+    {
+        tsCryptoData seed;
+        int iterCount = 4096;
+        uint32_t storedKeyLen = 1024, authOutputLen = 1500;
 
-		if (!gFipsState.operational() || calc == nullptr || macName.empty() || _pbkdfHashAlg.empty())
-			return false;
+        if (!gFipsState.operational() || calc == nullptr || macName.empty() || _pbkdfHashAlg.empty())
+            return false;
 
-		if (TsStriCmp(_pbkdfHashAlg.c_str(), "SHA1") != 0 || TsStriCmp(_pbkdfHashAlg.c_str(), "HMAC-SHA1") != 0)
-			iterCount = 1000;
+        if (tsStriCmp(_pbkdfHashAlg.c_str(), "SHA1") != 0 || tsStriCmp(_pbkdfHashAlg.c_str(), "HMAC-SHA1") != 0)
+            iterCount = 1000;
 
-		if (!TSGenerateRandom(seed, 32))
-			return false;
+        if (!TSGenerateRandom(seed, 32))
+            return false;
 
-		if (!calc->init_pbkdf(calc, workspace, _pbkdfHashAlg.c_str(), iterCount, seed.c_str(), (uint32_t)seed.size()))
-		{
-			return false;
-		}
+        if (!calc->init_pbkdf(calc, workspace, _pbkdfHashAlg.c_str(), iterCount, seed.c_str(), (uint32_t)seed.size()))
+        {
+            return false;
+        }
 
-		storedKey.resize(storedKeyLen);
-		authenticationParameters.resize(authOutputLen);
-		if (!calc->computeServerAuth(calc, workspace, macName.c_str(), hashName.c_str(), authInfo.c_str(), (uint32_t)authInfo.size(), authenticationParameters.rawData(), &authOutputLen, storedKey.rawData(), &storedKeyLen))
-		{
-			storedKey.clear();
-			authenticationParameters.clear();
-			return false;
-		}
-		storedKey.resize(storedKeyLen);
-		authenticationParameters.resize(authOutputLen);
-		return true;
-	}
-	virtual bool validateServerAuthenticationParameters(const tsCryptoData& authInfo, const tsCryptoData& authenticationParameters, const tsCryptoData& storedKey) override
-	{
-		_POD_CkmAuthServerParameters params;
-		tsCryptoData salt;
+        storedKey.resize(storedKeyLen);
+        authenticationParameters.resize(authOutputLen);
+        if (!calc->computeServerAuth(calc, workspace, macName.c_str(), hashName.c_str(), authInfo.c_str(), (uint32_t)authInfo.size(), authenticationParameters.rawData(), &authOutputLen, storedKey.rawData(), &storedKeyLen))
+        {
+            storedKey.clear();
+            authenticationParameters.clear();
+            return false;
+        }
+        storedKey.resize(storedKeyLen);
+        authenticationParameters.resize(authOutputLen);
+        return true;
+    }
+    virtual bool validateServerAuthenticationParameters(const tsCryptoData& authInfo, const tsCryptoData& authenticationParameters, const tsCryptoData& storedKey) override
+    {
+        _POD_CkmAuthServerParameters params;
+        tsCryptoData salt;
 
-		if (!gFipsState.operational())
-			return false;
+        if (!gFipsState.operational())
+            return false;
 
-		if (!params.Decode(authenticationParameters))
-			return false;
+        if (!params.Decode(authenticationParameters))
+            return false;
 
 
-		salt = params.get_params().get_Pbkdf().get_Salt();
-		return 
-			calc->init_pbkdf(calc, workspace, _pbkdfHashAlg.c_str(), params.get_params().get_Pbkdf().get_IterationCount(), salt.c_str(), (uint32_t)salt.size()) &&
-		    calc->validateServerAuth(calc, workspace, macName.c_str(), hashName.c_str(), authInfo.c_str(), (uint32_t)authInfo.size(), storedKey.c_str(), (uint32_t)storedKey.size());
-	}
+        salt = params.get_params().get_Pbkdf().get_Salt();
+        return 
+            calc->init_pbkdf(calc, workspace, _pbkdfHashAlg.c_str(), params.get_params().get_Pbkdf().get_IterationCount(), salt.c_str(), (uint32_t)salt.size()) &&
+            calc->validateServerAuth(calc, workspace, macName.c_str(), hashName.c_str(), authInfo.c_str(), (uint32_t)authInfo.size(), storedKey.c_str(), (uint32_t)storedKey.size());
+    }
 
-	// tscrypto::IInitializableObject
-	virtual bool InitializeWithFullName(const tscrypto::tsCryptoStringBase& fullName) override
-	{
-		tsCryptoString algorithm(fullName);
-		tsCryptoString tmp(algorithm);
+    // tscrypto::IInitializableObject
+    virtual bool InitializeWithFullName(const tscrypto::tsCryptoStringBase& fullName) override
+    {
+        tsCryptoString algorithm(fullName);
+        tsCryptoString tmp(algorithm);
 
-		SetName(algorithm);
+        SetName(algorithm);
 
-		while (tmp.size() > 0 && tmp[0] != '-')
-			tmp.DeleteAt(0, 1);
-		if (tmp[0] == '-')
-			tmp.DeleteAt(0, 1);
+        while (tmp.size() > 0 && tmp[0] != '-')
+            tmp.DeleteAt(0, 1);
+        if (tmp[0] == '-')
+            tmp.DeleteAt(0, 1);
 
-		if (TsStrniCmp(tmp.c_str(), "PBKDF2-", 7) != 0)
-			return false;
-		tmp.DeleteAt(0, 7);
-		this->_pbkdfHashAlg = "HMAC-" + tmp;
+        if (tsStrniCmp(tmp.c_str(), "PBKDF2-", 7) != 0)
+            return false;
+        tmp.DeleteAt(0, 7);
+        this->_pbkdfHashAlg = "HMAC-" + tmp;
 
-		hashName = tmp;
-		macName = "HMAC-" + tmp;
-		return true;
-	}
+        hashName = tmp;
+        macName = "HMAC-" + tmp;
+        return true;
+    }
 
 private:
-	const CkmAuthCalc_Descriptor *calc;
-	tsCryptoString macName;
-	tsCryptoString hashName;
+    const TSCkmAuthCalcDescriptor *calc;
+    tsCryptoString macName;
+    tsCryptoString hashName;
     SmartCryptoWorkspace workspace;
-	tsCryptoString _pbkdfHashAlg;
+    tsCryptoString _pbkdfHashAlg;
 };
 
 
 // Uses SHA512 for the KDFs.  Uses the indicated PBKDF sha for the PBKDF
 tscrypto::ICryptoObject* CreateServerAuthenticationCalculator(const tsCryptoStringBase& algorithm)
 {
-	return dynamic_cast<tscrypto::ICryptoObject*>(new ServerAuthenticationCalculatorPbkdfImpl(algorithm));
+    return dynamic_cast<tscrypto::ICryptoObject*>(new ServerAuthenticationCalculatorPbkdfImpl(algorithm));
 }
 
 

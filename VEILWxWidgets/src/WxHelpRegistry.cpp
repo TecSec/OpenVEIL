@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -63,7 +63,7 @@ public:
 
 protected:
 	std::vector<HelpRegistryItem> _items;
-	WORD _port;
+	uint16_t _port;
 	tscrypto::tsCryptoString _scheme;
 	tscrypto::tsCryptoString _prefix;
 
@@ -91,7 +91,7 @@ protected:
 
 					url = parser.BuildUrl();
 
-					if (!xp_LaunchBrowser(url))
+					if (!tsLaunchBrowser(url.c_str()))
 					{
 						wxTsMessageBox("We were unable to display the help.", "ERROR", wxOK | wxICON_HAND);
 					}

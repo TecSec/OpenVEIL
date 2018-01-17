@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!--
-	Copyright (c) 2017, TecSec, Inc.
+	Copyright (c) 2018, TecSec, Inc.
 
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions are met:
@@ -50,7 +50,7 @@
           <OctetString Name="SerialNumber" JSONName="serial"/>
         </Sequence>
         <Sequence Name="CmsHE_Attribute" JSONName="attribute">
-          <Guid Name="Id" JSONName="id"/>
+          <OctetString Name="Id" JSONName="id"/>
           <Int32 Name="Version" Initializer="0" JSONName="version"/>
           <Int32 Name="CryptoGroupNumber" Initializer="0" JSONName="cgNo"/>
           <OctetString Name="Signature" Optional="true" JSONName="signature"/>
@@ -64,10 +64,17 @@
           <Sequence Name="Algorithm" ElementType="AlgorithmIdentifier" JSONName="algorithm"/>
           <OctetString Name="Hash" JSONName="value"/>
         </Sequence>
+        <Sequence Name="CmsHE_EphemeralData" JSONName="ephem">
+          <OID Name="KeyType" JSONName="type"/>
+          <OctetString Name="EphemeralValue" JSONName="ephData"/>
+        </Sequence>
         <Sequence Name="CmsHE_CryptoGroup" JSONName="cg">
-          <Guid Name="CryptoGroupId" JSONName="id"/>
+          <OctetString Name="CryptoGroupId" JSONName="id"/>
           <Int32 Name="CML" Initializer="0" JSONName="cml"/>
           <OctetString Name="EphemeralPublic" Optional="true" JSONName="ephPub"/>
+          <SequenceOf Name="EphemeralSet" Optional="true" Tag="0" Type="Context" JSONName="ephemSet">
+            <Sequence Name="CmsHE_EphemeralData" ElementType="CmsHE_EphemeralData" JSONName="ephem"/>
+          </SequenceOf>
         </Sequence>
         <Sequence Name="CmsHE_CryptoGroupList" JSONName="cgList">
           <SequenceOf Name="CryptoGroup" JSONName="list">
@@ -127,7 +134,7 @@
             <Int32 Name="Compression" JSONName="compression"/>
             <Int32 Name="Padding" JSONName="padding"/>
 
-            <Guid Name="objectId" JSONName="objId"/>
+            <OctetString Name="objectId" JSONName="objId"/>
             <SequenceOf Name="ProtectedExtensions" JSONName="protected"/>
             <Sequence Name="SignatureAlgorithm" ElementType="AlgorithmIdentifier" JSONName="sigAlg"/>
           </Part>
@@ -147,7 +154,7 @@
           <Int32 Name="Compression" Default="0" Tag="0" Type="Context" JSONName="compression"/>
           <Int32 Name="Padding" Default="0" Tag="1" Type="Context" JSONName="padding"/>
 
-          <Guid Name="objectId" Tag="6" Type="Context" Optional="true" JSONName="objId"/>
+          <OctetString Name="objectId" Tag="6" Type="Context" Optional="true" JSONName="objId"/>
 
           <SequenceOf Name="ProtectedExtensions" Tag="2" Type="Context" Optional="true" JSONName="protected">
             <Sequence Name="CmsExtension" ElementType="CmsExtension" Tag="Sequence" Type="Universal" JSONName="extension"/>

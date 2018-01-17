@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -133,7 +133,7 @@ public:
 				}
 				else if (opts.OptionId() == eccoptions::OPT_KEYSIZE)
 				{
-					keysize = TsStrToInt(opts.OptionArg());
+					keysize = tsStrToInt(opts.OptionArg());
 				}
 				else if (opts.OptionId() == eccoptions::OPT_FORENCRYPTION)
 				{
@@ -320,7 +320,7 @@ public:
 				}
 				else if (opts.OptionId() == rsaoptions::OPT_KEYSIZE)
 				{
-					keysize = TsStrToInt(opts.OptionArg());
+					keysize = tsStrToInt(opts.OptionArg());
 				}
 				else if (opts.OptionId() == rsaoptions::OPT_FORENCRYPTION)
 				{

@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -31,266 +31,161 @@
 
 #include "stdafx.h"
 
-tsThread::tsThread() :
-	threadId(0),
-#ifdef HAVE_WINDOWS_H
-	hThread(nullptr),
+int tsThread::workerFunc(TSTHREAD thread, void* params)
+{
+    tsThread* This = (tsThread*)params;
+    uint32_t retVal = (uint32_t)-1;
+
+#ifdef _WIN32
+#ifndef MINGW
+    _set_se_translator(&tsstd::SeException::SeTranslator);
+#endif // MINGW
+
+    if (!!This->_worker)
+        retVal = (unsigned)This->_worker();
+
 #else
-	hThread(0),
-#endif // HAVE_WINDOWS_H
-	cancel(true, false)
-{
+
+    if (!!This->_worker)
+        retVal = This->_worker();
+
+#endif // _WIN32
+    return retVal;
 }
-tsThread::tsThread(tsThread&& obj)
+void tsThread::completionFunc(TSTHREAD thread, void* params)
 {
-	threadId = obj.threadId;
-	obj.threadId = 0;
-	hThread = obj.hThread;
-	obj.hThread = 0;
-	cancel = std::move(obj.cancel);
-	_worker = std::move(obj._worker);
-	_onComplete = std::move(obj._onComplete);
+    tsThread* This = (tsThread*)params;
+
+    if (!!This->_onComplete)
+        This->_onComplete();
+}
+void tsThread::cancelFunc(TSTHREAD thread, void* params)
+{
+    tsThread* This = (tsThread*)params;
+
+    if (!!This->_doCancel)
+        This->_doCancel();
+
+}
+
+tsThread::tsThread() :
+    threadHandle(nullptr)
+{
+    threadHandle = tsCreateThread();
+    if (threadHandle != nullptr)
+    {
+        tsSetThreadWorker(threadHandle, &tsThread::workerFunc, this);
+        tsSetThreadCompletion(threadHandle, &tsThread::completionFunc, this);
+    }
+}
+tsThread::tsThread(tsThread&& obj) : threadHandle(obj.threadHandle), _worker(std::move(obj._worker)), _onComplete(std::move(obj._onComplete)), _doCancel(std::move(obj._doCancel))
+{
+    obj.threadHandle = nullptr;
+    if (threadHandle != nullptr)
+    {
+        tsSetThreadWorker(threadHandle, &tsThread::workerFunc, this);
+        tsSetThreadCompletion(threadHandle, &tsThread::completionFunc, this);
+        if (!!_doCancel)
+            tsSetThreadCancel(threadHandle, &tsThread::cancelFunc, this);
+    }
 }
 
 tsThread::~tsThread()
 {
-	if (Active())
-		Cancel();
-
-	if (!WaitForThread(30000))
-	{
-		Kill();
-	}
+    tsFreeThread(&threadHandle);
 }
 
 tsThread& tsThread::operator=(tsThread&& obj)
 {
-	if (&obj != this)
-	{
-		if (Active())
-		{
-			Cancel();
-			if (!WaitForThread(30000))
-			{
-				Kill();
-			}
-		}
-		threadId = obj.threadId;
-		obj.threadId = 0;
-		hThread = obj.hThread;
-		obj.hThread = 0;
-		cancel = std::move(obj.cancel);
-		_worker = std::move(obj._worker);
-		_onComplete = std::move(obj._onComplete);
-	}
-	return *this;
+    if (&obj != this)
+    {
+        tsFreeThread(&threadHandle);
+        threadHandle = obj.threadHandle;
+        obj.threadHandle = nullptr;
+        _worker = std::move(_worker);
+        _onComplete = std::move(_onComplete);
+        _doCancel = std::move(obj._doCancel);
+        if (threadHandle != nullptr)
+        {
+            tsSetThreadWorker(threadHandle, &tsThread::workerFunc, this);
+            tsSetThreadCompletion(threadHandle, &tsThread::completionFunc, this);
+            if (!!_doCancel)
+                tsSetThreadCancel(threadHandle, &tsThread::cancelFunc, this);
+            else
+                tsSetThreadCancel(threadHandle, nullptr, nullptr);
+        }
+    }
+    return *this;
 }
 
 bool tsThread::Cancel()
 {
-	return cancel.Set();
+    return tsCancelThread(threadHandle);
 }
 
 void tsThread::Kill()
 {
-	if (!Active())
-		return;
-#ifdef HAVE_WINDOWS_H
-	TerminateThread(hThread, 0);
-	hThread = nullptr;
-#elif defined(ANDROID)
-	hThread = 0;
-#else
-	pthread_cancel(hThread);
-	hThread = 0;
-#endif // HAVE_WINDOWS_H
-	threadId = 0;
+    tsKillThread(threadHandle);
+    tsFreeThread(&threadHandle);
 }
 
-bool tsThread::WaitForThread(DWORD timeToWait)
+bool tsThread::WaitForThread(uint32_t timeToWait)
 {
-	if (!Active())
-		return true;
-
-#ifdef HAVE_WINDOWS_H
-	switch (WaitForSingleObject(hThread, timeToWait))
-	{
-	case WAIT_ABANDONED:
-	case WAIT_OBJECT_0:
-		hThread = nullptr;
-		threadId = 0;
-		return true;
-	case WAIT_TIMEOUT:
-		return false;
-	default:
-	case WAIT_FAILED:
-		return false;
-	}
-#elif defined(ANDROID)
-	if (pthread_join(hThread, nullptr) == 0)
-		return true;
-#elif defined(MAC)
-    // TODO:  Implement me for timed thread shutdown
-    //if (timeToWait == INFINITE)
-    {
-        if (pthread_join(hThread, nullptr) == 0)
-            return true;
-    }
-    //else
-    //{
-    //    struct timespec ts;
-    //
-    //    clock_gettime(CLOCK_REALTIME, &ts);
-    //    ts.tv_sec += (timeToWait / 1000);
-    //    ts.tv_nsec += (timeToWait % 1000) * 1000000;
-    //    if (pthread_timedjoin_np(hThread, nullptr, &ts) == 0)
-    //        return true;
-    //}
-    return false;
-#else
-	if (timeToWait == INFINITE)
-	{
-		if (pthread_join(hThread, nullptr) == 0)
-			return true;
-	}
-	else
-	{
-		struct timespec ts;
-
-		clock_gettime(CLOCK_REALTIME, &ts);
-		ts.tv_sec += (timeToWait / 1000);
-		ts.tv_nsec += (timeToWait % 1000) * 1000000;
-		if (pthread_timedjoin_np(hThread, nullptr, &ts) == 0)
-			return true;
-	}
-	return false;
-#endif // HAVE_WINDOWS_H
+    return tsWaitForThread(threadHandle, timeToWait);
 }
 
 bool tsThread::Active()
 {
-#ifdef HAVE_WINDOWS_H
-	return hThread != nullptr;
-#else
-	return hThread != 0;
-#endif // HAVE_WINDOWS_H
+    return tsThreadActive(threadHandle);
 }
 
 bool tsThread::Start()
 {
-	if (Active())
-		return false;
-	if (!_worker)
-		return false;
+    if (Active())
+        return false;
+    if (!_worker)
+        return false;
 
-	cancel.Reset();
-
-#ifdef HAVE_WINDOWS_H
-	hThread = (HANDLE)_beginthreadex(nullptr, 50000, taskStart, this, CREATE_SUSPENDED, &threadId);
-	if (hThread == nullptr)
-		return false;
-	return ResumeThread(hThread) != (DWORD)-1;
-#else
-	if (pthread_create(&hThread, nullptr, taskStart, this) != 0)
-		return false;
-	return true;
-#endif // HAVE_WINDOWS_H
+    if (threadHandle == nullptr)
+    {
+        threadHandle = tsCreateThread();
+        if (threadHandle != nullptr)
+        {
+            tsSetThreadWorker(threadHandle, &tsThread::workerFunc, this);
+            tsSetThreadCompletion(threadHandle, &tsThread::completionFunc, this);
+            if (!!_doCancel)
+                tsSetThreadCancel(threadHandle, &tsThread::cancelFunc, this);
+            else
+                tsSetThreadCancel(threadHandle, nullptr, nullptr);
+        }
+    }
+    return tsStartThread(threadHandle);
 }
 
 bool tsThread::SetWorker(std::function<int()> func)
 {
-	if (Active())
-		return false;
-	_worker = func;
-	return true;
+    if (Active())
+        return false;
+    _worker = func;
+    return true;
 }
 bool tsThread::SetCompletion(std::function<void()> func)
 {
-	if (Active())
-		return false;
-	_onComplete = func;
-	return true;
+    if (Active())
+        return false;
+    _onComplete = func;
+    return true;
 }
-#ifdef HAVE_WINDOWS_H
-unsigned __stdcall tsThread::taskStart(void * params)
+bool tsThread::SetCancel(std::function<void()> func)
 {
-	tsThread *This = (tsThread*)params;
-
-#ifndef MINGW
-	_set_se_translator(&tsstd::SeException::SeTranslator);
-#endif // MINGW
-
-	CoInitialize(nullptr);
-
-	unsigned int retVal = 0xffffffff;
-
-	if (!!This->_worker)
-		retVal = (unsigned)This->_worker();
-
-	if (!!This->_onComplete)
-		This->_onComplete();
-
-	CoUninitialize();
-	CloseHandle(This->hThread);
-	This->hThread = nullptr;
-	return retVal;
+    _doCancel = func;
+    if (threadHandle != nullptr)
+    {
+        if (!!_doCancel)
+            tsSetThreadCancel(threadHandle, &tsThread::cancelFunc, this);
+        else
+            tsSetThreadCancel(threadHandle, nullptr, nullptr);
+    }
+    return true;
 }
-#else
-void* tsThread::taskStart(void* params)
-{
-	tsThread* This = (tsThread*)params;
-	uint32_t retVal = (uint32_t)-1;
 
-	This->threadId = pthread_self();
-
-	if (!!This->_worker)
-		retVal = This->_worker();
-	if (!!This->_onComplete)
-		This->_onComplete();
-	pthread_exit((void*)(INT_PTR)retVal);
-}
-#endif // HAVE_WINDOWS_H
-
-// ======================================================================
-// CancelableTsThread
-CancelableTsThread::CancelableTsThread() : tsThread()
-{
-}
-CancelableTsThread::CancelableTsThread(CancelableTsThread&& obj) : tsThread(std::move(obj))
-{
-}
-CancelableTsThread::~CancelableTsThread()
-{
-}
-CancelableTsThread& CancelableTsThread::operator=(CancelableTsThread&& obj)
-{
-	if (&obj != this)
-	{
-		tsThread::operator=(std::move(obj));
-		_doCancel = std::move(obj._doCancel);
-	}
-	return *this;
-}
-bool CancelableTsThread::SetCancel(std::function<void()> func)
-{
-	_doCancel = func;
-	return true;
-}
-bool CancelableTsThread::Cancel()
-{
-	if (!!_doCancel)
-	{
-		_doCancel();
-		return true;
-	}
-	else
-		return tsThread::Cancel();
-}
-void CancelableTsThread::Kill()
-{
-	if (!!_doCancel)
-	{
-		_doCancel();
-	}
-	tsThread::Kill();
-}

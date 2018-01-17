@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -36,11 +36,18 @@
 /// <summary>
 /// 	<para>Initializes an instance of the <see cref="tsAttributeMap" /> class.</para>
 /// </summary>
-tsAttributeMap::tsAttributeMap()
+tsAttributeMap::tsAttributeMap() : _list(tsCreateNameValueList())
 {
-	m_list = tscrypto::CreateContainer<__tsAttributeMapItem>();
 }
 
+tsAttributeMap::tsAttributeMap(TSNAME_VALUE_LIST list) : _list(tsCreateNameValueList())
+{
+    tsMoveNameValueListData(list, _list);
+}
+tsAttributeMap::tsAttributeMap(TSNAME_VALUE_LIST&& list) : _list(list)
+{
+    list = NULL;
+}
 /// <returns>
 /// </returns>
 /// <summary>
@@ -48,9 +55,13 @@ tsAttributeMap::tsAttributeMap()
 /// </summary>
 /// <param name="obj">
 /// </param>
-tsAttributeMap::tsAttributeMap(const tsAttributeMap &obj)
+tsAttributeMap::tsAttributeMap(const tsAttributeMap &obj) : _list(tsCreateNameValueList())
 {
 	copyFrom (obj);
+}
+tsAttributeMap::tsAttributeMap(tsAttributeMap &&obj) : _list(obj._list)
+{
+    obj._list = tsCreateNameValueList();
 }
 
 /// <summary>
@@ -59,6 +70,7 @@ tsAttributeMap::tsAttributeMap(const tsAttributeMap &obj)
 /// </returns>
 tsAttributeMap::~tsAttributeMap()
 {
+    tsFreeNameValueList(&_list);
 }
 
 //void *tsAttributeMap::operator new(size_t bytes) 
@@ -83,6 +95,12 @@ tsAttributeMap &tsAttributeMap::operator = (const tsAttributeMap &obj)
 		copyFrom(obj);
 	return *this;
 }
+tsAttributeMap &tsAttributeMap::operator = (tsAttributeMap &&obj)
+{
+	if (this != &obj)
+		moveFrom(std::move(obj));
+	return *this;
+}
 
 /// <summary>
 /// </summary>
@@ -90,7 +108,7 @@ tsAttributeMap &tsAttributeMap::operator = (const tsAttributeMap &obj)
 /// </returns>
 size_t tsAttributeMap::count() const
 {
-	return m_list->size();
+	return tsNameValueUsed(_list);
 }
 
 /// <summary>
@@ -103,7 +121,7 @@ tscrypto::tsCryptoString tsAttributeMap::item(size_t index) const
 {
 	if ( index >= count() )
 		return "";
-	return m_list->at(index).m_value;
+    return tsGetNameValueValueByIndex(_list, (uint32_t)index);
 }
 
 /// <summary>
@@ -112,49 +130,38 @@ tscrypto::tsCryptoString tsAttributeMap::item(size_t index) const
 /// </returns>
 /// <param name="name">
 /// </param>
-tscrypto::tsCryptoString tsAttributeMap::item(const tscrypto::tsCryptoString &name) const
+tscrypto::tsCryptoString tsAttributeMap::item(const tscrypto::tsCryptoStringBase &name) const
 {
-	auto item = std::find_if(m_list->begin(), m_list->end(), [&name](const __tsAttributeMapItem& item)->bool{ return item.m_name == name.c_str(); });
-	
-	if (item == m_list->end())
-		return "";
-	return item->m_value;
+    return tsGetNameValueValueByName(_list, name.c_str());
 }
 
-int tsAttributeMap::itemAsNumber(const tscrypto::tsCryptoString &name, int defaultValue) const
+int tsAttributeMap::itemAsNumber(const tscrypto::tsCryptoStringBase &name, int defaultValue) const
 {
-	auto item = std::find_if(m_list->begin(), m_list->end(), [&name](const __tsAttributeMapItem& item)->bool{ return item.m_name == name.c_str(); });
+    const char* c = tsGetNameValueValueByName(_list, name.c_str());
 
-	if (item == m_list->end())
+    if (c == nullptr)
         return defaultValue;
-    return atoi(item->m_value.c_str());
+	return tsStrToInt(c);
 }
 
-bool tsAttributeMap::itemAsBoolean(const tscrypto::tsCryptoString &name, bool defaultValue) const
+bool tsAttributeMap::itemAsBoolean(const tscrypto::tsCryptoStringBase &name, bool defaultValue) const
 {
-	auto item = std::find_if(m_list->begin(), m_list->end(), [&name](const __tsAttributeMapItem& item)->bool{ return item.m_name == name.c_str(); });
+    const char* c = tsGetNameValueValueByName(_list, name.c_str());
 
-	if (item == m_list->end())
+    if (c == nullptr)
         return defaultValue;
-	tscrypto::tsCryptoString tmp = item->m_value;
+	tsCryptoString tmp = c;
 	tmp.Trim();
 	if (tmp.size() == 0)
 		return defaultValue;
-	if (_stricmp(tmp.c_str(), "T") == 0 ||
-		_stricmp(tmp.c_str(), "TRUE") == 0 ||
-		_stricmp(tmp.c_str(), "Y") == 0 ||
-		_stricmp(tmp.c_str(), "YES") == 0 ||
-		atoi(tmp.c_str()) != 0)
-	{
-		return true;
-	}
-    return false;
+    return tsStrToBool(tmp.c_str());
 }
 
-bool tsAttributeMap::hasItem(const tscrypto::tsCryptoString &name) const
+bool tsAttributeMap::hasItem(const tscrypto::tsCryptoStringBase &name) const
 {
-	auto item = std::find_if(m_list->begin(), m_list->end(), [&name](const __tsAttributeMapItem& item)->bool{ return item.m_name == name.c_str(); });
-	return item != m_list->end();
+    const char* c = tsGetNameValueValueByName(_list, name.c_str());
+
+    return (c != nullptr);
 }
 
 /// <summary>
@@ -167,7 +174,7 @@ tscrypto::tsCryptoString tsAttributeMap::name(size_t index) const
 {
 	if ( index >= count() )
 		return "";
-	return m_list->at(index).m_name;
+    return tsGetNameValueName(_list, (uint32_t)index);
 }
 
 /// <summary>
@@ -178,39 +185,17 @@ tscrypto::tsCryptoString tsAttributeMap::name(size_t index) const
 /// </param>
 /// <param name="value">
 /// </param>
-bool tsAttributeMap::AddItem(const tscrypto::tsCryptoString &name, const tscrypto::tsCryptoString &value)
+bool tsAttributeMap::AddItem(const tscrypto::tsCryptoStringBase &name, const tscrypto::tsCryptoStringBase &value)
 {
-	auto it = std::find_if(m_list->begin(), m_list->end(), [&name](const __tsAttributeMapItem& item)->bool{ return item.m_name == name.c_str(); });
-	if (it == m_list->end())
-	{
-		__tsAttributeMapItem item;
-		item.m_value = value;
-		item.m_name = name;
-		m_list->push_back(item);
-	}
-	else
-		it->m_value = value;
-	return true;
+    return tsAddNameValue(_list, name.c_str(), -1, value.c_str(), -1);
 }
 
-bool tsAttributeMap::AddItem(const tscrypto::tsCryptoString &name, int value)
+bool tsAttributeMap::AddItem(const tscrypto::tsCryptoStringBase &name, int value)
 {
-	auto it = std::find_if(m_list->begin(), m_list->end(), [&name](const __tsAttributeMapItem& item)->bool{ return item.m_name == name.c_str(); });
 	char buff[20];
 
-	_snprintf_s(buff, sizeof(buff) / sizeof(char), sizeof(buff) / sizeof(char), ("%d"), value);
-	if (it == m_list->end())
-	{
-		__tsAttributeMapItem item;
-
-		RemoveItem(name);
-		item.m_value = buff;
-		item.m_name = name;
-		m_list->push_back(item);
-	}
-	else
-		it->m_value = buff;
-	return true;
+	tsSnPrintf(buff, sizeof(buff) / sizeof(char), "%d", value);
+    return tsAddNameValue(_list, name.c_str(), -1, buff, -1);
 }
 
 /// <summary>
@@ -219,7 +204,7 @@ bool tsAttributeMap::AddItem(const tscrypto::tsCryptoString &name, int value)
 /// </returns>
 void tsAttributeMap::ClearAll ()
 {
-	m_list->clear();
+    tsEmptyNameValues(_list);
 }
 
 /// <summary>
@@ -230,9 +215,7 @@ void tsAttributeMap::ClearAll ()
 /// </param>
 void tsAttributeMap::RemoveItem(size_t index)
 {
-	auto it = m_list->begin();
-	std::advance(it, index);
-	m_list->erase(it);
+    tsRemoveNameValueByIndex(_list, (uint32_t)index);
 }
 
 /// <summary>
@@ -241,13 +224,9 @@ void tsAttributeMap::RemoveItem(size_t index)
 /// </returns>
 /// <param name="name">
 /// </param>
-void tsAttributeMap::RemoveItem(const tscrypto::tsCryptoString &name)
+void tsAttributeMap::RemoveItem(const tscrypto::tsCryptoStringBase &name)
 {
-	auto item = std::find_if(m_list->begin(), m_list->end(), [&name](__tsAttributeMapItem& item)->bool{ return item.m_name == name.c_str(); });
-	if ( item != m_list->end() )
-	{
-		m_list->erase(item);
-	}
+    tsRemoveNameValueByName(_list, name.c_str());
 }
 /// <summary>
 /// </summary>
@@ -255,17 +234,18 @@ void tsAttributeMap::RemoveItem(const tscrypto::tsCryptoString &name)
 /// </returns>
 /// <param name="xml">
 /// </param>
-void tsAttributeMap::ToXML(tscrypto::tsCryptoString &xml) const
+void tsAttributeMap::ToXML(tscrypto::tsCryptoStringBase &xml) const
 {
-	tscrypto::tsCryptoString value;
+	tsCryptoString value;
+    uint32_t _count = (uint32_t)count();
 
-	for (auto item : *m_list)
+    for (uint32_t i = 0; i < _count; i++)
 	{
 		if (xml.size() > 0)
 			xml += " ";
-		xml += item.m_name;
+		xml += name(i);
 		xml += "=\"";
-		TSPatchValueForXML(item.m_value, value);
+		TSPatchValueForXML(item(i), value);
 		xml += value;
 		xml += "\"";
 	}
@@ -279,87 +259,94 @@ void tsAttributeMap::ToXML(tscrypto::tsCryptoString &xml) const
 /// </param>
 void tsAttributeMap::copyFrom(const tsAttributeMap &obj)
 {
-	m_list = obj.m_list->cloneContainer();
+    ClearAll();
+    tsFreeNameValueList(&_list);
+
+    _list = tsDuplicateNameValueList(obj._list);
+}
+void tsAttributeMap::moveFrom(tsAttributeMap &&obj)
+{
+	_list = std::move(obj._list);
+    obj._list = nullptr;
 }
 
-void tsAttributeMap::remove_if(std::function<bool(const __tsAttributeMapItem& item)> func)
+void tsAttributeMap::remove_if(std::function<bool(const char* name, const char* item)> func)
 {
 	ptrdiff_t i;
 
-	for (i = m_list->size() - 1; i >= 0; i--)
+	for (i = count() - 1; i >= 0; i--)
 	{
-		if (func(m_list->at(i)))
+		if (func(tsGetNameValueName(_list, (uint32_t)i), tsGetNameValueValueByIndex(_list, (uint32_t)i)))
 		{
-			auto it = m_list->begin();
-			std::advance(it, i);
-			m_list->erase(it);
+            tsRemoveNameValueByIndex(_list, (uint32_t)i);
 		}
 	}
 }
 
-void tsAttributeMap::foreach(std::function<void(__tsAttributeMapItem& item)> func)
+void tsAttributeMap::foreach(std::function<void(const char* name, const char* item)> func)
 {
-	for (auto item : *m_list)
+    for (uint32_t i = 0; i < count(); i++)
 	{ 
-		func(item); 
+        func(tsGetNameValueName(_list, i), tsGetNameValueValueByIndex(_list, i));
 	}
 }
 
-void tsAttributeMap::foreach(std::function<void(const __tsAttributeMapItem& item)> func) const
+void tsAttributeMap::foreach(std::function<void(const char* name, const char* item)> func) const
 {
-	for (auto item : *m_list)
+    for (uint32_t i = 0; i < count(); i++)
 	{ 
-		func(item); 
+        func(tsGetNameValueName(_list, i), tsGetNameValueValueByIndex(_list, i));
 	}
 }
 
-tscrypto::tsCryptoString tsAttributeMap::first_value_that(std::function<bool(const __tsAttributeMapItem& item)> func) const
+tsCryptoString tsAttributeMap::first_value_that(std::function<bool(const char* name, const char* item)> func) const
 {
-	auto item = std::find_if(m_list->begin(), m_list->end(), [&func](const __tsAttributeMapItem& item)->bool{ return func(item); });
-	if (item == m_list->end())
+    for (uint32_t i = 0; i < count(); i++)
+    {
+        if (func(tsGetNameValueName(_list, i), tsGetNameValueValueByIndex(_list, i)))
+            return tsGetNameValueValueByIndex(_list, i);
+    }
 		return "";
-	return item->m_value;
 }
 
-tscrypto::tsCryptoString tsAttributeMap::first_name_that(std::function<bool(const __tsAttributeMapItem& item)> func) const
+tsCryptoString tsAttributeMap::first_name_that(std::function<bool(const char* name, const char* item)> func) const
 {
-	auto item = std::find_if(m_list->begin(), m_list->end(), [&func](const __tsAttributeMapItem& item)->bool{ return func(item); });
-	if (item == m_list->end())
+    for (uint32_t i = 0; i < count(); i++)
+    {
+        if (func(tsGetNameValueName(_list, i), tsGetNameValueValueByIndex(_list, i)))
+            return tsGetNameValueName(_list, i);
+    }
 		return "";
-	return item->m_value;
 }
 
 void tsAttributeMap::ToJSON(JSONObject& obj) const
 {
-	foreach([&obj](const __tsAttributeMapItem& item) { obj.add(item.m_name, item.m_value);});
+    foreach([&obj](const char* name, const char* item) { obj.add(name, item); });
 }
-tscrypto::tsCryptoString tsAttributeMap::tag(size_t index) const
+tsCryptoString tsAttributeMap::tag(size_t index) const
 {
 	if (index >= count())
 		return "";
-	return m_list->at(index).m_tag;
+
+    return tsGetNameValueTagByIndex(_list, (uint32_t)index);
 }
 
-void tsAttributeMap::tag(size_t index, const tscrypto::tsCryptoString& setTo)
+void tsAttributeMap::tag(size_t index, const tsCryptoStringBase& setTo)
 {
 	if (index >= count())
 		return ;
-	m_list->at(index).m_tag = setTo;
+    tsSetNameValueTagByIndex(_list, (uint32_t)index, setTo.c_str(), -1);
 }
-tscrypto::tsCryptoString tsAttributeMap::tag(const tscrypto::tsCryptoString &name) const
+tsCryptoString tsAttributeMap::tag(const tsCryptoStringBase &name) const
 {
-	auto item = std::find_if(m_list->begin(), m_list->end(), [&name](const __tsAttributeMapItem& item)->bool{ return item.m_name == name.c_str(); });
-
-	if (item == m_list->end())
-		return "";
-	return item->m_tag;
+    return tsGetNameValueTagByName(_list, name.c_str());
 }
 
-void tsAttributeMap::tag(const tscrypto::tsCryptoString &name, const tscrypto::tsCryptoString& setTo)
+void tsAttributeMap::tag(const tsCryptoStringBase &name, const tsCryptoStringBase& setTo)
 {
-	auto item = std::find_if(m_list->begin(), m_list->end(), [&name](const __tsAttributeMapItem& item)->bool{ return item.m_name == name.c_str(); });
-
-	if (item == m_list->end())
-		return ;
-	item->m_tag = setTo;
+    tsSetNameValueTagByName(_list, name.c_str(), setTo.c_str(), -1);
+}
+bool tsAttributeMap::RenameItem(const tsCryptoStringBase &oldName, const tsCryptoStringBase &newName)
+{
+    return tsRenameNameValue(_list, oldName.c_str(), newName.c_str());
 }

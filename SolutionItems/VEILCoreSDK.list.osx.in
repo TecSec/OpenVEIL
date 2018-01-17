@@ -36,7 +36,6 @@ f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/
 f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/cryptolocator.h sdk/VEILCore.framework/Versions/A/Headers/core/cryptolocator.h
 f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/cryptolocatorwriter.h sdk/VEILCore.framework/Versions/A/Headers/core/cryptolocatorwriter.h
 f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/CryptoLocks.h sdk/VEILCore.framework/Versions/A/Headers/core/CryptoLocks.h
-f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/CryptoStringFuncs.h sdk/VEILCore.framework/Versions/A/Headers/core/CryptoStringFuncs.h
 f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/CryptoUtf16.h sdk/VEILCore.framework/Versions/A/Headers/core/CryptoUtf16.h
 f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/CTSProfile.export sdk/VEILCore.framework/Versions/A/Headers/core/CTSProfile.export
 f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/CTSProfile.h sdk/VEILCore.framework/Versions/A/Headers/core/CTSProfile.h
@@ -82,7 +81,6 @@ f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/
 f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/tsJsonPreferencesBase.h sdk/VEILCore.framework/Versions/A/Headers/core/tsJsonPreferencesBase.h
 f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/tsLog.h sdk/VEILCore.framework/Versions/A/Headers/core/tsLog.h
 f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/tsmod_extension.h sdk/VEILCore.framework/Versions/A/Headers/core/tsmod_extension.h
-f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/tsPreferencesBase.h sdk/VEILCore.framework/Versions/A/Headers/core/tsPreferencesBase.h
 f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/tsThread.h sdk/VEILCore.framework/Versions/A/Headers/core/tsThread.h
 f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/tsTlvSerializer.h sdk/VEILCore.framework/Versions/A/Headers/core/tsTlvSerializer.h
 f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/tsTraceStream.h sdk/VEILCore.framework/Versions/A/Headers/core/tsTraceStream.h
@@ -103,7 +101,7 @@ d 755 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/Help 
 f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/Help/FileVEILHelp.h sdk/VEILCore.framework/Versions/A/Headers/Help/FileVEILHelp.h
 #
 d 755 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Documentation -
-#f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Documentation/TSALG.pdf @CMAKE_CURRENT_SOURCE_DIR@/docs/TSALG.pdf
+#f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Documentation/CyberVEIL.pdf @CMAKE_CURRENT_SOURCE_DIR@/docs/CyberVEIL.pdf
 #
 d 755 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Resources -
 f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Resources/CKM_Lock_Icon.icns @CMAKE_CURRENT_SOURCE_DIR@/cmakemodules/CKM_Lock_Icon.icns

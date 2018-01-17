@@ -1,5 +1,5 @@
 @echo off
-rem	Copyright (c) 2017, TecSec, Inc.
+rem	Copyright (c) 2018, TecSec, Inc.
 rem
 rem	Redistribution and use in source and binary forms, with or without
 rem	modification, are permitted provided that the following conditions are met:
@@ -56,8 +56,10 @@ echo ===========================================================================
   echo set LIBPATH=%%BASELIBPATH%% >> resetenv.cmd
   echo if "%%BASEINCLUDE%%"=="" set BASEINCLUDE=%%INCLUDE%% >> resetenv.cmd
   echo set INCLUDE=%%BASEINCLUDE%% >> resetenv.cmd
+  echo set WD=%%CD%% >> resetenv.cmd
   if exist "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\vcvarsall.bat" echo call "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\vcvarsall" x86 >> resetenv.cmd
   if exist "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\Auxiliary\Build\vcvarsall.bat" echo call "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\Auxiliary\Build\vcvarsall" x86 >> resetenv.cmd
+  echo CD /D %%WD%% >> resetenv.cmd
   call resetenv
   cmake -DTS_VS_CONFIG=Debug -DCMAKE_BUILD_TYPE=Debug -G "Visual Studio %COMPILERVERSION%" ..\..
   call :makefolderscripts Win32 Debug
@@ -75,8 +77,10 @@ echo ===========================================================================
   echo set LIBPATH=%%BASELIBPATH%% >> resetenv.cmd
   echo if "%%BASEINCLUDE%%"=="" set BASEINCLUDE=%%INCLUDE%% >> resetenv.cmd
   echo set INCLUDE=%%BASEINCLUDE%% >> resetenv.cmd
+  echo set WD=%%CD%% >> resetenv.cmd
   if exist "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\vcvarsall.bat" echo call "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\vcvarsall" x86 >> resetenv.cmd
   if exist "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\Auxiliary\Build\vcvarsall.bat" echo call "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\Auxiliary\Build\vcvarsall" x86 >> resetenv.cmd
+  echo CD /D %%WD%% >> resetenv.cmd
   call resetenv
   cmake -DTS_VS_CONFIG=Release -DCMAKE_BUILD_TYPE=Release -G "Visual Studio %COMPILERVERSION%" ..\..
   call :makefolderscripts Win32 Release
@@ -94,8 +98,10 @@ echo ===========================================================================
   echo set LIBPATH=%%BASELIBPATH%% >> resetenv.cmd
   echo if "%%BASEINCLUDE%%"=="" set BASEINCLUDE=%%INCLUDE%% >> resetenv.cmd
   echo set INCLUDE=%%BASEINCLUDE%% >> resetenv.cmd
+  echo set WD=%%CD%% >> resetenv.cmd
   if exist "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\vcvarsall.bat" echo call "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\vcvarsall" amd64 >> resetenv.cmd
   if exist "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\Auxiliary\Build\vcvarsall.bat" echo call "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\Auxiliary\Build\vcvarsall" amd64 >> resetenv.cmd
+  echo CD /D %%WD%% >> resetenv.cmd
   call resetenv
   cmake -DTS_VS_CONFIG=Debug -DCMAKE_BUILD_TYPE=Debug -G "Visual Studio %COMPILERVERSION% Win64" ..\..
   call :makefolderscripts x64 Debug
@@ -113,8 +119,10 @@ echo ===========================================================================
   echo set LIBPATH=%%BASELIBPATH%% >> resetenv.cmd
   echo if "%%BASEINCLUDE%%"=="" set BASEINCLUDE=%%INCLUDE%% >> resetenv.cmd
   echo set INCLUDE=%%BASEINCLUDE%% >> resetenv.cmd
+  echo set WD=%%CD%% >> resetenv.cmd
   if exist "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\vcvarsall.bat" echo call "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\vcvarsall" amd64 >> resetenv.cmd
   if exist "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\Auxiliary\Build\vcvarsall.bat" echo call "!VS%COMPILERVERSION%0COMNTOOLS!..\..\vc\Auxiliary\Build\vcvarsall" amd64 >> resetenv.cmd
+  echo CD /D %%WD%% >> resetenv.cmd
   call resetenv
   cmake -DTS_VS_CONFIG=Release -DCMAKE_BUILD_TYPE=Release -G "Visual Studio %COMPILERVERSION% Win64" ..\..
   call :makefolderscripts x64 Release

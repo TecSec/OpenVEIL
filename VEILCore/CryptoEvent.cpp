@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -39,181 +39,48 @@ using namespace tscrypto;
 
 CryptoEvent::CryptoEvent(bool manualReset, bool initialValue) : _theEvent(nullptr)
 {
-#ifdef _WIN32
-	_theEvent = (void*)CreateEvent(nullptr, manualReset, initialValue, nullptr);
-#else
-	_theEvent = neosmart::CreateEvent(manualReset, initialValue);
-#endif
+    _theEvent = tsCreateEvent(manualReset, initialValue);
 }
 
 CryptoEvent::~CryptoEvent()
 {
-#ifdef _WIN32
-	CloseHandle((HANDLE)_theEvent);
-#else
-    neosmart::DestroyEvent((neosmart::neosmart_event_t)_theEvent);
-#endif
+    tsFreeEvent(&_theEvent);
 	_theEvent = nullptr;
 }
 
 bool CryptoEvent::IsActive() const
 {
-#ifdef _WIN32
-	return _theEvent != nullptr;
-#else
-	return _theEvent != nullptr;
-#endif
+    return tsIsActiveEvent(_theEvent);
 }
 
 bool CryptoEvent::Set()
 {
-#ifdef _WIN32
-	return SetEvent(_theEvent) != FALSE;
-#else
-	return neosmart::SetEvent((neosmart::neosmart_event_t)_theEvent) != FALSE;
-#endif
+    return tsSetEvent(_theEvent);
 }
 
 bool CryptoEvent::Reset()
 {
-#ifdef _WIN32
-	return ResetEvent(_theEvent) != FALSE;
-#else
-	return neosmart::ResetEvent((neosmart::neosmart_event_t)_theEvent) != FALSE;
-#endif
+    return tsResetEvent(_theEvent);
 }
 
 CryptoEvent::EventStatus CryptoEvent::WaitForEvent(uint32_t timeout)
 {
-#ifdef _WIN32
-	switch (WaitForSingleObject(_theEvent, timeout))
-	{
-	case WAIT_ABANDONED:
-	case WAIT_OBJECT_0:
-		return CryptoEvent::Succeeded_Object1;
-	case WAIT_TIMEOUT:
-		return CryptoEvent::Timeout;
-	default:
-	case WAIT_FAILED:
-		return CryptoEvent::Failed;
-	}
-#else
-	if (neosmart::WaitForEvent((neosmart::neosmart_event_t)_theEvent, timeout) != 0)
-	{
-		return CryptoEvent::Timeout;
-	}
-	return CryptoEvent::Succeeded_Object1;
-#endif
+    return (CryptoEvent::EventStatus)tsWaitForEvent(_theEvent, timeout);
 }
-
-CryptoEvent::EventStatus CryptoEvent::WaitForEvents(uint32_t timeout, CryptoEvent& event2)
+CryptoEvent::EventStatus CryptoEvent::WaitForEvents(uint32_t timeout, TSEVENT event2, TSEVENT event3, TSEVENT event4)
 {
-#ifdef _WIN32
-	HANDLE list[2] = {_theEvent, event2._theEvent};
+    TSEVENT events[4];
+    uint32_t count = 4;
 
-	switch (WaitForMultipleObjects(2, list, false, timeout))
-	{
-	case WAIT_ABANDONED:
-	case WAIT_OBJECT_0:
-		return CryptoEvent::Succeeded_Object1;
-	case WAIT_ABANDONED + 1:
-	case WAIT_OBJECT_0 + 1:
-		return CryptoEvent::Succeeded_Object2;
-	case WAIT_TIMEOUT:
-		return CryptoEvent::Timeout;
-	default:
-	case WAIT_FAILED:
-		return CryptoEvent::Failed;
-	}
-#else
-	neosmart::neosmart_event_t list[2] = {(neosmart::neosmart_event_t)_theEvent, (neosmart::neosmart_event_t)event2._theEvent};
-    int index = 0;
-
-    if (neosmart::WaitForMultipleEvents(list, 2, false, timeout, index) != 0)
-        return CryptoEvent::Timeout;
-    if (index < 2 && index >= 0)
-    {
-        return (CryptoEvent::EventStatus)(CryptoEvent::Succeeded_Object1 + index);
-    }
-    return CryptoEvent::Failed;
-#endif
+    events[0] = _theEvent;
+    events[1] = event2;
+    events[2] = event3;
+    events[3] = event4;
+    if (event2 == nullptr)
+        count = 1;
+    else if (event3 == nullptr)
+        count = 2;
+    else if (event4 == nullptr)
+        count = 3;
+    return (CryptoEvent::EventStatus)tsWaitForEvents(events, count, timeout);
 }
-
-CryptoEvent::EventStatus CryptoEvent::WaitForEvents(uint32_t timeout, CryptoEvent& event2, CryptoEvent& event3)
-{
-#ifdef _WIN32
-	HANDLE list[3] = { _theEvent, event2._theEvent, event3._theEvent };
-
-	switch (WaitForMultipleObjects(3, list, false, timeout))
-	{
-	case WAIT_ABANDONED:
-	case WAIT_OBJECT_0:
-		return CryptoEvent::Succeeded_Object1;
-	case WAIT_ABANDONED + 1:
-	case WAIT_OBJECT_0 + 1:
-		return CryptoEvent::Succeeded_Object2;
-	case WAIT_ABANDONED + 2:
-	case WAIT_OBJECT_0 + 2:
-		return CryptoEvent::Succeeded_Object3;
-	case WAIT_TIMEOUT:
-		return CryptoEvent::Timeout;
-	default:
-	case WAIT_FAILED:
-		return CryptoEvent::Failed;
-	}
-#else
-	neosmart::neosmart_event_t list[3] = {(neosmart::neosmart_event_t)_theEvent, (neosmart::neosmart_event_t)event2._theEvent,
-	(neosmart::neosmart_event_t)event3._theEvent};
-    int index = 0;
-
-    if (neosmart::WaitForMultipleEvents(list, 3, false, timeout, index) != 0)
-        return CryptoEvent::Timeout;
-    if (index < 3 && index >= 0)
-    {
-        return (CryptoEvent::EventStatus)(CryptoEvent::Succeeded_Object1 + index);
-    }
-    return CryptoEvent::Failed;
-#endif
-}
-
-CryptoEvent::EventStatus CryptoEvent::WaitForEvents(uint32_t timeout, CryptoEvent& event2, CryptoEvent& event3, CryptoEvent& event4)
-{
-#ifdef _WIN32
-	HANDLE list[4] = { _theEvent, event2._theEvent, event3._theEvent, event4._theEvent };
-
-	switch (WaitForMultipleObjects(4, list, false, timeout))
-	{
-	case WAIT_ABANDONED:
-	case WAIT_OBJECT_0:
-		return CryptoEvent::Succeeded_Object1;
-	case WAIT_ABANDONED + 1:
-	case WAIT_OBJECT_0 + 1:
-		return CryptoEvent::Succeeded_Object2;
-	case WAIT_ABANDONED + 2:
-	case WAIT_OBJECT_0 + 2:
-		return CryptoEvent::Succeeded_Object3;
-	case WAIT_ABANDONED + 3:
-	case WAIT_OBJECT_0 + 3:
-		return CryptoEvent::Succeeded_Object4;
-	case WAIT_TIMEOUT:
-		return CryptoEvent::Timeout;
-	default:
-	case WAIT_FAILED:
-		return CryptoEvent::Failed;
-	}
-#else
-	neosmart::neosmart_event_t list[4] = {(neosmart::neosmart_event_t)_theEvent, (neosmart::neosmart_event_t)event2._theEvent,
-                                          (neosmart::neosmart_event_t)event3._theEvent, (neosmart::neosmart_event_t)event4._theEvent};
-    int index = 0;
-
-    if (neosmart::WaitForMultipleEvents(list, 4, false, timeout, index) != 0)
-        return CryptoEvent::Timeout;
-    if (index < 4 && index >= 0)
-    {
-        return (CryptoEvent::EventStatus)(CryptoEvent::Succeeded_Object1 + index);
-    }
-    return CryptoEvent::Failed;
-#endif
-}
-
-

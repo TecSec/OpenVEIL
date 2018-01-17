@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -39,28 +39,28 @@
 	#define CMSHEADER_TEMPLATE_EXTERN
 #else
 	#ifdef _WIN32
-	#ifdef _STATIC_RUNTIME_LOADER
-		#define CMSHEADER_EXPORT
-		#define CMSHEADER_TEMPLATE_EXTERN extern
-	#else
-		#if !defined(CMSHEADERDEF) && !defined(DOXYGEN)
-			#define CMSHEADER_EXPORT  __declspec(dllimport)
+		#ifdef _STATIC_RUNTIME_LOADER
+			#define CMSHEADER_EXPORT
 			#define CMSHEADER_TEMPLATE_EXTERN extern
 		#else
-			/// <summary>A macro that defines extern syntax for templates.</summary>
-			#define CMSHEADER_TEMPLATE_EXTERN
-			/// <summary>A macro that defines the export modifiers for the AppPlatform components.</summary>
-			#define CMSHEADER_EXPORT __declspec(dllexport)
+			#if !defined(CMSHEADERDEF) && !defined(DOXYGEN)
+				#define CMSHEADER_EXPORT  __declspec(dllimport)
+				#define CMSHEADER_TEMPLATE_EXTERN extern
+			#else
+				/// <summary>A macro that defines extern syntax for templates.</summary>
+				#define CMSHEADER_TEMPLATE_EXTERN
+				/// <summary>A macro that defines the export modifiers for the AppPlatform components.</summary>
+				#define CMSHEADER_EXPORT __declspec(dllexport)
+			#endif
 		#endif
-	#endif
 	#else
-	#if !defined(CMSHEADERDEF) && !defined(DOXYGEN)
-		#define CMSHEADER_EXPORT
-		#define CMSHEADER_TEMPLATE_EXTERN extern
-	#else
-		#define CMSHEADER_EXPORT EXPORT_SYMBOL
-		#define CMSHEADER_TEMPLATE_EXTERN
-	#endif
+		#if !defined(CMSHEADERDEF) && !defined(DOXYGEN)
+			#define CMSHEADER_EXPORT
+			#define CMSHEADER_TEMPLATE_EXTERN extern
+		#else
+			#define CMSHEADER_EXPORT EXPORT_SYMBOL
+			#define CMSHEADER_TEMPLATE_EXTERN
+		#endif
 	#endif // _WIN32
 #endif // VEILCMSHEADER_STATIC
 
@@ -79,7 +79,7 @@ extern bool CMSHEADER_EXPORT InitializeCmsHeader();
 ///
 /// <returns>S_OK for success or a standard COM error for failure.</returns>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-bool CMSHEADER_EXPORT ExtractHeaderFromStream(const BYTE *data, int dataLength, int *headerLength, std::shared_ptr<tsmod::IObject>& pVal);
+bool CMSHEADER_EXPORT ExtractHeaderFromStream(const uint8_t *data, int dataLength, int *headerLength, std::shared_ptr<tsmod::IObject>& pVal);
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>Extracts a header from the beginning of a data stream.</summary>
 ///
@@ -89,6 +89,6 @@ bool CMSHEADER_EXPORT ExtractHeaderFromStream(const BYTE *data, int dataLength, 
 ///
 /// <returns>S_OK for success or a standard COM error for failure.</returns>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-bool CMSHEADER_EXPORT ExtractHeaderLength(const BYTE *data, int dataLength, int *headerLength);
+bool CMSHEADER_EXPORT ExtractHeaderLength(const uint8_t *data, int dataLength, int *headerLength);
 
 #endif // __CMSHEADER_H__

@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -83,12 +83,12 @@ public:
 	}
 	virtual int   DisplayModal()
 	{
-		showWindow(TRUE);
+		showWindow(true);
 		return IDOK;
 	}
 	virtual int   DisplayModal(XP_WINDOW wnd)
 	{
-		showWindow(TRUE);
+		showWindow(true);
 		return IDOK;
 	}
 
@@ -119,7 +119,7 @@ public:
 
 		return TRUE;
 	}
-	virtual bool  showWindow(BOOL bShow)
+	virtual bool  showWindow(bool bShow)
 	{
 		if (bShow)
 			ShowWindow(m_hWnd, SW_SHOW);
@@ -355,7 +355,7 @@ private:
 		// don't change the window text if the percentage hasn't changed
 		strCur.resize(512);
 		GetWindowTextA(m_hWnd, strCur.rawData(), (int)strCur.size());
-		strCur.resize(TsStrLen(strCur.c_str()));
+		strCur.resize(tsStrLen(strCur.c_str()));
 		if (strCur != strBuf)
 			SetWindowTextA(m_hWnd, strBuf.c_str());
 	}
@@ -397,7 +397,7 @@ private:
 		// don't change the window text if the percentage hasn't changed
 		strCur.resize(512);
 		GetWindowTextA(m_hWnd, strCur.rawData(), (int)strCur.size());
-		strCur.resize(TsStrLen(strCur.c_str()));
+		strCur.resize(tsStrLen(strCur.c_str()));
 		if (strCur != strBuf)
 			SetWindowTextA(m_hWnd, strBuf.c_str());
 	}

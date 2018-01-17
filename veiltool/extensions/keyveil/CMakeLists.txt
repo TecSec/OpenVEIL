@@ -1,4 +1,4 @@
-#	Copyright (c) 2017, TecSec, Inc.
+#	Copyright (c) 2018, TecSec, Inc.
 #
 #	Redistribution and use in source and binary forms, with or without
 #	modification, are permitted provided that the following conditions are met:
@@ -59,7 +59,11 @@ add_library(keyveiltool SHARED
 add_precompiled_header(keyveiltool stdafx.h FORCEINCLUDE SOURCE_CXX stdafx.cpp)
 set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/keyveil.rc PROPERTIES COMPILE_DEFINITIONS RC_COMPILED)
 set_target_properties(keyveiltool PROPERTIES FOLDER "Tools/veilExtensions")
-TARGET_LINK_LIBRARIES(keyveiltool VEILCore)
+if(APPLE)
+    TARGET_LINK_LIBRARIES(keyveiltool VEILCore ${CyberVEIL_TARGET})
+else()
+    TARGET_LINK_LIBRARIES(keyveiltool VEILCore CyberVEIL)
+endif(APPLE)
 set_target_properties(keyveiltool PROPERTIES 
 	SUFFIX ".veil"  
 	)

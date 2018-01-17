@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -273,7 +273,7 @@ protected:
 	{
 		//tsCryptoString encode = headers.AsString("Content-Encoding");
 
-		//if (TsStriCmp(encode, "deflate") == 0)
+		//if (tsStriCmp(encode, "deflate") == 0)
 		//{
 		//	tscrypto::tsCryptoData tmp;
 
@@ -282,7 +282,7 @@ protected:
 		//	header->dataPart(tmp);
 		//}
 
-		//if (TsStriCmp(encode, "gzip") == 0)
+		//if (tsStriCmp(encode, "gzip") == 0)
 		//{
 		//	tscrypto::tsCryptoData tmp;
 

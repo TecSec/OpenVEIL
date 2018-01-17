@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -359,12 +359,12 @@ static HWND BmpButtonEx (HWND hParent, DWORD topX, DWORD topY, const char *rnum1
     RegisterClassExA(&wc);
 
     hButn1 = CreateWindowExA(WS_EX_TRANSPARENT, Bmp_Button_Class, NULL, WS_CHILD | WS_VISIBLE, topX, topY, 100, 100,hParent,
-            (HMENU)(INT_PTR)IDs, hModule, NULL);
+            (HMENU)(intptr_t)IDs, hModule, NULL);
 
     SetWindowLongPtr(hButn1,0,(LONG_PTR)hBmpU);
     SetWindowLongPtr(hButn1,sizeof(LONG_PTR),(LONG_PTR)hBmpD);
 
-    hImage = CreateWindowExA(0, ButnImageClass, NULL, WS_CHILD | WS_VISIBLE | SS_BITMAP, 0, 0, 0, 0, hButn1, (HMENU)(INT_PTR)IDs,
+    hImage = CreateWindowExA(0, ButnImageClass, NULL, WS_CHILD | WS_VISIBLE | SS_BITMAP, 0, 0, 0, 0, hButn1, (HMENU)(intptr_t)IDs,
             hModule,NULL);
 
     SendMessageA(hImage,STM_SETIMAGE,IMAGE_BITMAP,(LPARAM)hBmpU);

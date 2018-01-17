@@ -1,4 +1,4 @@
-#	Copyright (c) 2017, TecSec, Inc.
+#	Copyright (c) 2018, TecSec, Inc.
 #
 #	Redistribution and use in source and binary forms, with or without
 #	modification, are permitted provided that the following conditions are met:
@@ -38,6 +38,7 @@ set(_output_results "
 Summary of CMake build system results for the TecSec component
 
 Configuration options:
+   HOST PLATFORM:                  ${CMAKE_HOST_SYSTEM_PROCESSOR}
    TS_X_PLATFORM:                  ${TS_X_PLATFORM}
    TS_TOOLSET:                     ${TS_TOOLSET}
    CMAKE_VS_PLATFORM_TOOLSET:      ${CMAKE_VS_PLATFORM_TOOLSET}
@@ -59,19 +60,21 @@ Compilation Options:
    CMAKE_BUILD_TYPE:               ${CMAKE_BUILD_TYPE}
    CMAKE_C_COMPILER:               ${CMAKE_C_COMPILER}
    CMAKE_C_FLAGS:                  ${CMAKE_C_FLAGS}
+   CMAKE_C_FLAGS_DEBUG:            ${CMAKE_C_FLAGS_DEBUG}
+   CMAKE_C_FLAGS_RELEASE:          ${CMAKE_C_FLAGS_RELEASE}
    CMAKE_CXX_FLAGS:                ${CMAKE_CXX_FLAGS}
    CMAKE_CXX_FLAGS_DEBUG:          ${CMAKE_CXX_FLAGS_DEBUG}
    CMAKE_CXX_FLAGS_RELEASE:        ${CMAKE_CXX_FLAGS_RELEASE}
    CMAKE_EXECUTABLE_SUFFIX:        ${CMAKE_EXECUTABLE_SUFFIX}
    CMAKE_SHARED_MODULE_PREFIX:     ${CMAKE_SHARED_MODULE_PREFIX}
    CMAKE_SHARED_MODULE_SUFFIX:     ${CMAKE_SHARED_MODULE_SUFFIX}
+
+Build Paths:
    CMAKE_INSTALL_PREFIX:           ${CMAKE_INSTALL_PREFIX}
    CMAKE_INSTALL_EXEC_PREFIX       ${CMAKE_INSTALL_EXEC_PREFIX}
    CMAKE_INSTALL_BINDIR            ${CMAKE_INSTALL_BINDIR}
    CMAKE_INSTALL_LIBDIR            ${CMAKE_INSTALL_LIBDIR}
    CMAKE_INSTALL_INCLUDEDIR        ${CMAKE_INSTALL_INCLUDEDIR}
-
-Build Paths:
    CRYPTO_INSTALL_PREFIX           ${CRYPTO_INSTALL_PREFIX} (VERSION: ${CRYPTO_VERSION})
    SOURCE_DIR:                     ${SOURCE_DIR}
    BUILD_DIR:                      ${BUILD_DIR}
@@ -141,13 +144,6 @@ else()
 set(_output_results "${_output_results}
    PNG                missing")
 endif(PNG_FOUND)
-if (Boost_FOUND)
-set(_output_results "${_output_results}
-   Boost              FOUND")
-else()
-set(_output_results "${_output_results}
-   Boost              missing")
-endif(Boost_FOUND)
 
 message("${_output_results}
 ")

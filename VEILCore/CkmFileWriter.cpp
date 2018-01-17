@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -71,7 +71,7 @@ protected:
 	virtual ~CkmFileWriter(void);
 
 private:
-	FILE *m_outputFile;
+	TSFILE m_outputFile;
 	int64_t m_dataLength;
 	tscrypto::tsCryptoString m_filename;
 
@@ -98,12 +98,7 @@ CkmFileWriter::CkmFileWriter(const tscrypto::tsCryptoString& filename) :
 	m_dataLength(0),
 	m_filename(filename)
 {
-#ifdef _WIN32
-	m_outputFile = _fsopen(filename.c_str(), ("wb"), _SH_DENYNO);
-#else
-	m_outputFile = fopen(filename.c_str(), ("wb"));
-#endif // _WIN32
-	if (m_outputFile == NULL)
+    if (tsFOpen(&m_outputFile, filename.c_str(), "wb", tsShare_DenyNO) != 0)
 	{
 		m_filename.clear();
 	}
@@ -129,7 +124,7 @@ bool CkmFileWriter::IsEndOfFile() const
 {
 	if (m_outputFile == NULL)
 		return true;
-	return feof(m_outputFile) != 0;
+	return tsIsEOF(m_outputFile);
 }
 
 bool CkmFileWriter::KnowsRemainingData() const
@@ -151,11 +146,7 @@ int64_t CkmFileWriter::CurrentPosition() const
 {
 	if (m_outputFile == NULL)
 		return 0;
-#ifdef HAVE__FSEEKI64
-	return _ftelli64(m_outputFile);
-#else
-	return ftell(m_outputFile);
-#endif // HAVE__FSEEKI64
+	return tsGetFilePosition64FromHandle(m_outputFile);
 }
 
 tscrypto::tsCryptoString CkmFileWriter::DataName() const
@@ -172,7 +163,7 @@ void CkmFileWriter::SetDataName(const tscrypto::tsCryptoString& setTo)
 void CkmFileWriter::Close()
 {
 	if (m_outputFile != NULL)
-		fclose(m_outputFile);
+		tsCloseFile(m_outputFile);
 	m_outputFile = NULL;
 }
 #pragma endregion
@@ -183,11 +174,7 @@ bool CkmFileWriter::GoToPosition(int64_t setTo)
 	if (m_outputFile == NULL)
 		return false;
 
-#ifdef HAVE__FSEEKI64
-	return _fseeki64(m_outputFile, setTo, SEEK_SET) == 0;
-#else
-	return fseek(m_outputFile, setTo, SEEK_SET) == 0;
-#endif // HAVE__FSEEKI64
+    return tsSeekFilePosition64FromHandle(m_outputFile, setTo, SEEK_SET) == 0;
 }
 
 int64_t CkmFileWriter::Seek(int origin, int64_t position)
@@ -195,11 +182,7 @@ int64_t CkmFileWriter::Seek(int origin, int64_t position)
 	if (m_outputFile == NULL)
 		return CurrentPosition();
 
-#ifdef HAVE__FSEEKI64
-	_fseeki64(m_outputFile, position, origin);
-#else
-	fseek(m_outputFile, position, origin);
-#endif // HAVE__FSEEKI64
+    tsSeekFilePosition64FromHandle(m_outputFile, position, origin);
 	return CurrentPosition();
 }
 
@@ -209,7 +192,7 @@ bool CkmFileWriter::WriteData(const tscrypto::tsCryptoData &data)
 	if (m_outputFile == NULL)
 		return false;
 
-	int count = (int)fwrite(data.c_str(), 1, data.size(), m_outputFile);
+	int count = (int)tsWriteFile(data.c_str(), 1, (uint32_t)data.size(), m_outputFile);
 	int64_t len = CurrentPosition();
 	if (len > m_dataLength)
 		m_dataLength = len;
@@ -227,7 +210,7 @@ bool CkmFileWriter::WriteData(const tscrypto::tsCryptoData &data, int offset, in
 	if (data.size() < (uint32_t)(offset + length))
 		return false;
 
-	int count = (int)fwrite(&data.c_str()[offset], 1, length, m_outputFile);
+	int count = (int)tsWriteFile(&data.c_str()[offset], 1, length, m_outputFile);
 	int64_t len = CurrentPosition();
 	if (len > m_dataLength)
 		m_dataLength = len;
@@ -238,29 +221,21 @@ bool CkmFileWriter::Flush()
 {
 	if (m_outputFile == NULL)
 		return false;
-	return fflush(m_outputFile) == 0;
+	return tsFlushFile(m_outputFile) == 0;
 }
 
 bool CkmFileWriter::Truncate()
 {
 	if (m_outputFile == NULL || !AllowsRandomAccess())
 		return false;
-#ifdef _WIN32
-	return (_chsize_s(_fileno(m_outputFile), CurrentPosition()) == 0);
-#else
-	return (ftruncate(fileno(m_outputFile), CurrentPosition()) == 0);
-#endif // _WIN32
+    return tsSetFileSize64(m_outputFile, CurrentPosition());
 }
 
 bool CkmFileWriter::SetFileSize(int64_t setTo)
 {
 	if (m_outputFile == NULL || !AllowsRandomAccess() || setTo < 0)
 		return false;
-#ifdef _WIN32
-	return (_chsize_s(_fileno(m_outputFile), setTo) == 0);
-#else
-	return (ftruncate(fileno(m_outputFile), setTo) == 0);
-#endif // _WIN32
+    return tsSetFileSize64(m_outputFile, setTo);
 }
 
 bool CkmFileWriter::CanPrepend() const
@@ -270,7 +245,7 @@ bool CkmFileWriter::CanPrepend() const
 
 bool CkmFileWriter::Prepend(const tscrypto::tsCryptoData &data)
 {
-	MY_UNREFERENCED_PARAMETER(data);
+    UNREFERENCED_PARAMETER(data);
 	return false;
 }
 
@@ -638,8 +613,8 @@ void tsStreamWriter::processData(tscrypto::tsCryptoString &data)
 
 	while (data.size() > 0)
 	{
-		doWriteLine = (TsStrChr(data.rawData(), '\n') != NULL);
-		p = TsStrTok(data.rawData(), ("\n"), &context);
+		doWriteLine = (tsStrChr(data.rawData(), '\n') != NULL);
+		p = tsStrTok(data.rawData(), ("\n"), &context);
 		tmp.clear();
 		//if (justHadNewline && indentLevel > 0)
 		//{
@@ -653,8 +628,8 @@ void tsStreamWriter::processData(tscrypto::tsCryptoString &data)
 		//}
 		tmp += p;
 		if (p != NULL)
-		{	// 10/11/11 krr added cast for warning C2220 strlen() so x64 would build
-			data.DeleteAt(0, (uint32_t)TsStrLen(p) + 1);
+		{
+			data.DeleteAt(0, (uint32_t)tsStrLen(p) + 1);
 		}
 		else
 		{

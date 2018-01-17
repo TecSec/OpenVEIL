@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -56,13 +56,18 @@ static const CSimpleOptA::SOption g_rgOptions1[] =
 	SO_END_OF_OPTIONS
 };
 
+
 class ChangeActPasswordTool : public tsmod::IVeilToolCommand, public tsmod::IObject
 {
 public:
 	ChangeActPasswordTool() : gSmartCardDone(true, false)
-	{}
+	{
+        tsWinscardInit();
+    }
 	~ChangeActPasswordTool()
-	{}
+	{
+        tsWinscardRelease();
+    }
 
 	// tsmod::IObject
 	virtual void OnConstructionFinished() override
@@ -100,19 +105,12 @@ public:
 			}
 		}
 
-
-		std::shared_ptr<ICkmWinscardMonitor> _monitor;
-
 		std::cout << "Insert the smart card that you want to change the server activation password." << std::endl;
-
-		if (!(_monitor = ::TopServiceLocator()->try_get_instance<ICkmWinscardMonitor>("/SmartCardMonitor")))
-			return false;
-		_monitor->ScanForChanges();
 
 		gSmartCardDone.Reset();
 
-		int cookie = _monitor->RegisterChangeReceiver(std::shared_ptr<ICkmWinscardChange>(new SmartCardChanges([&_monitor,this](const tscrypto::tsCryptoString& readerName) {ChangeServerActivationPassword(readerName, _monitor); })));
-		auto cleanup1 = finally([&cookie, &_monitor]() {_monitor->UnregisterChangeReceiver(cookie); });
+		uint32_t cookie = tsSmartCard_RegisterChangeConsumer(&mySmartcardChanges, this);
+		auto cleanup1 = finally([&cookie]() {tsSmartCard_UnregisterChangeConsumer(cookie); });
 		gSmartCardDone.WaitForEvent(INFINITE);
 		return 0;
 
@@ -126,13 +124,14 @@ protected:
 	{
 		utils->Usage(options, sizeof(options) / sizeof(options[0]));
 	}
-	void ChangeServerActivationPassword(const tscrypto::tsCryptoString& readerName, std::shared_ptr<ICkmWinscardMonitor> monitor)
+	void ChangeServerActivationPassword(const tscrypto::tsCryptoString& readerName)
 	{
 		tscrypto::tsCryptoData cardcmd("00 A4 04 00", tscrypto::tsCryptoData::HEX);
-		std::shared_ptr<ISmartCardConnection> card;
+		TSSMARTCARD_CONNECTION card = NULL;
 		tscrypto::tsCryptoString tokenName;
-		tscrypto::tsCryptoData outData;
-		int sw;
+		uint8_t outData[280];
+        uint32_t outDataLen;
+		uint32_t sw;
 		tscrypto::tsCryptoString prompt;
 		tscrypto::tsCryptoString oldPin, newPin, confirmPin;
 		tscrypto::tsCryptoData oldPinInfo;
@@ -141,19 +140,22 @@ protected:
 		tscrypto::tsCryptoData data, key2, mac2, kek;
 		xp_console ts_out;
 
-		card = ::TopServiceLocator()->get_instance<ISmartCardConnection>("LocalSmartCardConnection");
-		card->ReaderName(readerName);
-		if (!card->Start())
+        card = tsCreateSmartcardConnection();
+        if (!tsSmartcardConnectToReader(card, readerName.c_str()))
 		{
 			std::cout << "ERROR:  Unable to connect to the smart card." << std::endl;
 			gSmartCardDone.Set();
+            tsFreeSmartcardConnection(&card);
 			return;
 		}
+        auto discon = finally([&card, &outData]() { tsFreeSmartcardConnection(&card); memset(outData, 0, sizeof(outData)); });
+
 		cardcmd << (uint8_t)gActivationAID.size() << gActivationAID;
 		{
 			SmartCardTransaction trans(card);
 
-			if (!card->Transmit(cardcmd, 0, outData, sw) || sw != 0x9000)
+            outDataLen = sizeof(outData);
+			if (!tsSmartcardSendCommand(card, cardcmd.c_str(), (uint32_t)cardcmd.size(), 0, outData, &outDataLen, &sw) || sw != 0x9000)
 			{
 				std::cout << "ERROR:  That card does not contain the activation information for this enterprise." << std::endl;
 				gSmartCardDone.Set();
@@ -224,42 +226,52 @@ protected:
 
 		{
 			SmartCardTransaction trans(card);
-			tscrypto::tsCryptoData outData;
-			std::shared_ptr<ServerSecureChannel> channel;
+			uint8_t outData[280];
+            uint32_t outDataLen = sizeof(outData);
+            TSSECURE_CHANNEL channel = NULL;
+            bool retVal;
 
-			if (!card->Transmit(cardcmd, 0, outData, sw) || sw != 0x9000)
+
+			if (!tsSmartcardSendCommand(card, cardcmd.c_str(), (uint32_t)cardcmd.size(), 0, outData, &outDataLen, &sw) || sw != 0x9000)
 			{
 				std::cout << "ERROR:  That card does not contain the activation information for this enterprise." << std::endl;
+                memset(outData, 0, sizeof(outData));
 				return;
 			}
 			if (!ExternalAuthCkm(card, PIN_REF_USER, oldPin, authKey, kek))
 			{
 				std::cout << "ERROR:  The specified pin did not work." << std::endl;
+                memset(outData, 0, sizeof(outData));
 				return;
 			}
-			card->GetSecureChannel(channel);
+            channel = tsSmartcardGetSecureChannel(card);
 			// Retrieve the server pin
-			if (!card->Transmit(tscrypto::tsCryptoData("00A40000020030", tscrypto::tsCryptoData::HEX), 0, outData, sw) || sw != 0x9000 ||
-				!card->Transmit(tscrypto::tsCryptoData("00B0000000", tscrypto::tsCryptoData::HEX), 0, outData, sw) || sw != 0x9000)
+            outDataLen = sizeof(outData);
+            retVal = tsSmartcardSendCommand(card, tscrypto::tsCryptoData("00A40000020030", tscrypto::tsCryptoData::HEX).c_str(), 7, 0, outData, &outDataLen, &sw) && sw == 0x9000;
+            outDataLen = sizeof(outData);
+            retVal = retVal && (tsSmartcardSendCommand(card, tscrypto::tsCryptoData("00B0000000", tscrypto::tsCryptoData::HEX).c_str(), 5, 0, outData, &outDataLen, &sw) && sw == 0x9000);
+			if (!retVal)
 			{
 				if (!channel)
 				{
-					channel->finish();
+                    tsServerSecureChannelFinish(channel);
 				}
+                memset(outData, 0, sizeof(outData));
 				std::cout << "ERROR:  Unable to retrieve the server authentication." << std::endl;
 				return;
 			}
 			if (!channel)
 			{
-				channel->finish();
-			}
-			oldPinInfo = outData;
+                tsServerSecureChannelFinish(channel);
+            }
+			oldPinInfo.assign(outData, outDataLen);
+            memset(outData, 0, sizeof(outData));
 		}
 		//
 		// Now compute the new key information and insert it into the Token
 		//
 		data = newPin;
-		data.resize(MAX_PASSWORD_LEN, (BYTE)0xff);
+		data.resize(MAX_PASSWORD_LEN, (uint8_t)0xff);
 
 		if (!(TSCreatePBEKeyAndMac("HMAC-SHA512", data.ToUtf8String(), newSalt, 1000, 96, key2, mac2)))
 		{
@@ -267,7 +279,7 @@ protected:
 			return;
 		}
 
-		SYSTEMTIME tm;
+		TsDateStruct_t tm;
 		tscrypto::tsCryptoData encKey;
 
 		//
@@ -291,7 +303,7 @@ protected:
 		//#endif
 
 		key2 += newSalt;
-		GetSystemTime(&tm);
+        tsGetNowInGMT(&tm);
 		tscrypto::tsCryptoString creationDate;
 		TSTMToZuluString(tm, creationDate);
 		creationDate.resize(16);
@@ -301,66 +313,82 @@ protected:
 		// Now authenticate to the card again and unwrap this value
 		{
 			SmartCardTransaction trans(card);
-			tscrypto::tsCryptoData outData;
-			std::shared_ptr<ServerSecureChannel> channel;
+            uint8_t outData[280];
+            uint32_t outDataLen = sizeof(outData);
+			TSSECURE_CHANNEL channel = NULL;
 
-			if (!card->Transmit(cardcmd, 0, data, sw) || sw != 0x9000)
+
+            if (!tsSmartcardSendCommand(card, cardcmd.c_str(), (uint32_t)cardcmd.size(), 0, outData, &outDataLen, &sw) || sw != 0x9000)
 			{
+                memset(outData, 0, sizeof(outData));
 				std::cout << "ERROR:  That card does not contain the activation information for this enterprise." << std::endl;
 				return;
 			}
 			if (StartSecureChannel(card, authKey.substring(0, 32), authKey.substring(32, 32), authKey.substring(64, 32), 3, 0x60, 0x33, PIN_REF_USER, 0) != 0x9000)
 			{
+                memset(outData, 0, sizeof(outData));
 				std::cout << "ERROR:  The specified pin did not work." << std::endl;
 				return;
 			}
-			card->GetSecureChannel(channel);
+            channel = tsSmartcardGetSecureChannel(card);
 
 			cardcmd.FromHexString("00 24 01 10");
 			cardcmd << (uint8_t)key2.size();
 			cardcmd << key2;
 
-			if (!card->Transmit(cardcmd, 0, outData, sw) || sw != 0x9000)
-			{
+            outDataLen = sizeof(outData);
+            if (!tsSmartcardSendCommand(card, cardcmd.c_str(), (uint32_t)cardcmd.size(), 0, outData, &outDataLen, &sw) || sw != 0x9000)
+            {
 				// TODO:  This may be the bug in 1.002 ckm applet where ChangeRef fails but ResetRetry works.  Try it
 
-				key2.insert(0, (BYTE)5); // TODO:  Should get this from the password policy
-				key2.insert(0, (BYTE)5);
+				key2.insert(0, (uint8_t)5); // TODO:  Should get this from the password policy
+				key2.insert(0, (uint8_t)5);
 
 				cardcmd.FromHexString("00 2C 02 10");
 				cardcmd << (uint8_t)key2.size();
 				cardcmd << key2;
 
-				if (!card->Transmit(cardcmd, 0, outData, sw) || sw != 0x9000)
-				{
+                outDataLen = sizeof(outData);
+                if (!tsSmartcardSendCommand(card, cardcmd.c_str(), (uint32_t)cardcmd.size(), 0, outData, &outDataLen, &sw) || sw != 0x9000)
+                {
+                    memset(outData, 0, sizeof(outData));
 					std::cout << "ERROR:  Unable to change reference data" << std::endl;
 					return;
 				}
 			}
 			if (!channel)
 			{
-				channel->finish();
+                tsServerSecureChannelFinish(channel);
 			}
+            memset(outData, 0, sizeof(outData));
 		}
 		gSmartCardDone.Set();
 	}
-	tscrypto::tsCryptoString GetTokenName(std::shared_ptr<ISmartCardConnection> card)
+	tscrypto::tsCryptoString GetTokenName(TSSMARTCARD_CONNECTION card)
 	{
-		tscrypto::tsCryptoData outData;
-		int sw;
+		uint8_t outData[280];
+        uint32_t outDataLen = sizeof(outData);
+		uint32_t sw;
 
 		if (card == NULL)
 			return "";
 
-		if (!card->Transmit(tscrypto::tsCryptoData("00 A4 00 00 02 60 00", tscrypto::tsCryptoData::HEX), 0, outData, sw) || sw != 0x9000)
-			return "";
+        if (!tsSmartcardSendCommand(card, tscrypto::tsCryptoData("00 A4 00 00 02 60 00", tscrypto::tsCryptoData::HEX).c_str(), 7, 0, outData, &outDataLen, &sw) || sw != 0x9000)
+        {
+            memset(outData, 0, sizeof(outData));
+            return "";
+        }
+        outDataLen = sizeof(outData);
+        if (!tsSmartcardSendCommand(card, tscrypto::tsCryptoData("00 B0 00 00 00", tscrypto::tsCryptoData::HEX).c_str(), 5, 0, outData, &outDataLen, &sw) || sw != 0x9000)
+        {
+            memset(outData, 0, sizeof(outData));
+            return "";
+        }
 
-		if (!card->Transmit(tscrypto::tsCryptoData("00 B0 00 00 00", tscrypto::tsCryptoData::HEX), 0, outData, sw) || sw != 0x9000)
-			return "";
-
-		return outData.ToUtf8String().Trim();
+        tsStrTrim((char*)outData, " \t\n\r");
+		return (const char*)outData;
 	}
-	bool ExternalAuthCkm(std::shared_ptr<ISmartCardConnection> connection, BYTE reference, const tscrypto::tsCryptoString &in_pin, tscrypto::tsCryptoData& authKey, tscrypto::tsCryptoData& kek)
+	bool ExternalAuthCkm(TSSMARTCARD_CONNECTION connection, uint8_t reference, const tscrypto::tsCryptoString &in_pin, tscrypto::tsCryptoData& authKey, tscrypto::tsCryptoData& kek)
 	{
 		tscrypto::tsCryptoData challenge;
 		tscrypto::tsCryptoData iv;
@@ -387,7 +415,7 @@ protected:
 			if (salt.size() != 32)
 				return false;
 
-			pin.resize(MAX_PASSWORD_LEN, (BYTE)0xff);
+			pin.resize(MAX_PASSWORD_LEN, (uint8_t)0xff);
 			if (!(TSCreatePBEKeyAndMac("HMAC-SHA512", pin.ToUtf8String(), salt, 1000, 96, key, mac)))
 				return false;
 		}
@@ -402,30 +430,32 @@ protected:
 
 		return true;
 	}
-	int StartSecureChannel(std::shared_ptr<ISmartCardConnection> connection, const tscrypto::tsCryptoData& encKey, const tscrypto::tsCryptoData& macKey, const tscrypto::tsCryptoData& kek, uint8_t SCPVersion, uint8_t SCPLevel, uint8_t SecurityLevel, uint8_t keyRef, uint8_t keyVersion)
+	int StartSecureChannel(TSSMARTCARD_CONNECTION connection, const tscrypto::tsCryptoData& encKey, const tscrypto::tsCryptoData& macKey, const tscrypto::tsCryptoData& kek, uint8_t SCPVersion, uint8_t SCPLevel, uint8_t SecurityLevel, uint8_t keyRef, uint8_t keyVersion)
 	{
-		tscrypto::tsCryptoData outdata;
-		int sw;
-		std::shared_ptr<ServerSecureChannel> channel;
+		uint8_t outdata[280];
+        uint32_t outdataLen = sizeof(outdata);
+		uint32_t sw;
+		TSSECURE_CHANNEL channel = NULL;
 
 		if (connection == NULL)
 			return 0x6F00;
 
-		connection->GetSecureChannel(channel);
+        channel = tsSmartcardGetSecureChannel(connection);
 
 		if (!channel)
 		{
-			if (!(channel = std::dynamic_pointer_cast<ServerSecureChannel>(CryptoFactory("SECURE_CHANNEL-SERVER"))))
+			if (!(channel = tsCreateServerSecureChannel()))
 				return 0x6F80;
-			connection->SetSecureChannel(channel);
+            tsSmartcardSetSecureChannel(connection, channel);
 		}
-		channel->setSCPLevel(SCPLevel);
-		channel->setSCPVersion(SCPVersion);
-		channel->finish();
+        tsServerSecureChannelSetSCPVersion(channel, SCPVersion);
+        tsServerSecureChannelSetSCPLevel(channel, SCPLevel);
+        tsServerSecureChannelFinish(channel);
 
-		tscrypto::tsCryptoData cmd;
+		uint8_t cmd[260];
+        uint32_t cmdLen = sizeof(cmd);
 
-		if (!channel->ComputeHostChallengeCommand(keyRef, cmd))
+        if (!tsServerSecureChannelComputeHostChallengeCommand(channel, keyRef, cmd, &cmdLen))
 			return 0x6F00;
 
 		if (keyRef != 0 && keyVersion != 0)
@@ -434,47 +464,69 @@ protected:
 			cmd[3] = keyRef;
 		}
 
-		connection->Transmit(cmd, 0, outdata, sw);
-		if (sw != 0x9000)
+        if (!tsSmartcardSendCommand(connection, cmd, cmdLen, 0, outdata, &outdataLen, &sw) || sw != 0x9000)
 		{
-			return (int)sw;
+            memset(outdata, 0, sizeof(outdata));
+            return (int)sw;
 		}
-		channel->SetBaseKeys(encKey, macKey, kek);
+        tsServerSecureChannelSetBaseKeys(channel, encKey.c_str(), (uint32_t)encKey.size(), macKey.c_str(), (uint32_t)macKey.size(), kek.c_str(), (uint32_t)kek.size());
 
-		cmd.clear();
-		if (!channel->ComputeAuthentication(outdata, SecurityLevel, cmd))
-			return 0x6F00;
+        cmdLen = sizeof(cmd);
+        if (!tsServerSecureChannelComputeAuthentication(channel, outdata, outdataLen, SecurityLevel, cmd, &cmdLen))
+        {
+            memset(outdata, 0, sizeof(outdata));
+            return 0x6F00;
+        }
 
-		connection->Transmit(cmd, 0, outdata, sw);
-		if (sw != 0x9000)
+        outdataLen = sizeof(outdata);
+        if (!tsSmartcardSendCommand(connection, cmd, cmdLen, 0, outdata, &outdataLen, &sw) || sw != 0x9000)
 		{
-			return (int)sw;
+            memset(outdata, 0, sizeof(outdata));
+            return (int)sw;
 		}
-		channel->ActivateChannel();
+        memset(outdata, 0, sizeof(outdata));
+        tsServerSecureChannelActivateChannel(channel);
 		return (int)sw;
 	}
-	bool getUserSaltAndKek(std::shared_ptr<ISmartCardConnection> connection, tscrypto::tsCryptoData &salt, tscrypto::tsCryptoData& kek)
+	bool getUserSaltAndKek(TSSMARTCARD_CONNECTION connection, tscrypto::tsCryptoData &salt, tscrypto::tsCryptoData& kek)
 	{
-		tscrypto::tsCryptoData outData;
-		int sw;
+        uint8_t outData[280];
+        uint32_t outDataLen = sizeof(outData);
+        uint32_t sw;
 
 		salt.clear();
 
-		if (!connection->Transmit(tscrypto::tsCryptoData("00A40000020030", tscrypto::tsCryptoData::HEX), 0, outData, sw) || sw != 0x9000)
+        if (!tsSmartcardSendCommand(connection, tscrypto::tsCryptoData("00A40000020030", tscrypto::tsCryptoData::HEX).c_str(), 7, 0, outData, &outDataLen, &sw) || sw != 0x9000)
 		{
+            memset(outData, 0, sizeof(outData));
 			return false;
 		}
-		if (!connection->Transmit(tscrypto::tsCryptoData("00B0000000", tscrypto::tsCryptoData::HEX), 0, outData, sw) || sw != 0x9000)
+        outDataLen = sizeof(outData);
+        if (!tsSmartcardSendCommand(connection, tscrypto::tsCryptoData("00B0000000", tscrypto::tsCryptoData::HEX).c_str(), 5, 0, outData, &outDataLen, &sw) || sw != 0x9000)
 		{
+            memset(outData, 0, sizeof(outData));
 			return false;
 		}
-		salt = outData.substring(0, USER_SALT_LEN);
-		kek = outData.substring(48, outData.size() - 48);
+		salt.assign(outData, USER_SALT_LEN);
+		kek.assign(outData + 48, outDataLen - 48);
+        memset(outData, 0, sizeof(outData));
 		return salt.size() == USER_SALT_LEN;
 	}
 protected:
 	std::shared_ptr<tsmod::IVeilUtilities> utils;
 	tscrypto::CryptoEvent gSmartCardDone;
+
+    static void CardInserted(void* params, const char* readerName)
+    {
+        ChangeActPasswordTool* This = (ChangeActPasswordTool*)params;
+        This->ChangeServerActivationPassword(readerName);
+    }
+
+    static const TSSmartCard_ChangeConsumer mySmartcardChanges;
+};
+
+const TSSmartCard_ChangeConsumer ChangeActPasswordTool::mySmartcardChanges = {
+    NULL, NULL, &ChangeActPasswordTool::CardInserted, NULL,
 };
 
 tsmod::IObject* HIDDEN CreateChangeActPasswordTool()

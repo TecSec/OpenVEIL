@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -35,77 +35,70 @@
 
 static bool buildAndTestPath(tsAppConfig::ConfigLocation location, const tscrypto::tsCryptoString &appName, tscrypto::tsCryptoString &pathStr)
 {
-	tscrypto::tsCryptoString path;
+    char path[MAX_PATH] = { 0, };
 
 	pathStr.clear();
 	switch (location)
 	{
 	case tsAppConfig::Policy:
-		if (!xp_GetSpecialFolder(sft_PolicyData, path))
+		if (!tsGetSpecialFolder(tsSft_PolicyData, path, sizeof(path)))
 		{
-			path.clear();
 			return false;
 		}
 		break;
 
 	case tsAppConfig::System:
-		if (!xp_GetSpecialFolder(sft_CommonApplicationData, path))
+		if (!tsGetSpecialFolder(tsSft_CommonApplicationData, path, sizeof(path)))
 		{
-			path.clear();
-			LOG(FrameworkError, "Unable to access the common application directory.");
+            LOG(FrameworkError, "Unable to access the common application directory.");
 			//                CkmError("Unable to access the common application directory.");
 			return false;
 		}
 		break;
 	case tsAppConfig::User:
-		if (!xp_GetSpecialFolder(sft_UserConfigFolder, path))
+		if (!tsGetSpecialFolder(tsSft_UserConfigFolder, path, sizeof(path)))
 		{
-			path.clear();
-			LOG(FrameworkError, "Unable to access the user config directory.");
+            LOG(FrameworkError, "Unable to access the user config directory.");
 			//                CkmError("Unable to access the user data directory.");
 			return false;
 		}
 		break;
 	case tsAppConfig::Public:
-		if (!xp_GetSpecialFolder(sft_PublicDataFolder, path))
+		if (!tsGetSpecialFolder(tsSft_PublicDataFolder, path, sizeof(path)))
 		{
-			path.clear();
 			LOG(FrameworkError, "Unable to access the public data directory.");
 			//                CkmError("Unable to access the public data directory.");
 			return false;
 		}
 		break;
 	case tsAppConfig::ModuleFolder:
-		if (!xp_GetModuleFileName(XP_MODULE_INVALID, path))
+		if (!tsGetModuleFileName(nullptr, path, sizeof(path)))
 		{
-			path.clear();
 			LOG(FrameworkError, "Unable to access the Module data directory.");
 			//                CkmError("Unable to access the Module data directory.");
 			return false;
 		}
 		else
 		{
-			tscrypto::tsCryptoString dir;
-			tscrypto::tsCryptoString file;
-			tscrypto::tsCryptoString ext;
+            uint32_t dirLen = 0;
 
-			xp_SplitPath(path, dir, file, ext);
-			path = dir;
+			tsSplitPath(path, nullptr, &dirLen, nullptr, nullptr, nullptr, nullptr);
+            path[dirLen] = 0;
 		}
 		break;
 	default:
 		return false;
 	}
-	path += appName;
+	tsStrCat(path, sizeof(path), appName.c_str());
 //#ifdef _WIN32
 //	path += ".config";
 //#else
-	path += ".conf";
+    tsStrCat(path, sizeof(path), ".conf");
 //#endif
 
 	pathStr = path;
 
-	return (xp_FileExists(path) != FALSE);
+	return (tsFileExists(path) != ts_false);
 }
 
 tsAppConfig::ConfigLocation tsAppConfig::configExistsHere(const tscrypto::tsCryptoString &appName, tsAppConfig::ConfigLocation location)
@@ -319,27 +312,29 @@ tsAppConfig::tsAppConfig(const tscrypto::tsCryptoString &appName, ConfigLocation
 		}
 	}
 
-	XP_FILE file = XP_FILE_INVALID;
+	TSFILE file = nullptr;
 
 	int retryCount;
+    errno_t error;
 
-	if (!xp_FileExists(m_path.c_str()))
+	if (!tsFileExists(m_path.c_str()))
 	{
 		//CkmDebug(DBG_INFO1, "Unable to open the application configuration file for read '%s'.  The file does not exist.", m_path.c_str());
 		return;
 	}
 	for (retryCount = 0; retryCount < 10; retryCount++)
 	{
-		file = xp_CreateFile(m_path.c_str(), XP_GENERIC_READ, XP_FILE_SHARE_READ, NULL, XP_OPEN_EXISTING, XP_FILE_ATTRIBUTE_NORMAL, NULL);
-		if (file == XP_FILE_INVALID)
+        if ((error = tsFOpen(&file, m_path.c_str(), "rb", tsShare_DenyWR)) != 0)
 		{
+#ifdef _WIN32
 			if (xp_GetLastError() != ERROR_SHARING_VIOLATION)
 			{
 				LOG(FrameworkError, "Unable to open the application configuration file for read " << m_path.c_str());
 				//				CkmDebug(DBG_INFO1, "Unable to open the application configuration file for read '%s'.", m_path.c_str());
 				return;
 			}
-			XP_Sleep(100);
+#endif
+			XP_Sleep(50);
 		}
 		else
 		{
@@ -347,30 +342,29 @@ tsAppConfig::tsAppConfig(const tscrypto::tsCryptoString &appName, ConfigLocation
 		}
 	}
 
-	if (file == XP_FILE_INVALID)
+	if (file == nullptr)
 	{
 		LOG(FrameworkError, "Unable to open the application configuration file " << m_path.c_str() << " for read due to share violation.");
 		//        CkmDebug(DBG_INFO1, "Unable to open the application configuration file '%s' for read due to share violation.", m_path.c_str());
 		return;
 	}
 
-	len = xp_GetFileSize64FromHandle(file);
+	len = tsGetFileSize64FromHandle(file);
 	if (len == 0 || len > 1000000)
 	{
-		xp_CloseFile(file);
+		tsCloseFile(file);
 		return;
 	}
 	contents.resize((unsigned int)len);
-	uint32_t bytesRead;
 
-	if (!xp_ReadFile(file, contents.rawData(), (uint32_t)len, &bytesRead, NULL) || bytesRead != (uint32_t)len)
+    if (tsReadFile(contents.rawData(), 1, (uint32_t)len, file) != (uint32_t)len)
 	{
 		LOG(FrameworkError, "Unable to read application configuration data " << m_path.c_str());
 		//        CkmError("Unable to read application configuration data '%s'.", m_path.c_str());
-		xp_CloseFile(file);
+        tsCloseFile(file);
 		return;
 	}
-	xp_CloseFile(file);
+    tsCloseFile(file);
 	if (!m_root->Parse(contents.ToUtf8String(), results, false, false))
 	{
 		LOG(FrameworkError, "Unable to parse application configuration data.");
@@ -464,27 +458,29 @@ tsAppConfig::tsAppConfig(const tscrypto::tsCryptoString &appName, tsAppConfig::C
 		}
 	}
 
-	XP_FILE file = XP_FILE_INVALID;
+	TSFILE file = nullptr;
 
 	int retryCount;
+    errno_t error;
 
-	if (!xp_FileExists(m_path.c_str()))
+	if (!tsFileExists(m_path.c_str()))
 	{
 		//CkmDebug(DBG_INFO1, "Unable to open the application configuration file for read '%s'.  The file does not exist.", m_path.c_str());
 		return;
 	}
 	for (retryCount = 0; retryCount < 10; retryCount++)
 	{
-		file = xp_CreateFile(m_path.c_str(), XP_GENERIC_READ, XP_FILE_SHARE_READ, NULL, XP_OPEN_EXISTING, XP_FILE_ATTRIBUTE_NORMAL, NULL);
-		if (file == XP_FILE_INVALID)
-		{
+        if ((error = tsFOpen(&file, m_path.c_str(), "rb", tsShare_DenyWR)) != 0)
+        {
+#ifdef _WIN32
 			if (xp_GetLastError() != ERROR_SHARING_VIOLATION)
 			{
 				LOG(FrameworkError, "Unable to open the application configuration file for read " << m_path.c_str());
 				//				CkmDebug(DBG_INFO1, "Unable to open the application configuration file for read '%s'.", m_path.c_str());
 				return;
 			}
-			XP_Sleep(100);
+#endif 
+			XP_Sleep(50);
 		}
 		else
 		{
@@ -492,30 +488,29 @@ tsAppConfig::tsAppConfig(const tscrypto::tsCryptoString &appName, tsAppConfig::C
 		}
 	}
 
-	if (file == XP_FILE_INVALID)
+	if (file == NULL)
 	{
 		LOG(FrameworkError, "Unable to open the application configuration file " << m_path.c_str() << " for read due to share violation.");
 		//        CkmDebug(DBG_INFO1, "Unable to open the application configuration file '%s' for read due to share violation.", m_path.c_str());
 		return;
 	}
 
-	len = xp_GetFileSize64FromHandle(file);
+	len = tsGetFileSize64FromHandle(file);
 	if (len == 0 || len > 1000000)
 	{
-		xp_CloseFile(file);
+        tsCloseFile(file);
 		return;
 	}
 	contents.resize((unsigned int)len);
-	uint32_t bytesRead;
 
-	if (!xp_ReadFile(file, contents.rawData(), (uint32_t)len, &bytesRead, NULL) || bytesRead != (uint32_t)len)
+    if (tsReadFile(contents.rawData(), 1, (uint32_t)len, file) != (uint32_t)len)
 	{
 		LOG(FrameworkError, "Unable to read application configuration data " << m_path.c_str());
 		//        CkmError("Unable to read application configuration data '%s'.", m_path.c_str());
-		xp_CloseFile(file);
+        tsCloseFile(file);
 		return;
 	}
-	xp_CloseFile(file);
+    tsCloseFile(file);
 	if (!m_root->Parse(contents.ToUtf8String(), results, false, false))
 	{
 		LOG(FrameworkError, "Unable to parse application configuration data.");
@@ -554,7 +549,7 @@ std::shared_ptr<tsXmlNode> tsAppConfig::findNode(const tscrypto::tsCryptoString 
 		path.resize(path.size() - 1);
 	}
 
-	char *p = TsStrTok(path.rawData(), ("/"), &context);
+	char *p = tsStrTok(path.rawData(), ("/"), &context);
 
 	if (p == NULL)
 		return NULL;
@@ -571,7 +566,7 @@ std::shared_ptr<tsXmlNode> tsAppConfig::findNode(const tscrypto::tsCryptoString 
 		if (node1 == NULL)
 			return node1;
 
-		p = TsStrTok(NULL, ("/"), &context);
+		p = tsStrTok(NULL, ("/"), &context);
 	} while (p != NULL);
 
 	return node;
@@ -592,7 +587,7 @@ std::shared_ptr<tsXmlNode> tsAppConfig::findNode(const tscrypto::tsCryptoString 
 		path.resize(path.size() - 1);
 	}
 
-	char *p = TsStrTok(path.rawData(), ("/"), &context);
+	char *p = tsStrTok(path.rawData(), ("/"), &context);
 
 	if (p == NULL)
 		return NULL;
@@ -606,7 +601,7 @@ std::shared_ptr<tsXmlNode> tsAppConfig::findNode(const tscrypto::tsCryptoString 
 			return nullptr;
 		}
 		node = node1;
-		p = TsStrTok(NULL, ("/"), &context);
+		p = tsStrTok(NULL, ("/"), &context);
 	} while (p != NULL);
 
 	return node;
@@ -664,22 +659,23 @@ bool tsAppConfig::Save()
 	}
 
 
-	XP_FILE file = XP_FILE_INVALID;
+	TSFILE file = nullptr;
 
 	int retryCount;
 
 	for (retryCount = 0; retryCount < 10; retryCount++)
 	{
-		file = xp_CreateFile(m_path.c_str(), XP_GENERIC_WRITE, 0, NULL, XP_CREATE_ALWAYS, XP_FILE_ATTRIBUTE_NORMAL, NULL);
-		if (file == XP_FILE_INVALID)
+        if (tsFOpen(&file, m_path.c_str(), "wb", tsShare_DenyWR) != 0)
 		{
+#ifdef _WIN32
 			if (xp_GetLastError() != ERROR_SHARING_VIOLATION)
 			{
 				FrameworkError << "Unable to open the application configuration file " << m_path.c_str() << " for write." << tscrypto::endl;
 				//				CkmDebug(DBG_INFO1, "Unable to open the application configuration file '%s' for write.", m_path.c_str());
 				return false;
 			}
-			XP_Sleep(100);
+#endif
+			XP_Sleep(50);
 		}
 		else
 		{
@@ -687,25 +683,23 @@ bool tsAppConfig::Save()
 		}
 	}
 
-	if (file == XP_FILE_INVALID)
+	if (file == nullptr)
 	{
 		FrameworkError << "Unable to open the application configuration file " << m_path.c_str() << " for write due to share violation." << tscrypto::endl;
 		//        CkmDebug(DBG_INFO1, "Unable to open the application configuration file '%s' for write due to share violation.", m_path.c_str());
 		return false;
 	}
-	uint32_t bytesWritten;
-
 	tscrypto::tsCryptoData tmp;
 	tmp.UTF8FromString(xml);
 
-	if (!xp_WriteFile(file, tmp.c_str(), (uint32_t)tmp.size(), &bytesWritten, NULL) || bytesWritten != (uint32_t)tmp.size())
+	if (tsWriteFile(tmp.c_str(), 1, (uint32_t)tmp.size(), file) != (uint32_t)tmp.size())
 	{
 		FrameworkError << "Unable to read application configuration data " << m_path.c_str() << tscrypto::endl;
 		//        CkmError("Unable to read application configuration data '%s'.", m_path.c_str());
-		xp_CloseFile(file);
+        tsCloseFile(file);
 		return false;
 	}
-	xp_CloseFile(file);
+    tsCloseFile(file);
 	return true;
 }
 
@@ -861,7 +855,7 @@ int tsAppConfig::getNodeTextAsNumber(const tscrypto::tsCryptoString &itemName, i
 	if ((node = findNode(itemName)) == NULL)
 		return defaultValue;
 
-	return TsStrToInt(node->NodeText().c_str());
+	return tsStrToInt(node->NodeText().c_str());
 }
 
 bool tsAppConfig::getNodeTextAsBool(const tscrypto::tsCryptoString &itemName, bool defaultValue) const
@@ -871,7 +865,7 @@ bool tsAppConfig::getNodeTextAsBool(const tscrypto::tsCryptoString &itemName, bo
 	if ((node = findNode(itemName)) == NULL)
 		return defaultValue;
 
-	return TsStrToInt(node->NodeText().c_str()) != 0;
+	return tsStrToInt(node->NodeText().c_str()) != 0;
 }
 
 tscrypto::tsCryptoString tsAppConfig::configFilePath() const

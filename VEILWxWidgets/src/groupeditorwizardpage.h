@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -125,10 +125,10 @@ public:
 ////@begin GroupEditorWizardPage member function declarations
 
     /// Gets the previous page
-    virtual wxWizardPage* GetPrev() const;
+    virtual wxWizardPage* GetPrev() const override;
 
     /// Gets the next page
-    virtual wxWizardPage* GetNext() const;
+    virtual wxWizardPage* GetNext() const override;
 
     /// Retrieves bitmap resources
     wxBitmap GetBitmapResource( const wxString& name );
@@ -154,8 +154,8 @@ public:
 	void SetPrevPage(wxWizardPage* setTo) { prevPage = setTo; }
 
 protected:
-	int findCgByGuid(const GUID& id);
-	Asn1::CTS::_POD_CryptoGroup* GetCGbyGuid(const GUID& id);
+	int findCgById(const tscrypto::tsCryptoData& id);
+	Asn1::CTS::_POD_CryptoGroup* GetCGbyId(const tscrypto::tsCryptoData& id);
 	std::shared_ptr<IKeyVEILSession> Session();
 	bool HasSession() const;
 	void Session(std::shared_ptr<IKeyVEILSession> setTo);

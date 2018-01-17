@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -120,8 +120,8 @@ namespace tscrypto {
 		///
 		/// <returns>null if it fails, else the TlvNode</returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
-		static std::shared_ptr<TlvNode> Create(std::weak_ptr<TlvDocument> document, int tag, BYTE type);
-		static std::shared_ptr<TlvNode> Create(std::shared_ptr<TlvDocument> document, int tag, BYTE type);
+		static std::shared_ptr<TlvNode> Create(std::weak_ptr<TlvDocument> document, int tag, uint8_t type);
+		static std::shared_ptr<TlvNode> Create(std::shared_ptr<TlvDocument> document, int tag, uint8_t type);
 	protected:
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>Constructor.</summary>
@@ -136,7 +136,7 @@ namespace tscrypto {
 		/// <param name="tag">	   The tag.</param>
 		/// <param name="type">	   The type.</param>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
-		TlvNode(std::weak_ptr<TlvDocument> document, int tag, BYTE type);
+		TlvNode(std::weak_ptr<TlvDocument> document, int tag, uint8_t type);
 	public:
 		//#ifdef _WIN32
 		//    ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -190,13 +190,13 @@ namespace tscrypto {
 		///
 		/// <returns>the type</returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
-		BYTE Type() const;
+        uint8_t Type() const;
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>Sets the type for this node</summary>
 		///
 		/// <param name="setTo">the new type value</param>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
-		TlvNode* Type(BYTE setTo);
+		TlvNode* Type(uint8_t setTo);
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>Gets the list of child nodes</summary>
 		///
@@ -250,7 +250,7 @@ namespace tscrypto {
 		///
 		/// <returns>a pointer to this node</returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
-		TlvNode *InnerData(BYTE setTo);
+		TlvNode *InnerData(uint8_t setTo);
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>Sets the data of this node from a short</summary>
 		///
@@ -282,7 +282,7 @@ namespace tscrypto {
 		///
 		/// <returns>a pointer to this node</returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
-		TlvNode *InnerDataAsNumber(BYTE setTo);
+		TlvNode *InnerDataAsNumber(uint8_t setTo);
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>Sets the data of this node from a 16 bit integer</summary>
 		///
@@ -559,7 +559,7 @@ namespace tscrypto {
 		/// <returns>the total length of the data for this node including the tag and length elements.</returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		static size_t ExtractTagAndLength(const tsCryptoData &buffer, size_t offset, bool flatTag, bool simpleLength, int &tag,
-			bool &constructed, BYTE &type, size_t &length);
+			bool &constructed, uint8_t &type, size_t &length);
 
 	protected:
 		////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -578,7 +578,7 @@ namespace tscrypto {
 	protected:
 		TlvNodeCollection m_children;
 		int m_tag;
-		BYTE m_type;
+        uint8_t m_type;
 		tsCryptoData m_data;
 		std::weak_ptr<TlvDocument> m_document;
 		std::weak_ptr<TlvNode> m_parent;

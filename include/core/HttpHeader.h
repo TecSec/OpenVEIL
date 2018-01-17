@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -50,7 +50,7 @@ struct VEILCORE_API HttpAttribute
 	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
 
 	HttpAttribute() {};
-	HttpAttribute(LPCSTR name, LPCSTR value) : m_Name(name), m_Value(value) { }
+	HttpAttribute(const char* name, const char* value) : m_Name(name), m_Value(value) { }
 	HttpAttribute(const tscrypto::tsCryptoString& name, const tscrypto::tsCryptoString& value) : m_Name(name), m_Value(value) { }
 	tscrypto::tsCryptoString m_Name;
 	tscrypto::tsCryptoString m_Value;
@@ -81,8 +81,8 @@ public:
 	virtual const tscrypto::tsCryptoData& dataPart() const = 0;
 	virtual void dataPart(const tscrypto::tsCryptoString& setTo) = 0;
 	virtual void dataPart(const tscrypto::tsCryptoData& setTo) = 0;
-	virtual WORD errorCode() const = 0;
-	virtual void errorCode(WORD setTo) = 0;
+	virtual uint16_t errorCode() const = 0;
+	virtual void errorCode(uint16_t setTo) = 0;
 	virtual size_t attributeCount() const = 0;
 	virtual const HttpAttribute* attribute(size_t index) const = 0;
 	virtual const HttpAttribute* attributeByName(const tscrypto::tsCryptoStringBase& index) const = 0;

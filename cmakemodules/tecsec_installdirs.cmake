@@ -1,4 +1,4 @@
-#	Copyright (c) 2017, TecSec, Inc.
+#	Copyright (c) 2018, TecSec, Inc.
 #
 #	Redistribution and use in source and binary forms, with or without
 #	modification, are permitted provided that the following conditions are met:
@@ -41,7 +41,7 @@ if(APPLE)
 	set(ALLSHLIB_DIR ${CMAKE_INSTALL_PREFIX}/lib)
 	set(CMAKE_INSTALL_DATADIR ${CMAKE_INSTALL_PREFIX})
 elseif(UNIX)
-	set(CMAKE_INSTALL_EXEC_PREFIX ${CMAKE_INSTALL_PREFIX})
+		set(CMAKE_INSTALL_EXEC_PREFIX ${CMAKE_INSTALL_PREFIX})
 	set(ALLBIN_DIR ${CMAKE_INSTALL_PREFIX}/bin)
 	set(ALLSHLIB_DIR ${CMAKE_INSTALL_PREFIX}/lib)
 	set(CMAKE_INSTALL_DATADIR ${CMAKE_INSTALL_PREFIX})

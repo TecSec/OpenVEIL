@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -36,243 +36,243 @@ using namespace tscrypto;
 class XTSImpl : public XTS, public TSName, public tscrypto::ICryptoObject, public tscrypto::IInitializableObject, public AlgorithmInfo
 {
 public:
-	XTSImpl() :
-		m_keySizeInBits(0),
-		desc(nullptr)
-	{
-		PrepareClass("XTS-AES");
-	}    
-	virtual ~XTSImpl(void)
-	{
-		desc = nullptr;
-	}
+    XTSImpl() :
+        m_keySizeInBits(0),
+        desc(nullptr)
+    {
+        PrepareClass("XTS-AES");
+    }    
+    virtual ~XTSImpl(void)
+    {
+        desc = nullptr;
+    }
 
     // XTS
     virtual bool initialize(const tsCryptoData &key, bool forEncrypt) override
-	{
-		tsCryptoData tmp;
+    {
+        tsCryptoData tmp;
 
-		if (!gFipsState.operational() || desc == nullptr)
-			return false;
-		if (key.size() != 32 && key.size() != 48 && key.size() != 64)
-			return false;
+        if (!gFipsState.operational() || desc == nullptr)
+            return false;
+        if (key.size() != 32 && key.size() != 48 && key.size() != 64)
+            return false;
 
-		m_keySizeInBits = (int)key.size() * 8;
+        m_keySizeInBits = (int)key.size() * 8;
 
-		m_context.reset();
-		m_context = desc;
-		m_forEncrypt = forEncrypt;
+        m_context.reset();
+        m_context = desc;
+        m_forEncrypt = forEncrypt;
 
-		tsCryptoString name(m_baseName);
-		name += "-";
-		name.append((key.size() * 8));
-		SetName(name);
+        tsCryptoString name(m_baseName);
+        name += "-";
+        name.append((key.size() * 8));
+        SetName(name);
 
-		return desc->init(desc, m_context, key.c_str(), (uint32_t)key.size());
-	}
-	virtual bool update(tsCryptoData &sector, size_t sectorSizeInBits, const tsCryptoData &sectorAddress) override
-	{
-		if (!gFipsState.operational())
-			return false;
-		if (desc == nullptr)
-			return false;
-		if (sector.size() < 16 || sector.size() != ((sectorSizeInBits + 7) / 8) || sectorSizeInBits > 1024 * 1024 * desc->blockSizeInBytes)
-			return false;
-		if (m_context.empty())
-			return false;
+        return desc->init(desc, m_context, key.c_str(), (uint32_t)key.size());
+    }
+    virtual bool update(tsCryptoData &sector, size_t sectorSizeInBits, const tsCryptoData &sectorAddress) override
+    {
+        if (!gFipsState.operational())
+            return false;
+        if (desc == nullptr)
+            return false;
+        if (sector.size() < 16 || sector.size() != ((sectorSizeInBits + 7) / 8) || sectorSizeInBits > 1024 * 1024 * desc->blockSizeInBytes)
+            return false;
+        if (m_context.empty())
+            return false;
 
-		if (sectorAddress.size() != desc->blockSizeInBytes)
-			return false;
+        if (sectorAddress.size() != desc->blockSizeInBytes)
+            return false;
 
-		if (sector.size() < desc->blockSizeInBytes)
-		{
-			return false;
-		}
-		bool retVal;
-		if (m_forEncrypt)
-		{
-			retVal = desc->encrypt(desc, m_context, sector.rawData(), (unsigned int)sectorSizeInBits, sectorAddress.c_str());
-		}
-		else
-		{
-			retVal = desc->decrypt(desc, m_context, sector.rawData(), (unsigned int)sectorSizeInBits, sectorAddress.c_str());
-		}
-		if (!retVal)
-		{
-			sector.clear();
-		}
-		return retVal;
-	}
-	virtual bool updateByAddress(tsCryptoData &sector, size_t sectorSizeInBits, uint64_t sectorAddress) override
-	{
-		tsCryptoData iv((uint8_t*)&sectorAddress, sizeof(sectorAddress));
+        if (sector.size() < desc->blockSizeInBytes)
+        {
+            return false;
+        }
+        bool retVal;
+        if (m_forEncrypt)
+        {
+            retVal = desc->encrypt(desc, m_context, sector.rawData(), (unsigned int)sectorSizeInBits, sectorAddress.c_str());
+        }
+        else
+        {
+            retVal = desc->decrypt(desc, m_context, sector.rawData(), (unsigned int)sectorSizeInBits, sectorAddress.c_str());
+        }
+        if (!retVal)
+        {
+            sector.clear();
+        }
+        return retVal;
+    }
+    virtual bool updateByAddress(tsCryptoData &sector, size_t sectorSizeInBits, uint64_t sectorAddress) override
+    {
+        tsCryptoData iv((uint8_t*)&sectorAddress, sizeof(sectorAddress));
 
-		if (!gFipsState.operational())
-			return false;
-		if (desc == nullptr)
-			return false;
-		if (m_context.empty())
-			return false;
+        if (!gFipsState.operational())
+            return false;
+        if (desc == nullptr)
+            return false;
+        if (m_context.empty())
+            return false;
 
 
-		if (sectorSizeInBits > 1024 * 1024 * desc->blockSizeInBytes)
-			return false;
+        if (sectorSizeInBits > 1024 * 1024 * desc->blockSizeInBytes)
+            return false;
 
 #if BYTE_ORDER != LITTLE_ENDIAN
-		iv.Reverse();
+        iv.Reverse();
 #endif
-		iv.resize(16);
-		return update(sector, sectorSizeInBits, iv);
-	}
-	virtual bool finish() override
-	{
-		if (!gFipsState.operational())
-			return false;
-		if (desc == nullptr)
-			return false;
-		if (m_context.empty())
-			return false;
+        iv.resize(16);
+        return update(sector, sectorSizeInBits, iv);
+    }
+    virtual bool finish() override
+    {
+        if (!gFipsState.operational())
+            return false;
+        if (desc == nullptr)
+            return false;
+        if (m_context.empty())
+            return false;
 
-		bool retVal = desc->finish(desc, m_context);
-		m_context.reset();
-		m_keySizeInBits = 0;
-		return retVal;
-	}
-	virtual size_t minimumKeySizeInBits() const override
-	{
-		if (desc == nullptr)
-			return 0;
+        bool retVal = desc->finish(desc, m_context);
+        m_context.reset();
+        m_keySizeInBits = 0;
+        return retVal;
+    }
+    virtual size_t minimumKeySizeInBits() const override
+    {
+        if (desc == nullptr)
+            return 0;
 
-		return m_keySizeInBits == 0 ? desc->minimumKeySize : m_keySizeInBits;
-	}
-	virtual size_t maximumKeySizeInBits() const override
-	{
-		if (desc == nullptr)
-			return 0;
+        return m_keySizeInBits == 0 ? desc->minimumKeySize : m_keySizeInBits;
+    }
+    virtual size_t maximumKeySizeInBits() const override
+    {
+        if (desc == nullptr)
+            return 0;
 
-		return m_keySizeInBits == 0 ? desc->maximumKeySize : m_keySizeInBits;
-	}
-	virtual size_t keySizeIncrementInBits() const override
-	{
-		if (desc == nullptr)
-			return 0;
+        return m_keySizeInBits == 0 ? desc->maximumKeySize : m_keySizeInBits;
+    }
+    virtual size_t keySizeIncrementInBits() const override
+    {
+        if (desc == nullptr)
+            return 0;
 
-		return m_keySizeInBits == 0 ? desc->keySizeIncrement : 0;
-	}
+        return m_keySizeInBits == 0 ? desc->keySizeIncrement : 0;
+    }
 
     // AlgorithmInfo
     virtual tsCryptoString AlgorithmName() const override
-	{
-		return GetName();
-	}
-	virtual tsCryptoString AlgorithmOID() const override
-	{
-		return LookUpAlgOID(GetName());
-	}
-	virtual TS_ALG_ID AlgorithmID() const override
-	{
-		return LookUpAlgID(GetName());
-	}
+    {
+        return GetName();
+    }
+    virtual tsCryptoString AlgorithmOID() const override
+    {
+        return LookUpAlgOID(GetName());
+    }
+    virtual TS_ALG_ID AlgorithmID() const override
+    {
+        return LookUpAlgID(GetName());
+    }
 
-	// tscrypto::IInitializableObject
-	virtual bool InitializeWithFullName(const tscrypto::tsCryptoStringBase& fullName) override
-	{
-		return PrepareClass(fullName);
-	}
+    // tscrypto::IInitializableObject
+    virtual bool InitializeWithFullName(const tscrypto::tsCryptoStringBase& fullName) override
+    {
+        return PrepareClass(fullName);
+    }
 
 #if 0
 protected:
-	bool fipsTestsForAESXTS(std::shared_ptr<XTS> alg, bool /*runDetailedTests*/)
-	{
-		tsCryptoData key("97098b465a44ca75e7a1c2dbfc40b7a61a20e32c6d9dbfda80726fee10541bab475463ca07c1c1e4496173321468d1ab3fad8ad91fcdc62abe07bff8ef961b6b", tsCryptoData::HEX);
-		tsCryptoData ivec("15601e2e358510a09ddca4ea1751f43c", tsCryptoData::HEX);
-		tsCryptoData pt("d19cfb383baf872e6f121687451de15c", tsCryptoData::HEX);
-		tsCryptoData ct("eb22269b14905027dc73c4a40f938069", tsCryptoData::HEX);
-		tsCryptoData results;
-	
-		results = pt;
-		if (!alg->initialize(key, true) || !alg->update(results, 128, ivec) || !alg->finish() || results != ct)
-		{
-			gFipsState.testFailed();
-			return false;
-		}
-		if (!alg->initialize(key, false) || !alg->update(results, 128, ivec) || !alg->finish() || results != pt)
-		{
-			gFipsState.testFailed();
-			return false;
-		}
-		return true;
-	}
+    bool fipsTestsForAESXTS(std::shared_ptr<XTS> alg, bool /*runDetailedTests*/)
+    {
+        tsCryptoData key("97098b465a44ca75e7a1c2dbfc40b7a61a20e32c6d9dbfda80726fee10541bab475463ca07c1c1e4496173321468d1ab3fad8ad91fcdc62abe07bff8ef961b6b", tsCryptoData::HEX);
+        tsCryptoData ivec("15601e2e358510a09ddca4ea1751f43c", tsCryptoData::HEX);
+        tsCryptoData pt("d19cfb383baf872e6f121687451de15c", tsCryptoData::HEX);
+        tsCryptoData ct("eb22269b14905027dc73c4a40f938069", tsCryptoData::HEX);
+        tsCryptoData results;
+    
+        results = pt;
+        if (!alg->initialize(key, true) || !alg->update(results, 128, ivec) || !alg->finish() || results != ct)
+        {
+            gFipsState.testFailed();
+            return false;
+        }
+        if (!alg->initialize(key, false) || !alg->update(results, 128, ivec) || !alg->finish() || results != pt)
+        {
+            gFipsState.testFailed();
+            return false;
+        }
+        return true;
+    }
 #endif // 0
 
 private:
     SmartCryptoWorkspace m_context;
-	const XTS_Descriptor* desc;
+    const TSXtsDescriptor* desc;
     bool m_forEncrypt;
     tsCryptoString m_baseName;
-	int m_keySizeInBits;
+    int m_keySizeInBits;
 
-	bool PrepareClass(const tsCryptoStringBase& fullName)
-	{
-		tsCryptoString algorithm(fullName);
-		tsCryptoString alg;
-		tsCryptoStringList parts;
+    bool PrepareClass(const tsCryptoStringBase& fullName)
+    {
+        tsCryptoString algorithm(fullName);
+        tsCryptoString alg;
+        tsCryptoStringList parts;
 
-		desc = nullptr;
-		m_context.reset();
-		SetName(algorithm);
-		parts = algorithm.split('-');
-		if (parts->size() == 1)
-			parts->push_back("AES");
-		alg = "XTS-" + parts->at(1);
+        desc = nullptr;
+        m_context.reset();
+        SetName(algorithm);
+        parts = algorithm.split('-');
+        if (parts->size() == 1)
+            parts->push_back("AES");
+        alg = "XTS-" + parts->at(1);
 
-		desc = findXtsAlgorithm(alg.c_str());
-		if (desc == nullptr)
-			return false;
+        desc = tsFindXtsAlgorithm(alg.c_str());
+        if (desc == nullptr)
+            return false;
 
-		m_baseName = GetName();
+        m_baseName = GetName();
 
-		return true;
-	}
+        return true;
+    }
 };
 
 tscrypto::ICryptoObject* CreateXTS()
 {
-	return dynamic_cast<tscrypto::ICryptoObject*>(new XTSImpl);
+    return dynamic_cast<tscrypto::ICryptoObject*>(new XTSImpl);
 }
 
 #if 0
 bool XTS_AES::runTests(bool runDetailedTests)
 {
-	bool testPassed = false;
+    bool testPassed = false;
 
-	if (!gFipsState.operational())
-		return false;
-	if (desc == nullptr)
-		return false;
+    if (!gFipsState.operational())
+        return false;
+    if (desc == nullptr)
+        return false;
 
-	if (TsStrStr(GetName(), "AES") != nullptr)
-	{
-		fipsTestsForAESXTS(std::dynamic_pointer_cast<tscrypto::XTS>(_me.lock()), runDetailedTests);
-	}
-	else
-	{
-		std::shared_ptr<TSExtensibleSelfTest> exSelfTest = std::dynamic_pointer_cast<TSExtensibleSelfTest>(CryptoFactory(&m_baseName.c_str()[4]));
+    if (tsStrStr(GetName(), "AES") != nullptr)
+    {
+        fipsTestsForAESXTS(std::dynamic_pointer_cast<tscrypto::XTS>(_me.lock()), runDetailedTests);
+    }
+    else
+    {
+        std::shared_ptr<TSExtensibleSelfTest> exSelfTest = std::dynamic_pointer_cast<TSExtensibleSelfTest>(CryptoFactory(&m_baseName.c_str()[4]));
 
-		if (!exSelfTest)
-			exSelfTest.reset();
+        if (!exSelfTest)
+            exSelfTest.reset();
 
-		if (!!exSelfTest)
-		{
-			testPassed = exSelfTest->RunSelfTestsFor("XTS", _me.lock(), runDetailedTests);
-		}
+        if (!!exSelfTest)
+        {
+            testPassed = exSelfTest->RunSelfTestsFor("XTS", _me.lock(), runDetailedTests);
+        }
 
-		if (!testPassed)
-		{
-			gFipsState.testFailed();
-			return false;
-		}
-	}
-	return true;
+        if (!testPassed)
+        {
+            gFipsState.testFailed();
+            return false;
+        }
+    }
+    return true;
 }
 #endif // 0

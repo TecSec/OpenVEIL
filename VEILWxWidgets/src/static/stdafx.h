@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -118,7 +118,7 @@ struct audienceSelector2Variables
 struct attributeSelectorVariables
 {
 	std::shared_ptr<IKeyVEILSession>					_session;
-	GUID												_cryptoGroupId;
+    tscrypto::tsCryptoData								_cryptoGroupId;
 	std::shared_ptr<ICmsHeaderAttributeGroup>			_ckm7group;
 	std::shared_ptr<ICmsHeaderAttributeListExtension>	_attrsList;
 	int													_selectedAttributeCount;
@@ -200,7 +200,7 @@ struct enterPinVariables
 
 using namespace tscrypto;
 
-extern XP_MODULE hDllInstance;
+//extern XP_MODULE hDllInstance;
 //extern WXBITMAP logo;
 
 extern tsmod::IObject* CreateAudienceSelector();

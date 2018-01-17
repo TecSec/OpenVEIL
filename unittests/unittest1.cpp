@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -46,6 +46,10 @@ static const uint8_t oid1[] = { 0x67, 0x2A, 0x09, 0x0A, 0x03, 0x00, 0x07, 0x09, 
 static const uint8_t oid2[] = { 0x67, 0x2A, 0x09, 0x0A, 0x03, 0x00, 0x07, 0x09, 0x32 };
 static const uint8_t oid3[] = { 0x67, 0x2A, 0x09, 0x0A, 0x03, 0x00, 0x0B, 0x04 };
 static const uint8_t oid4[] = { 0x67, 0x2A, 0x09, 0x0A, 0x03, 0x00, 0x0B };
+
+#ifndef _WIN32
+    const GUID IID_IUnknown = {0,0,0,{0xc0,0,0,0,0,0,0,0}};
+#endif // _WIN32
 
 TEST(Crypto, SelfTest) 
 {
@@ -206,9 +210,9 @@ TEST(Crypto, CreateAlgs)
 	EXPECT_TRUE(!!CryptoFactory("SIGN-RSA-PSS-SHA256"));
 	EXPECT_TRUE(!!CryptoFactory("SIGN-RSA-PSS-SHA384"));
 	EXPECT_TRUE(!!CryptoFactory("SIGN-RSA-PSS-SHA512"));
-	EXPECT_TRUE(!!CryptoFactory("KEY-P256"));
+    EXPECT_TRUE(!!CryptoFactory("KEY-P256"));
     EXPECT_TRUE(!!CryptoFactory("KEY-P256K1"));
-	EXPECT_TRUE(!!CryptoFactory("KEY-P384"));
+    EXPECT_TRUE(!!CryptoFactory("KEY-P384"));
 	EXPECT_TRUE(!!CryptoFactory("KEY-P521"));
 	EXPECT_TRUE(!!CryptoFactory("SIGN-ECC-SHA1"));
 	EXPECT_TRUE(!!CryptoFactory("SIGN-ECC-SHA224"));
@@ -448,7 +452,7 @@ TEST(Crypto, CreateAlgs)
 //}
 TEST(Crypto, TDES_CFB8_MMT_Issue_c)
 {
-	const SymmetricAlgorithmDescriptor *desc = findSymmetricAlgorithm("TDES-CFB8");
+	const TSSymmetricAlgorithmDescriptor *desc = tsFindSymmetricAlgorithm("TDES-CFB8");
 	tsCryptoData key1(std::initializer_list<uint8_t>{0x10, 0x04, 0x67, 0x83, 0x97, 0x91, 0xab, 0x3d});
 	tsCryptoData iv1(std::initializer_list<uint8_t>{0xc0, 0x59, 0xed, 0x45, 0x76, 0xec, 0x5c, 0xc4});
 	tsCryptoData ct1(std::initializer_list<uint8_t>{0x25});
@@ -588,7 +592,7 @@ TEST(TestSerializers, AlgorithmID)
 {
 	_POD_AlgorithmIdentifier pid;
 
-	pid.set_oid(TECSEC_AES_192_GCM_OID);
+	pid.set_oid(id_TECSEC_AES_192_GCM_OID);
 	pid.set_Parameter();
 	pid.get_Parameter()->tag = 5;
 	EXPECT_STRCASEEQ("300D0609672A090A030007021A0500", pid.Encode().ToHexString().c_str());
@@ -596,7 +600,7 @@ TEST(TestSerializers, AlgorithmID)
 	EXPECT_STREQ("", pid.get_oid().ToOIDString().c_str());
 
 	EXPECT_TRUE(pid.Decode(tsCryptoData("300D0609672A090A030007021A0500", tsCryptoData::HEX)));
-	EXPECT_STREQ(TECSEC_AES_192_GCM_OID, pid.get_oid().ToOIDString().c_str());
+	EXPECT_STREQ(id_TECSEC_AES_192_GCM_OID, pid.get_oid().ToOIDString().c_str());
 }
 
 TEST(TestSerializers, CkmTunnelLogout)
@@ -667,7 +671,7 @@ TEST(TestSerializers, PBKDF_Parameters)
 
 	obj.set_IterationCount(9876);
 	obj.set_Salt(tsCryptoData("This is my salt value", tsCryptoData::ASCII));
-	obj.get_hmacAlgorithm().set_oid(NIST_HMAC_SHA3_224_OID);
+	obj.get_hmacAlgorithm().set_oid(id_NIST_HMAC_SHA3_224_OID);
 	obj.get_hmacAlgorithm().set_Parameter();
 	obj.get_hmacAlgorithm().get_Parameter()->tag = 5;
 
@@ -677,7 +681,7 @@ TEST(TestSerializers, PBKDF_Parameters)
 
 	EXPECT_TRUE(obj.Decode(tsCryptoData("302D02010002022694041554686973206973206D792073616C742076616C7565300D060960864801650304020D0500", tsCryptoData::HEX)));
 	EXPECT_STREQ("This is my salt value", obj.get_Salt().ToUtf8String().c_str());
-	EXPECT_STREQ(NIST_HMAC_SHA3_224_OID, obj.get_hmacAlgorithm().get_oid().ToOIDString().c_str());
+	EXPECT_STREQ(id_NIST_HMAC_SHA3_224_OID, obj.get_hmacAlgorithm().get_oid().ToOIDString().c_str());
 	EXPECT_EQ(9876, obj.get_IterationCount());
 }
 
@@ -696,7 +700,7 @@ TEST(TestSerializers, CkmAuthServerParameters)
 
 	obj.get_params().get_Pbkdf().set_IterationCount(4958);
 	obj.get_params().get_Pbkdf().set_Salt(tsCryptoData("This is a salt value", tsCryptoData::ASCII));
-	obj.get_params().get_Pbkdf().get_hmacAlgorithm().set_oid(NIST_HMAC_SHA3_512_OID);
+	obj.get_params().get_Pbkdf().get_hmacAlgorithm().set_oid(id_NIST_HMAC_SHA3_512_OID);
 	obj.get_params().get_Pbkdf().get_hmacAlgorithm().set_Parameter();
 	obj.get_params().get_Pbkdf().get_hmacAlgorithm().get_Parameter()->tag = 5;
 
@@ -709,7 +713,7 @@ TEST(TestSerializers, CkmAuthServerParameters)
 
 	EXPECT_TRUE(obj.Decode(tsCryptoData("306E0609672A090A0300070932020100A02C0201000202135E04145468697320697320612073616C742076616C7565300D060960864801650304021005008101FF8208686173684E616D6583064D75206D616384074B65795772617085036B6466860A6B64664D61634E616D658701FF", tsCryptoData::HEX)));
 	EXPECT_STREQ("This is a salt value", obj.get_params().get_Pbkdf().get_Salt().ToUtf8String().c_str());
-	EXPECT_STREQ(NIST_HMAC_SHA3_512_OID, obj.get_params().get_Pbkdf().get_hmacAlgorithm().get_oid().ToOIDString().c_str());
+	EXPECT_STREQ(id_NIST_HMAC_SHA3_512_OID, obj.get_params().get_Pbkdf().get_hmacAlgorithm().get_oid().ToOIDString().c_str());
 	EXPECT_EQ(4958, obj.get_params().get_Pbkdf().get_IterationCount());
 
 	EXPECT_TRUE(obj.get_Expired());
@@ -738,7 +742,7 @@ TEST(TestSerializers, CkmAuthInitiatorParameters)
 
 	obj1.get_params().get_Pbkdf().set_IterationCount(4958);
 	obj1.get_params().get_Pbkdf().set_Salt(tsCryptoData("This is a salt value", tsCryptoData::ASCII));
-	obj1.get_params().get_Pbkdf().get_hmacAlgorithm().set_oid(NIST_HMAC_SHA3_512_OID);
+	obj1.get_params().get_Pbkdf().get_hmacAlgorithm().set_oid(id_NIST_HMAC_SHA3_512_OID);
 	obj1.get_params().get_Pbkdf().get_hmacAlgorithm().set_Parameter();
 	obj1.get_params().get_Pbkdf().get_hmacAlgorithm().get_Parameter()->tag = 5;
 
@@ -765,7 +769,7 @@ TEST(TestSerializers, CkmAuthInitiatorParameters)
 	EXPECT_EQ(2311, obj.get_keySizeInBits());
 
 	EXPECT_STREQ("This is a salt value", obj.get_authParameters().get_params().get_Pbkdf().get_Salt().ToUtf8String().c_str());
-	EXPECT_STREQ(NIST_HMAC_SHA3_512_OID, obj.get_authParameters().get_params().get_Pbkdf().get_hmacAlgorithm().get_oid().ToOIDString().c_str());
+	EXPECT_STREQ(id_NIST_HMAC_SHA3_512_OID, obj.get_authParameters().get_params().get_Pbkdf().get_hmacAlgorithm().get_oid().ToOIDString().c_str());
 	EXPECT_EQ(4958, obj.get_authParameters().get_params().get_Pbkdf().get_IterationCount());
 
 	EXPECT_TRUE(obj.get_authParameters().get_Expired());
@@ -795,7 +799,7 @@ TEST(TestSerializers, CkmTunnelInitLoginResponse)
 
 	obj1.get_params().get_Pbkdf().set_IterationCount(4958);
 	obj1.get_params().get_Pbkdf().set_Salt(tsCryptoData("This is a salt value", tsCryptoData::ASCII));
-	obj1.get_params().get_Pbkdf().get_hmacAlgorithm().set_oid(NIST_HMAC_SHA3_512_OID);
+	obj1.get_params().get_Pbkdf().get_hmacAlgorithm().set_oid(id_NIST_HMAC_SHA3_512_OID);
 	obj1.get_params().get_Pbkdf().get_hmacAlgorithm().set_Parameter();
 	obj1.get_params().get_Pbkdf().get_hmacAlgorithm().get_Parameter()->tag = 5;
 
@@ -842,7 +846,7 @@ TEST(TestSerializers, CkmTunnelInitLoginResponse)
 	EXPECT_EQ(2311, obj.get_AuthenticationInformation().get_keySizeInBits());
 
 	EXPECT_STREQ("This is a salt value", obj.get_AuthenticationInformation().get_authParameters().get_params().get_Pbkdf().get_Salt().ToUtf8String().c_str());
-	EXPECT_STREQ(NIST_HMAC_SHA3_512_OID, obj.get_AuthenticationInformation().get_authParameters().get_params().get_Pbkdf().get_hmacAlgorithm().get_oid().ToOIDString().c_str());
+	EXPECT_STREQ(id_NIST_HMAC_SHA3_512_OID, obj.get_AuthenticationInformation().get_authParameters().get_params().get_Pbkdf().get_hmacAlgorithm().get_oid().ToOIDString().c_str());
 	EXPECT_EQ(4958, obj.get_AuthenticationInformation().get_authParameters().get_params().get_Pbkdf().get_IterationCount());
 
 	EXPECT_TRUE(obj.get_AuthenticationInformation().get_authParameters().get_Expired());
@@ -1437,7 +1441,7 @@ GTEST_API_ int main(int argc, char **argv) {
 }
 
 #ifdef MINGW
-int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) 
+int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, char* lpCmdLine, int nCmdShow) 
 {
 	int argc = 1;
 	char* argv[] = {(char*)"test.exe"};

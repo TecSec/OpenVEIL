@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -146,7 +146,7 @@ protected:
 		if (list.size() > 1)
 		{
 			std::sort(list.begin(), list.end(), [](std::shared_ptr<tsmod::IVeilToolCommand> left, std::shared_ptr<tsmod::IVeilToolCommand> right) {
-				return TsStriCmp(left->getCommandName().c_str(), right->getCommandName().c_str()) < 0;
+				return tsStriCmp(left->getCommandName().c_str(), right->getCommandName().c_str()) < 0;
 			});
 		}
 
@@ -189,7 +189,7 @@ public:
 		std::vector<std::shared_ptr<tsmod::IVeilToolCommand> > list = ::TopServiceLocator()->get_group<tsmod::IVeilToolCommand>("/COMMANDS/", false);
 
 		std::sort(list.begin(), list.end(), [](std::shared_ptr<tsmod::IVeilToolCommand> left, std::shared_ptr<tsmod::IVeilToolCommand> right) {
-			return TsStriCmp(left->getCommandName().c_str(), right->getCommandName().c_str()) < 0;
+			return tsStriCmp(left->getCommandName().c_str(), right->getCommandName().c_str()) < 0;
 		});
 
 		ts_out << BoldWhite << "VEIL Tool Options" << ::endl << "================================" << ::endl;
@@ -215,7 +215,7 @@ public:
 		else
 		{
 			ts_out << BoldGreen;
-			if (TsStrLen(left.c_str()) > 24)
+			if (tsStrLen(left.c_str()) > 24)
 			{
 				ts_out << left << ::endl << "\t\t\t " << BoldWhite;
 			}
@@ -413,8 +413,12 @@ public:
 			printf("%s\n", str.c_str());
 			return true;
 		}
-		else
-			return xp_WriteBytes(filename, str.ToUTF8Data());
+        else
+        {
+            tsCryptoData tmp = str.ToUTF8Data();
+
+            return tsWriteByteArray(filename.c_str(), tmp.c_str(), (uint32_t)tmp.size());
+        }
 	}
 	virtual bool writeToString(tscrypto::tsCryptoString & str) override
 	{
@@ -497,7 +501,7 @@ public:
 			return true;
 		}
 		else
-			return xp_WriteText(filename, data);
+			return tsWriteByteArray(filename.c_str(), (const uint8_t*)data.c_str(), (uint32_t)data.size());
 	}
 	virtual bool writeToString(tscrypto::tsCryptoString & str) override
 	{

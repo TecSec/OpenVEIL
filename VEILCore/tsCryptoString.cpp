@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -67,6 +67,13 @@ tsCryptoString::tsCryptoString(const_pointer data) : tscrypto::tsCryptoStringBas
 tsCryptoString::tsCryptoString(value_type data, tsCryptoString::size_type numChars) : tscrypto::tsCryptoStringBase(data, numChars)
 {
 }
+tsCryptoString::tsCryptoString(TSBYTE_BUFF&& data) : tscrypto::tsCryptoStringBase(std::move(data))
+{
+}
+tsCryptoString::tsCryptoString(const TSBYTE_BUFF& data) : tscrypto::tsCryptoStringBase(data)
+{
+}
+
 tsCryptoString::~tsCryptoString()
 {
 };
@@ -228,7 +235,7 @@ tsCryptoString &tsCryptoString::prepend(value_type data)
 	tscrypto::tsCryptoStringBase::prepend(data);
 	return *this;
 }
-tsCryptoString &tsCryptoString::prepend(BYTE data)
+tsCryptoString &tsCryptoString::prepend(uint8_t data)
 {
 	tscrypto::tsCryptoStringBase::prepend(data);
 	return *this;
@@ -272,7 +279,7 @@ tsCryptoString &tsCryptoString::append(value_type data)
 	tscrypto::tsCryptoStringBase::append(data);
 	return *this;
 }
-tsCryptoString &tsCryptoString::append(BYTE data)
+tsCryptoString &tsCryptoString::append(uint8_t data)
 {
 	tscrypto::tsCryptoStringBase::append(data);
 	return *this;
@@ -580,8 +587,8 @@ tsCryptoString &tsCryptoString::Format(const tsCryptoStringBase msg, ...)
 	va_start(args, msg);
 	resize(0);
 	resize(10240);
-	vsnprintf_s(data(), size(), size(), msg.c_str(), args);
-	resize(strlen(c_str()));
+	tsVsnPrintf(data(), size(), msg.c_str(), args);
+	resize(tsStrLen(c_str()));
 	va_end(args);
 	return *this;
 }
@@ -590,8 +597,8 @@ tsCryptoString &tsCryptoString::FormatArg(const tsCryptoStringBase& msg, va_list
 {
 	resize(0);
 	resize(10240);
-	vsnprintf_s(data(), size(), size(), msg.c_str(), arg);
-	resize(strlen(c_str()));
+	tsVsnPrintf(data(), size(), msg.c_str(), arg);
+	resize(tsStrLen(c_str()));
 	return *this;
 }
 

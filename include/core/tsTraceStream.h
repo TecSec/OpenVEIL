@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -450,7 +450,7 @@ inline tsTraceStream &dec(tsTraceStream &strm)
 ///
 /// <returns>A reference to this object.</returns>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-	inline _TSTracemanip<int> __cdecl width(int setTo)
+	inline _TSTracemanip<int> width(int setTo)
 	{
 		return _TSTracemanip<int>(&tsTraceStream::SetWidth, setTo);
 	}
@@ -461,7 +461,7 @@ inline tsTraceStream &dec(tsTraceStream &strm)
 ///
 /// <returns>A reference to this object.</returns>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-	inline _TSTracemanip<int> __cdecl setbase(int setTo)
+	inline _TSTracemanip<int> setbase(int setTo)
 	{
 		return _TSTracemanip<int>(&tsTraceStream::setbase, setTo);
 	}
@@ -472,7 +472,7 @@ inline tsTraceStream &dec(tsTraceStream &strm)
 ///
 /// <returns>A reference to this object.</returns>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-	inline _TSTracemanip<char> __cdecl filler(char setTo)
+	inline _TSTracemanip<char> filler(char setTo)
 	{
 		return _TSTracemanip<char>(&tsTraceStream::SetFiller, setTo);
 	}
@@ -483,13 +483,13 @@ inline tsTraceStream &dec(tsTraceStream &strm)
 	///
 	/// <returns>A reference to this object.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	inline _TSTracemanip<const void *> __cdecl ptr(const void *pointer)
+	inline _TSTracemanip<const void *> ptr(const void *pointer)
 	{
 		return _TSTracemanip<const void *>(&tsTraceStream::ptr, pointer);
 	}
 
 	template <typename TODUMP>
-	inline _TSTracemanip<TODUMP &> __cdecl hexDump(TODUMP& data)
+	inline _TSTracemanip<TODUMP &> hexDump(TODUMP& data)
 	{
 		return _TSTracemanip<TODUMP&>(&tsTraceStream::hexDump, data);
 	}

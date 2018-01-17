@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -64,11 +64,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 extern uint16_t tscrypto::XP_htons(uint16_t s)
 {
-#ifdef HAVE_HTONL
-    return htons(s);
-#else
     return _TS_BIG_ENDIAN2(s);
-#endif // HAVE_HTONL
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -85,12 +81,8 @@ extern uint16_t tscrypto::XP_htons(uint16_t s)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 extern uint32_t tscrypto::XP_htonl(uint32_t l)
 {
-#ifdef HAVE_HTONL
-    return htonl(l);
-#else
 	TS_BIG_ENDIAN4(l);
     return l;
-#endif // HAVE_HTONL
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -107,11 +99,7 @@ extern uint32_t tscrypto::XP_htonl(uint32_t l)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 extern uint16_t tscrypto::XP_ntohs(uint16_t s)
 {
-#ifdef HAVE_HTONL
-    return ntohs(s);
-#else
     return _TS_BIG_ENDIAN2(s);
-#endif // HAVE_HTONL
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -128,12 +116,8 @@ extern uint16_t tscrypto::XP_ntohs(uint16_t s)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 extern uint32_t tscrypto::XP_ntohl(uint32_t l)
 {
-#ifdef HAVE_HTONL
-    return ntohl(l);
-#else
 	TS_BIG_ENDIAN4(l);
     return l;
-#endif // HAVE_HTONL
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -150,7 +134,7 @@ extern uint32_t tscrypto::XP_ntohl(uint32_t l)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 extern uint32_t tscrypto::XP_swapEndianLong(uint32_t l)
 {
-    SWAP_LONG(l);
+    TS_SWAP_LONG(l);
     return l;
 }
 
@@ -168,16 +152,16 @@ extern uint32_t tscrypto::XP_swapEndianLong(uint32_t l)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 extern uint16_t tscrypto::XP_swapEndianShort(uint16_t s)
 {
-    SWAP_SHORT(s);
+    TS_SWAP_SHORT(s);
     return s;
 }
 
 //
-//void TSSwapBytes(BYTE *data, size_t len)
+//void TSSwapBytes(uint8_t *data, size_t len)
 //{
 //    if ( len > 0 )
 //    {
-//        BYTE tmp;
+//        uint8_t tmp;
 //        size_t i;
 //
 //        for (i = 0; i < (len >> 1); i++)
@@ -195,12 +179,12 @@ extern uint16_t tscrypto::XP_swapEndianShort(uint16_t s)
 //}
 //
 //#if (BYTE_ORDER == LITTLE_ENDIAN)
-//void TSMakeBigEndian(BYTE *data, size_t len)
+//void TSMakeBigEndian(uint8_t *data, size_t len)
 //{
 //    TSSwapBytes(data, len);
 //}
 //#else
-//void TSMakeBigEndian(BYTE * /*data*/, size_t /*len*/)
+//void TSMakeBigEndian(uint8_t * /*data*/, size_t /*len*/)
 //{
 //}
 //#endif
@@ -211,12 +195,12 @@ extern uint16_t tscrypto::XP_swapEndianShort(uint16_t s)
 //}
 //
 //#if (BYTE_ORDER != LITTLE_ENDIAN)
-//void TSMakeLittleEndian(__attribute__((unused)) BYTE *data, __attribute__((unused)) size_t len)
+//void TSMakeLittleEndian(__attribute__((unused)) uint8_t *data, __attribute__((unused)) size_t len)
 //{
 //    TSSwapBytes(data, len);
 //}
 //#else
-//void TSMakeLittleEndian(BYTE * /*data*/, size_t /*len*/)
+//void TSMakeLittleEndian(uint8_t * /*data*/, size_t /*len*/)
 //{
 //}
 //#endif

@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -109,7 +109,7 @@ public:
 				}
 				else if (opts.OptionId() == OPT_KEYSIZE)
 				{
-					keysize = TsStrToInt(opts.OptionArg());
+					keysize = tsStrToInt(opts.OptionArg());
 				}
 				else if (opts.OptionId() == OPT_ALGORITHM)
 				{

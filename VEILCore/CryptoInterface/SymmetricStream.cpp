@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -41,7 +41,7 @@ public:
 		m_keySizeInBits(0)
 	{
 		SetName("CHACHA20");
-		desc = findSymmetricAlgorithm("CHACHA20");
+		desc = tsFindSymmetricAlgorithm("CHACHA20");
 	}
 	virtual ~SymmetricStream(void)
 	{
@@ -60,7 +60,7 @@ public:
 			return false;
 
 		key.resize((keyLengthInBits + 7) / 8);
-		if (!internalGenerateRandomBits(key.rawData(), (uint32_t)keyLengthInBits, true, nullptr, 0))
+		if (!tsInternalGenerateRandomBits(key.rawData(), (uint32_t)keyLengthInBits, true, nullptr, 0))
 			return false;
 
 		return true;
@@ -71,7 +71,7 @@ public:
 			return false;
 
 		ivec.resize(getIVECSizeForMode(_SymmetricMode::CKM_SymMode_CTR));
-		if (!internalGenerateRandomBits(ivec.rawData(), (uint32_t)(getIVECSizeForMode(_SymmetricMode::CKM_SymMode_CTR) * 8), false, nullptr, 0))
+		if (!tsInternalGenerateRandomBits(ivec.rawData(), (uint32_t)(getIVECSizeForMode(_SymmetricMode::CKM_SymMode_CTR) * 8), false, nullptr, 0))
 			return false;
 
 		return true;
@@ -303,7 +303,7 @@ public:
 		SetName(fullName);
 		m_context.reset();
 
-		desc = findSymmetricAlgorithm(fullName.c_str());
+		desc = tsFindSymmetricAlgorithm(fullName.c_str());
 
 		m_mode = (_SymmetricMode::CKM_SymMode_CTR);
 		return true;
@@ -314,7 +314,7 @@ public:
 	}
 
 private:
-	const SymmetricAlgorithmDescriptor* desc;
+	const TSSymmetricAlgorithmDescriptor* desc;
     SmartCryptoWorkspace m_context;
 	tsCryptoData m_key;
 	std::shared_ptr<CounterModeIncrementor> m_incrementer;

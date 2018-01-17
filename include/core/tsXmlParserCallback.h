@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -83,7 +83,7 @@ public:
     ///
     /// <returns>The parser error code for this tag.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual resultCodes StartNode (const tscrypto::tsCryptoStringBase &NodeName, tsAttributeMap &attributes, const tscrypto::tsCryptoStringBase &InnerXML, bool SingleNode, tscrypto::tsCryptoStringBase &Results) PURE;
+    virtual resultCodes StartNode (const tscrypto::tsCryptoStringBase &NodeName, const tsAttributeMap &attributes, const tscrypto::tsCryptoStringBase &InnerXML, bool SingleNode, tscrypto::tsCryptoStringBase &Results) PURE;
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Called by the parser when an end node has been detected.</summary>
     ///

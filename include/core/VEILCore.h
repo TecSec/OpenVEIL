@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -46,30 +46,30 @@
     #define EXPORTED_VEILCORE_API 
 #else
     #ifdef _WIN32
-	#ifdef _STATIC_VEILCORE
-		#define VEILCORE_API
-		#define VEILCORE_TEMPLATE_EXTERN extern
-	#else
-		#if defined(VEILCORE_EXPORTS) || defined(VEILCORE_NM_EXPORTS)
-			#define EXPORTED_VEILCORE_API __declspec(dllexport)
-			#define VEILCORE_API __declspec(dllexport)
-			#define VEILCORE_TEMPLATE_EXTERN
-		#else
-			#define EXPORTED_VEILCORE_API __declspec(dllimport)
-			#define VEILCORE_API __declspec(dllimport)
-			#define VEILCORE_TEMPLATE_EXTERN extern
-		#endif
-	#endif
+        #ifdef _STATIC_VEILCORE
+            #define VEILCORE_API
+            #define VEILCORE_TEMPLATE_EXTERN extern
+        #else
+            #if defined(VEILCORE_EXPORTS) || defined(VEILCORE_NM_EXPORTS)
+                #define EXPORTED_VEILCORE_API __declspec(dllexport)
+                #define VEILCORE_API __declspec(dllexport)
+                #define VEILCORE_TEMPLATE_EXTERN
+            #else
+                #define EXPORTED_VEILCORE_API __declspec(dllimport)
+                #define VEILCORE_API __declspec(dllimport)
+                #define VEILCORE_TEMPLATE_EXTERN extern
+            #endif
+        #endif
     #else
-	#if defined(VEILCORE_EXPORTS)
-		#define VEILCORE_API EXPORT_SYMBOL
-		#define EXPORTED_VEILCORE_API EXPORT_SYMBOL
-		#define VEILCORE_TEMPLATE_EXTERN
-	#else
-		#define VEILCORE_API
-		#define EXPORTED_VEILCORE_API EXPORT_SYMBOL
-		#define VEILCORE_TEMPLATE_EXTERN extern
-	#endif // defined
+        #if defined(VEILCORE_EXPORTS)
+            #define VEILCORE_API EXPORT_SYMBOL
+            #define EXPORTED_VEILCORE_API EXPORT_SYMBOL
+            #define VEILCORE_TEMPLATE_EXTERN
+        #else
+            #define VEILCORE_API
+            #define EXPORTED_VEILCORE_API EXPORT_SYMBOL
+            #define VEILCORE_TEMPLATE_EXTERN extern
+        #endif // defined
     #endif
 #endif // VEILCORE_STATIC
 
@@ -85,7 +85,7 @@
 #define HAVE_BSTR
 #define SUPPORT_XML
 #else
-	//#define HAVE_BSTR
+    //#define HAVE_BSTR
 #define SUPPORT_XML
 #endif
 
@@ -104,21 +104,21 @@
 /**
 * \brief A macro that defines size t cast into an int
 */
-#   define SIZE_T_CAST(a) ((INT_PTR)(a))
+#   define SIZE_T_CAST(a) ((intptr_t)(a))
 #endif
 
 template<class Tag, class impl, impl default_value>
 class ID
 {
 public:
-	static ID invalid() { return ID{}; }
-	ID() : m_val(default_value) { }
-	explicit ID(impl val) : m_val(val) {}
-	explicit operator impl() const { return m_val; }
-	friend bool operator==(ID a, ID b) { return a.m_val == b.m_val; }
-	friend bool operator!=(ID a, ID b) { return a.m_val != b.m_val; }
+    static ID invalid() { return ID{}; }
+    ID() : m_val(default_value) { }
+    explicit ID(impl val) : m_val(val) {}
+    explicit operator impl() const { return m_val; }
+    friend bool operator==(ID a, ID b) { return a.m_val == b.m_val; }
+    friend bool operator!=(ID a, ID b) { return a.m_val != b.m_val; }
 private:
-	impl m_val;
+    impl m_val;
 };
 
 /*! @brief Defines the type of compression that was applied to the data before it was encrypted
@@ -126,9 +126,9 @@ private:
 * This enumeration defines the types of compression that is currently supported by the CKM encryption process.
 */
 typedef enum {
-	ct_None,    /*!< The data was not compressed */
-	ct_zLib,    /*!< zLib/Zip style compression was used */
-	ct_BZ2      /*!< BZ2 compression was used */
+    ct_None,    /*!< The data was not compressed */
+    ct_zLib,    /*!< zLib/Zip style compression was used */
+    ct_BZ2      /*!< BZ2 compression was used */
 } CompressionType;
 
 
@@ -144,105 +144,105 @@ inline tscrypto::tsCryptoStringList CreateTsAsciiList() { return tscrypto::Creat
 
 
 namespace tsmod {
-	class VEILCORE_API IAlgorithmList : tscrypto::IAlgorithmList
-	{
-	};
+    class VEILCORE_API IAlgorithmList : tscrypto::IAlgorithmList
+    {
+    };
 }
 
 namespace tsstd {
-	typedef tscrypto::Exception Exception;
+    typedef tscrypto::Exception Exception;
 
-	class VEILCORE_API OverflowException : public Exception
-	{
-	public:
-		OverflowException() {}
-		OverflowException(const tscrypto::tsCryptoStringBase& msg) : Exception(msg) {}
-		OverflowException(const OverflowException& obj) :
-			Exception(obj._msg)
-		{
-		}
-		OverflowException(OverflowException&& obj) :
-			Exception(std::move(obj._msg))
-		{
-		}
-		virtual ~OverflowException() {}
-	};
-	class VEILCORE_API DivideByZeroException : public Exception
-	{
-	public:
-		DivideByZeroException() {}
-		DivideByZeroException(const tscrypto::tsCryptoStringBase& msg) : Exception(msg) {}
-		DivideByZeroException(const DivideByZeroException& obj) :
-			Exception(obj._msg)
-		{
-		}
-		DivideByZeroException(DivideByZeroException&& obj) :
-			Exception(std::move(obj._msg))
-		{
-		}
-		virtual ~DivideByZeroException() {}
-	};
-	class VEILCORE_API NotImplementedException : public Exception
-	{
-	public:
-		NotImplementedException() {}
-		NotImplementedException(const tscrypto::tsCryptoStringBase& msg) : Exception(msg) {}
-		NotImplementedException(const NotImplementedException& obj) :
-			Exception(obj._msg)
-		{
-		}
-		NotImplementedException(NotImplementedException&& obj) :
-			Exception(std::move(obj._msg))
-		{
-		}
-		virtual ~NotImplementedException() {}
-	};
-	class VEILCORE_API CommunicationTimeoutException : public Exception
-	{
-	public:
-		CommunicationTimeoutException() {}
-		CommunicationTimeoutException(const tscrypto::tsCryptoStringBase& msg) : Exception(msg) {}
-		CommunicationTimeoutException(const CommunicationTimeoutException& obj) :
-			Exception(obj._msg)
-		{
-		}
-		CommunicationTimeoutException(CommunicationTimeoutException&& obj) :
-			Exception(std::move(obj._msg))
-		{
-		}
-		virtual ~CommunicationTimeoutException() {}
-	};
-	class VEILCORE_API ArgumentNullException : public Exception
-	{
-	public:
-		ArgumentNullException(const tscrypto::tsCryptoStringBase& message) : Exception(message)
-		{
-		}
-	};
-	class VEILCORE_API ArgumentException : public Exception
-	{
-	public:
-		ArgumentException(const tscrypto::tsCryptoStringBase& message) : Exception(message)
-		{
-		}
-	};
-	class VEILCORE_API OutOfRange : public tscrypto::OutOfRange
-	{
-	public:
-		OutOfRange(const tscrypto::tsCryptoStringBase& message) : tscrypto::OutOfRange(message)
-		{
-		}
-	};
-	class VEILCORE_API FileNotFoundException : public Exception
-	{
-	public:
-		FileNotFoundException(const tscrypto::tsCryptoStringBase& message, const tscrypto::tsCryptoStringBase& filename) : Exception(message), _filename(filename)
-		{
-		}
-		tscrypto::tsCryptoString Filename() const { return _filename; }
-	private:
-		tscrypto::tsCryptoString _filename;
-	};
+    class VEILCORE_API OverflowException : public Exception
+    {
+    public:
+        OverflowException() {}
+        OverflowException(const tscrypto::tsCryptoStringBase& msg) : Exception(msg) {}
+        OverflowException(const OverflowException& obj) :
+            Exception(obj._msg)
+        {
+        }
+        OverflowException(OverflowException&& obj) :
+            Exception(std::move(obj._msg))
+        {
+        }
+        virtual ~OverflowException() {}
+    };
+    class VEILCORE_API DivideByZeroException : public Exception
+    {
+    public:
+        DivideByZeroException() {}
+        DivideByZeroException(const tscrypto::tsCryptoStringBase& msg) : Exception(msg) {}
+        DivideByZeroException(const DivideByZeroException& obj) :
+            Exception(obj._msg)
+        {
+        }
+        DivideByZeroException(DivideByZeroException&& obj) :
+            Exception(std::move(obj._msg))
+        {
+        }
+        virtual ~DivideByZeroException() {}
+    };
+    class VEILCORE_API NotImplementedException : public Exception
+    {
+    public:
+        NotImplementedException() {}
+        NotImplementedException(const tscrypto::tsCryptoStringBase& msg) : Exception(msg) {}
+        NotImplementedException(const NotImplementedException& obj) :
+            Exception(obj._msg)
+        {
+        }
+        NotImplementedException(NotImplementedException&& obj) :
+            Exception(std::move(obj._msg))
+        {
+        }
+        virtual ~NotImplementedException() {}
+    };
+    class VEILCORE_API CommunicationTimeoutException : public Exception
+    {
+    public:
+        CommunicationTimeoutException() {}
+        CommunicationTimeoutException(const tscrypto::tsCryptoStringBase& msg) : Exception(msg) {}
+        CommunicationTimeoutException(const CommunicationTimeoutException& obj) :
+            Exception(obj._msg)
+        {
+        }
+        CommunicationTimeoutException(CommunicationTimeoutException&& obj) :
+            Exception(std::move(obj._msg))
+        {
+        }
+        virtual ~CommunicationTimeoutException() {}
+    };
+    class VEILCORE_API ArgumentNullException : public Exception
+    {
+    public:
+        ArgumentNullException(const tscrypto::tsCryptoStringBase& message) : Exception(message)
+        {
+        }
+    };
+    class VEILCORE_API ArgumentException : public Exception
+    {
+    public:
+        ArgumentException(const tscrypto::tsCryptoStringBase& message) : Exception(message)
+        {
+        }
+    };
+    class VEILCORE_API OutOfRange : public tscrypto::OutOfRange
+    {
+    public:
+        OutOfRange(const tscrypto::tsCryptoStringBase& message) : tscrypto::OutOfRange(message)
+        {
+        }
+    };
+    class VEILCORE_API FileNotFoundException : public Exception
+    {
+    public:
+        FileNotFoundException(const tscrypto::tsCryptoStringBase& message, const tscrypto::tsCryptoStringBase& filename) : Exception(message), _filename(filename)
+        {
+        }
+        tscrypto::tsCryptoString Filename() const { return _filename; }
+    private:
+        tscrypto::tsCryptoString _filename;
+    };
 
 #ifdef _WIN32
 
@@ -250,86 +250,86 @@ namespace tsstd {
     TsString.Format("Exception %s (0x%.8X) at address 0x%p.", #nSeCode, EXCEPTION_##nSeCode, _excPointers->ExceptionRecord->ExceptionAddress);\
     break;
 
-	class VEILCORE_API SeException : public Exception
-	{
-	public:
-		SeException(UINT nSeCode, struct _EXCEPTION_POINTERS* pExcPointers) :
-			_seCode(nSeCode),
-			_excPointers(pExcPointers)
-		{
-			GetErrorMessage(_msg, nullptr);
-		}
-		SeException(const SeException& obj) :
-			Exception(obj),
-			_seCode(obj._seCode),
-			_excPointers(obj._excPointers)
-		{
-		}
-		SeException(SeException&& obj) :
-			Exception(std::move(obj)),
-			_seCode(obj._seCode),
-			_excPointers(obj._excPointers)
-		{
-			obj._seCode = 0;
-			obj._excPointers = nullptr;
-		}
-		virtual ~SeException() {}
+    class VEILCORE_API SeException : public Exception
+    {
+    public:
+        SeException(uint32_t nSeCode, struct _EXCEPTION_POINTERS* pExcPointers) :
+            _seCode(nSeCode),
+            _excPointers(pExcPointers)
+        {
+            GetErrorMessage(_msg, nullptr);
+        }
+        SeException(const SeException& obj) :
+            Exception(obj),
+            _seCode(obj._seCode),
+            _excPointers(obj._excPointers)
+        {
+        }
+        SeException(SeException&& obj) :
+            Exception(std::move(obj)),
+            _seCode(obj._seCode),
+            _excPointers(obj._excPointers)
+        {
+            obj._seCode = 0;
+            obj._excPointers = nullptr;
+        }
+        virtual ~SeException() {}
 
-		UINT GetSeCode() const { return _seCode; }
-		_EXCEPTION_POINTERS* GetSePointers() const { return _excPointers; }
-		PVOID GetExceptionAddress() const { return _excPointers->ExceptionRecord->ExceptionAddress; }
+        uint32_t GetSeCode() const { return _seCode; }
+        _EXCEPTION_POINTERS* GetSePointers() const { return _excPointers; }
+        PVOID GetExceptionAddress() const { return _excPointers->ExceptionRecord->ExceptionAddress; }
 
-		void Delete()
-		{
-			delete this;
-		}
+        void Delete()
+        {
+            delete this;
+        }
 
-		bool GetErrorMessage(tscrypto::tsCryptoStringBase& description, UINT* helpContext)
-		{
-			bool retVal = true;
+        bool GetErrorMessage(tscrypto::tsCryptoStringBase& description, uint32_t* helpContext)
+        {
+            bool retVal = true;
 
-			if (helpContext != nullptr)
-				*helpContext = 0;
+            if (helpContext != nullptr)
+                *helpContext = 0;
 
-			switch (GetSeCode())
-			{
-				SE_CASE(ACCESS_VIOLATION, description);
-				SE_CASE(DATATYPE_MISALIGNMENT, description);
-				SE_CASE(BREAKPOINT, description);
-				SE_CASE(SINGLE_STEP, description);
-				SE_CASE(ARRAY_BOUNDS_EXCEEDED, description);
-				SE_CASE(FLT_DENORMAL_OPERAND, description);
-				SE_CASE(FLT_INEXACT_RESULT, description);
-				SE_CASE(FLT_DIVIDE_BY_ZERO, description);
-				SE_CASE(FLT_INVALID_OPERATION, description);
-				SE_CASE(FLT_OVERFLOW, description);
-				SE_CASE(FLT_STACK_CHECK, description);
-				SE_CASE(FLT_UNDERFLOW, description);
-				SE_CASE(INT_DIVIDE_BY_ZERO, description);
-				SE_CASE(INT_OVERFLOW, description);
-				SE_CASE(PRIV_INSTRUCTION, description);
-				SE_CASE(IN_PAGE_ERROR, description);
-				SE_CASE(ILLEGAL_INSTRUCTION, description);
-				SE_CASE(NONCONTINUABLE_EXCEPTION, description);
-				SE_CASE(STACK_OVERFLOW, description);
-				SE_CASE(INVALID_DISPOSITION, description);
-				SE_CASE(GUARD_PAGE, description);
-				SE_CASE(INVALID_HANDLE, description);
-			default:
-				description = "Unknown exception";
-				retVal = false;
-				break;
-			}
-			return retVal;
-		}
-		static void __cdecl SeTranslator(UINT seCode, struct _EXCEPTION_POINTERS* ptrs)
-		{
-			throw SeException(seCode, ptrs);
-		}
-	protected:
-		UINT _seCode;
-		struct _EXCEPTION_POINTERS* _excPointers;
-	};
+            switch (GetSeCode())
+            {
+                SE_CASE(ACCESS_VIOLATION, description);
+                SE_CASE(DATATYPE_MISALIGNMENT, description);
+                SE_CASE(BREAKPOINT, description);
+                SE_CASE(SINGLE_STEP, description);
+                SE_CASE(ARRAY_BOUNDS_EXCEEDED, description);
+                SE_CASE(FLT_DENORMAL_OPERAND, description);
+                SE_CASE(FLT_INEXACT_RESULT, description);
+                SE_CASE(FLT_DIVIDE_BY_ZERO, description);
+                SE_CASE(FLT_INVALID_OPERATION, description);
+                SE_CASE(FLT_OVERFLOW, description);
+                SE_CASE(FLT_STACK_CHECK, description);
+                SE_CASE(FLT_UNDERFLOW, description);
+                SE_CASE(INT_DIVIDE_BY_ZERO, description);
+                SE_CASE(INT_OVERFLOW, description);
+                SE_CASE(PRIV_INSTRUCTION, description);
+                SE_CASE(IN_PAGE_ERROR, description);
+                SE_CASE(ILLEGAL_INSTRUCTION, description);
+                SE_CASE(NONCONTINUABLE_EXCEPTION, description);
+                SE_CASE(STACK_OVERFLOW, description);
+                SE_CASE(INVALID_DISPOSITION, description);
+                SE_CASE(GUARD_PAGE, description);
+                SE_CASE(INVALID_HANDLE, description);
+            default:
+                description = "Unknown exception";
+                retVal = false;
+                break;
+            }
+            return retVal;
+        }
+        static void SeTranslator(uint32_t seCode, struct _EXCEPTION_POINTERS* ptrs)
+        {
+            throw SeException(seCode, ptrs);
+        }
+    protected:
+        uint32_t _seCode;
+        struct _EXCEPTION_POINTERS* _excPointers;
+    };
 #endif // _WIN32
 }
 
@@ -359,27 +359,40 @@ _Check_return_ bool VEILCORE_API gzipCompress(const uint8_t* src, size_t srcLen,
 _Check_return_ bool VEILCORE_API gzipDecompress(const uint8_t* src, size_t srcLen, uint8_t* dest, size_t& destLen);
 _Check_return_ bool VEILCORE_API gzipDecompress(const uint8_t* src, size_t srcLen, tscrypto::tsCryptoData& outputData);
 
+_Check_return_ tscrypto::tsCryptoData VEILCORE_API zlibCompress(const tscrypto::tsCryptoData& src, int level);
+_Check_return_ tscrypto::tsCryptoData VEILCORE_API zlibDecompress(const tscrypto::tsCryptoData& src);
+
 namespace TecSecResources {
-	struct ResourceHeader
-	{
-		int EntryCount;
-		int NameStringTable;
-		int DataTable;
-	};
-	struct NameEntry
-	{
-		int nameOffset;
-		int dataSize;
-		int dataOffset;
-	};
+    struct oldResourceHeader
+    {
+        int EntryCount;
+        int NameStringTable;
+        int DataTable;
+    };
+    struct ResourceHeaderV2
+    {
+        uint8_t magic[4];
+        uint32_t version;
+        uint32_t headerSize;
+        uint32_t dataSize;
+        int EntryCount;
+        int NameStringTable;
+        int DataTable;
+    };
+    struct NameEntry
+    {
+        int nameOffset;
+        int dataSize;
+        int dataOffset;
+    };
 }
 
 
 class VEILCORE_API ITestable
 {
 public:
-	virtual ~ITestable() {}
-	virtual bool RunSelfTest(bool runDetailedTests) = 0;
+    virtual ~ITestable() {}
+    virtual bool RunSelfTest(bool runDetailedTests) = 0;
 };
 
 
@@ -412,9 +425,9 @@ _Check_return_ extern bool VEILCORE_API xp_CreateGuid(GUID &guid);
 
 typedef enum LoginStatus
 {
-	loginStatus_Connected,
-	loginStatus_NoServer,
-	loginStatus_BadAuth,
+    loginStatus_Connected,
+    loginStatus_NoServer,
+    loginStatus_BadAuth,
 } LoginStatus;
 
 class IKeyVEILConnector;
@@ -423,29 +436,29 @@ class IToken;
 class VEILCORE_API IKeyVEILSession
 {
 public:
-	virtual ~IKeyVEILSession() {}
-	virtual LoginStatus Login(const tscrypto::tsCryptoStringBase& pin) = 0;
-	virtual bool IsLoggedIn() = 0;
-	virtual bool Logout() = 0;
-	virtual bool GenerateWorkingKey(Asn1::CTS::_POD_CkmCombineParameters& params, std::function<bool(Asn1::CTS::_POD_CkmCombineParameters&, tscrypto::tsCryptoData&)> headerCallback, tscrypto::tsCryptoData &WorkingKey) = 0;
-	virtual bool RegenerateWorkingKey(Asn1::CTS::_POD_CkmCombineParameters& params, tscrypto::tsCryptoData &WorkingKey) = 0;
+    virtual ~IKeyVEILSession() {}
+    virtual LoginStatus Login(const tscrypto::tsCryptoStringBase& pin) = 0;
+    virtual bool IsLoggedIn() = 0;
+    virtual bool Logout() = 0;
+    virtual bool GenerateWorkingKey(Asn1::CTS::_POD_CkmCombineParameters& params, std::function<bool(Asn1::CTS::_POD_CkmCombineParameters&, tscrypto::tsCryptoData&)> headerCallback, tscrypto::tsCryptoData &WorkingKey) = 0;
+    virtual bool RegenerateWorkingKey(Asn1::CTS::_POD_CkmCombineParameters& params, tscrypto::tsCryptoData &WorkingKey) = 0;
 
-	virtual std::shared_ptr<Asn1::CTS::_POD_Profile> GetProfile() = 0;
-	virtual bool Close(void) = 0;
+    virtual std::shared_ptr<Asn1::CTS::_POD_Profile> GetProfile() = 0;
+    virtual bool Close(void) = 0;
 
-	// Added in 7.0.3
-	virtual bool IsLocked() = 0;
-	virtual size_t retriesLeft() = 0;
+    // Added in 7.0.3
+    virtual bool IsLocked() = 0;
+    virtual size_t retriesLeft() = 0;
 
-	// Added in 7.0.5
-	virtual bool IsValid() = 0; // Warning - this also will do a keep-alive.  Session timeout would be restarted for each call made.
+    // Added in 7.0.5
+    virtual bool IsValid() = 0; // Warning - this also will do a keep-alive.  Session timeout would be restarted for each call made.
 
-	// Added in 7.0.7
-	virtual std::shared_ptr<IKeyVEILSession> Duplicate() = 0;
+    // Added in 7.0.7
+    virtual std::shared_ptr<IKeyVEILSession> Duplicate() = 0;
 
-	// Added in 7.0.19
-	virtual int LastKeyVEILStatus() = 0;
-	virtual std::shared_ptr<IKeyVEILConnector> Connector() = 0;
+    // Added in 7.0.19
+    virtual int LastKeyVEILStatus() = 0;
+    virtual std::shared_ptr<IKeyVEILConnector> Connector() = 0;
     
     // Added in 7.0.43
     virtual std::shared_ptr<IToken> Token() = 0;
@@ -457,102 +470,102 @@ public:
 
 typedef enum ConnectionStatus
 {
-	connStatus_Connected,
-	connStatus_NoServer,
-	connStatus_BadAuth,
-	connStatus_WrongProtocol,
-	connStatus_UrlBad,
+    connStatus_Connected,
+    connStatus_NoServer,
+    connStatus_BadAuth,
+    connStatus_WrongProtocol,
+    connStatus_UrlBad,
 } ConnectionStatus;
 
 class VEILCORE_API IToken
 {
 public:
-	virtual ~IToken() {}
-	virtual tscrypto::tsCryptoString tokenName() = 0;
-	virtual bool tokenName(const tscrypto::tsCryptoStringBase& setTo) = 0;
-	virtual tscrypto::tsCryptoData serialNumber() = 0;
-	virtual GUID id() = 0;
-	virtual tscrypto::tsCryptoString enterpriseName() = 0;
-	virtual tscrypto::tsCryptoString memberName() = 0;
-	virtual tscrypto::tsCryptoString tokenType() = 0;
-	virtual GUID enterpriseId() = 0;
-	virtual GUID memberId() = 0;
+    virtual ~IToken() {}
+    virtual tscrypto::tsCryptoString tokenName() = 0;
+    virtual bool tokenName(const tscrypto::tsCryptoStringBase& setTo) = 0;
+    virtual tscrypto::tsCryptoData serialNumber() = 0;
+    virtual GUID id() = 0;
+    virtual tscrypto::tsCryptoString enterpriseName() = 0;
+    virtual tscrypto::tsCryptoString memberName() = 0;
+    virtual tscrypto::tsCryptoString tokenType() = 0;
+    virtual GUID enterpriseId() = 0;
+    virtual GUID memberId() = 0;
 
-	virtual std::shared_ptr<IKeyVEILSession> openSession() = 0;
+    virtual std::shared_ptr<IKeyVEILSession> openSession() = 0;
 };
 
 class VEILCORE_API IFavorite
 {
 public:
-	virtual ~IFavorite() {}
+    virtual ~IFavorite() {}
 
-	virtual GUID favoriteId() = 0;
-	virtual void favoriteId(const GUID& setTo) = 0;
+    virtual GUID favoriteId() = 0;
+    virtual void favoriteId(const GUID& setTo) = 0;
 
-	virtual GUID enterpriseId() = 0;
-	virtual void enterpriseId(const GUID& setTo) = 0;
+    virtual GUID enterpriseId() = 0;
+    virtual void enterpriseId(const GUID& setTo) = 0;
 
-	virtual tscrypto::tsCryptoString favoriteName() = 0;
-	virtual void favoriteName(const tscrypto::tsCryptoStringBase& setTo) = 0;
+    virtual tscrypto::tsCryptoString favoriteName() = 0;
+    virtual void favoriteName(const tscrypto::tsCryptoStringBase& setTo) = 0;
 
-	virtual tscrypto::tsCryptoData tokenSerialNumber() = 0;
-	virtual void tokenSerialNumber(const tscrypto::tsCryptoData& setTo) = 0;
+    virtual tscrypto::tsCryptoData tokenSerialNumber() = 0;
+    virtual void tokenSerialNumber(const tscrypto::tsCryptoData& setTo) = 0;
 
-	virtual tscrypto::tsCryptoData headerData() = 0;
-	virtual void headerData(const tscrypto::tsCryptoData& setTo) = 0;
+    virtual tscrypto::tsCryptoData headerData() = 0;
+    virtual void headerData(const tscrypto::tsCryptoData& setTo) = 0;
 };
 
 class VEILCORE_API IKeyVEILConnector
 {
 public:
-	virtual ~IKeyVEILConnector() {}
-	virtual ConnectionStatus connect(const tscrypto::tsCryptoStringBase& url, const tscrypto::tsCryptoStringBase& username, const tscrypto::tsCryptoStringBase& password) = 0;
-	virtual void disconnect() = 0;
-	virtual bool isConnected() = 0;
-	virtual bool refresh() = 0;
-	virtual size_t tokenCount() = 0;
-	virtual std::shared_ptr<IToken> token(size_t index) = 0;
-	virtual std::shared_ptr<IToken> token(const tscrypto::tsCryptoStringBase& tokenName) = 0;
-	virtual std::shared_ptr<IToken> token(const tscrypto::tsCryptoData& serialNumber) = 0;
-	virtual std::shared_ptr<IToken> token(const GUID& id) = 0;
-	virtual bool sendJsonRequest(const tscrypto::tsCryptoStringBase& verb, const tscrypto::tsCryptoStringBase& cmd, const tscrypto::JSONObject &inData, tscrypto::JSONObject& outData, int& status) = 0;
+    virtual ~IKeyVEILConnector() {}
+    virtual ConnectionStatus connect(const tscrypto::tsCryptoStringBase& url, const tscrypto::tsCryptoStringBase& username, const tscrypto::tsCryptoStringBase& password) = 0;
+    virtual void disconnect() = 0;
+    virtual bool isConnected() = 0;
+    virtual bool refresh() = 0;
+    virtual size_t tokenCount() = 0;
+    virtual std::shared_ptr<IToken> token(size_t index) = 0;
+    virtual std::shared_ptr<IToken> token(const tscrypto::tsCryptoStringBase& tokenName) = 0;
+    virtual std::shared_ptr<IToken> token(const tscrypto::tsCryptoData& serialNumber) = 0;
+    virtual std::shared_ptr<IToken> token(const GUID& id) = 0;
+    virtual bool sendJsonRequest(const tscrypto::tsCryptoStringBase& verb, const tscrypto::tsCryptoStringBase& cmd, const tscrypto::JSONObject &inData, tscrypto::JSONObject& outData, int& status) = 0;
 
-	// Added 7.0.1
-	virtual ConnectionStatus genericConnectToServer(const tscrypto::tsCryptoStringBase& url, const tscrypto::tsCryptoStringBase& username, const tscrypto::tsCryptoStringBase& password) = 0;
-	virtual bool sendRequest(const tscrypto::tsCryptoStringBase& verb, const tscrypto::tsCryptoStringBase& cmd, const tscrypto::tsCryptoData &inData, tscrypto::tsCryptoData& outData, int& status) = 0;
+    // Added 7.0.1
+    virtual ConnectionStatus genericConnectToServer(const tscrypto::tsCryptoStringBase& url, const tscrypto::tsCryptoStringBase& username, const tscrypto::tsCryptoStringBase& password) = 0;
+    virtual bool sendRequest(const tscrypto::tsCryptoStringBase& verb, const tscrypto::tsCryptoStringBase& cmd, const tscrypto::tsCryptoData &inData, tscrypto::tsCryptoData& outData, int& status) = 0;
 
-	// Response data
-	virtual tscrypto::tsCryptoString status() const = 0;
-	virtual tscrypto::tsCryptoString reason() const = 0;
-	virtual tscrypto::tsCryptoString version() const = 0;
-	virtual size_t dataPartSize() const = 0;
-	virtual const tscrypto::tsCryptoData& dataPart() const = 0;
-	virtual WORD errorCode() const = 0;
-	virtual size_t attributeCount() const = 0;
-	virtual const HttpAttribute* attribute(size_t index) const = 0;
-	virtual const HttpAttribute* attributeByName(const tscrypto::tsCryptoStringBase& index) const = 0;
-	virtual const HttpAttribute* attributeByName(const char *index) const = 0;
+    // Response data
+    virtual tscrypto::tsCryptoString status() const = 0;
+    virtual tscrypto::tsCryptoString reason() const = 0;
+    virtual tscrypto::tsCryptoString version() const = 0;
+    virtual size_t dataPartSize() const = 0;
+    virtual const tscrypto::tsCryptoData& dataPart() const = 0;
+    virtual uint16_t errorCode() const = 0;
+    virtual size_t attributeCount() const = 0;
+    virtual const HttpAttribute* attribute(size_t index) const = 0;
+    virtual const HttpAttribute* attributeByName(const tscrypto::tsCryptoStringBase& index) const = 0;
+    virtual const HttpAttribute* attributeByName(const char *index) const = 0;
 
-	// Added 7.0.5
-	virtual size_t favoriteCount() = 0;
-	virtual std::shared_ptr<IFavorite> favorite(size_t index) = 0;
-	virtual std::shared_ptr<IFavorite> favorite(const tscrypto::tsCryptoStringBase& name) = 0;
-	virtual std::shared_ptr<IFavorite> favorite(const GUID& id) = 0;
-	virtual GUID CreateFavorite(std::shared_ptr<IToken> token, const tscrypto::tsCryptoData& headerData, const tscrypto::tsCryptoStringBase& name) = 0;
-	virtual GUID CreateFavorite(const GUID& tokenId, const tscrypto::tsCryptoData& headerData, const tscrypto::tsCryptoStringBase& name) = 0;
-	virtual GUID CreateFavorite(const tscrypto::tsCryptoData& tokenSerial, const tscrypto::tsCryptoData& headerData, const tscrypto::tsCryptoStringBase& name) = 0;
-	virtual bool DeleteFavorite(const GUID& id) = 0;
-	virtual bool UpdateFavoriteName(const GUID& id, const tscrypto::tsCryptoStringBase& name) = 0;
-	virtual bool UpdateFavorite(const GUID& id, const tscrypto::tsCryptoData& setTo) = 0;
-	virtual size_t tokenCountForEnterprise(const GUID& enterprise) = 0;
-	virtual std::shared_ptr<IToken> tokenForEnterprise(const GUID& enterprise, size_t index) = 0;
-	virtual size_t favoriteCountForEnterprise(const GUID& enterprise) = 0;
-	virtual std::shared_ptr<IFavorite> favoriteForEnterprise(const GUID& enterprise, size_t index) = 0;
+    // Added 7.0.5
+    virtual size_t favoriteCount() = 0;
+    virtual std::shared_ptr<IFavorite> favorite(size_t index) = 0;
+    virtual std::shared_ptr<IFavorite> favorite(const tscrypto::tsCryptoStringBase& name) = 0;
+    virtual std::shared_ptr<IFavorite> favorite(const GUID& id) = 0;
+    virtual GUID CreateFavorite(std::shared_ptr<IToken> token, const tscrypto::tsCryptoData& headerData, const tscrypto::tsCryptoStringBase& name) = 0;
+    virtual GUID CreateFavorite(const GUID& tokenId, const tscrypto::tsCryptoData& headerData, const tscrypto::tsCryptoStringBase& name) = 0;
+    virtual GUID CreateFavorite(const tscrypto::tsCryptoData& tokenSerial, const tscrypto::tsCryptoData& headerData, const tscrypto::tsCryptoStringBase& name) = 0;
+    virtual bool DeleteFavorite(const GUID& id) = 0;
+    virtual bool UpdateFavoriteName(const GUID& id, const tscrypto::tsCryptoStringBase& name) = 0;
+    virtual bool UpdateFavorite(const GUID& id, const tscrypto::tsCryptoData& setTo) = 0;
+    virtual size_t tokenCountForEnterprise(const GUID& enterprise) = 0;
+    virtual std::shared_ptr<IToken> tokenForEnterprise(const GUID& enterprise, size_t index) = 0;
+    virtual size_t favoriteCountForEnterprise(const GUID& enterprise) = 0;
+    virtual std::shared_ptr<IFavorite> favoriteForEnterprise(const GUID& enterprise, size_t index) = 0;
 
-	// Added 7.0.6
-	virtual size_t AddKeyVEILChangeCallback(std::function<void(tscrypto::JSONObject& eventData)> func) = 0; // For details
-	virtual size_t AddKeyVEILGeneralChangeCallback(std::function<void()> func) = 0; // for general notice
-	virtual void RemoveKeyVEILChangeCallback(size_t cookie) = 0;
+    // Added 7.0.6
+    virtual size_t AddKeyVEILChangeCallback(std::function<void(tscrypto::JSONObject& eventData)> func) = 0; // For details
+    virtual size_t AddKeyVEILGeneralChangeCallback(std::function<void()> func) = 0; // for general notice
+    virtual void RemoveKeyVEILChangeCallback(size_t cookie) = 0;
     // Added in 7.0.43
     virtual tscrypto::tsCryptoString failureReason() = 0;
 };
@@ -568,18 +581,18 @@ public:
 class VEILCORE_API CkmChangeProducerCore : public ICkmChangeProducer
 {
 public:
-	/// <summary>Default constructor.</summary>
-	CkmChangeProducerCore()
-	{}
-	// ICkmChangeProducer
-	virtual void ScanForChanges(void) = 0;
+    /// <summary>Default constructor.</summary>
+    CkmChangeProducerCore()
+    {}
+    // ICkmChangeProducer
+    virtual void ScanForChanges(void) = 0;
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// <summary>Scans for changes changes for the CkmChangeProducer interface.</summary>
-	///
-	/// <returns>S_OK for success or a standard COM error for failure.</returns>
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual bool ScanChanges(void) { ScanForChanges(); return true; }
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// <summary>Scans for changes changes for the CkmChangeProducer interface.</summary>
+    ///
+    /// <returns>S_OK for success or a standard COM error for failure.</returns>
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    virtual bool ScanChanges(void) { ScanForChanges(); return true; }
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -591,21 +604,21 @@ public:
 class VEILCORE_API CkmChangeConsumerCore : public ICkmChangeConsumer
 {
 public:
-	/// <summary>Default constructor.</summary>
-	CkmChangeConsumerCore()
-	{}
-	/**
-	* \brief Specifies the type of changes to report.
-	*
-	* \return A CKMChangeType.
-	*/
-	virtual CKMChangeType WantsChangesMatching() = 0;
-	/**
-	* \brief Called by the change system when a desired change type is detected
-	*
-	* \param [in,out] eventObj If non-null, the event object.
-	*/
-	virtual void          OnCkmChange(std::shared_ptr<ICkmChangeEvent>& eventObj) = 0;
+    /// <summary>Default constructor.</summary>
+    CkmChangeConsumerCore()
+    {}
+    /**
+    * \brief Specifies the type of changes to report.
+    *
+    * \return A CKMChangeType.
+    */
+    virtual CKMChangeType WantsChangesMatching() = 0;
+    /**
+    * \brief Called by the change system when a desired change type is detected
+    *
+    * \param [in,out] eventObj If non-null, the event object.
+    */
+    virtual void          OnCkmChange(std::shared_ptr<ICkmChangeEvent>& eventObj) = 0;
 
 };
 
@@ -618,15 +631,15 @@ public:
 class VEILCORE_API CkmChangeEventCore : public ICkmChangeEvent
 {
 public:
-	/// <summary>Default constructor.</summary>
-	CkmChangeEventCore()
-	{ }
-	/**
-	* \brief Gets the change type.
-	*
-	* \return The change type.
-	*/
-	virtual CKMChangeType GetChangeType() = 0;
+    /// <summary>Default constructor.</summary>
+    CkmChangeEventCore()
+    { }
+    /**
+    * \brief Gets the change type.
+    *
+    * \return The change type.
+    */
+    virtual CKMChangeType GetChangeType() = 0;
 };
 
 #include "IPreferenceChangeNotify.h"
@@ -648,510 +661,505 @@ void VEILCORE_API TSPatchValueFromXML(const tscrypto::tsCryptoStringBase &value,
 class VEILCORE_API ToBool //: public boost::static_visitor<bool>
 {
 public:
-	//bool operator()(bool i) const
-	//{
-	//    return i;
-	//}
-	//
-	bool operator()(int i) const
-	{
-		return i != 0;
-	}
+    //bool operator()(bool i) const
+    //{
+    //    return i;
+    //}
+    //
+    bool operator()(int i) const
+    {
+        return i != 0;
+    }
 
-	bool operator()(const tscrypto::tsCryptoStringBase & str) const
-	{
-        return TsStrToInt(str.c_str()) != 0;
-	}
+    bool operator()(const tscrypto::tsCryptoStringBase & str) const
+    {
+        return tsStrToInt(str.c_str()) != 0;
+    }
 
 #ifdef INCLUDE_DATASET
-	bool operator()(std::shared_ptr<ObservableDataset> data) const
-	{
-		return data->rowCount() != 0;
-	}
+    bool operator()(std::shared_ptr<ObservableDataset> data) const
+    {
+        return data->rowCount() != 0;
+    }
 #endif // INCLUDE_DATASET
-	bool operator()(GUID data) const
-	{
-		MY_UNREFERENCED_PARAMETER(data);
-		return false;
-	}
-	bool operator()(const tscrypto::tsCryptoDate& dt) const
-	{
-		return dt.GetStatus() == tscrypto::tsCryptoDate::valid;
-	}
+    bool operator()(GUID data) const
+    {
+        UNREFERENCED_PARAMETER(data);
+        return false;
+    }
+    bool operator()(const tscrypto::tsCryptoDate& dt) const
+    {
+        return dt.GetStatus() == tscrypto::tsCryptoDate::valid;
+    }
 #ifdef INCLUDE_DATASET
-	bool operator()(DatasetRow* data) const
-	{
-		return data != nullptr;
-	}
-	bool operator()(DatasetColumn* data) const
-	{
-		return data != nullptr;
-	}
+    bool operator()(DatasetRow* data) const
+    {
+        return data != nullptr;
+    }
+    bool operator()(DatasetColumn* data) const
+    {
+        return data != nullptr;
+    }
 #endif // #ifndef INCLUDE_DATASET
 
-	//bool operator()(std::shared_ptr<EnterpriseBuilder::IrootNode> obj)
-	//{
-	//	return obj.get() != nullptr;
-	//}
+    //bool operator()(std::shared_ptr<EnterpriseBuilder::IrootNode> obj)
+    //{
+    //	return obj.get() != nullptr;
+    //}
 };
 
 class VEILCORE_API ToInt //: public boost::static_visitor<int>
 {
 public:
-	//int operator()(bool i) const
-	//{
-	//    return i ? 1 : 0;
-	//}
-	//
-	int operator()(int i) const
-	{
-		return i;
-	}
+    //int operator()(bool i) const
+    //{
+    //    return i ? 1 : 0;
+    //}
+    //
+    int operator()(int i) const
+    {
+        return i;
+    }
 
-	int operator()(const tscrypto::tsCryptoStringBase & str) const
-	{
-        return TsStrToInt(str.c_str());
-	}
+    int operator()(const tscrypto::tsCryptoStringBase & str) const
+    {
+        return tsStrToInt(str.c_str());
+    }
 
-	int operator()(GUID data) const
-	{
-		MY_UNREFERENCED_PARAMETER(data);
-		return 0;
-	}
-	int operator()(const tscrypto::tsCryptoDate& dt) const
-	{
-#ifdef HAVE_BSTR
-		tscrypto::tsCryptoDate tmp(dt);
-		return (int)tmp.ToOleDate();
-#else
-		return tscrypto::SYSTEMTIMEtoJulian(dt.GetYear(), dt.GetMonth(), dt.GetDay()) - tscrypto::SYSTEMTIMEtoJulian(1899, 12, 30);
-#endif
-	}
+    int operator()(GUID data) const
+    {
+        UNREFERENCED_PARAMETER(data);
+        return 0;
+    }
+    int operator()(const tscrypto::tsCryptoDate& dt) const
+    {
+        return (int)(tsToJulian(dt.GetYear(), dt.GetMonth(), dt.GetDay()) - tsToJulian(1899, 12, 30));
+    }
 #ifdef INCLUDE_DATASET
-	int operator()(std::shared_ptr<ObservableDataset> data) const
-	{
-		return (int)data->rowCount();
-	}
-	int operator()(DatasetRow* data) const
-	{
-		return data != nullptr ? 1 : 0;
-	}
-	int operator()(DatasetColumn* data) const
-	{
-		return data != nullptr ? 1 : 0;
-	}
+    int operator()(std::shared_ptr<ObservableDataset> data) const
+    {
+        return (int)data->rowCount();
+    }
+    int operator()(DatasetRow* data) const
+    {
+        return data != nullptr ? 1 : 0;
+    }
+    int operator()(DatasetColumn* data) const
+    {
+        return data != nullptr ? 1 : 0;
+    }
 #endif // #ifdef INCLUDE_DATASET
-	//int operator()(std::shared_ptr<EnterpriseBuilder::IrootNode> obj)
-	//{
-	//	MY_UNREFERENCED_PARAMETER(obj);
-	//	return 0;
-	//}
+    //int operator()(std::shared_ptr<EnterpriseBuilder::IrootNode> obj)
+    //{
+    //	UNREFERENCED_PARAMETER(obj);
+    //	return 0;
+    //}
 };
 
 class VEILCORE_API ToHex //: public boost::static_visitor<GUID>
 {
 public:
-	tscrypto::tsCryptoString operator()(int8_t i) const
-	{
-		tscrypto::tsCryptoString tmp;
-		tmp.Format("%02X", i);
-		return tmp;
-	}
-	tscrypto::tsCryptoString operator()(int16_t i) const
-	{
-		tscrypto::tsCryptoString tmp;
-		tmp.Format("%04X", i);
-		return tmp;
-	}
-	tscrypto::tsCryptoString operator()(int32_t i) const
-	{
-		tscrypto::tsCryptoString tmp;
-		tmp.Format("%08X", i);
-		return tmp;
-	}
-	tscrypto::tsCryptoString operator()(int64_t i) const
-	{
-		tscrypto::tsCryptoString tmp;
-		tmp.Format("%016LLX", i);
-		return tmp;
-	}
-	tscrypto::tsCryptoString operator()(uint8_t i) const
-	{
-		tscrypto::tsCryptoString tmp;
-		tmp.Format("%02X", i);
-		return tmp;
-	}
-	tscrypto::tsCryptoString operator()(uint16_t i) const
-	{
-		tscrypto::tsCryptoString tmp;
-		tmp.Format("%04X", i);
-		return tmp;
-	}
-	tscrypto::tsCryptoString operator()(uint32_t i) const
-	{
-		tscrypto::tsCryptoString tmp;
-		tmp.Format("%08X", i);
-		return tmp;
-	}
-	tscrypto::tsCryptoString operator()(uint64_t i) const
-	{
-		tscrypto::tsCryptoString tmp;
-		tmp.Format("%016LLX", i);
-		return tmp;
-	}
-	tscrypto::tsCryptoString operator()(const void* i) const
-	{
-		tscrypto::tsCryptoString tmp;
-		tmp.Format("%p", i);
-		return tmp;
-	}
-	tscrypto::tsCryptoString operator()(double i) const
-	{
-		tscrypto::tsCryptoString tmp;
-		tmp.Format("%lf", i);
-		return tmp;
-	}
+    tscrypto::tsCryptoString operator()(int8_t i) const
+    {
+        tscrypto::tsCryptoString tmp;
+        tmp.Format("%02X", i);
+        return tmp;
+    }
+    tscrypto::tsCryptoString operator()(int16_t i) const
+    {
+        tscrypto::tsCryptoString tmp;
+        tmp.Format("%04X", i);
+        return tmp;
+    }
+    tscrypto::tsCryptoString operator()(int32_t i) const
+    {
+        tscrypto::tsCryptoString tmp;
+        tmp.Format("%08X", i);
+        return tmp;
+    }
+    tscrypto::tsCryptoString operator()(int64_t i) const
+    {
+        tscrypto::tsCryptoString tmp;
+        tmp.Format("%016LLX", i);
+        return tmp;
+    }
+    tscrypto::tsCryptoString operator()(uint8_t i) const
+    {
+        tscrypto::tsCryptoString tmp;
+        tmp.Format("%02X", i);
+        return tmp;
+    }
+    tscrypto::tsCryptoString operator()(uint16_t i) const
+    {
+        tscrypto::tsCryptoString tmp;
+        tmp.Format("%04X", i);
+        return tmp;
+    }
+    tscrypto::tsCryptoString operator()(uint32_t i) const
+    {
+        tscrypto::tsCryptoString tmp;
+        tmp.Format("%08X", i);
+        return tmp;
+    }
+    tscrypto::tsCryptoString operator()(uint64_t i) const
+    {
+        tscrypto::tsCryptoString tmp;
+        tmp.Format("%016LLX", i);
+        return tmp;
+    }
+    tscrypto::tsCryptoString operator()(const void* i) const
+    {
+        tscrypto::tsCryptoString tmp;
+        tmp.Format("%p", i);
+        return tmp;
+    }
+    tscrypto::tsCryptoString operator()(double i) const
+    {
+        tscrypto::tsCryptoString tmp;
+        tmp.Format("%lf", i);
+        return tmp;
+    }
 };
 
 class VEILCORE_API ToGuid //: public boost::static_visitor<GUID>
 {
 public:
-	//GUID operator()(bool i) const
-	//{
-	//    MY_UNREFERENCED_PARAMETER(i);
-	//    return GUID_NULL;
-	//}
-	//
-	GUID operator()(int i) const
-	{
-		MY_UNREFERENCED_PARAMETER(i);
-		return GUID_NULL;
-	}
+    //GUID operator()(bool i) const
+    //{
+    //    UNREFERENCED_PARAMETER(i);
+    //    return GUID_NULL;
+    //}
+    //
+    GUID operator()(int i) const
+    {
+        UNREFERENCED_PARAMETER(i);
+        return GUID_NULL;
+    }
 
-	GUID operator()(const tscrypto::tsCryptoStringBase & str) const
-	{
-		return TSStringToGuid(str);
-	}
+    GUID operator()(const tscrypto::tsCryptoStringBase & str) const
+    {
+        return TSStringToGuid(str);
+    }
 
-	GUID operator()(GUID data) const
-	{
-		return data;
-	}
-	GUID operator()(const tscrypto::tsCryptoDate& dt) const
-	{
-		MY_UNREFERENCED_PARAMETER(dt);
-		return GUID_NULL;
-	}
+    GUID operator()(GUID data) const
+    {
+        return data;
+    }
+    GUID operator()(const tscrypto::tsCryptoDate& dt) const
+    {
+        UNREFERENCED_PARAMETER(dt);
+        return GUID_NULL;
+    }
 #ifdef INCLUDE_DATASET
-	GUID operator()(std::shared_ptr<ObservableDataset> data) const
-	{
-		return GUID_NULL;
-	}
-	GUID operator()(DatasetRow* data) const
-	{
-		MY_UNREFERENCED_PARAMETER(data);
-		return GUID_NULL;
-	}
-	GUID operator()(DatasetColumn* data) const
-	{
-		MY_UNREFERENCED_PARAMETER(data);
-		return GUID_NULL;
-	}
+    GUID operator()(std::shared_ptr<ObservableDataset> data) const
+    {
+        return GUID_NULL;
+    }
+    GUID operator()(DatasetRow* data) const
+    {
+        UNREFERENCED_PARAMETER(data);
+        return GUID_NULL;
+    }
+    GUID operator()(DatasetColumn* data) const
+    {
+        UNREFERENCED_PARAMETER(data);
+        return GUID_NULL;
+    }
 #endif // #ifdef INCLUDE_DATASET
-	//GUID operator()(std::shared_ptr<EnterpriseBuilder::IrootNode> obj)
-	//{
-	//	MY_UNREFERENCED_PARAMETER(obj);
-	//	return GUID_NULL;
-	//}
+    //GUID operator()(std::shared_ptr<EnterpriseBuilder::IrootNode> obj)
+    //{
+    //	UNREFERENCED_PARAMETER(obj);
+    //	return GUID_NULL;
+    //}
 };
 
 class VEILCORE_API ToString //: public boost::static_visitor<tscrypto::tsCryptoString>
 {
 public:
-	tscrypto::tsCryptoString operator()(bool i) const
-	{
-		return i ? "true" : "false";
-	}
+    tscrypto::tsCryptoString operator()(bool i) const
+    {
+        return i ? "true" : "false";
+    }
 
-	tscrypto::tsCryptoString operator()(int8_t i) const
-	{
-		return tscrypto::tsCryptoString().append(i);
-	}
-	tscrypto::tsCryptoString operator()(uint8_t i) const
-	{
-		return tscrypto::tsCryptoString().append(i);
-	}
-	tscrypto::tsCryptoString operator()(int16_t i) const
-	{
-		return tscrypto::tsCryptoString().append(i);
-	}
-	tscrypto::tsCryptoString operator()(uint16_t i) const
-	{
-		return tscrypto::tsCryptoString().append(i);
-	}
-	tscrypto::tsCryptoString operator()(int32_t i) const
-	{
-		return tscrypto::tsCryptoString().append(i);
-	}
-	tscrypto::tsCryptoString operator()(uint32_t i) const
-	{
-		return tscrypto::tsCryptoString().append(i);
-	}
-	tscrypto::tsCryptoString operator()(int64_t i) const
-	{
-		return tscrypto::tsCryptoString().append(i);
-	}
-	tscrypto::tsCryptoString operator()(uint64_t i) const
-	{
-		return tscrypto::tsCryptoString().append(i);
-	}
+    tscrypto::tsCryptoString operator()(int8_t i) const
+    {
+        return tscrypto::tsCryptoString().append(i);
+    }
+    tscrypto::tsCryptoString operator()(uint8_t i) const
+    {
+        return tscrypto::tsCryptoString().append(i);
+    }
+    tscrypto::tsCryptoString operator()(int16_t i) const
+    {
+        return tscrypto::tsCryptoString().append(i);
+    }
+    tscrypto::tsCryptoString operator()(uint16_t i) const
+    {
+        return tscrypto::tsCryptoString().append(i);
+    }
+    tscrypto::tsCryptoString operator()(int32_t i) const
+    {
+        return tscrypto::tsCryptoString().append(i);
+    }
+    tscrypto::tsCryptoString operator()(uint32_t i) const
+    {
+        return tscrypto::tsCryptoString().append(i);
+    }
+    tscrypto::tsCryptoString operator()(int64_t i) const
+    {
+        return tscrypto::tsCryptoString().append(i);
+    }
+    tscrypto::tsCryptoString operator()(uint64_t i) const
+    {
+        return tscrypto::tsCryptoString().append(i);
+    }
 
-	tscrypto::tsCryptoString operator()(const tscrypto::tsCryptoString & str) const
-	{
-		return str;
-	}
+    tscrypto::tsCryptoString operator()(const tscrypto::tsCryptoString & str) const
+    {
+        return str;
+    }
 
-	tscrypto::tsCryptoString operator()(GUID data) const
-	{
-		return tscrypto::TSGuidToString(data);
-	}
-	tscrypto::tsCryptoString operator()(const tscrypto::tsCryptoDate& dt) const
-	{
-		return dt.AsISO8601Time();
-	}
+    tscrypto::tsCryptoString operator()(GUID data) const
+    {
+        return tscrypto::TSGuidToString(data);
+    }
+    tscrypto::tsCryptoString operator()(const tscrypto::tsCryptoDate& dt) const
+    {
+        return dt.AsISO8601Time();
+    }
 #ifdef INCLUDE_DATASET
-	tscrypto::tsCryptoString operator()(std::shared_ptr<ObservableDataset> data) const
-	{
-		return tscrypto::tsCryptoString() << "ObservableDataset at " << (void*)data.get();
-	}
-	tscrypto::tsCryptoString operator()(DatasetRow* data) const
-	{
-		return tscrypto::tsCryptoString() << "DatasetRow at " << (void*)data;
-	}
-	tscrypto::tsCryptoString operator()(DatasetColumn* data) const
-	{
-		return tscrypto::tsCryptoString() << "DatasetColumn at " << (void*)data;
-	}
+    tscrypto::tsCryptoString operator()(std::shared_ptr<ObservableDataset> data) const
+    {
+        return tscrypto::tsCryptoString() << "ObservableDataset at " << (void*)data.get();
+    }
+    tscrypto::tsCryptoString operator()(DatasetRow* data) const
+    {
+        return tscrypto::tsCryptoString() << "DatasetRow at " << (void*)data;
+    }
+    tscrypto::tsCryptoString operator()(DatasetColumn* data) const
+    {
+        return tscrypto::tsCryptoString() << "DatasetColumn at " << (void*)data;
+    }
 #endif // #ifdef INCLUDE_DATASET
-	//tscrypto::tsCryptoString operator()(std::shared_ptr<EnterpriseBuilder::IrootNode> obj)
-	//{
-	//	return obj->NodeName();
-	//}
-	tscrypto::tsCryptoString operator()(double val) const
-	{
-		return tscrypto::tsCryptoString().Format("%lf", val);
-	}
+    //tscrypto::tsCryptoString operator()(std::shared_ptr<EnterpriseBuilder::IrootNode> obj)
+    //{
+    //	return obj->NodeName();
+    //}
+    tscrypto::tsCryptoString operator()(double val) const
+    {
+        return tscrypto::tsCryptoString().Format("%lf", val);
+    }
 };
 
 #ifdef INCLUDE_DATASET
 class VEILCORE_API ToDataset //: public boost::static_visitor<std::shared_ptr<ObservableDataset> >
 {
 public:
-	//std::shared_ptr<ObservableDataset> operator()(bool i) const
-	//{
-	//    MY_UNREFERENCED_PARAMETER(i);
-	//    return nullptr;
-	//}
-	//
-	std::shared_ptr<ObservableDataset> operator()(int i) const
-	{
-		MY_UNREFERENCED_PARAMETER(i);
-		return nullptr;
-	}
+    //std::shared_ptr<ObservableDataset> operator()(bool i) const
+    //{
+    //    UNREFERENCED_PARAMETER(i);
+    //    return nullptr;
+    //}
+    //
+    std::shared_ptr<ObservableDataset> operator()(int i) const
+    {
+        UNREFERENCED_PARAMETER(i);
+        return nullptr;
+    }
 
-	std::shared_ptr<ObservableDataset> operator()(const tscrypto::tsCryptoString & str) const
-	{
-		MY_UNREFERENCED_PARAMETER(str);
-		return nullptr;
-	}
+    std::shared_ptr<ObservableDataset> operator()(const tscrypto::tsCryptoString & str) const
+    {
+        UNREFERENCED_PARAMETER(str);
+        return nullptr;
+    }
 
-	std::shared_ptr<ObservableDataset> operator()(std::shared_ptr<ObservableDataset> data) const
-	{
-		return data;
-	}
-	std::shared_ptr<ObservableDataset> operator()(GUID data) const
-	{
-		MY_UNREFERENCED_PARAMETER(data);
-		return nullptr;
-	}
-	std::shared_ptr<ObservableDataset> operator()(const tscrypto::tsCryptoDate& dt) const
-	{
-		MY_UNREFERENCED_PARAMETER(dt);
-		return nullptr;
-	}
-	std::shared_ptr<ObservableDataset> operator()(DatasetRow* data) const
-	{
-		MY_UNREFERENCED_PARAMETER(data);
-		return nullptr;
-	}
-	std::shared_ptr<ObservableDataset> operator()(DatasetColumn* data) const
-	{
-		MY_UNREFERENCED_PARAMETER(data);
-		return nullptr;
-	}
-	//std::shared_ptr<ObservableDataset> operator()(std::shared_ptr<EnterpriseBuilder::IrootNode> obj)
-	//{
-	//	MY_UNREFERENCED_PARAMETER(obj);
-	//	return nullptr;
-	//}
+    std::shared_ptr<ObservableDataset> operator()(std::shared_ptr<ObservableDataset> data) const
+    {
+        return data;
+    }
+    std::shared_ptr<ObservableDataset> operator()(GUID data) const
+    {
+        UNREFERENCED_PARAMETER(data);
+        return nullptr;
+    }
+    std::shared_ptr<ObservableDataset> operator()(const tscrypto::tsCryptoDate& dt) const
+    {
+        UNREFERENCED_PARAMETER(dt);
+        return nullptr;
+    }
+    std::shared_ptr<ObservableDataset> operator()(DatasetRow* data) const
+    {
+        UNREFERENCED_PARAMETER(data);
+        return nullptr;
+    }
+    std::shared_ptr<ObservableDataset> operator()(DatasetColumn* data) const
+    {
+        UNREFERENCED_PARAMETER(data);
+        return nullptr;
+    }
+    //std::shared_ptr<ObservableDataset> operator()(std::shared_ptr<EnterpriseBuilder::IrootNode> obj)
+    //{
+    //	UNREFERENCED_PARAMETER(obj);
+    //	return nullptr;
+    //}
 };
 #endif // #ifdef INCLUDE_DATASET
 
 class VEILCORE_API ToTsDate //: public boost::static_visitor<tscrypto::tsCryptoDate>
 {
 public:
-	//tscrypto::tsCryptoDate operator()(bool i) const
-	//{
-	//    return i;
-	//}
-	//
-	tscrypto::tsCryptoDate operator()(int i) const
-	{
-		tscrypto::tsCryptoDate dt((DATE)i);
-		return dt;
-	}
+    //tscrypto::tsCryptoDate operator()(bool i) const
+    //{
+    //    return i;
+    //}
+    //
+    tscrypto::tsCryptoDate operator()(int i) const
+    {
+        tscrypto::tsCryptoDate dt(i);
+        return dt;
+    }
 
-	tscrypto::tsCryptoDate operator()(const tscrypto::tsCryptoStringBase & str) const
-	{
-		tscrypto::tsCryptoDate dt(str, tscrypto::tsCryptoDate::ISO8601);
-		return dt;
-	}
+    tscrypto::tsCryptoDate operator()(const tscrypto::tsCryptoStringBase & str) const
+    {
+        tscrypto::tsCryptoDate dt(str, tscrypto::tsCryptoDate::ISO8601);
+        return dt;
+    }
 
-	tscrypto::tsCryptoDate operator()(GUID data) const
-	{
-		MY_UNREFERENCED_PARAMETER(data);
-		return tscrypto::tsCryptoDate();
-	}
-	tscrypto::tsCryptoDate operator()(const tscrypto::tsCryptoDate& dt) const
-	{
-		return dt;
-	}
+    tscrypto::tsCryptoDate operator()(GUID data) const
+    {
+        UNREFERENCED_PARAMETER(data);
+        return tscrypto::tsCryptoDate();
+    }
+    tscrypto::tsCryptoDate operator()(const tscrypto::tsCryptoDate& dt) const
+    {
+        return dt;
+    }
 #ifdef INCLUDE_DATASET
-	tscrypto::tsCryptoDate operator()(std::shared_ptr<ObservableDataset> data) const
-	{
-		MY_UNREFERENCED_PARAMETER(data);
-		return tscrypto::tsCryptoDate();
-	}
-	tscrypto::tsCryptoDate operator()(DatasetRow* data) const
-	{
-		MY_UNREFERENCED_PARAMETER(data);
-		return tscrypto::tsCryptoDate();
-	}
-	tscrypto::tsCryptoDate operator()(DatasetColumn* data) const
-	{
-		MY_UNREFERENCED_PARAMETER(data);
-		return tscrypto::tsCryptoDate();
-	}
+    tscrypto::tsCryptoDate operator()(std::shared_ptr<ObservableDataset> data) const
+    {
+        UNREFERENCED_PARAMETER(data);
+        return tscrypto::tsCryptoDate();
+    }
+    tscrypto::tsCryptoDate operator()(DatasetRow* data) const
+    {
+        UNREFERENCED_PARAMETER(data);
+        return tscrypto::tsCryptoDate();
+    }
+    tscrypto::tsCryptoDate operator()(DatasetColumn* data) const
+    {
+        UNREFERENCED_PARAMETER(data);
+        return tscrypto::tsCryptoDate();
+    }
 #endif // #ifdef INCLUDE_DATASET
-	//tscrypto::tsCryptoDate operator()(std::shared_ptr<EnterpriseBuilder::IrootNode> obj)
-	//{
-	//	MY_UNREFERENCED_PARAMETER(obj);
-	//	return tscrypto::tsCryptoDate();
-	//}
+    //tscrypto::tsCryptoDate operator()(std::shared_ptr<EnterpriseBuilder::IrootNode> obj)
+    //{
+    //	UNREFERENCED_PARAMETER(obj);
+    //	return tscrypto::tsCryptoDate();
+    //}
 };
 #ifdef INCLUDE_DATASET
 class VEILCORE_API ToDatasetRow //: public boost::static_visitor<DatasetRow* >
 {
 public:
-	//std::shared_ptr<ObservableDataset> operator()(bool i) const
-	//{
-	//    MY_UNREFERENCED_PARAMETER(i);
-	//    return nullptr;
-	//}
-	//
-	DatasetRow* operator()(int i) const
-	{
-		MY_UNREFERENCED_PARAMETER(i);
-		return nullptr;
-	}
+    //std::shared_ptr<ObservableDataset> operator()(bool i) const
+    //{
+    //    UNREFERENCED_PARAMETER(i);
+    //    return nullptr;
+    //}
+    //
+    DatasetRow* operator()(int i) const
+    {
+        UNREFERENCED_PARAMETER(i);
+        return nullptr;
+    }
 
-	DatasetRow* operator()(const tscrypto::tsCryptoStringBase & str) const
-	{
-		MY_UNREFERENCED_PARAMETER(str);
-		return nullptr;
-	}
+    DatasetRow* operator()(const tscrypto::tsCryptoStringBase & str) const
+    {
+        UNREFERENCED_PARAMETER(str);
+        return nullptr;
+    }
 
-	DatasetRow* operator()(std::shared_ptr<ObservableDataset> data) const
-	{
-		MY_UNREFERENCED_PARAMETER(data);
-		return nullptr;
-	}
-	DatasetRow* operator()(GUID data) const
-	{
-		MY_UNREFERENCED_PARAMETER(data);
-		return nullptr;
-	}
-	DatasetRow* operator()(const tscrypto::tsCryptoDate& dt) const
-	{
-		MY_UNREFERENCED_PARAMETER(dt);
-		return nullptr;
-	}
-	DatasetRow* operator()(DatasetRow* data) const
-	{
-		return data;
-	}
-	DatasetRow* operator()(DatasetColumn* data) const
-	{
-		MY_UNREFERENCED_PARAMETER(data);
-		return nullptr;
-	}
-	//DatasetRow* operator()(std::shared_ptr<EnterpriseBuilder::IrootNode> obj)
-	//{
-	//	MY_UNREFERENCED_PARAMETER(obj);
-	//	return nullptr;
-	//}
+    DatasetRow* operator()(std::shared_ptr<ObservableDataset> data) const
+    {
+        UNREFERENCED_PARAMETER(data);
+        return nullptr;
+    }
+    DatasetRow* operator()(GUID data) const
+    {
+        UNREFERENCED_PARAMETER(data);
+        return nullptr;
+    }
+    DatasetRow* operator()(const tscrypto::tsCryptoDate& dt) const
+    {
+        UNREFERENCED_PARAMETER(dt);
+        return nullptr;
+    }
+    DatasetRow* operator()(DatasetRow* data) const
+    {
+        return data;
+    }
+    DatasetRow* operator()(DatasetColumn* data) const
+    {
+        UNREFERENCED_PARAMETER(data);
+        return nullptr;
+    }
+    //DatasetRow* operator()(std::shared_ptr<EnterpriseBuilder::IrootNode> obj)
+    //{
+    //	UNREFERENCED_PARAMETER(obj);
+    //	return nullptr;
+    //}
 };
 
 class VEILCORE_API ToDatasetColumn //: public boost::static_visitor<DatasetColumn* >
 {
 public:
-	//std::shared_ptr<ObservableDataset> operator()(bool i) const
-	//{
-	//    MY_UNREFERENCED_PARAMETER(i);
-	//    return nullptr;
-	//}
-	//
-	DatasetColumn* operator()(int i) const
-	{
-		MY_UNREFERENCED_PARAMETER(i);
-		return nullptr;
-	}
+    //std::shared_ptr<ObservableDataset> operator()(bool i) const
+    //{
+    //    UNREFERENCED_PARAMETER(i);
+    //    return nullptr;
+    //}
+    //
+    DatasetColumn* operator()(int i) const
+    {
+        UNREFERENCED_PARAMETER(i);
+        return nullptr;
+    }
 
-	DatasetColumn* operator()(const tscrypto::tsCryptoStringBase & str) const
-	{
-		MY_UNREFERENCED_PARAMETER(str);
-		return nullptr;
-	}
+    DatasetColumn* operator()(const tscrypto::tsCryptoStringBase & str) const
+    {
+        UNREFERENCED_PARAMETER(str);
+        return nullptr;
+    }
 
-	DatasetColumn* operator()(std::shared_ptr<ObservableDataset> data) const
-	{
-		MY_UNREFERENCED_PARAMETER(data);
-		return nullptr;
-	}
-	DatasetColumn* operator()(GUID data) const
-	{
-		MY_UNREFERENCED_PARAMETER(data);
-		return nullptr;
-	}
-	DatasetColumn* operator()(const tscrypto::tsCryptoDate& dt) const
-	{
-		MY_UNREFERENCED_PARAMETER(dt);
-		return nullptr;
-	}
-	DatasetColumn* operator()(DatasetRow* data) const
-	{
-		MY_UNREFERENCED_PARAMETER(data);
-		return nullptr;
-	}
-	DatasetColumn* operator()(DatasetColumn* data) const
-	{
-		return data;
-	}
-	//DatasetColumn* operator()(std::shared_ptr<EnterpriseBuilder::IrootNode> obj)
-	//{
-	//	MY_UNREFERENCED_PARAMETER(obj);
-	//	return nullptr;
-	//}
+    DatasetColumn* operator()(std::shared_ptr<ObservableDataset> data) const
+    {
+        UNREFERENCED_PARAMETER(data);
+        return nullptr;
+    }
+    DatasetColumn* operator()(GUID data) const
+    {
+        UNREFERENCED_PARAMETER(data);
+        return nullptr;
+    }
+    DatasetColumn* operator()(const tscrypto::tsCryptoDate& dt) const
+    {
+        UNREFERENCED_PARAMETER(dt);
+        return nullptr;
+    }
+    DatasetColumn* operator()(DatasetRow* data) const
+    {
+        UNREFERENCED_PARAMETER(data);
+        return nullptr;
+    }
+    DatasetColumn* operator()(DatasetColumn* data) const
+    {
+        return data;
+    }
+    //DatasetColumn* operator()(std::shared_ptr<EnterpriseBuilder::IrootNode> obj)
+    //{
+    //	UNREFERENCED_PARAMETER(obj);
+    //	return nullptr;
+    //}
 };
 #endif // #ifdef INCLUDE_DATASET
 
@@ -1235,7 +1243,6 @@ VEILCORE_API void xor32(const uint8_t* src, const uint8_t* second, uint8_t* dest
 #include "tsXmlParserCallback.h"
 #include "tsXmlParser.h"
 #include "tsAppConfig.h"
-#include "tsPreferencesBase.h"
 #include "tsThread.h"
 #include "SimpleOpt.h"
 #include "IOutputCollector.h"
@@ -1283,18 +1290,18 @@ void VEILCORE_API TSAddGuidToXML(tscrypto::tsCryptoStringBase &xml, const tscryp
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 inline GUID operator ^(const GUID &left, const GUID &right)
 {
-	uint32_t *l, *r, *t;
-	GUID tmp;
+    uint32_t *l, *r, *t;
+    GUID tmp;
 
-	l = ((uint32_t*)&left);
-	r = ((uint32_t*)&right);
-	t = ((uint32_t*)&tmp);
+    l = ((uint32_t*)&left);
+    r = ((uint32_t*)&right);
+    t = ((uint32_t*)&tmp);
 
-	for (int i = 0; i < sizeof(GUID) / sizeof(uint32_t); i++)
-	{
-		t[i] = l[i] ^ r[i];
-	}
-	return tmp;
+    for (int i = 0; i < sizeof(GUID) / sizeof(uint32_t); i++)
+    {
+        t[i] = l[i] ^ r[i];
+    }
+    return tmp;
 }
 /**
 * \brief Greater-than comparison operator for GUIDs.
@@ -1306,7 +1313,7 @@ inline GUID operator ^(const GUID &left, const GUID &right)
 */
 inline bool operator>(const GUID& left, const GUID& right)
 {
-	return memcmp(&left, &right, sizeof(GUID)) > 0;
+    return memcmp(&left, &right, sizeof(GUID)) > 0;
 }
 /**
 * \brief Greater-than-or-equal comparison operator for GUIDs.
@@ -1318,7 +1325,7 @@ inline bool operator>(const GUID& left, const GUID& right)
 */
 inline bool operator>=(const GUID& left, const GUID& right)
 {
-	return memcmp(&left, &right, sizeof(GUID)) >= 0;
+    return memcmp(&left, &right, sizeof(GUID)) >= 0;
 }
 /**
 * \brief Less-than comparison operator for GUIDs.
@@ -1330,7 +1337,7 @@ inline bool operator>=(const GUID& left, const GUID& right)
 */
 inline bool operator<(const GUID& left, const GUID& right)
 {
-	return memcmp(&left, &right, sizeof(GUID)) < 0;
+    return memcmp(&left, &right, sizeof(GUID)) < 0;
 }
 /**
 * \brief Less-than-or-equal comparison operator for GUIDs.
@@ -1342,16 +1349,16 @@ inline bool operator<(const GUID& left, const GUID& right)
 */
 inline bool operator<=(const GUID& left, const GUID& right)
 {
-	return memcmp(&left, &right, sizeof(GUID)) <= 0;
+    return memcmp(&left, &right, sizeof(GUID)) <= 0;
 }
 
 class VEILCORE_API DataProtector
 {
 public:
-	virtual bool Active() = 0;
-	virtual bool Activate() = 0;
-	virtual bool ProtectData(const GUID &objectId, const tscrypto::tsCryptoData &authenticationData, const tscrypto::tsCryptoData &inData, tscrypto::tsCryptoData &outData) = 0;
-	virtual bool UnprotectData(const GUID &objectId, const tscrypto::tsCryptoData &authenticationData, const tscrypto::tsCryptoData &inData, tscrypto::tsCryptoData &outData) = 0;
+    virtual bool Active() = 0;
+    virtual bool Activate() = 0;
+    virtual bool ProtectData(const GUID &objectId, const tscrypto::tsCryptoData &authenticationData, const tscrypto::tsCryptoData &inData, tscrypto::tsCryptoData &outData) = 0;
+    virtual bool UnprotectData(const GUID &objectId, const tscrypto::tsCryptoData &authenticationData, const tscrypto::tsCryptoData &inData, tscrypto::tsCryptoData &outData) = 0;
 };
 
 
@@ -1366,221 +1373,221 @@ VEILCORE_TEMPLATE_EXTERN template class VEILCORE_API std::function<void(IUnknown
 class VEILCORE_API ISignalArgs
 {
 public:
-	virtual ~ISignalArgs() {}
+    virtual ~ISignalArgs() {}
 };
 
 class VEILCORE_API IPropertyChangedEventArgs : public ISignalArgs
 {
 public:
-	virtual tscrypto::tsCryptoString PropertyName() = 0;
+    virtual tscrypto::tsCryptoString PropertyName() = 0;
 };
 
 class VEILCORE_API INotifyPropertyChanged
 {
 public:
-	virtual size_t AddPropertyChangedEvent(std::function<void(const tsmod::IObject*, IPropertyChangedEventArgs*)> func) = 0;
-	virtual void RemovePropertyChangedEvent(size_t cookie) = 0;
-	virtual void OnPropertyChanged(const tsmod::IObject* object, const tscrypto::tsCryptoStringBase& args) const = 0;
-	virtual void OnPropertyChanged(const tsmod::IObject* object, IPropertyChangedEventArgs* args) const = 0;
+    virtual size_t AddPropertyChangedEvent(std::function<void(const tsmod::IObject*, IPropertyChangedEventArgs*)> func) = 0;
+    virtual void RemovePropertyChangedEvent(size_t cookie) = 0;
+    virtual void OnPropertyChanged(const tsmod::IObject* object, const tscrypto::tsCryptoStringBase& args) const = 0;
+    virtual void OnPropertyChanged(const tsmod::IObject* object, IPropertyChangedEventArgs* args) const = 0;
 };
 
 class VEILCORE_API tsStringSignal
 {
 public:
-	static void *operator new(std::size_t count) {
-		return tscrypto::cryptoNew(count);
-	}
-	static void *operator new[](std::size_t count) {
-		return tscrypto::cryptoNew(count);
-	}
-	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
-	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
+    static void *operator new(std::size_t count) {
+        return tscrypto::cryptoNew(count);
+    }
+    static void *operator new[](std::size_t count) {
+        return tscrypto::cryptoNew(count);
+    }
+    static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
+    static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
 
-	tsStringSignal();
-	~tsStringSignal();
-	size_t Add(std::function<void(const tscrypto::tsCryptoStringBase&)> func);
-	void Remove(size_t cookie);
-	void Fire(const tscrypto::tsCryptoStringBase& param) const;
-	void clear();
+    tsStringSignal();
+    ~tsStringSignal();
+    size_t Add(std::function<void(const tscrypto::tsCryptoStringBase&)> func);
+    void Remove(size_t cookie);
+    void Fire(const tscrypto::tsCryptoStringBase& param) const;
+    void clear();
 
 protected:
-	void *contents;
+    void *contents;
 };
 class VEILCORE_API tsIObjStringSignal
 {
 public:
-	static void *operator new(std::size_t count) {
-		return tscrypto::cryptoNew(count);
-	}
-	static void *operator new[](std::size_t count) {
-		return tscrypto::cryptoNew(count);
-	}
-	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
-	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
+    static void *operator new(std::size_t count) {
+        return tscrypto::cryptoNew(count);
+    }
+    static void *operator new[](std::size_t count) {
+        return tscrypto::cryptoNew(count);
+    }
+    static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
+    static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
 
-	tsIObjStringSignal();
-	~tsIObjStringSignal();
-	size_t Add(std::function<void(const tsmod::IObject*, const tscrypto::tsCryptoStringBase&)> func);
-	void Remove(size_t cookie);
-	void Fire(const tsmod::IObject* object, const tscrypto::tsCryptoStringBase& param) const;
-	void clear();
+    tsIObjStringSignal();
+    ~tsIObjStringSignal();
+    size_t Add(std::function<void(const tsmod::IObject*, const tscrypto::tsCryptoStringBase&)> func);
+    void Remove(size_t cookie);
+    void Fire(const tsmod::IObject* object, const tscrypto::tsCryptoStringBase& param) const;
+    void clear();
 
 protected:
-	void *contents;
+    void *contents;
 };
 class VEILCORE_API tsIObjStringVarStringSignal
 {
 public:
-	static void *operator new(std::size_t count) {
-		return tscrypto::cryptoNew(count);
-	}
-	static void *operator new[](std::size_t count) {
-		return tscrypto::cryptoNew(count);
-	}
-	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
-	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
+    static void *operator new(std::size_t count) {
+        return tscrypto::cryptoNew(count);
+    }
+    static void *operator new[](std::size_t count) {
+        return tscrypto::cryptoNew(count);
+    }
+    static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
+    static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
 
-	tsIObjStringVarStringSignal();
-	~tsIObjStringVarStringSignal();
-	size_t Add(std::function<void(const tsmod::IObject*, const tscrypto::tsCryptoStringBase&, tscrypto::tsCryptoStringBase&)> func);
-	void Remove(size_t cookie);
-	void Fire(const tsmod::IObject* object, const tscrypto::tsCryptoStringBase& param, tscrypto::tsCryptoStringBase& varString) const;
-	void clear();
+    tsIObjStringVarStringSignal();
+    ~tsIObjStringVarStringSignal();
+    size_t Add(std::function<void(const tsmod::IObject*, const tscrypto::tsCryptoStringBase&, tscrypto::tsCryptoStringBase&)> func);
+    void Remove(size_t cookie);
+    void Fire(const tsmod::IObject* object, const tscrypto::tsCryptoStringBase& param, tscrypto::tsCryptoStringBase& varString) const;
+    void clear();
 
 protected:
-	void *contents;
+    void *contents;
 };
 class VEILCORE_API tsIObjPacketSignal
 {
 public:
-	static void *operator new(std::size_t count) {
-		return tscrypto::cryptoNew(count);
-	}
-	static void *operator new[](std::size_t count) {
-		return tscrypto::cryptoNew(count);
-	}
-	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
-	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
+    static void *operator new(std::size_t count) {
+        return tscrypto::cryptoNew(count);
+    }
+    static void *operator new[](std::size_t count) {
+        return tscrypto::cryptoNew(count);
+    }
+    static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
+    static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
 
-	tsIObjPacketSignal();
-	~tsIObjPacketSignal();
-	size_t Add(std::function<void(const tsmod::IObject*, uint8_t packetType, const uint8_t* data, uint32_t dataLen)> func);
-	void Remove(size_t cookie);
-	void Fire(const tsmod::IObject* object, uint8_t packetType, const uint8_t* data, uint32_t dataLen) const;
-	void clear();
+    tsIObjPacketSignal();
+    ~tsIObjPacketSignal();
+    size_t Add(std::function<void(const tsmod::IObject*, uint8_t packetType, const uint8_t* data, uint32_t dataLen)> func);
+    void Remove(size_t cookie);
+    void Fire(const tsmod::IObject* object, uint8_t packetType, const uint8_t* data, uint32_t dataLen) const;
+    void clear();
 
 protected:
-	void *contents;
+    void *contents;
 };
 class VEILCORE_API tsIObjectSignal
 {
 public:
-	static void *operator new(std::size_t count) {
-		return tscrypto::cryptoNew(count);
-	}
-	static void *operator new[](std::size_t count) {
-		return tscrypto::cryptoNew(count);
-	}
-	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
-	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
+    static void *operator new(std::size_t count) {
+        return tscrypto::cryptoNew(count);
+    }
+    static void *operator new[](std::size_t count) {
+        return tscrypto::cryptoNew(count);
+    }
+    static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
+    static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
 
-	tsIObjectSignal();
-	~tsIObjectSignal();
-	size_t Add(std::function<void(const tsmod::IObject*)> func);
-	void Remove(size_t cookie);
-	void Fire(const tsmod::IObject* object) const;
-	void clear();
+    tsIObjectSignal();
+    ~tsIObjectSignal();
+    size_t Add(std::function<void(const tsmod::IObject*)> func);
+    void Remove(size_t cookie);
+    void Fire(const tsmod::IObject* object) const;
+    void clear();
 
 protected:
-	void *contents;
+    void *contents;
 };
 
 class VEILCORE_API tsIObjectUint32Signal
 {
 public:
-	static void *operator new(std::size_t count) {
-		return tscrypto::cryptoNew(count);
-	}
-	static void *operator new[](std::size_t count) {
-		return tscrypto::cryptoNew(count);
-	}
-	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
-	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
+    static void *operator new(std::size_t count) {
+        return tscrypto::cryptoNew(count);
+    }
+    static void *operator new[](std::size_t count) {
+        return tscrypto::cryptoNew(count);
+    }
+    static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
+    static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
 
-	tsIObjectUint32Signal();
-	~tsIObjectUint32Signal();
-	size_t Add(std::function<void(const tsmod::IObject*, uint32_t)> func);
-	void Remove(size_t cookie);
-	void Fire(const tsmod::IObject* object, uint32_t value) const;
-	void clear();
+    tsIObjectUint32Signal();
+    ~tsIObjectUint32Signal();
+    size_t Add(std::function<void(const tsmod::IObject*, uint32_t)> func);
+    void Remove(size_t cookie);
+    void Fire(const tsmod::IObject* object, uint32_t value) const;
+    void clear();
 
 protected:
-	void *contents;
+    void *contents;
 };
 
 class VEILCORE_API tsVoidSignal
 {
 public:
-	static void *operator new(std::size_t count) {
-		return tscrypto::cryptoNew(count);
-	}
-	static void *operator new[](std::size_t count) {
-		return tscrypto::cryptoNew(count);
-	}
-	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
-	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
+    static void *operator new(std::size_t count) {
+        return tscrypto::cryptoNew(count);
+    }
+    static void *operator new[](std::size_t count) {
+        return tscrypto::cryptoNew(count);
+    }
+    static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
+    static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
 
-	tsVoidSignal();
-	~tsVoidSignal();
-	size_t Add(std::function<void()> func);
-	void Remove(size_t cookie);
-	void Fire() const;
-	void clear();
+    tsVoidSignal();
+    ~tsVoidSignal();
+    size_t Add(std::function<void()> func);
+    void Remove(size_t cookie);
+    void Fire() const;
+    void clear();
 
 protected:
-	void *contents;
+    void *contents;
 };
 class VEILCORE_API tsSignal
 {
 public:
-	static void *operator new(std::size_t count) {
-		return tscrypto::cryptoNew(count);
-	}
-	static void *operator new[](std::size_t count) {
-		return tscrypto::cryptoNew(count);
-	}
-	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
-	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
+    static void *operator new(std::size_t count) {
+        return tscrypto::cryptoNew(count);
+    }
+    static void *operator new[](std::size_t count) {
+        return tscrypto::cryptoNew(count);
+    }
+    static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
+    static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
 
-	tsSignal();
-	~tsSignal();
-	size_t Add(std::function<void(const tsmod::IObject*, ISignalArgs*)> func);
-	void Remove(size_t cookie);
-	void Fire(const tsmod::IObject*object, ISignalArgs*args) const;
-	void clear();
+    tsSignal();
+    ~tsSignal();
+    size_t Add(std::function<void(const tsmod::IObject*, ISignalArgs*)> func);
+    void Remove(size_t cookie);
+    void Fire(const tsmod::IObject*object, ISignalArgs*args) const;
+    void clear();
 protected:
-	void *contents;
+    void *contents;
 };
 class VEILCORE_API tsPropChangeSignal
 {
 public:
-	static void *operator new(std::size_t count) {
-		return tscrypto::cryptoNew(count);
-	}
-	static void *operator new[](std::size_t count) {
-		return tscrypto::cryptoNew(count);
-	}
-	static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
-	static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
+    static void *operator new(std::size_t count) {
+        return tscrypto::cryptoNew(count);
+    }
+    static void *operator new[](std::size_t count) {
+        return tscrypto::cryptoNew(count);
+    }
+    static void operator delete(void *ptr) { tscrypto::cryptoDelete(ptr); }
+    static void operator delete[](void *ptr) { tscrypto::cryptoDelete(ptr); }
 
-	tsPropChangeSignal();
-	~tsPropChangeSignal();
-	size_t Add(std::function<void(const tsmod::IObject*, IPropertyChangedEventArgs*)> func);
-	void Remove(size_t cookie);
-	void Fire(const tsmod::IObject*object, IPropertyChangedEventArgs*args) const;
-	void clear();
+    tsPropChangeSignal();
+    ~tsPropChangeSignal();
+    size_t Add(std::function<void(const tsmod::IObject*, IPropertyChangedEventArgs*)> func);
+    void Remove(size_t cookie);
+    void Fire(const tsmod::IObject*object, IPropertyChangedEventArgs*args) const;
+    void clear();
 protected:
-	void *contents;
+    void *contents;
 };
 
 _Check_return_ extern VEILCORE_API bool CreatePropertyChangedEventArgs(const tscrypto::tsCryptoStringBase& propertyName, std::shared_ptr<IPropertyChangedEventArgs>& pVal);
@@ -1599,10 +1606,6 @@ tscrypto::tsCryptoString VEILCORE_API ToXml(const tscrypto::tsCryptoDate &src, c
 //tscrypto::tsCryptoString VEILCORE_API ToXml(bool exists, int src, const char* nullValue = "");
 //tscrypto::tsCryptoString VEILCORE_API ToXml(bool exists, double src, const char* nullValue = "");
 //tscrypto::tsCryptoString VEILCORE_API ToXml(bool exists, const tscrypto::tsCryptoDate &src, const char* nullValue = "");
-
-VEILCORE_API uint32_t xp_GetUserName(tscrypto::tsCryptoStringBase& name);
-VEILCORE_API uint32_t xp_GetComputerName(tscrypto::tsCryptoStringBase& name);
-VEILCORE_API bool xp_LaunchBrowser(const tscrypto::tsCryptoStringBase& url);
 
 namespace tscrypto {
     class VEILCORE_API ICertificateRevocationChecker
@@ -1637,8 +1640,8 @@ namespace tscrypto {
         virtual bool allowSelfSignedCerts() const = 0;
         virtual std::shared_ptr<ICertificateRevocationChecker> getRevocationChecker() = 0;
         virtual std::shared_ptr<ICertificateRetriever> getCertificateRetriever() = 0;
-        virtual bool CertSignatureTypeOkForCipher(SSL_HashAlgorithm hashAlg, SSL_SignatureAlgorithm sigAlg, bool sslCert, SSL_CIPHER cipher) = 0;
-        virtual bool KeySizeOkForCipher(SSL_HashAlgorithm hashAlg, SSL_SignatureAlgorithm sigAlg, uint32_t keySize, bool sslCert, SSL_CIPHER cipher) = 0;
+        virtual bool CertSignatureTypeOkForCipher(TSSslHashAlgorithm hashAlg, TSSslSignatureAlgorithm sigAlg, bool sslCert, TSSslCipher cipher) = 0;
+        virtual bool KeySizeOkForCipher(TSSslHashAlgorithm hashAlg, TSSslSignatureAlgorithm sigAlg, uint32_t keySize, bool sslCert, TSSslCipher cipher) = 0;
     };
     class VEILCORE_API ICertificateValidator
     {
@@ -1646,17 +1649,17 @@ namespace tscrypto {
         virtual ~ICertificateValidator()
         {
         }
-        virtual SSL_AlertDescription ValidateCertificate(const tscrypto::tsCryptoDataList& certificates, SSL_CIPHER cipher) = 0;
+        virtual TSSslAlertDescription ValidateCertificate(const tscrypto::tsCryptoDataList& certificates, TSSslCipher cipher) = 0;
 
-        virtual bool GetCertificateSignatureInfo(const tscrypto::tsCertificateParser& cert, SSL_HashAlgorithm& hashAlg, SSL_SignatureAlgorithm& sigAlg) = 0;
-        virtual bool GetCertificateSignatureInfo(const tscrypto::tsCryptoData& cert, SSL_HashAlgorithm& hashAlg, SSL_SignatureAlgorithm& sigAlg) = 0;
-        virtual SSL_AlertDescription basicCertValidation(const tscrypto::tsCertificateParser& cert, std::shared_ptr<tscrypto::AsymmetricKey> priorKey, bool sslCert, SSL_CIPHER cipher) = 0;
-        virtual SSL_AlertDescription basicCertValidation(const tscrypto::tsCryptoData& cert, std::shared_ptr<tscrypto::AsymmetricKey> priorKey, bool sslCert, SSL_CIPHER cipher) = 0;
+        virtual bool GetCertificateSignatureInfo(const tscrypto::tsCertificateParser& cert, TSSslHashAlgorithm& hashAlg, TSSslSignatureAlgorithm& sigAlg) = 0;
+        virtual bool GetCertificateSignatureInfo(const tscrypto::tsCryptoData& cert, TSSslHashAlgorithm& hashAlg, TSSslSignatureAlgorithm& sigAlg) = 0;
+        virtual TSSslAlertDescription basicCertValidation(const tscrypto::tsCertificateParser& cert, std::shared_ptr<tscrypto::AsymmetricKey> priorKey, bool sslCert, TSSslCipher cipher) = 0;
+        virtual TSSslAlertDescription basicCertValidation(const tscrypto::tsCryptoData& cert, std::shared_ptr<tscrypto::AsymmetricKey> priorKey, bool sslCert, TSSslCipher cipher) = 0;
         virtual bool IsSelfSigned(const tscrypto::tsCertificateParser& cert) = 0;
         virtual bool IsSelfSigned(const tscrypto::tsCryptoData& cert) = 0;
     };
-    VEILCORE_API bool GetCertificateSignatureInfo(const tscrypto::tsCryptoString& oid, SSL_HashAlgorithm& hashAlg, SSL_SignatureAlgorithm& sigAlg);
-    VEILCORE_API bool GetCertificateSignatureInfo(const tscrypto::tsCryptoData& oid, SSL_HashAlgorithm& hashAlg, SSL_SignatureAlgorithm& sigAlg);
+    VEILCORE_API bool GetCertificateSignatureInfo(const tscrypto::tsCryptoString& oid, TSSslHashAlgorithm& hashAlg, TSSslSignatureAlgorithm& sigAlg);
+    VEILCORE_API bool GetCertificateSignatureInfo(const tscrypto::tsCryptoData& oid, TSSslHashAlgorithm& hashAlg, TSSslSignatureAlgorithm& sigAlg);
 }
 
 #endif // Header Protector

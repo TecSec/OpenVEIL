@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -53,14 +53,6 @@ template class VEILCORE_API std::function<void()>; ///< Constructs this template
 #pragma warning(pop)
 #endif // _MSC_VER
 
-#ifdef HAVE_WINDOWS_H
-typedef unsigned int tsThreadIdType;
-typedef HANDLE tsThreadHandleType;
-#else
-typedef pthread_t tsThreadIdType;
-typedef pthread_t tsThreadHandleType;
-#endif // HAVE_WINDOWS_H
-
 class VEILCORE_API tsThread
 {
 public:
@@ -73,47 +65,27 @@ public:
 
 	virtual bool Cancel();
 	virtual void Kill(); // Last resort
-	virtual bool WaitForThread(DWORD timeToWait);
+	virtual bool WaitForThread(uint32_t timeToWait);
 	virtual bool Active();
 	virtual bool Start();
 	virtual bool SetWorker(std::function<int()> func);
 	virtual bool SetCompletion(std::function<void()> func);
+    virtual bool SetCancel(std::function<void()> func);
 
-	const tscrypto::CryptoEvent& cancelEvent() const { return cancel; }
-	tscrypto::CryptoEvent& cancelEvent() { return cancel; }
-	tsThreadIdType ThreadID() const { return threadId; }
-	tsThreadHandleType ThreadHandle() const { return hThread; }
-
-private:
-#ifdef HAVE_WINDOWS_H
-	static unsigned __stdcall taskStart(void * params);
-#else
-	static void* taskStart(void* params);
-#endif // HAVE_WINDOWS_H
+    TSEVENT cancelEvent() { return tsThreadCancelEvent(threadHandle); }
 
 protected:
-	tsThreadIdType threadId;
-	tsThreadHandleType hThread;
-	tscrypto::CryptoEvent cancel;
+    TSTHREAD threadHandle;
 	std::function<int()> _worker;
 	std::function<void()> _onComplete;
+    std::function<void()> _doCancel;
+
+    static int workerFunc(TSTHREAD thread, void* params);
+    static void completionFunc(TSTHREAD thread, void* params);
+    static void cancelFunc(TSTHREAD thread, void* params);
 };
 
-class VEILCORE_API CancelableTsThread : public tsThread {
-public:
-	CancelableTsThread();
-	CancelableTsThread(const CancelableTsThread&) = delete;
-	CancelableTsThread(CancelableTsThread&& obj);
-	virtual ~CancelableTsThread();
-	CancelableTsThread& operator=(const CancelableTsThread&) = delete;
-	CancelableTsThread& operator=(CancelableTsThread&& obj);
-
-	virtual bool SetCancel(std::function<void()> func);
-	virtual bool Cancel();
-	virtual void Kill(); // Last resort
-protected:
-	std::function<void()> _doCancel;
-};
+typedef tsThread CancelableTsThread;
 
 #endif // tsThread_H_INCLUDED
 

@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -193,7 +193,7 @@ bool KeyWrap_RFC3217::Wrap(const tsCryptoData &inputData, const tsCryptoData & /
     //   8. Encrypt TEMP3 in CBC mode using the key-encryption key.  Use an
     //      initialization vector (IV) of 0x4adda22c79e82105.  The ciphertext
     //      is 40 octets long.
-    static BYTE iv2[] = {0x4a, 0xdd, 0xa2, 0x2c, 0x79, 0xe8, 0x21, 0x05};
+    static uint8_t iv2[] = {0x4a, 0xdd, 0xa2, 0x2c, 0x79, 0xe8, 0x21, 0x05};
     IV.assign(iv2, sizeof(iv2));
 
     outputData.clear();
@@ -234,7 +234,7 @@ bool KeyWrap_RFC3217::Unwrap(const tsCryptoData &inputData, const tsCryptoData &
         return false;
 
     //2. Decrypt the wrapped key in CBC mode using the key-encryption key. Use an initialization vector (IV) of 0x4adda22c79e82105. Call the output TEMP3.
-    static BYTE iv2[] = {0x4a, 0xdd, 0xa2, 0x2c, 0x79, 0xe8, 0x21, 0x05};
+    static uint8_t iv2[] = {0x4a, 0xdd, 0xa2, 0x2c, 0x79, 0xe8, 0x21, 0x05};
 
     IV.assign(iv2, sizeof(iv2));
     if (!m_cipher->init(false, _SymmetricMode::CKM_SymMode_CBC, m_key, IV) ||

@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -246,7 +246,7 @@ public:
 
 					printf("Crypto Group:  %s\n", grp.get_Name().c_str());
 					printf("----------------------------------------------------------------------\n");
-					printf("  ID:  %s\n", TSGuidToString(grp.get_Id()).c_str());
+					printf("  ID:  %s\n", grp.get_Id().ToHexString().c_str());
 					printf("  Forward Level:  %d   Backwards Level:  %d\n", grp.get_ForwardVersion(), grp.get_BackwardVersion());
 					printf("  Issue Date:  %s  Expire Date:  %s\n", grp.get_Issue().ToString().c_str(), grp.get_Expire().ToString().c_str());
 					printf("  Expire Action:  %d  Rollback Action:  %d  Grace Period:  %d\n", grp.get_expireAction(), grp.get_rollbackAction(), grp.get_gracePeriod());
@@ -277,7 +277,7 @@ public:
 
 									printf("\n        Attribute:  %s\n", attr.get_Name().c_str());
 										printf("        --------------------------------------------------------------\n");
-									printf("        ID:  %s\n", TSGuidToString(attr.get_Id()).c_str());
+									printf("        ID:  %s\n", attr.get_Id().ToHexString().c_str());
 									printf("        Forward Level:  %d   Backwards Level:  %d\n", attr.get_ForwardVersion(), attr.get_BackwardVersion());
 									printf("        Issue Date:  %s  Expire Date:  %s\n", attr.get_Issue().ToString().c_str(), attr.get_Expire().ToString().c_str());
 									if (attr.get_SymOnly())

@@ -1,4 +1,4 @@
-#	Copyright (c) 2017, TecSec, Inc.
+#	Copyright (c) 2018, TecSec, Inc.
 #
 #	Redistribution and use in source and binary forms, with or without
 #	modification, are permitted provided that the following conditions are met:
@@ -51,7 +51,7 @@ target_include_directories(VEILWxWidgets_s INTERFACE $<BUILD_INTERFACE:${PUBLIC_
 add_precompiled_header(VEILWxWidgets_s stdafx.h FORCEINCLUDE SOURCE_CXX stdafx.cpp)
 set_target_properties(VEILWxWidgets_s PROPERTIES 
     FOLDER "Modules/Static" 
-	COMPILE_DEFINITIONS "${wxFlags};VEILWXWIDGETS_STATIC;VEILCORE_STATIC;VEILCMSHEADER_STATIC;_STATIC_TSALG;_STATIC_TS_SUP"
+	COMPILE_DEFINITIONS "${wxFlags};VEILWXWIDGETS_STATIC;VEILCORE_STATIC;VEILCMSHEADER_STATIC;_STATIC_CYBERVEIL"
     )
 
 if(APPLE)

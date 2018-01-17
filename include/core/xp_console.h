@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -349,7 +349,7 @@ protected:
 #ifdef _WIN32
 	HANDLE hConsole;
 	CONSOLE_SCREEN_BUFFER_INFO screenInfo;
-	WORD _currentColor;
+	uint16_t _currentColor;
 #endif
 
 	void processData(tscrypto::tsCryptoString &data);
@@ -458,7 +458,7 @@ namespace XP_Console {
 	///
 	/// <returns>A reference to this object.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	inline _TSConsolemanip<int> __cdecl width(int setTo)
+	inline _TSConsolemanip<int> width(int setTo)
 	{
 		return _TSConsolemanip<int>(&xp_console::SetWidth, setTo);
 	}
@@ -469,7 +469,7 @@ namespace XP_Console {
 	///
 	/// <returns>A reference to this object.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	inline _TSConsolemanip<int> __cdecl setbase(int setTo)
+	inline _TSConsolemanip<int> setbase(int setTo)
 	{
 		return _TSConsolemanip<int>(&xp_console::setbase, setTo);
 	}
@@ -480,7 +480,7 @@ namespace XP_Console {
 	///
 	/// <returns>A reference to this object.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	inline _TSConsolemanip<char> __cdecl filler(char setTo)
+	inline _TSConsolemanip<char> filler(char setTo)
 	{
 		return _TSConsolemanip<char>(&xp_console::SetFiller, setTo);
 	}
@@ -491,13 +491,13 @@ namespace XP_Console {
 	///
 	/// <returns>A reference to this object.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	inline _TSConsolemanip<const void *> __cdecl ptr(const void *pointer)
+	inline _TSConsolemanip<const void *> ptr(const void *pointer)
 	{
 		return _TSConsolemanip<const void *>(&xp_console::ptr, pointer);
 	}
 
 	template <typename TODUMP>
-	inline _TSConsolemanip<TODUMP &> __cdecl hexDump(TODUMP& data)
+	inline _TSConsolemanip<TODUMP &> hexDump(TODUMP& data)
 	{
 		return _TSConsolemanip<TODUMP&>(&xp_console::hexDump, data);
 	}

@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -193,16 +193,16 @@ void GroupEditorWizardPage::CreateControls()
 
 void GroupEditorWizardPage::OnSelectAudiencesPageChanged( wxWizardEvent& event )
 {
-	event.Skip();
-	_groupList->Enable(true);
-	_btnAdd->Enable(true);
-	_btnEdit->Enable(true);
-	_btnDelete->Enable(true);
+    event.Skip();
+    _groupList->Enable(true);
+    _btnAdd->Enable(true);
+    _btnEdit->Enable(true);
+    _btnDelete->Enable(true);
 
     _profile.reset();
     _ActiveCryptoGroup = nullptr;
     //if (!HasProfile())
-	{
+    {
         wxBusyCursor busyCursor;
         wxWindowDisabler disabler;
         wxBusyInfo busyInfo(_("Retrieving token information..."));
@@ -211,64 +211,64 @@ void GroupEditorWizardPage::OnSelectAudiencesPageChanged( wxWizardEvent& event )
     }
     if (HasProfile())
     {
-        GUID cgID = GetProfile()->get_EnterpriseCryptoGroup();
-		AudienceSelector2* wiz = dynamic_cast<AudienceSelector2*>(GetParent());
+        tscrypto::tsCryptoData cgID = GetProfile()->get_EnterpriseCryptoGroup();
+        AudienceSelector2* wiz = dynamic_cast<AudienceSelector2*>(GetParent());
 
-        _ActiveCryptoGroup = GetCGbyGuid(cgID);
+        _ActiveCryptoGroup = GetCGbyId(cgID);
 
-		if (!!wiz->_vars->_header)
-		{
-			std::shared_ptr<ICmsHeaderCryptoGroup> group;
+        if (!!wiz->_vars->_header)
+        {
+            std::shared_ptr<ICmsHeaderCryptoGroup> group;
 
-			// Validate the header here
-			if (wiz->_vars->_header->GetCryptoGroupCount() == 0)
-			{
-				int val;
-				wiz->_vars->_header->AddCryptoGroup(cgID, &val);
-			}
-			else if (!wiz->_vars->_header->GetCryptoGroupByGuid(cgID, group))
-			{
-				std::shared_ptr<ICmsHeaderExtension> ext;
-				std::shared_ptr<ICmsHeaderAccessGroupExtension> groupList;
-				int groupCount = 0;
+            // Validate the header here
+            if (wiz->_vars->_header->GetCryptoGroupCount() == 0)
+            {
+                int val;
+                wiz->_vars->_header->AddCryptoGroup(cgID, &val);
+            }
+            else if (!wiz->_vars->_header->GetCryptoGroupById(cgID, group))
+            {
+                std::shared_ptr<ICmsHeaderExtension> ext;
+                std::shared_ptr<ICmsHeaderAccessGroupExtension> groupList;
+                int groupCount = 0;
 
-				if (!!wiz->_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
-				{
-					if (!!(groupList = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(ext)))
-					{
-						groupCount = groupList->GetAccessGroupCount();
-					}
-				}
-				ext.reset();
+                if (!!wiz->_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
+                {
+                    if (!!(groupList = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(ext)))
+                    {
+                        groupCount = groupList->GetAccessGroupCount();
+                    }
+                }
+                ext.reset();
 
-				if (groupCount == 0)
-				{
-					wiz->_vars->_header->ClearCryptoGroupList();
-					int val;
-					wiz->_vars->_header->AddCryptoGroup(cgID, &val);
-				}
-				else
-				{
-					// TODO:  Disable or clear?
+                if (groupCount == 0)
+                {
+                    wiz->_vars->_header->ClearCryptoGroupList();
+                    int val;
+                    wiz->_vars->_header->AddCryptoGroup(cgID, &val);
+                }
+                else
+                {
+                    // TODO:  Disable or clear?
 
-					if (wxTsMessageBox("The current token is for a different enterprise.  Do you want to clear this audience?", "Question", wxYES_NO | wxICON_QUESTION, (XP_WINDOW)this) == wxID_YES)
-					{
-						wiz->_vars->_header->Clear();
-					}
-					else
-					{
-						//_groupList->Enable(false);
-						_btnAdd->Enable(false);
-						_btnEdit->Enable(false);
-						_btnDelete->Enable(false);
-					}
-				}
-			}
-		}
+                    if (wxTsMessageBox("The current token is for a different enterprise.  Do you want to clear this audience?", "Question", wxYES_NO | wxICON_QUESTION, (XP_WINDOW)this) == wxID_YES)
+                    {
+                        wiz->_vars->_header->Clear();
+                    }
+                    else
+                    {
+                        //_groupList->Enable(false);
+                        _btnAdd->Enable(false);
+                        _btnEdit->Enable(false);
+                        _btnDelete->Enable(false);
+                    }
+                }
+            }
+        }
 
         RebuildAccessGroupList();
     }
-	UpdateDialogControls();
+    UpdateDialogControls();
 }
 
 
@@ -304,26 +304,26 @@ void GroupEditorWizardPage::OnSelectAudiencesFinished( wxWizardEvent& event )
 
 void GroupEditorWizardPage::OnSelectAudiencesHelp( wxWizardEvent& event )
 {
-	std::shared_ptr<IVEILHttpHelpRegistry> help = ::TopServiceLocator()->get_instance<IVEILHttpHelpRegistry>("/WxWin/HelpRegistry");
-	AudienceSelector2* wiz = dynamic_cast<AudienceSelector2*>(GetParent());
+    std::shared_ptr<IVEILHttpHelpRegistry> help = ::TopServiceLocator()->get_instance<IVEILHttpHelpRegistry>("/WxWin/HelpRegistry");
+    AudienceSelector2* wiz = dynamic_cast<AudienceSelector2*>(GetParent());
 
-	if (!help)
-	{
-		wxTsMessageBox(("Help is not available at this time."), ("Status"), wxOK);
-	}
-	else
-	{
-		if (wiz != nullptr && wiz->_vars != nullptr && wiz->_vars->_favoriteId != GUID_NULL)
-		{
-			help->DisplayHelpForWindowId(winid_FavEdit_GroupEditorPage, (XP_WINDOW)this);
-		}
-		else if (wiz != nullptr && wiz->_vars != nullptr && wiz->_vars->_favoriteManager)
-		{
-			help->DisplayHelpForWindowId(winid_FavAdd_GroupEditorPage, (XP_WINDOW)this);
-		}
-		else
-			help->DisplayHelpForWindowId(winid_GroupEditorPage, (XP_WINDOW)this);
-	}
+    if (!help)
+    {
+        wxTsMessageBox(("Help is not available at this time."), ("Status"), wxOK);
+    }
+    else
+    {
+        if (wiz != nullptr && wiz->_vars != nullptr && wiz->_vars->_favoriteId != GUID_NULL)
+        {
+            help->DisplayHelpForWindowId(winid_FavEdit_GroupEditorPage, (XP_WINDOW)this);
+        }
+        else if (wiz != nullptr && wiz->_vars != nullptr && wiz->_vars->_favoriteManager)
+        {
+            help->DisplayHelpForWindowId(winid_FavAdd_GroupEditorPage, (XP_WINDOW)this);
+        }
+        else
+            help->DisplayHelpForWindowId(winid_GroupEditorPage, (XP_WINDOW)this);
+    }
 }
 
 
@@ -353,19 +353,19 @@ void GroupEditorWizardPage::OnGroupListDoubleClicked( wxCommandEvent& event )
 
 void GroupEditorWizardPage::OnAddGroupClick( wxCommandEvent& event )
 {
-	AudienceSelector2* wiz = dynamic_cast<AudienceSelector2*>(GetParent());
-	
-	// make sure we are logged in to the selected token
+    AudienceSelector2* wiz = dynamic_cast<AudienceSelector2*>(GetParent());
+    
+    // make sure we are logged in to the selected token
     if (!HasSession() || !Session()->IsLoggedIn())
     {
-		wxTsMessageBox("You need to select a token first.", "Error", wxICON_HAND | wxOK);
+        wxTsMessageBox("You need to select a token first.", "Error", wxICON_HAND | wxOK);
         return;
     }
 
     // make sure we have the CryptoGroup object
     if (_ActiveCryptoGroup == nullptr)
     {
-		wxTsMessageBox("OnGroupAdd: No Crypto Group selected, or selected Crypto Group is invalid.", "Error", wxICON_HAND | wxOK);
+        wxTsMessageBox("OnGroupAdd: No Crypto Group selected, or selected Crypto Group is invalid.", "Error", wxICON_HAND | wxOK);
         return;
     }
 
@@ -381,9 +381,9 @@ void GroupEditorWizardPage::OnAddGroupClick( wxCommandEvent& event )
     std::shared_ptr<ICmsHeaderExtension> ext;
     std::shared_ptr<ICmsHeaderAccessGroupExtension> groupList;
 
-    if (!wiz->_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
+    if (!wiz->_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
     {
-        if (!wiz->_vars->_header->AddProtectedExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext))
+        if (!wiz->_vars->_header->AddProtectedExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext))
         {
             wxTsMessageBox("OnGroupAdd: Unable to add a new access group list to the CKM Header.", "Error", wxICON_HAND | wxOK);
             return;
@@ -395,12 +395,12 @@ void GroupEditorWizardPage::OnAddGroupClick( wxCommandEvent& event )
     }
     ext.reset();
 
-	if (groupList->GetAccessGroupCount() == 0)
-	{
-		wiz->_vars->_header->ClearCryptoGroupList();
-		int val;
-		wiz->_vars->_header->AddCryptoGroup(_ActiveCryptoGroup->get_Id(), &val);
-	}
+    if (groupList->GetAccessGroupCount() == 0)
+    {
+        wiz->_vars->_header->ClearCryptoGroupList();
+        int val;
+        wiz->_vars->_header->AddCryptoGroup(_ActiveCryptoGroup->get_Id(), &val);
+    }
 
     if (!(groupList->AddAccessGroup(ag_Attrs, andGroup)) || !(attrGroup = std::dynamic_pointer_cast<ICmsHeaderAttributeGroup>(andGroup)))
     {
@@ -415,9 +415,9 @@ void GroupEditorWizardPage::OnAddGroupClick( wxCommandEvent& event )
 
     std::shared_ptr<ICmsHeaderAttributeListExtension> attrList;
 
-    if (!wiz->_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
+    if (!wiz->_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
     {
-        if (!wiz->_vars->_header->AddProtectedExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext))
+        if (!wiz->_vars->_header->AddProtectedExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext))
         {
             wxTsMessageBox("OnGroupAdd: Unable to add a new attribute list to the CKM Header.", "Error", wxICON_HAND | wxOK);
             return;
@@ -473,7 +473,7 @@ void GroupEditorWizardPage::OnAddGroupClick( wxCommandEvent& event )
 void GroupEditorWizardPage::OnEditGroupClick( wxCommandEvent& event )
 {
     int index;
-	AudienceSelector2* wiz = dynamic_cast<AudienceSelector2*>(GetParent());
+    AudienceSelector2* wiz = dynamic_cast<AudienceSelector2*>(GetParent());
 
     std::shared_ptr<ICmsHeaderAttributeGroup> attrs;
     std::shared_ptr<ICmsHeaderAccessGroup> accessGroup;
@@ -503,9 +503,9 @@ void GroupEditorWizardPage::OnEditGroupClick( wxCommandEvent& event )
     std::shared_ptr<ICmsHeaderExtension> ext;
     std::shared_ptr<ICmsHeaderAccessGroupExtension> extGroup;
 
-    if (!newHeader->GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
+    if (!newHeader->GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
     {
-        newHeader->AddProtectedExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext);
+        newHeader->AddProtectedExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext);
     }
 
     if (!ext || !(extGroup = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(ext)))
@@ -528,9 +528,9 @@ void GroupEditorWizardPage::OnEditGroupClick( wxCommandEvent& event )
 
     std::shared_ptr<ICmsHeaderAttributeListExtension> attrsList;
 
-    if (!wiz->_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
+    if (!wiz->_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
     {
-        if (!wiz->_vars->_header->AddProtectedExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext))
+        if (!wiz->_vars->_header->AddProtectedExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext))
         {
             wxTsMessageBox("Unable to edit... Unable to retrieve the attribute list.", "Error", wxICON_HAND | wxOK);
             return;
@@ -582,7 +582,7 @@ void GroupEditorWizardPage::OnEditGroupClick( wxCommandEvent& event )
 void GroupEditorWizardPage::OnDeleteGroupClick( wxCommandEvent& event )
 {
     int index;
-	AudienceSelector2* wiz = dynamic_cast<AudienceSelector2*>(GetParent());
+    AudienceSelector2* wiz = dynamic_cast<AudienceSelector2*>(GetParent());
 
     index = _groupList->GetSelection();
     if (-1 == index)
@@ -595,7 +595,7 @@ void GroupEditorWizardPage::OnDeleteGroupClick( wxCommandEvent& event )
     std::shared_ptr<ICmsHeaderAccessGroupExtension> extGroup;
     std::shared_ptr<ICmsHeaderAccessGroup> andGroup;
 
-    if (wiz == nullptr || wiz->_vars == nullptr || !wiz->_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) ||
+    if (wiz == nullptr || wiz->_vars == nullptr || !wiz->_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) ||
         !(extGroup = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(ext)))
     {
         wxTsMessageBox("Unable to delete... The access group list is not available.", "Error", wxICON_HAND | wxOK);
@@ -648,7 +648,7 @@ bool GroupEditorWizardPage::ShowToolTips()
 
 wxBitmap GroupEditorWizardPage::GetBitmapResource(const wxString& name)
 {
-	return ::GetBitmapResource(name);
+    return ::GetBitmapResource(name);
 }
 
 /*
@@ -666,27 +666,27 @@ wxIcon GroupEditorWizardPage::GetIconResource(const wxString& name)
 
 std::shared_ptr<IKeyVEILSession> GroupEditorWizardPage::Session()
 {
-	AudienceSelector2* wiz = dynamic_cast<AudienceSelector2*>(GetParent());
-	if (wiz == nullptr || wiz->_vars == nullptr)
+    AudienceSelector2* wiz = dynamic_cast<AudienceSelector2*>(GetParent());
+    if (wiz == nullptr || wiz->_vars == nullptr)
         return nullptr;
     return wiz->_vars->_session;
 }
 bool GroupEditorWizardPage::HasSession() const
 {
-	AudienceSelector2* wiz = dynamic_cast<AudienceSelector2*>(GetParent());
-	return wiz != nullptr && wiz->_vars != nullptr && !!wiz->_vars->_session;
+    AudienceSelector2* wiz = dynamic_cast<AudienceSelector2*>(GetParent());
+    return wiz != nullptr && wiz->_vars != nullptr && !!wiz->_vars->_session;
 }
 void GroupEditorWizardPage::Session(std::shared_ptr<IKeyVEILSession> setTo)
 {
-	AudienceSelector2* wiz = dynamic_cast<AudienceSelector2*>(GetParent());
+    AudienceSelector2* wiz = dynamic_cast<AudienceSelector2*>(GetParent());
 
-	if (wiz != nullptr)
-	{
-		wiz->_vars->_session.reset();
-		_profile.reset();
-		_ActiveCryptoGroup = nullptr;
-		wiz->_vars->_session = setTo;
-	}
+    if (wiz != nullptr)
+    {
+        wiz->_vars->_session.reset();
+        _profile.reset();
+        _ActiveCryptoGroup = nullptr;
+        wiz->_vars->_session = setTo;
+    }
 
 }
 std::shared_ptr<Asn1::CTS::_POD_Profile> GroupEditorWizardPage::GetProfile()
@@ -703,24 +703,24 @@ bool GroupEditorWizardPage::HasProfile()
 {
     return !!GetProfile();
 }
-Asn1::CTS::_POD_CryptoGroup* GroupEditorWizardPage::GetCGbyGuid(const GUID& id)
+Asn1::CTS::_POD_CryptoGroup* GroupEditorWizardPage::GetCGbyId(const tscrypto::tsCryptoData& id)
 {
     if (!HasSession() || !HasProfile())
         return nullptr;
 
     if (GetProfile()->exists_cryptoGroupList())
     {
-    for (size_t i = 0; i < GetProfile()->get_cryptoGroupList()->size(); i++)
-    {
-        if (GetProfile()->get_cryptoGroupList()->get_at(i).get_Id() == id)
+        for (size_t i = 0; i < GetProfile()->get_cryptoGroupList()->size(); i++)
         {
-            return &GetProfile()->get_cryptoGroupList()->get_at(i);
+            if (GetProfile()->get_cryptoGroupList()->get_at(i).get_Id() == id)
+            {
+                return &GetProfile()->get_cryptoGroupList()->get_at(i);
+            }
         }
-    }
     }
     return nullptr;
 }
-int GroupEditorWizardPage::findCgByGuid(const GUID& id)
+int GroupEditorWizardPage::findCgById(const tscrypto::tsCryptoData& id)
 {
     if (!HasSession() || !HasProfile() || !GetProfile()->exists_cryptoGroupList() || GetProfile()->get_cryptoGroupList()->size() == 0)
         return -1;
@@ -736,7 +736,7 @@ int GroupEditorWizardPage::findCgByGuid(const GUID& id)
 bool GroupEditorWizardPage::RebuildAccessGroupList()
 {
     tscrypto::tsCryptoString line;
-	AudienceSelector2* wiz = dynamic_cast<AudienceSelector2*>(GetParent());
+    AudienceSelector2* wiz = dynamic_cast<AudienceSelector2*>(GetParent());
 
     if (wiz != nullptr && wiz->_vars != nullptr && !!wiz->_vars->_header)
     {
@@ -752,9 +752,9 @@ bool GroupEditorWizardPage::RebuildAccessGroupList()
 
         std::shared_ptr<ICmsHeaderExtension> ext;
         std::shared_ptr<ICmsHeaderAccessGroupExtension> extGroup;
-        if (!wiz->_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
+        if (!wiz->_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
         {
-			wiz->_vars->_header->AddProtectedExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext);
+            wiz->_vars->_header->AddProtectedExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext);
         }
 
         if (!ext || !(extGroup = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(ext)))
@@ -800,7 +800,7 @@ tscrypto::tsCryptoString GroupEditorWizardPage::BuildAttrsLine(std::shared_ptr<I
 {
     int index, idx;
     int count;
-    GUID id;
+    tscrypto::tsCryptoData id;
     Asn1::CTS::_POD_Attribute* attr;
     std::shared_ptr<ICmsHeaderAttribute> headerAttr;
     std::shared_ptr<ICmsHeaderAttributeListExtension> attrList;
@@ -808,10 +808,10 @@ tscrypto::tsCryptoString GroupEditorWizardPage::BuildAttrsLine(std::shared_ptr<I
     tscrypto::tsCryptoString name;
     tscrypto::tsCryptoString out;
     tscrypto::tsCryptoString list;
-	AudienceSelector2* wiz = dynamic_cast<AudienceSelector2*>(GetParent());
+    AudienceSelector2* wiz = dynamic_cast<AudienceSelector2*>(GetParent());
 
     if (wiz == nullptr || wiz->_vars == nullptr || 
-		!wiz->_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) ||
+        !wiz->_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) ||
         !(attrList = std::dynamic_pointer_cast<ICmsHeaderAttributeListExtension>(ext)))
     {
         return "";
@@ -825,10 +825,10 @@ tscrypto::tsCryptoString GroupEditorWizardPage::BuildAttrsLine(std::shared_ptr<I
         headerAttr.reset();
         if (attrList->GetAttribute(idx, headerAttr))
         {
-            id = headerAttr->GetAttributeGUID();
+            id = headerAttr->GetAttributeId();
 
             if (_ActiveCryptoGroup != nullptr)
-            attr = _ActiveCryptoGroup->get_AttributeById(id);
+                attr = _ActiveCryptoGroup->get_AttributeById(id);
             else
                 attr = nullptr;
             if (attr != nullptr)
@@ -836,12 +836,12 @@ tscrypto::tsCryptoString GroupEditorWizardPage::BuildAttrsLine(std::shared_ptr<I
                 name = attr->get_Name();
                 if (name.size() == 0)
                 {
-                    name.Format("<attr %s>", TSGuidToString(id).c_str());
+                    name.Format("<attr %s>", id.ToHexString().c_str());
                 }
             }
             else
             {
-                name.Format("<attr %s>", TSGuidToString(id).c_str());
+                name.Format("<attr %s>", id.ToHexString().c_str());
             }
             TSPatchValueForXML(name, out);
             name = out;
@@ -871,10 +871,10 @@ void GroupEditorWizardPage::AddGroupText(const char *text)
 void GroupEditorWizardPage::UpdateDialogControls()
 {
     int index;
-	AudienceSelector2* wiz = dynamic_cast<AudienceSelector2*>(GetParent());
+    AudienceSelector2* wiz = dynamic_cast<AudienceSelector2*>(GetParent());
 
-	if (!_groupList->IsEnabled())
-		return;
+    if (!_groupList->IsEnabled())
+        return;
 
     // first make sure a cryptoGroup is selected
     if (!_ActiveCryptoGroup)
@@ -899,8 +899,8 @@ void GroupEditorWizardPage::UpdateDialogControls()
             _btnDelete->Enable(true);
         }
     }
-	FindWindowById(wxID_FORWARD, this->GetParent())->Enable(wiz != nullptr && wiz->_vars != nullptr && !!wiz->_vars->_header && _groupList->GetCount() > 0);
-	_btnEdit->SetDefault();
+    FindWindowById(wxID_FORWARD, this->GetParent())->Enable(wiz != nullptr && wiz->_vars != nullptr && !!wiz->_vars->_header && _groupList->GetCount() > 0);
+    _btnEdit->SetDefault();
 
     //if (_CurFavIndex == 0)
     //	btnCreateFavorite->SetLabel("Create &Favorite");
@@ -920,7 +920,7 @@ bool GroupEditorWizardPage::CheckAccessGroup(std::shared_ptr<ICmsHeaderAttribute
     std::shared_ptr<ICmsHeaderAttributeGroup> attrs;
     std::shared_ptr<ICmsHeaderAccessGroup> andGroup;
     int attrListCount;
-	AudienceSelector2* wiz = dynamic_cast<AudienceSelector2*>(GetParent());
+    AudienceSelector2* wiz = dynamic_cast<AudienceSelector2*>(GetParent());
 
     BuildIntList(newAttrs, newList);
 
@@ -928,7 +928,7 @@ bool GroupEditorWizardPage::CheckAccessGroup(std::shared_ptr<ICmsHeaderAttribute
     std::shared_ptr<ICmsHeaderAccessGroupExtension> groupList;
 
     if (wiz == nullptr || wiz->_vars == nullptr || 
-		!wiz->_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) ||
+        !wiz->_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) ||
         !(groupList = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(ext)))
     {
         return false;
@@ -965,22 +965,22 @@ bool GroupEditorWizardPage::CheckAccessGroup(std::shared_ptr<ICmsHeaderAttribute
 
     for (index = 0; index < (int)newList.size() / 4; index++)
     {
-        newAttrs->AddAttributeIndex(((DWORD*)newList.c_str())[index]);
+        newAttrs->AddAttributeIndex(((uint32_t*)newList.c_str())[index]);
     }
     return true;
 }
 void GroupEditorWizardPage::BuildIntList(std::shared_ptr<ICmsHeaderAttributeGroup> attrGroup, tscrypto::tsCryptoData &list)
 {
     int attributeCount;
-    DWORD *p;
+    uint32_t *p;
     int insertedCount = 0;
-    DWORD id;
+    uint32_t id;
     int i, j;
 
     attributeCount = (int)attrGroup->GetAttributeCount();
     list.erase();
     list.resize(attributeCount * 4);
-    p = (DWORD*)list.rawData();
+    p = (uint32_t*)list.rawData();
 
     for (i = 0; i < attributeCount; i++)
     {
@@ -1022,7 +1022,7 @@ void GroupEditorWizardPage::EnableDisableOK()
     //		tscrypto::tsCryptoString name;
 
     //		name = _groupList->GetString(0).c_str().AsChar();
-    //		if (TsStrCmp(name, AS_SEL_DOM_STR) != 0)
+    //		if (tsStrCmp(name, AS_SEL_DOM_STR) != 0)
     //		{
     //			bEnableOK = TRUE;
     //			bEnableFav = TRUE;
@@ -1054,14 +1054,14 @@ bool GroupEditorWizardPage::FindSelectedAccessGroup(std::shared_ptr<ICmsHeaderAc
     int sel;
     int index;
     tscrypto::tsCryptoString name;
-	AudienceSelector2* wiz = dynamic_cast<AudienceSelector2*>(GetParent());
+    AudienceSelector2* wiz = dynamic_cast<AudienceSelector2*>(GetParent());
 
     if (wiz == nullptr || wiz->_vars == nullptr || !wiz->_vars->_header)
         return false;
 
     std::shared_ptr<ICmsHeaderExtension> ext;
     std::shared_ptr<ICmsHeaderAccessGroupExtension> extGroup;
-    if (!wiz->_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) ||
+    if (!wiz->_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) ||
         !(extGroup = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(ext)))
     {
         return false;
@@ -1085,7 +1085,7 @@ bool GroupEditorWizardPage::FindSelectedAccessGroup(std::shared_ptr<ICmsHeaderAc
             !!(attrGroup = std::dynamic_pointer_cast<ICmsHeaderAttributeGroup>(andGroup)))
         {
             line = BuildAttrsLine(attrGroup, index == 0);
-            if (TsStrCmp(line.c_str(), name.c_str()) == 0)
+            if (tsStrCmp(line.c_str(), name.c_str()) == 0)
             {
                 attrs = attrGroup;
                 accessGroup = andGroup;
@@ -1099,7 +1099,7 @@ bool GroupEditorWizardPage::FindSelectedAccessGroup(std::shared_ptr<ICmsHeaderAc
 
 bool GroupEditorWizardPage::skipMe()
 {
-	return false;
+    return false;
 }
 
 
@@ -1109,11 +1109,11 @@ bool GroupEditorWizardPage::skipMe()
 
 wxWizardPage* GroupEditorWizardPage::GetPrev() const
 {
-	ISkippablePage* tokPg = dynamic_cast<ISkippablePage*>(prevPage);
+    ISkippablePage* tokPg = dynamic_cast<ISkippablePage*>(prevPage);
 
-	if (tokPg != nullptr && tokPg->skipMe())
-		return prevPage->GetPrev();
-	return prevPage;
+    if (tokPg != nullptr && tokPg->skipMe())
+        return prevPage->GetPrev();
+    return prevPage;
 }
 
 
@@ -1123,10 +1123,10 @@ wxWizardPage* GroupEditorWizardPage::GetPrev() const
 
 wxWizardPage* GroupEditorWizardPage::GetNext() const
 {
-	ISkippablePage* tokPg = dynamic_cast<ISkippablePage*>(nextPage);
+    ISkippablePage* tokPg = dynamic_cast<ISkippablePage*>(nextPage);
 
-	if (tokPg != nullptr && tokPg->skipMe())
-		return nextPage->GetNext();
-	return nextPage;
+    if (tokPg != nullptr && tokPg->skipMe())
+        return nextPage->GetNext();
+    return nextPage;
 }
 

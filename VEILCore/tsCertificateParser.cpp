@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -33,7 +33,7 @@
 
 using namespace tscrypto;
 
-static BYTE gRsaAlgorithm[] = { 42, 0x86, 72, 0x86, 0xf7, 13, 1, 1, 1 };
+static uint8_t gRsaAlgorithm[] = { 42, 0x86, 72, 0x86, 0xf7, 13, 1, 1, 1 };
 
 namespace tsCertificateTypes
 {
@@ -79,8 +79,8 @@ namespace tsCertificateTypes
 
 tsCertificateParser::tsCertificateParser()
 {
-	m_extensionList = CreateContainer<tsCertificateExtension>();
-	m_doc = TlvDocument::Create();
+    m_extensionList = CreateContainer<tsCertificateExtension>();
+    m_doc = TlvDocument::Create();
     Clear();
 }
 
@@ -91,7 +91,7 @@ tsCertificateParser::~tsCertificateParser()
 
 tsCertificateParser::tsCertificateParser(const tsCertificateParser& obj)
 {
-	m_doc = TlvDocument::Create();
+    m_doc = TlvDocument::Create();
     Clear();
     if (obj.m_originalData.size() > 0)
         LoadCertificate(obj.m_originalData);
@@ -235,7 +235,7 @@ bool tsCertificateParser::LoadCertificate(const tsCryptoData &certData)
     std::shared_ptr<TlvNode> node1;
     std::shared_ptr<TlvNode> node2;
     std::shared_ptr<TlvNode> node3;
-	int tbsOffset = 0;
+    int tbsOffset = 0;
 
     Clear();
 
@@ -265,19 +265,19 @@ bool tsCertificateParser::LoadCertificate(const tsCryptoData &certData)
     node1 = certInfo->Children()->at(0);
     if (node1->Tag() != 0 || node1->Type() != 2 || !node1->IsConstructed() || node1->Children()->size() != 1)
     {
-		m_version = ICertificateIssuer::X509_v2;
+        m_version = ICertificateIssuer::X509_v2;
     }
-	else
-	{
-    node2 = node1->Children()->at(0);
-		if (node2->Tag() != TlvNode::Tlv_Number || node2->Type() != 0 || node2->IsConstructed())
+    else
     {
-        Clear();
-        return false;
+        node2 = node1->Children()->at(0);
+        if (node2->Tag() != TlvNode::Tlv_Number || node2->Type() != 0 || node2->IsConstructed())
+        {
+            Clear();
+            return false;
+        }
+        m_version = (ICertificateIssuer::CertificateVersion)node2->InnerDataAsNumber();
+        tbsOffset++;
     }
-    m_version = (ICertificateIssuer::CertificateVersion)node2->InnerDataAsNumber();
-		tbsOffset++;
-	}
     //
     // Serial number
     //
@@ -425,7 +425,7 @@ bool tsCertificateParser::LoadCertificate(const tsCryptoData &certData)
         //
         // We are using RSA keys, so parse out the modulus and exponent
         //
-		std::shared_ptr<TlvDocument> doc2 = TlvDocument::Create();
+        std::shared_ptr<TlvDocument> doc2 = TlvDocument::Create();
 
         if (m_publicKey.size() > 0)
             m_publicKey.erase(0, 1);
@@ -507,7 +507,7 @@ bool tsCertificateParser::LoadCertificate(const tsCryptoData &certData)
             {
                 size_t extCount = node2->Children()->size();
 
-				for (size_t j = 0; j < extCount; j++)
+                for (size_t j = 0; j < extCount; j++)
                 {
                     tsCertificateExtension ext;
 
@@ -701,20 +701,20 @@ const tsCryptoData tsCertificateParser::SubjectKeyIdentifier() const
 
 const tsCryptoData tsCertificateParser::SubjectKeyIdentifierValue() const
 {
-	auto it = std::find_if(m_extensionList->begin(), m_extensionList->end(), [](const tsCertificateExtension& ext) ->bool { return ext.oidString() == "2.5.29.14"; });
-	if (it == m_extensionList->end())
-		return tsCryptoData();
+    auto it = std::find_if(m_extensionList->begin(), m_extensionList->end(), [](const tsCertificateExtension& ext) ->bool { return ext.oidString() == "2.5.29.14"; });
+    if (it == m_extensionList->end())
+        return tsCryptoData();
 
-	std::shared_ptr<TlvDocument> doc = TlvDocument::Create();
+    std::shared_ptr<TlvDocument> doc = TlvDocument::Create();
 
-	if (!doc->LoadTlv(it->Value()))
-		return tsCryptoData();
+    if (!doc->LoadTlv(it->Value()))
+        return tsCryptoData();
 
-	return doc->DocumentElement()->InnerData();
+    return doc->DocumentElement()->InnerData();
 }
 const tsCryptoData tsCertificateParser::IssuerKeyIdentifier() const
 {
-	auto it = std::find_if(m_extensionList->begin(), m_extensionList->end(), [](const tsCertificateExtension& ext) ->bool { return ext.oidString() == "2.5.29.35"; });
+    auto it = std::find_if(m_extensionList->begin(), m_extensionList->end(), [](const tsCertificateExtension& ext) ->bool { return ext.oidString() == "2.5.29.35"; });
     if (it == m_extensionList->end())
         return tsCryptoData();
     return it->Value();
@@ -752,50 +752,50 @@ tsCryptoString tsCertificateParser::asBase64() const
 
 tsCryptoString tsCertificateParser::SubjectName() const
 {
-	const std::shared_ptr<TlvNode> parent = Subject();
-	tsDistinguishedName dn;
+    const std::shared_ptr<TlvNode> parent = Subject();
+    tsDistinguishedName dn;
 
     if (parent != nullptr)
     {
         for (size_t i = 0; i < parent->ChildCount(); i++)
         {
-			const std::shared_ptr<TlvNode> child = parent->ChildAt(i);
+            const std::shared_ptr<TlvNode> child = parent->ChildAt(i);
 
             if (child->Tag() == TlvNode::Tlv_Set && child->Type() == TlvNode::Type_Universal && child->ChildCount() == 1)
             {
-				const std::shared_ptr<TlvNode> subchild = child->ChildAt(0);
+                const std::shared_ptr<TlvNode> subchild = child->ChildAt(0);
                 if (subchild->Tag() == TlvNode::Tlv_Sequence && subchild->Type() == TlvNode::Type_Universal && subchild->ChildCount() > 1)
                 {
                     tsCryptoString oid = subchild->ChildAt(0)->InnerData().ToOIDString();
 
-					dn.AddPartByOID(oid.c_str(), subchild->ChildAt(1)->InnerString().c_str());
+                    dn.AddPartByOID(oid.c_str(), subchild->ChildAt(1)->InnerString().c_str());
                 }
             }
         }
     }
 
-	return dn.ToString();
+    return dn.ToString();
 }
 
 tsCryptoString tsCertificateParser::IssuerName() const
 {
-	const std::shared_ptr<TlvNode> parent = Issuer();
-	tsDistinguishedName dn;
+    const std::shared_ptr<TlvNode> parent = Issuer();
+    tsDistinguishedName dn;
 
     if (parent != nullptr)
     {
         for (size_t i = 0; i < parent->ChildCount(); i++)
         {
-			const std::shared_ptr<TlvNode> child = parent->ChildAt(i);
+            const std::shared_ptr<TlvNode> child = parent->ChildAt(i);
 
             if (child->Tag() == TlvNode::Tlv_Set && child->Type() == TlvNode::Type_Universal && child->ChildCount() == 1)
             {
-				const std::shared_ptr<TlvNode> subchild = child->ChildAt(0);
+                const std::shared_ptr<TlvNode> subchild = child->ChildAt(0);
                 if (subchild->Tag() == TlvNode::Tlv_Sequence && subchild->Type() == TlvNode::Type_Universal && subchild->ChildCount() > 1)
                 {
                     tsCryptoString oid = subchild->ChildAt(0)->InnerData().ToOIDString();
 
-					dn.AddPartByOID(oid.c_str(), subchild->ChildAt(1)->InnerString().c_str());
+                    dn.AddPartByOID(oid.c_str(), subchild->ChildAt(1)->InnerString().c_str());
 
                 }
             }
@@ -806,106 +806,106 @@ tsCryptoString tsCertificateParser::IssuerName() const
 
 std::shared_ptr<AsymmetricKey> tsCertificateParser::getPublicKeyObject() const
 {
-	tsCryptoString oid = m_pubKeyAlgorithm.ToOIDString();
+    tsCryptoString oid = m_pubKeyAlgorithm.ToOIDString();
 
-	if (oid == EC_PUBLIC_KEY_OID)
-	{
-		std::shared_ptr<EccKey> ecc = std::dynamic_pointer_cast<EccKey>(CryptoFactory(PublicKeyAlgorithmParameters()->InnerData().ToOIDString()));
+    if (oid == id_EC_PUBLIC_KEY_OID)
+    {
+        std::shared_ptr<EccKey> ecc = std::dynamic_pointer_cast<EccKey>(CryptoFactory(PublicKeyAlgorithmParameters()->InnerData().ToOIDString()));
 
-		if (!ecc)
-			return nullptr;
-		ecc->set_Point(PublicKey().substring(1, PublicKey().size() - 1));
-		return ecc;
-	}
-	if (oid == RSA_ENCRYPT_OID)
-	{
-		std::shared_ptr<RsaKey> rsa = std::dynamic_pointer_cast<RsaKey>(CryptoFactory("KEY-RSA"));
+        if (!ecc)
+            return nullptr;
+        ecc->set_Point(PublicKey().substring(1, PublicKey().size() - 1));
+        return ecc;
+    }
+    if (oid == id_RSA_ENCRYPT_OID)
+    {
+        std::shared_ptr<RsaKey> rsa = std::dynamic_pointer_cast<RsaKey>(CryptoFactory("KEY-RSA"));
 
-		if (!rsa)
-			return nullptr;
-		rsa->set_Exponent(Exponent());
-		rsa->set_PublicModulus(Modulus());
-		return rsa;
-	}
-	if (oid == DHPUBLICNUMBER_OID)
-	{
-		std::shared_ptr<DhParameters> params;
-		std::shared_ptr<DhKey> key;
-		tsCryptoData pubKey;
-		std::shared_ptr<TlvDocument> doc = TlvDocument::Create();
+        if (!rsa)
+            return nullptr;
+        rsa->set_Exponent(Exponent());
+        rsa->set_PublicModulus(Modulus());
+        return rsa;
+    }
+    if (oid == id_DHPUBLICNUMBER_OID)
+    {
+        std::shared_ptr<DhParameters> params;
+        std::shared_ptr<DhKey> key;
+        tsCryptoData pubKey;
+        std::shared_ptr<TlvDocument> doc = TlvDocument::Create();
 
-		if (!m_pubKeyAlgorithmParameters || !m_pubKeyAlgorithmParameters->IsConstructed() || m_pubKeyAlgorithmParameters->ChildCount() < 3 || !TSBuildDhParams(params) || !TSBuildDhKey(key))
-			return nullptr;
-		if (!doc->LoadTlv(PublicKey().substring(1, PublicKey().size() - 1)) || doc->DocumentElement()->Tag() != TlvNode::Tlv_Number)
-			return nullptr;
-		pubKey = UnpackNumber(doc->DocumentElement()->InnerData());
+        if (!m_pubKeyAlgorithmParameters || !m_pubKeyAlgorithmParameters->IsConstructed() || m_pubKeyAlgorithmParameters->ChildCount() < 3 || !TSBuildDhParams(params) || !TSBuildDhKey(key))
+            return nullptr;
+        if (!doc->LoadTlv(PublicKey().substring(1, PublicKey().size() - 1)) || doc->DocumentElement()->Tag() != TlvNode::Tlv_Number)
+            return nullptr;
+        pubKey = UnpackNumber(doc->DocumentElement()->InnerData());
 
-		if (!params->set_prime(UnpackNumber(m_pubKeyAlgorithmParameters->ChildAt(0)->InnerData())) ||
-			!params->set_subprime(UnpackNumber(m_pubKeyAlgorithmParameters->ChildAt(2)->InnerData())) ||
-			!params->set_generator(UnpackNumber(m_pubKeyAlgorithmParameters->ChildAt(1)->InnerData())) ||
-			!key->set_DomainParameters(params) || !key->set_PublicKey(pubKey))
-		{
-			return nullptr;
-		}
-		return key;
-	}
-	if (oid == DSA_PARAMETER_SET)
-	{
-		std::shared_ptr<DhParameters> params;
-		std::shared_ptr<DhKey> key;
-		tsCryptoData pubKey;
-		std::shared_ptr<TlvDocument> doc = TlvDocument::Create();
+        if (!params->set_prime(UnpackNumber(m_pubKeyAlgorithmParameters->ChildAt(0)->InnerData())) ||
+            !params->set_subprime(UnpackNumber(m_pubKeyAlgorithmParameters->ChildAt(2)->InnerData())) ||
+            !params->set_generator(UnpackNumber(m_pubKeyAlgorithmParameters->ChildAt(1)->InnerData())) ||
+            !key->set_DomainParameters(params) || !key->set_PublicKey(pubKey))
+        {
+            return nullptr;
+        }
+        return key;
+    }
+    if (oid == id_DSA_PARAMETER_SET_OID)
+    {
+        std::shared_ptr<DhParameters> params;
+        std::shared_ptr<DhKey> key;
+        tsCryptoData pubKey;
+        std::shared_ptr<TlvDocument> doc = TlvDocument::Create();
 
-		if (!m_pubKeyAlgorithmParameters || !m_pubKeyAlgorithmParameters->IsConstructed() || m_pubKeyAlgorithmParameters->ChildCount() < 3 || !TSBuildDhParams(params) || !TSBuildDhKey(key))
-			return nullptr;
-		if (!doc->LoadTlv(PublicKey().substring(1, PublicKey().size() - 1)) || doc->DocumentElement()->Tag() != TlvNode::Tlv_Number)
-			return nullptr;
-		pubKey = UnpackNumber(doc->DocumentElement()->InnerData());
+        if (!m_pubKeyAlgorithmParameters || !m_pubKeyAlgorithmParameters->IsConstructed() || m_pubKeyAlgorithmParameters->ChildCount() < 3 || !TSBuildDhParams(params) || !TSBuildDhKey(key))
+            return nullptr;
+        if (!doc->LoadTlv(PublicKey().substring(1, PublicKey().size() - 1)) || doc->DocumentElement()->Tag() != TlvNode::Tlv_Number)
+            return nullptr;
+        pubKey = UnpackNumber(doc->DocumentElement()->InnerData());
 
-		if (!params->set_prime(UnpackNumber(m_pubKeyAlgorithmParameters->ChildAt(0)->InnerData())) ||
-			!params->set_subprime(UnpackNumber(m_pubKeyAlgorithmParameters->ChildAt(1)->InnerData())) ||
-			!params->set_generator(UnpackNumber(m_pubKeyAlgorithmParameters->ChildAt(2)->InnerData())) ||
-			!key->set_DomainParameters(params) || !key->set_PublicKey(pubKey))
-		{
-			return nullptr;
-		}
-		return key;
-	}
-	return nullptr;
+        if (!params->set_prime(UnpackNumber(m_pubKeyAlgorithmParameters->ChildAt(0)->InnerData())) ||
+            !params->set_subprime(UnpackNumber(m_pubKeyAlgorithmParameters->ChildAt(1)->InnerData())) ||
+            !params->set_generator(UnpackNumber(m_pubKeyAlgorithmParameters->ChildAt(2)->InnerData())) ||
+            !key->set_DomainParameters(params) || !key->set_PublicKey(pubKey))
+        {
+            return nullptr;
+        }
+        return key;
+    }
+    return nullptr;
 }
 
 tsCryptoData tsCertificateParser::UnpackNumber(const tsCryptoData& number) const
 {
-	tsCryptoData tmp(number);
+    tsCryptoData tmp(number);
 
-	if (tmp.size() > 1 && tmp[0] == 0 && (tmp[1] & 0x80) != 0)
-	{
-		tmp.erase(0, 1);
-	}
-	return tmp;
+    if (tmp.size() > 1 && tmp[0] == 0 && (tmp[1] & 0x80) != 0)
+    {
+        tmp.erase(0, 1);
+    }
+    return tmp;
 }
 tsCryptoData tsCertificateParser::getExtensionValue(const char* oid) const
 {
-	auto it = std::find_if(m_extensionList->begin(), m_extensionList->end(), [oid](const tsCertificateExtension& ext) { return ext.oidString() == oid; });
-	if (it == m_extensionList->end())
-		return tsCryptoData();
-	return it->Value();
+    auto it = std::find_if(m_extensionList->begin(), m_extensionList->end(), [oid](const tsCertificateExtension& ext) { return ext.oidString() == oid; });
+    if (it == m_extensionList->end())
+        return tsCryptoData();
+    return it->Value();
 }
 
 CA_Certificate_Request::KeyUsageFlags tsCertificateParser::GetKeyUsage() const
 {
-	tsCryptoData usage = getExtensionValue(CERT_KEY_USAGE_OID);
-	CA_Certificate_Request::KeyUsageFlags tmp = (CA_Certificate_Request::KeyUsageFlags)0;
+    tsCryptoData usage = getExtensionValue(id_CERT_KEY_USAGE_OID);
+    CA_Certificate_Request::KeyUsageFlags tmp = (CA_Certificate_Request::KeyUsageFlags)0;
 
-	usage.erase(0, 3);
+    usage.erase(0, 3);
 
-	if (usage.size() == 1)
-		tmp = (CA_Certificate_Request::KeyUsageFlags)usage[0];
-	else if (usage.size() > 1)
-	{
-		tmp = (CA_Certificate_Request::KeyUsageFlags)(usage[0] | (256 * usage[1]));
-	}
-	return tmp;
+    if (usage.size() == 1)
+        tmp = (CA_Certificate_Request::KeyUsageFlags)usage[0];
+    else if (usage.size() > 1)
+    {
+        tmp = (CA_Certificate_Request::KeyUsageFlags)(usage[0] | (256 * usage[1]));
+    }
+    return tmp;
 }
 tscrypto::tsCryptoDate tsCertificateParser::ValidFrom() const
 {
@@ -924,7 +924,7 @@ std::shared_ptr<tscrypto::AsymmetricKey> tsCertificateParser::PublicKeyObject(bo
     if (m_pubKeyAlgorithmParameters->Tag() == TlvNode::Tlv_OID)
         paramOid = m_pubKeyAlgorithmParameters->InnerData().ToOIDString();
 
-    if (oid == RSA_ENCRYPT_OID)
+    if (oid == id_RSA_ENCRYPT_OID)
     {
         std::shared_ptr<tscrypto::RsaKey> rsa = std::dynamic_pointer_cast<tscrypto::RsaKey>(CryptoFactory("KEY-RSA"));
         _POD_RsaPublicKeyPart keyPart;
@@ -936,27 +936,27 @@ std::shared_ptr<tscrypto::AsymmetricKey> tsCertificateParser::PublicKeyObject(bo
             return nullptr;
         key = rsa;
     }
-    else if (oid == EC_PUBLIC_KEY_OID)
+    else if (oid == id_EC_PUBLIC_KEY_OID)
     {
         std::shared_ptr<tscrypto::EccKey> ecc;
 
-        if (paramOid == SECP256R1_CURVE_OID)
+        if (paramOid == id_SECP256R1_CURVE_OID)
         {
             ecc = std::dynamic_pointer_cast<tscrypto::EccKey>(CryptoFactory("KEY-P256"));
         }
-        else if (paramOid == SECP384R1_CURVE_OID)
+        else if (paramOid == id_SECP384R1_CURVE_OID)
         {
             ecc = std::dynamic_pointer_cast<tscrypto::EccKey>(CryptoFactory("KEY-P384"));
         }
-        else if (paramOid == SECP521R1_CURVE_OID)
+        else if (paramOid == id_SECP521R1_CURVE_OID)
         {
             ecc = std::dynamic_pointer_cast<tscrypto::EccKey>(CryptoFactory("KEY-P521"));
         }
-        else if (paramOid == SECP256K1_CURVE_OID)
+        else if (paramOid == id_SECP256K1_CURVE_OID)
         {
             ecc = std::dynamic_pointer_cast<tscrypto::EccKey>(CryptoFactory("KEY-P256K1"));
         }
-        else if (paramOid == CURVE_25519_OID)
+        else if (paramOid == id_CURVE_25519_OID)
         {
             if (forSigning)
             {
@@ -967,27 +967,27 @@ std::shared_ptr<tscrypto::AsymmetricKey> tsCertificateParser::PublicKeyObject(bo
                 ecc = std::dynamic_pointer_cast<tscrypto::EccKey>(CryptoFactory("X25519"));
             }
         }
-        else if (paramOid == TECSEC_NUMSP256D1)
+        else if (paramOid == id_TECSEC_NUMSP256D1_OID)
         {
             ecc = std::dynamic_pointer_cast<tscrypto::EccKey>(CryptoFactory("numsp256d1"));
         }
-        else if (paramOid == TECSEC_NUMSP256T1)
+        else if (paramOid == id_TECSEC_NUMSP256T1_OID)
         {
             ecc = std::dynamic_pointer_cast<tscrypto::EccKey>(CryptoFactory("numsp256t1"));
         }
-        else if (paramOid == TECSEC_NUMSP384D1)
+        else if (paramOid == id_TECSEC_NUMSP384D1_OID)
         {
             ecc = std::dynamic_pointer_cast<tscrypto::EccKey>(CryptoFactory("numsp384d1"));
         }
-        else if (paramOid == TECSEC_NUMSP384T1)
+        else if (paramOid == id_TECSEC_NUMSP384T1_OID)
         {
             ecc = std::dynamic_pointer_cast<tscrypto::EccKey>(CryptoFactory("numsp384t1"));
         }
-        else if (paramOid == TECSEC_NUMSP512D1)
+        else if (paramOid == id_TECSEC_NUMSP512D1_OID)
         {
             ecc = std::dynamic_pointer_cast<tscrypto::EccKey>(CryptoFactory("numsp512d1"));
         }
-        else if (paramOid == TECSEC_NUMSP512T1)
+        else if (paramOid == id_TECSEC_NUMSP512T1_OID)
         {
             ecc = std::dynamic_pointer_cast<tscrypto::EccKey>(CryptoFactory("numsp512t1"));
         }
@@ -999,7 +999,7 @@ std::shared_ptr<tscrypto::AsymmetricKey> tsCertificateParser::PublicKeyObject(bo
             return nullptr;
         key = ecc;
     }
-    else if (oid == DHPUBLICNUMBER_OID)
+    else if (oid == id_DHPUBLICNUMBER_OID)
     {
         std::shared_ptr<DhParameters> dhParams = std::dynamic_pointer_cast<DhParameters>(CryptoFactory("PARAMETERSET-DH"));
         std::shared_ptr<tscrypto::DhKey> dh;
@@ -1026,7 +1026,7 @@ std::shared_ptr<tscrypto::AsymmetricKey> tsCertificateParser::PublicKeyObject(bo
             return nullptr;
         key = dh;
     }
-    else if (oid == DSA_PARAMETER_SET)
+    else if (oid == id_DSA_PARAMETER_SET_OID)
     {
         std::shared_ptr<DhParameters> dhParams = std::dynamic_pointer_cast<DhParameters>(CryptoFactory("PARAMETERSET-DH"));
         std::shared_ptr<tscrypto::DhKey> dh = std::dynamic_pointer_cast<tscrypto::DhKey>(CryptoFactory("KEY-DH"));
@@ -1057,8 +1057,8 @@ bool tsCertificateParser::VerifySignature(std::shared_ptr<tscrypto::AsymmetricKe
     std::shared_ptr<DhKey> dhkey;
     std::shared_ptr<Signer> signer;
     tsCryptoString signerName;
-    SSL_HashAlgorithm hashAlg;
-    SSL_SignatureAlgorithm sigAlg;
+    TSSslHashAlgorithm hashAlg;
+    TSSslSignatureAlgorithm sigAlg;
 
     rsakey = std::dynamic_pointer_cast<RsaKey>(parentCertKey);
     ecckey = std::dynamic_pointer_cast<EccKey>(parentCertKey);
@@ -1069,24 +1069,24 @@ bool tsCertificateParser::VerifySignature(std::shared_ptr<tscrypto::AsymmetricKe
 
     if (!!ecckey)
     {
-        if (sigAlg != sslsign_ecdsa)
+        if (sigAlg != tsSslsign_ecdsa)
             return false;
 
         switch (hashAlg)
         {
-        case sslhash_sha1:
+        case tsSslhash_sha1:
             signerName = "SIGN-ECC-SHA1";
             break;
-        case sslhash_sha224:
+        case tsSslhash_sha224:
             signerName = "SIGN-ECC-SHA224";
             break;
-        case sslhash_sha256:
+        case tsSslhash_sha256:
             signerName = "SIGN-ECC-SHA256";
             break;
-        case sslhash_sha384:
+        case tsSslhash_sha384:
             signerName = "SIGN-ECC-SHA384";
             break;
-        case sslhash_sha512:
+        case tsSslhash_sha512:
             signerName = "SIGN-ECC-SHA512";
             break;
         default:
@@ -1095,24 +1095,24 @@ bool tsCertificateParser::VerifySignature(std::shared_ptr<tscrypto::AsymmetricKe
     }
     else if (!!rsakey)
     {
-        if (sigAlg != sslsign_rsa)
+        if (sigAlg != tsSslsign_rsa)
             return false;
 
         switch (hashAlg)
         {
-        case sslhash_sha1:
+        case tsSslhash_sha1:
             signerName = "SIGN-RSA-PKCS-SHA1";
             break;
-        case sslhash_sha224:
+        case tsSslhash_sha224:
             signerName = "SIGN-RSA-PKCS-SHA224";
             break;
-        case sslhash_sha256:
+        case tsSslhash_sha256:
             signerName = "SIGN-RSA-PKCS-SHA256";
             break;
-        case sslhash_sha384:
+        case tsSslhash_sha384:
             signerName = "SIGN-RSA-PKCS-SHA384";
             break;
-        case sslhash_sha512:
+        case tsSslhash_sha512:
             signerName = "SIGN-RSA-PKCS-SHA512";
             break;
         default:
@@ -1121,24 +1121,24 @@ bool tsCertificateParser::VerifySignature(std::shared_ptr<tscrypto::AsymmetricKe
     }
     else if (!!dhkey)
     {
-        if (sigAlg != sslsign_dsa)
+        if (sigAlg != tsSslsign_dsa)
             return false;
 
         switch (hashAlg)
         {
-        case sslhash_sha1:
+        case tsSslhash_sha1:
             signerName = "SIGN-DSA-SHA1";
             break;
-        case sslhash_sha224:
+        case tsSslhash_sha224:
             signerName = "SIGN-DSA-SHA224";
             break;
-        case sslhash_sha256:
+        case tsSslhash_sha256:
             signerName = "SIGN-DSA-SHA256";
             break;
-        case sslhash_sha384:
+        case tsSslhash_sha384:
             signerName = "SIGN-DSA-SHA384";
             break;
-        case sslhash_sha512:
+        case tsSslhash_sha512:
             signerName = "SIGN-DSA-SHA512";
             break;
         default:
@@ -1165,7 +1165,7 @@ bool tsCertificateParser::IsCACert() const
 
 bool tsCertificateParser::getBasicConstraintInfo(bool& isCA, int32_t& maxNumberIntermediaries) const
 {
-    tsCryptoData extData = getExtensionValue(CERT_BASIC_CONSTRAINTS_OID);
+    tsCryptoData extData = getExtensionValue(id_CERT_BASIC_CONSTRAINTS_OID);
 
     isCA = false;
     maxNumberIntermediaries = 0;

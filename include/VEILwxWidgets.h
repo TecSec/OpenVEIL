@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -41,28 +41,28 @@
 #   define VEILWXWIDGETS_TEMPLATE_EXTERN 
 #else
 	#ifdef _WIN32
-	#ifdef _STATIC_RUNTIME_LOADER
-		#define VEILWXWIDGETS_EXPORT
-		#define VEILWXWIDGETS_TEMPLATE_EXTERN extern
-	#else
-		#if !defined(VEILWXWIDGETSDEF) && !defined(DOXYGEN)
-			#define VEILWXWIDGETS_EXPORT  __declspec(dllimport)
+		#ifdef _STATIC_RUNTIME_LOADER
+			#define VEILWXWIDGETS_EXPORT
 			#define VEILWXWIDGETS_TEMPLATE_EXTERN extern
-		#else // _STATIC_RUNTIME_LOADER
-			/// <summary>A macro that defines extern syntax for templates.</summary>
-			#define VEILWXWIDGETS_TEMPLATE_EXTERN
-			/// <summary>A macro that defines the export modifiers for the AppPlatform components.</summary>
-			#define VEILWXWIDGETS_EXPORT __declspec(dllexport)
-		#endif // !defined(VEILWXWIDGETSDEF) && !defined(DOXYGEN)
-	#endif // _STATIC_RUNTIME_LOADER
+		#else
+			#if !defined(VEILWXWIDGETSDEF) && !defined(DOXYGEN)
+				#define VEILWXWIDGETS_EXPORT  __declspec(dllimport)
+				#define VEILWXWIDGETS_TEMPLATE_EXTERN extern
+			#else // _STATIC_RUNTIME_LOADER
+				/// <summary>A macro that defines extern syntax for templates.</summary>
+				#define VEILWXWIDGETS_TEMPLATE_EXTERN
+				/// <summary>A macro that defines the export modifiers for the AppPlatform components.</summary>
+				#define VEILWXWIDGETS_EXPORT __declspec(dllexport)
+			#endif // !defined(VEILWXWIDGETSDEF) && !defined(DOXYGEN)
+		#endif // _STATIC_RUNTIME_LOADER
 	#else // _WIN32
-	#if !defined(VEILWXWIDGETSDEF) && !defined(DOXYGEN)
-		#define VEILWXWIDGETS_EXPORT
-		#define VEILWXWIDGETS_TEMPLATE_EXTERN extern
-	#else
-		#define VEILWXWIDGETS_EXPORT EXPORT_SYMBOL
-		#define VEILWXWIDGETS_TEMPLATE_EXTERN
-	#endif // !defined(VEILWXWIDGETSDEF) && !defined(DOXYGEN)
+		#if !defined(VEILWXWIDGETSDEF) && !defined(DOXYGEN)
+			#define VEILWXWIDGETS_EXPORT
+			#define VEILWXWIDGETS_TEMPLATE_EXTERN extern
+		#else
+			#define VEILWXWIDGETS_EXPORT EXPORT_SYMBOL
+			#define VEILWXWIDGETS_TEMPLATE_EXTERN
+		#endif // !defined(VEILWXWIDGETSDEF) && !defined(DOXYGEN)
 	#endif // _WIN32
 #endif // VEILWXWIDGETS_STATIC
 
@@ -317,7 +317,7 @@ public:
 class VEILWXWIDGETS_EXPORT IAttributeSelector : public IVEILWxUIBase
 {
 public:
-	virtual bool Start(std::shared_ptr<IKeyVEILSession> session, XP_WINDOW parent, const GUID& CryptoGroupId, std::shared_ptr<ICmsHeaderAttributeGroup> group, std::shared_ptr<ICmsHeaderAttributeListExtension> attrList) = 0;
+	virtual bool Start(std::shared_ptr<IKeyVEILSession> session, XP_WINDOW parent, const tscrypto::tsCryptoData& CryptoGroupId, std::shared_ptr<ICmsHeaderAttributeGroup> group, std::shared_ptr<ICmsHeaderAttributeListExtension> attrList) = 0;
 };
 
 // "/WxWin/TokenLogIn"
@@ -379,7 +379,7 @@ public:
 	///
 	/// <returns>true if it succeeds, false if it fails.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual bool showWindow(BOOL bShow) = 0;
+	virtual bool showWindow(bool bShow) = 0;
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Determines if the cancel button was pressed.</summary>
 	///

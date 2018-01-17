@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -133,7 +133,7 @@ private:
 	typedef std::vector<TokenVecEntry> TokenVec;
 	size_t _cookie;
 
-	INT_PTR OnRefresh()
+    intptr_t OnRefresh()
 	{
 		CWaitCursor wc;
 
@@ -146,20 +146,20 @@ private:
 
 		return FALSE;
 	}
-	INT_PTR OnOK()
+    intptr_t OnOK()
 	{
 		// 06/25/2010 KRR C4310 (WPARAM)
 		m_nSelectionIndex = GetTokenItemParam(ListView_GetNextItem(m_hwndListView, -1, LVNI_SELECTED));
 		EndDialog(hDlg, IDOK);
 		return TRUE;
 	}
-	INT_PTR OnCancel()
+    intptr_t OnCancel()
 	{
 		m_nSelectionIndex = -1;
 		EndDialog(hDlg, IDCANCEL);
 		return TRUE;
 	}
-	INT_PTR OnHelp()
+    intptr_t OnHelp()
 	{
 		std::shared_ptr<IVEILHelpRegistry> help = ::TopServiceLocator()->get_instance<IVEILHelpRegistry>("/WinAPI/HelpRegistry");
 
@@ -193,7 +193,7 @@ private:
 		//m_tokenChange.Release();
 		hDlg = NULL;
 	}
-	INT_PTR OnInitDialog()
+    intptr_t OnInitDialog()
 	{
 		{
 			CWaitCursor wc;
@@ -302,7 +302,7 @@ private:
 
 		return 1;
 	}
-	INT_PTR OnListItemChanged()
+    intptr_t OnListItemChanged()
 	{
 		if (ListView_GetSelectedCount(m_hwndListView) > 0)
 		{
@@ -314,7 +314,7 @@ private:
 		}
 		return FALSE;
 	}
-	INT_PTR OnListItemActivate()
+    intptr_t OnListItemActivate()
 	{
 		if (ListView_GetSelectedCount(m_hwndListView) > 0)
 		{
@@ -327,7 +327,7 @@ private:
 		return FALSE;
 	}
 
-	INT_PTR OnListItemDoubleclick()
+    intptr_t OnListItemDoubleclick()
 	{
 		if (ListView_GetSelectedCount(m_hwndListView) > 0)
 		{
@@ -542,7 +542,7 @@ private:
 		m_TokenVec.push_back(vec);
 	}
 
-	static INT_PTR CALLBACK	TokenSelectorProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
+	static intptr_t CALLBACK	TokenSelectorProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		TokenSelector *params = (TokenSelector*)GetWindowLongPtr(hDlg, DWLP_USER);
 

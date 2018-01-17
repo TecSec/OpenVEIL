@@ -1,4 +1,4 @@
-#	Copyright (c) 2017, TecSec, Inc.
+#	Copyright (c) 2018, TecSec, Inc.
 #
 #	Redistribution and use in source and binary forms, with or without
 #	modification, are permitted provided that the following conditions are met:
@@ -60,7 +60,7 @@ if(WIN32 AND MSVC)
 	
 	set(wxBaseFilesRequired )
 	set(wxConfigFilesRequired _adv _core _html)
-	set(wxSupportFiles wxjpeg wxpng wxzlib) # wxscintilla wxexpat wxregex wxtiff
+	set(wxSupportFiles wxjpeg wxpng wxzlib wxexpat) # wxscintilla wxregex wxtiff
 	
 	set(wxBaseFilesOptional _net _xml)
 	set(wxConfigFilesOptional _aui _gl _media _propgrid _qa _ribbon _richtext _stc _webview _xrc)
@@ -332,6 +332,6 @@ if(WIN32 AND MSVC)
 	
 else()
 	set(wxWidgets_EXCLUDE_COMMON_LIBRARIES ON)
-	find_package(wxWidgets COMPONENTS core base adv html )
+	find_package(wxWidgets COMPONENTS core base adv html xml xrc aui propgrid)
 endif()
 

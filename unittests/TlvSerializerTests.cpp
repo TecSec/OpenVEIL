@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -246,7 +246,7 @@ TEST(TlvSerializer, defaultVersion)
 	EXPECT_EQ(1, data.get_VERSION());
 	EXPECT_STREQ(Asn1Test::id_test1b_unittest, data.get_OID().ToOIDString().c_str());
 	data.set_VERSION(4);
-	data.set_OID(tscrypto::TECSEC_AES_128_CBC_OID);
+	data.set_OID(id_TECSEC_AES_128_CBC_OID);
 	data.clear();
 	EXPECT_EQ(1, data.get_VERSION());
 	EXPECT_STREQ(Asn1Test::id_test1b_unittest, data.get_OID().ToOIDString().c_str());

@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -49,13 +49,13 @@ static bool processArmoredLines(tscrypto::tsCryptoStringList lines, TSNamedBinar
 		txt = line;
 		txt.Trim();
 
-		if (TsStrnCmp(txt.c_str(), "-----", 5) == 0)
+		if (tsStrnCmp(txt.c_str(), "-----", 5) == 0)
 		{
 			tscrypto::tsCryptoString markerLine(txt);
 
 			// We may have a marker.
 			markerLine.Trim(" -"); // Remove the marker prefix and suffix
-			if (TsStrniCmp(markerLine.c_str(), "BEGIN ", 6) == 0 && state == TextArea)
+			if (tsStrniCmp(markerLine.c_str(), "BEGIN ", 6) == 0 && state == TextArea)
 			{
 				markerLine.DeleteAt(0, 6); // Remove the BEGIN to get to the Name
 				if (value.size() > 0)
@@ -72,7 +72,7 @@ static bool processArmoredLines(tscrypto::tsCryptoStringList lines, TSNamedBinar
 				attrName.clear();
 				attrValue.clear();
 			}
-			else if (TsStrniCmp(markerLine.c_str(), "END ", 4) == 0 && state != TextArea)
+			else if (tsStrniCmp(markerLine.c_str(), "END ", 4) == 0 && state != TextArea)
 			{
 				TSNamedBinarySection section;
 
@@ -99,7 +99,7 @@ static bool processArmoredLines(tscrypto::tsCryptoStringList lines, TSNamedBinar
 		{
 			if (state == StartOfSection)
 			{
-				if (TsStrChr(txt.c_str(), ':') != nullptr)
+				if (tsStrChr(txt.c_str(), ':') != nullptr)
 				{
 					state = Attributes;
 				}
@@ -132,7 +132,7 @@ static bool processArmoredLines(tscrypto::tsCryptoStringList lines, TSNamedBinar
 						map.AddItem(attrName, attrValue);
 					attrName.clear();
 					attrValue.clear();
-					if (TsStrChr(txt.c_str(), ':') != nullptr)
+					if (tsStrChr(txt.c_str(), ':') != nullptr)
 					{
 						tscrypto::tsCryptoStringList list = txt.split(':', 2);
 						attrName = list->at(0);
@@ -183,17 +183,16 @@ bool xp_WriteArmoredFile(const tscrypto::tsCryptoString& filename, const TSNamed
 	if (!contents)
 		return false;
 
-	XP_FILE file = xp_CreateFile(filename, XP_GENERIC_WRITE, XP_FILE_SHARE_READ, nullptr, XP_CREATE_ALWAYS, XP_FILE_ATTRIBUTE_NORMAL, nullptr);
-
-	if (file == XP_FILE_INVALID)
+    TSFILE file = nullptr;
+        
+    if (!tsFOpen(&file, filename.c_str(), "wb", tsShare_DenyWR))
 		return false;
 
-	auto cleanup = finally([&file]() {xp_CloseFile(file);});
+	auto cleanup = finally([&file]() {tsCloseFile(file);});
 
 	for (auto section : *contents)
 	{
 		tscrypto::tsCryptoString tmp;
-		uint32_t count;
 		size_t start, end;
 		tscrypto::tsCryptoString part;
 		tscrypto::tsCryptoString namePart;
@@ -204,7 +203,7 @@ bool xp_WriteArmoredFile(const tscrypto::tsCryptoString& filename, const TSNamed
 			namePart = section.Name;
 			namePart.ToUpper();
 			tmp.append("-----BEGIN ").append(namePart).append("-----\n");
-			if (!xp_WriteFile(file, tmp.rawData(), (uint32_t)tmp.size(), &count, nullptr) || count != (uint32_t)tmp.size())
+			if (tsWriteFile(tmp.rawData(), 1, (uint32_t)tmp.size(), file) != (uint32_t)tmp.size())
 			{
 				return false;
 			}
@@ -216,7 +215,7 @@ bool xp_WriteArmoredFile(const tscrypto::tsCryptoString& filename, const TSNamed
 					tmp.clear();
 					tmp.append(section.Attributes.name(i)).append(": ").append(section.Attributes.item(i)).append('\n');
 					// TODO:  Add folding here (CRLF plus whitespace (RFC 822)
-					if (!xp_WriteFile(file, tmp.rawData(), (uint32_t)tmp.size(), &count, nullptr) || count != (uint32_t)tmp.size())
+					if (tsWriteFile(tmp.rawData(), 1, (uint32_t)tmp.size(), file) != (uint32_t)tmp.size())
 					{
 						return false;
 					}
@@ -224,7 +223,7 @@ bool xp_WriteArmoredFile(const tscrypto::tsCryptoString& filename, const TSNamed
 				// Blank line required here to separate attributes from body
 				tmp.clear();
 				tmp += "\n";
-				if (!xp_WriteFile(file, tmp.rawData(), (uint32_t)tmp.size(), &count, nullptr) || count != (uint32_t)tmp.size())
+				if (tsWriteFile(tmp.rawData(), 1, (uint32_t)tmp.size(), file) != (uint32_t)tmp.size())
 				{
 					return false;
 				}
@@ -242,7 +241,7 @@ bool xp_WriteArmoredFile(const tscrypto::tsCryptoString& filename, const TSNamed
 				part.assign(&tmp.c_str()[start], end - start);
 				start = end;
 				part += "\n";
-				if (!xp_WriteFile(file, part.rawData(), (uint32_t)part.size(), &count, nullptr) || count != (uint32_t)part.size())
+				if (tsWriteFile(part.rawData(), 1, (uint32_t)part.size(), file) != (uint32_t)part.size())
 				{
 					return false;
 				}
@@ -252,7 +251,7 @@ bool xp_WriteArmoredFile(const tscrypto::tsCryptoString& filename, const TSNamed
 			namePart = section.Name;
 			namePart.ToUpper();
 			tmp.append("-----END ").append(namePart).append("-----\n");
-			if (!xp_WriteFile(file, tmp.rawData(), (uint32_t)tmp.size(), &count, nullptr) || count != (uint32_t)tmp.size())
+			if (tsWriteFile(tmp.rawData(), 1, (uint32_t)tmp.size(), file) != (uint32_t)tmp.size())
 			{
 				return false;
 			}
@@ -261,7 +260,7 @@ bool xp_WriteArmoredFile(const tscrypto::tsCryptoString& filename, const TSNamed
 		{
 			tmp.clear();
 			tmp.append(section.Contents.ToUtf8String()).append('\n');
-			if (!xp_WriteFile(file, tmp.rawData(), (uint32_t)tmp.size(), &count, nullptr) || count != (uint32_t)tmp.size())
+			if (tsWriteFile(tmp.rawData(), 1, (uint32_t)tmp.size(), file) != (uint32_t)tmp.size())
 			{
 				return false;
 			}

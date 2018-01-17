@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -71,7 +71,7 @@ const TS_ALG_ID hashAlgIds[] =
 
 struct PageDescriptor
 {
-	XP_MODULE resourceModule;
+    HINSTANCE resourceModule;
 	int64_t resourceId;
 	std::function<int64_t(XP_WINDOW, uint32_t, uint64_t, uint64_t)> func;
 	tscrypto::tsCryptoString title;
@@ -384,7 +384,7 @@ protected:
 		}
 	}
 
-	INT_PTR CALLBACK GeneralProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+    intptr_t CALLBACK GeneralProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		BOOL handled = FALSE;
 
@@ -624,28 +624,28 @@ protected:
 			//            m_bCertEnc = (SendDlgItemMessage(m_hWnd, IDC_ALLOW_CERT_ENC_CHK, BM_GETCHECK, 0, 0) == BST_CHECKED);
 			m_bCloseAft = (SendDlgItemMessage(m_hWnd, IDC_CLOSE_AFT_OPN_CHK, BM_GETCHECK, 0, 0) == BST_CHECKED);
 			SendDlgItemMessage(m_hWnd, IDC_TIME_OUT_EDIT, WM_GETTEXT, sizeof(buff), (LPARAM)buff);
-			m_nTimeOut = TsStrToInt(buff);
+			m_nTimeOut = tsStrToInt(buff);
 			buff[0] = 0;
 			SendDlgItemMessage(m_hWnd, IDC_SECURE_DELETE, WM_GETTEXT, sizeof(buff), (LPARAM)buff);
-			m_nSecureDelete = TsStrToInt(buff);
+			m_nSecureDelete = tsStrToInt(buff);
 			//            m_startOnLogin = (SendDlgItemMessage(m_hWnd, IDC_CKMFILE_CHECK, BM_GETCHECK, 0, 0) == BST_CHECKED);
 			m_bAlwaysOnTop = (SendDlgItemMessage(m_hWnd, IDC_ALWAYSONTOP, BM_GETCHECK, 0, 0) == BST_CHECKED);
 			buff[0] = 0;
 
 			SendDlgItemMessage(m_hWnd, IDC_COMPTYPE_COMBO, WM_GETTEXT, sizeof(buff), (LPARAM)buff);
 
-			if (TsStrCmp(buff, ("zLib")) == 0)
+			if (tsStrCmp(buff, ("zLib")) == 0)
 				m_CompType = ct_zLib;
-			else if (TsStrCmp(buff, ("bZip")) == 0)
+			else if (tsStrCmp(buff, ("bZip")) == 0)
 				m_CompType = ct_BZ2;
 			else
 				m_CompType = ct_None;
 
 			//SendDlgItemMessage(m_hWnd, IDC_POSLEFT, WM_GETTEXT, sizeof(buff), (LPARAM)buff);
-			//m_nPosLeft = TsStrToInt(buff);
+			//m_nPosLeft = tsStrToInt(buff);
 			//buff[0] = 0;
 			//SendDlgItemMessage(m_hWnd, IDC_POSTOP, WM_GETTEXT, sizeof(buff), (LPARAM)buff);
-			//m_nPosTop = TsStrToInt(buff);
+			//m_nPosTop = tsStrToInt(buff);
 		}
 		else
 		{
@@ -668,12 +668,12 @@ protected:
 			
 			DisablePolicyField(IDC_CLOSE_AFT_OPN_CHK, _prefs->CloseAfterOperationLocation());
 			SendDlgItemMessage(m_hWnd, IDC_CLOSE_AFT_OPN_CHK, BM_SETCHECK, (m_bCloseAft ? BST_CHECKED : BST_UNCHECKED), 0);
-			TsSnPrintf(buff, sizeof(buff) / sizeof(buff[0]), ("%d"), m_nTimeOut);
+			tsSnPrintf(buff, sizeof(buff) / sizeof(buff[0]), ("%d"), m_nTimeOut);
 			
 			DisablePolicyField(IDC_TIME_OUT_EDIT, _prefs->SessionTimeoutLocation());
 			SendDlgItemMessage(m_hWnd, IDC_TIME_OUT_EDIT, WM_SETTEXT, 0, (LPARAM)buff);
 			
-			TsSnPrintf(buff, sizeof(buff) / sizeof(buff[0]), ("%d"), m_nSecureDelete);
+			tsSnPrintf(buff, sizeof(buff) / sizeof(buff[0]), ("%d"), m_nSecureDelete);
 			DisablePolicyField(IDC_SECURE_DELETE, _prefs->SecureDeletePassCountLocation());
 			SendDlgItemMessage(m_hWnd, IDC_SECURE_DELETE, WM_SETTEXT, 0, (LPARAM)buff);
 			
@@ -683,11 +683,11 @@ protected:
 			DisablePolicyField(IDC_ALWAYSONTOP, _prefs->AlwaysOnTopLocation());
 			SendDlgItemMessage(m_hWnd, IDC_ALWAYSONTOP, BM_SETCHECK, (m_bAlwaysOnTop) ? BST_CHECKED : BST_UNCHECKED, 0);
 			
-			//TsSnPrintf(buff, sizeof(buff) / sizeof(buff[0]), ("%d"), m_nPosLeft);
+			//tsSnPrintf(buff, sizeof(buff) / sizeof(buff[0]), ("%d"), m_nPosLeft);
 			////DisablePolicyField(IDC_POSLEFT, _prefs->());
 			//SendDlgItemMessage(m_hWnd, IDC_POSLEFT, WM_SETTEXT, 0, (LPARAM)buff);
 			//
-			//TsSnPrintf(buff, sizeof(buff) / sizeof(buff[0]), ("%d"), m_nPosTop);
+			//tsSnPrintf(buff, sizeof(buff) / sizeof(buff[0]), ("%d"), m_nPosTop);
 			////DisablePolicyField(IDC_POSTOP, _prefs->());
 			//SendDlgItemMessage(m_hWnd, IDC_POSTOP, WM_SETTEXT, 0, (LPARAM)buff);
 
@@ -726,7 +726,7 @@ protected:
 		// Get the values of the controls
 
 		UINT nTimeout = m_nTimeOut * 60;
-//		POINT winPt = { (LONG)m_nPosLeft, (LONG)m_nPosTop };
+//		POINT winPt = { (int32_t)m_nPosLeft, (int32_t)m_nPosTop };
 
 		_prefs->setAlwaysOnTop(m_bAlwaysOnTop ? true : false);
 		_prefs->setDeleteAfterEncryption(m_bDelAftEnc ? true : false);
@@ -778,7 +778,7 @@ protected:
 			return FALSE;
 		}
 
-		value = TsStrToInt(buff);
+		value = tsStrToInt(buff);
 		if (value > 999)
 		{
 			MessageBoxA(m_hWnd, ("Please enter a number between 0 and 999."),
@@ -814,7 +814,7 @@ protected:
 	//		return FALSE;
 	//	}
 
-	//	value = TsStrToInt(buff);
+	//	value = tsStrToInt(buff);
 
 	//	if (value > 1200)
 	//	{
@@ -840,7 +840,7 @@ protected:
 	//		return FALSE;
 	//	}
 
-	//	value = TsStrToInt(buff);
+	//	value = tsStrToInt(buff);
 
 	//	if (value > 780)
 	//	{
@@ -985,7 +985,7 @@ protected:
 		UpdateData(FALSE);
 	}
 
-	INT_PTR CALLBACK dlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+    intptr_t CALLBACK dlgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		BOOL handled = FALSE;
 
@@ -1160,7 +1160,7 @@ public:
 		_PropSheet.dwSize = sizeof(PROPSHEETHEADER);
 		_PropSheet.dwFlags = PSH_PROPSHEETPAGE | /*PSH_USECALLBACK |*/ PSH_HASHELP;
 		_PropSheet.hInstance = (HINSTANCE)hDllInstance;
-		_PropSheet.pszCaption = (LPSTR) "VEIL Settings";
+		_PropSheet.pszCaption = (char*) "VEIL Settings";
 		_PropSheet.nPages = (UINT)pages.size();
 		_PropSheet.nStartPage = 0;
 		_PropSheet.ppsp = (LPCPROPSHEETPAGE)m_psp;
@@ -1171,8 +1171,8 @@ public:
 		{
 			m_psp[i].dwSize = sizeof(PROPSHEETPAGE);
 			m_psp[i].dwFlags = PSP_USETITLE | PSP_HASHELP;
-			m_psp[i].hInstance = (HINSTANCE)pages[i].resourceModule;
-			m_psp[i].pszTemplate = (LPCSTR)pages[i].resourceId;
+			m_psp[i].hInstance = pages[i].resourceModule;
+			m_psp[i].pszTemplate = (const char*)pages[i].resourceId;
 			m_psp[i].pszTitle = pages[i].title.c_str();
 			m_psp[i].pfnDlgProc = (DLGPROC)PageProc;
 			m_psp[i].lParam = (LPARAM)&pages[i].func;
@@ -1222,7 +1222,7 @@ public:
 			break;
 		}
 	}
-	virtual void AddCustomPage(XP_MODULE resourceModule, int64_t resourceId, std::function<int64_t(XP_WINDOW, uint32_t, uint64_t, uint64_t)> func, const tscrypto::tsCryptoString& title)
+	virtual void AddCustomPage(HINSTANCE resourceModule, int64_t resourceId, std::function<int64_t(XP_WINDOW, uint32_t, uint64_t, uint64_t)> func, const tscrypto::tsCryptoString& title)
 	{
 		PageDescriptor page;
 
@@ -1263,7 +1263,7 @@ protected:
 		//m_lfont.lfHeight = 8;
 		//m_lfont.lfWeight = FW_NORMAL;
 		//m_lfont.lfPitchAndFamily = DEFAULT_PITCH | FF_DONTCARE;
-		//strcpy(m_lfont.lfFaceName, _T("Arial"));
+		//tsStrCpy(m_lfont.lfFaceName, _T("Arial"));
 		//HWND hTabCtrl = PropSheet_GetTabControl(hDlg);
 		//		SendMessage(hTabCtrl, WM_SETFONT, (WPARAM)&m_lfont, 0);
 
@@ -1298,7 +1298,7 @@ protected:
 			break;
 		}
 		if (!!func)
-			return (INT_PTR)((*func)((XP_WINDOW)hWnd, msg, wParam, lParam));
+			return (intptr_t)((*func)((XP_WINDOW)hWnd, msg, wParam, lParam));
 		return FALSE;
 	}
 

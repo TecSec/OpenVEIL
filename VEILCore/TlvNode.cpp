@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -49,12 +49,12 @@ std::shared_ptr<TlvNode> TlvNode::Create(std::weak_ptr<TlvDocument> document)
 	return ::CryptoLocator()->Finish<TlvNode>(new TlvNode(document));
 }
 
-std::shared_ptr<TlvNode> TlvNode::Create(std::shared_ptr<TlvDocument> document, int tag, BYTE type)
+std::shared_ptr<TlvNode> TlvNode::Create(std::shared_ptr<TlvDocument> document, int tag, uint8_t type)
 {
 	return ::CryptoLocator()->Finish<TlvNode>(new TlvNode(std::weak_ptr<TlvDocument>(document), tag, type));
 }
 
-std::shared_ptr<TlvNode> TlvNode::Create(std::weak_ptr<TlvDocument> document, int tag, BYTE type)
+std::shared_ptr<TlvNode> TlvNode::Create(std::weak_ptr<TlvDocument> document, int tag, uint8_t type)
 {
 	return ::CryptoLocator()->Finish<TlvNode>(new TlvNode(document, tag, type));
 }
@@ -72,7 +72,7 @@ TlvNode::TlvNode(std::weak_ptr<TlvDocument> document) :
 	m_children = CreateTlvNodeCollection();
 }
 
-TlvNode::TlvNode(std::weak_ptr<TlvDocument> document, int tag, BYTE type) :
+TlvNode::TlvNode(std::weak_ptr<TlvDocument> document, int tag, uint8_t type) :
 	m_tag(tag),
 	m_type(type),
 	m_document(document),
@@ -129,12 +129,12 @@ int TlvNode::FlatTag() const
 	return Tag();
 }
 
-BYTE TlvNode::Type() const
+uint8_t TlvNode::Type() const
 {
 	return m_type;
 }
 
-TlvNode* TlvNode::Type(BYTE setTo)
+TlvNode* TlvNode::Type(uint8_t setTo)
 {
 	if (setTo < 4)
 	{
@@ -218,7 +218,7 @@ TlvNode * TlvNode::InnerData(const tsCryptoData &setTo)
 	return this;
 }
 
-TlvNode * TlvNode::InnerData(BYTE setTo)
+TlvNode * TlvNode::InnerData(uint8_t setTo)
 {
 	m_data = setTo;
 	return this;
@@ -226,63 +226,63 @@ TlvNode * TlvNode::InnerData(BYTE setTo)
 
 TlvNode * TlvNode::InnerData(short setTo)
 {
-	m_data = (BYTE)(setTo >> 8);
-	m_data += (BYTE)(setTo);
+	m_data = (uint8_t)(setTo >> 8);
+	m_data += (uint8_t)(setTo);
 
 	while (m_data.size() > 1 && m_data[0] == 0)
 		m_data.erase(0, 1);
 
 	if (m_data.size() > 0 && (m_data[0] & 0x80) != 0)
-		m_data.insert(0, (BYTE)0);
+		m_data.insert(0, (uint8_t)0);
 	return this;
 }
 
 TlvNode * TlvNode::InnerData(int setTo)
 {
-	m_data = (BYTE)(setTo >> 24);
-	m_data += (BYTE)(setTo >> 16);
-	m_data += (BYTE)(setTo >> 8);
-	m_data += (BYTE)(setTo);
+	m_data = (uint8_t)(setTo >> 24);
+	m_data += (uint8_t)(setTo >> 16);
+	m_data += (uint8_t)(setTo >> 8);
+	m_data += (uint8_t)(setTo);
 
 	while (m_data.size() > 1 && m_data[0] == 0)
 		m_data.erase(0, 1);
 
 	if (m_data.size() > 0 && (m_data[0] & 0x80) != 0)
-		m_data.insert(0, (BYTE)0);
+		m_data.insert(0, (uint8_t)0);
 	return this;
 }
 
 TlvNode * TlvNode::InnerData(int64_t setTo)
 {
-	m_data = (BYTE)(setTo >> 56);
-	m_data += (BYTE)(setTo >> 48);
-	m_data += (BYTE)(setTo >> 40);
-	m_data += (BYTE)(setTo >> 32);
-	m_data = (BYTE)(setTo >> 24);
-	m_data += (BYTE)(setTo >> 16);
-	m_data += (BYTE)(setTo >> 8);
-	m_data += (BYTE)(setTo);
+	m_data = (uint8_t)(setTo >> 56);
+	m_data += (uint8_t)(setTo >> 48);
+	m_data += (uint8_t)(setTo >> 40);
+	m_data += (uint8_t)(setTo >> 32);
+	m_data = (uint8_t)(setTo >> 24);
+	m_data += (uint8_t)(setTo >> 16);
+	m_data += (uint8_t)(setTo >> 8);
+	m_data += (uint8_t)(setTo);
 
 	while (m_data.size() > 1 && m_data[0] == 0)
 		m_data.erase(0, 1);
 
 	if (m_data.size() > 0 && (m_data[0] & 0x80) != 0)
-		m_data.insert(0, (BYTE)0);
+		m_data.insert(0, (uint8_t)0);
 	return this;
 }
 
-TlvNode * TlvNode::InnerDataAsNumber(BYTE setTo)
+TlvNode * TlvNode::InnerDataAsNumber(uint8_t setTo)
 {
 	m_data = setTo;
 	if (m_data[0] & 0x80)
-		m_data.insert(0, (BYTE)0);
+		m_data.insert(0, (uint8_t)0);
 	return this;
 }
 
 TlvNode * TlvNode::InnerDataAsNumber(int16_t setTo)
 {
-	m_data = (BYTE)(setTo >> 8);
-	m_data += (BYTE)(setTo);
+	m_data = (uint8_t)(setTo >> 8);
+	m_data += (uint8_t)(setTo);
 
 	while (m_data.size() > 1 && m_data[0] == 0)
 		m_data.erase(0, 1);
@@ -291,24 +291,24 @@ TlvNode * TlvNode::InnerDataAsNumber(int16_t setTo)
 
 TlvNode * TlvNode::InnerDataAsNumber(uint16_t setTo)
 {
-	m_data = (BYTE)(setTo >> 8);
-	m_data += (BYTE)(setTo);
+	m_data = (uint8_t)(setTo >> 8);
+	m_data += (uint8_t)(setTo);
 
 	while (m_data.size() > 1 && m_data[0] == 0)
 		m_data.erase(0, 1);
 
 	if (m_data.size() > 0 && (m_data[0] & 0x80) != 0)
-		m_data.insert(0, (BYTE)0);
+		m_data.insert(0, (uint8_t)0);
 
 	return this;
 }
 
 TlvNode * TlvNode::InnerDataAsNumber(int32_t setTo)
 {
-	m_data = (BYTE)(setTo >> 24);
-	m_data += (BYTE)(setTo >> 16);
-	m_data += (BYTE)(setTo >> 8);
-	m_data += (BYTE)(setTo);
+	m_data = (uint8_t)(setTo >> 24);
+	m_data += (uint8_t)(setTo >> 16);
+	m_data += (uint8_t)(setTo >> 8);
+	m_data += (uint8_t)(setTo);
 
 	while (m_data.size() > 1 && m_data[0] == 0)
 		m_data.erase(0, 1);
@@ -318,30 +318,30 @@ TlvNode * TlvNode::InnerDataAsNumber(int32_t setTo)
 
 TlvNode * TlvNode::InnerDataAsNumber(uint32_t setTo)
 {
-	m_data = (BYTE)(setTo >> 24);
-	m_data += (BYTE)(setTo >> 16);
-	m_data += (BYTE)(setTo >> 8);
-	m_data += (BYTE)(setTo);
+	m_data = (uint8_t)(setTo >> 24);
+	m_data += (uint8_t)(setTo >> 16);
+	m_data += (uint8_t)(setTo >> 8);
+	m_data += (uint8_t)(setTo);
 
 	while (m_data.size() > 1 && m_data[0] == 0)
 		m_data.erase(0, 1);
 
 	if (m_data.size() > 0 && (m_data[0] & 0x80) != 0)
-		m_data.insert(0, (BYTE)0);
+		m_data.insert(0, (uint8_t)0);
 
 	return this;
 }
 
 TlvNode * TlvNode::InnerDataAsNumber(int64_t setTo)
 {
-	m_data = (BYTE)(setTo >> 56);
-	m_data += (BYTE)(setTo >> 48);
-	m_data += (BYTE)(setTo >> 40);
-	m_data += (BYTE)(setTo >> 32);
-	m_data += (BYTE)(setTo >> 24);
-	m_data += (BYTE)(setTo >> 16);
-	m_data += (BYTE)(setTo >> 8);
-	m_data += (BYTE)(setTo);
+	m_data = (uint8_t)(setTo >> 56);
+	m_data += (uint8_t)(setTo >> 48);
+	m_data += (uint8_t)(setTo >> 40);
+	m_data += (uint8_t)(setTo >> 32);
+	m_data += (uint8_t)(setTo >> 24);
+	m_data += (uint8_t)(setTo >> 16);
+	m_data += (uint8_t)(setTo >> 8);
+	m_data += (uint8_t)(setTo);
 
 	while (m_data.size() > 1 && m_data[0] == 0)
 		m_data.erase(0, 1);
@@ -351,20 +351,20 @@ TlvNode * TlvNode::InnerDataAsNumber(int64_t setTo)
 
 TlvNode * TlvNode::InnerDataAsNumber(uint64_t setTo)
 {
-	m_data = (BYTE)(setTo >> 56);
-	m_data += (BYTE)(setTo >> 48);
-	m_data += (BYTE)(setTo >> 40);
-	m_data += (BYTE)(setTo >> 32);
-	m_data = (BYTE)(setTo >> 24);
-	m_data += (BYTE)(setTo >> 16);
-	m_data += (BYTE)(setTo >> 8);
-	m_data += (BYTE)(setTo);
+	m_data = (uint8_t)(setTo >> 56);
+	m_data += (uint8_t)(setTo >> 48);
+	m_data += (uint8_t)(setTo >> 40);
+	m_data += (uint8_t)(setTo >> 32);
+	m_data = (uint8_t)(setTo >> 24);
+	m_data += (uint8_t)(setTo >> 16);
+	m_data += (uint8_t)(setTo >> 8);
+	m_data += (uint8_t)(setTo);
 
 	while (m_data.size() > 1 && m_data[0] == 0)
 		m_data.erase(0, 1);
 
 	if (m_data.size() > 0 && (m_data[0] & 0x80) != 0)
-		m_data.insert(0, (BYTE)0);
+		m_data.insert(0, (uint8_t)0);
 
 	return this;
 }
@@ -418,7 +418,7 @@ size_t TlvNode::OuterData(const tsCryptoData &setTo)
 	size_t tlLen;
 	int tag = 0;
 	bool constructed = false;
-	BYTE type = 0;
+    uint8_t type = 0;
 	size_t length = 0;
 	uint32_t startOffset = 0;
 	size_t offset = 0;
@@ -449,7 +449,7 @@ size_t TlvNode::OuterData(const tsCryptoData &setTo)
 			size_t innertlLen;
 			int innertag = 0;
 			bool innerconstructed = false;
-			BYTE innertype = 0;
+            uint8_t innertype = 0;
 			size_t innerlength = 0;
 
 			innertlLen = ExtractTagAndLength(setTo, offset, doc->FlatModel(), doc->CacSimpleTlv(), innertag, innerconstructed, innertype, innerlength);
@@ -505,7 +505,7 @@ size_t TlvNode::InnerTlv(const tsCryptoData& setTo)
 			size_t innertlLen;
 			int innertag = 0;
 			bool innerconstructed = false;
-			BYTE innertype = 0;
+            uint8_t innertype = 0;
 			size_t innerlength = 0;
 
 			innertlLen = ExtractTagAndLength(setTo, offset, doc->FlatModel(), doc->CacSimpleTlv(), innertag, innerconstructed, innertype, innerlength);
@@ -631,12 +631,12 @@ size_t TlvNode::ComputeLengthSize(size_t dataLength, bool simpleTlv)
 }
 
 size_t TlvNode::ExtractTagAndLength(const tsCryptoData &buffer, size_t offset, bool flatTag, bool simpleLength, int &tag,
-	bool &constructed, BYTE &type, size_t &length)
+	bool &constructed, uint8_t &type, size_t &length)
 {
 	size_t curByte = offset;
 	size_t size;
-	BYTE firstTag;
-	BYTE firstLen;
+    uint8_t firstTag;
+    uint8_t firstLen;
 
 	size = buffer.size();
 	type = 0;
@@ -654,8 +654,8 @@ size_t TlvNode::ExtractTagAndLength(const tsCryptoData &buffer, size_t offset, b
 	else
 	{
 		constructed = ((firstTag & 0x20) != 0) ? true : false;
-		type = (BYTE)(firstTag >> 6);
-		firstTag = (BYTE)(firstTag & 0x1f);
+		type = (uint8_t)(firstTag >> 6);
+		firstTag = (uint8_t)(firstTag & 0x1f);
 
 		tag = 0;
 		if (firstTag > 30)
@@ -741,13 +741,13 @@ void TlvNode::PutTagIntoBuffer(tsCryptoData &buffer) const
 	if (tagSize == 1)
 	{
 		if (doc->FlatModel())
-			buffer += (BYTE)(Tag());
+			buffer += (uint8_t)(Tag());
 		else
-			buffer += (BYTE)(Tag() + (Type() << 6) + (IsConstructed() ? 0x20 : 0x00));
+			buffer += (uint8_t)(Tag() + (Type() << 6) + (IsConstructed() ? 0x20 : 0x00));
 		return;
 	}
 	if (tagSize > 1)
-		buffer += (BYTE)(0x1f + (Type() << 6) + (IsConstructed() ? 0x20 : 0x00));
+		buffer += (uint8_t)(0x1f + (Type() << 6) + (IsConstructed() ? 0x20 : 0x00));
 	i = tagSize - 1;
 	int offset = (int)buffer.size();
 	buffer.resize(buffer.size() + i);
@@ -755,9 +755,9 @@ void TlvNode::PutTagIntoBuffer(tsCryptoData &buffer) const
 	while (i > 0)
 	{
 		if (first)
-			buffer[offset + i - 1] = (BYTE)(myTag & 0x7f);
+			buffer[offset + i - 1] = (uint8_t)(myTag & 0x7f);
 		else
-			buffer[offset + i - 1] = (BYTE)((myTag & 0x7f) | 0x80);
+			buffer[offset + i - 1] = (uint8_t)((myTag & 0x7f) | 0x80);
 		first = false;
 		myTag = (myTag >> 7) & 0x1ffffff;
 		i--;
@@ -777,26 +777,26 @@ void TlvNode::PutLengthIntoBuffer(tsCryptoData &buffer) const
 
 	if (dataSize == 1)
 	{
-		buffer += (BYTE)(myData);
+		buffer += (uint8_t)(myData);
 		return;
 	}
 
 	if (doc->CacSimpleTlv())
 	{
-		buffer += (BYTE)(myData & 0xff);
+		buffer += (uint8_t)(myData & 0xff);
 		myData >>= 8;
-		buffer += (BYTE)(myData & 0xff);
+		buffer += (uint8_t)(myData & 0xff);
 		return;
 	}
 
 	dataSize--;
-	buffer += (BYTE)(0x80 + dataSize);
+	buffer += (uint8_t)(0x80 + dataSize);
 	i = dataSize;
 	int offset = (int)buffer.size();
 	buffer.resize(offset + i);
 	while (i > 0)
 	{
-		buffer[offset + i - 1] = (BYTE)(myData & 0xff);
+		buffer[offset + i - 1] = (uint8_t)(myData & 0xff);
 		myData = (myData >> 8) & 0xfffffff;
 		i--;
 	}
@@ -1017,7 +1017,7 @@ tsCryptoDate TlvNode::InnerDataAsDateTime() const
 	{
 		if (date.size() != 13 || date[12] != 'Z')
 			return tsCryptoDate();
-		if (TsStrToInt(date.substring(0, 2).c_str()) < 50)
+		if (tsStrToInt(date.substring(0, 2).c_str()) < 50)
 			date.prepend("20");
 		else
 			date.prepend("19");

@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -161,11 +161,7 @@ public:
     {
         char buff[20];
 
-#if !defined(HAVE_SPRINTF_S)
-        sprintf(buff, "%p", value);
-#else
-        sprintf_s(buff, sizeof(buff), "%p", value);
-#endif
+        tsSnPrintf(buff, sizeof(buff), "%p", value);
         m_outMessage.Replace("~~", buff);
         return value;
     }
@@ -181,11 +177,7 @@ public:
     {
         char buff[20];
 
-#if !defined(HAVE_SPRINTF_S)
-        sprintf(buff, "0x%08X", (int)value);
-#else
-        sprintf_s(buff, sizeof(buff), "0x%08X", (int)value);
-#endif
+        tsSnPrintf(buff, sizeof(buff), "0x%08X", (int)value);
         m_outMessage.Replace("~~", buff);
         return value;
     }
@@ -194,11 +186,7 @@ public:
 	{
 		char buff[20];
 
-#if !defined(HAVE_SPRINTF_S)
-		sprintf(buff, "0x%p", value.get());
-#else
-		sprintf_s(buff, sizeof(buff), "0x%p", value.get());
-#endif
+        tsSnPrintf(buff, sizeof(buff), "0x%p", value.get());
 		m_outMessage.Replace("~~", buff);
 		return value;
 	}
@@ -225,11 +213,7 @@ public:
     {
         char buff[70];
 
-#if !defined(HAVE_SPRINTF_S)
-        sprintf(buff, "0x%016llX", value);
-#else
-        sprintf_s(buff, sizeof(buff), "0x%016llX", value);
-#endif
+        tsSnPrintf(buff, sizeof(buff), "0x%016llX", value);
         m_outMessage.Replace("~~", buff);
         return value;
     }
@@ -290,12 +274,8 @@ public:
         va_start(args, fmt);
         m_outMessage.clear();
         m_outMessage.resize(MAX_TRACE_MSG_LEN);
-#ifdef HAVE__VSNPRINTF_S
-		_vsnprintf_s(m_outMessage.rawData(), m_outMessage.size(), m_outMessage.size(), fmt.c_str(), args);
-#else
-        vsnprintf(m_outMessage.rawData(), m_outMessage.size(), fmt.c_str(), args);
-#endif
-        m_outMessage.resize((uint32_t)TsStrLen(m_outMessage.c_str()));
+        ::tsVsnPrintf(m_outMessage.rawData(), m_outMessage.size(), fmt.c_str(), args);
+        m_outMessage.resize((uint32_t)tsStrLen(m_outMessage.c_str()));
         return *this;
     }
 
@@ -391,11 +371,7 @@ public:
     {
         char buff[20];
 
-#if !defined(HAVE_SPRINTF_S)
-        sprintf(buff, "%p", value);
-#else
-        sprintf_s(buff, sizeof(buff), "%p", value);
-#endif
+        tsSnPrintf(buff, sizeof(buff), "%p", value);
         m_outMessage.Replace("~~", buff);
         return value;
     }
@@ -411,11 +387,7 @@ public:
     {
         char buff[20];
 
-#if !defined(HAVE_SPRINTF_S)
-        sprintf(buff, "0x%08X", (int)value);
-#else
-        sprintf_s(buff, sizeof(buff), "0x%08X", value);
-#endif
+        tsSnPrintf(buff, sizeof(buff), "0x%08X", value);
         m_outMessage.Replace("~~", buff);
         return value;
     }
@@ -424,11 +396,7 @@ public:
 	{
 		char buff[20];
 
-#if !defined(HAVE_SPRINTF_S)
-		sprintf(buff, "0x%p", value.get());
-#else
-		sprintf_s(buff, sizeof(buff), "0x%p", value.get());
-#endif
+        tsSnPrintf(buff, sizeof(buff), "0x%p", value.get());
 		m_outMessage.Replace("~~", buff);
 		return value;
 	}
@@ -455,11 +423,7 @@ public:
     {
         char buff[70];
 
-#if !defined(HAVE_SPRINTF_S)
-        sprintf(buff, "0x%016llX", value);
-#else
-        sprintf_s(buff, sizeof(buff), "0x%016llX", value);
-#endif
+        tsSnPrintf(buff, sizeof(buff), "0x%016llX", value);
         m_outMessage.Replace("~~", buff);
         return value;
     }
@@ -521,12 +485,8 @@ public:
         va_start(args, fmt);
         m_outMessage.clear();
         m_outMessage.resize(MAX_TRACE_MSG_LEN);
-#ifdef HAVE__VSNPRINTF_S
-		_vsnprintf_s(m_outMessage.rawData(), m_outMessage.size(), m_outMessage.size(), fmt.c_str(), args);
-#else
-        vsnprintf(m_outMessage.rawData(), m_outMessage.size(), fmt.c_str(), args);
-#endif
-        m_outMessage.resize((uint32_t)TsStrLen(m_outMessage.c_str()));
+        ::tsVsnPrintf(m_outMessage.rawData(), m_outMessage.size(), fmt.c_str(), args);
+        m_outMessage.resize((uint32_t)tsStrLen(m_outMessage.c_str()));
         return *this;
     }
 

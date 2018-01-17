@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -165,7 +165,7 @@ protected:
 			return 600;
 		}
 
-		if (xp_GetFileAttributes(inputFile) == XP_INVALID_FILE_ATTRIBUTES || xp_IsDirectory(inputFile))
+		if (tsGetFileAttributes(inputFile.c_str()) == TS_INVALID_FILE_ATTRIBUTES || tsIsDirectory(inputFile.c_str()))
 		{
 			ERROR("File -> " << inputFile.c_str() << " <- does not exist delete operation aborted");
 			return 601;

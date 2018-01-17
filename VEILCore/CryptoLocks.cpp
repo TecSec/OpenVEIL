@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -35,27 +35,25 @@ using namespace tscrypto;
 
 AutoCriticalSection::AutoCriticalSection() 
 { 
-	InitializeCriticalSection(&m_section);
+    m_section = tsCreateMutex();
 }
 AutoCriticalSection::~AutoCriticalSection() 
 { 
-	DeleteCriticalSection(&m_section);
+    tsFreeMutex(&m_section);
 }
 
 _Acquires_lock_(this->m_section)
-BOOL AutoCriticalSection::Lock(uint32_t timeout) 
+bool AutoCriticalSection::Lock(uint32_t timeout) 
 { 
-	MY_UNREFERENCED_PARAMETER(timeout); 
-	EnterCriticalSection(&m_section);
-	return TRUE; 
+    UNREFERENCED_PARAMETER(timeout);
+    return tsLockMutex(m_section);
 }
 _Releases_lock_(this->m_section)
-BOOL AutoCriticalSection::Unlock()
+bool AutoCriticalSection::Unlock()
 { 
-	LeaveCriticalSection(&m_section);
-	return TRUE; 
+    return tsUnlockMutex(m_section);
 }
-BOOL AutoCriticalSection::isValid() 
+bool AutoCriticalSection::isValid() 
 { 
-	return TRUE; 
+	return m_section != NULL; 
 }

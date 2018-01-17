@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -41,7 +41,7 @@ public:
 		bitSize(256),
 		outputSize(512)
 	{
-		desc = findXofAlgorithm("SHAKE256");
+		desc = tsFindXofAlgorithm("SHAKE256");
 		SetName("SHAKE256");
 	}
 	virtual ~XOFImpl(void)
@@ -117,7 +117,7 @@ public:
 		algorithm.ToUpper();
 		tsCryptoStringList parts = algorithm.split('-');
 
-		desc = findXofAlgorithm(fullName.c_str());
+		desc = tsFindXofAlgorithm(fullName.c_str());
 		if (desc != nullptr)
 		{
 			bitSize = desc->digestSize * 8;
@@ -127,7 +127,7 @@ public:
 
 		if (parts->size() > 1)
 		{
-			outputSize = TsStrToInt(parts->at(1).c_str());
+			outputSize = tsStrToInt(parts->at(1).c_str());
 		}
 		if (outputSize < 16)
 			outputSize = bitSize * 2;
@@ -144,7 +144,7 @@ protected:
 
 private:
 	SmartCryptoWorkspace context;
-	const HASH_Descriptor *desc;
+	const TSHashDescriptor *desc;
 	int bitSize;
 	int outputSize;
 };

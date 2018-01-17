@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -42,28 +42,28 @@
 
 	/// <summary>This type is used to report or look for a specific type of change from the CKM Change system.</summary>
 typedef enum CKMChangeType {
-		CKMChange_NoChange = 0,           ///< Indicates that no changes are wanted or found (placeholder)
-		CKMChange_ProviderChange = 1,     ///< Looking for or reporting a Token Provider change
-		CKMChange_TokenChange = 2,        ///< Looking for or reporting a Token change
-		CKMChange_CkmAppChange = 4,       ///< Looking for or reporting a CKM Enabled Application change
-		CKMChange_FavoriteChange = 8,     ///< Looking for or reporting a CKM Favorite change
-		CKMChange_WinscardChange = 16,    ///< Looking for or reporting a CKM Smartcard monitor change
-		CKMChange_Preferences = 32,		  ///< Looking for or reporting a CKM Preferences change
-		CKMChange_File = 64,              ///< Looking for or reporting a potential change in a watched file
+	CKMChange_NoChange = 0,           ///< Indicates that no changes are wanted or found (placeholder)
+	CKMChange_ProviderChange = 1,     ///< Looking for or reporting a Token Provider change
+	CKMChange_TokenChange = 2,        ///< Looking for or reporting a Token change
+	CKMChange_CkmAppChange = 4,       ///< Looking for or reporting a CKM Enabled Application change
+	CKMChange_FavoriteChange = 8,     ///< Looking for or reporting a CKM Favorite change
+	CKMChange_WinscardChange = 16,    ///< Looking for or reporting a CKM Smartcard monitor change
+	CKMChange_Preferences = 32,		  ///< Looking for or reporting a CKM Preferences change
+	CKMChange_File = 64,              ///< Looking for or reporting a potential change in a watched file
 
-		CKMChange_AnyChange = (int)0xFFFFFFFF  ///< Looking for all change types
+	CKMChange_AnyChange = (int)0xFFFFFFFF  ///< Looking for all change types
 } CKMChangeType;
 
 /// <summary>Base type for the reported change.  All changes must start with this information.<summary>
 class EXPORTED_VEILCORE_API ICkmChangeEvent
 {
 public:
-		////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// <summary>Gets the change type.</summary>
-		///
-		/// <returns>The change type.</returns>
-		////////////////////////////////////////////////////////////////////////////////////////////////////
-		virtual CKMChangeType GetChangeType() = 0;
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// <summary>Gets the change type.</summary>
+	///
+	/// <returns>The change type.</returns>
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	virtual CKMChangeType GetChangeType() = 0;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -73,8 +73,8 @@ public:
 class EXPORTED_VEILCORE_API ICkmChangeProducer
 {
 public:
-		/// <summary>Called by the change monitoring system to scan for changes.</summary>
-		virtual void ScanForChanges(void) = 0;
+	/// <summary>Called by the change monitoring system to scan for changes.</summary>
+	virtual void ScanForChanges(void) = 0;
 };
 
 /// <summary>All change consumers (listeners for changes) must implement this interface.</summary>
@@ -94,88 +94,88 @@ public:
 		tscrypto::cryptoDelete(ptr);
 	}
 
-		////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// <summary>Specifies the types of changes desired.</summary>
-		///
-		/// <returns>The types of changes desired.</returns>
-		////////////////////////////////////////////////////////////////////////////////////////////////////
-		virtual CKMChangeType WantsChangesMatching() = 0;
-		////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// <summary>Called by the change monitoring system to report a relevant change.</summary>
-		///
-		/// <param name="eventObj">[in] The event object.</param>
-		////////////////////////////////////////////////////////////////////////////////////////////////////
-		virtual void          OnCkmChange(std::shared_ptr<ICkmChangeEvent>& eventObj) = 0;
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// <summary>Specifies the types of changes desired.</summary>
+	///
+	/// <returns>The types of changes desired.</returns>
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	virtual CKMChangeType WantsChangesMatching() = 0;
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// <summary>Called by the change monitoring system to report a relevant change.</summary>
+	///
+	/// <param name="eventObj">[in] The event object.</param>
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	virtual void          OnCkmChange(std::shared_ptr<ICkmChangeEvent>& eventObj) = 0;
 };
 /// <summary>Describes the change monitoring system</summary>
 class EXPORTED_VEILCORE_API ICkmChangeMonitor
 {
 public:
-        ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>Start a thread and run the change monitor in that thread.</summary>
-        ///
-        /// <returns>S_OK for success or a standard COM error for failure.</returns>
-        ////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// <summary>Start a thread and run the change monitor in that thread.</summary>
+	///
+	/// <returns>S_OK for success or a standard COM error for failure.</returns>
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	virtual bool StartChangeMonitorThread(void) = 0;
-        ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>Stops the change monitor thread.</summary>
-        ///
-        /// <returns>S_OK for success or a standard COM error for failure.</returns>
-        ////////////////////////////////////////////////////////////////////////////////////////////////////
-		virtual bool StopChangeMonitorThread(void) = 0;
-        ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// <summary>Forcefully kills the change monitor thread.</summary>
-        ///
-        /// <returns>S_OK for success or a standard COM error for failure.</returns>
-        /// \warning The thread resources are NOT released when this function is used.
-        ////////////////////////////////////////////////////////////////////////////////////////////////////
-		virtual bool KillChangeMonitorThread(void) = 0;
-		////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// <summary>Registers the change producer described by setTo.</summary>
-		///
-		/// <param name="setTo">[in] The change producer to register.</param>
-		///
-		/// <returns>A cookie that is used to unregister this change producer.</returns>
-		////////////////////////////////////////////////////////////////////////////////////////////////////
-		virtual uint32_t  RegisterChangeProducer(std::shared_ptr<ICkmChangeProducer> setTo) = 0;
-		////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// <summary>Unregisters the change producer described by cookie.</summary>
-		///
-		/// <param name="cookie">The cookie.</param>
-		///
-        /// <returns>S_OK for success or a standard COM error for failure.</returns>
-		////////////////////////////////////////////////////////////////////////////////////////////////////
-		virtual bool UnregisterChangeProducer(uint32_t cookie) = 0;
-		////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// <summary>Scans all change producers to see if any of them have detected a change.</summary>
-		///
-        /// <returns>S_OK for success or a standard COM error for failure.</returns>
-		////////////////////////////////////////////////////////////////////////////////////////////////////
-		virtual bool LookForChanges() = 0;
-		////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// <summary>Registers a change consumer described by setTo.</summary>
-		///
-		/// <param name="setTo">[in] A change consumer.</param>
-		///
-		/// <returns>A cookie that identifies this change consumer.</returns>
-		////////////////////////////////////////////////////////////////////////////////////////////////////
-		virtual uint32_t  RegisterChangeConsumer(std::shared_ptr<ICkmChangeConsumer> setTo) = 0;
-		////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// <summary>Unregisters the change consumer described by cookie.</summary>
-		///
-		/// <param name="cookie">The cookie.</param>
-		///
-        /// <returns>S_OK for success or a standard COM error for failure.</returns>
-		////////////////////////////////////////////////////////////////////////////////////////////////////
-		virtual bool UnregisterChangeConsumer(uint32_t cookie) = 0;
-		////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// <summary>Called by a change producer to signal that a change has been detected.</summary>
-		///
-		/// <param name="eventObj">[in] The event object describing the change detected.</param>
-		///
-        /// <returns>S_OK for success or a standard COM error for failure.</returns>
-		////////////////////////////////////////////////////////////////////////////////////////////////////
-		virtual bool RaiseChange(std::shared_ptr<ICkmChangeEvent> eventObj) = 0;
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// <summary>Stops the change monitor thread.</summary>
+	///
+	/// <returns>S_OK for success or a standard COM error for failure.</returns>
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	virtual bool StopChangeMonitorThread(void) = 0;
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// <summary>Forcefully kills the change monitor thread.</summary>
+	///
+	/// <returns>S_OK for success or a standard COM error for failure.</returns>
+	/// \warning The thread resources are NOT released when this function is used.
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	virtual bool KillChangeMonitorThread(void) = 0;
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// <summary>Registers the change producer described by setTo.</summary>
+	///
+	/// <param name="setTo">[in] The change producer to register.</param>
+	///
+	/// <returns>A cookie that is used to unregister this change producer.</returns>
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	virtual uint32_t  RegisterChangeProducer(std::shared_ptr<ICkmChangeProducer> setTo) = 0;
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// <summary>Unregisters the change producer described by cookie.</summary>
+	///
+	/// <param name="cookie">The cookie.</param>
+	///
+	/// <returns>S_OK for success or a standard COM error for failure.</returns>
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	virtual bool UnregisterChangeProducer(uint32_t cookie) = 0;
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// <summary>Scans all change producers to see if any of them have detected a change.</summary>
+	///
+	/// <returns>S_OK for success or a standard COM error for failure.</returns>
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	virtual bool LookForChanges() = 0;
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// <summary>Registers a change consumer described by setTo.</summary>
+	///
+	/// <param name="setTo">[in] A change consumer.</param>
+	///
+	/// <returns>A cookie that identifies this change consumer.</returns>
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	virtual uint32_t  RegisterChangeConsumer(std::shared_ptr<ICkmChangeConsumer> setTo) = 0;
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// <summary>Unregisters the change consumer described by cookie.</summary>
+	///
+	/// <param name="cookie">The cookie.</param>
+	///
+	/// <returns>S_OK for success or a standard COM error for failure.</returns>
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	virtual bool UnregisterChangeConsumer(uint32_t cookie) = 0;
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// <summary>Called by a change producer to signal that a change has been detected.</summary>
+	///
+	/// <param name="eventObj">[in] The event object describing the change detected.</param>
+	///
+	/// <returns>S_OK for success or a standard COM error for failure.</returns>
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	virtual bool RaiseChange(std::shared_ptr<ICkmChangeEvent> eventObj) = 0;
 };
 
 #if (defined(_WIN32) || defined(VEILCORE_EXPORTS)) && !defined(MSYS) && !defined(MINGW)
@@ -224,16 +224,16 @@ public:
 	ChangeTracker(std::shared_ptr<ICkmChangeProducer> obj) :
 		m_obj(obj)
 	{
-        if (GetChangeMonitor() != nullptr)
+		if (GetChangeMonitor() != nullptr)
 			m_cookie = GetChangeMonitor()->RegisterChangeProducer(std::dynamic_pointer_cast<ICkmChangeProducer>(_me.lock()));
 	}
 	/// <summary>Destructor.</summary>
 	~ChangeTracker()
 	{
 		if (!!GetChangeMonitor() && m_cookie != 0)
-        {
+		{
 			GetChangeMonitor()->UnregisterChangeProducer(m_cookie);
-        }
+		}
 		m_cookie = 0;
 	}
 	/// <summary>Disconnects the object from this change tracker.</summary>

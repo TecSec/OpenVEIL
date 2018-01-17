@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -71,27 +71,38 @@ static const CSimpleOptA::SOption g_rgOptions1[] =
 //		printf("\tPIV Card\n");
 //}
 
-class Changes : public ICkmWinscardChange, public tsmod::IObject
+static void ReaderAdded(void* params, const char* readerName)
 {
-public:
-	Changes() {};
-	~Changes() {};
+    std::cout << "Reader Added:  " << readerName << std::endl;
+}
+static void ReaderRemoved(void* params, const char* readerName)
+{
+    std::cout << "Reader Removed:  " << readerName << std::endl;
+}
+static void CardInserted(void* params, const char* readerName)
+{
+    std::cout << "Card Inserted:  " << readerName << std::endl; /*CheckForPiv(name.c_str());*/
+}
+static void CardRemoved(void* params, const char* readerName)
+{
+    std::cout << "Card Removed:  " << readerName << std::endl;
+}
 
-	virtual void readerAdded(const tscrypto::tsCryptoString &name) { std::cout << "Reader Added:  " << name << std::endl; }
-	virtual void readerRemoved(const tscrypto::tsCryptoString &name) { std::cout << "Reader Removed:  " << name << std::endl; }
-	virtual void cardInserted(const tscrypto::tsCryptoString &name) { std::cout << "Card Inserted:  " << name << std::endl; /*CheckForPiv(name.c_str());*/ }
-	virtual void cardRemoved(const tscrypto::tsCryptoString &name) { std::cout << "Card Removed:  " << name << std::endl; }
-
-private:
+static const TSSmartCard_ChangeConsumer mySmartcardChanges = {
+    &ReaderAdded, &ReaderRemoved, &CardInserted, &CardRemoved,
 };
 
 class SmartCardMonitorTool : public tsmod::IVeilToolCommand, public tsmod::IObject
 {
 public:
 	SmartCardMonitorTool()
-	{}
+	{
+        tsWinscardInit();
+    }
 	~SmartCardMonitorTool()
-	{}
+	{
+        tsWinscardRelease();
+    }
 
 	// tsmod::IObject
 	virtual void OnConstructionFinished() override
@@ -131,11 +142,6 @@ public:
 			}
 		}
 
-		//gLoadedCkmFunctions->winscardSupport->SetCkmWinscardDebugParameters("winscard", true, false, true, true);
-		std::shared_ptr<ICkmWinscardMonitor> monitor = ::TopServiceLocator()->try_get_instance<ICkmWinscardMonitor>("SmartCardMonitor");
-		if (!monitor)
-			return 1;
-
 		printf("Press ENTER to close the program\n\nCurrent reader list\n");
 
 		//std::shared_ptr<ICkmChangeMonitor> changeMonitor;
@@ -150,17 +156,24 @@ public:
 		//   changeMonitor->LookForChanges();
 		//   monitor->ScanForChanges();
 
-		ICkmWinscardReaderList readers = monitor->GetReaderList();
+        TSBYTE_BUFF_LIST readers = tsAllReaders();
 
 		int i = 0;
-		for (auto r : *readers)
+        int count = (int)tsByteBufferListUsed(readers);
+        for (i = 0; i < count; i++)
 		{
-			i++; 
-			printf("Reader %d:  %-40s %08X\n", i, r->ReaderName().c_str(), r->Status());
+            const char* readerName = tsGetByteBufferListItemAsString(readers, i);
+            printf("Reader %d:  %-40s %08X\n", i, readerName, tsGetReaderStatus(readerName));
 		}
+        tsFreeByteBufferList(&readers);
 
 		printf("\nDetected changes\n");
-		int cookie = monitor->RegisterChangeReceiver(::TopServiceLocator()->Finish<ICkmWinscardChange>(new Changes()));
+        uint32_t cookie = tsSmartCard_RegisterChangeConsumer(&mySmartcardChanges, NULL);
+        auto unreg1 = finally([&cookie]() {tsSmartCard_UnregisterChangeConsumer(cookie); });
+
+        if (cookie == 0)
+            return 1;
+
 		//changeMonitor->StartChangeMonitorThread();
 #ifdef HAVE_GETS_S
 		gets_s(buff, sizeof(buff));
@@ -170,8 +183,6 @@ public:
 		//	changeMonitor->StopChangeMonitorThread();
 
 		//changeMonitor.reset();
-		monitor->UnregisterChangeReceiver(cookie);
-		monitor.reset();
 		return 0;
 	}
 	virtual tscrypto::tsCryptoString getCommandName() const override

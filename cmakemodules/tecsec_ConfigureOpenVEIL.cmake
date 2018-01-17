@@ -1,4 +1,4 @@
-#	Copyright (c) 2017, TecSec, Inc.
+#	Copyright (c) 2018, TecSec, Inc.
 #
 #	Redistribution and use in source and binary forms, with or without
 #	modification, are permitted provided that the following conditions are met:
@@ -29,7 +29,7 @@
 #
 # Written by Roger Butler
 
-include(tecsec_ConfigureTSALG)
+include(tecsec_ConfigureCyberVEIL)
 set(ENABLE_SMART_CARD OFF)
 
 if(APPLE)
@@ -92,18 +92,7 @@ if(APPLE)
 
 
 
-  set(VEILSmartCard_NAME "VEILSmartCard")
-	FIND_LIBRARY(VEILSmartCard_LIBRARY ${VEILSmartCard_NAME})
-	MARK_AS_ADVANCED(VEILSmartCard_LIBRARY)
-
-	FIND_LIBRARY(VEILSmartCard_D_LIBRARY ${VEILSmartCard_NAME}_d)
-  if (NOT VEILSmartCard_D_LIBRARY)
-  	set(VEILSmartCard_D_LIBRARY ${VEILSmartCard_LIBRARY})
-  endif()
-	MARK_AS_ADVANCED(VEILSmartCard_D_LIBRARY)
-  if(VEILSmartCard_LIBRARY)
     set(ENABLE_SMART_CARD ON)
-  endif()
 
   set(VEILSmartCard_ROOT_DIR ${VEILSmartCard_LIBRARY})
 
@@ -140,9 +129,8 @@ if(APPLE)
   message(STATUS "VEILCore target:  ${VEILCore_TARGET}  Version: ${VEIL_VERSION}")
   message(STATUS "VEILCmsHeader target:  ${VEILCmsHeader_TARGET}  Version: ${VEIL_VERSION}")
   message(STATUS "VEILFileSupport target:  ${VEILFileSupport_TARGET}  Version: ${VEIL_VERSION}")
-  message(STATUS "VEILSmartCard target:  ${VEILSmartCard_TARGET}  Version: ${VEIL_VERSION}")
   message(STATUS "VEILWxWidgets target:  ${VEILWxWidgets_TARGET}  Version: ${VEIL_VERSION}")
-  #add_definitions(-framework ${TSALG_NAME})
+  #add_definitions(-framework ${CYBERVEIL_NAME})
 
   #  TODO:  Need lots of stuff here
 
@@ -158,7 +146,7 @@ else()
  
   if(WIN32)
   set(__paths 
-      ${TSALG_ROOT_DIR}
+        ${CYBERVEIL_ROOT_DIR}
       ENV VEIL_ROOT
       ENV VEIL
       C:/
@@ -429,40 +417,7 @@ else()
           message(FATAL_ERROR "VEILFileSupport not found")
         endif()
       endif()
-    if(NOT TARGET VEILSmartCard)
-	  if(EXISTS ${VEIL_SHLIB_RELEASE}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILSmartCard${__releaseSuffix}${CMAKE_SHARED_LIBRARY_SUFFIX})
       set(ENABLE_SMART_CARD ON)
-            add_library(VEILSmartCard SHARED IMPORTED)
-            set_target_properties(VEILSmartCard PROPERTIES
-			IMPORTED_LOCATION_DEBUG "${VEIL_SHLIB_DEBUG}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILSmartCard${__debugSuffix}${CMAKE_SHARED_LIBRARY_SUFFIX}"
-			IMPORTED_LOCATION_RELEASE "${VEIL_SHLIB_RELEASE}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILSmartCard${__releaseSuffix}${CMAKE_SHARED_LIBRARY_SUFFIX}"
-			IMPORTED_IMPLIB_DEBUG "${VEIL_ROOT_LIB_DEBUG}/${CMAKE_STATIC_LIBRARY_PREFIX}VEILSmartCard${__debugSuffix}${IMPLIB_SUFFIX_PREFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}"
-			IMPORTED_IMPLIB_RELEASE "${VEIL_ROOT_LIB_RELEASE}/${CMAKE_STATIC_LIBRARY_PREFIX}VEILSmartCard${__releaseSuffix}${IMPLIB_SUFFIX_PREFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}"
-			INTERFACE_INCLUDE_DIRECTORIES "${VEIL_INCLUDE_DIR};${BIGNUM_INCLUDE_DIR}"
-			INTERFACE_INCLUDE_DIRECTORIES_DEBUG "${VEIL_INCLUDE_DIR};${BIGNUM_INCLUDE_DIR}"
-			INTERFACE_INCLUDE_DIRECTORIES_RELEASE "${VEIL_INCLUDE_DIR};${BIGNUM_INCLUDE_DIR}"
-			INTERFACE_BIN_MODULES_DEBUG "${VEIL_SHLIB_DEBUG}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILSmartCard${__debugSuffix}${CMAKE_SHARED_LIBRARY_SUFFIX}"
-			INTERFACE_BIN_MODULES_RELEASE "${VEIL_SHLIB_RELEASE}/${CMAKE_SHARED_LIBRARY_PREFIX}VEILSmartCard${__releaseSuffix}${CMAKE_SHARED_LIBRARY_SUFFIX}"
-            )
-	  else()
-		  # message(FATAL_ERROR "VEILSmartCard not found")
-    endif()
-    endif()
-      if(NOT TARGET VEILSmartCard_s AND WIN32)
-        if(EXISTS ${VEIL_ROOT_LIB_RELEASE}/${CMAKE_STATIC_LIBRARY_PREFIX}VEILSmartCard_s${__releaseSuffix}${CMAKE_STATIC_LIBRARY_SUFFIX})
-          set(ENABLE_SMART_CARD ON)
-          add_library(VEILSmartCard_s STATIC IMPORTED)
-          set_target_properties(VEILSmartCard_s PROPERTIES
-          IMPORTED_LOCATION_DEBUG "${VEIL_ROOT_LIB_DEBUG}/${CMAKE_STATIC_LIBRARY_PREFIX}VEILSmartCard_s${__debugSuffix}${CMAKE_STATIC_LIBRARY_SUFFIX}"
-          IMPORTED_LOCATION_RELEASE "${VEIL_ROOT_LIB_RELEASE}/${CMAKE_STATIC_LIBRARY_PREFIX}VEILSmartCard_s${__releaseSuffix}${CMAKE_STATIC_LIBRARY_SUFFIX}"
-          INTERFACE_INCLUDE_DIRECTORIES "${VEIL_INCLUDE_DIR};${BIGNUM_INCLUDE_DIR}"
-          INTERFACE_INCLUDE_DIRECTORIES_DEBUG "${VEIL_INCLUDE_DIR};${BIGNUM_INCLUDE_DIR}"
-          INTERFACE_INCLUDE_DIRECTORIES_RELEASE "${VEIL_INCLUDE_DIR};${BIGNUM_INCLUDE_DIR}"
-          )
-        else()
-          # message(FATAL_ERROR "VEILSmartCard_s not found")
-        endif()
-      endif()
 
         
         
@@ -522,7 +477,16 @@ else()
       endif()
 
       if(NOT TARGET xml2Asn1CodeGen)
-          if(EXISTS ${CRYPTO_BIN_DIR}/xml2Asn1CodeGen${CMAKE_EXECUTABLE_SUFFIX})
+          if(WIN32 AND EXISTS "c:/utils/xml2Asn1CodeGen${CMAKE_EXECUTABLE_SUFFIX}")
+            # message(STATUS "xml2Asn1CodeGen located at ${CRYPTO_BIN_DIR}/xml2Asn1CodeGen${DEBUG_POSTFIX}${CMAKE_EXECUTABLE_SUFFIX}")
+            add_executable(xml2Asn1CodeGen IMPORTED)
+            set_target_properties(xml2Asn1CodeGen PROPERTIES
+              IMPORTED_LOCATION_DEBUG "c:/utils/xml2Asn1CodeGen${CMAKE_EXECUTABLE_SUFFIX}"
+              IMPORTED_LOCATION_RELEASE "c:/utils/xml2Asn1CodeGen${CMAKE_EXECUTABLE_SUFFIX}"
+              INTERFACE_BIN_MODULES_DEBUG "c:/utils/xml2Asn1CodeGen${CMAKE_EXECUTABLE_SUFFIX}"
+              INTERFACE_BIN_MODULES_RELEASE "c:/utils/xml2Asn1CodeGen${CMAKE_EXECUTABLE_SUFFIX}"
+            )
+          elseif(EXISTS ${CRYPTO_BIN_DIR}/xml2Asn1CodeGen${CMAKE_EXECUTABLE_SUFFIX})
           # message(STATUS "xml2Asn1CodeGen located at ${CRYPTO_BIN_DIR}/xml2Asn1CodeGen${DEBUG_POSTFIX}${CMAKE_EXECUTABLE_SUFFIX}")
           add_executable(xml2Asn1CodeGen IMPORTED)
           set_target_properties(xml2Asn1CodeGen PROPERTIES
@@ -537,7 +501,16 @@ else()
       endif()
 
       if(NOT TARGET tsschemagen)
-          if(EXISTS ${CRYPTO_BIN_DIR}/tsschemagen${CMAKE_EXECUTABLE_SUFFIX})
+        if(WIN32 AND EXISTS "c:/utils/tsschemagen${CMAKE_EXECUTABLE_SUFFIX}")
+          # message(STATUS "tsschemagen located at ${CRYPTO_BIN_DIR}/tsschemagen${DEBUG_POSTFIX}${CMAKE_EXECUTABLE_SUFFIX}")
+          add_executable(tsschemagen IMPORTED)
+          set_target_properties(tsschemagen PROPERTIES
+            IMPORTED_LOCATION_DEBUG "c:/utils/tsschemagen${CMAKE_EXECUTABLE_SUFFIX}"
+            IMPORTED_LOCATION_RELEASE "c:/utils/tsschemagen${CMAKE_EXECUTABLE_SUFFIX}"
+            INTERFACE_BIN_MODULES_DEBUG "c:/utils/tsschemagen${CMAKE_EXECUTABLE_SUFFIX}"
+            INTERFACE_BIN_MODULES_RELEASE "c:/utils/tsschemagen${CMAKE_EXECUTABLE_SUFFIX}"
+          )
+        elseif(EXISTS ${CRYPTO_BIN_DIR}/tsschemagen${CMAKE_EXECUTABLE_SUFFIX})
           add_executable(tsschemagen IMPORTED)
           set_target_properties(tsschemagen PROPERTIES
               IMPORTED_LOCATION_DEBUG "${CRYPTO_BIN_DIR}/tsschemagen${CMAKE_EXECUTABLE_SUFFIX}"
@@ -549,7 +522,16 @@ else()
       endif()
 
       if(NOT TARGET Utf16ToUtf8)
-          if(EXISTS ${CRYPTO_BIN_DIR}/Utf16ToUtf8${CMAKE_EXECUTABLE_SUFFIX})
+         if(WIN32 AND EXISTS "c:/utils/Utf16ToUtf8${CMAKE_EXECUTABLE_SUFFIX}")
+          # message(STATUS "Utf16ToUtf8 located at ${CRYPTO_BIN_DIR}/Utf16ToUtf8${DEBUG_POSTFIX}${CMAKE_EXECUTABLE_SUFFIX}")
+          add_executable(Utf16ToUtf8 IMPORTED)
+          set_target_properties(Utf16ToUtf8 PROPERTIES
+            IMPORTED_LOCATION_DEBUG "c:/utils/Utf16ToUtf8${CMAKE_EXECUTABLE_SUFFIX}"
+            IMPORTED_LOCATION_RELEASE "c:/utils/Utf16ToUtf8${CMAKE_EXECUTABLE_SUFFIX}"
+            INTERFACE_BIN_MODULES_DEBUG "c:/utils/Utf16ToUtf8${CMAKE_EXECUTABLE_SUFFIX}"
+            INTERFACE_BIN_MODULES_RELEASE "c:/utils/Utf16ToUtf8${CMAKE_EXECUTABLE_SUFFIX}"
+          )
+          elseif(EXISTS ${CRYPTO_BIN_DIR}/Utf16ToUtf8${CMAKE_EXECUTABLE_SUFFIX})
           add_executable(Utf16ToUtf8 IMPORTED)
           set_target_properties(Utf16ToUtf8 PROPERTIES
               IMPORTED_LOCATION_DEBUG "${CRYPTO_BIN_DIR}/Utf16ToUtf8${CMAKE_EXECUTABLE_SUFFIX}"

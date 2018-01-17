@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -120,17 +120,17 @@ static void processIndexing(JSONElement* startNode, tsCryptoStringList parts, Js
 	if (parts->size() > 0 && parts->at(0).size() != 0)
 	{
 		// TODO:  Possibly support functions here
-		start = TsStrToInt(parts->at(0).c_str());
+		start = tsStrToInt(parts->at(0).c_str());
 	}
 	if (parts->size() > 1 && parts->at(1).size() != 0)
 	{
 		// TODO:  Possibly support functions here
-		end = TsStrToInt(parts->at(1).c_str());
+		end = tsStrToInt(parts->at(1).c_str());
 	}
 	if (parts->size() > 2 && parts->at(2).size() != 0)
 	{
 		// TODO:  Possibly support functions here
-		step = TsStrToInt(parts->at(2).c_str());
+		step = tsStrToInt(parts->at(2).c_str());
 	}
 
 	if (start < 0)
@@ -867,11 +867,11 @@ bool JSONField::AsBool(bool defaultValue) const
 	{
 		if (_stringVal.size() == 0)
 			return defaultValue;
-		if (_stricmp(_stringVal.data(), "T") == 0 ||
-			_stricmp(_stringVal.data(), "TRUE") == 0 ||
-			_stricmp(_stringVal.data(), "Y") == 0 ||
-			_stricmp(_stringVal.data(), "YES") == 0 ||
-			atoi(_stringVal.data()) != 0)
+		if (tsStriCmp(_stringVal.data(), "T") == 0 ||
+			tsStriCmp(_stringVal.data(), "TRUE") == 0 ||
+			tsStriCmp(_stringVal.data(), "Y") == 0 ||
+			tsStriCmp(_stringVal.data(), "YES") == 0 ||
+			tsStrToInt(_stringVal.data()) != 0)
 		{
 			return true;
 		}
@@ -897,7 +897,7 @@ int64_t JSONField::AsNumber(int64_t defaultValue) const
 	case jsonArray:
 		return _arrayVal->size();
 	case jsonString:
-		return _atoi64(_stringVal.data());
+		return tsStrToInt64(_stringVal.data());
 	case jsonObject:
 		return defaultValue;
 	}
@@ -1086,10 +1086,10 @@ tsCryptoString JSONField::ToXML(const tsCryptoStringBase& arrayNode) const
 	else if (name.size() == 0)
 	{
 		name = arrayNode;
-		if (TsStrLen(arrayNode.c_str()) > 10 && strcmp(&arrayNode[TsStrLen(arrayNode.c_str()) - 10], "Collection") == 0)
+		if (tsStrLen(arrayNode.c_str()) > 10 && tsStrCmp(&arrayNode[tsStrLen(arrayNode.c_str()) - 10], "Collection") == 0)
 		{
 			wasCollection = true;
-			name.DeleteAt(TsStrLen(arrayNode.c_str()) - 10, 10);
+			name.DeleteAt(tsStrLen(arrayNode.c_str()) - 10, 10);
 		}
 	}
 

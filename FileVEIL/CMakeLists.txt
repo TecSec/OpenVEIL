@@ -1,4 +1,4 @@
-#	Copyright (c) 2017, TecSec, Inc.
+#	Copyright (c) 2018, TecSec, Inc.
 #
 #	Redistribution and use in source and binary forms, with or without
 #	modification, are permitted provided that the following conditions are met:
@@ -58,7 +58,11 @@ endif()
 add_precompiled_header(FileVEIL stdafx.h FORCEINCLUDE SOURCE_CXX stdafx.cpp)
 
 set_target_properties(FileVEIL PROPERTIES FOLDER "Tools")
-TARGET_LINK_LIBRARIES(FileVEIL VEILCore VEILCmsHeader VEILFileSupport TS_SUP_DLL)
+if(APPLE)
+    TARGET_LINK_LIBRARIES(FileVEIL VEILCore VEILCmsHeader VEILFileSupport ${CyberVEIL_TARGET})
+else()
+    TARGET_LINK_LIBRARIES(FileVEIL VEILCore VEILCmsHeader VEILFileSupport CyberVEIL)
+endif(APPLE)
 set_target_properties(FileVEIL PROPERTIES OUTPUT_NAME veilfile)
 if(UNIX)
     set_target_properties(FileVEIL PROPERTIES OUTPUT_NAME_DEBUG veilfile.debug)

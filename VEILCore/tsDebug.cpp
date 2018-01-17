@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -103,7 +103,7 @@ HIDDEN void TSTRACEValidateHeaps()
 #endif
 #ifdef DEBUG_PROCESS_HEAP
 	tsByteString buffer;
-	DWORD heapCount;
+	uint32_t heapCount;
 
 	buffer.resize (sizeof(HANDLE));
 	heapCount = GetProcessHeaps(1, (PHANDLE)buffer.rawData());
@@ -252,18 +252,8 @@ _tsTraceFunctionExt &_tsTraceFunctionExt::returnCOMMsg(HRESULT hr, tscrypto::tsC
 	va_start(args, fmt);
 	m_outMessage.clear();
 	m_outMessage.resize(MAX_TRACE_MSG_LEN);
-#ifdef HAVE__VSNPRINTF_S
-	_vsnprintf_s(m_outMessage.rawData(), m_outMessage.size(), m_outMessage.size(), fmt.c_str(), args);
-#elif defined(HAVE_VSNPRINTF)
-	vsnprintf(m_outMessage.rawData(), m_outMessage.size(), fmt.c_str(), args);
-#elif defined(HAVE_VSPRINTF_S)
-	vsprintf_s(m_outMessage.rawData(), m_outMessage.size(), fmt.c_str(), args);
-#elif defined(HAVE_VSPRINTF)
-	vsprintf(m_outMessage.rawData(), fmt.c_str(), args);
-#else
-#error Implement me
-#endif
-	m_outMessage.resize((uint32_t)TsStrLen(m_outMessage.c_str()));
+    tsVsnPrintf(m_outMessage.rawData(), m_outMessage.size(), fmt.c_str(), args);
+	m_outMessage.resize((uint32_t)tsStrLen(m_outMessage.c_str()));
 	m_outMessage.Replace("~~", sHr.c_str());
 	returns(hr);
 	return *this;
@@ -356,18 +346,8 @@ _tsTraceMethodExt &_tsTraceMethodExt::returnCOMMsg(HRESULT hr, tscrypto::tsCrypt
 	va_start(args, fmt);
 	m_outMessage.clear();
 	m_outMessage.resize(MAX_TRACE_MSG_LEN);
-#ifdef HAVE__VSNPRINTF_S
-	_vsnprintf_s(m_outMessage.rawData(), m_outMessage.size(), m_outMessage.size(), fmt.c_str(), args);
-#elif defined(HAVE_VSNPRINTF)
-	vsnprintf(m_outMessage.rawData(), m_outMessage.size(), fmt.c_str(), args);
-#elif defined(HAVE_VSPRINTF_S)
-	vsprintf_s(m_outMessage.rawData(), m_outMessage.size(), fmt.c_str(), args);
-#elif defined(HAVE_VSPRINTF)
-	vsprintf(m_outMessage.rawData(), fmt.c_str(), args);
-#else
-#error Implement me
-#endif
-	m_outMessage.resize((uint32_t)TsStrLen(m_outMessage.c_str()));
+    tsVsnPrintf(m_outMessage.rawData(), m_outMessage.size(), fmt.c_str(), args);
+	m_outMessage.resize((uint32_t)tsStrLen(m_outMessage.c_str()));
 	m_outMessage.Replace("~~", sHr.c_str());
 	returns(hr);
 	return *this;

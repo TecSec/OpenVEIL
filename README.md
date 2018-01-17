@@ -14,7 +14,7 @@ We use an out of source build process.  The project/make files and output
 can be found in the build folder that is created by the bootstrap.
 
 ### Requirements
-- VEIL Cryptographic Library 7.1.7 or later (Contact TecSec, Inc.)
+- CyberVEIL SDK 7.1.13 or later (Contact TecSec, Inc.)
 - Windows
   - CMake 3.3+
   - Visual Studio 2015 or Visual Studio 2017 or mingw-w64.

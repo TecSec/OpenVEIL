@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -76,7 +76,7 @@ public:
 		int tag;
 		size_t dataLength, tagLength;
 		bool constructed;
-		BYTE type;
+        uint8_t type;
 
 		if (length < 7)
 			return false;
@@ -100,7 +100,7 @@ public:
 		int tag;
 		size_t dataLength, tagLength;
 		bool constructed;
-		BYTE type;
+        uint8_t type;
 
 		if (length < 7)
 			return 0;
@@ -177,7 +177,7 @@ public:
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderHashExtension> hash;
 
-		if (!(GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_FILEHASH_EXT_OID, tscrypto::tsCryptoData::OID), ext)) ||
+		if (!(GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_FILEHASH_EXT_OID, tscrypto::tsCryptoData::OID), ext)) ||
 			!(hash = std::dynamic_pointer_cast<ICmsHeaderHashExtension>(ext)))
 		{
 			return tscrypto::tsCryptoData();
@@ -189,9 +189,9 @@ public:
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderHashExtension> hash;
 
-		if (!(GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_FILEHASH_EXT_OID, tscrypto::tsCryptoData::OID), ext)))
+		if (!(GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_FILEHASH_EXT_OID, tscrypto::tsCryptoData::OID), ext)))
 		{
-			if (!(AddProtectedExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_FILEHASH_EXT_OID, tscrypto::tsCryptoData::OID), false, ext)))
+			if (!(AddProtectedExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_FILEHASH_EXT_OID, tscrypto::tsCryptoData::OID), false, ext)))
 			{
 				LOG(FrameworkError, "Unable to add the Data Hash extension.");
 				return false;
@@ -206,14 +206,14 @@ public:
 	}
 	virtual bool ClearDataHash() override
 	{
-		return RemoveExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_FILEHASH_EXT_OID, tscrypto::tsCryptoData::OID));
+		return RemoveExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_FILEHASH_EXT_OID, tscrypto::tsCryptoData::OID));
 	}
 	virtual tscrypto::tsCryptoString GetDataName() const override
 	{
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderNameExtension> name;
 
-		if (!(GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_FILENAME_EXT_OID, tscrypto::tsCryptoData::OID), ext)) ||
+		if (!(GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_FILENAME_EXT_OID, tscrypto::tsCryptoData::OID), ext)) ||
 			!(name = std::dynamic_pointer_cast<ICmsHeaderNameExtension>(ext)))
 		{
 			return tscrypto::tsCryptoString();
@@ -225,9 +225,9 @@ public:
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderNameExtension> name;
 
-		if (!(GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_FILENAME_EXT_OID, tscrypto::tsCryptoData::OID), ext)))
+		if (!(GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_FILENAME_EXT_OID, tscrypto::tsCryptoData::OID), ext)))
 		{
-			if (!(AddProtectedExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_FILENAME_EXT_OID, tscrypto::tsCryptoData::OID), false, ext)))
+			if (!(AddProtectedExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_FILENAME_EXT_OID, tscrypto::tsCryptoData::OID), false, ext)))
 			{
 				LOG(FrameworkError, "Unable to add the Data Name extension.");
 				return false;
@@ -242,28 +242,28 @@ public:
 	}
 	virtual bool ClearDataName() override
 	{
-		return RemoveExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_FILENAME_EXT_OID, tscrypto::tsCryptoData::OID));
+		return RemoveExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_FILENAME_EXT_OID, tscrypto::tsCryptoData::OID));
 	}
 	virtual size_t GetCryptoGroupCount() const override
 	{
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderCryptoGroupListExtension> cgList;
 
-		if (!(GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext)) ||
+		if (!(GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext)) ||
 			!(cgList = std::dynamic_pointer_cast<ICmsHeaderCryptoGroupListExtension>(ext)))
 		{
 			return 0;
 		}
 		return cgList->GetCryptoGroupCount();
 	}
-	virtual bool AddCryptoGroup(const GUID &cryptoGroupGuid, int *pVal) override
+	virtual bool AddCryptoGroup(const tscrypto::tsCryptoData &cryptoGroupId, int *pVal) override
 	{
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderCryptoGroupListExtension> cgList;
 
-		if (!(GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext)))
+		if (!(GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext)))
 		{
-			if (!(AddProtectedExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext)))
+			if (!(AddProtectedExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext)))
 			{
 				LOG(FrameworkError, "Unable to add the CryptoGroup List extension.");
 				return false;
@@ -274,16 +274,16 @@ public:
 			LOG(FrameworkError, "An extension is using the CryptoGroup List extension OID but does not support the proper interface.");
 			return false;
 		}
-		return cgList->AddCryptoGroup(cryptoGroupGuid, pVal);
+		return cgList->AddCryptoGroup(cryptoGroupId, pVal);
 	}
 	virtual bool GetCryptoGroup(size_t index, std::shared_ptr<ICmsHeaderCryptoGroup>& pVal) override
 	{
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderCryptoGroupListExtension> cgList;
 
-		if (!(GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext)))
+		if (!(GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext)))
 		{
-			if (!(AddProtectedExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext)))
+			if (!(AddProtectedExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext)))
 			{
 				LOG(FrameworkError, "Unable to add the CryptoGroup List extension.");
 				return false;
@@ -296,14 +296,14 @@ public:
 		}
 		return cgList->GetCryptoGroup(index, pVal);
 	}
-	virtual bool GetCryptoGroupByGuid(const GUID &cryptoGroupGuid, std::shared_ptr<ICmsHeaderCryptoGroup>& pVal) override
+	virtual bool GetCryptoGroupById(const tscrypto::tsCryptoData &cryptoGroupId, std::shared_ptr<ICmsHeaderCryptoGroup>& pVal) override
 	{
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderCryptoGroupListExtension> cgList;
 		std::shared_ptr<ICmsHeaderCryptoGroup> dom;
 
 		pVal.reset();
-		if (!(GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext)) ||
+		if (!(GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext)) ||
 			!(cgList = std::dynamic_pointer_cast<ICmsHeaderCryptoGroupListExtension>(ext)))
 		{
 			return false;
@@ -316,7 +316,7 @@ public:
 			dom.reset();
 			if (GetCryptoGroup(i, dom))
 			{
-				if (dom->GetCryptoGroupGuid() == cryptoGroupGuid)
+				if (dom->GetCryptoGroupId() == cryptoGroupId)
 				{
 					pVal = dom;
 					return true;
@@ -331,9 +331,9 @@ public:
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderCryptoGroupListExtension> cgList;
 
-		if (!(GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext)))
+		if (!(GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext)))
 		{
-			if (!(AddProtectedExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext)))
+			if (!(AddProtectedExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext)))
 			{
 				LOG(FrameworkError, "Unable to add the CryptoGroup List extension.");
 				return false;
@@ -346,13 +346,13 @@ public:
 		}
 		return cgList->RemoveCryptoGroup(index);
 	}
-	virtual bool RemoveCryptoGroupByGuid(const GUID &cryptoGroupGuid) override
+	virtual bool RemoveCryptoGroupById(const tscrypto::tsCryptoData &cryptoGroupId) override
 	{
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderCryptoGroupListExtension> cgList;
 		std::shared_ptr<ICmsHeaderCryptoGroup> dom;
 
-		if (!(GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext)) ||
+		if (!(GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext)) ||
 			!(cgList = std::dynamic_pointer_cast<ICmsHeaderCryptoGroupListExtension>(ext)))
 		{
 			return false;
@@ -365,7 +365,7 @@ public:
 			dom.reset();
 			if (GetCryptoGroup(i, dom))
 			{
-				if (dom->GetCryptoGroupGuid() == cryptoGroupGuid)
+				if (dom->GetCryptoGroupId() == cryptoGroupId)
 				{
 					RemoveCryptoGroup(i);
 					return true;
@@ -377,7 +377,7 @@ public:
 	}
 	virtual bool ClearCryptoGroupList() override
 	{
-		return RemoveExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID));
+		return RemoveExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID));
 	}
 	virtual bool DuplicateHeader(std::shared_ptr<ICmsHeaderBase>& pVal) override;
 	virtual tscrypto::tsCryptoString GetDebugString() override;
@@ -388,10 +388,10 @@ public:
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderKeyUsageExtension> ku;
 
-		if (!(GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_KEY_USAGE_EXT_OID, tscrypto::tsCryptoData::OID), ext)) ||
+		if (!(GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_KEY_USAGE_EXT_OID, tscrypto::tsCryptoData::OID), ext)) ||
 			!(ku = std::dynamic_pointer_cast<ICmsHeaderKeyUsageExtension>(ext)))
 		{
-			return tscrypto::tsCryptoData(TECSEC_CKM7_SCP_KEYS_OID, tscrypto::tsCryptoData::OID);
+			return tscrypto::tsCryptoData(id_TECSEC_CKM7_SCP_KEYS_OID, tscrypto::tsCryptoData::OID);
 		}
 		return ku->GetKeyUsageOID();
 	}
@@ -400,9 +400,9 @@ public:
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderKeyUsageExtension> ku;
 
-		if (!(GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_KEY_USAGE_EXT_OID, tscrypto::tsCryptoData::OID), ext)))
+		if (!(GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_KEY_USAGE_EXT_OID, tscrypto::tsCryptoData::OID), ext)))
 		{
-			if (!(AddProtectedExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_KEY_USAGE_EXT_OID, tscrypto::tsCryptoData::OID), false, ext)))
+			if (!(AddProtectedExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_KEY_USAGE_EXT_OID, tscrypto::tsCryptoData::OID), false, ext)))
 			{
 				LOG(FrameworkError, "Unable to add the Key Usage extension.");
 				return false;
@@ -420,7 +420,7 @@ public:
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderKeyUsageExtension> ku;
 
-		if (!(GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_KEY_USAGE_EXT_OID, tscrypto::tsCryptoData::OID), ext)) ||
+		if (!(GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_KEY_USAGE_EXT_OID, tscrypto::tsCryptoData::OID), ext)) ||
 			!(ku = std::dynamic_pointer_cast<ICmsHeaderKeyUsageExtension>(ext)))
 		{
 			return 768;
@@ -432,9 +432,9 @@ public:
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderKeyUsageExtension> ku;
 
-		if (!(GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_KEY_USAGE_EXT_OID, tscrypto::tsCryptoData::OID), ext)))
+		if (!(GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_KEY_USAGE_EXT_OID, tscrypto::tsCryptoData::OID), ext)))
 		{
-			if (!(AddProtectedExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_KEY_USAGE_EXT_OID, tscrypto::tsCryptoData::OID), false, ext)))
+			if (!(AddProtectedExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_KEY_USAGE_EXT_OID, tscrypto::tsCryptoData::OID), false, ext)))
 			{
 				LOG(FrameworkError, "Unable to add the Key Usage extension.");
 				return false;
@@ -449,16 +449,16 @@ public:
 	}
 	virtual bool ClearDataFormat() override
 	{
-		return RemoveExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_DATA_FORMAT_EXT_OID, tscrypto::tsCryptoData::OID));
+		return RemoveExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_DATA_FORMAT_EXT_OID, tscrypto::tsCryptoData::OID));
 	}
 	virtual bool SetDataFormat(int blockSize, int algorithmId) override
 	{
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderDataFormatExtension> df;
 
-		if (!(GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_DATA_FORMAT_EXT_OID, tscrypto::tsCryptoData::OID), ext)))
+		if (!(GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_DATA_FORMAT_EXT_OID, tscrypto::tsCryptoData::OID), ext)))
 		{
-			if (!(AddProtectedExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_DATA_FORMAT_EXT_OID, tscrypto::tsCryptoData::OID), false, ext)))
+			if (!(AddProtectedExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_DATA_FORMAT_EXT_OID, tscrypto::tsCryptoData::OID), false, ext)))
 			{
 				LOG(FrameworkError, "Unable to add the Data Format extension.");
 				return false;
@@ -476,7 +476,7 @@ public:
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderDataFormatExtension> df;
 
-		if (!(GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_DATA_FORMAT_EXT_OID, tscrypto::tsCryptoData::OID), ext)) ||
+		if (!(GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_DATA_FORMAT_EXT_OID, tscrypto::tsCryptoData::OID), ext)) ||
 			!(df = std::dynamic_pointer_cast<ICmsHeaderDataFormatExtension>(ext)))
 		{
 			return false;
@@ -490,7 +490,7 @@ public:
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderMimeTypeExtension> mt;
 
-		if (!(GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_MIME_TYPE_EXT_OID, tscrypto::tsCryptoData::OID), ext)) ||
+		if (!(GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_MIME_TYPE_EXT_OID, tscrypto::tsCryptoData::OID), ext)) ||
 			!(mt = std::dynamic_pointer_cast<ICmsHeaderMimeTypeExtension>(ext)))
 		{
 			return "";
@@ -502,9 +502,9 @@ public:
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderMimeTypeExtension> mt;
 
-		if (!(GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_MIME_TYPE_EXT_OID, tscrypto::tsCryptoData::OID), ext)))
+		if (!(GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_MIME_TYPE_EXT_OID, tscrypto::tsCryptoData::OID), ext)))
 		{
-			if (!(AddProtectedExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_MIME_TYPE_EXT_OID, tscrypto::tsCryptoData::OID), false, ext)))
+			if (!(AddProtectedExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_MIME_TYPE_EXT_OID, tscrypto::tsCryptoData::OID), false, ext)))
 			{
 				LOG(FrameworkError, "Unable to add the Mime Type extension.");
 				return false;
@@ -533,8 +533,8 @@ public:
 	{
 		return GetCryptoGroupCount() > 0;
 	}
-	virtual GUID GetObjectID() override;
-	virtual void SetObjectID(const GUID& setTo) override;
+	virtual tscrypto::tsCryptoData GetObjectID() override;
+	virtual void SetObjectID(const tscrypto::tsCryptoData& setTo) override;
 	virtual uint32_t PaddedHeaderSize() const override
 	{
 		if (m_data.exists_PaddedSize())
@@ -560,7 +560,7 @@ public:
 		std::shared_ptr<ICmsHeaderAttributeListExtension> attrList;
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderKeyUsageExtension> ku;
-		GUID guidCryptoGroup;
+        tscrypto::tsCryptoData guidCryptoGroup;
 		tscrypto::tsCryptoString tmpStr;
 		int ulCKMVersion = 7;
 		std::shared_ptr<TlvDocument> otherAGs = TlvDocument::Create();
@@ -571,9 +571,9 @@ public:
 		if (GetCryptoGroupCount() > 1)
 			return false;
 
-		if (!(GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_KEY_USAGE_EXT_OID, tscrypto::tsCryptoData::OID), ext)) || !(ku = std::dynamic_pointer_cast<ICmsHeaderKeyUsageExtension>(ext)))
+		if (!(GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_KEY_USAGE_EXT_OID, tscrypto::tsCryptoData::OID), ext)) || !(ku = std::dynamic_pointer_cast<ICmsHeaderKeyUsageExtension>(ext)))
 		{
-			SetKeyUsageOID(tscrypto::tsCryptoData(TECSEC_CKM7_SCP_KEYS_OID, tscrypto::tsCryptoData::OID));
+			SetKeyUsageOID(tscrypto::tsCryptoData(id_TECSEC_CKM7_SCP_KEYS_OID, tscrypto::tsCryptoData::OID));
 			SetKeySizeInBits(768);
 		}
 		recipe.set_bitSize(GetKeySizeInBits());
@@ -586,13 +586,13 @@ public:
 
 		if (!!headerCryptoGroup)
 		{
-			guidCryptoGroup = headerCryptoGroup->GetCryptoGroupGuid();
+			guidCryptoGroup = headerCryptoGroup->GetCryptoGroupId();
 			recipe.set_cryptoGroupId(guidCryptoGroup);
 		}
 		bool needsHeaderSigning = HasHeaderSigningPublicKey();
-		if (GetObjectID() == GUID_NULL)
+		if (GetObjectID().size() == 0)
 		{
-			recipe.set_objectId(GUID_NULL);
+			recipe.set_objectId(tsCryptoData());
 		}
 		else
 		{
@@ -624,7 +624,7 @@ public:
 		recipe.set_publicKey(headerPub);
 		recipe.set_sign(needsHeaderSigning);
 
-		if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), headerExt) ||
+		if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), headerExt) ||
 			!(groupList = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(headerExt)))
 		{
 			return false;
@@ -656,7 +656,7 @@ public:
 					if (!attrList)
 					{
 						headerExt.reset();
-						if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), headerExt) ||
+						if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), headerExt) ||
 							!(attrList = std::dynamic_pointer_cast<ICmsHeaderAttributeListExtension>(headerExt)))
 						{
 							return false;
@@ -679,7 +679,7 @@ public:
 
 						Asn1::CTS::_POD_AttributeIdentifier ctsAttrId;
 
-						ctsAttrId.set_id(hAttribute->GetAttributeGUID());
+						ctsAttrId.set_id(hAttribute->GetAttributeId());
 						ctsAttrId.set_version(hAttribute->GetKeyVersion());
 						ctsGroup.get_attributes().add(ctsAttrId);
 					}
@@ -713,10 +713,10 @@ public:
 		BuildExtensionList(m_unprotectedExtensionList, false);
 
 		SetCombinerVersion(recipe.get_ckmVersion());
-		if (recipe.get_cryptoGroupId() == GUID_NULL && recipe.get_groups().size() > 0)
+		if (recipe.get_cryptoGroupId().size() == 0 && recipe.get_groups().size() > 0)
 			return false;
 
-		if (recipe.get_cryptoGroupId() != GUID_NULL && !this->AddCryptoGroup(recipe.get_cryptoGroupId(), &cgIndex))
+		if (recipe.get_cryptoGroupId().size() != 0 && !this->AddCryptoGroup(recipe.get_cryptoGroupId(), &cgIndex))
 			return false;
 
 		SetObjectID(recipe.get_objectId());
@@ -731,9 +731,9 @@ public:
 
 		if (rGroups.size() > 0)
 		{
-			if (!AddProtectedExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), true, headerExt))
+			if (!AddProtectedExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), true, headerExt))
 			{
-				if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), headerExt))
+				if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), headerExt))
 					return false;
 			}
 			if (!(groupList = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(headerExt)))
@@ -742,9 +742,9 @@ public:
 			}
 			headerExt.reset();
 
-			if (!AddProtectedExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), true, headerExt))
+			if (!AddProtectedExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), true, headerExt))
 			{
-				if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), headerExt))
+				if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), headerExt))
 				{
 					return false;
 				}
@@ -777,7 +777,7 @@ public:
 						idx = attrList->AddAttribute();
 						if (!attrList->GetAttribute(idx, attr))
 							return false;
-						attr->SetAttributeGuid(attrs.get_at(j).get_id());
+						attr->SetAttributeId(attrs.get_at(j).get_id());
 						attr->SetCryptoGroupNumber(cgIndex);
 					}
 					attributeGroup->AddAttributeIndex(idx);
@@ -812,7 +812,7 @@ public:
 			{
 				LogError("Invalid hash algorithm");
 				return Empty;
-		}
+			}
 		}
 		else
 		{
@@ -825,7 +825,7 @@ public:
 			}
 
 			ext.reset();
-			if (GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_IVEC_EXT_OID, tscrypto::tsCryptoData::OID), ext))
+			if (GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_IVEC_EXT_OID, tscrypto::tsCryptoData::OID), ext))
 			{
 				if (!hasher->update(ext->GetOID()) || !hasher->update(ext->GetContents()))
 				{
@@ -835,7 +835,7 @@ public:
 			}
 
 			ext.reset();
-			if (GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
+			if (GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
 			{
 				if (!hasher->update(ext->GetOID()) || !hasher->update(ext->GetContents()))
 				{
@@ -845,7 +845,7 @@ public:
 			}
 
 			ext.reset();
-			if (GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
+			if (GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
 			{
 				if (!hasher->update(ext->GetOID()) || !hasher->update(ext->GetContents()))
 				{
@@ -855,7 +855,7 @@ public:
 			}
 
 			ext.reset();
-			if (GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
+			if (GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
 			{
 				if (!hasher->update(ext->GetOID()) || !hasher->update(ext->GetContents()))
 				{
@@ -871,17 +871,17 @@ public:
 		}
 		return hash;
 	}
-	virtual bool padHeaderToSize(DWORD size) override
+	virtual bool padHeaderToSize(uint32_t size) override
 	{
 		int headerLength;
 
-		RemoveExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_SECRYPTM_EXT_OID, tscrypto::tsCryptoData::OID));
-		RemoveExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_SECRYPTM_EXT_PAD2_OID, tscrypto::tsCryptoData::OID));
+		RemoveExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_SECRYPTM_EXT_OID, tscrypto::tsCryptoData::OID));
+		RemoveExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_SECRYPTM_EXT_PAD2_OID, tscrypto::tsCryptoData::OID));
 		SetPaddedHeaderSize(size);
 		headerLength = (int)ToBytes().size();
 
 		m_failureReason.clear();
-		if ((DWORD)headerLength > size)
+		if ((uint32_t)headerLength > size)
 		{
 			LogError(tsCryptoString("New header length does not match size [headerLength ").append(headerLength) << ", size " << (uint32_t)size << "]");
 			return false;
@@ -921,7 +921,7 @@ public:
 		// Now adjust for the data hash key size if needed
 		std::shared_ptr<MessageAuthenticationCode> mac;
 
-		const char *keySizeOid = TECSEC_CKM7_KEY_AND_IVEC_OID;
+		const char *keySizeOid = id_TECSEC_CKM7_KEY_AND_IVEC_OID;
 
 		if (hashAlgorithm != _TS_ALG_ID::TS_ALG_INVALID)
 		{
@@ -934,7 +934,7 @@ public:
 			{
 				int maxKeyLen = (int)mac->maximumKeySizeInBits();
 
-				keySizeOid = TECSEC_CKM7_ENC_MAC_AND_IVEC_OID;
+				keySizeOid = id_TECSEC_CKM7_ENC_MAC_AND_IVEC_OID;
 				if (maxKeyLen < 0 || maxKeyLen > 65535) // treat large key size as "unlimited"
 				{
 					// "unlimited key length"
@@ -959,7 +959,7 @@ public:
 			{
 				buff.resize(ivecSize);
 
-				if (internalGenerateRandomBits(buff.rawData(), (uint32_t)(ivecSize * 8), true, nullptr, 0))
+				if (tsInternalGenerateRandomBits(buff.rawData(), (uint32_t)(ivecSize * 8), true, nullptr, 0))
 				{
 					SetIVEC(buff);
 				}
@@ -1045,15 +1045,15 @@ public:
 					//case 192: // p192
 					//case 224: // p224
 				case 256: // p256
-					oid = ECDSA_SHA256_OID;
+					oid = id_ECDSA_SHA256_OID;
 					name = "SIGN-ECC-SHA256";
 					break;
 				case 384: // p384
-					oid = ECDSA_SHA384_OID;
+					oid = id_ECDSA_SHA384_OID;
 					name = "SIGN-ECC-SHA384";
 					break;
 				case 521:// p521
-					oid = ECDSA_SHA512_OID;
+					oid = id_ECDSA_SHA512_OID;
 					name = "SIGN-ECC-SHA512";
 					break;
 				default:
@@ -1151,7 +1151,7 @@ public:
 			{
 				LogError("Header MAC generation failed.");
 				return false;
-		}
+			}
 		}
 		workingKey = wk;
 		return true;
@@ -1242,7 +1242,7 @@ protected:
 	void FinalizeAndClearHeaderParts();
 	void BuildExtensionList(std::vector< std::shared_ptr< ICmsHeaderExtension> > &list, bool isProtected);
 
-	Asn1::CTS::_POD_Attribute* getAttribute(Asn1::CTS::_POD_CryptoGroup* cg, const GUID& id)
+	Asn1::CTS::_POD_Attribute* getAttribute(Asn1::CTS::_POD_CryptoGroup* cg, const tscrypto::tsCryptoData& id)
 	{
 		if (cg->exists_FiefdomList())
 		{
@@ -1284,7 +1284,7 @@ protected:
 		Asn1::CTS::_POD_Attribute* attributeObj = nullptr;
 		size_t attributeCount;
 
-		if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), headerExt) || !(attrList = std::dynamic_pointer_cast<ICmsHeaderAttributeListExtension>(headerExt)))
+		if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), headerExt) || !(attrList = std::dynamic_pointer_cast<ICmsHeaderAttributeListExtension>(headerExt)))
 		{
 			if (!headerExt)
 				return true;
@@ -1299,7 +1299,7 @@ protected:
 			if (!attrList->GetAttribute(k, hAttribute))
 				return false;
 
-			attributeObj = getAttribute(cryptogroup, hAttribute->GetAttributeGUID());
+			attributeObj = getAttribute(cryptogroup, hAttribute->GetAttributeId());
 			if (attributeObj == nullptr)
 				return false;
 
@@ -1315,7 +1315,7 @@ protected:
 		std::shared_ptr<ICmsHeaderAccessGroup> andGroup;
 		std::shared_ptr<ICmsHeaderAttributeGroup> attributeGroup;
 
-		if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), headerExt) || !(groupList = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(headerExt)))
+		if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), headerExt) || !(groupList = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(headerExt)))
 		{
 			return false;
 		}
@@ -1353,7 +1353,7 @@ protected:
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderKeyUsageExtension> ku;
 		Asn1::CTS::_POD_CryptoGroup *cg = nullptr;
-		GUID guidCryptoGroup;
+        tscrypto::tsCryptoData guidCryptoGroup;
 		GUID memberGuid = GUID_NULL;
 		GUID enterpriseGuid = GUID_NULL;
 		tscrypto::tsCryptoString tmpStr;
@@ -1374,9 +1374,9 @@ protected:
 		parameters.set_enterpriseId(enterpriseGuid);
 		parameters.set_memberId(memberGuid);
 
-		if (!(GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_KEY_USAGE_EXT_OID, tscrypto::tsCryptoData::OID), ext)) || !(ku = std::dynamic_pointer_cast<ICmsHeaderKeyUsageExtension>(ext)))
+		if (!(GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_KEY_USAGE_EXT_OID, tscrypto::tsCryptoData::OID), ext)) || !(ku = std::dynamic_pointer_cast<ICmsHeaderKeyUsageExtension>(ext)))
 		{
-			SetKeyUsageOID(tscrypto::tsCryptoData(TECSEC_CKM7_SCP_KEYS_OID, tscrypto::tsCryptoData::OID));
+			SetKeyUsageOID(tscrypto::tsCryptoData(id_TECSEC_CKM7_SCP_KEYS_OID, tscrypto::tsCryptoData::OID));
 			SetKeySizeInBits(768);
 		}
 		parameters.set_bitSize(GetKeySizeInBits());
@@ -1404,9 +1404,9 @@ protected:
 			if (!profile || memberGuid == GUID_NULL || enterpriseGuid == GUID_NULL)
 				return false;
 
-			guidCryptoGroup = headerCryptoGroup->GetCryptoGroupGuid();
+			guidCryptoGroup = headerCryptoGroup->GetCryptoGroupId();
 			parameters.set_cryptoGroupId(guidCryptoGroup);
-			if (guidCryptoGroup != GUID_NULL)
+			if (guidCryptoGroup.size() != 0)
 			{
 				if (profile->exists_cryptoGroupList())
 				{
@@ -1432,13 +1432,13 @@ protected:
 				return false;
 		}
 
-		if (GetObjectID() == GUID_NULL)
+		if (GetObjectID().size() == 0)
 		{
 			GUID tmp;
 
 			xp_CreateGuid(tmp);
-			SetObjectID(tmp);
-			parameters.set_objectId(tmp);
+			SetObjectID(tscrypto::tsCryptoData((const uint8_t*)&tmp, sizeof(GUID)));
+			parameters.set_objectId(tscrypto::tsCryptoData((const uint8_t*)&tmp, sizeof(GUID)));
 		}
 		else
 		{
@@ -1494,7 +1494,7 @@ protected:
 			return true;
 		}
 
-		if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), headerExt) ||
+		if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), headerExt) ||
 			!(groupList = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(headerExt)))
 		{
 			return false;
@@ -1526,7 +1526,7 @@ protected:
 					if (!attrList)
 					{
 						headerExt.reset();
-						if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), headerExt) ||
+						if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), headerExt) ||
 							!(attrList = std::dynamic_pointer_cast<ICmsHeaderAttributeListExtension>(headerExt)))
 						{
 							return false;
@@ -1545,14 +1545,14 @@ protected:
 						attributeObj = nullptr;
 						if (!attrList->GetAttribute(attributeGroup->GetAttributeIndex(k), hAttribute))
 							return false;
-						attributeObj = getAttribute(cg, hAttribute->GetAttributeGUID());
+						attributeObj = getAttribute(cg, hAttribute->GetAttributeId());
 						if (attributeObj == nullptr)
 							return false;
 						hAttribute->SetKeyVersion(attributeObj->get_ForwardVersion());
 
 						Asn1::CTS::_POD_AttributeIdentifier ctsAttrId;
 
-						ctsAttrId.set_id(hAttribute->GetAttributeGUID());
+						ctsAttrId.set_id(hAttribute->GetAttributeId());
 						ctsAttrId.set_version(hAttribute->GetKeyVersion());
 						ctsGroup.get_attributes().add(ctsAttrId);
 					}
@@ -1583,7 +1583,7 @@ protected:
 		std::shared_ptr<ICmsHeaderAttributeListExtension> attrList;
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderKeyUsageExtension> ku;
-		GUID guidCryptoGroup;
+        tscrypto::tsCryptoData guidCryptoGroup;
 		GUID enterpriseGuid = GUID_NULL;
 		std::shared_ptr<TlvDocument> otherAGs = TlvDocument::Create();
 		bool foundAGoodGroup = false;
@@ -1614,12 +1614,12 @@ protected:
 			if (!profile || parameters.get_memberId() == GUID_NULL || enterpriseGuid == GUID_NULL)
 				return false;
 
-			guidCryptoGroup = headerCryptoGroup->GetCryptoGroupGuid();
+			guidCryptoGroup = headerCryptoGroup->GetCryptoGroupId();
 			parameters.set_cryptoGroupId(guidCryptoGroup);
 			parameters.set_currentVersion(headerCryptoGroup->GetCurrentMaintenanceLevel());
 			parameters.set_ephemeralPublic(headerCryptoGroup->GetEphemeralPublic());
 
-			if (guidCryptoGroup != GUID_NULL)
+			if (guidCryptoGroup.size() != 0)
 			{
 				if (profile->exists_cryptoGroupList())
 				{
@@ -1641,14 +1641,14 @@ protected:
 		parameters.set_publicKey(GetHeaderSigningPublicKey());
 		parameters.set_objectId(GetObjectID());
 
-		if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), headerExt) ||
+		if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), headerExt) ||
 			!(groupList = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(headerExt)))
 		{
 			return false;
 		}
 
 		headerExt.reset();
-		if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), headerExt) ||
+		if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), headerExt) ||
 			!(attrList = std::dynamic_pointer_cast<ICmsHeaderAttributeListExtension>(headerExt)))
 		{
 			return false;
@@ -1664,7 +1664,7 @@ protected:
 				if (hAttribute->GetSignature().size() > 0)
 				{
 					Asn1::CTS::_POD_AttributeSignature sig;
-					sig.set_attributeId(hAttribute->GetAttributeGUID());
+					sig.set_attributeId(hAttribute->GetAttributeId());
 					sig.set_version(hAttribute->GetKeyVersion());
 					sig.set_signature(hAttribute->GetSignature());
 					if (!parameters.exists_signatures())
@@ -1714,7 +1714,7 @@ protected:
 
 						Asn1::CTS::_POD_AttributeIdentifier ctsAttrId;
 
-						ctsAttrId.set_id(hAttribute->GetAttributeGUID());
+						ctsAttrId.set_id(hAttribute->GetAttributeId());
 						ctsAttrId.set_version(hAttribute->GetKeyVersion());
 						ctsGroup.get_attributes().add(ctsAttrId);
 
@@ -1722,7 +1722,7 @@ protected:
 						{
 							Asn1::CTS::_POD_Attribute* attributeObj = nullptr;
 
-							attributeObj = getAttribute(cg, hAttribute->GetAttributeGUID());
+							attributeObj = getAttribute(cg, hAttribute->GetAttributeId());
 							if (attributeObj != nullptr)
 							{
 								if (ctsAttrId.get_version() >= attributeObj->get_BackwardVersion() && ctsAttrId.get_version() <= attributeObj->get_ForwardVersion())
@@ -1770,13 +1770,13 @@ protected:
 		SetCreatorGuid(parameters.get_memberId());
 		SetObjectID(parameters.get_objectId());
 
-		if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), headerExt) ||
+		if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), headerExt) ||
 			!(groupList = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(headerExt)))
 		{
 			return false;
 		}
 		headerExt.reset();
-		if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), headerExt) ||
+		if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), headerExt) ||
 			!(attrList = std::dynamic_pointer_cast<ICmsHeaderAttributeListExtension>(headerExt)))
 		{
 			return false;
@@ -1796,7 +1796,7 @@ protected:
 					hAttribute.reset();
 					if (attrList->GetAttribute(i, hAttribute))
 					{
-						if (hAttribute->GetAttributeGUID() == sig.get_attributeId())
+						if (hAttribute->GetAttributeId() == sig.get_attributeId())
 						{
 							hAttribute->SetKeyVersion(sig.get_version());
 							hAttribute->SetSignature(sig.get_signature());
@@ -1837,7 +1837,7 @@ protected:
 		return true;
 	}
 
-	int findAttributeIndex(std::shared_ptr<ICmsHeaderAttributeListExtension> list, const GUID id)
+	int findAttributeIndex(std::shared_ptr<ICmsHeaderAttributeListExtension> list, const tscrypto::tsCryptoData id)
 	{
 		std::shared_ptr<ICmsHeaderAttribute> attr;
 
@@ -1846,7 +1846,7 @@ protected:
 			attr.reset();
 			if (list->GetAttribute(i, attr))
 			{
-				if (attr->GetAttributeGUID() == id)
+				if (attr->GetAttributeId() == id)
 					return (int)i;
 			}
 		}
@@ -1880,7 +1880,7 @@ private:
 			return false;
 
 		// TODO:  Json Not sure if this will work
-		if (m_data.get_OID().ToOIDString() != TECSEC_CMS_HEADER)
+		if (m_data.get_OID().ToOIDString() != id_TECSEC_CMS_HEADER_OID)
 		{
 			Clear();
 			return false;
@@ -1897,7 +1897,7 @@ private:
 		va_list args;
 		tscrypto::tsCryptoString msg;
 
-		if (error == NULL)
+		if (error.empty())
 			return;
 		va_start(args, error);
 		msg.FormatArg(error, args);
@@ -2543,12 +2543,14 @@ int CmsHeaderImpl::OriginalHeaderSize() const
 	return m_originalSize;
 }
 
-GUID CmsHeaderImpl::GetObjectID()
+tscrypto::tsCryptoData CmsHeaderImpl::GetObjectID()
 {
-	return m_data.get_objectId();
+    if (!m_data.exists_objectId())
+        return tsCryptoData();
+	return *m_data.get_objectId();
 }
 
-void CmsHeaderImpl::SetObjectID(const GUID& setTo)
+void CmsHeaderImpl::SetObjectID(const tscrypto::tsCryptoData& setTo)
 {
 	ClearHMAC();
 	m_data.set_objectId(setTo);
@@ -2606,10 +2608,10 @@ void CmsHeaderImpl::PrepareForEncode()
 	if (m_data.get_EncAlg().get_selectedItem() == 0)
 		SetEncryptionAlgorithmID(_TS_ALG_ID::TS_ALG_AES_GCM_256);
 
-	if (!(GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_KEY_USAGE_EXT_OID, tscrypto::tsCryptoData::OID), ext)) ||
+	if (!(GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_KEY_USAGE_EXT_OID, tscrypto::tsCryptoData::OID), ext)) ||
 		!(ku = std::dynamic_pointer_cast<ICmsHeaderKeyUsageExtension>(ext)))
 	{
-		SetKeyUsageOID(tscrypto::tsCryptoData(TECSEC_CKM7_SCP_KEYS_OID, tscrypto::tsCryptoData::OID));
+		SetKeyUsageOID(tscrypto::tsCryptoData(id_TECSEC_CKM7_SCP_KEYS_OID, tscrypto::tsCryptoData::OID));
 		SetKeySizeInBits(768);
 	}
 	if (getEncryptionAlgorithmAsId(m_data) == _TS_ALG_ID::TS_ALG_INVALID)
@@ -2620,7 +2622,7 @@ void CmsHeaderImpl::PrepareForEncode()
 	//tscrypto::tsCryptoData oid = m_data.getEncryptionAlgorithmAsOID();
 	//if (oid.size() > 0)
 	//    SetEncryptionAlgorithmOID(oid);
-	m_data.set_OID(TECSEC_CMS_HEADER);
+	m_data.set_OID(id_TECSEC_CMS_HEADER_OID);
 	if (m_data.get_CreationDate().GetStatus() != tscrypto::tsCryptoDate::valid)
 	{
 		m_data.set_CreationDate(tscrypto::tsCryptoDate::Now());
@@ -2704,7 +2706,7 @@ bool CmsHeaderImpl::FromBytes(const tscrypto::tsCryptoData &setTo)
 	{
 		return false;
 	}
-	if (m_data.get_OID().ToOIDString() != TECSEC_CMS_HEADER)
+	if (m_data.get_OID().ToOIDString() != id_TECSEC_CMS_HEADER_OID)
 	{
 		Clear();
 		return false;
@@ -2715,7 +2717,7 @@ bool CmsHeaderImpl::FromBytes(const tscrypto::tsCryptoData &setTo)
 	int tag;
 	size_t dataLength, tagLength;
 	bool constructed;
-	BYTE type;
+    uint8_t type;
 
 	tagLength = TlvNode::ExtractTagAndLength(setTo, 0, false, false, tag, constructed, type, dataLength);
 	m_originalSize = (int)(tagLength + dataLength);
@@ -2727,7 +2729,7 @@ tscrypto::tsCryptoData CmsHeaderImpl::GetHeaderSigningPublicKey() const
 {
 	std::shared_ptr<ICmsHeaderExtension> ext;
 
-	if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_SIGN_KEY_EXT_OID, tscrypto::tsCryptoData::OID), ext))
+	if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_SIGN_KEY_EXT_OID, tscrypto::tsCryptoData::OID), ext))
 		return tscrypto::tsCryptoData();
 
 	return ext->GetContents();
@@ -2737,7 +2739,7 @@ bool CmsHeaderImpl::HasHeaderSigningPublicKey() const
 {
 	std::shared_ptr<ICmsHeaderExtension> ext;
 
-	if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_SIGN_KEY_EXT_OID, tscrypto::tsCryptoData::OID), ext))
+	if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_SIGN_KEY_EXT_OID, tscrypto::tsCryptoData::OID), ext))
 		return false;
 
 	return true;
@@ -2750,9 +2752,9 @@ bool CmsHeaderImpl::SetHeaderSigningPublicKey(const tscrypto::tsCryptoData &enco
 	if (encodedKey.size() < 5)
 		return false;
 
-	if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_SIGN_KEY_EXT_OID, tscrypto::tsCryptoData::OID), ext))
+	if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_SIGN_KEY_EXT_OID, tscrypto::tsCryptoData::OID), ext))
 	{
-		if (!AddProtectedExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_SIGN_KEY_EXT_OID, tscrypto::tsCryptoData::OID), true, ext))
+		if (!AddProtectedExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_SIGN_KEY_EXT_OID, tscrypto::tsCryptoData::OID), true, ext))
 			return false;
 	}
 	ext->SetContents(encodedKey);
@@ -2761,14 +2763,14 @@ bool CmsHeaderImpl::SetHeaderSigningPublicKey(const tscrypto::tsCryptoData &enco
 
 bool CmsHeaderImpl::ClearHeaderSigningPublicKey()
 {
-	return RemoveExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_SIGN_KEY_EXT_OID, tscrypto::tsCryptoData::OID));
+	return RemoveExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_SIGN_KEY_EXT_OID, tscrypto::tsCryptoData::OID));
 }
 
 tscrypto::tsCryptoData CmsHeaderImpl::GetIVEC() const
 {
 	std::shared_ptr<ICmsHeaderExtension> ext;
 
-	if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_IVEC_EXT_OID, tscrypto::tsCryptoData::OID), ext))
+	if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_IVEC_EXT_OID, tscrypto::tsCryptoData::OID), ext))
 		return tscrypto::tsCryptoData();
 	return ext->GetContents();
 }
@@ -2780,9 +2782,9 @@ bool CmsHeaderImpl::SetIVEC(const tscrypto::tsCryptoData &setTo)
 
 	std::shared_ptr<ICmsHeaderExtension> ext;
 
-	if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_IVEC_EXT_OID, tscrypto::tsCryptoData::OID), ext))
+	if (!GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_IVEC_EXT_OID, tscrypto::tsCryptoData::OID), ext))
 	{
-		if (!AddProtectedExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_IVEC_EXT_OID, tscrypto::tsCryptoData::OID), true, ext))
+		if (!AddProtectedExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_IVEC_EXT_OID, tscrypto::tsCryptoData::OID), true, ext))
 			return false;
 	}
 	ext->SetContents(setTo);
@@ -2791,7 +2793,7 @@ bool CmsHeaderImpl::SetIVEC(const tscrypto::tsCryptoData &setTo)
 
 bool CmsHeaderImpl::ClearIVEC()
 {
-	return RemoveExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_IVEC_EXT_OID, tscrypto::tsCryptoData::OID));
+	return RemoveExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_IVEC_EXT_OID, tscrypto::tsCryptoData::OID));
 }
 
 uint64_t CmsHeaderImpl::GetFileLength() const
@@ -2799,7 +2801,7 @@ uint64_t CmsHeaderImpl::GetFileLength() const
 	std::shared_ptr<ICmsHeaderExtension> ext;
 	std::shared_ptr<ICmsHeaderLengthExtension> length;
 
-	if (!(GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_FILELENGTH_EXT_OID, tscrypto::tsCryptoData::OID), ext)) ||
+	if (!(GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_FILELENGTH_EXT_OID, tscrypto::tsCryptoData::OID), ext)) ||
 		!(length = std::dynamic_pointer_cast<ICmsHeaderLengthExtension>(ext)))
 	{
 		return 0;
@@ -2812,9 +2814,9 @@ bool CmsHeaderImpl::SetFileLength(uint64_t setTo)
 	std::shared_ptr<ICmsHeaderExtension> ext;
 	std::shared_ptr<ICmsHeaderLengthExtension> length;
 
-	if (!(GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_FILELENGTH_EXT_OID, tscrypto::tsCryptoData::OID), ext)))
+	if (!(GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_FILELENGTH_EXT_OID, tscrypto::tsCryptoData::OID), ext)))
 	{
-		if (!(AddProtectedExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_FILELENGTH_EXT_OID, tscrypto::tsCryptoData::OID), false, ext)))
+		if (!(AddProtectedExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_FILELENGTH_EXT_OID, tscrypto::tsCryptoData::OID), false, ext)))
 		{
 			LOG(FrameworkError, "Unable to add the File Length extension.");
 			return false;
@@ -2830,7 +2832,7 @@ bool CmsHeaderImpl::SetFileLength(uint64_t setTo)
 
 bool CmsHeaderImpl::ClearFileLength()
 {
-	return RemoveExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_FILELENGTH_EXT_OID, tscrypto::tsCryptoData::OID));
+	return RemoveExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_FILELENGTH_EXT_OID, tscrypto::tsCryptoData::OID));
 }
 
 bool CmsHeaderImpl::GetEnterpriseGuid(GUID &data) const
@@ -2838,7 +2840,7 @@ bool CmsHeaderImpl::GetEnterpriseGuid(GUID &data) const
 	std::shared_ptr<ICmsHeaderExtension> ext;
 	std::shared_ptr<ICmsHeaderIssuerExtension> issuer;
 
-	if (!(GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ISSUER_EXT_OID, tscrypto::tsCryptoData::OID), ext)) ||
+	if (!(GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ISSUER_EXT_OID, tscrypto::tsCryptoData::OID), ext)) ||
 		!(issuer = std::dynamic_pointer_cast<ICmsHeaderIssuerExtension>(ext)))
 	{
 		return false;
@@ -2852,9 +2854,9 @@ bool CmsHeaderImpl::SetEnterpriseGuid(const GUID &setTo)
 	std::shared_ptr<ICmsHeaderExtension> ext;
 	std::shared_ptr<ICmsHeaderIssuerExtension> issuer;
 
-	if (!(GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ISSUER_EXT_OID, tscrypto::tsCryptoData::OID), ext)))
+	if (!(GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ISSUER_EXT_OID, tscrypto::tsCryptoData::OID), ext)))
 	{
-		if (!(AddProtectedExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ISSUER_EXT_OID, tscrypto::tsCryptoData::OID), false, ext)))
+		if (!(AddProtectedExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ISSUER_EXT_OID, tscrypto::tsCryptoData::OID), false, ext)))
 		{
 			LOG(FrameworkError, "Unable to add the File Length extension.");
 			return false;
@@ -2870,7 +2872,7 @@ bool CmsHeaderImpl::SetEnterpriseGuid(const GUID &setTo)
 
 bool CmsHeaderImpl::ClearEnterpriseGuid()
 {
-	return RemoveExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ISSUER_EXT_OID, tscrypto::tsCryptoData::OID));
+	return RemoveExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ISSUER_EXT_OID, tscrypto::tsCryptoData::OID));
 }
 
 tscrypto::tsCryptoData CmsHeaderImpl::GetDataHash() const
@@ -2878,7 +2880,7 @@ tscrypto::tsCryptoData CmsHeaderImpl::GetDataHash() const
 	std::shared_ptr<ICmsHeaderExtension> ext;
 	std::shared_ptr<ICmsHeaderHashExtension> hash;
 
-	if (!(GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_FILEHASH_EXT_OID, tscrypto::tsCryptoData::OID), ext)) ||
+	if (!(GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_FILEHASH_EXT_OID, tscrypto::tsCryptoData::OID), ext)) ||
 		!(hash = std::dynamic_pointer_cast<ICmsHeaderHashExtension>(ext)))
 	{
 		return tscrypto::tsCryptoData();
@@ -2891,9 +2893,9 @@ bool CmsHeaderImpl::SetDataHash(const tscrypto::tsCryptoData &setTo)
 	std::shared_ptr<ICmsHeaderExtension> ext;
 	std::shared_ptr<ICmsHeaderHashExtension> hash;
 
-	if (!(GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_FILEHASH_EXT_OID, tscrypto::tsCryptoData::OID), ext)))
+	if (!(GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_FILEHASH_EXT_OID, tscrypto::tsCryptoData::OID), ext)))
 	{
-		if (!(AddProtectedExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_FILEHASH_EXT_OID, tscrypto::tsCryptoData::OID), false, ext)))
+		if (!(AddProtectedExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_FILEHASH_EXT_OID, tscrypto::tsCryptoData::OID), false, ext)))
 		{
 			LOG(FrameworkError, "Unable to add the Data Hash extension.");
 			return false;
@@ -3105,17 +3107,17 @@ tscrypto::tsCryptoString CmsHeaderImpl::GetDebugString()
 
 	if (fileLen > 0)
 	{
-		TsSnPrintf(buff, sizeof(buff), "Original file length:  %lld\n", fileLen);
+		tsSnPrintf(buff, sizeof(buff), "Original file length:  %lld\n", fileLen);
 		output += buff;
 	}
-	output << "Object ID:             " << TSGuidToString(GetObjectID()) << tscrypto::endl;
-	TsSnPrintf(buff, sizeof(buff), "Header length:         %d\n", OriginalHeaderSize());
+	output << "Object ID:             " << GetObjectID().ToHexString() << tscrypto::endl;
+	tsSnPrintf(buff, sizeof(buff), "Header length:         %d\n", OriginalHeaderSize());
 	output += buff;
-	TsSnPrintf(buff, sizeof(buff), "Padded Header length:  %d\n", PaddedHeaderSize());
+	tsSnPrintf(buff, sizeof(buff), "Padded Header length:  %d\n", PaddedHeaderSize());
 	output += buff;
 
-	if (GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_SECRYPTM_EXT_OID, tscrypto::tsCryptoData::OID), ext) &&
-		GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_SECRYPTM_EXT_PAD2_OID, tscrypto::tsCryptoData::OID), ext2))
+	if (GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_SECRYPTM_EXT_OID, tscrypto::tsCryptoData::OID), ext) &&
+		GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_SECRYPTM_EXT_PAD2_OID, tscrypto::tsCryptoData::OID), ext2))
 	{
 	}
 	len = 0;
@@ -3125,14 +3127,14 @@ tscrypto::tsCryptoString CmsHeaderImpl::GetDebugString()
 		len += ext2->ToBytes().size();
 	if (len > 0)
 	{
-		TsSnPrintf(buff, sizeof(buff), "   with internal padding of     %d bytes\n", len);
+		tsSnPrintf(buff, sizeof(buff), "   with internal padding of     %d bytes\n", len);
 		output += buff;
 	}
 
 	value = GetDataName();
 	if (value.size() > 0)
 	{
-		TsSnPrintf(buff, sizeof(buff), "Original file name:    %s\n", value.ToUtf8String().c_str());
+		tsSnPrintf(buff, sizeof(buff), "Original file name:    %s\n", value.ToUtf8String().c_str());
 		output += buff;
 	}
 
@@ -3140,61 +3142,61 @@ tscrypto::tsCryptoString CmsHeaderImpl::GetDebugString()
 	int blocksize, dataFormat;
 	if (GetDataFormat(blocksize, dataFormat))
 	{
-		TsSnPrintf(buff, sizeof(buff), "Block size:            %d\n", blocksize);
+		tsSnPrintf(buff, sizeof(buff), "Block size:            %d\n", blocksize);
 		output += buff;
-		TsSnPrintf(buff, sizeof(buff), "Data Format:           %s\n", DataFormatString(dataFormat));
+		tsSnPrintf(buff, sizeof(buff), "Data Format:           %s\n", DataFormatString(dataFormat));
 		output += buff;
 	}
 
 	value = GetDataHashOID();
 	if (value.size() > 0)
 	{
-		TsSnPrintf(buff, sizeof(buff), "Data Hash algorithm:   %s\n", OIDtoAlgName(value.ToOIDString()).c_str());
+		tsSnPrintf(buff, sizeof(buff), "Data Hash algorithm:   %s\n", OIDtoAlgName(value.ToOIDString()).c_str());
 		output += buff;
-		TsSnPrintf(buff, sizeof(buff), "File hash:             %s\n", formatHex(GetDataHash(), 23).c_str());
+		tsSnPrintf(buff, sizeof(buff), "File hash:             %s\n", formatHex(GetDataHash(), 23).c_str());
 		output += buff;
 	}
 
 
-	TsSnPrintf(buff, sizeof(buff), "\nHeader Type:           CKM 7\n");
+	tsSnPrintf(buff, sizeof(buff), "\nHeader Type:           CKM 7\n");
 	output += buff;
-	TsSnPrintf(buff, sizeof(buff), "Header Version:        %d\n", GetHeaderVersion());
+	tsSnPrintf(buff, sizeof(buff), "Header Version:        %d\n", GetHeaderVersion());
 	output += buff;
-	TsSnPrintf(buff, sizeof(buff), "Combiner Version:      %d\n", GetCombinerVersion());
+	tsSnPrintf(buff, sizeof(buff), "Combiner Version:      %d\n", GetCombinerVersion());
 	output += buff;
 	output += "\n";
 	if (!GetEnterpriseGuid(guid))
 		guid = GUID_NULL;
 	TSGuidToString(guid, tmp);
-	TsSnPrintf(buff, sizeof(buff), "Enterprise Guid:       %s\n", tmp.c_str());
+	tsSnPrintf(buff, sizeof(buff), "Enterprise Guid:       %s\n", tmp.c_str());
 	output += buff;
 	guid = GetCreatorGuid();
 	TSGuidToString(guid, tmp);
-	TsSnPrintf(buff, sizeof(buff), "Creator Guid:          %s\n", tmp.c_str());
+	tsSnPrintf(buff, sizeof(buff), "Creator Guid:          %s\n", tmp.c_str());
 	output += buff;
-	TsSnPrintf(buff, sizeof(buff), "Creation Date:         %s\n", GetCreationDate().c_str());
+	tsSnPrintf(buff, sizeof(buff), "Creation Date:         %s\n", GetCreationDate().c_str());
 	output += buff;
 
-	TsSnPrintf(buff, sizeof(buff), "Header protection:     %s\n", OIDtoAlgName(GetSignatureAlgorithmOID().ToOIDString()).c_str());
+	tsSnPrintf(buff, sizeof(buff), "Header protection:     %s\n", OIDtoAlgName(GetSignatureAlgorithmOID().ToOIDString()).c_str());
 	output += buff;
 	if (HasHeaderSigningPublicKey())
 	{
-		TsSnPrintf(buff, sizeof(buff), "Header signing public: %s\n\n", formatHex(GetHeaderSigningPublicKey(), 23).c_str());
+		tsSnPrintf(buff, sizeof(buff), "Header signing public: %s\n\n", formatHex(GetHeaderSigningPublicKey(), 23).c_str());
 		output += buff;
 	}
 
-	TsSnPrintf(buff, sizeof(buff), "Algorithm:             %s\n", OIDtoAlgName(GetEncryptionAlgorithmOID().ToOIDString()).c_str());
+	tsSnPrintf(buff, sizeof(buff), "Algorithm:             %s\n", OIDtoAlgName(GetEncryptionAlgorithmOID().ToOIDString()).c_str());
 	output += buff;
-	TsSnPrintf(buff, sizeof(buff), "Compression:           %d - %s\n", GetCompressionType(), GetCompressionTypeString(GetCompressionType()));
+	tsSnPrintf(buff, sizeof(buff), "Compression:           %d - %s\n", GetCompressionType(), GetCompressionTypeString(GetCompressionType()));
 	output += buff;
-	TsSnPrintf(buff, sizeof(buff), "Padding:               %d - %s\n", GetPaddingType(), GetPaddingString(GetPaddingType()));
+	tsSnPrintf(buff, sizeof(buff), "Padding:               %d - %s\n", GetPaddingType(), GetPaddingString(GetPaddingType()));
 	output += buff;
 	if (GetMimeType().size() > 0)
 	{
-		TsSnPrintf(buff, sizeof(buff), "MIME Type:             %s\n", GetMimeType().c_str());
+		tsSnPrintf(buff, sizeof(buff), "MIME Type:             %s\n", GetMimeType().c_str());
 		output += buff;
 	}
-	TsSnPrintf(buff, sizeof(buff), "\n");
+	tsSnPrintf(buff, sizeof(buff), "\n");
 	output += buff;
 
 	std::shared_ptr<ICmsHeaderAccessGroupExtension> groupList;
@@ -3202,10 +3204,10 @@ tscrypto::tsCryptoString CmsHeaderImpl::GetDebugString()
 	std::shared_ptr<ICmsHeaderCryptoGroupListExtension> cryptoGroupList;
 
 	ext.reset();
-	if (GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) &&
+	if (GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) &&
 		!!(cryptoGroupList = std::dynamic_pointer_cast<ICmsHeaderCryptoGroupListExtension>(ext)))
 	{
-		TsSnPrintf(buff, sizeof(buff), "CryptoGroup count:    %d", GetCryptoGroupCount());
+		tsSnPrintf(buff, sizeof(buff), "CryptoGroup count:    %d", GetCryptoGroupCount());
 		output += buff;
 
 		for (uint32_t i = 0; i < GetCryptoGroupCount(); i++)
@@ -3217,37 +3219,35 @@ tscrypto::tsCryptoString CmsHeaderImpl::GetDebugString()
 			{
 				tscrypto::tsCryptoString tmp;
 
-				TsSnPrintf(buff, sizeof(buff), "\n    CryptoGroup number %d\n", i);
+				tsSnPrintf(buff, sizeof(buff), "\n    CryptoGroup number %d\n", i);
 				output += buff;
-				TsSnPrintf(buff, sizeof(buff), "    maintenance level: %d\n", hCg->GetCurrentMaintenanceLevel());
+				tsSnPrintf(buff, sizeof(buff), "    maintenance level: %d\n", hCg->GetCurrentMaintenanceLevel());
 				output += buff;
-				guid = hCg->GetCryptoGroupGuid();
-				TSGuidToString(guid, tmp);
-				TsSnPrintf(buff, sizeof(buff), "    CryptoGroup Guid: %s\n", tmp.c_str());
+				tsSnPrintf(buff, sizeof(buff), "    CryptoGroup Guid: %s\n", hCg->GetCryptoGroupId().ToHexString().c_str());
 				output += buff;
 				if (hCg->GetEphemeralPublic().size() > 0)
 				{
-					TsSnPrintf(buff, sizeof(buff), "    Ephemeral Public:  %s\n", formatHex(hCg->GetEphemeralPublic(), 23).c_str());
+					tsSnPrintf(buff, sizeof(buff), "    Ephemeral Public:  %s\n", formatHex(hCg->GetEphemeralPublic(), 23).c_str());
 					output += buff;
 				}
 			}
 			else
 			{
-				TsSnPrintf(buff, sizeof(buff), "    CryptoGroup number %d was not in the header\n", i);
+				tsSnPrintf(buff, sizeof(buff), "    CryptoGroup number %d was not in the header\n", i);
 				output += buff;
 			}
 		}
-		TsSnPrintf(buff, sizeof(buff), "\n");
+		tsSnPrintf(buff, sizeof(buff), "\n");
 		output += buff;
 	}
 	ext.reset();
 
-	if (GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) &&
+	if (GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) &&
 		!!(attrList = std::dynamic_pointer_cast<ICmsHeaderAttributeListExtension>(ext)))
 	{
 		std::shared_ptr<ICmsHeaderAttribute> attr;
 
-		TsSnPrintf(buff, sizeof(buff), "Attribute count:    %d", attrList->GetAttributeCount());
+		tsSnPrintf(buff, sizeof(buff), "Attribute count:    %d", attrList->GetAttributeCount());
 		output += buff;
 
 		for (uint32_t i = 0; i < attrList->GetAttributeCount(); i++)
@@ -3256,34 +3256,32 @@ tscrypto::tsCryptoString CmsHeaderImpl::GetDebugString()
 
 			if (attrList->GetAttribute(i, attr))
 			{
-				guid = attr->GetAttributeGUID();
-				TSGuidToString(guid, tmp);
-				TsSnPrintf(buff, sizeof(buff), "\n    Attribute ID:     %s\n", tmp.c_str());
+				tsSnPrintf(buff, sizeof(buff), "\n    Attribute ID:     %s\n", attr->GetAttributeId().ToHexString().c_str());
 				output += buff;
-				TsSnPrintf(buff, sizeof(buff), "    CryptoGroup Number: %d\n", attr->GetCryptoGroupNumber());
+				tsSnPrintf(buff, sizeof(buff), "    CryptoGroup Number: %d\n", attr->GetCryptoGroupNumber());
 				output += buff;
-				TsSnPrintf(buff, sizeof(buff), "    Key Version:        %d\n", attr->GetKeyVersion());
+				tsSnPrintf(buff, sizeof(buff), "    Key Version:        %d\n", attr->GetKeyVersion());
 				output += buff;
 				if (attr->GetSignature().size() > 0)
 				{
-					TsSnPrintf(buff, sizeof(buff), "    Signature:          %s\n", formatHex(attr->GetSignature(), 23).c_str());
+					tsSnPrintf(buff, sizeof(buff), "    Signature:          %s\n", formatHex(attr->GetSignature(), 23).c_str());
 					output += buff;
 				}
 			}
 			else
 			{
-				TsSnPrintf(buff, sizeof(buff), "    Attribute number %d was not in the header\n", i);
+				tsSnPrintf(buff, sizeof(buff), "    Attribute number %d was not in the header\n", i);
 				output += buff;
 			}
 		}
-		TsSnPrintf(buff, sizeof(buff), "\n");
+		tsSnPrintf(buff, sizeof(buff), "\n");
 		output += buff;
 	}
 	ext.reset();
-	if (GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) &&
+	if (GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) &&
 		!!(groupList = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(ext)))
 	{
-		TsSnPrintf(buff, sizeof(buff), "Access group count:  %d", groupList->GetAccessGroupCount());
+		tsSnPrintf(buff, sizeof(buff), "Access group count:  %d", groupList->GetAccessGroupCount());
 		output += buff;
 		for (uint32_t i = 0; i < groupList->GetAccessGroupCount(); i++)
 		{
@@ -3294,40 +3292,40 @@ tscrypto::tsCryptoString CmsHeaderImpl::GetDebugString()
 
 			if (!groupList->GetAccessGroup(i, group))
 			{
-				TsSnPrintf(buff, sizeof(buff), "\n    Unable to retrieve access group %d\n\n", i);
+				tsSnPrintf(buff, sizeof(buff), "\n    Unable to retrieve access group %d\n\n", i);
 				output += buff;
 			}
 			else
 			{
-				TsSnPrintf(buff, sizeof(buff), "\n    Access group number:   %d\n", i);
+				tsSnPrintf(buff, sizeof(buff), "\n    Access group number:   %d\n", i);
 				output += buff;
 				attrs.reset();
 
 				if (!!(attrs = std::dynamic_pointer_cast<ICmsHeaderAttributeGroup>(group)))
 				{
-					TsSnPrintf(buff, sizeof(buff), "        Attribute list:\n");
+					tsSnPrintf(buff, sizeof(buff), "        Attribute list:\n");
 					output += buff;
 					for (uint32_t k = 0; k < attrs->GetAttributeCount(); k++)
 					{
 						if (k == 0)
 						{
-							TsSnPrintf(buff, sizeof(buff), "            ");
+							tsSnPrintf(buff, sizeof(buff), "            ");
 							output += buff;
 						}
 						else
 						{
-							TsSnPrintf(buff, sizeof(buff), ", ");
+							tsSnPrintf(buff, sizeof(buff), ", ");
 							output += buff;
 						}
-						TsSnPrintf(buff, sizeof(buff), "%d", attrs->GetAttributeIndex(k));
+						tsSnPrintf(buff, sizeof(buff), "%d", attrs->GetAttributeIndex(k));
 						output += buff;
 					}
-					TsSnPrintf(buff, sizeof(buff), "\n");
+					tsSnPrintf(buff, sizeof(buff), "\n");
 					output += buff;
 				}
 				else
 				{
-					TsSnPrintf(buff, sizeof(buff), "        Unknown item:\n");
+					tsSnPrintf(buff, sizeof(buff), "        Unknown item:\n");
 					output += buff;
 				}
 			}
@@ -3363,13 +3361,13 @@ tscrypto::tsCryptoString CmsHeaderImpl::GetDebugJsonString()
 		output.add("originalFileLength", (int64_t)fileLen);
 	}
 	output
-		.add("objectId", TSGuidToString(GetObjectID()))
+		.add("objectId", GetObjectID().ToHexString())
 		.add("headerLength", (int64_t)OriginalHeaderSize())
 		.add("paddedHeaderLength", (int64_t)PaddedHeaderSize())
 		;
 
-	if (GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_SECRYPTM_EXT_OID, tscrypto::tsCryptoData::OID), ext) &&
-		GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_SECRYPTM_EXT_PAD2_OID, tscrypto::tsCryptoData::OID), ext2))
+	if (GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_SECRYPTM_EXT_OID, tscrypto::tsCryptoData::OID), ext) &&
+		GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_SECRYPTM_EXT_PAD2_OID, tscrypto::tsCryptoData::OID), ext2))
 	{
 	}
 	len = 0;
@@ -3443,7 +3441,7 @@ tscrypto::tsCryptoString CmsHeaderImpl::GetDebugJsonString()
 	std::shared_ptr<ICmsHeaderCryptoGroupListExtension> cryptoGroupList;
 
 	ext.reset();
-	if (GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) &&
+	if (GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) &&
 		!!(cryptoGroupList = std::dynamic_pointer_cast<ICmsHeaderCryptoGroupListExtension>(ext)))
 	{
 		output.createArrayField("cryptoGroups");
@@ -3457,12 +3455,10 @@ tscrypto::tsCryptoString CmsHeaderImpl::GetDebugJsonString()
 			{
 				tscrypto::JSONObject cg;
 
-				guid = hCg->GetCryptoGroupGuid();
-
 				cg
 					.add("number", (int64_t)i)
 					.add("maintenanceLevel", (int64_t)hCg->GetCurrentMaintenanceLevel())
-					.add("groupGuid", ToString()(guid))
+					.add("groupGuid", hCg->GetCryptoGroupId().ToHexString())
 					;
 
 				if (hCg->GetEphemeralPublic().size() > 0)
@@ -3475,7 +3471,7 @@ tscrypto::tsCryptoString CmsHeaderImpl::GetDebugJsonString()
 	}
 	ext.reset();
 
-	if (GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) &&
+	if (GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) &&
 		!!(attrList = std::dynamic_pointer_cast<ICmsHeaderAttributeListExtension>(ext)))
 	{
 		std::shared_ptr<ICmsHeaderAttribute> attr;
@@ -3490,11 +3486,9 @@ tscrypto::tsCryptoString CmsHeaderImpl::GetDebugJsonString()
 			{
 				tscrypto::JSONObject jAttr;
 
-				guid = attr->GetAttributeGUID();
-
 				jAttr
 					.add("index", (int64_t)i)
-					.add("attributeId", ToString()(guid))
+					.add("attributeId", attr->GetAttributeId().ToHexString())
 					.add("cryptogroupNumber", (int64_t)attr->GetCryptoGroupNumber())
 					.add("keyVersion", (int64_t)attr->GetKeyVersion())
 					;
@@ -3507,7 +3501,7 @@ tscrypto::tsCryptoString CmsHeaderImpl::GetDebugJsonString()
 		}
 	}
 	ext.reset();
-	if (GetExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) &&
+	if (GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) &&
 		!!(groupList = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(ext)))
 	{
 		output.createArrayField("accessGroups");
@@ -3558,7 +3552,7 @@ tscrypto::tsCryptoString CmsHeaderImpl::GetDebugJsonString()
 
 tscrypto::tsCryptoString CmsHeaderImpl::toString(const tscrypto::tsCryptoString& type)
 {
-	if (TsStriCmp(type.c_str(), "JSONRECIPE") == 0)
+	if (tsStriCmp(type.c_str(), "JSONRECIPE") == 0)
 	{
 		Asn1::CTS::_POD_CkmRecipe recipe;
 
@@ -3566,7 +3560,7 @@ tscrypto::tsCryptoString CmsHeaderImpl::toString(const tscrypto::tsCryptoString&
 			return "";
 		return recipe.toJSON().ToJSON();
 	}
-	else if (TsStriCmp(type.c_str(), "JSONDEBUG") == 0)
+	else if (tsStriCmp(type.c_str(), "JSONDEBUG") == 0)
 	{
 		return GetDebugJsonString();
 	}

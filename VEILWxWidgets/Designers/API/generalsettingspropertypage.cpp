@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -561,12 +561,12 @@ int GeneralSettingsPropertyPage::FindHashAlgByID(TS_ALG_ID alg)
 	}
 	return -1;
 }
-void GeneralSettingsPropertyPage::SetModified(BOOL bChanged)
+void GeneralSettingsPropertyPage::SetModified(bool bChanged)
 {
-	_bDirty = bChanged != FALSE;
+	_bDirty = bChanged != false;
 	std::shared_ptr<IVEILPropertySheet> sheet = _parentSheet.lock();
 	if (!!sheet)
 	{
-		sheet->PageModified(bChanged != FALSE);
+		sheet->PageModified(bChanged != false);
 	}
 }

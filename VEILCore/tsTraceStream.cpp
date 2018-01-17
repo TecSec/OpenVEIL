@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -385,8 +385,8 @@ void tsTraceStream::processData(tscrypto::tsCryptoStringBase &data)
 
     while (data.size() > 0)
     {
-        doWriteLine = (TsStrChr(data.rawData(), '\n') != NULL);
-        p = TsStrTok(data.rawData(), ("\n"), &context);
+        doWriteLine = (tsStrChr(data.rawData(), '\n') != NULL);
+        p = tsStrTok(data.rawData(), ("\n"), &context);
         tmp.clear();
         //if (justHadNewline && indentLevel > 0)
         //{
@@ -400,8 +400,8 @@ void tsTraceStream::processData(tscrypto::tsCryptoStringBase &data)
         //}
         tmp += p;
         if (p != NULL)
-        {	// 10/11/11 krr added cast for warning C2220 strlen() so x64 would build
-            data.DeleteAt(0, (uint32_t)TsStrLen(p) + 1);
+        {
+            data.DeleteAt(0, (uint32_t)tsStrLen(p) + 1);
         }
         else
         {

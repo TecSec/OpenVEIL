@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -66,25 +66,25 @@ class AlignedObj
 public:
     AlignedObj() {
         memset(buf, 0, sizeof(buf));
-        new (buf + Align - (((INT_PTR)this) & (Align - 1))) T();
+        new (buf + Align - (((intptr_t)this) & (Align - 1))) T();
     }
     ~AlignedObj() {
-        reinterpret_cast<T*>(buf + Align - (((INT_PTR)this) & (Align - 1)))->~T();
+        reinterpret_cast<T*>(buf + Align - (((intptr_t)this) & (Align - 1)))->~T();
         memset(buf, 0, sizeof(buf));
     }
 
     void clear() {
-        *((T*)(buf + Align - (((INT_PTR)this) & (Align - 1)))) = T();
+        *((T*)(buf + Align - (((intptr_t)this) & (Align - 1)))) = T();
     }
 
-    T* operator&() { return (T*)(buf + Align - (((INT_PTR)this) & (Align - 1))); }
-    const T* operator&() const { return (T*)(buf + Align - (((INT_PTR)this) & (Align - 1))); }
-    T& operator*() { return *(T*)(buf + Align - (((INT_PTR)this) & (Align - 1))); }
-    const T& operator*() const { return *(T*)(buf + Align - (((INT_PTR)this) & (Align - 1))); }
-    T* operator->() { return (T*)(buf + Align - (((INT_PTR)this) & (Align - 1))); }
-    const T* operator->() const { return (T*)(buf + Align - (((INT_PTR)this) & (Align - 1))); }
-    //	T& operator->*() { return *(T*)(buf + Align - (((INT_PTR)this) & (Align - 1))); }
-    //	const T& operator->*() const { return *(T*)(buf + Align - (((INT_PTR)this) & (Align - 1))); }
+    T* operator&() { return (T*)(buf + Align - (((intptr_t)this) & (Align - 1))); }
+    const T* operator&() const { return (T*)(buf + Align - (((intptr_t)this) & (Align - 1))); }
+    T& operator*() { return *(T*)(buf + Align - (((intptr_t)this) & (Align - 1))); }
+    const T& operator*() const { return *(T*)(buf + Align - (((intptr_t)this) & (Align - 1))); }
+    T* operator->() { return (T*)(buf + Align - (((intptr_t)this) & (Align - 1))); }
+    const T* operator->() const { return (T*)(buf + Align - (((intptr_t)this) & (Align - 1))); }
+    //	T& operator->*() { return *(T*)(buf + Align - (((intptr_t)this) & (Align - 1))); }
+    //	const T& operator->*() const { return *(T*)(buf + Align - (((intptr_t)this) & (Align - 1))); }
 private:
     char buf[sizeof(T) + Align];
 };

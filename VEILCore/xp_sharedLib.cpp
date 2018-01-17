@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -37,166 +37,6 @@
 
 using namespace tscrypto;
 
-#ifndef _WIN32
-    extern const char *gLastDLError;
-#endif // _WIN32
-/*
- * Get the address of a specified procedure from the shared library
- */
-extern ProcAddressFn tscrypto::xp_GetProcAddress(XP_MODULE phDll, const char *procName)
-{
-#ifdef _WIN32
-	return (ProcAddressFn)GetProcAddress((HINSTANCE)phDll, procName);
-#else /* UNIX */
-    Dl_info info = {0,};
-
-    //printf ("looking for proc %s\n", procName);
-	ProcAddressFn retVal = (ProcAddressFn)dlsym((void *)phDll, procName);
-    // if (retVal == nullptr)
-    // {
-    //     if (dladdr((void*)phDll, &info) != 0)
-    //         printf ("  not found - %s - %s\n", dlerror(), info.dli_fname);
-    //     else
-    //         printf ("  not found - %s - %s\n", dlerror(), "UNKNOWN");
-    // }
-    // else
-    //     printf ("  found %p - %s\n", retVal, info.dli_fname);
-    return retVal;
-#endif
-}
-
-/*
- * Load a shared library (DLL) to get a HANDLE to it
- */
-extern int32_t tscrypto::xp_LoadSharedLib(const tsCryptoStringBase &pPath, XP_MODULE * phDll)
-{
-#ifdef _WIN32
-    /* load the desired IA Object (DLL) */
-	if (XP_MODULE_INVALID == (*phDll = (XP_MODULE)LoadLibraryExA(pPath.c_str(), nullptr, 0))) {
-        return -1;
-    }
-#else
-    void* p;
-    #ifdef __APPLE__
-        p = dlopen(pPath.c_str(), RTLD_NOW | RTLD_GLOBAL | RTLD_FIRST);
-    #else
-        p = dlopen(pPath.c_str(), RTLD_LAZY | RTLD_LOCAL);
-    #endif
-    *phDll = (XP_MODULE)p;
-    if (NULL == p)
-    {
-        gLastDLError = dlerror();
-        //printf ("Load of %s failed with %s\n", pPath.c_str(), gLastDLError);
-        return -1;
-    }
-    else
-    {
-        //printf("Found module %s at %p\n", pPath.c_str(), p);
-    gLastDLError = NULL;
-    }
-#endif
-    return 0;
-}
-
-
-/*
- * Release a shared library (DLL) obtained by iLoadSharedLib
- */
-extern uint32_t tscrypto::xp_FreeSharedLib(XP_MODULE hDll)
-{
-#ifdef _WIN32
-    /* who cares if this fails */
-	if (hDll != XP_MODULE_INVALID)
-    {
-        FreeLibrary((HINSTANCE)hDll);
-    }
-#else
-    if (hDll != XP_MODULE_INVALID)
-    {
-        dlclose((void *)hDll);
-        hDll = XP_MODULE_INVALID;
-    }
-#endif
-    return 0;
-}
-
-#ifndef _WIN32
-#ifdef __cplusplus
-extern "C"
-#endif
-const char *GetLastDLError()
-{
-    return gLastDLError;
-}
-#endif // _WIN32
-
-#ifdef __APPLE__
-#include <mach-o/dyld.h>
-
-static tsCryptoStringBase getexecpath()
-{
-    tsCryptoStringBase tmp;
-    uint32_t size;
-    
-    tmp.resize(4 * PATH_MAX);
-    size = (uint32_t)tmp.size();
-    if (_NSGetExecutablePath(tmp.data(), &size) == 0)
-    {
-        tmp.resize(strlen(tmp.data()));
-        tsCryptoStringBase tmp2(tmp);
-        
-        xp_GetFullPathName(tmp2, tmp, nullptr);
-    }
-    else
-    {
-        tmp.clear();
-    }
-    return tmp;
-}
-#elif !defined(_WIN32)
-static const char* getexecpath()
-{
-      static char buf[30], execpath[2048];
-
-      sprintf(buf,"/proc/%d/exe", getpid());
-      memset(execpath, 0, sizeof(execpath));
-      readlink(buf, execpath, sizeof(execpath));
-      return execpath;
-}
-#endif
-
-BOOL tscrypto::xp_GetModuleFileName(XP_MODULE module, tsCryptoStringBase &name)
-{
-#ifdef _WIN32
-	name.clear();
-	name.resize(MAX_PATH);
-    BOOL retVal = GetModuleFileNameA((HINSTANCE)module, name.data(), (DWORD)name.size());
-	name.resize(TsStrLen(name.c_str()));
-	return retVal;
-#else
-    if ( module == XP_MODULE_INVALID )
-    {
-        tsCryptoStringBase path;
-
-        path = getexecpath();
-        if ( path.size() == 0 || path[0] == 0 )
-            return FALSE;
-        name = path;
-        return TRUE;
-    }
-    else
-    {
-        Dl_info info;
-
-        if ( !dladdr((void*)module,&info) )
-        {
-            return FALSE;
-        }
-        name = info.dli_fname;
-        return TRUE;
-    }
-#endif
-}
 
 tsCryptoString tscrypto::xp_GetCommandLine()
 {
@@ -207,14 +47,14 @@ tsCryptoString tscrypto::xp_GetCommandLine()
 #endif
 }
 
-XP_MODULE tscrypto::xp_GetModuleHandle(const tsCryptoStringBase &moduleName)
-{
-#ifdef _WIN32
-	return (XP_MODULE)GetModuleHandleA(moduleName.c_str());
-#else
-    return XP_MODULE_INVALID;
-#endif
-}
+//XP_MODULE tscrypto::xp_GetModuleHandle(const tsCryptoStringBase &moduleName)
+//{
+//#ifdef _WIN32
+//	return (XP_MODULE)GetModuleHandleA(moduleName.c_str());
+//#else
+//    return XP_MODULE_INVALID;
+//#endif
+//}
 
 
 

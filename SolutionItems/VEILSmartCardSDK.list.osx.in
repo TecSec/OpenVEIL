@@ -12,12 +12,9 @@ l 755 root wheel /Library/Frameworks/VEILSmartCard.framework/VEILSmartCard Versi
 d 755 root wheel /Library/Frameworks/VEILSmartCard.framework/Versions -
 d 755 root wheel /Library/Frameworks/VEILSmartCard.framework/Versions/A -
 d 755 root wheel /Library/Frameworks/VEILSmartCard.framework/Versions/A/Headers -
-f 644 root wheel /Library/Frameworks/VEILSmartCard.framework/Versions/A/Headers/VEILSmartCard.h sdk/VEILSmartCard.framework/Versions/A/Headers/VEILSmartCard.h
-d 755 root wheel /Library/Frameworks/VEILSmartCard.framework/Versions/A/Headers/VEILSmartCard -
-f 644 root wheel /Library/Frameworks/VEILSmartCard.framework/Versions/A/Headers/VEILSmartCard/tsWinscardExports.h sdk/VEILSmartCard.framework/Versions/A/Headers/VEILSmartCard/tsWinscardExports.h
 #
 d 755 root wheel /Library/Frameworks/VEILSmartCard.framework/Versions/A/Documentation -
-#f 644 root wheel /Library/Frameworks/VEILSmartCard.framework/Versions/A/Documentation/TSALG.pdf @CMAKE_CURRENT_SOURCE_DIR@/docs/TSALG.pdf
+#f 644 root wheel /Library/Frameworks/VEILSmartCard.framework/Versions/A/Documentation/CyberVEIL.pdf @CMAKE_CURRENT_SOURCE_DIR@/docs/CyberVEIL.pdf
 #
 d 755 root wheel /Library/Frameworks/VEILSmartCard.framework/Versions/A/Resources -
 f 644 root wheel /Library/Frameworks/VEILSmartCard.framework/Versions/A/Resources/CKM_Lock_Icon.icns @CMAKE_CURRENT_SOURCE_DIR@/cmakemodules/CKM_Lock_Icon.icns

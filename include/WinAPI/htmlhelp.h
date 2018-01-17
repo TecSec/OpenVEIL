@@ -216,23 +216,23 @@ typedef struct tagHH_ENUM_IT
 {
     int       cbStruct;          // size of this structure
     int       iType;             // the type of the information type ie. Inclusive, Exclusive, or Hidden
-    LPCSTR    pszCatName;        // Set to the name of the Category to enumerate the info types in a category; else NULL
-    LPCSTR    pszITName;         // volitile pointer to the name of the infotype. Allocated by call. Caller responsible for freeing
-    LPCSTR    pszITDescription;  // volitile pointer to the description of the infotype.
+    const char*    pszCatName;        // Set to the name of the Category to enumerate the info types in a category; else NULL
+    const char*    pszITName;         // volitile pointer to the name of the infotype. Allocated by call. Caller responsible for freeing
+    const char*    pszITDescription;  // volitile pointer to the description of the infotype.
 } HH_ENUM_IT, *PHH_ENUM_IT;
 
 typedef struct tagHH_ENUM_CAT
 {
     int       cbStruct;          // size of this structure
-    LPCSTR    pszCatName;        // volitile pointer to the category name
-    LPCSTR    pszCatDescription; // volitile pointer to the category description
+    const char*    pszCatName;        // volitile pointer to the category name
+    const char*    pszCatDescription; // volitile pointer to the category description
 } HH_ENUM_CAT, *PHH_ENUM_CAT;
 
 typedef struct tagHH_SET_INFOTYPE
 {
     int       cbStruct;          // the size of this structure
-    LPCSTR    pszCatName;        // the name of the category, if any, the InfoType is a member of.
-    LPCSTR    pszInfoTypeName;   // the name of the info type to add to the filter
+    const char*    pszCatName;        // the name of the category, if any, the InfoType is a member of.
+    const char*    pszInfoTypeName;   // the name of the info type to add to the filter
 } HH_SET_INFOTYPE, *PHH_SET_INFOTYPE;
 
 typedef DWORD HH_INFOTYPE;
@@ -313,7 +313,7 @@ typedef struct tagHH_WINTYPE {
     int     curNavType;     // IN/OUT: UI to display in the navigational pane
     int     tabpos;         // IN/OUT: HHWIN_NAVTAB_TOP, HHWIN_NAVTAB_LEFT, or HHWIN_NAVTAB_BOTTOM
     int     idNotify;       // IN: ID to use for WM_NOTIFY messages
-    BYTE    tabOrder[HH_MAX_TABS + 1];    // IN/OUT: tab order: Contents, Index, Search, History, Favorites, Reserved 1-5, Custom tabs
+    uint8_t    tabOrder[HH_MAX_TABS + 1];    // IN/OUT: tab order: Contents, Index, Search, History, Favorites, Reserved 1-5, Custom tabs
     int     cHistory;       // IN/OUT: number of history items to keep (default is 30)
     LPCTSTR pszJump1;       // Text for HHWIN_BUTTON_JUMP1
     LPCTSTR pszJump2;       // Text for HHWIN_BUTTON_JUMP2
@@ -365,7 +365,7 @@ HWND
 WINAPI
 HtmlHelpA(
     HWND hwndCaller,
-    LPCSTR pszFile,
+    const char* pszFile,
     UINT uCommand,
     DWORD_PTR dwData
     );

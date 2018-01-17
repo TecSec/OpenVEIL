@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -109,10 +109,10 @@ public:
 			switch (m_paddingType)
 			{
 			case tscrypto::_SymmetricPaddingType::padding_Pkcs5:
-				data.resize(data.size() + needed, (BYTE)needed);
+				data.resize(data.size() + needed, (uint8_t)needed);
 				break;
 			case tscrypto::_SymmetricPaddingType::padding_GP03:
-				data += (BYTE)0x80;
+				data += (uint8_t)0x80;
 				needed--;
 				if (needed)
 					data.resize(data.size() + needed, 0);
@@ -144,7 +144,7 @@ public:
 			{
 			case tscrypto::_SymmetricPaddingType::padding_Pkcs5:
 				{
-					BYTE padLen = data[lastChar];
+                uint8_t padLen = data[lastChar];
 
 					if (padLen < 1 || padLen > blocksize || padLen > data.size())
 						return false;

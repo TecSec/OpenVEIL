@@ -1,4 +1,4 @@
-#	Copyright (c) 2017, TecSec, Inc.
+#	Copyright (c) 2018, TecSec, Inc.
 #
 #	Redistribution and use in source and binary forms, with or without
 #	modification, are permitted provided that the following conditions are met:
@@ -55,7 +55,7 @@ set(CppSources
 add_library(VEILFileSupport SHARED
     stdafx.h
     stdafx.cpp
-
+	
     ${CppSources}
     VEILFileSupport.rc.in
 	${CMAKE_CURRENT_BINARY_DIR}/VEILFileSupport.rc
@@ -75,16 +75,18 @@ if(ANDROID)
 	TARGET_LINK_LIBRARIES(VEILFileSupport 
 		VEILCore 
 		VEILCmsHeader 
-		z 
-		bz2Static
+		)
+elseif(APPLE)
+	target_link_libraries(VEILFileSupport
+		VEILCore
+		VEILCmsHeader 
+        ${CyberVEIL_TARGET}
 		)
 else()
 	target_link_libraries(VEILFileSupport
 		VEILCore
-		VEILCmsHeader
-		zlib
-		bz2Static
-        TS_SUP_DLL
+		VEILCmsHeader 
+        CyberVEIL
 		)
 endif()
 

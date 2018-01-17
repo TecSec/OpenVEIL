@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -185,7 +185,7 @@ protected:
 		std::shared_ptr<EccKey> ecc;
 		tscrypto::tsCryptoData outputData;
 
-		if (!TSBuildEccKey(tscrypto::tsCryptoData(id_X25519, tscrypto::tsCryptoData::OID), ecc) || !ecc->generateKeyPair(signature))
+		if (!TSBuildEccKey(tscrypto::tsCryptoData(id_CURVE_25519_OID, tscrypto::tsCryptoData::OID), ecc) || !ecc->generateKeyPair(signature))
 		{
 			utils->console() << BoldRed << "ERROR:  " << BoldWhite << "The system could not generate the requested key." << ::endl << ::endl;
 			Usage();

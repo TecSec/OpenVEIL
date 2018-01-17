@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -34,24 +34,24 @@
 class CmsHeaderCryptoGroupImpl : public ICmsHeaderCryptoGroup, public tsmod::IObject
 {
 public:
-	CmsHeaderCryptoGroupImpl(REFIID domGuid);
+	CmsHeaderCryptoGroupImpl(const tscrypto::tsCryptoData& domId);
 	virtual ~CmsHeaderCryptoGroupImpl(void);
 
 	// ICmsHeaderCryptoGroup
-	virtual GUID GetCryptoGroupGuid();
+	virtual tscrypto::tsCryptoData GetCryptoGroupId();
 	virtual int  GetCurrentMaintenanceLevel();
 	virtual bool SetCurrentMaintenanceLevel(int setTo);
 	virtual tscrypto::tsCryptoData GetEphemeralPublic();
 	virtual bool SetEphemeralPublic(const tscrypto::tsCryptoData &key);
 
 private:
-	GUID m_cryptoGroupGuid;
+    tscrypto::tsCryptoData m_cryptoGroupId;
 	int m_CML;
 	tscrypto::tsCryptoData m_ephemeralPublic;
 };
 
-CmsHeaderCryptoGroupImpl::CmsHeaderCryptoGroupImpl(REFIID domGuid) :
-	m_cryptoGroupGuid(domGuid),
+CmsHeaderCryptoGroupImpl::CmsHeaderCryptoGroupImpl(const tscrypto::tsCryptoData& domId) :
+	m_cryptoGroupId(domId),
     m_CML(0)
 {
 }
@@ -62,9 +62,9 @@ CmsHeaderCryptoGroupImpl::~CmsHeaderCryptoGroupImpl(void)
 }
 
 // ICmsHeaderCryptoGroup
-GUID CmsHeaderCryptoGroupImpl::GetCryptoGroupGuid()
+tscrypto::tsCryptoData CmsHeaderCryptoGroupImpl::GetCryptoGroupId()
 {
-	return m_cryptoGroupGuid;
+	return m_cryptoGroupId;
 }
 
 int  CmsHeaderCryptoGroupImpl::GetCurrentMaintenanceLevel()
@@ -90,7 +90,7 @@ bool CmsHeaderCryptoGroupImpl::SetEphemeralPublic(const tscrypto::tsCryptoData &
 }
 
 
-std::shared_ptr<ICmsHeaderCryptoGroup> CreateCryptoGroupHeaderObject(REFIID domGuid)
+std::shared_ptr<ICmsHeaderCryptoGroup> CreateCryptoGroupHeaderObject(const tscrypto::tsCryptoData& domId)
 {
-	return ::TopServiceLocator()->Finish<ICmsHeaderCryptoGroup>(new CmsHeaderCryptoGroupImpl(domGuid));
+	return ::TopServiceLocator()->Finish<ICmsHeaderCryptoGroup>(new CmsHeaderCryptoGroupImpl(domId));
 }

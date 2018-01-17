@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -92,8 +92,8 @@ private:
     std::shared_ptr<IKeyVEILSession>             m_session;
 	std::shared_ptr<IKeyGenCallback>             m_keyGenCallback;
 	std::shared_ptr<IFileVEILSessionCallback>    m_sessionCallback;
-    DWORD                                        m_taskCount;
-    DWORD                                        m_currentTask;
+    uint32_t                                        m_taskCount;
+    uint32_t                                        m_currentTask;
 	tscrypto::tsCryptoString                     m_failureReason;
 
 };

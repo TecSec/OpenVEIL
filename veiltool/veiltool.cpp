@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -89,15 +89,15 @@ int main(int argc, const char* argv[])
 		{
 			if (opts.OptionId() == OPT_NOAESNI)
 			{
-				gCpuSupportsAES = false;
+				//gCpuSupportsAES = false;
 			}
 			else if (opts.OptionId() == OPT_NOSSE)
 			{
-				gCpuSupportsSSE = false;
+				//gCpuSupportsSSE = false;
 			}
 			else if (opts.OptionId() == OPT_NOSSE2)
 			{
-				gCpuSupportsSSE2 = false;
+				//gCpuSupportsSSE2 = false;
 			}
 		}
 	}
@@ -143,8 +143,10 @@ int main(int argc, const char* argv[])
 	});
 	if (!!mgr)
 	{
-		tscrypto::tsCryptoString path, dir, file, ext;
-		xp_GetModuleFileName(XP_MODULE_INVALID, path);
+        char path[MAX_PATH] = { 0, };
+		tscrypto::tsCryptoString dir, file, ext;
+
+		tsGetModuleFileName(nullptr, path, sizeof(path));
 		xp_SplitPath(path, dir, file, ext);
 
 		mgr->LoadModulesOfType((dir + "*.veil").c_str(), nullptr, AddSystemTerminationFunction);

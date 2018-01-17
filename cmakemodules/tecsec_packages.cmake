@@ -1,4 +1,4 @@
-#	Copyright (c) 2017, TecSec, Inc.
+#	Copyright (c) 2018, TecSec, Inc.
 #
 #	Redistribution and use in source and binary forms, with or without
 #	modification, are permitted provided that the following conditions are met:
@@ -52,7 +52,7 @@ find_package(Haru)
 find_package(GMock)
 find_package(GTest)
 # find_package(Boost)
-set(wxWidgets_EXCLUDE_COMMON_LIBRARIES ON)
+#set(wxWidgets_EXCLUDE_COMMON_LIBRARIES ON)
 include(GetWxWidgetsConfig)
 # find_package(wxWidgets COMPONENTS core base adv html )
 

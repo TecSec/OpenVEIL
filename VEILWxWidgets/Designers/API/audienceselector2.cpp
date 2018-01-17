@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -79,7 +79,7 @@ AudienceSelector2::AudienceSelector2( wxWindow* parent, wxWindowID id, const wxP
 wxWizardPage *AudienceSelector2::GetFirstPage() const 
 { 
 	if (_vars == nullptr || (((!_vars->_connector || !_vars->_connector->isConnected()) || _vars->_connector->errorCode() == 401 || _vars->_connector->errorCode() == 440) && !_vars->_hideKeyVEILLogin))
-		return _keyVeilPage; 
+		return _keyVeilPage;
 	return _keyVeilPage->GetNext();
 }
 
@@ -110,7 +110,7 @@ bool AudienceSelector2::Create( wxWindow* parent, wxWindowID id, const wxPoint& 
 	// Enable scrolling adaptation
 	SetLayoutAdaptationMode(wxDIALOG_ADAPTATION_MODE_ENABLED);
 
-    return true;
+	return true;
 }
 
 

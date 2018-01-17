@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -710,13 +710,13 @@ Asn1::CTS::_POD_CryptoGroup* GroupEditorWizardPage::GetCGbyGuid(const GUID& id)
 
     if (GetProfile()->exists_cryptoGroupList())
     {
-	for (size_t i = 0; i < GetProfile()->get_cryptoGroupList()->size(); i++)
-	{
-		if (GetProfile()->get_cryptoGroupList()->get_at(i).get_Id() == id)
+		for (size_t i = 0; i < GetProfile()->get_cryptoGroupList()->size(); i++)
 		{
-			return &GetProfile()->get_cryptoGroupList()->get_at(i);
+			if (GetProfile()->get_cryptoGroupList()->get_at(i).get_Id() == id)
+			{
+				return &GetProfile()->get_cryptoGroupList()->get_at(i);
+			}
 		}
-	}
     }
 	return nullptr;
 }
@@ -828,7 +828,7 @@ tscrypto::tsCryptoString GroupEditorWizardPage::BuildAttrsLine(std::shared_ptr<I
 			id = headerAttr->GetAttributeGUID();
 
             if (_ActiveCryptoGroup != nullptr)
-			attr = _ActiveCryptoGroup->get_AttributeById(id);
+				attr = _ActiveCryptoGroup->get_AttributeById(id);
             else
                 attr = nullptr;
             if (attr != nullptr)

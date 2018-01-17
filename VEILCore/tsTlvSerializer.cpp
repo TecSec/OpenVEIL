@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -319,7 +319,7 @@ static bool matches(const tsCryptoData& inOid, int32_t inVersion, const Asn1Vers
 		else
 			return false;
 	}
-	if (ver.oid != nullptr && TsStrCmp(ver.oid, "*") == 0)
+	if (ver.oid != nullptr && tsStrCmp(ver.oid, "*") == 0)
 		return true;
 	if (inOid.size() != 0)
 	{
@@ -466,7 +466,7 @@ static std::shared_ptr<TlvNode> CreateNodeFromData(std::shared_ptr<TlvDocument> 
 	case Asn1Metadata2::tp_int8:
 		if (metadata->defaultValue != nullptr)
 		{
-			if (*(int8_t*)(((unsigned char*)data) + metadata->offsetToData) == atoi(metadata->defaultValue))
+			if (*(int8_t*)(((unsigned char*)data) + metadata->offsetToData) == tsStrToInt(metadata->defaultValue))
 			{
 				return nullptr;
 			}
@@ -476,7 +476,7 @@ static std::shared_ptr<TlvNode> CreateNodeFromData(std::shared_ptr<TlvDocument> 
 	case Asn1Metadata2::tp_int16:
 		if (metadata->defaultValue != nullptr)
 		{
-			if (*(int16_t*)(((unsigned char*)data) + metadata->offsetToData) == atoi(metadata->defaultValue))
+			if (*(int16_t*)(((unsigned char*)data) + metadata->offsetToData) == tsStrToInt(metadata->defaultValue))
 			{
 				return nullptr;
 			}
@@ -486,7 +486,7 @@ static std::shared_ptr<TlvNode> CreateNodeFromData(std::shared_ptr<TlvDocument> 
 	case Asn1Metadata2::tp_int32:
 		if (metadata->defaultValue != nullptr)
 		{
-			if (*(int32_t*)(((unsigned char*)data) + metadata->offsetToData) == atoi(metadata->defaultValue))
+			if (*(int32_t*)(((unsigned char*)data) + metadata->offsetToData) == tsStrToInt(metadata->defaultValue))
 			{
 				return nullptr;
 			}
@@ -496,7 +496,7 @@ static std::shared_ptr<TlvNode> CreateNodeFromData(std::shared_ptr<TlvDocument> 
 	case Asn1Metadata2::tp_int64:
 		if (metadata->defaultValue != nullptr)
 		{
-			if (*(int64_t*)(((unsigned char*)data) + metadata->offsetToData) == _atoi64(metadata->defaultValue))
+			if (*(int64_t*)(((unsigned char*)data) + metadata->offsetToData) == tsStrToInt64(metadata->defaultValue))
 			{
 				return nullptr;
 			}
@@ -506,7 +506,7 @@ static std::shared_ptr<TlvNode> CreateNodeFromData(std::shared_ptr<TlvDocument> 
 	case Asn1Metadata2::tp_char:
 		if (metadata->defaultValue != nullptr)
 		{
-			if (*(char*)(((unsigned char*)data) + metadata->offsetToData) == (char)atoi(metadata->defaultValue))
+			if (*(char*)(((unsigned char*)data) + metadata->offsetToData) == (char)tsStrToInt(metadata->defaultValue))
 			{
 				return nullptr;
 			}
@@ -518,12 +518,12 @@ static std::shared_ptr<TlvNode> CreateNodeFromData(std::shared_ptr<TlvDocument> 
 	case Asn1Metadata2::tp_bool:
 		if (metadata->defaultValue != nullptr)
 		{
-			if (*(bool*)(((unsigned char*)data) + metadata->offsetToData) == ((atoi(metadata->defaultValue) != 0) ? true : false))
+			if (*(bool*)(((unsigned char*)data) + metadata->offsetToData) == ((tsStrToInt(metadata->defaultValue) != 0) ? true : false))
 			{
 				return nullptr;
 			}
 		}
-		node->InnerData(tsCryptoData((*(bool*)(((unsigned char*)data) + metadata->offsetToData)) ? (BYTE)0xFF : (BYTE)0));
+		node->InnerData(tsCryptoData((*(bool*)(((unsigned char*)data) + metadata->offsetToData)) ? (uint8_t)0xFF : (uint8_t)0));
 		break;
 	case Asn1Metadata2::tp_string:
 		if (metadata->defaultValue != nullptr)
@@ -558,7 +558,7 @@ static std::shared_ptr<TlvNode> CreateNodeFromData(std::shared_ptr<TlvDocument> 
 	}
 	case Asn1Metadata2::tp_guid:
 	{
-		tsCryptoData tmp((BYTE*)(((unsigned char*)data) + metadata->offsetToData), sizeof(GUID));
+		tsCryptoData tmp((uint8_t*)(((unsigned char*)data) + metadata->offsetToData), sizeof(GUID));
 		node->InnerData(tmp);
 		break;
 	}
@@ -901,7 +901,7 @@ static std::shared_ptr<TlvNode> CreateSequenceOfNodeFromData(std::shared_ptr<Tlv
 		{
 			tsCryptoData tmp = ary[i];
 			if (tmp.size() > 0 && tmp[0] & 0x80)
-				tmp.insert(0, (BYTE)0);
+				tmp.insert(0, (uint8_t)0);
 			std::shared_ptr<TlvNode> itemnode = node->OwnerDocument().lock()->CreateTlvNode(item_metadata->tag, (uint8_t)item_metadata->type);
 			itemnode->InnerData(tmp);
 			node->AppendChild(itemnode);
@@ -914,7 +914,7 @@ static std::shared_ptr<TlvNode> CreateSequenceOfNodeFromData(std::shared_ptr<Tlv
 		for (size_t i = 0; i < ary.size(); i++)
 		{
 			GUID item = ary[i];
-			tsCryptoData tmp((BYTE*)&item, sizeof(GUID));
+			tsCryptoData tmp((uint8_t*)&item, sizeof(GUID));
 			std::shared_ptr<TlvNode> itemnode = node->OwnerDocument().lock()->CreateTlvNode(item_metadata->tag, (uint8_t)item_metadata->type);
 			itemnode->InnerData(tmp);
 			node->AppendChild(itemnode);

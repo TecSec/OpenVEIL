@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -62,18 +62,18 @@ END_EVENT_TABLE()
 
 
 /*
-		 * AttributeSelectorGrid constructors
+ * AttributeSelectorGrid constructors
  */
 
 AttributeSelectorGrid::AttributeSelectorGrid()
 {
-	Init();
+    Init();
 }
 
 AttributeSelectorGrid::AttributeSelectorGrid( wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style )
 {
-	Init();
-	Create(parent, id, caption, pos, size, style);
+    Init();
+    Create(parent, id, caption, pos, size, style);
 }
 
 
@@ -87,11 +87,11 @@ bool AttributeSelectorGrid::Create( wxWindow* parent, wxWindowID id, const wxStr
     SetExtraStyle(wxWS_EX_VALIDATE_RECURSIVELY|wxWS_EX_BLOCK_EVENTS);
     wxDialog::Create( parent, id, caption, pos, size, style );
 
-	CreateControls();
-	Centre();
+    CreateControls();
+    Centre();
 ////@end AttributeSelectorGrid creation
 	OnInitDialog();
-	return true;
+    return true;
 }
 
 /*
@@ -117,9 +117,9 @@ void AttributeSelectorGrid::setVariables(attributeSelectorVariables* inVars)
 void AttributeSelectorGrid::Init()
 {
 ////@begin AttributeSelectorGrid member initialisation
-	_scrollGridWindow = NULL;
-	_szGrids = NULL;
-	btnOK = NULL;
+    _scrollGridWindow = NULL;
+    _szGrids = NULL;
+    btnOK = NULL;
 ////@end AttributeSelectorGrid member initialisation
 	_cryptoGroup = nullptr;
 	_vars = nullptr;
@@ -131,45 +131,45 @@ void AttributeSelectorGrid::Init()
  */
 
 void AttributeSelectorGrid::CreateControls()
-{
+{    
 ////@begin AttributeSelectorGrid content construction
-	AttributeSelectorGrid* itemDialog1 = this;
+    AttributeSelectorGrid* itemDialog1 = this;
 
-	wxFlexGridSizer* itemFlexGridSizer2 = new wxFlexGridSizer(0, 1, 0, 0);
-	itemDialog1->SetSizer(itemFlexGridSizer2);
+    wxFlexGridSizer* itemFlexGridSizer2 = new wxFlexGridSizer(0, 1, 0, 0);
+    itemDialog1->SetSizer(itemFlexGridSizer2);
 
     wxStaticText* itemStaticText3 = new wxStaticText( itemDialog1, wxID_STATIC, _("Select the attributes for this access group:"), wxDefaultPosition, wxDefaultSize, 0 );
     itemFlexGridSizer2->Add(itemStaticText3, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
     _scrollGridWindow = new wxScrolledWindow( itemDialog1, ID_ATTR_SCROLLER, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER|wxHSCROLL|wxVSCROLL|wxTAB_TRAVERSAL );
-	_scrollGridWindow->SetExtraStyle(wxWS_EX_VALIDATE_RECURSIVELY);
+    _scrollGridWindow->SetExtraStyle(wxWS_EX_VALIDATE_RECURSIVELY);
     itemFlexGridSizer2->Add(_scrollGridWindow, 0, wxGROW|wxALL, 0);
-	_scrollGridWindow->SetScrollbars(1, 1, 0, 0);
-	_szGrids = new wxFlexGridSizer(0, 1, 0, 0);
-	_scrollGridWindow->SetSizer(_szGrids);
+    _scrollGridWindow->SetScrollbars(1, 1, 0, 0);
+    _szGrids = new wxFlexGridSizer(0, 1, 0, 0);
+    _scrollGridWindow->SetSizer(_szGrids);
 
 
-	_szGrids->AddGrowableCol(0);
+    _szGrids->AddGrowableCol(0);
 
-	_scrollGridWindow->SetMinSize(wxDefaultSize);
+    _scrollGridWindow->SetMinSize(wxDefaultSize);
 
-	wxStdDialogButtonSizer* itemStdDialogButtonSizer8 = new wxStdDialogButtonSizer;
+    wxStdDialogButtonSizer* itemStdDialogButtonSizer8 = new wxStdDialogButtonSizer;
 
     itemFlexGridSizer2->Add(itemStdDialogButtonSizer8, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5);
     btnOK = new wxButton( itemDialog1, wxID_OK, _("&OK"), wxDefaultPosition, wxDefaultSize, 0 );
-	btnOK->SetDefault();
-	itemStdDialogButtonSizer8->AddButton(btnOK);
+    btnOK->SetDefault();
+    itemStdDialogButtonSizer8->AddButton(btnOK);
 
     wxButton* itemButton10 = new wxButton( itemDialog1, wxID_CANCEL, _("&Cancel"), wxDefaultPosition, wxDefaultSize, 0 );
-	itemStdDialogButtonSizer8->AddButton(itemButton10);
+    itemStdDialogButtonSizer8->AddButton(itemButton10);
 
     wxButton* itemButton11 = new wxButton( itemDialog1, wxID_HELP, _("&Help"), wxDefaultPosition, wxDefaultSize, 0 );
     itemStdDialogButtonSizer8->AddButton(itemButton11);
 
-	itemStdDialogButtonSizer8->Realize();
+    itemStdDialogButtonSizer8->Realize();
 
-	itemFlexGridSizer2->AddGrowableRow(1);
-	itemFlexGridSizer2->AddGrowableCol(0);
+    itemFlexGridSizer2->AddGrowableRow(1);
+    itemFlexGridSizer2->AddGrowableCol(0);
 
 ////@end AttributeSelectorGrid content construction
 //	edtGrid->Connect(ID_GRID, wxEVT_CHAR, wxKeyEventHandler(AttributeSelectorGrid::OnGridChar), NULL, this);
@@ -182,7 +182,7 @@ void AttributeSelectorGrid::CreateControls()
 
 bool AttributeSelectorGrid::ShowToolTips()
 {
-	return true;
+    return true;
 }
 
 /*
@@ -221,7 +221,7 @@ void AttributeSelectorGrid::OnCellLeftClick( wxGridEvent& event )
 	wxString name = grid->GetCellValue(row, col);
 	tscrypto::tsCryptoString wName = name.c_str().AsChar();
 
-	event.Skip();
+    event.Skip();
 	if (_vars == nullptr)
 		return;
 	if (wName.size() > 0)
@@ -261,7 +261,7 @@ void AttributeSelectorGrid::OnCellChanged( wxGridEvent& event )
 
 	event.Skip();
 	if (_vars != nullptr)
-						{
+	{
 		if (wName.size() > 0)
 		{
 			if (wName[0] == '-')
@@ -273,8 +273,8 @@ void AttributeSelectorGrid::OnCellChanged( wxGridEvent& event )
 				_vars->_selectedAttributeCount++;
 			}
 			btnOK->Enable(_vars->_selectedAttributeCount > 0);
-						}
-					}
+		}
+	}
 }
 
 void AttributeSelectorGrid::OnGridChar(wxKeyEvent& event)
@@ -283,11 +283,11 @@ void AttributeSelectorGrid::OnGridChar(wxKeyEvent& event)
 	wxWindow* focus = FindFocus();
 
 	while ((grid = dynamic_cast<wxGrid*>(focus)) == nullptr)
-					{
+	{
 		if (focus == nullptr || focus->GetParent() == nullptr)
-						break;
+			break;
 		focus = focus->GetParent();
-					}
+	}
 
 	if (grid == nullptr)
 		return;
@@ -303,7 +303,7 @@ void AttributeSelectorGrid::OnGridChar(wxKeyEvent& event)
 			if (wName.size() > 0)
 			{
 				if (event.GetKeyCode() == '-' || (wName[0] == '+' && event.GetKeyCode() != '+'))
-			{
+				{
 					_vars->_selectedAttributeCount--;
 					wName[0] = '-';
 					grid->SetCellValue(grid->GetGridCursorRow(), grid->GetGridCursorCol(), wName.c_str());
@@ -315,9 +315,9 @@ void AttributeSelectorGrid::OnGridChar(wxKeyEvent& event)
 					grid->SetCellValue(grid->GetGridCursorRow(), grid->GetGridCursorCol(), wName.c_str());
 				}
 				btnOK->Enable(_vars->_selectedAttributeCount > 0);
-				}
 			}
 		}
+	}
 }
 
 void AttributeSelectorGrid::OnOkClick(wxCommandEvent& event)
@@ -350,17 +350,17 @@ void AttributeSelectorGrid::OnOkClick(wxCommandEvent& event)
 				for (int row = 0; row < rowCount; row++)
 				{
 					if (!grid->GetCellValue(row, col).IsEmpty())
-		{
+					{
 						name = grid->GetCellValue(row, col);
 						if (name[0] == '+')
-	{
+						{
 							tscrypto::tsCryptoStringList parts = tscrypto::tsCryptoString(name.c_str().AsChar()).split("~");
 							int id = 0;
 							if (parts->size() > 1)
-								id = TsStrToInt(parts->at(1).c_str());
-							GUID attributeGuid = _GuidMap[id];
+								id = tsStrToInt(parts->at(1).c_str());
+                            tscrypto::tsCryptoData attributeId = _idMap[id];
 
-							int idx = FindAttrIndex(_vars->_attrsList, attributeGuid);
+							int idx = FindAttrIndex(_vars->_attrsList, attributeId);
 
 							if (idx >= 0)
 								_vars->_ckm7group->AddAttributeIndex(idx);
@@ -371,7 +371,7 @@ void AttributeSelectorGrid::OnOkClick(wxCommandEvent& event)
 		}
 		_vars->_cryptoGroupId = CryptoGroup->get_Id();
 	}
-		else
+	else
 	{
 	}
 	EndDialog(wxID_OK);
@@ -395,10 +395,10 @@ void AttributeSelectorGrid::OnInitDialog()
 
 		CryptoGroup = GetCryptoGroupById(_vars->_session, _vars->_cryptoGroupId);
 		if (!CryptoGroup)
-	{
+		{
 			EndDialog(wxID_CANCEL);
 			return;
-	}
+		}
 
 		name = CryptoGroup->get_Name();
 
@@ -408,7 +408,7 @@ void AttributeSelectorGrid::OnInitDialog()
 	btnOK->Enable((_vars->_selectedAttributeCount > 0) ? true : false);
 }
 
-int AttributeSelectorGrid::FindAttrIndex(std::shared_ptr<ICmsHeaderAttributeListExtension> attrList, const GUID &id)
+int AttributeSelectorGrid::FindAttrIndex(std::shared_ptr<ICmsHeaderAttributeListExtension> attrList, const tscrypto::tsCryptoData &id)
 {
 	int count = (int)attrList->GetAttributeCount();
 	std::shared_ptr<ICmsHeaderAttribute> attr;
@@ -416,17 +416,17 @@ int AttributeSelectorGrid::FindAttrIndex(std::shared_ptr<ICmsHeaderAttributeList
 	for (int i = 0; i < count; i++)
 	{
 		attr.reset();
-		if (attrList->GetAttribute(i, attr) && attr->GetAttributeGUID() == id)
+		if (attrList->GetAttribute(i, attr) && attr->GetAttributeId() == id)
 			return i;
 	}
 	count = attrList->AddAttribute();
 	attr.reset();
-	if (attrList->GetAttribute(count, attr) && attr->SetAttributeGuid(id) && attr->SetCryptoGroupNumber(0))
+	if (attrList->GetAttribute(count, attr) && attr->SetAttributeId(id) && attr->SetCryptoGroupNumber(0))
 		return count;
 	return -1;
 }
 
-Asn1::CTS::_POD_CryptoGroup* AttributeSelectorGrid::GetCryptoGroupById(std::shared_ptr<IKeyVEILSession> session, const GUID& id)
+Asn1::CTS::_POD_CryptoGroup* AttributeSelectorGrid::GetCryptoGroupById(std::shared_ptr<IKeyVEILSession> session, const tscrypto::tsCryptoData& id)
 {
 	if (!_profile->exists_cryptoGroupList())
 		return nullptr;
@@ -451,24 +451,24 @@ Asn1::CTS::_POD_CryptoGroup* AttributeSelectorGrid::GetCryptoGroup(std::shared_p
 	return &_profile->get_cryptoGroupList()->get_at(index);
 }
 
-Asn1::CTS::_POD_CryptoGroup* AttributeSelectorGrid::GetCryptoGroup(std::shared_ptr<IKeyVEILSession> session, const GUID& cgId)
+Asn1::CTS::_POD_CryptoGroup* AttributeSelectorGrid::GetCryptoGroup(std::shared_ptr<IKeyVEILSession> session, const tscrypto::tsCryptoData& cgId)
 {
 	return GetCryptoGroupById(session, cgId);
 }
 
 void AttributeSelectorGrid::MarkIncomingAttributes()
 {
-		int count;
-		wxString name;
-		tscrypto::tsCryptoString wName;
-		int rowCount;
-		int colCount;
-		int id = 0;
+	int count;
+	wxString name;
+	tscrypto::tsCryptoString wName;
+	int rowCount;
+	int colCount;
+	int id = 0;
 
 	if (_vars == nullptr || !_vars->_ckm7group || !_vars->_attrsList)
-			return;
+		return;
 
-		// CKM 7
+	// CKM 7
 	count = (int)_vars->_ckm7group->GetAttributeCount();
 
 	for (wxGrid* grid : _grids)
@@ -484,30 +484,30 @@ void AttributeSelectorGrid::MarkIncomingAttributes()
 				if (!name.empty())
 				{
 					tscrypto::tsCryptoStringList parts = tscrypto::tsCryptoString(name.c_str().AsChar()).split("~");
-				if (parts->size() > 1)
-						id = TsStrToInt(parts->at(1).c_str());
+					if (parts->size() > 1)
+						id = tsStrToInt(parts->at(1).c_str());
 					wName = name.c_str().AsChar();
-				if (wName[0] == '-')
-				{
-					GUID attributeGuid = _GuidMap[id];
-					std::shared_ptr<ICmsHeaderAttribute> attr;
-
-					for (int i = 0; i < count; i++)
+					if (wName[0] == '-')
 					{
-						attr.reset();
+                        tscrypto::tsCryptoData attributeGuid = _idMap[id];
+						std::shared_ptr<ICmsHeaderAttribute> attr;
 
-							if (_vars->_attrsList->GetAttribute(_vars->_ckm7group->GetAttributeIndex(i), attr) && attr->GetAttributeGUID() == attributeGuid)
+						for (int i = 0; i < count; i++)
 						{
+							attr.reset();
+
+							if (_vars->_attrsList->GetAttribute(_vars->_ckm7group->GetAttributeIndex(i), attr) && attr->GetAttributeId() == attributeGuid)
+							{
 								_vars->_selectedAttributeCount++;
-							wName[0] = '+';
+								wName[0] = '+';
 								grid->SetCellValue(row, col, wName.c_str());
-							break;
+								break;
+							}
 						}
 					}
 				}
 			}
 		}
-	}
 	}
 }
 
@@ -516,10 +516,10 @@ std::vector<const Asn1::CTS::_POD_Category*> AttributeSelectorGrid::BuildCategor
 	std::vector<const Asn1::CTS::_POD_Category*> tmp;
 
 	for (size_t j = 0; j < fiefdom->get_CategoryList()->size(); j++)
-		{
+	{
 		tmp.push_back(&fiefdom->get_CategoryList()->get_at(j));
-		}
-		return tmp;
+	}
+	return tmp;
 }
 
 wxGrid* AttributeSelectorGrid::AddFiefdomGrid(const tsCryptoString& name)
@@ -555,17 +555,17 @@ wxGrid* AttributeSelectorGrid::AddFiefdomGrid(const tsCryptoString& name)
 
 void AttributeSelectorGrid::FillGrid(Asn1::CTS::_POD_CryptoGroup* cryptoGroup)
 {
-		int count;
-		int i;
+	int count;
+	int i;
 	const Asn1::CTS::_POD_Category* cat;
-		tscrypto::tsCryptoString name;
-		int maxAttrCount = 0;
-		int attributeCount = 0;
-		//ROWCOLOR rowcolor = {0xFF0000, 0x00FFFF};
+	tscrypto::tsCryptoString name;
+	int maxAttrCount = 0;
+	int attributeCount = 0;
+	//ROWCOLOR rowcolor = {0xFF0000, 0x00FFFF};
 
 	_szGrids->Clear();
 	_grids.clear();
-		_GuidMap.clear();
+	_idMap.clear();
 
 	if (cryptoGroup != NULL && cryptoGroup->exists_FiefdomList())
 	{
@@ -616,13 +616,13 @@ void AttributeSelectorGrid::FillGrid(Asn1::CTS::_POD_CryptoGroup* cryptoGroup)
 				if (grid != nullptr)
 				{
 
-			// Then create the columns and rows
+					// Then create the columns and rows
 					count = (int)catList.size();
-			if (count == 0)
-			{
-				EndDialog(wxID_CANCEL);
-				return;
-			}
+					if (count == 0)
+					{
+						EndDialog(wxID_CANCEL);
+						return;
+					}
 					grid->CreateGrid(maxAttrCount, count, wxGrid::wxGridSelectCells);
 					grid->SetSelectionMode(wxGrid::wxGridSelectionModes::wxGridSelectCells);
 					grid->EnableDragCell(false);
@@ -634,83 +634,83 @@ void AttributeSelectorGrid::FillGrid(Asn1::CTS::_POD_CryptoGroup* cryptoGroup)
 #endif // SUPPORT_KEYBOARD_SELECTION
 					//grid->Connect(ID_GRID, wxEVT_CHAR, wxKeyEventHandler(AttributeSelectorGrid::OnGridChar), NULL, this);
 
-			// and finally populate the grid
+					// and finally populate the grid
 
-			for (i = 0; i < count; i++)
-			{
+					for (i = 0; i < count; i++)
+					{
 						cat = catList[i];
-				name = cat->get_Name();
+						name = cat->get_Name();
 
 						grid->SetColLabelValue(i, name.c_str());
-			}
-
-			for (i = 0; i < count; i++)
-			{
-						cat = catList[i];
-				if (cat != nullptr)
-				{
-					std::vector<tscrypto::tsCryptoString> names;
-					//
-					// Now populate the rows for this column
-					//
-					attributeCount = (int)cat->get_AttributeList()->size();
-					for (int j = 0; j < attributeCount; j++)
-					{
-								const Asn1::CTS::_POD_Attribute& attr = cat->get_AttributeList()->get_at(j);
-						name = attr.get_Name();
-						name.prepend("-");
-
-						if (attr.get_hasWrite())
-						{
-							GUID attributeGuid = attr.get_Id();
-							_GuidMap.push_back(attributeGuid);
-
-							name << "~" << (int)(_GuidMap.size() - 1);
-
-							names.push_back(name);
-						}
 					}
 
-					std::sort(names.begin(), names.end());
-
-					int row = 0;
-					for (const tscrypto::tsCryptoString& name : names)
+					for (i = 0; i < count; i++)
 					{
+						cat = catList[i];
+						if (cat != nullptr)
+						{
+							std::vector<tscrypto::tsCryptoString> names;
+							//
+							// Now populate the rows for this column
+							//
+							attributeCount = (int)cat->get_AttributeList()->size();
+							for (int j = 0; j < attributeCount; j++)
+							{
+								const Asn1::CTS::_POD_Attribute& attr = cat->get_AttributeList()->get_at(j);
+								name = attr.get_Name();
+								name.prepend("-");
+
+								if (attr.get_hasWrite())
+								{
+                                    tscrypto::tsCryptoData attributeId = attr.get_Id();
+									_idMap.push_back(attributeId);
+
+									name << "~" << (int)(_idMap.size() - 1);
+
+									names.push_back(name);
+								}
+							}
+
+							std::sort(names.begin(), names.end());
+
+							int row = 0;
+							for (const tscrypto::tsCryptoString& name : names)
+							{
 								grid->SetCellRenderer(row, i, new MyGridCellRenderer());
 #ifdef SUPPORT_KEYBOARD_SELECTION
 								grid->SetCellEditor(row, i, new MyGridCellEditor());
 								grid->SetReadOnly(row, i, true);
 #endif // SUPPORT_KEYBOARD_SELECTION
 								grid->SetCellValue(row++, i, name.c_str());
+							}
+						}
 					}
-				}
-			}
 					grid->AutoSizeColumns();
 					grid->AutoSizeRows();
+				}
+			}
 		}
 	}
-	}
-		}
-		else
+	else
 		count = 0;
 }
 
 
 /*
  * wxEVT_COMMAND_BUTTON_CLICKED event handler for wxID_HELP
-	*/
+ */
 
 void AttributeSelectorGrid::OnHelpClick( wxCommandEvent& event )
 {
 	std::shared_ptr<IVEILHttpHelpRegistry> help = ::TopServiceLocator()->get_instance<IVEILHttpHelpRegistry>("/WxWin/HelpRegistry");
 
 	if (!help)
-			{
+	{
 		wxTsMessageBox(("Help is not available at this time."), ("Status"), wxOK);
-		}
-		else
-		{
+	}
+	else
+	{
 		help->DisplayHelpForWindowId(winid_AttributeSelector, (XP_WINDOW)this);
-		}
+	}
 }
-	
+

@@ -1,5 +1,5 @@
 
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -205,7 +205,7 @@ protected:
 			fflush(stdin);
 			fgets(buff, sizeof(buff), stdin);
 
-			len = (int)strlen(buff);
+			len = (int)TsStrLen(buff);
 			if (len > 0)
 			{
 				if (buff[len - 1] == '\n')
@@ -236,7 +236,7 @@ protected:
 			fflush(stdin);
 			fgets(buff, sizeof(buff), stdin);
 
-			len = (int)strlen(buff);
+			len = (int)TsStrLen(buff);
 			if (len > 0)
 			{
 				if (buff[len - 1] == '\n')

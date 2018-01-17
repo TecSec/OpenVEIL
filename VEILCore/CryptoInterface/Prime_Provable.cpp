@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -37,116 +37,116 @@ using namespace tscrypto;
 class Prime_Provable :
     public ProvablePrime,
     public TSName,
-	public tscrypto::ICryptoObject, 
-	public tscrypto::IInitializableObject, 
-	public AlgorithmInfo
+    public tscrypto::ICryptoObject, 
+    public tscrypto::IInitializableObject, 
+    public AlgorithmInfo
 {
 public:
-	Prime_Provable()
-	{
-		SetName("PRIME-PROVABLE");
-		desc = findProvablePrimeAlgorithm("FIPS186-3-PROVABLE-PRIME");
-	}
-	virtual ~Prime_Provable(void)
-	{
-	}
+    Prime_Provable()
+    {
+        SetName("PRIME-PROVABLE");
+        desc = tsFindProvablePrimeAlgorithm("FIPS186-3-PROVABLE-PRIME");
+    }
+    virtual ~Prime_Provable(void)
+    {
+    }
 
     // ProvablePrime
     virtual bool GeneratePrime(size_t bitLength, const tsCryptoStringBase& hashName, const tsCryptoData &seed, tsCryptoData &prime, size_t &prime_gen_counter, size_t strength, tsCryptoData &primeSeed) override
-	{
-		const HASH_Descriptor* hasher;
+    {
+        const TSHashDescriptor* hasher;
         SmartCryptoWorkspace hashWorkspace;
-		uint32_t primeLen, counter = (uint32_t)prime_gen_counter;
+        uint32_t primeLen, counter = (uint32_t)prime_gen_counter;
 
-		if (!gFipsState.operational() || desc == nullptr)
-			return false;
+        if (!gFipsState.operational() || desc == nullptr)
+            return false;
 
-		hasher = findHashAlgorithm(hashName.c_str());
-		if (hasher == nullptr)
-			return false;
-		hashWorkspace = hasher;
+        hasher = tsFindHashAlgorithm(hashName.c_str());
+        if (hasher == nullptr)
+            return false;
+        hashWorkspace = hasher;
 
-		primeLen = (uint32_t)(bitLength + 7) / 8;
-		prime.resize(primeLen);
-		primeSeed = seed;
-		bool retVal = desc->generatePrime(desc, hasher, hashWorkspace, (uint32_t)bitLength, primeSeed.rawData(), (uint32_t)primeSeed.size(), prime.rawData(), &primeLen, &counter, (uint32_t)strength);
-		prime_gen_counter = counter;
-		prime.resize(primeLen);
-		if (!retVal)
-		{
-			prime.clear();
-			primeSeed.clear();
-		}
-		return retVal;
-	}
+        primeLen = (uint32_t)(bitLength + 7) / 8;
+        prime.resize(primeLen);
+        primeSeed = seed;
+        bool retVal = desc->generatePrime(desc, hasher, hashWorkspace, (uint32_t)bitLength, primeSeed.rawData(), (uint32_t)primeSeed.size(), prime.rawData(), &primeLen, &counter, (uint32_t)strength);
+        prime_gen_counter = counter;
+        prime.resize(primeLen);
+        if (!retVal)
+        {
+            prime.clear();
+            primeSeed.clear();
+        }
+        return retVal;
+    }
     virtual bool ConstructPrimeFromFactors(size_t bitLength, const tsCryptoStringBase& hashName, size_t p1BitLength, size_t p2BitLength, tsCryptoData &firstSeed, const tsCryptoData &exponent, 
-		tsCryptoData &p1, tsCryptoData &p2, tsCryptoData &p, tsCryptoData &pSeed, size_t &counter, size_t strength) override
-	{
-		const HASH_Descriptor* hasher;
+        tsCryptoData &p1, tsCryptoData &p2, tsCryptoData &p, tsCryptoData &pSeed, size_t &counter, size_t strength) override
+    {
+        const TSHashDescriptor* hasher;
         SmartCryptoWorkspace hashWorkspace;
-		uint32_t count = (uint32_t)counter;
-		uint32_t primeLen = (uint32_t)(bitLength + 7) / 8;
-		uint32_t p1Len = (uint32_t)(p1BitLength + 7) / 8;
-		uint32_t p2Len = (uint32_t)(p2BitLength + 7) / 8;
-		
-		if (!gFipsState.operational() || desc == nullptr)
-			return false;
+        uint32_t count = (uint32_t)counter;
+        uint32_t primeLen = (uint32_t)(bitLength + 7) / 8;
+        uint32_t p1Len = (uint32_t)(p1BitLength + 7) / 8;
+        uint32_t p2Len = (uint32_t)(p2BitLength + 7) / 8;
+        
+        if (!gFipsState.operational() || desc == nullptr)
+            return false;
 
-		hasher = findHashAlgorithm(hashName.c_str());
-		if (hasher == nullptr)
-			return false;
-		hashWorkspace = hasher;
+        hasher = tsFindHashAlgorithm(hashName.c_str());
+        if (hasher == nullptr)
+            return false;
+        hashWorkspace = hasher;
 
-		p.resize(primeLen);
-		p1.resize(p1Len);
-		p2.resize(p2Len);
+        p.resize(primeLen);
+        p1.resize(p1Len);
+        p2.resize(p2Len);
 
-		bool retVal = desc->constructPrimeFromFactors(desc, hasher, hashWorkspace, (uint32_t)bitLength, (uint32_t)p1BitLength, (uint32_t)p2BitLength, 
-			firstSeed.rawData(), (uint32_t)firstSeed.size(), exponent.c_str(), (uint32_t)exponent.size(), p1.rawData(), &p1Len, p2.rawData(), &p2Len, p.rawData(), &primeLen, &count, (uint32_t)strength);
-		counter = count;
-		p.resize(primeLen);
-		p1.resize(p1Len);
-		p2.resize(p2Len);
+        bool retVal = desc->constructPrimeFromFactors(desc, hasher, hashWorkspace, (uint32_t)bitLength, (uint32_t)p1BitLength, (uint32_t)p2BitLength, 
+            firstSeed.rawData(), (uint32_t)firstSeed.size(), exponent.c_str(), (uint32_t)exponent.size(), p1.rawData(), &p1Len, p2.rawData(), &p2Len, p.rawData(), &primeLen, &count, (uint32_t)strength);
+        counter = count;
+        p.resize(primeLen);
+        p1.resize(p1Len);
+        p2.resize(p2Len);
 
-		if (!retVal)
-		{
-			p.clear();
-			p1.clear();
-			p2.clear();
-		}
-		return retVal;
-	}
+        if (!retVal)
+        {
+            p.clear();
+            p1.clear();
+            p2.clear();
+        }
+        return retVal;
+    }
 
     // AlgorithmInfo
     virtual tsCryptoString AlgorithmName() const override
-	{
-		return GetName();
-	}
-	virtual tsCryptoString AlgorithmOID() const override
-	{
-		return LookUpAlgOID(GetName());
-	}
-	virtual TS_ALG_ID AlgorithmID() const override
-	{
-		return LookUpAlgID(GetName());
-	}
+    {
+        return GetName();
+    }
+    virtual tsCryptoString AlgorithmOID() const override
+    {
+        return LookUpAlgOID(GetName());
+    }
+    virtual TS_ALG_ID AlgorithmID() const override
+    {
+        return LookUpAlgID(GetName());
+    }
 
-	// tscrypto::IInitializableObject
-	virtual bool InitializeWithFullName(const tscrypto::tsCryptoStringBase& fullName) override
-	{
-		tsCryptoString algorithm(fullName);
+    // tscrypto::IInitializableObject
+    virtual bool InitializeWithFullName(const tscrypto::tsCryptoStringBase& fullName) override
+    {
+        tsCryptoString algorithm(fullName);
 
-		SetName(algorithm);
-		return true;
-	}
+        SetName(algorithm);
+        return true;
+    }
 
 protected:
-	const ProvablePrimeDescriptor* desc;
+    const TSProvablePrimeDescriptor* desc;
 };
 
 tscrypto::ICryptoObject* CreateProvablePrime()
 {
-	return dynamic_cast<tscrypto::ICryptoObject*>(new Prime_Provable());
+    return dynamic_cast<tscrypto::ICryptoObject*>(new Prime_Provable());
 }
 
 

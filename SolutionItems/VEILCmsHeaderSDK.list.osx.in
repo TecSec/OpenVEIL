@@ -18,7 +18,7 @@ f 644 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/Headers/
 f 644 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/Headers/CmsHeader/CmsHeaderInterfaces.h sdk/VEILCmsHeader.framework/Versions/A/Headers/CmsHeader/CmsHeaderInterfaces.h
 #
 d 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/Documentation -
-#f 644 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/Documentation/TSALG.pdf @CMAKE_CURRENT_SOURCE_DIR@/docs/TSALG.pdf
+#f 644 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/Documentation/CyberVEIL.pdf @CMAKE_CURRENT_SOURCE_DIR@/docs/CyberVEIL.pdf
 #
 d 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/Resources -
 f 644 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/Resources/CKM_Lock_Icon.icns @CMAKE_CURRENT_SOURCE_DIR@/cmakemodules/CKM_Lock_Icon.icns

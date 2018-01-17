@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -30,9 +30,6 @@
 // Written by Roger Butler
 
 #include "stdafx.h"
-#include "ConvertUTF.h"
-
-using namespace tscrypto;
 
 #define MemAllocSize 100
 
@@ -89,7 +86,7 @@ CryptoUtf16::CryptoUtf16(const_pointer data) : m_data(nullptr), m_used(0), m_all
 		reserve(0);
 	else
 	{
-		size_type Len = UTF16Length((const UTF16*)data);
+		size_type Len = tsUtf16Len((const TSUtf16*)data);
 		if (Len == 0)
 			reserve(0);
 		else
@@ -102,32 +99,42 @@ CryptoUtf16::CryptoUtf16(const_pointer data) : m_data(nullptr), m_used(0), m_all
 #ifndef _WIN32
 CryptoUtf16::CryptoUtf16(size_type count, wchar_t data) : m_data(nullptr), m_used(0), m_allocated(-1)
 {
-	const UTF32* p = (const UTF32*)&data;
-	UTF16* d;
-	size_type len = count * UTF32toUTF16Length(p, p + 1, false, lenientConversion);
+    TSUtf32* p;
+    size_type len;
+    TSBYTE_BUFF tmp = tsCreateBuffer();
+
+    if (!tsResizeBuffer(tmp, sizeof(wchar_t) * count))
+        return;
+
+	p = (TSUtf32*)tsGetBufferDataPtr(tmp);
+    for (size_type i = 0; i < count; i++)
+    {
+        p[i] = data;
+    }
+	len = tsCountedUtf16LenFromUtf32(p, count, false);
 	resize(len);
-	d = (UTF16*)m_data;
-	ConvertUTF32toUTF16(&p, p + 1, &d, d + m_used, false, lenientConversion);
+	tsCountedUtf32ToUtf16(p, count, (TSUtf16*)m_data, len + 1, false);
+    tsFreeBuffer(&tmp);
 }
 CryptoUtf16::CryptoUtf16(const wchar_t* data) : m_data(nullptr), m_used(0), m_allocated(-1)
 {
-	const UTF32* p = (const UTF32*)data;
+	const TSUtf32* p = (const TSUtf32*)data;
 	size_type dataLen = wcslen(data);
-	UTF16* d;
-	size_type len = UTF32toUTF16Length(p, p + dataLen, false, lenientConversion);
+	TSUtf16* d;
+	size_type len = tsUtf16LenFromUtf32(p, false);
 	resize(len);
-	d = (UTF16*)m_data;
-	ConvertUTF32toUTF16(&p, p + dataLen, &d, d + m_used, false, lenientConversion);
+	d = (TSUtf16*)m_data;
+	tsUtf32ToUtf16(p, d, len + 1, false);
 }
-CryptoUtf16::CryptoUtf16(const wchar_t* data, size_type count) : m_data(nullptr), m_used(0), m_allocated(-1)
-{
-	const UTF32* p = (const UTF32*)data;
-	UTF16* d;
-	size_type len = UTF32toUTF16Length(p, p + count, false, lenientConversion);
-	resize(len);
-	d = (UTF16*)m_data;
-	ConvertUTF32toUTF16(&p, p + count, &d, d + m_used, false, lenientConversion);
-}
+ CryptoUtf16::CryptoUtf16(const wchar_t* data, size_type count) : m_data(nullptr), m_used(0), m_allocated(-1)
+ {
+ 	const TSUtf32* p = (const TSUtf32*)data;
+ 	TSUtf16* d;
+ 	size_type len = tsCountedUtf16LenFromUtf32(p, count, false);
+ 	resize(len);
+ 	d = (TSUtf16*)m_data;
+    tsCountedUtf32ToUtf16(p, count, d, len + 1, false);
+ }
 #endif // _WIN32
 CryptoUtf16::CryptoUtf16(const CryptoUtf16 &obj) : m_data(nullptr), m_used(0), m_allocated(-1)
 {
@@ -235,7 +242,7 @@ CryptoUtf16 &CryptoUtf16::operator=(const_pointer data) /* zero terminated */
 	}
 	else
 	{
-		len = UTF16Length((const UTF16*)data);
+		len = tsUtf16Len((const TSUtf16*)data);
 
 		resize(len);
 		memcpy(m_data, data, len * sizeof(value_type));
@@ -314,7 +321,7 @@ CryptoUtf16& CryptoUtf16::assign(const_pointer newData)
 		resize(0);
 	else
 	{
-		size_type count = UTF16Length((const UTF16*)newData);
+		size_type count = tsUtf16Len((const TSUtf16*)newData);
 		resize(count);
 		memcpy(m_data, newData, count * sizeof(value_type));
 	}
@@ -504,7 +511,7 @@ CryptoUtf16& CryptoUtf16::insert(size_type index, const_pointer s)
 		throw tscrypto::ArgumentNullException("s");
 
 	size_type oldsize = size();
-	size_type count = UTF16Length((const UTF16*)s);
+	size_type count = tsUtf16Len((const TSUtf16*)s);
 
 	resize(size() + count);
 	memmove(&m_data[index + count], &m_data[index], sizeof(value_type) * (oldsize - index));
@@ -659,7 +666,7 @@ CryptoUtf16 &CryptoUtf16::append(const_pointer data)
 {
 	if (data == nullptr)
 		return *this;
-	return append(data, UTF16Length((const UTF16*)data));
+	return append(data, tsUtf16Len((const TSUtf16*)data));
 }
 CryptoUtf16 &CryptoUtf16::append(std::initializer_list<value_type> list)
 {
@@ -712,7 +719,7 @@ int CryptoUtf16::compare(size_type pos1, size_type count1, const CryptoUtf16& st
 }
 int CryptoUtf16::compare(const_pointer s) const
 {
-	size_type len = UTF16Length((const UTF16*)s);
+	size_type len = tsUtf16Len((const TSUtf16*)s);
 	size_type count = MIN(size(), len);
 	int diff = 0;
 
@@ -894,7 +901,7 @@ CryptoUtf16::size_type CryptoUtf16::find(const_pointer s, size_type pos) const
 	if (s == nullptr)
 		throw tscrypto::ArgumentNullException("s");
 
-	return find(s, pos, UTF16Length((const UTF16*)s));
+	return find(s, pos, tsUtf16Len((const TSUtf16*)s));
 }
 CryptoUtf16::size_type CryptoUtf16::find(value_type ch, size_type pos) const
 {
@@ -959,7 +966,7 @@ CryptoUtf16::size_type CryptoUtf16::rfind(const_pointer s, size_type pos) const
 	if (s == nullptr)
 		throw tscrypto::ArgumentNullException("s");
 
-	return rfind(s, pos, UTF16Length((const UTF16*)s));
+	return rfind(s, pos, tsUtf16Len((const TSUtf16*)s));
 }
 CryptoUtf16::size_type CryptoUtf16::rfind(value_type ch, size_type pos) const
 {
@@ -1014,7 +1021,7 @@ CryptoUtf16::size_type CryptoUtf16::find_first_of(const_pointer s, size_type pos
 {
 	if (s == nullptr)
 		return npos;
-	return find_first_of(s, pos, UTF16Length((const UTF16*)s));
+	return find_first_of(s, pos, tsUtf16Len((const TSUtf16*)s));
 }
 CryptoUtf16::size_type CryptoUtf16::find_first_of(value_type ch, size_type pos) const
 {
@@ -1046,7 +1053,7 @@ CryptoUtf16::size_type CryptoUtf16::find_first_not_of(const_pointer s, size_type
 {
 	if (s == nullptr)
 		return npos;
-	return find_first_not_of(s, pos, UTF16Length((const UTF16*)s));
+	return find_first_not_of(s, pos, tsUtf16Len((const TSUtf16*)s));
 }
 CryptoUtf16::size_type CryptoUtf16::find_first_not_of(value_type ch, size_type pos) const
 {
@@ -1090,7 +1097,7 @@ CryptoUtf16::size_type CryptoUtf16::find_last_of(const_pointer s, size_type pos)
 {
 	if (s == nullptr)
 		return npos;
-	return find_last_of(s, pos, UTF16Length((const UTF16*)s));
+	return find_last_of(s, pos, tsUtf16Len((const TSUtf16*)s));
 }
 CryptoUtf16::size_type CryptoUtf16::find_last_of(value_type ch, size_type pos) const
 {
@@ -1122,7 +1129,7 @@ CryptoUtf16::size_type CryptoUtf16::find_last_not_of(const_pointer s, size_type 
 {
 	if (s == nullptr)
 		return npos;
-	return find_last_not_of(s, pos, UTF16Length((const UTF16*)s));
+	return find_last_not_of(s, pos, tsUtf16Len((const TSUtf16*)s));
 }
 CryptoUtf16::size_type CryptoUtf16::find_last_not_of(value_type ch, size_type pos) const
 {
@@ -1145,10 +1152,10 @@ tsCryptoString CryptoUtf16::toUtf8() const
 {
 	tsCryptoString tmp;
 
-	tmp.resize(UTF16toUTF8Length((const UTF16*)m_data, (const UTF16*)(m_data + m_used), false, lenientConversion));
-	const UTF16* srcStart = (const UTF16*)m_data;
-	UTF8 *destStart = (UTF8*)tmp.data();
-	if (ConvertUTF16toUTF8(&srcStart, (const UTF16*)(m_data + m_used), &destStart, (UTF8*)(tmp.data() + m_used), false, lenientConversion) != conversionOK)
+	tmp.resize(tsUtf8LenFromUtf16((const TSUtf16*)m_data, false));
+	const TSUtf16* srcStart = (const TSUtf16*)m_data;
+    TSUtf8 *destStart = (TSUtf8*)tmp.data();
+	if (tsUtf16ToUtf8(srcStart, destStart, (uint32_t)m_used, false) != 0)
 		tmp.resize(0);
 	return tmp;
 }
@@ -1287,10 +1294,15 @@ CryptoUtf16& CryptoUtf16::append(const char* s, size_type count)
 	}
 	size_type oldSize = size();
 
-	resize(oldSize + UTF8toUTF16Length((UTF8*)s, (UTF8*)(s + count), lenientConversion));
-	const UTF8* srcStart = (UTF8*)s;
-	UTF16 *destStart = (UTF16*)m_data + oldSize;
-	if (ConvertUTF8toUTF16(&srcStart, (UTF8*)(s + count), &destStart, (UTF16*)(m_data + m_used), lenientConversion) != conversionOK)
+    if (!isValidUtf8(s, (uint32_t)count))
+    {
+        clear();
+        return *this;
+    }
+	resize(oldSize + tsUtf16LenFromUtf8((TSUtf8*)s, false));
+	const TSUtf8* srcStart = (TSUtf8*)s;
+    TSUtf16 *destStart = (TSUtf16*)m_data + oldSize;
+	if (tsCountedUtf8ToUtf16(srcStart, (uint32_t)count, destStart, (uint32_t)m_used + 1, false) != 0)
 		resize(0);
 	return *this;
 }
@@ -1302,11 +1314,16 @@ CryptoUtf16& CryptoUtf16::append(const char* s)
 	}
 	size_type oldSize = size();
 
-	size_type Len = TsStrLen(s);
-	resize(oldSize + UTF8toUTF16Length((UTF8*)s, (UTF8*)(s + Len), lenientConversion));
-	const UTF8* srcStart = (UTF8*)s;
-	UTF16 *destStart = (UTF16*)m_data + oldSize;
-	if (ConvertUTF8toUTF16(&srcStart, (UTF8*)(s + Len), &destStart, (UTF16*)(m_data + m_used), lenientConversion) != conversionOK)
+	size_type Len = tsStrLen(s);
+    if (!isValidUtf8(s, (uint32_t)Len))
+    {
+        clear();
+        return *this;
+    }
+    resize(oldSize + tsUtf16LenFromUtf8((TSUtf8*)s, false));
+	const TSUtf8* srcStart = (TSUtf8*)s;
+    TSUtf16 *destStart = (TSUtf16*)m_data + oldSize;
+	if (tsUtf8ToUtf16(srcStart, destStart, (uint32_t)m_used + 1, false) != 0)
 		resize(0);
 	return *this;
 }
@@ -1499,6 +1516,14 @@ void CryptoUtf16::copyFrom(const CryptoUtf16 &obj)
 		return;
 	resize(obj.size());
 	memcpy(m_data, obj.m_data, m_used * sizeof(value_type));
+}
+bool CryptoUtf16::isValidUtf8(const char* s)
+{
+    return tsIsLegalUTF8((const TSUtf8*)s);
+}
+bool CryptoUtf16::isValidUtf8(const char* s, uint32_t count)
+{
+    return tsIsLegalUTF8Len((const TSUtf8*)s, count);
 }
 
 void tscrypto::swap(CryptoUtf16 &lhs, CryptoUtf16 &rhs)

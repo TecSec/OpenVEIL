@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -71,13 +71,13 @@ void EnumStreams(char *strFilePath)
 	while (1)
 	{
 		//check if we have reached the end of file
-		if (FALSE == BackupRead(hFile, (LPBYTE)&streamHeader, (LPBYTE)&streamHeader.cStreamName - (LPBYTE)&streamHeader, &dwReadBytes, FALSE, FALSE, &streamContext))
+		if (FALSE == BackupRead(hFile, (uint8_t*)&streamHeader, (uint8_t*)&streamHeader.cStreamName - (uint8_t*)&streamHeader, &dwReadBytes, FALSE, FALSE, &streamContext))
 		{
 			break;
 		}
 
 		//check if we have read the stream header properly
-		if ((long)dwReadBytes != (LPBYTE)&streamHeader.cStreamName - (LPBYTE)&streamHeader)
+		if ((long)dwReadBytes != (uint8_t*)&streamHeader.cStreamName - (uint8_t*)&streamHeader)
 			break;
 
 		//we are interested only in alternate data streams
@@ -85,7 +85,7 @@ void EnumStreams(char *strFilePath)
 		{
 			if (streamHeader.dwStreamNameSize != 0)
 			{
-				if (BackupRead(hFile, (LPBYTE)strStreamName, streamHeader.dwStreamNameSize, &dwReadBytes, FALSE, FALSE, &streamContext))
+				if (BackupRead(hFile, (uint8_t*)strStreamName, streamHeader.dwStreamNameSize, &dwReadBytes, FALSE, FALSE, &streamContext))
 				{
 					strStreamName[streamHeader.dwStreamNameSize / 2] = L'\0';
 					//
@@ -115,7 +115,7 @@ void EnumStreams(char *strFilePath)
 			streamHeader.Size.QuadPart -= dwReadBytes;
 			streamHeader.Size.HighPart -= seek_high;
 
-			BYTE buffer[4096];
+            uint8_t buffer[4096];
 
 			while (streamHeader.Size.QuadPart > 0)
 			{
@@ -185,10 +185,10 @@ bool GetStreamNames (const tscrypto::tsCryptoString& filename, tscrypto::tsCrypt
     }
 
     // Read the first 20 bytes of the stream (all but the last field)
-    while ( (bContinue = ::BackupRead ( hFile, ( LPBYTE ) &Sid, (DWORD)((LPBYTE)&Sid.cStreamName - (LPBYTE)&Sid), &dwRead, FALSE, FALSE, &lpContext )) != FALSE )
+    while ( (bContinue = ::BackupRead ( hFile, ( uint8_t* ) &Sid, (uint32_t)((uint8_t*)&Sid.cStreamName - (uint8_t*)&Sid), &dwRead, FALSE, FALSE, &lpContext )) != FALSE )
     {
         // If we are done or there was no data read, break out
-        if ( !bContinue || 0 == dwRead || (long)dwRead != (LPBYTE)&Sid.cStreamName - (LPBYTE)&Sid)
+        if ( !bContinue || 0 == dwRead || (long)dwRead != (uint8_t*)&Sid.cStreamName - (uint8_t*)&Sid)
 			break;
 
         // If this stream is named Alternate Data, get it's name.
@@ -197,7 +197,7 @@ bool GetStreamNames (const tscrypto::tsCryptoString& filename, tscrypto::tsCrypt
 			buffer.clear();
 			buffer.resize(Sid.dwStreamNameSize / 2);
 
-			::BackupRead ( hFile, ( byte* )buffer.data(), Sid.dwStreamNameSize, &dwRead, FALSE, FALSE, &lpContext );
+			::BackupRead ( hFile, ( uint8_t* )buffer.data(), Sid.dwStreamNameSize, &dwRead, FALSE, FALSE, &lpContext );
 
 			if ( wcslen(buffer.data()) >= 6 && wcscmp(buffer.data() + (wcslen(buffer.data()) - 6), L":$DATA") == 0 )
                 buffer.erase(buffer.size() - 6, 6);
@@ -216,7 +216,7 @@ bool GetStreamNames (const tscrypto::tsCryptoString& filename, tscrypto::tsCrypt
     }
 
     // free memory allocated by BackupRead and close the file
-    ::BackupRead ( hFile, ( BYTE* ) &Sid, 0, &dwRead, TRUE, FALSE, &lpContext );
+    ::BackupRead ( hFile, ( uint8_t* ) &Sid, 0, &dwRead, TRUE, FALSE, &lpContext );
     CloseHandle ( hFile );
     return true;
 #else

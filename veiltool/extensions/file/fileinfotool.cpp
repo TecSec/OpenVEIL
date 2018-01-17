@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -92,6 +92,7 @@ public:
 		int count;
 		int index;
 		tscrypto::tsCryptoString name;
+        char filename[MAX_PATH] = { 0, };
 
 		if (!InitializeCmsHeader())
 		{
@@ -137,25 +138,24 @@ public:
 
 		for (int i = 0; i < opts.FileCount(); i++)
 		{
-			XP_FileListHandle files = xp_GetFileListHandle(opts.File(i));
-			DWORD fileCount = (DWORD)xp_GetFileCount(files);
+			TSFileListHandle files = tsGetFileListHandle(opts.File(i));
+			uint32_t fileCount = (uint32_t)tsGetFileCount(files);
 
-			for (DWORD f = 0; f < fileCount; f++)
+			for (uint32_t f = 0; f < fileCount; f++)
 			{
-				tscrypto::tsCryptoString filename;
 
-				if (xp_GetFileName(files, f, filename))
+				if (tsGetFileName(files, f, filename, sizeof(filename)))
 				{
 					filelist.reset();
 
-					if (!(ops->GetStreamNames(filename.c_str(), filelist)))
+					if (!(ops->GetStreamNames(filename, filelist)))
 					{
 						//        printf("Unable to retrieve the list of file streams for file '%s'\n", fileToEncrypt.c_str());
 						//        return 1;
 					}
 
 					printf("-------------------------------------------------------------------------------\n");
-					DumpInfo(filename.c_str());
+					DumpInfo(filename);
 					if (!filelist)
 					{
 						count = 0;
@@ -176,6 +176,7 @@ public:
 					}
 				}
 			}
+            tsCloseFileList(files);
 		}
 
 		return retVal;
@@ -193,41 +194,30 @@ protected:
 	{
 		int64_t fileLength;
 		//	int len;
-		FILE* infile;
+		TSFILE infile;
 		std::shared_ptr<ICmsHeader> header7;
 		bool isCkm7 = true;
 		tscrypto::tsCryptoData fileContents;
 
-		if (fopen_s(&infile, filename, ("rb")) != 0 || infile == NULL)
+		if (tsFOpen(&infile, filename, "rb", tsShare_DenyNO) != 0 || infile == NULL)
 		{
 			cout << "Unable to open the input file '" << filename << "'." << std::endl;
 			return 1;
 		}
-#ifdef HAVE__FTELLI64
-		_fseeki64(infile, 0, SEEK_END);
-		fileLength = _ftelli64(infile);
-		_fseeki64(infile, 0, SEEK_SET);
-#elif defined(HAVE_FTELL)
-		fseek(infile, 0, SEEK_END);
-		fileLength = ftell(infile);
-		fseek(infile, 0, SEEK_SET);
-#else
-#error Need an implementation of ftell
-#endif // HAVE__FTELLI64
-
+        fileLength = tsGetFileSize64FromHandle(infile);
 
 		if (fileLength > 20480)
 			fileContents.resize(20480);
 		else
 			fileContents.resize((int)fileLength);
 
-		if (fread(fileContents.rawData(), 1, fileContents.size(), infile) != (DWORD)fileContents.size())
+		if (tsReadFile(fileContents.rawData(), 1, (uint32_t)fileContents.size(), infile) != (uint32_t)fileContents.size())
 		{
-			fclose(infile);
+			tsCloseFile(infile);
 			printf("Unable to read from the input file '%s'.\n", filename);
 			return 1;
 		}
-		fclose(infile);
+        tsCloseFile(infile);
 
 		if (!(header7 = ::TopServiceLocator()->try_get_instance<ICmsHeader>("/CmsHeader")))
 		{
@@ -273,31 +263,11 @@ protected:
 			output = "This file is not a CKM 7 encrypted file.\n";
 		}
 
-#ifdef HAVE_SPRINTF_S
-		sprintf_s(buff, sizeof(buff), "File length:           %lld\n", fileLength);
+        tsSnPrintf(buff, sizeof(buff), "File length:           %lld\n", fileLength);
 		output.prepend(buff);
 
-		sprintf_s(buff, sizeof(buff), "File name:             %s\n", filename);
+        tsSnPrintf(buff, sizeof(buff), "File name:             %s\n", filename);
 		output.prepend(buff);
-#elif defined(HAVE__SNPRINTF)
-		_snprintf(buff, sizeof(buff), "File length:           %lld\n", fileLength);
-		output.prepend(buff);
-
-		_snprintf(buff, sizeof(buff), "File name:             %s\n", filename);
-		output.prepend(buff);
-#elif defined(HAVE_SNPRINTF)
-		snprintf(buff, sizeof(buff), "File length:           %lld\n", fileLength);
-		output.prepend(buff);
-
-		snprintf(buff, sizeof(buff), "File name:             %s\n", filename);
-		output.prepend(buff);
-#elif defined(HAVE_SPRINTF)
-		sprintf(buff, "File length:           %lld\n", fileLength);
-		output.prepend(buff);
-
-		sprintf(buff, "File name:             %s\n", filename);
-		output.prepend(buff);
-#endif // defined
 
 		printf("%s\n", output.c_str());
 		return 0;

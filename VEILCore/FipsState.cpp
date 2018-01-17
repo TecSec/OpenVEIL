@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -32,9 +32,9 @@
 
 #include "stdafx.h"
 #ifdef __APPLE__
-	#include "TSALG/TSALG.h"
+	#include "CyberVEIL/CyberVEIL.h"
 #else
-	#include "TSALG.h"
+	#include "CyberVEIL.h"
 #endif
 
 using namespace tscrypto;
@@ -51,20 +51,20 @@ FipsState::~FipsState(void)
 
 void FipsState::testFailed()
 {
-	::testFailed();
+	::tsCryptoTestFailed();
     isOperational = false;
     wasTested = true;
 }
 
 bool FipsState::operational() const
 {
-    return isOperational && cryptoOK();
+    return isOperational && tsCryptoOK();
 }
 
 bool FipsState::selfTest()
 {
 	std::vector<std::shared_ptr<tscrypto::Selftest> > tests = ::CryptoLocator()->get_group<tscrypto::Selftest>("CryptoTest/", false);
-	runSelfTests(false);
+	tsRunSelfTests(false);
 	for (auto test : tests)
 	{
 		if (gFipsState.operational())
@@ -79,7 +79,7 @@ bool FipsState::selfTest()
 bool FipsState::detailedSelfTest()
 {
 	std::vector<std::shared_ptr<tscrypto::Selftest> > tests = ::CryptoLocator()->get_group<tscrypto::Selftest>("CryptoTest/", false);
-	runSelfTests(true);
+	tsRunSelfTests(true);
 	for (auto test : tests)
 	{
 		if (gFipsState.operational())

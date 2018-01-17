@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -50,7 +50,7 @@ public:
 	// Selftests
 	virtual bool runTests(bool runDetailedTests) override
 	{
-		MY_UNREFERENCED_PARAMETER(runDetailedTests);
+		UNREFERENCED_PARAMETER(runDetailedTests);
 		if (!gFipsState.operational())
 			return false;
 
@@ -77,7 +77,7 @@ public:
 	virtual bool computeResponderValues(const tsCryptoData& responderParameters, const tsCryptoData& storedKey, authenticationResponderKeyHandler* keyAccess, 
 		tsCryptoData& responderMITMProof, tsCryptoData& sessionKey) override
 	{
-		const CkmAuth_Descriptor *resp = (const CkmAuth_Descriptor *)findCkmAlgorithm("CKMAUTH");
+		const TSCkmAuthDescriptor *resp = (const TSCkmAuthDescriptor *)tsFindCkmAlgorithm("CKMAUTH");
 		SmartCryptoWorkspace workspace;
 		uint32_t mitmLen;
 		uint32_t sessionKeyLen;
@@ -118,8 +118,8 @@ public:
 	virtual bool computeInitiatorValues(const tsCryptoData& initiatorParameters, const tsCryptoData& authenticationInformation, tsCryptoData& responderParameters, 
 		tsCryptoData& responderMITMProof, tsCryptoData& sessionKey) override
 	{
-		const CkmAuth_Descriptor *init = (const CkmAuth_Descriptor *)findCkmAlgorithm("CKMAUTH");
-		const EccDescriptor* pkDesc = nullptr;
+		const TSCkmAuthDescriptor *init = (const TSCkmAuthDescriptor *)tsFindCkmAlgorithm("CKMAUTH");
+		const TSEccDescriptor* pkDesc = nullptr;
 		SmartCryptoWorkspace workspace;
 		SmartCryptoKey respKeyPair;
 		uint32_t responderParamLen;
@@ -181,8 +181,8 @@ public:
 	virtual bool testInitiatorValues(const tsCryptoData& initiatorParameters, const tsCryptoData& authenticationInformation, const tsCryptoData& KGK, const tsCryptoData& ephPriv, 
 		const tsCryptoData& ephPub, const tsCryptoData& responderParameters, const tsCryptoData& responderMITMProof, const tsCryptoData& sessionKey) override
 	{
-		const CkmAuth_Descriptor *init = (const CkmAuth_Descriptor *)findCkmAlgorithm("CKMAUTH");
-		const EccDescriptor* pkDesc = nullptr;
+		const TSCkmAuthDescriptor *init = (const TSCkmAuthDescriptor *)tsFindCkmAlgorithm("CKMAUTH");
+		const TSEccDescriptor* pkDesc = nullptr;
 		SmartCryptoWorkspace workspace;
 		SmartCryptoKey respKeyPair;
 		SmartCryptoKey ephKeyPair;
@@ -248,7 +248,7 @@ public:
 		hashName = parts->at(1);
 		macName = parts->at(2);
 		keyTransportName = parts->at(3);
-		_usesMITM = TsStriCmp(parts->at(4).c_str(), "NO-MITM") != 0;
+		_usesMITM = tsStriCmp(parts->at(4).c_str(), "NO-MITM") != 0;
 		return true;
 	}
 private:
@@ -271,7 +271,7 @@ private:
 			tmp.append("AES");
 		return tmp;
 	}
-	static ts_bool getKey(void* keyParams, const uint8_t* keyId, uint32_t keyIdLen, const EccDescriptor** keyDesc, CRYPTO_ASYMKEY* keyPair)
+	static ts_bool getKey(void* keyParams, const uint8_t* keyId, uint32_t keyIdLen, const TSEccDescriptor** keyDesc, TSCRYPTO_ASYMKEY* keyPair)
 	{
 		authenticationResponderKeyHandler* keyAccess = (authenticationResponderKeyHandler*)keyParams;
 		tsCryptoString keyType;
@@ -282,7 +282,7 @@ private:
 
 		keyType = keyAccess->getKeyType(id);
 
-		*keyDesc = findEccAlgorithm(keyType.c_str());
+		*keyDesc = tsFindEccAlgorithm(keyType.c_str());
 		if (*keyDesc == nullptr)
 			return ts_false;
 
@@ -328,9 +328,9 @@ private:
 		memcpy(secret, data.c_str(), data.size());
 		return ts_true;
 	}
-	const EccDescriptor* findResponderDescriptor(const _POD_CkmAuthInitiatorParameters& params)
+	const TSEccDescriptor* findResponderDescriptor(const _POD_CkmAuthInitiatorParameters& params)
 	{
-		const EccDescriptor* desc = nullptr;
+		const TSEccDescriptor* desc = nullptr;
 		tsCryptoString tmp;
 
 		if (params.exists_responderPublicKeyOID())
@@ -380,7 +380,7 @@ private:
 		else if (tmp == "KEY=SECP25K1")
 			tmp = "KEY-P256K1";
 		tmp.Replace("KEY-", "ECC-");
-		return findEccAlgorithm(tmp.c_str());
+		return tsFindEccAlgorithm(tmp.c_str());
 	}
 };
 

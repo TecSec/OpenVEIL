@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -305,7 +305,7 @@ void VEILFilePropertyPage::OnDeleteOnDecryptionClick( wxCommandEvent& event )
 
 void VEILFilePropertyPage::OnPassesTextUpdated( wxCommandEvent& event )
 {
-    if (TsStrToInt(edtPasses->GetValue().c_str().AsChar()) != m_nSecureDelete)
+    if (tsStrToInt(edtPasses->GetValue().c_str().AsChar()) != m_nSecureDelete)
     {
         SetModified();
     }
@@ -335,7 +335,7 @@ void VEILFilePropertyPage::UpdateData(bool fromControls)
 		m_bDelAftEnc = chkDeleteAfterEncryption->GetValue();
 		m_bDelAftDec = chkDeleteAfterDecryption->GetValue();
 		m_bCloseAft = chkCloseWhenDone->GetValue();
-		m_nSecureDelete = TsStrToInt(edtPasses->GetValue().c_str().AsChar());
+		m_nSecureDelete = tsStrToInt(edtPasses->GetValue().c_str().AsChar());
 		m_CompType = cmbCompression->GetSelection();
 	}
 	else

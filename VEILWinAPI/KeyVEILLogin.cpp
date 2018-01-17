@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -127,13 +127,14 @@ protected:
 	void OnInitDialog(HWND hDlg)
 	{
 		tscrypto::tsCryptoString buff;
-		tscrypto::tsCryptoString path;
+        char path[MAX_PATH] = { 0, };
 		JSONObject settings;
 
 		// Get the application default values for the URL and Username
-		xp_GetSpecialFolder(sft_UserConfigFolder, path);
+		tsGetSpecialFolder(tsSft_UserConfigFolder, path, sizeof(path));
 
-		std::shared_ptr<IDataReader> reader = std::dynamic_pointer_cast<IDataReader>(CreateFileReader(path + "default.ovc"));
+        tsStrCat(path, sizeof(path), "default.ovc");
+		std::shared_ptr<IDataReader> reader = std::dynamic_pointer_cast<IDataReader>(CreateFileReader(path));
 
 		if (reader->DataLength() > 0)
 		{
@@ -189,7 +190,7 @@ protected:
 			buff.clear();
 			buff.resize(512);
 			GetUserObjectInformation(station, UOI_NAME, buff.rawData(), (DWORD)buff.size(), &count);
-			if (TsStrStr(buff.c_str(), ("WinSta0")) == NULL)
+			if (tsStrStr(buff.c_str(), ("WinSta0")) == NULL)
 			{
 				EndDialog(hDlg, IDCANCEL);
 			}
@@ -203,7 +204,7 @@ protected:
 		if (!!about)
 			about->DisplayModal((XP_WINDOW)hDlg);
 	}
-	INT_PTR OnOK(HWND hDlg)
+    intptr_t OnOK(HWND hDlg)
 	{
 		{
 			char buff[512];
@@ -219,20 +220,16 @@ protected:
 		_pinBuffer.clear();
 		_pinBuffer.resize(100);
 		GetDlgItemTextA(hDlg, IDC_PASSWORD, _pinBuffer.rawData(), (int)_pinBuffer.size());
-		if ((int)TsStrLen(_pinBuffer.c_str()) < KEYVEIL_MIN_PIN_LEN)
+		if ((int)tsStrLen(_pinBuffer.c_str()) < KEYVEIL_MIN_PIN_LEN)
 		{
 			char buff[MAX_PATH + 1];
 
-#ifdef HAVE_SPRINTF_S
-			sprintf_s(buff, sizeof(buff), "The minimum password length is %d.", KEYVEIL_MIN_PIN_LEN);
-#else
-			sprintf(buff, "The minimum password length is %d.", KEYVEIL_MIN_PIN_LEN);
-#endif
+            tsSnPrintf(buff, sizeof(buff), "The minimum password length is %d.", KEYVEIL_MIN_PIN_LEN);
 			MessageBoxA(hDlg, buff, "Error", MB_OK);
 		}
 		else
 		{
-			_pinBuffer.resize(TsStrLen(_pinBuffer.c_str()));
+			_pinBuffer.resize(tsStrLen(_pinBuffer.c_str()));
 			switch (_connector->connect(_url, _username, _pinBuffer))
 			{
 			case ConnectionStatus::connStatus_BadAuth:
@@ -245,7 +242,7 @@ protected:
 			{
 				char buff[MAX_PATH + 1];
 
-				TsStrCpy(buff, sizeof(buff), "The communications to the server was lost.");
+				tsStrCpy(buff, sizeof(buff), "The communications to the server was lost.");
 				MessageBoxA(hDlg, buff, "Error", MB_OK);
 				SetDlgItemTextA(hDlg, IDC_STATUS, buff);
 			}
@@ -254,7 +251,7 @@ protected:
 			{
 				char buff[MAX_PATH + 1];
 
-				TsStrCpy(buff, sizeof(buff), "The specified URL is invalid.");
+				tsStrCpy(buff, sizeof(buff), "The specified URL is invalid.");
 				MessageBoxA(hDlg, buff, "Error", MB_OK);
 				SetDlgItemTextA(hDlg, IDC_STATUS, buff);
 			}
@@ -263,17 +260,17 @@ protected:
 			{
 				char buff[MAX_PATH + 1];
 
-				TsStrCpy(buff, sizeof(buff), "The protocol specifier on the URL was not recognized.");
+				tsStrCpy(buff, sizeof(buff), "The protocol specifier on the URL was not recognized.");
 				MessageBoxA(hDlg, buff, "Error", MB_OK);
 				SetDlgItemTextA(hDlg, IDC_STATUS, buff);
 			}
 			break;
 			}
 		}
-		return (INT_PTR)TRUE;
+		return (intptr_t)TRUE;
 	}
 
-	static INT_PTR CALLBACK	LoginProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+	static intptr_t CALLBACK	LoginProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		KeyVEILLogIn *params = (KeyVEILLogIn*)GetWindowLongPtr(hWnd, DWLP_USER);
 
@@ -288,7 +285,7 @@ protected:
 
 			params->OnInitDialog(hWnd);
 
-			return (INT_PTR)FALSE;
+			return (intptr_t)FALSE;
 		}
 		case WM_COMMAND:
 			if (LOWORD(wParam) == IDC_ABOUT)
@@ -302,11 +299,11 @@ protected:
 			if (LOWORD(wParam) == IDCANCEL)
 			{
 				EndDialog(hWnd, LOWORD(wParam));
-				return (INT_PTR)TRUE;
+				return (intptr_t)TRUE;
 			}
 			break;
 		}
-		return (INT_PTR)FALSE;
+		return (intptr_t)FALSE;
 	}
 };
 

@@ -1,4 +1,4 @@
-#	Copyright (c) 2017, TecSec, Inc.
+#	Copyright (c) 2018, TecSec, Inc.
 #
 #	Redistribution and use in source and binary forms, with or without
 #	modification, are permitted provided that the following conditions are met:
@@ -78,7 +78,11 @@ Source_Group(Commands FILES
 	)
 	
 set_target_properties(veiltool PROPERTIES FOLDER "Tools")
-TARGET_LINK_LIBRARIES(veiltool VEILCore TS_SUP_DLL)
+if(APPLE)
+	TARGET_LINK_LIBRARIES(veiltool VEILCore ${CyberVEIL_TARGET})
+else()
+	TARGET_LINK_LIBRARIES(veiltool VEILCore CyberVEIL)
+endif(APPLE)
 set_target_properties(veiltool PROPERTIES OUTPUT_NAME veil)
 if(UNIX)
     set_target_properties(veiltool PROPERTIES OUTPUT_NAME_DEBUG veil.debug)

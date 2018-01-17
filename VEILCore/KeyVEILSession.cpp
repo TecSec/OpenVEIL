@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -143,10 +143,10 @@ public:
 
 		m_failureReason.clear();
 		if (!conn)
-        {
+		{
 			LogError("No server specified.");
-            return false;
-        }
+			return false;
+		}
 
 		obj
 			.add("tokenId", TSGuidToString(_tokenId));
@@ -392,7 +392,7 @@ protected:
 		va_list args;
 		tscrypto::tsCryptoString msg;
 
-		if (error == NULL)
+		if (error.empty())
 			return;
 		va_start(args, error);
 		msg.FormatArg(error, args);

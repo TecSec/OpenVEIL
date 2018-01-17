@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -229,7 +229,7 @@ static void GridGetText (GRID *grid, DWORD rpData, char *lpData, int dataLen)
 		if (ptr != nullptr)
 		{
 			ptr += rpData;
-			strcpy_s(lpData, dataLen, ptr);
+			tsStrCpy(lpData, dataLen, ptr);
 		}
         GlobalUnlock(grid->hstr);
     }
@@ -265,7 +265,7 @@ static DWORD GridAddText (GRID *grid, const char *lpData)
 
     if ( lpData != 0 )
     {
-        len = (DWORD)strlen(lpData) + 1;
+        len = (DWORD)tsStrLen(lpData) + 1;
         if ( grid->hstr == NULL )
         {
             grid->hstr = GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT,MEM_SIZE);
@@ -285,7 +285,7 @@ static DWORD GridAddText (GRID *grid, const char *lpData)
 		{
 			data += posi;
 
-			strcpy_s(data, len, lpData);
+			tsStrCpy(data, len, lpData);
 		}
         grid->rpstrfree += len;
         GlobalUnlock(grid->hstr);
@@ -523,7 +523,7 @@ static void UpdateText(GRID *grid, DWORD *rpDest, void *source)
 
     if (source != NULL)
     {
-        int len = (int)strlen((const char *)source) + 1;
+        int len = (int)tsStrLen((const char *)source) + 1;
 
         if (grid->rpstrfree + len > grid->strsize)
         {
@@ -537,11 +537,11 @@ static void UpdateText(GRID *grid, DWORD *rpDest, void *source)
 			iTmp = *rpDest;
 			if (iTmp != 0)
 			{
-				iTmp = (int)strlen((const char *)(data + iTmp)) + 1;
+				iTmp = (int)tsStrLen((const char *)(data + iTmp)) + 1;
 			}
 			if (iTmp >= len)
 			{
-				strcpy_s((char *)(data + *rpDest), iTmp, (const char *)source);
+				tsStrCpy((char *)(data + *rpDest), iTmp, (const char *)source);
 			}
 			else
 			{
@@ -549,7 +549,7 @@ static void UpdateText(GRID *grid, DWORD *rpDest, void *source)
 
 				*rpDest = posi;
 				grid->rpstrfree += len;
-				strcpy_s((char *)(data + posi), len, (const char *)source);
+				tsStrCpy((char *)(data + posi), len, (const char *)source);
 			}
 		}
         GlobalUnlock(grid->hstr);
@@ -782,11 +782,11 @@ static void GridSort(GRID* grid, unsigned char* lpLBMem, DWORD nCol, int fString
 					}
 					else if (fString == -1)
 					{
-						comparison = TsStriCmp(left, right);
+						comparison = tsStriCmp(left, right);
 					}
 					else
 					{
-						comparison = TsStrniCmp(left, right, fString);
+						comparison = tsStrniCmp(left, right, fString);
 					}
 					if (fDescending)
 					{
@@ -1449,7 +1449,7 @@ static LRESULT __stdcall RAListProc (HWND hWin, UINT uMsg, WPARAM wParam, LPARAM
     DRAWITEMSTRUCT di;
     HWND hPar;
     RECT rect;
-    BYTE buffer[MAX_CELL_SIZE];
+    uint8_t buffer[MAX_CELL_SIZE];
     DWORD ftmp;
     GRID *grid;
 
@@ -1500,7 +1500,7 @@ static LRESULT __stdcall RAListProc (HWND hWin, UINT uMsg, WPARAM wParam, LPARAM
             }
             buffer[0] = 0;
             SendMessageA(((DRAWITEMSTRUCT*)lParam)->hwndItem,LB_GETTEXT,((DRAWITEMSTRUCT*)lParam)->itemID,(LPARAM)buffer);
-            TextOutA(((DRAWITEMSTRUCT*)lParam)->hDC,((DRAWITEMSTRUCT*)lParam)->rcItem.left + 2,((DRAWITEMSTRUCT*)lParam)->rcItem.top + 1,(const char *)buffer,(int)TsStrLen((const char *)buffer));
+            TextOutA(((DRAWITEMSTRUCT*)lParam)->hDC,((DRAWITEMSTRUCT*)lParam)->rcItem.left + 2,((DRAWITEMSTRUCT*)lParam)->rcItem.top + 1,(const char *)buffer,(int)tsStrLen((const char *)buffer));
             SetTextColor(((DRAWITEMSTRUCT*)lParam)->hDC,0);
         }
         RelMemParent(hWin);
@@ -1508,10 +1508,10 @@ static LRESULT __stdcall RAListProc (HWND hWin, UINT uMsg, WPARAM wParam, LPARAM
 
     case WM_CTLCOLORLISTBOX:
     {
-        INT_PTR color;
+        intptr_t color;
 
         grid = GetMemParent(hWin);
-        color = (INT_PTR)grid->hbrback;
+        color = (intptr_t)grid->hbrback;
         RelMemParent(hWin);
         return color;
     }
@@ -1938,7 +1938,7 @@ static void DrawItemText(HDC mDC, const char *buffer, RECT &rect2, DWORD alignme
         alignment = DT_RIGHT | DT_NOPREFIX;
     }
 
-    DrawTextA(mDC, buffer,(int)TsStrLen(buffer), &rect2,alignment);
+    DrawTextA(mDC, buffer,(int)tsStrLen(buffer), &rect2,alignment);
     rect2.left -= 3;
     rect2.top -= 2;
     rect2.right += 3;
@@ -1973,13 +1973,13 @@ static void Format(GRID *grid, DWORD formatString, char *buffer, int bufferLen)
 
     GridGetText(grid,formatString,format, sizeof(format));
 
-    int sourceLen = (int)strlen((const char*)buffer);
-    int maskLen = (int)strlen((const char*)p);
+    int sourceLen = (int)tsStrLen((const char*)buffer);
+    int maskLen = (int)tsStrLen((const char*)p);
 
     dest[1] = 0;
     while (sourceLen && maskLen)
     {
-        BYTE b = source[sourceLen - 1];
+        uint8_t b = source[sourceLen - 1];
 
         if (b != '-')
         {
@@ -2001,7 +2001,7 @@ static void Format(GRID *grid, DWORD formatString, char *buffer, int bufferLen)
 
     dest++;
     
-    strcpy_s((char *)buffer, bufferLen, (const char *)dest);
+    tsStrCpy((char *)buffer, bufferLen, (const char *)dest);
 }
 
 static void BinToDec (DWORD dwVal, char *lpAscii, int asciiLen)
@@ -2009,9 +2009,9 @@ static void BinToDec (DWORD dwVal, char *lpAscii, int asciiLen)
     _itoa_s(dwVal, lpAscii, asciiLen, 10);
 }
 
-static DWORD DecToBin(BYTE* buffer)
+static DWORD DecToBin(uint8_t* buffer)
 {
-    return atoi((const char *)buffer);
+    return tsStrToInt((const char *)buffer);
 }
 
 static void SetNotify(GRID *grid, HWND hWin, int itemID, int col, GRIDNOTIFY &gn)
@@ -2032,7 +2032,7 @@ static LRESULT RAGridDrawItem(GRID *grid, HWND hWin, DRAWITEMSTRUCT *drawItem)
     RECT	rect2;
     COLUMN *colPtr = (COLUMN*)(grid + 1);
     DWORD	val = 0L;
-	BYTE	buffer[MAX_CELL_SIZE] = { 0, };
+	uint8_t	buffer[MAX_CELL_SIZE] = { 0, };
     SYSTEMTIME	stime;
     FILETIME	ftime;
     GRIDNOTIFY	gn;
@@ -2264,26 +2264,26 @@ static LRESULT RAGridDrawItem(GRID *grid, HWND hWin, DRAWITEMSTRUCT *drawItem)
                         GridGetCellData(grid,(DWORD)drawItem->itemData,col, &val, sizeof(val));
                         if ((val & (HOTKEYF_CONTROL << 8)) != 0)
                         {
-                            strcat_s((char *)buffer, sizeof(buffer), szCtrl);
+                            tsStrCat((char *)buffer, sizeof(buffer), szCtrl);
                         }
                         if ((val & (HOTKEYF_SHIFT << 8)) != 0)
                         {
-                            strcat_s((char*)buffer, sizeof(buffer), szShift);
+                            tsStrCat((char*)buffer, sizeof(buffer), szShift);
                         }
                         if ((val & (HOTKEYF_ALT << 8)) != 0)
                         {
-                            strcat_s((char*)buffer, sizeof(buffer), szAlt);
+                            tsStrCat((char*)buffer, sizeof(buffer), szAlt);
                         }
 
                         if ((val & 0xff) >= 'A' && (val & 0xff) <= 'Z')
                         {
                             char buf[2] = {(char)(val & 0xff), 0};
-                            strcpy_s((char *)&buffer[strlen((const char *)buffer)], sizeof(buffer), buf);
+                            tsStrCpy((char *)&buffer[tsStrLen((const char *)buffer)], sizeof(buffer), buf);
                         }
                         else if ((val & 0xff) >= VK_F1 && (val & 0xff) <= VK_F12)
                         {
-                            strcpy_s((char *)&buffer[strlen((const char *)buffer)], sizeof(buffer), "F");
-                            BinToDec((val & 0xff) - VK_F1 + 1,(char*)&buffer[strlen((const char*)buffer)], (int)(sizeof(buffer) - strlen((const char*)buffer)));
+                            tsStrCpy((char *)&buffer[tsStrLen((const char *)buffer)], sizeof(buffer), "F");
+                            BinToDec((val & 0xff) - VK_F1 + 1,(char*)&buffer[tsStrLen((const char*)buffer)], (int)(sizeof(buffer) - tsStrLen((const char*)buffer)));
                         }
                         DrawItemText(mDC, (const char *)buffer, rect2, colPtr->calign);
                         DrawItemLine(grid, mDC, col, rect2);
@@ -2382,7 +2382,7 @@ static LRESULT RAGridDrawItem(GRID *grid, HWND hWin, DRAWITEMSTRUCT *drawItem)
                         stime.wMonth = 1;
                         stime.wDayOfWeek = 6;
                         stime.wDay = 1;
-                        stime.wHour = (WORD)(val / (60*60));
+                        stime.wHour = (uint16_t)(val / (60*60));
                         stime.wMinute = ((val / 60) % 60);
                         stime.wSecond = (val % 60);
                         stime.wMilliseconds = 0;
@@ -2539,14 +2539,14 @@ static LRESULT RAGridDrawItem(GRID *grid, HWND hWin, DRAWITEMSTRUCT *drawItem)
                         drawItem->rcItem.left++;
                         drawItem->rcItem.top++;
                         drawItem->rcItem.right++;
-                        DrawTextA(drawItem->hDC,(char*)buffer,(int)strlen((char*)buffer), &drawItem->rcItem,val);
+                        DrawTextA(drawItem->hDC,(char*)buffer,(int)tsStrLen((char*)buffer), &drawItem->rcItem,val);
                         drawItem->rcItem.left--;
                         drawItem->rcItem.top--;
                         drawItem->rcItem.right--;
                     }
                     else
                     {
-                        DrawTextA(drawItem->hDC,(char*)buffer,(int)strlen((char*)buffer), &drawItem->rcItem,val);
+                        DrawTextA(drawItem->hDC,(char*)buffer,(int)tsStrLen((char*)buffer), &drawItem->rcItem,val);
                     }
                 }
                 drawItem->rcItem.top -= 2;
@@ -3283,7 +3283,7 @@ static LRESULT __stdcall RAGridProc (HWND hWin, UINT uMsg, WPARAM wParam, LPARAM
         grid = GetMemHere(hWin);
         if (grid->rows)
         {
-            BYTE	buffer[MAX_CELL_SIZE];
+            uint8_t	buffer[MAX_CELL_SIZE];
 
             fCancelEdit = FALSE;
             SendMessageA(hWin,GM_SETCURSEL,wParam,lParam);
@@ -3403,7 +3403,7 @@ static LRESULT __stdcall RAGridProc (HWND hWin, UINT uMsg, WPARAM wParam, LPARAM
                             stime.wMonth = 1;
                             stime.wDayOfWeek = 6;
                             stime.wDay = 1;
-                            stime.wHour = (WORD)(tmptime / 3600);
+                            stime.wHour = (uint16_t)(tmptime / 3600);
                             stime.wMinute = (tmptime / 60) % 60;
                             stime.wSecond = tmptime % 60;
                             stime.wMilliseconds = 0;
@@ -3485,7 +3485,7 @@ static LRESULT __stdcall RAGridProc (HWND hWin, UINT uMsg, WPARAM wParam, LPARAM
         return retVal;
     case GM_ENDEDIT:
         {
-            BYTE	buffer[MAX_CELL_SIZE];
+            uint8_t	buffer[MAX_CELL_SIZE];
 
             grid = GetMemHere(hWin);
             buffer[0] = 0;
@@ -3542,7 +3542,7 @@ static LRESULT __stdcall RAGridProc (HWND hWin, UINT uMsg, WPARAM wParam, LPARAM
                     }
                     else if (colPtr->ctype == TYPE_BUTTON || colPtr->ctype == TYPE_EDITBUTTON)
                     {
-                        TsStrCpy((char*)buffer,sizeof(buffer), (const char *)grid->lpdata);
+                        tsStrCpy((char*)buffer,sizeof(buffer), (const char *)grid->lpdata);
                     }
                     else if ( colPtr->ctype == TYPE_SELTEXT)
                     {
@@ -3658,14 +3658,14 @@ static LRESULT __stdcall RAGridProc (HWND hWin, UINT uMsg, WPARAM wParam, LPARAM
                 if (colPtr[col].lpszhdrtext)
                 {
                     GridGetText(grid,(DWORD)colPtr[col].lpszhdrtext,(char*)p, remainingLen);
-                    remainingLen -= (int)(strlen((const char *)p) + 1);
-                    p = p + strlen((const char *)p) + 1;
+                    remainingLen -= (int)(tsStrLen((const char *)p) + 1);
+                    p = p + tsStrLen((const char *)p) + 1;
                 }
                 if (colPtr[col].lpszformat)
                 {
                     GridGetText(grid,colPtr[col].lpszformat,(char*)p, remainingLen);
-                    remainingLen -= (int)(strlen((const char *)p) + 1);
-                    p = p + strlen((const char *)p) + 1;
+                    remainingLen -= (int)(tsStrLen((const char *)p) + 1);
+                    p = p + tsStrLen((const char *)p) + 1;
                 }
                 col++;
             }
@@ -3697,12 +3697,12 @@ static LRESULT __stdcall RAGridProc (HWND hWin, UINT uMsg, WPARAM wParam, LPARAM
                 if (colPtr[col].lpszhdrtext)
                 {
                     colPtr[col].lpszhdrtext = GridAddText(grid,(char*)p);
-                    p = p + strlen((const char *)p) + 1;
+                    p = p + tsStrLen((const char *)p) + 1;
                 }
                 if (colPtr[col].lpszformat)
                 {
                     colPtr[col].lpszformat = GridAddText(grid,(char*)p);
-                    p = p + strlen((const char *)p) + 1;
+                    p = p + tsStrLen((const char *)p) + 1;
                 }
                 col++;
             }
@@ -3818,11 +3818,11 @@ static LRESULT __stdcall RAGridProc (HWND hWin, UINT uMsg, WPARAM wParam, LPARAM
 
                 if (val)
                 {
-                    strcpy_s((char *)lParam, 6, "Yes");
+                    tsStrCpy((char *)lParam, 6, "Yes");
                 }
                 else
                 {
-                    strcpy_s((char *)lParam, 6, "No");
+                    tsStrCpy((char *)lParam, 6, "No");
                 }
                 break;
             case TYPE_COMBOBOX:
@@ -3851,29 +3851,29 @@ static LRESULT __stdcall RAGridProc (HWND hWin, UINT uMsg, WPARAM wParam, LPARAM
                 SendMessageA(hWin,GM_GETCELLDATA,wParam,(LPARAM)&val);
                 if ((val & (HOTKEYF_CONTROL << 8)) != 0)
                 {
-                    strcat_s((char*)lParam, strlen((char*)lParam) + 10, szCtrl);
+                    tsStrCat((char*)lParam, tsStrLen((char*)lParam) + 10, szCtrl);
                 }
                 if ((val & (HOTKEYF_SHIFT << 8)) != 0)
                 {
-                    strcat_s((char*)lParam, strlen((char*)lParam) + 10, szShift);
+                    tsStrCat((char*)lParam, tsStrLen((char*)lParam) + 10, szShift);
                 }
                 if ((val & (HOTKEYF_ALT << 8)) != 0)
                 {
-                    strcat_s((char*)lParam, strlen((char*)lParam) + 10, szAlt);
+                    tsStrCat((char*)lParam, tsStrLen((char*)lParam) + 10, szAlt);
                 }
 
                 if ((val & 0xff) >= 'A' && (val & 0xff) <= 'Z')
                 {
                     char buff[2] = {(char)val, 0};
 
-                    strcat_s((char *)lParam, 2, buff);
+                    tsStrCat((char *)lParam, 2, buff);
                 }
                 else if ((val & 0xff) >= VK_F1 && (val & 0xff) <= VK_F12)
                 {
                     char buff[4] = {'F', 0, 0, 0};
 
                     BinToDec((val & 0xff) - VK_F1 + 1,&buff[1], sizeof(buff) - 1);
-                    strcat_s((char *)lParam, 4, buff);
+                    tsStrCat((char *)lParam, 4, buff);
                 }
                 break;
             case TYPE_DATE:
@@ -3899,7 +3899,7 @@ static LRESULT __stdcall RAGridProc (HWND hWin, UINT uMsg, WPARAM wParam, LPARAM
                         GetDateFormatA(0,0, &stime,NULL,buffer,sizeof (buffer));
                     }
 
-                    strcpy_s((char *)lParam, MAX_FORMAT_SIZE, buffer);
+                    tsStrCpy((char *)lParam, MAX_FORMAT_SIZE, buffer);
                     break;
                 }
             case TYPE_TIME:
@@ -3911,7 +3911,7 @@ static LRESULT __stdcall RAGridProc (HWND hWin, UINT uMsg, WPARAM wParam, LPARAM
                     stime.wMonth = 1;
                     stime.wDayOfWeek = 6;
                     stime.wDay = 1;
-                    stime.wHour = (WORD)(val / 3600);
+                    stime.wHour = (uint16_t)(val / 3600);
                     stime.wMinute = (val / 60) % 60;
                     stime.wSecond = (val % 60);
                     stime.wMilliseconds = 0;
@@ -3925,7 +3925,7 @@ static LRESULT __stdcall RAGridProc (HWND hWin, UINT uMsg, WPARAM wParam, LPARAM
                         GetTimeFormatA(0,0, &stime,NULL, buffer,sizeof (buffer));
                     }
 
-                    strcpy_s((char *)lParam, MAX_FORMAT_SIZE, buffer);
+                    tsStrCpy((char *)lParam, MAX_FORMAT_SIZE, buffer);
                     break;
                 }
             case TYPE_USER:
@@ -3939,7 +3939,7 @@ static LRESULT __stdcall RAGridProc (HWND hWin, UINT uMsg, WPARAM wParam, LPARAM
                     SendMessageA(grid->hpar,WM_NOTIFY,gn.nmhdr.idFrom, (LPARAM)&gn);
                     if (!gn.fcancel)
                     {
-                        strcpy_s((char *)lParam, MAX_CELL_SIZE, buffer);
+                        tsStrCpy((char *)lParam, MAX_CELL_SIZE, buffer);
                     }
                     break;
                 }
@@ -4059,7 +4059,7 @@ static LRESULT __stdcall RAGridProc (HWND hWin, UINT uMsg, WPARAM wParam, LPARAM
             COLUMN	col;
 
             col.colwt = 100;
-            col.lpszhdrtext = (INT_PTR)szToolTip;
+            col.lpszhdrtext = (intptr_t)szToolTip;
             col.halign = 0;
             col.calign = 0;
             col.ctype = 0;

@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -72,7 +72,7 @@ public:
 
 	// ICmsHeaderCryptoGroupListExtension
 	virtual size_t GetCryptoGroupCount();
-	virtual bool AddCryptoGroup(const GUID &cryptoGroupGuid, int *pVal);
+	virtual bool AddCryptoGroup(const tscrypto::tsCryptoData &cryptoGroupId, int *pVal);
 	virtual bool GetCryptoGroup(size_t index, std::shared_ptr<ICmsHeaderCryptoGroup>& pVal);
 	virtual bool RemoveCryptoGroup(size_t index);
 
@@ -212,19 +212,19 @@ bool CmsHeaderExtensionImpl::IsKnownExtension()
 {
 	tscrypto::tsCryptoString str = m_oid.ToOIDString();
 
-	if (strcmp(str.c_str(), TECSEC_CKMHEADER_V3_IVEC_EXT_OID) == 0 ||
-		strcmp(str.c_str(), TECSEC_CKMHEADER_V3_SECRYPTM_EXT_OID) == 0 ||
-		strcmp(str.c_str(), TECSEC_CKMHEADER_V3_FILELENGTH_EXT_OID) == 0 ||
-		strcmp(str.c_str(), TECSEC_CKMHEADER_V3_FILEHASH_EXT_OID) == 0 ||
-		strcmp(str.c_str(), TECSEC_CKMHEADER_V3_FILENAME_EXT_OID) == 0 ||
-		strcmp(str.c_str(), TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID) == 0 ||
-		strcmp(str.c_str(), TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID) == 0 ||
-		strcmp(str.c_str(), TECSEC_CKMHEADER_V7_ISSUER_EXT_OID) == 0 ||
-		strcmp(str.c_str(), TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID) == 0 ||
-		strcmp(str.c_str(), TECSEC_CKMHEADER_V7_SIGN_KEY_EXT_OID) == 0 ||
-		strcmp(str.c_str(), TECSEC_CKMHEADER_V7_KEY_USAGE_EXT_OID) == 0 ||
-		strcmp(str.c_str(), TECSEC_CKMHEADER_V7_DATA_FORMAT_EXT_OID) == 0 ||
-		strcmp(str.c_str(), TECSEC_CKMHEADER_V7_MIME_TYPE_EXT_OID) == 0)
+	if (tsStrCmp(str.c_str(), id_TECSEC_CKMHEADER_V3_IVEC_EXT_OID) == 0 ||
+		tsStrCmp(str.c_str(), id_TECSEC_CKMHEADER_V3_SECRYPTM_EXT_OID) == 0 ||
+		tsStrCmp(str.c_str(), id_TECSEC_CKMHEADER_V3_FILELENGTH_EXT_OID) == 0 ||
+		tsStrCmp(str.c_str(), id_TECSEC_CKMHEADER_V3_FILEHASH_EXT_OID) == 0 ||
+		tsStrCmp(str.c_str(), id_TECSEC_CKMHEADER_V3_FILENAME_EXT_OID) == 0 ||
+		tsStrCmp(str.c_str(), id_TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID) == 0 ||
+		tsStrCmp(str.c_str(), id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID) == 0 ||
+		tsStrCmp(str.c_str(), id_TECSEC_CKMHEADER_V7_ISSUER_EXT_OID) == 0 ||
+		tsStrCmp(str.c_str(), id_TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID) == 0 ||
+		tsStrCmp(str.c_str(), id_TECSEC_CKMHEADER_V7_SIGN_KEY_EXT_OID) == 0 ||
+		tsStrCmp(str.c_str(), id_TECSEC_CKMHEADER_V7_KEY_USAGE_EXT_OID) == 0 ||
+		tsStrCmp(str.c_str(), id_TECSEC_CKMHEADER_V7_DATA_FORMAT_EXT_OID) == 0 ||
+		tsStrCmp(str.c_str(), id_TECSEC_CKMHEADER_V7_MIME_TYPE_EXT_OID) == 0)
 	{
 		return true;
 	}
@@ -235,55 +235,55 @@ tscrypto::tsCryptoData CmsHeaderExtensionImpl::ToBytes()
 {
 	Asn1::CMS::_POD_CmsExtension data;
 
-	if (m_oid == tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_FILEHASH_EXT_OID, tscrypto::tsCryptoData::OID))
+	if (m_oid == tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_FILEHASH_EXT_OID, tscrypto::tsCryptoData::OID))
 	{
 		fromHash();
 	}
-	else if (m_oid == tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID))
+	else if (m_oid == tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID))
 	{
 		fromCryptoGroupList();
 	}
-	else if (m_oid == tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID))
+	else if (m_oid == tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID))
 	{
 		fromGroupList();
 	}
-	else if (m_oid == tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_IVEC_EXT_OID, tscrypto::tsCryptoData::OID))
+	else if (m_oid == tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_IVEC_EXT_OID, tscrypto::tsCryptoData::OID))
 	{
 		// No processing needed
 	}
-	else if (m_oid == tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_SECRYPTM_EXT_OID, tscrypto::tsCryptoData::OID))
+	else if (m_oid == tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_SECRYPTM_EXT_OID, tscrypto::tsCryptoData::OID))
 	{
 		// No processing needed
 	}
-	else if (m_oid == tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_FILELENGTH_EXT_OID, tscrypto::tsCryptoData::OID))
+	else if (m_oid == tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_FILELENGTH_EXT_OID, tscrypto::tsCryptoData::OID))
 	{
 		// No processing needed
 	}
-	else if (m_oid == tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_FILENAME_EXT_OID, tscrypto::tsCryptoData::OID))
+	else if (m_oid == tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_FILENAME_EXT_OID, tscrypto::tsCryptoData::OID))
 	{
 		// No processing needed
 	}
-	else if (m_oid == tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ISSUER_EXT_OID, tscrypto::tsCryptoData::OID))
+	else if (m_oid == tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ISSUER_EXT_OID, tscrypto::tsCryptoData::OID))
 	{
 		// No processing needed
 	}
-	else if (m_oid == tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID))
+	else if (m_oid == tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID))
 	{
 		fromAttributeList();
 	}
-	else if (m_oid == tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_SIGN_KEY_EXT_OID, tscrypto::tsCryptoData::OID))
+	else if (m_oid == tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_SIGN_KEY_EXT_OID, tscrypto::tsCryptoData::OID))
 	{
 		// No processing needed
 	}
-	else if (m_oid == tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_KEY_USAGE_EXT_OID, tscrypto::tsCryptoData::OID))
+	else if (m_oid == tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_KEY_USAGE_EXT_OID, tscrypto::tsCryptoData::OID))
 	{
 		// No processing needed
 	}
-	else if (m_oid == tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_DATA_FORMAT_EXT_OID, tscrypto::tsCryptoData::OID))
+	else if (m_oid == tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_DATA_FORMAT_EXT_OID, tscrypto::tsCryptoData::OID))
 	{
 		// No processing needed
 	}
-	else if (m_oid == tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_MIME_TYPE_EXT_OID, tscrypto::tsCryptoData::OID))
+	else if (m_oid == tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_MIME_TYPE_EXT_OID, tscrypto::tsCryptoData::OID))
 	{
 		// No processing needed
 	}
@@ -311,7 +311,7 @@ GUID CmsHeaderExtensionImpl::GetIssuerGuid()
 }
 bool CmsHeaderExtensionImpl::SetIssuerGuid(const GUID &guid)
 {
-	tscrypto::tsCryptoData dt((BYTE*)&guid, sizeof(GUID));
+	tscrypto::tsCryptoData dt((uint8_t*)&guid, sizeof(GUID));
 
 	return SetContents(dt);
 }
@@ -363,13 +363,13 @@ size_t CmsHeaderExtensionImpl::GetCryptoGroupCount()
 {
 	return m_cryptoGroupList.size();
 }
-bool CmsHeaderExtensionImpl::AddCryptoGroup(const GUID &cryptoGroupGuid, int *pVal)
+bool CmsHeaderExtensionImpl::AddCryptoGroup(const tscrypto::tsCryptoData &cryptoGroupId, int *pVal)
 {
 	if (pVal == nullptr)
 		return false;
 	*pVal = 0;
 
-	std::shared_ptr<ICmsHeaderCryptoGroup> cg = CreateCryptoGroupHeaderObject(cryptoGroupGuid);
+	std::shared_ptr<ICmsHeaderCryptoGroup> cg = CreateCryptoGroupHeaderObject(cryptoGroupId);
 	m_cryptoGroupList.push_back(cg);
 
 	*pVal = (int)m_cryptoGroupList.size() - 1;
@@ -494,7 +494,7 @@ uint64_t CmsHeaderExtensionImpl::GetLength()
 }
 bool CmsHeaderExtensionImpl::SetLength(uint64_t data)
 {
-	tscrypto::tsCryptoData dt((BYTE*)&data, sizeof(uint64_t));
+	tscrypto::tsCryptoData dt((uint8_t*)&data, sizeof(uint64_t));
 
 	dt.reverse();
 	while (dt.size() > 0 && dt[0] == 0)
@@ -547,7 +547,7 @@ bool CmsHeaderExtensionImpl::SetKeySizeInBits(int setTo)
 		doc->Clear();
 		doc->DocumentElement()->Tag(TlvNode::Tlv_Sequence);
 		doc->DocumentElement()->Type(TlvNode::Type_Universal);
-		doc->DocumentElement()->AppendChild(doc->CreateOIDNode(tscrypto::tsCryptoData(TECSEC_CKM7_SCP_KEYS_OID, tscrypto::tsCryptoData::OID)));
+		doc->DocumentElement()->AppendChild(doc->CreateOIDNode(tscrypto::tsCryptoData(id_TECSEC_CKM7_SCP_KEYS_OID, tscrypto::tsCryptoData::OID)));
 		doc->DocumentElement()->AppendChild(doc->CreateNumberNode(setTo));
 	}
 	else
@@ -561,11 +561,11 @@ tscrypto::tsCryptoData CmsHeaderExtensionImpl::GetKeyUsageOID() const
 
 	if (!doc->LoadTlv(GetContents()))
 	{
-		return tscrypto::tsCryptoData(TECSEC_CKM7_SCP_KEYS_OID, tscrypto::tsCryptoData::OID);
+		return tscrypto::tsCryptoData(id_TECSEC_CKM7_SCP_KEYS_OID, tscrypto::tsCryptoData::OID);
 	}
 	if (!doc->DocumentElement()->IsConstructed() || doc->DocumentElement()->ChildCount() != 2 || !doc->DocumentElement()->ChildAt(0)->IsOIDNode() || !doc->DocumentElement()->ChildAt(1)->IsNumber())
 	{
-		return tscrypto::tsCryptoData(TECSEC_CKM7_SCP_KEYS_OID, tscrypto::tsCryptoData::OID);
+		return tscrypto::tsCryptoData(id_TECSEC_CKM7_SCP_KEYS_OID, tscrypto::tsCryptoData::OID);
 	}
 	return doc->DocumentElement()->ChildAt(0)->InnerData();
 }
@@ -669,19 +669,19 @@ bool CmsHeaderExtensionImpl::SetMimeType(const tscrypto::tsCryptoString &setTo)
 
 void CmsHeaderExtensionImpl::evaluateData()
 {
-	if (m_oid == tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_FILEHASH_EXT_OID, tscrypto::tsCryptoData::OID))
+	if (m_oid == tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_FILEHASH_EXT_OID, tscrypto::tsCryptoData::OID))
 	{
 		toHash();
 	}
-	else if (m_oid == tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID))
+	else if (m_oid == tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID))
 	{
 		toCryptoGroupList();
 	}
-	else if (m_oid == tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID))
+	else if (m_oid == tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID))
 	{
 		toGroupList();
 	}
-	else if (m_oid == tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID))
+	else if (m_oid == tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID))
 	{
 		toAttributeList();
 	}
@@ -845,7 +845,7 @@ void CmsHeaderExtensionImpl::fromCryptoGroupList()
 			Asn1::CMS::_POD_CmsHE_CryptoGroup cryptoGroupData;
 
 			cryptoGroupData.set_CML(cg->GetCurrentMaintenanceLevel());
-			cryptoGroupData.set_CryptoGroupId(cg->GetCryptoGroupGuid());
+			cryptoGroupData.set_CryptoGroupId(cg->GetCryptoGroupId());
 			if (cg->GetEphemeralPublic().size() > 0)
 				cryptoGroupData.set_EphemeralPublic(cg->GetEphemeralPublic());
 			else
@@ -898,7 +898,7 @@ void CmsHeaderExtensionImpl::toAttributeList()
 			int attrIndex = AddAttribute();
 			if (GetAttribute(attrIndex, myAttribute))
 			{
-				myAttribute->SetAttributeGuid(attr.get_Id());
+				myAttribute->SetAttributeId(attr.get_Id());
 				myAttribute->SetCryptoGroupNumber(attr.get_CryptoGroupNumber());
 				myAttribute->SetKeyVersion(attr.get_Version());
 				if (attr.exists_Signature())
@@ -922,7 +922,7 @@ void CmsHeaderExtensionImpl::fromAttributeList()
 		{
 			Asn1::CMS::_POD_CmsHE_Attribute attributeData;
 
-			attributeData.set_Id(attr->GetAttributeGUID());
+			attributeData.set_Id(attr->GetAttributeId());
 			attributeData.set_CryptoGroupNumber(attr->GetCryptoGroupNumber());
 			attributeData.set_Version(attr->GetKeyVersion());
 			if (attr->GetSignature().size() > 0)
@@ -942,43 +942,43 @@ void CmsHeaderExtensionImpl::Destroy()
 
 void CmsHeaderExtensionImpl::PrepareForEncode(Asn1::CMS::_POD_CmsHeaderData &data, HeaderPartType type)
 {
-	if (m_oid == tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_FILEHASH_EXT_OID, tscrypto::tsCryptoData::OID))
+	if (m_oid == tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_FILEHASH_EXT_OID, tscrypto::tsCryptoData::OID))
 	{
 		fromHash();
 	}
-	else if (m_oid == tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID))
+	else if (m_oid == tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID))
 	{
 		fromCryptoGroupList();
 	}
-	else if (m_oid == tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID))
+	else if (m_oid == tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID))
 	{
 		fromGroupList();
 	}
-	else if (m_oid == tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_IVEC_EXT_OID, tscrypto::tsCryptoData::OID))
+	else if (m_oid == tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_IVEC_EXT_OID, tscrypto::tsCryptoData::OID))
 	{
 		// No processing needed
 	}
-	else if (m_oid == tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_SECRYPTM_EXT_OID, tscrypto::tsCryptoData::OID))
+	else if (m_oid == tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_SECRYPTM_EXT_OID, tscrypto::tsCryptoData::OID))
 	{
 		// No processing needed
 	}
-	else if (m_oid == tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_FILELENGTH_EXT_OID, tscrypto::tsCryptoData::OID))
+	else if (m_oid == tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_FILELENGTH_EXT_OID, tscrypto::tsCryptoData::OID))
 	{
 		// No processing needed
 	}
-	else if (m_oid == tscrypto::tsCryptoData(TECSEC_CKMHEADER_V3_FILENAME_EXT_OID, tscrypto::tsCryptoData::OID))
+	else if (m_oid == tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V3_FILENAME_EXT_OID, tscrypto::tsCryptoData::OID))
 	{
 		// No processing needed
 	}
-	else if (m_oid == tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ISSUER_EXT_OID, tscrypto::tsCryptoData::OID))
+	else if (m_oid == tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ISSUER_EXT_OID, tscrypto::tsCryptoData::OID))
 	{
 		// No processing needed
 	}
-	else if (m_oid == tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID))
+	else if (m_oid == tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID))
 	{
 		fromAttributeList();
 	}
-	else if (m_oid == tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_SIGN_KEY_EXT_OID, tscrypto::tsCryptoData::OID))
+	else if (m_oid == tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_SIGN_KEY_EXT_OID, tscrypto::tsCryptoData::OID))
 	{
 		// No processing needed
 	}

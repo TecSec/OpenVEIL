@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -43,14 +43,14 @@ bool TextVEIL::OnInit()
 	SetTopWindow(MainWin);
 	if (!InitializeVEILWxWidgets())
 	{
-		char *errorMsg = "Unable to initialize the VEIL wxWidgets.";
+		const char *errorMsg = "Unable to initialize the VEIL wxWidgets.";
 		wxMessageBox(errorMsg, "Error", wxOK | wxICON_ERROR);
 		//ERROR(errorMsg);
 		return false;
 	}
 	if (!InitializeCmsHeader())
 	{
-		char *errorMsg = "Unable to initialize the CMS Header system.";
+		const char *errorMsg = "Unable to initialize the CMS Header system.";
 		wxMessageBox(errorMsg, "Error", wxOK | wxICON_ERROR);
 		//ERROR(errorMsg);
 		return false;
@@ -156,7 +156,7 @@ void MainFrame::OnEncrypt(wxCommandEvent& event)
 		tscrypto::_TS_ALG_ID::TS_ALG_AES_GCM_256, tscrypto::_TS_ALG_ID::TS_ALG_INVALID, false, true,
 		TS_FORMAT_CMS_ENC_AUTH, false, tscrypto::_SymmetricPaddingType::padding_None))
 	{
-		char *errorMsg = "Failed to encrypt.";
+		const char *errorMsg = "Failed to encrypt.";
 		wxMessageBox(errorMsg, "Error", wxOK | wxICON_ERROR);
 		//ERROR(errorMsg);
 		return;
@@ -172,7 +172,7 @@ void MainFrame::OnEncrypt(wxCommandEvent& event)
 	tscrypto::tsCryptoString armoredStr;
 	if (!xp_WriteArmoredString(sections, armoredStr))
 	{
-		char *errorMsg = "Failed to create PEM encoded armored string.";
+		const char *errorMsg = "Failed to create PEM encoded armored string.";
 		wxMessageBox(errorMsg, "Error", wxOK | wxICON_ERROR);
 		//ERROR(errorMsg);
 		return;
@@ -225,7 +225,7 @@ void MainFrame::OnDecrypt(wxCommandEvent& event)
 
 	if (!xp_ReadArmoredString(inData, sections))
 	{
-		char *errorMsg = "Failed to read PEM encoded armored string.";
+		const char *errorMsg = "Failed to read PEM encoded armored string.";
 		wxMessageBox(errorMsg, "Error", wxOK | wxICON_ERROR);
 		//ERROR(errorMsg);
 		return;
@@ -235,7 +235,7 @@ void MainFrame::OnDecrypt(wxCommandEvent& event)
 
 	if (!fileOps->DecryptCryptoData(sections->at(0).Contents, outData))
 	{
-		char *errorMsg = "Failed to decrypt.";
+		const char *errorMsg = "Failed to decrypt.";
 		wxMessageBox(errorMsg, "Error", wxOK | wxICON_ERROR);
 		//ERROR(errorMsg);
 		return;

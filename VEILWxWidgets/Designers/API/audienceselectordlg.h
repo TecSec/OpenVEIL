@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -184,14 +184,14 @@ public:
 	void resetConsumer();
 	Asn1::CTS::_POD_CryptoGroup* GetCGbyGuid(const GUID& id);
 	int findCgByGuid(const GUID& id);
-	BOOL LoadFavoriteForToken(std::shared_ptr<IFavorite> fav, std::shared_ptr<ICmsHeader> favHeader);
+	bool LoadFavoriteForToken(std::shared_ptr<IFavorite> fav, std::shared_ptr<ICmsHeader> favHeader);
 	void ClearAccessGroups();
 	tscrypto::tsCryptoString BuildAttrsLine(std::shared_ptr<ICmsHeaderAttributeGroup> attrs);
-	BOOL RebuildAccessGroupList();
+	bool RebuildAccessGroupList();
 	void SetItemSelected(int index);
 	void AddGroupText(const char *text);
-	BOOL QueryAndClearAccessGroups();
-	BOOL ChangeToken();
+	bool QueryAndClearAccessGroups();
+	bool ChangeToken();
 	void UpdateDialogControls();
 	void EnableDisableOK();
 	bool InitTokenInfoList();
@@ -200,7 +200,7 @@ public:
 	void OnTokenRemove(const tscrypto::tsCryptoData& serialNumber);
 	void OnTokenAdd(wxTokenEvent& event);
 	void OnTokenRemove(wxTokenEvent& event);
-	BOOL CheckAccessGroup(std::shared_ptr<ICmsHeaderAttributeGroup> newAttrs);
+	bool CheckAccessGroup(std::shared_ptr<ICmsHeaderAttributeGroup> newAttrs);
 	void BuildIntList(std::shared_ptr<ICmsHeaderAttributeGroup> attrGroup, tscrypto::tsCryptoData &list);
 	bool FindSelectedAccessGroup(std::shared_ptr<ICmsHeaderAccessGroup>& accessGroup, std::shared_ptr<ICmsHeaderAttributeGroup>& attrs);
 	int findGuidIndex(const GUID& id, bool insert = false);

@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -33,7 +33,7 @@
 #include "tecseclogo.xpm"
 #include "readwrit.xpm"
 
-XP_MODULE hDllInstance = XP_MODULE_INVALID;
+//XP_MODULE hDllInstance = XP_MODULE_INVALID;
 //HBITMAP logo = NULL;
 //static ATOM registeredGrid = 0;
 //static ATOM registeredList = 0;
@@ -42,13 +42,13 @@ XP_MODULE hDllInstance = XP_MODULE_INVALID;
 #ifdef _WIN32
 BOOL APIENTRY DllMain(HMODULE hModule,
 	DWORD  ul_reason_for_call,
-	LPVOID /*lpReserved*/
+	void* /*lpReserved*/
 	)
 {
 	switch (ul_reason_for_call)
 	{
 	case DLL_PROCESS_ATTACH:
-		hDllInstance = (XP_MODULE)hModule;
+		//hDllInstance = (XP_MODULE)hModule;
 		break;
 	case DLL_THREAD_ATTACH:
 		break;
@@ -130,12 +130,12 @@ bool InitializeVEILWxWidgets()
 	return true;
 }
 
-//typedef HWND(__stdcall * helpFn)(HWND hwndCaller, LPCSTR pszFile, UINT uCommand, DWORD_PTR dwData);
+//typedef HWND(__stdcall * helpFn)(HWND hwndCaller, const char* pszFile, uint32_t uCommand, DWORD_PTR dwData);
 //
 //static HINSTANCE gHelpLib = NULL;
 //static helpFn gHelpFn = NULL;
 //
-//XP_WINDOW TS_HtmlHelp(XP_WINDOW hwndCaller, const tscrypto::tsCryptoString& pszFile, UINT uCommand, DWORD_PTR dwData)
+//XP_WINDOW TS_HtmlHelp(XP_WINDOW hwndCaller, const tscrypto::tsCryptoString& pszFile, uint32_t uCommand, DWORD_PTR dwData)
 //{
 //	if (gHelpLib == NULL)
 //	{

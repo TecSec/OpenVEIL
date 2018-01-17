@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -87,14 +87,13 @@ namespace tscrypto {
 		virtual bool IsActive() const;
 		virtual bool Set();
 		virtual bool Reset();
+        operator TSEVENT() { return _theEvent; }
 		virtual EventStatus WaitForEvent(uint32_t timeout);
-		virtual EventStatus WaitForEvents(uint32_t timeout, CryptoEvent& event2);
-		virtual EventStatus WaitForEvents(uint32_t timeout, CryptoEvent& event2, CryptoEvent& event3);
-		virtual EventStatus WaitForEvents(uint32_t timeout, CryptoEvent& event2, CryptoEvent& event3, CryptoEvent& event4);
-		void* GetHandle() { return _theEvent; }
+        virtual EventStatus WaitForEvents(uint32_t timeout, TSEVENT event2 = nullptr, TSEVENT event3 = nullptr, TSEVENT event4 = nullptr);
+        TSEVENT GetHandle() { return _theEvent; }
 
 	private:
-		void* _theEvent;
+        TSEVENT _theEvent;
 	};
 
 }

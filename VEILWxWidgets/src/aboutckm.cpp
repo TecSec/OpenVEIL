@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -131,10 +131,10 @@ void AboutCKM::Init()
 void AboutCKM::CreateControls()
 {    
 ////@begin AboutCKM content construction
-	AboutCKM* itemDialog1 = this;
+    AboutCKM* itemDialog1 = this;
 
     wxFlexGridSizer* itemFlexGridSizer2 = new wxFlexGridSizer(6, 1, 0, 0);
-	itemDialog1->SetSizer(itemFlexGridSizer2);
+    itemDialog1->SetSizer(itemFlexGridSizer2);
 
     wxPanel* itemPanel3 = new wxPanel( itemDialog1, ID_PANEL3, wxDefaultPosition, wxDefaultSize, wxNO_BORDER|wxTAB_TRAVERSAL );
     itemPanel3->SetExtraStyle(wxWS_EX_VALIDATE_RECURSIVELY);
@@ -262,7 +262,7 @@ wxBitmap AboutCKM::GetBitmapResource( const wxString& name )
 
 wxIcon AboutCKM::GetIconResource( const wxString& name )
 {
-    return ::GetIconResource(name);
+	return ::GetIconResource(name);
 }
 
 

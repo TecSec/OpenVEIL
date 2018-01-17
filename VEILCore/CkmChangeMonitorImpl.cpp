@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -110,7 +110,7 @@ public:
         return false;
 
     gCloseThread = true;
-	gThreadHandle.WaitForThread((DWORD)-1); // INFINITE
+	gThreadHandle.WaitForThread((uint32_t)-1); // INFINITE
     ProducerList.clear();
     ConsumerList.clear();
     return true;
@@ -220,8 +220,8 @@ private:
 	ProducerTreeList ProducerList;
 	uint32_t gNextProducer;
 
-	//CkmChangeMonitorImpl(const CkmChangeMonitorImpl &obj) : TSName("CkmChangeMonitorImpl"), TSProvideClassInfoImpl<gCryptoSupportTypeLib>(CLSID_CCkmChangeMonitor) { MY_UNREFERENCED_PARAMETER(obj); }
-	//CkmChangeMonitorImpl &operator=(const CkmChangeMonitorImpl &obj){MY_UNREFERENCED_PARAMETER(obj); return *this;}
+	//CkmChangeMonitorImpl(const CkmChangeMonitorImpl &obj) : TSName("CkmChangeMonitorImpl"), TSProvideClassInfoImpl<gCryptoSupportTypeLib>(CLSID_CCkmChangeMonitor) { UNREFERENCED_PARAMETER(obj); }
+	//CkmChangeMonitorImpl &operator=(const CkmChangeMonitorImpl &obj){UNREFERENCED_PARAMETER(obj); return *this;}
 };
 
 bool ShutdownChangeMonitor()

@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -62,7 +62,7 @@ bool CMSHEADER_EXPORT InitializeCmsHeader()
 ///
 /// <returns>S_OK for success or a standard COM error for failure.</returns>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-bool CMSHEADER_EXPORT ExtractHeaderFromStream(const BYTE *data, int dataLength, int *headerLength, std::shared_ptr<tsmod::IObject>& pVal)
+bool CMSHEADER_EXPORT ExtractHeaderFromStream(const uint8_t *data, int dataLength, int *headerLength, std::shared_ptr<tsmod::IObject>& pVal)
 {
 	if (!InitializeCmsHeader())
 		return false;
@@ -102,7 +102,7 @@ bool CMSHEADER_EXPORT ExtractHeaderFromStream(const BYTE *data, int dataLength, 
 ///
 /// <returns>S_OK for success or a standard COM error for failure.</returns>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-bool ExtractHeaderLength(const BYTE *data, int dataLength, int *headerLength)
+bool ExtractHeaderLength(const uint8_t *data, int dataLength, int *headerLength)
 {
 	size_t length = 0;
 
@@ -120,7 +120,7 @@ bool ExtractHeaderLength(const BYTE *data, int dataLength, int *headerLength)
 	{
 		int tag;
 		bool constructed;
-		BYTE type;
+        uint8_t type;
 		size_t headerLen;
 
 		if ((headerLen = TlvNode::ExtractTagAndLength(tscrypto::tsCryptoData(data, 10), 0, false, false, tag, constructed, type, length)) == 0 ||

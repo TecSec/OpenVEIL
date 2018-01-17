@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -652,7 +652,7 @@ tsCertificateExtension::tsCertificateExtension(const tsCryptoData &OID, bool cri
 	m_oidString = m_oid.ToOIDString();
 	for (int i = 0; i < (int)(sizeof(gNameList) / sizeof(gNameList[0])); i++)
 	{
-		if ( TsStrCmp(gNameList[i].oid, m_oidString.c_str()) == 0 )
+		if ( tsStrCmp(gNameList[i].oid, m_oidString.c_str()) == 0 )
 		{
 			m_extName = gNameList[i].name;
 			break;
@@ -751,7 +751,7 @@ bool tsCertificateExtension::LoadExtension(std::shared_ptr<TlvNode> node)
 
 	for (int i = 0; i < (int)(sizeof(gNameList) / sizeof(gNameList[0])); i++)
 	{
-		if ( TsStrCmp(gNameList[i].oid, m_oidString.c_str()) == 0 )
+		if ( tsStrCmp(gNameList[i].oid, m_oidString.c_str()) == 0 )
 		{
 			m_extName = gNameList[i].name;
 			break;
@@ -780,7 +780,7 @@ bool tsCertificateExtension::AddToNode(std::shared_ptr<TlvNode> parent) const
         seq->AppendChild(node = parent->OwnerDocument().lock()->CreateTlvNode(TlvNode::Tlv_Boolean, TlvNode::Type_Universal));
         if ( !node )
             return false;
-        node->InnerData((BYTE)1);
+        node->InnerData((uint8_t)1);
     }
     seq->AppendChild(parent->OwnerDocument().lock()->CreateOctetString(Value()));
     return true;
@@ -798,7 +798,7 @@ void tsCertificateExtension::OID(tsCryptoData &setTo)
 	m_oidString = m_oid.ToOIDString();
 	for (int i = 0; i < (int)(sizeof(gNameList) / sizeof(gNameList[0])); i++)
 	{
-		if ( TsStrCmp(gNameList[i].oid, m_oidString.c_str()) == 0 )
+		if ( tsStrCmp(gNameList[i].oid, m_oidString.c_str()) == 0 )
 		{
 			m_extName = gNameList[i].name;
 			break;

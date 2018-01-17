@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -30,7 +30,6 @@
 // Written by Roger Butler
 
 #include "stdafx.h"
-#include "VEILSmartCard.h"
 
 static tsmod::IObject* CreateSmartCardTool()
 {
@@ -74,7 +73,7 @@ bool EXPORTME Initialize_smartcard(std::shared_ptr<tsmod::IServiceLocator> servL
 	UNREFERENCED_PARAMETER(servLoc);
 	UNREFERENCED_PARAMETER(log);
 
-	InitializeSmartCard();
+    tsWinscardInit();
 
 
 	::TopServiceLocator()->AddClass("/COMMANDS/SMARTCARD", CreateSmartCardTool);
@@ -87,7 +86,7 @@ bool EXPORTME Initialize_smartcard(std::shared_ptr<tsmod::IServiceLocator> servL
 	::TopServiceLocator()->AddClass("/SMARTCARDAID-COMMANDS/ADD", CreateAddAIDTool);
 	::TopServiceLocator()->AddClass("/SMARTCARDAID-COMMANDS/REMOVE", CreateRemoveAIDTool);
 
-	if (::TopServiceLocator()->CanCreate("/Crypto/SECURE_CHANNEL-SERVER"))
+	if (::TopServiceLocator()->CanCreate("/Crypto/TSSECURE_CHANNEL-SERVER"))
 	{
 		::TopServiceLocator()->AddClass("/SMARTCARD-COMMANDS/CHANGE", CreateSmartCardChangeTool);
 
@@ -120,6 +119,7 @@ bool EXPORTME Terminate_smartcard(std::shared_ptr<tsmod::IServiceLocator> servLo
 		::TopServiceLocator()->CleanEmptyCollections();
 		::TopServiceLocator()->DeleteClass("/COMMANDS/SMARTCARD");
 	}
+    tsWinscardRelease();
 	return true;
 }
 

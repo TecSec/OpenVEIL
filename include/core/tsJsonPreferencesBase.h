@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -118,38 +118,38 @@ public:
 	 *
 	 * \return .
 	 */
-	int valueAsNumber() const { return TsStrToInt(Value.c_str()); }
+	int valueAsNumber() const { return tsStrToInt(Value.c_str()); }
 	/**
 	 * \brief Gets the value as int 64.
 	 *
 	 * \return .
 	 */
-	int64_t valueAsInt64() const { return TsStrToInt64(Value.c_str()); }
+	int64_t valueAsInt64() const { return tsStrToInt64(Value.c_str()); }
 	/**
 	 * \brief Determines if we can value as bool.
 	 *
 	 * \return true if it succeeds, false if it fails.
 	 */
-	bool valueAsBool() const { return TsStrToInt64(Value.c_str()) != 0 || TsStriCmp(Value.c_str(), "true") == 0; }
+	bool valueAsBool() const { return tsStrToInt64(Value.c_str()) != 0 || tsStriCmp(Value.c_str(), "true") == 0; }
 	/**
 	 * \brief Sets value as number.
 	 *
 	 * \param setTo The set to.
 	 */
-	void setValueAsNumber(int setTo) { char buff[20]; Value.clear(); TsSnPrintf(buff, sizeof(buff) / sizeof(char), ("%d"), setTo); Value = buff; }
+	void setValueAsNumber(int setTo) { char buff[20]; Value.clear(); tsSnPrintf(buff, sizeof(buff) / sizeof(char), ("%d"), setTo); Value = buff; }
 	/**
 	 * \brief Sets value as int 64.
 	 *
 	 * \param setTo The set to.
 	 */
-	void setValueAsInt64(int64_t setTo) { char buff[60]; Value.clear(); TsSnPrintf(buff, sizeof(buff) / sizeof(char), ("%lld"), setTo); Value = buff; }
+	void setValueAsInt64(int64_t setTo) { char buff[60]; Value.clear(); tsSnPrintf(buff, sizeof(buff) / sizeof(char), ("%lld"), setTo); Value = buff; }
 	/**
 	 * \brief Sets value as bool.
 	 *
 	 * \param setTo true to set to.
 	 */
 	void setValueAsBool(bool setTo) { Value = setTo ? "true" : "false"; }
-	bool operator==(const JsonPreferenceItem& obj) const { return TsStrCmp(Path.c_str(), obj.Path.c_str()) == 0; }
+	bool operator==(const JsonPreferenceItem& obj) const { return tsStrCmp(Path.c_str(), obj.Path.c_str()) == 0; }
 };
 
 class tsJsonPreferencesBase;
@@ -530,7 +530,7 @@ protected:
 	///
 	/// <returns>true if it succeeds, false if it fails.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual bool saveConfigurationChangesForLocation(JsonConfigLocation location) { MY_UNREFERENCED_PARAMETER(location); return true; }
+	virtual bool saveConfigurationChangesForLocation(JsonConfigLocation location) { UNREFERENCED_PARAMETER(location); return true; }
 	//virtual bool saveConfigurationChangesForLocation(JsonConfigLocation location);
 	/**
 	 * \brief Loads configuration values for the specified location.
@@ -540,7 +540,7 @@ protected:
 	 *
 	 * \return true if it succeeds, false if it fails.
 	 */
-	virtual bool loadValuesForLocation(JsonConfigLocation location, const tscrypto::JSONObject &config) { MY_UNREFERENCED_PARAMETER(location); MY_UNREFERENCED_PARAMETER(config); return true; }
+	virtual bool loadValuesForLocation(JsonConfigLocation location, const tscrypto::JSONObject &config) { UNREFERENCED_PARAMETER(location); UNREFERENCED_PARAMETER(config); return true; }
 	//virtual bool loadValuesForLocation(JsonConfigLocation location, const tscrypto::JSONObject &config);
 	/**
 	 * \brief Determines if we can use entries.

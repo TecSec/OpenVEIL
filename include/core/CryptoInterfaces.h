@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -2289,9 +2289,9 @@ namespace tscrypto {
 
 }
 #ifdef __APPLE__
-	#include "TSALG/TSALG.h"
+	#include "CyberVEIL/CyberVEIL.h"
 #else
-	#include "TSALG.h"
+	#include "CyberVEIL.h"
 #endif
 
 namespace tscrypto {
@@ -2299,7 +2299,7 @@ namespace tscrypto {
 	{
 	public:
 		virtual ~ISslCertSelector() {}
-		virtual tsCryptoData GetServerCertForAlgorithm(SSL_CIPHER algorithm) = 0;
+		virtual tsCryptoData GetServerCertForAlgorithm(TSSslCipher algorithm) = 0;
 		virtual std::shared_ptr<tscrypto::ICryptoObject> GetPrivateKeyAlgorithmForCert(const tsCryptoData& cert) = 0;
 		virtual tsCryptoData GetIssuerForCert(const tsCryptoData& cert) = 0;
 	};
@@ -2308,10 +2308,10 @@ namespace tscrypto {
 	{
 	public:
 		virtual ~ISslHandshake_Client() {}
-		virtual void RegisterCertificateVerifier(std::function<SSL_AlertDescription(const tsCryptoDataList& certificate, SSL_CIPHER cipher)> func) = 0;
+		virtual void RegisterCertificateVerifier(std::function<TSSslAlertDescription(const tsCryptoDataList& certificate, TSSslCipher cipher)> func) = 0;
 		virtual void RegisterClientPSK(std::function<bool(const tsCryptoData& hint, tsCryptoData& identity, tsCryptoData& psk)> func) = 0;
 		virtual void RegisterPasswordCallback(std::function<bool(tsCryptoData& password)> setTo) = 0;
-		virtual void setCiphersSupported(SSL_CIPHER* list, size_t count) = 0;
+		virtual void setCiphersSupported(TSSslCipher* list, size_t count) = 0;
 	};
 
 	class VEILCORE_API IAlgorithmList
@@ -3422,11 +3422,11 @@ namespace tscrypto {
 	{
 	public:
 		virtual ~TSALG_Access() {}
-		virtual const TSALG_Base_Descriptor* Descriptor() const = 0;
-		virtual CRYPTO_ASYMKEY getKeyPair() const = 0;
-		virtual CRYPTO_WORKSPACE getWorkspace() const = 0;
-		virtual CRYPTO_ASYMKEY detachFromKeyPair() = 0;
-		virtual CRYPTO_ASYMKEY cloneKeyPair() const = 0;
+		virtual const TSCryptoBaseDescriptor* Descriptor() const = 0;
+		virtual TSCRYPTO_ASYMKEY getKeyPair() const = 0;
+		virtual TSCRYPTO_WORKSPACE getWorkspace() const = 0;
+		virtual TSCRYPTO_ASYMKEY detachFromKeyPair() = 0;
+		virtual TSCRYPTO_ASYMKEY cloneKeyPair() const = 0;
 	};
 }
 

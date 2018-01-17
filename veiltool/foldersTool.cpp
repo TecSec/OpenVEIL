@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -34,123 +34,123 @@
 enum options { OPT_HELP,  };
 
 static const struct tsmod::OptionList options[] = {
-	{ "", "VEIL tool FOLDERS options" },
-	{ "", "=================================" },
-	{ "--help, -h, -?", "This help information." },
-	{ "", "" },
+    { "", "VEIL tool FOLDERS options" },
+    { "", "=================================" },
+    { "--help, -h, -?", "This help information." },
+    { "", "" },
 };
 
 static const CSimpleOptA::SOption optionList[] =
 {
-	{ OPT_HELP,               "-?",                   SO_NONE },
-	{ OPT_HELP,               "-h",                   SO_NONE },
-	{ OPT_HELP,               "--help",               SO_NONE },
+    { OPT_HELP,               "-?",                   SO_NONE },
+    { OPT_HELP,               "-h",                   SO_NONE },
+    { OPT_HELP,               "--help",               SO_NONE },
 
-	SO_END_OF_OPTIONS
+    SO_END_OF_OPTIONS
 };
 
 static struct {
-	SpecialFolderType type;
-	const char* name;
+    TSSpecialFolderType type;
+    const char* name;
 } folderList[] = 
 {
-	{sft_UserDataFolder,			 "User Data"},
-	{sft_PublicDataFolder,			 "Public Data"},
-	{sft_DocumentsFolder,			 "Documents"},
-	{sft_TempFolder,				 "Temp"},
-	{sft_SystemFolder,				 "System"},
-	{sft_WindowsFolder,				 "Windows"},
-	{sft_ApplicationData,			 "Application Data"},
-	{sft_CommonApplicationData,		 "Common App Data"},
-	{sft_Desktop,					 "Desktop"},
-	{sft_LocalApplicationData,		 "Local App Data"},
-	{sft_LogFolder,					 "Logs"},
-	{sft_ProfileFolder,				 "Profile"},
-	{sft_TecSecFolder,				 "TecSec"},
-	{sft_UserCkmFavorites,			 "User Favorites"},
-	{sft_PublicCkmFavorites,		 "Public Favorites"},
-	{sft_SystemCkmFavorites,		 "System Favorites"},
-	{sft_CkmDefaultProgramsPath,	 "CKM Program Path"},
-	{sft_BootDriveRoot,				 "Boot drive"},
-	{sft_CommonFiles,				 "Common Files"},
-	{sft_PolicyData,				 "Policy"},
-	{sft_PolicyDataUser,			 "User Policy"},
-	{sft_PolicyCkmFavorites,		 "Favorite Policy"},
-	{sft_PolicyUserCkmFavorites,	 "User Fav Policy"},
-	{sft_UserTokensFolder,			 "User Tokens"},
-	{sft_UserConfigFolder,			 "User Config"},
-	{sft_UserSharesFolder,			 "User Shares"},
+    {tsSft_UserDataFolder,			 "User Data"},
+    {tsSft_PublicDataFolder,	     "Public Data"},
+    {tsSft_DocumentsFolder,			 "Documents"},
+    {tsSft_TempFolder,				 "Temp"},
+    {tsSft_SystemFolder,			 "System"},
+    {tsSft_WindowsFolder,			 "Windows"},
+    {tsSft_ApplicationData,			 "Application Data"},
+    {tsSft_CommonApplicationData,	 "Common App Data"},
+    {tsSft_Desktop,					 "Desktop"},
+    {tsSft_LocalApplicationData,	 "Local App Data"},
+    {tsSft_LogFolder,				 "Logs"},
+    {tsSft_ProfileFolder,			 "Profile"},
+    {tsSft_TecSecFolder,			 "TecSec"},
+    {tsSft_UserCkmFavorites,		 "User Favorites"},
+    {tsSft_PublicCkmFavorites,		 "Public Favorites"},
+    {tsSft_SystemCkmFavorites,		 "System Favorites"},
+    {tsSft_CkmDefaultProgramsPath,	 "CKM Program Path"},
+    {tsSft_BootDriveRoot,			 "Boot drive"},
+    {tsSft_CommonFiles,				 "Common Files"},
+    {tsSft_PolicyData,				 "Policy"},
+    {tsSft_PolicyDataUser,			 "User Policy"},
+    {tsSft_PolicyCkmFavorites,		 "Favorite Policy"},
+    {tsSft_PolicyUserCkmFavorites,	 "User Fav Policy"},
+    {tsSft_UserTokensFolder,		 "User Tokens"},
+    {tsSft_UserConfigFolder,		 "User Config"},
+    {tsSft_UserSharesFolder,		 "User Shares"},
 };
 class FoldersTool : public tsmod::IVeilToolCommand, public tsmod::IObject
 {
 public:
-	FoldersTool()
-	{}
-	~FoldersTool()
-	{}
+    FoldersTool()
+    {}
+    ~FoldersTool()
+    {}
 
-	// tsmod::IObject
-	virtual void OnConstructionFinished() override
-	{
-		utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
-	}
+    // tsmod::IObject
+    virtual void OnConstructionFinished() override
+    {
+        utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
+    }
 
-	// Inherited via tsmod::IVeilToolCommand
-	virtual tscrypto::tsCryptoString getDescription() const override
-	{
-		return "Display important folders for the veil suite.";
-	}
-	virtual int RunCommand(CSimpleOptA & opts) override
-	{
-		opts.Init(opts.FileCount(), opts.Files(), optionList, SO_O_NOERR | SO_O_USEALL | SO_O_ICASE);
-		while (opts.Next())
-		{
-			if (opts.LastError() == SO_SUCCESS)
-			{
-				if (opts.OptionId() == OPT_HELP)
-				{
-					Usage();
-					return 0;
-				}
-				else
-				{
-					Usage();
-					return 1;
-				}
-			}
-			else
-			{
-				Usage();
-				return 1;
-			}
-		}
-		printf("Name                      Path\n");
-		printf("============================================================================================================\n");
-		for (auto i : folderList)
-		{
-			tscrypto::tsCryptoString path;
+    // Inherited via tsmod::IVeilToolCommand
+    virtual tscrypto::tsCryptoString getDescription() const override
+    {
+        return "Display important folders for the veil suite.";
+    }
+    virtual int RunCommand(CSimpleOptA & opts) override
+    {
+        opts.Init(opts.FileCount(), opts.Files(), optionList, SO_O_NOERR | SO_O_USEALL | SO_O_ICASE);
+        while (opts.Next())
+        {
+            if (opts.LastError() == SO_SUCCESS)
+            {
+                if (opts.OptionId() == OPT_HELP)
+                {
+                    Usage();
+                    return 0;
+                }
+                else
+                {
+                    Usage();
+                    return 1;
+                }
+            }
+            else
+            {
+                Usage();
+                return 1;
+            }
+        }
+        printf("Name                      Path\n");
+        printf("============================================================================================================\n");
+        for (auto i : folderList)
+        {
+            char path[MAX_PATH] = { 0, };
 
-			if (xp_GetSpecialFolder(i.type, path))
-			{
-				printf("%-25s %s\n", i.name, path.c_str());
-			}
-		}
-		return 0;
-	}
-	virtual tscrypto::tsCryptoString getCommandName() const override
-	{
-		return "folders";
-	}
+            if (tsGetSpecialFolder(i.type, path, sizeof(path)))
+            {
+                printf("%-25s %s\n", i.name, path);
+            }
+        }
+        return 0;
+    }
+    virtual tscrypto::tsCryptoString getCommandName() const override
+    {
+        return "folders";
+    }
 protected:
-	void Usage()
-	{
-		utils->Usage(options, sizeof(options) / sizeof(options[0]));
-	}
+    void Usage()
+    {
+        utils->Usage(options, sizeof(options) / sizeof(options[0]));
+    }
 protected:
-	std::shared_ptr<tsmod::IVeilUtilities> utils;
+    std::shared_ptr<tsmod::IVeilUtilities> utils;
 };
 
 tsmod::IObject* CreateFoldersTool()
 {
-	return dynamic_cast<tsmod::IObject*>(new FoldersTool());
+    return dynamic_cast<tsmod::IObject*>(new FoldersTool());
 }

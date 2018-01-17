@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -41,9 +41,9 @@ public:
 	// ICkmFileList
     virtual bool AddFile(const tscrypto::tsCryptoString& filename);
     virtual void    Clear();
-    virtual DWORD   FileCount();
-    virtual bool RemoveFile(DWORD index);
-    virtual bool GetFileName(DWORD index, tscrypto::tsCryptoString& name);
+    virtual uint32_t   FileCount();
+    virtual bool RemoveFile(uint32_t index);
+    virtual bool GetFileName(uint32_t index, tscrypto::tsCryptoString& name);
 
 private:
 	virtual ~FileVEILFileListImpl();

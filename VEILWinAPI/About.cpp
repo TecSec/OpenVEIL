@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -64,7 +64,7 @@ protected:
 	{
 		char path[MAX_PATH + 10];
 		DWORD tmp = 0;
-		DWORD length;
+		uint32_t length;
 		unsigned char bytes[1024];
 		VS_FIXEDFILEINFO *ffInfo = NULL;
 		UINT ffLen;
@@ -84,33 +84,21 @@ protected:
 			ffLen = sizeof(VS_FIXEDFILEINFO);
 			if (VerQueryValueA(bytes, (char*)"\\", (void**)&ffInfo, &ffLen) && ffInfo != NULL)
 			{
-#ifdef HAVE__SNPRINTF_S
-				_snprintf_s(versionString, versionStringLen, versionStringLen, "Version %d.%d", HIWORD(ffInfo->dwProductVersionMS), LOWORD(ffInfo->dwProductVersionMS));
-#else
-				snprintf(versionString, versionStringLen, "Version %d.%d", HIWORD(ffInfo->dwProductVersionMS), LOWORD(ffInfo->dwProductVersionMS));
-#endif
+				tsSnPrintf(versionString, versionStringLen, "Version %d.%d", HIWORD(ffInfo->dwProductVersionMS), LOWORD(ffInfo->dwProductVersionMS));
 			}
 			else
 			{
-#ifdef HAVE__SNPRINTF_S
-				_snprintf_s(versionString, versionStringLen, versionStringLen, "unknown version");
-#else
-				snprintf(versionString, versionStringLen, "unknown version");
-#endif
+                tsSnPrintf(versionString, versionStringLen, "unknown version");
 			}
 		}
 		else
 		{
-#ifdef HAVE__SNPRINTF_S
-			_snprintf_s(versionString, versionStringLen, versionStringLen, "unknown version");
-#else
-			snprintf(versionString, versionStringLen, "unknown version");
-#endif
+            tsSnPrintf(versionString, versionStringLen, "unknown version");
 		}
 	}
 
 	// 06/14/2010 KRR unreferenced local parameter
-	static INT_PTR CALLBACK	AboutCkmProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM /*lParam*/)
+	static intptr_t CALLBACK	AboutCkmProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM /*lParam*/)
 	{
 		switch (msg)
 		{
@@ -148,7 +136,7 @@ protected:
 			if(theForegroundWnd == NULL)
 			theForegroundWnd = ::FindWindow("Shell_TrayWnd",NULL);
 
-			DWORD theFGWndThreadID = GetWindowThreadProcessId(theForegroundWnd,NULL);
+			uint32_t theFGWndThreadID = GetWindowThreadProcessId(theForegroundWnd,NULL);
 
 			// Attach your thread to the foreground window thread
 			if ( AttachThreadInput( theFGWndThreadID, GetCurrentThreadId(),true) )
@@ -162,7 +150,7 @@ protected:
 			}
 			*/
 		}
-		return (INT_PTR)TRUE;
+		return (intptr_t)1;
 
 		case WM_COMMAND:
 			if (LOWORD(wParam) == IDOK)
@@ -173,9 +161,9 @@ protected:
 			{
 				EndDialog(hWnd, IDCANCEL);
 			}
-			return FALSE;
+			return 0;
 		}
-		return FALSE;
+		return 0;
 	}
 };
 

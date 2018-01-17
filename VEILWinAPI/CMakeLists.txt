@@ -1,4 +1,4 @@
-#	Copyright (c) 2017, TecSec, Inc.
+#	Copyright (c) 2018, TecSec, Inc.
 #
 #	Redistribution and use in source and binary forms, with or without
 #	modification, are permitted provided that the following conditions are met:
@@ -77,7 +77,7 @@ if(ANDROID)
 	set_target_properties(VEILWinAPI PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
 endif()
 add_precompiled_header(VEILWinAPI stdafx.h FORCEINCLUDE SOURCE_CXX stdafx.cpp)
-TARGET_LINK_LIBRARIES(VEILWinAPI VEILCore VEILCmsHeader Comctl32.lib Version.lib TS_SUP_DLL)
+TARGET_LINK_LIBRARIES(VEILWinAPI VEILCore VEILCmsHeader Comctl32.lib Version.lib CyberVEIL)
 set_target_properties(VEILWinAPI PROPERTIES FOLDER "Modules" VERSION ${${VEILCORENAME_U}_VERSION} SOVERSION ${${VEILCORENAME_U}_SO_VERSION} COMPILE_DEFINITIONS VEILWINAPIDEF)
 if(UNIX AND CMAKE_OBJCOPY)
 	add_custom_command(TARGET VEILWinAPI POST_BUILD 

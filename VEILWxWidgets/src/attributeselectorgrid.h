@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -132,7 +132,7 @@ public:
 	//    std::vector<Asn1::CTS::_POD_Category*>				_catList;
 	//    std::shared_ptr<Asn1::CTS::_POD_Profile>			_profile;
 
-	std::vector<GUID>									_GuidMap;
+	std::vector<tscrypto::tsCryptoData>					_idMap;
 	Asn1::CTS::_POD_CryptoGroup*						_cryptoGroup;
 	std::shared_ptr<Asn1::CTS::_POD_Profile>			_profile;
 	attributeSelectorVariables*                         _vars;
@@ -142,10 +142,10 @@ public:
 
 protected:
 	void OnInitDialog();
-	int FindAttrIndex(std::shared_ptr<ICmsHeaderAttributeListExtension> attrList, const GUID &id);
-	Asn1::CTS::_POD_CryptoGroup* GetCryptoGroupById(std::shared_ptr<IKeyVEILSession> session, const GUID& id);
+	int FindAttrIndex(std::shared_ptr<ICmsHeaderAttributeListExtension> attrList, const tscrypto::tsCryptoData &id);
+	Asn1::CTS::_POD_CryptoGroup* GetCryptoGroupById(std::shared_ptr<IKeyVEILSession> session, const tscrypto::tsCryptoData& id);
 	Asn1::CTS::_POD_CryptoGroup* GetCryptoGroup(std::shared_ptr<IKeyVEILSession> session, size_t index);
-	Asn1::CTS::_POD_CryptoGroup* GetCryptoGroup(std::shared_ptr<IKeyVEILSession> session, const GUID& cgId);
+	Asn1::CTS::_POD_CryptoGroup* GetCryptoGroup(std::shared_ptr<IKeyVEILSession> session, const tscrypto::tsCryptoData& cgId);
 	void MarkIncomingAttributes();
 	std::vector<const Asn1::CTS::_POD_Category*> BuildCategoryList(const Asn1::CTS::_POD_Fiefdom* fiefdom);
 	void FillGrid(Asn1::CTS::_POD_CryptoGroup* cryptoGroup);

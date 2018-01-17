@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -259,17 +259,17 @@ void AttributeSelectorGrid::OnCellChanged( wxGridEvent& event )
 	wxString name = grid->GetCellValue(row, col);
 	tscrypto::tsCryptoString wName = name.c_str().AsChar();
 
-    event.Skip();
+	event.Skip();
 	if (_vars != nullptr)
 	{
-	if (wName.size() > 0)
-	{
-		if (wName[0] == '-')
+		if (wName.size() > 0)
 		{
+			if (wName[0] == '-')
+			{
 				_vars->_selectedAttributeCount--;
-		}
-		else if (wName[0] == '+')
-		{
+			}
+			else if (wName[0] == '+')
+			{
 				_vars->_selectedAttributeCount++;
 			}
 			btnOK->Enable(_vars->_selectedAttributeCount > 0);
@@ -345,29 +345,29 @@ void AttributeSelectorGrid::OnOkClick(wxCommandEvent& event)
 			rowCount = grid->GetNumberRows();
 			colCount = grid->GetNumberCols();
 
-		for (int col = 0; col < colCount; col++)
-		{
-			for (int row = 0; row < rowCount; row++)
+			for (int col = 0; col < colCount; col++)
 			{
-					if (!grid->GetCellValue(row, col).IsEmpty())
+				for (int row = 0; row < rowCount; row++)
 				{
-						name = grid->GetCellValue(row, col);
-					if (name[0] == '+')
+					if (!grid->GetCellValue(row, col).IsEmpty())
 					{
-						tscrypto::tsCryptoStringList parts = tscrypto::tsCryptoString(name.c_str().AsChar()).split("~");
-						int id = 0;
-						if (parts->size() > 1)
-							id = TsStrToInt(parts->at(1));
-						GUID attributeGuid = _GuidMap[id];
+						name = grid->GetCellValue(row, col);
+						if (name[0] == '+')
+						{
+							tscrypto::tsCryptoStringList parts = tscrypto::tsCryptoString(name.c_str().AsChar()).split("~");
+							int id = 0;
+							if (parts->size() > 1)
+								id = TsStrToInt(parts->at(1));
+							GUID attributeGuid = _GuidMap[id];
 
-						int idx = FindAttrIndex(_vars->_attrsList, attributeGuid);
+							int idx = FindAttrIndex(_vars->_attrsList, attributeGuid);
 
-						if (idx >= 0)
-							_vars->_ckm7group->AddAttributeIndex(idx);
+							if (idx >= 0)
+								_vars->_ckm7group->AddAttributeIndex(idx);
+						}
 					}
 				}
 			}
-		}
 		}
 		_vars->_cryptoGroupId = CryptoGroup->get_Id();
 	}
@@ -388,24 +388,24 @@ void AttributeSelectorGrid::OnInitDialog()
 
 	if (_vars != nullptr)
 	{
-			Asn1::CTS::_POD_CryptoGroup* CryptoGroup = nullptr;
-			tscrypto::tsCryptoString name;
+		Asn1::CTS::_POD_CryptoGroup* CryptoGroup = nullptr;
+		tscrypto::tsCryptoString name;
 
-			_profile = _vars->_session->GetProfile();
+		_profile = _vars->_session->GetProfile();
 
-			CryptoGroup = GetCryptoGroupById(_vars->_session, _vars->_cryptoGroupId);
-			if (!CryptoGroup)
-			{
-				EndDialog(wxID_CANCEL);
-				return;
-			}
-
-			name = CryptoGroup->get_Name();
-
-			FillGrid(CryptoGroup);
-			MarkIncomingAttributes();
+		CryptoGroup = GetCryptoGroupById(_vars->_session, _vars->_cryptoGroupId);
+		if (!CryptoGroup)
+		{
+			EndDialog(wxID_CANCEL);
+			return;
 		}
-		btnOK->Enable((_vars->_selectedAttributeCount > 0) ? true : false);
+
+		name = CryptoGroup->get_Name();
+
+		FillGrid(CryptoGroup);
+		MarkIncomingAttributes();
+	}
+	btnOK->Enable((_vars->_selectedAttributeCount > 0) ? true : false);
 }
 
 int AttributeSelectorGrid::FindAttrIndex(std::shared_ptr<ICmsHeaderAttributeListExtension> attrList, const GUID &id)
@@ -453,7 +453,7 @@ Asn1::CTS::_POD_CryptoGroup* AttributeSelectorGrid::GetCryptoGroup(std::shared_p
 
 Asn1::CTS::_POD_CryptoGroup* AttributeSelectorGrid::GetCryptoGroup(std::shared_ptr<IKeyVEILSession> session, const GUID& cgId)
 {
-		return GetCryptoGroupById(session, cgId);
+	return GetCryptoGroupById(session, cgId);
 }
 
 void AttributeSelectorGrid::MarkIncomingAttributes()
@@ -476,38 +476,38 @@ void AttributeSelectorGrid::MarkIncomingAttributes()
 		rowCount = grid->GetNumberRows();
 		colCount = grid->GetNumberCols();
 
-	for (int row = 0; row < rowCount; row++)
-	{
-		for (int col = 0; col < colCount; col++)
+		for (int row = 0; row < rowCount; row++)
 		{
+			for (int col = 0; col < colCount; col++)
+			{
 				name = grid->GetCellValue(row, col);
 				if (!name.empty())
 				{
-			tscrypto::tsCryptoStringList parts = tscrypto::tsCryptoString(name.c_str().AsChar()).split("~");
-			if (parts->size() > 1)
-				id = TsStrToInt(parts->at(1));
-			wName = name.c_str().AsChar();
-			if (wName[0] == '-')
-			{
-				GUID attributeGuid = _GuidMap[id];
-				std::shared_ptr<ICmsHeaderAttribute> attr;
-
-				for (int i = 0; i < count; i++)
-				{
-					attr.reset();
-
-					if (_vars->_attrsList->GetAttribute(_vars->_ckm7group->GetAttributeIndex(i), attr) && attr->GetAttributeGUID() == attributeGuid)
+					tscrypto::tsCryptoStringList parts = tscrypto::tsCryptoString(name.c_str().AsChar()).split("~");
+					if (parts->size() > 1)
+						id = TsStrToInt(parts->at(1));
+					wName = name.c_str().AsChar();
+					if (wName[0] == '-')
 					{
-						_vars->_selectedAttributeCount++;
-						wName[0] = '+';
-							grid->SetCellValue(row, col, wName.c_str());
-						break;
+						GUID attributeGuid = _GuidMap[id];
+						std::shared_ptr<ICmsHeaderAttribute> attr;
+
+						for (int i = 0; i < count; i++)
+						{
+							attr.reset();
+
+							if (_vars->_attrsList->GetAttribute(_vars->_ckm7group->GetAttributeIndex(i), attr) && attr->GetAttributeGUID() == attributeGuid)
+							{
+								_vars->_selectedAttributeCount++;
+								wName[0] = '+';
+								grid->SetCellValue(row, col, wName.c_str());
+								break;
+							}
+						}
 					}
 				}
 			}
 		}
-	}
-	}
 	}
 }
 
@@ -573,41 +573,41 @@ void AttributeSelectorGrid::FillGrid(Asn1::CTS::_POD_CryptoGroup* cryptoGroup)
 
 		const Asn1::CTS::_POD_CryptoGroup_FiefdomList* fiefList = cryptoGroup->get_FiefdomList();
 		for (size_t fiefItem = 0; fiefItem < fiefList->size(); fiefItem++)
-	{
+		{
 			const Asn1::CTS::_POD_Fiefdom& fief = fiefList->get_at(fiefItem);
 
 			catList = BuildCategoryList(&fief);
 			count = (int)catList.size();
 
-		// First determine the size of the grid
-		for (i = 0; i < count; i++)
-		{
+			// First determine the size of the grid
+			for (i = 0; i < count; i++)
+			{
 				cat = catList[i];
 
-			attributeCount = (int)cat->get_AttributeList()->size();
+				attributeCount = (int)cat->get_AttributeList()->size();
 
-			int removeCount = 0;
-			for (int j = 0; j < attributeCount; j++)
-			{
-					const Asn1::CTS::_POD_Attribute& attr = cat->get_AttributeList()->get_at(j);
-				if (!attr.get_hasWrite())
+				int removeCount = 0;
+				for (int j = 0; j < attributeCount; j++)
 				{
-					removeCount++;
+					const Asn1::CTS::_POD_Attribute& attr = cat->get_AttributeList()->get_at(j);
+					if (!attr.get_hasWrite())
+					{
+						removeCount++;
+					}
+				}
+				attributeCount -= removeCount;
+
+				if (attributeCount > maxAttrCount)
+				{
+					maxAttrCount = attributeCount;
+				}
+				if (attributeCount == 0)
+				{
+					count--;
+					catList.erase(catList.begin() + i);
+					i--;
 				}
 			}
-			attributeCount -= removeCount;
-
-			if (attributeCount > maxAttrCount)
-			{
-				maxAttrCount = attributeCount;
-			}
-			if (attributeCount == 0)
-			{
-				count--;
-					catList.erase(catList.begin() + i);
-				i--;
-			}
-		}
 			if (catList.size() > 0)
 			{
 				wxGrid* grid = AddFiefdomGrid(fief.get_Name());
@@ -616,13 +616,13 @@ void AttributeSelectorGrid::FillGrid(Asn1::CTS::_POD_CryptoGroup* cryptoGroup)
 				if (grid != nullptr)
 				{
 
-		// Then create the columns and rows
+					// Then create the columns and rows
 					count = (int)catList.size();
-		if (count == 0)
-		{
-			EndDialog(wxID_CANCEL);
-			return;
-		}
+					if (count == 0)
+					{
+						EndDialog(wxID_CANCEL);
+						return;
+					}
 					grid->CreateGrid(maxAttrCount, count, wxGrid::wxGridSelectCells);
 					grid->SetSelectionMode(wxGrid::wxGridSelectionModes::wxGridSelectCells);
 					grid->EnableDragCell(false);
@@ -634,48 +634,48 @@ void AttributeSelectorGrid::FillGrid(Asn1::CTS::_POD_CryptoGroup* cryptoGroup)
 #endif // SUPPORT_KEYBOARD_SELECTION
 					//grid->Connect(ID_GRID, wxEVT_CHAR, wxKeyEventHandler(AttributeSelectorGrid::OnGridChar), NULL, this);
 
-		// and finally populate the grid
+					// and finally populate the grid
 
-		for (i = 0; i < count; i++)
-		{
+					for (i = 0; i < count; i++)
+					{
 						cat = catList[i];
-			name = cat->get_Name();
+						name = cat->get_Name();
 
 						grid->SetColLabelValue(i, name.c_str());
-		}
-
-		for (i = 0; i < count; i++)
-		{
-						cat = catList[i];
-			if (cat != nullptr)
-			{
-				std::vector<tscrypto::tsCryptoString> names;
-				//
-				// Now populate the rows for this column
-				//
-				attributeCount = (int)cat->get_AttributeList()->size();
-				for (int j = 0; j < attributeCount; j++)
-				{
-								const Asn1::CTS::_POD_Attribute& attr = cat->get_AttributeList()->get_at(j);
-					name = attr.get_Name();
-					name.prepend("-");
-
-					if (attr.get_hasWrite())
-					{
-						GUID attributeGuid = attr.get_Id();
-						_GuidMap.push_back(attributeGuid);
-
-						name << "~" << (int)(_GuidMap.size() - 1);
-
-						names.push_back(name);
 					}
-				}
 
-				std::sort(names.begin(), names.end());
+					for (i = 0; i < count; i++)
+					{
+						cat = catList[i];
+						if (cat != nullptr)
+						{
+							std::vector<tscrypto::tsCryptoString> names;
+							//
+							// Now populate the rows for this column
+							//
+							attributeCount = (int)cat->get_AttributeList()->size();
+							for (int j = 0; j < attributeCount; j++)
+							{
+								const Asn1::CTS::_POD_Attribute& attr = cat->get_AttributeList()->get_at(j);
+								name = attr.get_Name();
+								name.prepend("-");
 
-				int row = 0;
-				for (const tscrypto::tsCryptoString& name : names)
-				{
+								if (attr.get_hasWrite())
+								{
+									GUID attributeGuid = attr.get_Id();
+									_GuidMap.push_back(attributeGuid);
+
+									name << "~" << (int)(_GuidMap.size() - 1);
+
+									names.push_back(name);
+								}
+							}
+
+							std::sort(names.begin(), names.end());
+
+							int row = 0;
+							for (const tscrypto::tsCryptoString& name : names)
+							{
 								grid->SetCellRenderer(row, i, new MyGridCellRenderer());
 #ifdef SUPPORT_KEYBOARD_SELECTION
 								grid->SetCellEditor(row, i, new MyGridCellEditor());

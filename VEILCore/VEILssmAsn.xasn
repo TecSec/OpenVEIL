@@ -1,5 +1,5 @@
 <!--
-	Copyright (c) 2017, TecSec, Inc.
+	Copyright (c) 2018, TecSec, Inc.
 
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions are met:
@@ -34,9 +34,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Root xmlns="http://schemas.tecsec.com/xml2asn1codegen/2015">
   <File Name="VEILssmAsn" ExportSymbol="VEILCORE_API" TemplateExternSymbol="VEILCORE_TEMPLATE_EXTERN">
-
-    <ID Name="id_VEIL_SSM_REQUEST_OID" Value="2.23.42.9.10.3.0.3.8.0"/>
-    <ID Name="id_VEIL_SSM_RESPONSE_OID" Value="2.23.42.9.10.3.0.3.8.1"/>
 
     <Namespace Name="VEILssmAsn">
 
@@ -133,8 +130,8 @@
         <OctetString Name="Context"/>
       </Sequence>
       
-      <Sequence Name="Request" ElementType="Request" OID="id_VEIL_SSM_REQUEST_OID" DefaultVersion="0">
-        <Version Name="V0" OID="id_VEIL_SSM_REQUEST_OID" MinNumber="0" MaxNumber="0">
+      <Sequence Name="Request" ElementType="Request" OID="id_TECSEC_VEIL_SSM_REQUEST_OID" DefaultVersion="0">
+        <Version Name="V0" OID="id_TECSEC_VEIL_SSM_REQUEST_OID" MinNumber="0" MaxNumber="0">
           <Enum Name="command"/>
           <Guid Name="Id"/>
           <Choice Name="commandInfo"/>
@@ -169,8 +166,8 @@
         </SequenceOf>
       </Sequence>
 
-      <Sequence Name="Response" ElementType="Response" OID="id_VEIL_SSM_RESPONSE_OID" DefaultVersion="0">
-        <Version Name="V0" OID="id_VEIL_SSM_RESPONSE_OID" MinNumber="0" MaxNumber="0">
+      <Sequence Name="Response" ElementType="Response" OID="id_TECSEC_VEIL_SSM_RESPONSE_OID" DefaultVersion="0">
+        <Version Name="V0" OID="id_TECSEC_VEIL_SSM_RESPONSE_OID" MinNumber="0" MaxNumber="0">
           <Enum Name="command"/>
           <Guid Name="Id"/>
           <Enum Name="resultCode"/>

@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -36,198 +36,179 @@ using namespace tscrypto;
 class Sign_Rsa : public Signer, public TSName, public tscrypto::ICryptoObject, public tscrypto::IInitializableObject, public AlgorithmInfo
 {
 public:
-	Sign_Rsa() :
-		signDesc(nullptr),
-		hashDesc(nullptr)
-	{
-	}
-	virtual ~Sign_Rsa(void)
-	{
-	}
+    Sign_Rsa() :
+        signDesc(nullptr)
+    {
+    }
+    virtual ~Sign_Rsa(void)
+    {
+    }
 
     // Signer
-	virtual bool initialize(std::shared_ptr<AsymmetricKey> key) override
-	{
-		std::shared_ptr<TSALG_Access> access;
+    virtual bool initialize(std::shared_ptr<AsymmetricKey> key) override
+    {
+        std::shared_ptr<TSALG_Access> access;
 
-		if (!gFipsState.operational() || signDesc == nullptr)
-			return false;
-		m_key.reset();
+        if (!gFipsState.operational() || signDesc == nullptr)
+            return false;
+        m_key.reset();
 
-		if (!key || !(m_key = std::dynamic_pointer_cast<RsaKey>(key)) || !(access = std::dynamic_pointer_cast<TSALG_Access>(key)))
-			return false;
+        if (!key || !(m_key = std::dynamic_pointer_cast<RsaKey>(key)) || !(access = std::dynamic_pointer_cast<TSALG_Access>(key)))
+            return false;
 
-		if (hashDesc != nullptr)
-		{
-			hashWorkspace.reset();
-			hashWorkspace = hashDesc;
+        workspace = signDesc;
 
-			if (!hashDesc->init(hashDesc, hashWorkspace))
-				return false;
-		}
-		workspace = signDesc;
+        return signDesc->init(signDesc, workspace, (const TSRsaDescriptor*)access->Descriptor(), access->getKeyPair(), hashName.c_str());
+    }
+    virtual bool signHash(const tsCryptoData &hashData, tsCryptoData &signature) override
+    {
+        if (!gFipsState.operational() || signDesc == nullptr || workspace.empty())
+            return false;
+        uint32_t len;
 
-		return signDesc->init(signDesc, workspace, (const RSA_Descriptor*)access->Descriptor(), access->getKeyPair(), hashDesc, hashWorkspace);
-	}
-	virtual bool signHash(const tsCryptoData &hashData, tsCryptoData &signature) override
-	{
-		if (!gFipsState.operational() || signDesc == nullptr || workspace.empty())
-			return false;
-		uint32_t len;
+        signature.clear();
 
-		signature.clear();
+        if (!signDesc->signHash(signDesc, workspace, hashData.c_str(), (uint32_t)hashData.size(), nullptr, &len))
+            return false;
 
-		if (!signDesc->signHash(signDesc, workspace, hashData.c_str(), (uint32_t)hashData.size(), nullptr, &len))
-			return false;
+        signature.resize(len);
+        if (!signDesc->signHash(signDesc, workspace, hashData.c_str(), (uint32_t)hashData.size(), signature.rawData(), &len))
+        {
+            signature.clear();
+            return false;
+        }
+        signature.resize(len);
+        return true;
+    }
+    virtual bool update(const tsCryptoData &data) override
+    {
+        if (!gFipsState.operational() || signDesc == nullptr || workspace.empty())
+            return false;
 
-		signature.resize(len);
-		if (!signDesc->signHash(signDesc, workspace, hashData.c_str(), (uint32_t)hashData.size(), signature.rawData(), &len))
-		{
-			signature.clear();
-			return false;
-		}
-		signature.resize(len);
-		return true;
-	}
-	virtual bool update(const tsCryptoData &data) override
-	{
-		if (!gFipsState.operational() || signDesc == nullptr || workspace.empty())
-			return false;
+        return signDesc->update(signDesc, workspace, data.c_str(), (uint32_t)data.size());
+    }
+    virtual bool sign(tsCryptoData &signature) override
+    {
+        if (!gFipsState.operational() || signDesc == nullptr || workspace.empty())
+            return false;
 
-		return signDesc->update(signDesc, workspace, data.c_str(), (uint32_t)data.size());
-	}
-	virtual bool sign(tsCryptoData &signature) override
-	{
-		if (!gFipsState.operational() || signDesc == nullptr || workspace.empty())
-			return false;
+        uint32_t len;
+        signature.clear();
 
-		uint32_t len;
-		signature.clear();
+        if (!signDesc->sign(signDesc, workspace, nullptr, &len))
+            return false;
 
-		if (!signDesc->sign(signDesc, workspace, nullptr, &len))
-			return false;
+        signature.resize(len);
+        if (!signDesc->sign(signDesc, workspace, signature.rawData(), &len))
+        {
+            signature.clear();
+            return false;
+        }
+        signature.resize(len);
+        return true;
+    }
+    virtual bool verifyHash(const tsCryptoData &hashData, const tsCryptoData &signature) override
+    {
+        if (!gFipsState.operational() || signDesc == nullptr || workspace.empty())
+            return false;
 
-		signature.resize(len);
-		if (!signDesc->sign(signDesc, workspace, signature.rawData(), &len))
-		{
-			signature.clear();
-			return false;
-		}
-		signature.resize(len);
-		return true;
-	}
-	virtual bool verifyHash(const tsCryptoData &hashData, const tsCryptoData &signature) override
-	{
-		if (!gFipsState.operational() || signDesc == nullptr || workspace.empty())
-			return false;
+        return signDesc->verifyHash(signDesc, workspace, hashData.c_str(), (uint32_t)hashData.size(), signature.c_str(), (uint32_t)signature.size());
+    }
+    virtual bool verify(const tsCryptoData &signature) override
+    {
+        if (!gFipsState.operational() || signDesc == nullptr || workspace.empty())
+            return false;
 
-		return signDesc->verifyHash(signDesc, workspace, hashData.c_str(), (uint32_t)hashData.size(), signature.c_str(), (uint32_t)signature.size());
-	}
-	virtual bool verify(const tsCryptoData &signature) override
-	{
-		if (!gFipsState.operational() || signDesc == nullptr || workspace.empty())
-			return false;
+        return signDesc->verify(signDesc, workspace, signature.c_str(), (uint32_t)signature.size());
+    }
+    virtual bool finish() override
+    {
+        if (!gFipsState.operational() || signDesc == nullptr)
+            return false;
+        if (workspace.empty())
+            return true;
 
-		return signDesc->verify(signDesc, workspace, signature.c_str(), (uint32_t)signature.size());
-	}
-	virtual bool finish() override
-	{
-		if (!gFipsState.operational() || signDesc == nullptr)
-			return false;
-		if (workspace.empty())
-			return true;
-
-		signDesc->finish(signDesc, workspace);
-		workspace.reset();
-		return true;
-	}
-	virtual size_t GetHashBlockSize() override
-	{
-		if (hashDesc == nullptr || hashWorkspace.empty())
-			return 0;
-		return hashDesc->blockSize;
-	}
-	virtual size_t GetHashDigestSize() override
-	{
-		if (hashDesc == nullptr || hashWorkspace.empty())
-			return 0;
-		return hashDesc->digestSize;
-	}
+        signDesc->finish(signDesc, workspace);
+        workspace.reset();
+        return true;
+    }
+    virtual size_t GetHashBlockSize() override
+    {
+        const TSHashDescriptor* hash = tsFindHashAlgorithm(hashName.c_str());
+        if (hash == nullptr)
+            return 0;
+        return hash->blockSize;
+    }
+    virtual size_t GetHashDigestSize() override
+    {
+        const TSHashDescriptor* hash = tsFindHashAlgorithm(hashName.c_str());
+        if (hash == nullptr)
+            return 0;
+        return hash->digestSize;
+    }
 
     // AlgorithmInfo
     virtual tsCryptoString AlgorithmName() const override
-	{
-		return GetName();
-	}
-	virtual tsCryptoString AlgorithmOID() const override
-	{
-		return LookUpAlgOID(GetName());
-	}
-	virtual TS_ALG_ID AlgorithmID() const override
-	{
-		return LookUpAlgID(GetName());
-	}
+    {
+        return GetName();
+    }
+    virtual tsCryptoString AlgorithmOID() const override
+    {
+        return LookUpAlgOID(GetName());
+    }
+    virtual TS_ALG_ID AlgorithmID() const override
+    {
+        return LookUpAlgID(GetName());
+    }
 
-	// tscrypto::IInitializableObject
-	virtual bool InitializeWithFullName(const tscrypto::tsCryptoStringBase& fullName) override
-	{
-		tsCryptoString algorithm(fullName);
-		tsCryptoStringList parts = tsCryptoString(algorithm).split('-');
+    // tscrypto::IInitializableObject
+    virtual bool InitializeWithFullName(const tscrypto::tsCryptoStringBase& fullName) override
+    {
+        tsCryptoString algorithm(fullName);
+        tsCryptoStringList parts = tsCryptoString(algorithm).split('-');
 
-		SetName(algorithm);
+        SetName(algorithm);
 
-		if (parts->size() == 2)
-		{
-			// Default to PKCS-SHA1
-			SetName((GetName() + tsCryptoString("-PKCS-SHA1")).c_str());
-			parts = tsCryptoString(GetName()).split('-');
-		}
+        if (parts->size() == 2)
+        {
+            // Default to PKCS-SHA1
+            SetName((GetName() + tsCryptoString("-PKCS-SHA1")).c_str());
+            parts = tsCryptoString(GetName()).split('-');
+        }
 
-		if (parts->size() >= 3)
-		{
-			tsCryptoString name("RSA_");
-			name += parts->at(2);
+        if (parts->size() >= 3)
+        {
+            tsCryptoString name("RSA_");
+            name += parts->at(2);
 
-			signDesc = findRsaSignerAlgorithm(name.c_str());
-			if (signDesc == nullptr)
-			{
-				return false;
-			}
-		}
+            signDesc = tsFindRsaSignerAlgorithm(name.c_str());
+            if (signDesc == nullptr)
+            {
+                return false;
+            }
+        }
 
-		if (parts->size() == 5)
-		{
-			hashDesc = findHashAlgorithm(parts->at(4).c_str());
-			if (hashDesc == nullptr)
-			{
-				hashDesc = findHashAlgorithm((parts->at(3) + "-" + parts->at(4)).c_str());
-				if (hashDesc == nullptr)
-				{
-					return false;
-				}
-			}
-			hashWorkspace = hashDesc;
-		}
-		else if (parts->size() == 4)
-		{
-			hashDesc = findHashAlgorithm(parts->at(3).c_str());
-			if (hashDesc == nullptr)
-				return false;
-			hashWorkspace = hashDesc;
-		}
-		return true;
-	}
+        if (parts->size() == 5)
+        {
+            hashName = (parts->at(3) + "-" + parts->at(4)).c_str();
+        }
+        else if (parts->size() == 4)
+        {
+            hashName = parts->at(3).c_str();
+        }
+        return true;
+    }
 
 private:
-	const RsaSigner_Descriptor* signDesc;
+    const TSRsaSignerDescriptor* signDesc;
     SmartCryptoWorkspace workspace;
-	const HASH_Descriptor* hashDesc;
+    tsCryptoString hashName;
     SmartCryptoWorkspace hashWorkspace;
-	std::shared_ptr<RsaKey> m_key;
+    std::shared_ptr<RsaKey> m_key;
 };
 
 tscrypto::ICryptoObject* CreateRsaSigner()
 {
-	return dynamic_cast<tscrypto::ICryptoObject*>(new Sign_Rsa);
+    return dynamic_cast<tscrypto::ICryptoObject*>(new Sign_Rsa);
 }
 

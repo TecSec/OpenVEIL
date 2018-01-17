@@ -1,4 +1,4 @@
-#	Copyright (c) 2017, TecSec, Inc.
+#	Copyright (c) 2018, TecSec, Inc.
 #
 #	Redistribution and use in source and binary forms, with or without
 #	modification, are permitted provided that the following conditions are met:
@@ -30,13 +30,13 @@
 # Written by Roger Butler
 
 if(APPLE)
-	add_definitions(-D__DARWIN__)
+    add_definitions(-D__DARWIN__)
 elseif(WIN32)
-	add_definitions(-D__WINDOWS__)
+    add_definitions(-D__WINDOWS__)
 elseif(UNIX)
-	add_definitions(-D__LINUX__)
+    add_definitions(-D__LINUX__)
 else()
-	message(FATAL "Unknown environment")
+    message(FATAL "Unknown environment")
 endif()
 
 if(APPLE)
@@ -52,129 +52,129 @@ add_definitions("-DDLL_FRAMEWORK_USONLY")
 add_definitions("-DWFMO")
 
 if(MINGW)
-	string(REPLACE "/" "\\" xmlCodeGen ${CRYPTO_BIN_DIR}/xml2Asn1CodeGen${CMAKE_EXECUTABLE_SUFFIX})
-	# message(STATUS "CodeGen Path ${xmlCodeGen}")
+    string(REPLACE "/" "\\" xmlCodeGen ${CRYPTO_BIN_DIR}/xml2Asn1CodeGen${CMAKE_EXECUTABLE_SUFFIX})
+    # message(STATUS "CodeGen Path ${xmlCodeGen}")
     elseif(APPLE)
-	set(xmlCodeGen /usr/local/bin/xml2Asn1CodeGen)
+        set(xmlCodeGen /usr/local/bin/xml2Asn1CodeGen)
 else()
-	set(xmlCodeGen ${CRYPTO_BIN_DIR}/xml2Asn1CodeGen${CMAKE_EXECUTABLE_SUFFIX})
+    set(xmlCodeGen ${CRYPTO_BIN_DIR}/xml2Asn1CodeGen${CMAKE_EXECUTABLE_SUFFIX})
 endif()
 
 add_custom_command(
-	OUTPUT
-		${CMAKE_CURRENT_BINARY_DIR}/CryptoAsn1.cpp
-		${PUBLIC_BINARY_TOP_DIR}/core/CryptoAsn1.h
-		${PUBLIC_BINARY_TOP_DIR}/core/CryptoAsn1.export
-	DEPENDS
-		${CMAKE_CURRENT_SOURCE_DIR}/CryptoAsn1.xasn
-	COMMAND
-		${xmlCodeGen} -o=${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/CryptoAsn1.xasn
-	COMMAND
-		${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/CryptoAsn1.export ${PUBLIC_BINARY_TOP_DIR}/core/CryptoAsn1.export
-	COMMAND
-		${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/CryptoAsn1.h ${PUBLIC_BINARY_TOP_DIR}/core/CryptoAsn1.h
-	)
+    OUTPUT
+        ${CMAKE_CURRENT_BINARY_DIR}/CryptoAsn1.cpp
+        ${PUBLIC_BINARY_TOP_DIR}/core/CryptoAsn1.h
+        ${PUBLIC_BINARY_TOP_DIR}/core/CryptoAsn1.export
+    DEPENDS
+        ${CMAKE_CURRENT_SOURCE_DIR}/CryptoAsn1.xasn
+    COMMAND
+        ${xmlCodeGen} --output=${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/CryptoAsn1.xasn
+    COMMAND
+        ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/CryptoAsn1.export ${PUBLIC_BINARY_TOP_DIR}/core/CryptoAsn1.export
+    COMMAND
+        ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/CryptoAsn1.h ${PUBLIC_BINARY_TOP_DIR}/core/CryptoAsn1.h
+    )
 
 add_custom_command(
-	OUTPUT
-		${CMAKE_CURRENT_BINARY_DIR}/PKIX.cpp
-		${PUBLIC_BINARY_TOP_DIR}/core/PKIX.h
-		${PUBLIC_BINARY_TOP_DIR}/core/PKIX.export
-		${CMAKE_CURRENT_BINARY_DIR}/PKIX_Cert.cpp
-		${PUBLIC_BINARY_TOP_DIR}/core/PKIX_Cert.h
-		${PUBLIC_BINARY_TOP_DIR}/core/PKIX_Cert.export
-		${CMAKE_CURRENT_BINARY_DIR}/PKIX_OCSP.cpp
-		${PUBLIC_BINARY_TOP_DIR}/core/PKIX_OCSP.h
-		${PUBLIC_BINARY_TOP_DIR}/core/PKIX_OCSP.export
-	DEPENDS
-		${CMAKE_CURRENT_SOURCE_DIR}/pkix.xasn
-		${PUBLIC_BINARY_TOP_DIR}/core/CryptoAsn1.export
-	COMMAND
-		${xmlCodeGen} -o=${CMAKE_CURRENT_BINARY_DIR} -e=${PUBLIC_BINARY_TOP_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/pkix.xasn
-	COMMAND
-		${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/PKIX.export ${PUBLIC_BINARY_TOP_DIR}/core/PKIX.export
-	COMMAND
-		${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/PKIX_Cert.export ${PUBLIC_BINARY_TOP_DIR}/core/PKIX_Cert.export
-	COMMAND
-		${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/PKIX_OCSP.export ${PUBLIC_BINARY_TOP_DIR}/core/PKIX_OCSP.export
-	COMMAND
-		${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/PKIX.h ${PUBLIC_BINARY_TOP_DIR}/core/PKIX.h
-	COMMAND
-		${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/PKIX_Cert.h ${PUBLIC_BINARY_TOP_DIR}/core/PKIX_Cert.h
-	COMMAND
-		${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/PKIX_OCSP.h ${PUBLIC_BINARY_TOP_DIR}/core/PKIX_OCSP.h
-	)
+    OUTPUT
+        ${CMAKE_CURRENT_BINARY_DIR}/PKIX.cpp
+        ${PUBLIC_BINARY_TOP_DIR}/core/PKIX.h
+        ${PUBLIC_BINARY_TOP_DIR}/core/PKIX.export
+        ${CMAKE_CURRENT_BINARY_DIR}/PKIX_Cert.cpp
+        ${PUBLIC_BINARY_TOP_DIR}/core/PKIX_Cert.h
+        ${PUBLIC_BINARY_TOP_DIR}/core/PKIX_Cert.export
+        ${CMAKE_CURRENT_BINARY_DIR}/PKIX_OCSP.cpp
+        ${PUBLIC_BINARY_TOP_DIR}/core/PKIX_OCSP.h
+        ${PUBLIC_BINARY_TOP_DIR}/core/PKIX_OCSP.export
+    DEPENDS
+        ${CMAKE_CURRENT_SOURCE_DIR}/pkix.xasn
+        ${PUBLIC_BINARY_TOP_DIR}/core/CryptoAsn1.export
+    COMMAND
+        ${xmlCodeGen} --output=${CMAKE_CURRENT_BINARY_DIR} -e=${PUBLIC_BINARY_TOP_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/pkix.xasn
+    COMMAND
+        ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/PKIX.export ${PUBLIC_BINARY_TOP_DIR}/core/PKIX.export
+    COMMAND
+        ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/PKIX_Cert.export ${PUBLIC_BINARY_TOP_DIR}/core/PKIX_Cert.export
+    COMMAND
+        ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/PKIX_OCSP.export ${PUBLIC_BINARY_TOP_DIR}/core/PKIX_OCSP.export
+    COMMAND
+        ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/PKIX.h ${PUBLIC_BINARY_TOP_DIR}/core/PKIX.h
+    COMMAND
+        ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/PKIX_Cert.h ${PUBLIC_BINARY_TOP_DIR}/core/PKIX_Cert.h
+    COMMAND
+        ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/PKIX_OCSP.h ${PUBLIC_BINARY_TOP_DIR}/core/PKIX_OCSP.h
+    )
 
 add_custom_command(
-	OUTPUT
-		${CMAKE_CURRENT_BINARY_DIR}/Asn1CkmHeader.cpp
-		${PUBLIC_BINARY_TOP_DIR}/Asn1CkmHeader.h
-		${PUBLIC_BINARY_TOP_DIR}/Asn1CkmHeader.export
-	DEPENDS
-		${PUBLIC_BINARY_TOP_DIR}/core/CryptoAsn1.export
-		${CMAKE_CURRENT_SOURCE_DIR}/Asn1CkmHeader.xasn
-	COMMAND
-		${xmlCodeGen} -o=${CMAKE_CURRENT_BINARY_DIR} -e=${CRYPTO_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/Asn1CkmHeader.xasn
-	COMMAND
-		${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/Asn1CkmHeader.h ${PUBLIC_BINARY_TOP_DIR}/Asn1CkmHeader.h
-	COMMAND
-		${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/Asn1CkmHeader.export ${PUBLIC_BINARY_TOP_DIR}/Asn1CkmHeader.export
-	)
+    OUTPUT
+        ${CMAKE_CURRENT_BINARY_DIR}/Asn1CkmHeader.cpp
+        ${PUBLIC_BINARY_TOP_DIR}/Asn1CkmHeader.h
+        ${PUBLIC_BINARY_TOP_DIR}/Asn1CkmHeader.export
+    DEPENDS
+        ${PUBLIC_BINARY_TOP_DIR}/core/CryptoAsn1.export
+        ${CMAKE_CURRENT_SOURCE_DIR}/Asn1CkmHeader.xasn
+    COMMAND
+        ${xmlCodeGen} --output=${CMAKE_CURRENT_BINARY_DIR} -e=${CRYPTO_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/Asn1CkmHeader.xasn
+    COMMAND
+        ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/Asn1CkmHeader.h ${PUBLIC_BINARY_TOP_DIR}/Asn1CkmHeader.h
+    COMMAND
+        ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/Asn1CkmHeader.export ${PUBLIC_BINARY_TOP_DIR}/Asn1CkmHeader.export
+    )
 
 add_custom_command(
-	OUTPUT
-		${CMAKE_CURRENT_BINARY_DIR}/TokenPacket.cpp
-		${CMAKE_CURRENT_BINARY_DIR}/CTSProfile.cpp
-		${PUBLIC_BINARY_TOP_DIR}/TokenPacket.h
-		${PUBLIC_BINARY_TOP_DIR}/CTSProfile.h
-		${PUBLIC_BINARY_TOP_DIR}/TokenPacket.export
-		${PUBLIC_BINARY_TOP_DIR}/CTSProfile.export
-	DEPENDS
-		${CMAKE_CURRENT_SOURCE_DIR}/TokenPacket.xasn
-		${PUBLIC_BINARY_TOP_DIR}/core/CryptoAsn1.export
-	COMMAND
-		${xmlCodeGen} -o=${CMAKE_CURRENT_BINARY_DIR} -e=${CRYPTO_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/TokenPacket.xasn
-	COMMAND
-		${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/TokenPacket.h ${PUBLIC_BINARY_TOP_DIR}/TokenPacket.h
-	COMMAND
-		${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/CTSProfile.h ${PUBLIC_BINARY_TOP_DIR}/CTSProfile.h
-	COMMAND
-		${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/TokenPacket.export ${PUBLIC_BINARY_TOP_DIR}/TokenPacket.export
-	COMMAND
-		${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/CTSProfile.export ${PUBLIC_BINARY_TOP_DIR}/CTSProfile.export
-	)
+    OUTPUT
+        ${CMAKE_CURRENT_BINARY_DIR}/TokenPacket.cpp
+        ${CMAKE_CURRENT_BINARY_DIR}/CTSProfile.cpp
+        ${PUBLIC_BINARY_TOP_DIR}/TokenPacket.h
+        ${PUBLIC_BINARY_TOP_DIR}/CTSProfile.h
+        ${PUBLIC_BINARY_TOP_DIR}/TokenPacket.export
+        ${PUBLIC_BINARY_TOP_DIR}/CTSProfile.export
+    DEPENDS
+        ${CMAKE_CURRENT_SOURCE_DIR}/TokenPacket.xasn
+        ${PUBLIC_BINARY_TOP_DIR}/core/CryptoAsn1.export
+    COMMAND
+        ${xmlCodeGen} --output=${CMAKE_CURRENT_BINARY_DIR} -e=${CRYPTO_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/TokenPacket.xasn
+    COMMAND
+        ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/TokenPacket.h ${PUBLIC_BINARY_TOP_DIR}/TokenPacket.h
+    COMMAND
+        ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/CTSProfile.h ${PUBLIC_BINARY_TOP_DIR}/CTSProfile.h
+    COMMAND
+        ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/TokenPacket.export ${PUBLIC_BINARY_TOP_DIR}/TokenPacket.export
+    COMMAND
+        ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/CTSProfile.export ${PUBLIC_BINARY_TOP_DIR}/CTSProfile.export
+    )
 add_custom_target(VEILCoreCodeGen ALL
-	BYPRODUCTS
-		${CMAKE_CURRENT_BINARY_DIR}/CryptoAsn1.cpp
-		${PUBLIC_BINARY_TOP_DIR}/core/CryptoAsn1.h
-		${PUBLIC_BINARY_TOP_DIR}/core/CryptoAsn1.export
-		${CMAKE_CURRENT_BINARY_DIR}/PKIX.cpp
-		${PUBLIC_BINARY_TOP_DIR}/core/PKIX.h
-		${PUBLIC_BINARY_TOP_DIR}/core/PKIX.export
-		${CMAKE_CURRENT_BINARY_DIR}/PKIX_Cert.cpp
-		${PUBLIC_BINARY_TOP_DIR}/core/PKIX_Cert.h
-		${PUBLIC_BINARY_TOP_DIR}/core/PKIX_Cert.export
-		${CMAKE_CURRENT_BINARY_DIR}/PKIX_OCSP.cpp
-		${PUBLIC_BINARY_TOP_DIR}/core/PKIX_OCSP.h
-		${PUBLIC_BINARY_TOP_DIR}/core/PKIX_OCSP.export
-		${CMAKE_CURRENT_BINARY_DIR}/Asn1CkmHeader.cpp
-		${PUBLIC_BINARY_TOP_DIR}/Asn1CkmHeader.h
-		${PUBLIC_BINARY_TOP_DIR}/Asn1CkmHeader.export
-		${CMAKE_CURRENT_BINARY_DIR}/TokenPacket.cpp
-		${CMAKE_CURRENT_BINARY_DIR}/CTSProfile.cpp
-		${PUBLIC_BINARY_TOP_DIR}/TokenPacket.h
-		${PUBLIC_BINARY_TOP_DIR}/CTSProfile.h
-		${PUBLIC_BINARY_TOP_DIR}/TokenPacket.export
-		${PUBLIC_BINARY_TOP_DIR}/CTSProfile.export
+    BYPRODUCTS
+        ${CMAKE_CURRENT_BINARY_DIR}/CryptoAsn1.cpp
+        ${PUBLIC_BINARY_TOP_DIR}/core/CryptoAsn1.h
+        ${PUBLIC_BINARY_TOP_DIR}/core/CryptoAsn1.export
+        ${CMAKE_CURRENT_BINARY_DIR}/PKIX.cpp
+        ${PUBLIC_BINARY_TOP_DIR}/core/PKIX.h
+        ${PUBLIC_BINARY_TOP_DIR}/core/PKIX.export
+        ${CMAKE_CURRENT_BINARY_DIR}/PKIX_Cert.cpp
+        ${PUBLIC_BINARY_TOP_DIR}/core/PKIX_Cert.h
+        ${PUBLIC_BINARY_TOP_DIR}/core/PKIX_Cert.export
+        ${CMAKE_CURRENT_BINARY_DIR}/PKIX_OCSP.cpp
+        ${PUBLIC_BINARY_TOP_DIR}/core/PKIX_OCSP.h
+        ${PUBLIC_BINARY_TOP_DIR}/core/PKIX_OCSP.export
+        ${CMAKE_CURRENT_BINARY_DIR}/Asn1CkmHeader.cpp
+        ${PUBLIC_BINARY_TOP_DIR}/Asn1CkmHeader.h
+        ${PUBLIC_BINARY_TOP_DIR}/Asn1CkmHeader.export
+        ${CMAKE_CURRENT_BINARY_DIR}/TokenPacket.cpp
+        ${CMAKE_CURRENT_BINARY_DIR}/CTSProfile.cpp
+        ${PUBLIC_BINARY_TOP_DIR}/TokenPacket.h
+        ${PUBLIC_BINARY_TOP_DIR}/CTSProfile.h
+        ${PUBLIC_BINARY_TOP_DIR}/TokenPacket.export
+        ${PUBLIC_BINARY_TOP_DIR}/CTSProfile.export
 
-	SOURCES
-		${CMAKE_CURRENT_SOURCE_DIR}/CryptoAsn1.xasn
-		${CMAKE_CURRENT_SOURCE_DIR}/pkix.xasn
-		${CMAKE_CURRENT_SOURCE_DIR}/Asn1CkmHeader.xasn
-		${CMAKE_CURRENT_SOURCE_DIR}/TokenPacket.xasn
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/CryptoAsn1.xasn
+        ${CMAKE_CURRENT_SOURCE_DIR}/pkix.xasn
+        ${CMAKE_CURRENT_SOURCE_DIR}/Asn1CkmHeader.xasn
+        ${CMAKE_CURRENT_SOURCE_DIR}/TokenPacket.xasn
 
-	COMMAND
-		echo Building ASN1 files
+    COMMAND
+        echo Building ASN1 files
 )
 INCLUDE_DIRECTORIES(
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -213,7 +213,7 @@ set(CryptoInterfaceSource
     ${CMAKE_CURRENT_SOURCE_DIR}/CryptoInterface/CkmAuthentication.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/CryptoInterface/ServerAuthenticationCalculatorPbkdf.cpp
 
-	# CryptoInterface/Hash_SHA3_XOF.cpp
+    # CryptoInterface/Hash_SHA3_XOF.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/CryptoInterface/XTS.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/CryptoInterface/KASImpl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/CryptoInterface/RSASVEImpl.cpp 
@@ -241,7 +241,6 @@ set(VEILCoreSource
     ${CMAKE_CURRENT_SOURCE_DIR}/CryptoLocks.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/CryptoEvent.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/VEILCrypto.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/CryptoStringFuncs.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Endian.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/TlvDocument.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/TlvNode.cpp
@@ -250,12 +249,9 @@ set(VEILCoreSource
     ${CMAKE_CURRENT_SOURCE_DIR}/tsTlvSerializer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/json.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tsCryptoDate.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/ConvertUTF.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/ConvertUTF.h
     ${CMAKE_CURRENT_SOURCE_DIR}/CryptoUtf16.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tsDistinguishedName.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/xp_file.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/xp_filelist.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/xp_sharedLib.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tsCertificateParser.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tsCertificateBuilder.cpp
@@ -309,7 +305,6 @@ set(VEILCoreSource ${VEILCoreSource}
     ${CMAKE_CURRENT_SOURCE_DIR}/tsXmlHelper.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tsXmlError.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tsXmlNode.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/tsPreferencesBase.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tsAppConfig.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tsXmlParser.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tsSignal.cpp
@@ -319,7 +314,7 @@ set(VEILCoreSource ${VEILCoreSource}
 
     ${CMAKE_CURRENT_SOURCE_DIR}/Asn1CkmHeader.xasn
     ${CMAKE_CURRENT_SOURCE_DIR}/TokenPacket.xasn
-	)
+    )
 set(GEN_SOURCE_XASN 
     ${CMAKE_CURRENT_BINARY_DIR}/CryptoAsn1.cpp
     ${CMAKE_CURRENT_BINARY_DIR}/PKIX.cpp
@@ -330,27 +325,27 @@ set(GEN_SOURCE_XASN
     ${CMAKE_CURRENT_BINARY_DIR}/CTSProfile.cpp
 )
 set(GEN_EXPORTS_XASN
-	${PUBLIC_BINARY_TOP_DIR}/core/CryptoAsn1.export
-	${PUBLIC_BINARY_TOP_DIR}/core/PKIX.export
-	${PUBLIC_BINARY_TOP_DIR}/core/PKIX_Cert.export
-	${PUBLIC_BINARY_TOP_DIR}/core/PKIX_OCSP.export
+    ${PUBLIC_BINARY_TOP_DIR}/core/CryptoAsn1.export
+    ${PUBLIC_BINARY_TOP_DIR}/core/PKIX.export
+    ${PUBLIC_BINARY_TOP_DIR}/core/PKIX_Cert.export
+    ${PUBLIC_BINARY_TOP_DIR}/core/PKIX_OCSP.export
     ${PUBLIC_BINARY_TOP_DIR}/Asn1CkmHeader.export
     ${PUBLIC_BINARY_TOP_DIR}/TokenPacket.export
     ${PUBLIC_BINARY_TOP_DIR}/CTSProfile.export
     )
 set(GEN_HEADERS_XASN
-	${PUBLIC_BINARY_TOP_DIR}/core/CryptoAsn1.h
-	${PUBLIC_BINARY_TOP_DIR}/core/PKIX.h
-	${PUBLIC_BINARY_TOP_DIR}/core/PKIX_Cert.h
-	${PUBLIC_BINARY_TOP_DIR}/core/PKIX_OCSP.h
-	${PUBLIC_BINARY_TOP_DIR}/Asn1CkmHeader.h
-	${PUBLIC_BINARY_TOP_DIR}/TokenPacket.h
-	${PUBLIC_BINARY_TOP_DIR}/CTSProfile.h
+    ${PUBLIC_BINARY_TOP_DIR}/core/CryptoAsn1.h
+    ${PUBLIC_BINARY_TOP_DIR}/core/PKIX.h
+    ${PUBLIC_BINARY_TOP_DIR}/core/PKIX_Cert.h
+    ${PUBLIC_BINARY_TOP_DIR}/core/PKIX_OCSP.h
+    ${PUBLIC_BINARY_TOP_DIR}/Asn1CkmHeader.h
+    ${PUBLIC_BINARY_TOP_DIR}/TokenPacket.h
+    ${PUBLIC_BINARY_TOP_DIR}/CTSProfile.h
     )
 IF(UNIX)
-	set(VEILCoreSource ${VEILCoreSource}
+    set(VEILCoreSource ${VEILCoreSource}
         ${CMAKE_CURRENT_SOURCE_DIR}/pevents.cpp
-	)
+    )
 ENDIF(UNIX)
 
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/VEILCore.rc.in ${CMAKE_CURRENT_BINARY_DIR}/VEILCore.rc)
@@ -363,13 +358,13 @@ set(VEILCoreSource
     ${CMAKE_CURRENT_SOURCE_DIR}/include/targetver.h
     ${CMAKE_CURRENT_SOURCE_DIR}/resource.h
     ${VEILCoreSource}
-	${OVHeaders}
-	${VEILCoreHeaders}
-	${GEN_HEADERS_XASN}
-	${GEN_EXPORTS_XASN}
+    ${OVHeaders}
+    ${VEILCoreHeaders}
+    ${GEN_HEADERS_XASN}
+    ${GEN_EXPORTS_XASN}
     ${GEN_SOURCE_XASN}
-	${algorithmSourceSSL}
-	${CryptoInterfaceSource}
+    ${algorithmSourceSSL}
+    ${CryptoInterfaceSource}
     )
 add_library(VEILCore SHARED
     ${CMAKE_CURRENT_BINARY_DIR}/VEILCore.rc
@@ -385,56 +380,50 @@ Source_Group(CryptoInterface FILES
 )
 Source_Group(Generated FILES ${GEN_HEADERS_XASN} ${GEN_SOURCE_XASN} ${GEN_EXPORTS_XASN})
 Source_Group(CryptoSupport\\SSL FILES
-	${algorithmSourceSSL}
+    ${algorithmSourceSSL}
 )
 Source_Group(CryptoInterfaces FILES
-	${CryptoInterfaceSource}
+    ${CryptoInterfaceSource}
 )
 
 target_include_directories(VEILCore INTERFACE $<BUILD_INTERFACE:${PUBLIC_SOURCE_TOP_DIR}/include> $<INSTALL_INTERFACE:${TS_MODULE}/include>)
 add_definitions("-DVEILCORE_EXPORTS")
 
 if(APPLE)
-    TARGET_LINK_LIBRARIES(VEILCore ${TSALG_TARGET} ${Security_LIBRARY} ${TSALG_TARGET} ${VEILCore_TARGET} ${ApplicationServices_LIBRARY})
+    TARGET_LINK_LIBRARIES(VEILCore ${CyberVEIL_TARGET} ${Security_LIBRARY} ${CyberVEIL_TARGET} ${VEILCore_TARGET} ${ApplicationServices_LIBRARY})
 else()
-    TARGET_LINK_LIBRARIES(VEILCore TSALG TS_SUP_DLL)
+    TARGET_LINK_LIBRARIES(VEILCore CyberVEIL CyberVEIL)
 endif(APPLE)
 IF(MSVC AND DEFINED CMAKE_PDB_OUTPUT_DIRECTORY)
-	set_target_properties(VEILCore PROPERTIES LINK_FLAGS "-PDBSTRIPPED:${CMAKE_PDB_OUTPUT_DIRECTORY}/VEILCore.pdb")
+    set_target_properties(VEILCore PROPERTIES LINK_FLAGS "-PDBSTRIPPED:${CMAKE_PDB_OUTPUT_DIRECTORY}/VEILCore.pdb")
 ENDIF(MSVC AND DEFINED CMAKE_PDB_OUTPUT_DIRECTORY)
 
 
-if(ANDROID)
-	TARGET_LINK_LIBRARIES(VEILCore z)
-else(ANDROID)
-	TARGET_LINK_LIBRARIES(VEILCore zlib)
-endif(ANDROID)
-
 # if(ANDROID)
-	set_target_properties(VEILCore PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
+    set_target_properties(VEILCore PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
 # endif()
 if(WIN32)
-	add_precompiled_header(VEILCore stdafx.h FORCEINCLUDE SOURCE_CXX stdafx.cpp)
+    add_precompiled_header(VEILCore stdafx.h FORCEINCLUDE SOURCE_CXX stdafx.cpp)
 else()
-	# add_precompiled_header(VEILCore include/stdafx.h FORCEINCLUDE SOURCE_CXX stdafx.cpp)
+    # add_precompiled_header(VEILCore include/stdafx.h FORCEINCLUDE SOURCE_CXX stdafx.cpp)
 endif(WIN32)
 if(WIN32)
-	TARGET_LINK_LIBRARIES(VEILCore ws2_32)
-	# add_dependencies(VEILCore Configure.TSFrameworkVersion.h)
+    TARGET_LINK_LIBRARIES(VEILCore ws2_32)
+    # add_dependencies(VEILCore Configure.TSFrameworkVersion.h)
 ENDIF(WIN32)
 
 set_target_properties(VEILCore PROPERTIES FOLDER "Modules")
 if(NOT ANDROID)
-	set_target_properties(VEILCore PROPERTIES VERSION ${${VEILCORENAME_U}_VERSION} SOVERSION ${${VEILCORENAME_U}_SO_VERSION})
+    set_target_properties(VEILCore PROPERTIES VERSION ${${VEILCORENAME_U}_VERSION} SOVERSION ${${VEILCORENAME_U}_SO_VERSION})
 else()
-	# set_target_properties(VEILCore PROPERTIES ANDROID_ARCH "x86")
+    # set_target_properties(VEILCore PROPERTIES ANDROID_ARCH "x86")
 endif()
 set_target_properties(VEILCore PROPERTIES OUTPUT_NAME ${VEILCORENAME}Core)
 if(UNIX AND CMAKE_OBJCOPY)
-	add_custom_command(TARGET VEILCore POST_BUILD 
-		COMMAND ${CMAKE_OBJCOPY} --only-keep-debug $<TARGET_FILE:VEILCore> $<TARGET_FILE_DIR:VEILCore>/$<TARGET_FILE_NAME:VEILCore>.dbg 
-		COMMAND ${CMAKE_OBJCOPY} --strip-debug $<TARGET_FILE:VEILCore>
-		)
+    add_custom_command(TARGET VEILCore POST_BUILD 
+        COMMAND ${CMAKE_OBJCOPY} --only-keep-debug $<TARGET_FILE:VEILCore> $<TARGET_FILE_DIR:VEILCore>/$<TARGET_FILE_NAME:VEILCore>.dbg 
+        COMMAND ${CMAKE_OBJCOPY} --strip-debug $<TARGET_FILE:VEILCore>
+        )
 endif()
 
 if(APPLE)

@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -419,7 +419,7 @@ namespace TSStream {
 	///
 	/// <returns>A reference to this object.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	inline _TSStreamWritermanip<int> __cdecl width(int setTo)
+	inline _TSStreamWritermanip<int> width(int setTo)
 	{
 		return _TSStreamWritermanip<int>(&tsStreamWriter::SetWidth, setTo);
 	}
@@ -430,7 +430,7 @@ namespace TSStream {
 	///
 	/// <returns>A reference to this object.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	inline _TSStreamWritermanip<int> __cdecl setbase(int setTo)
+	inline _TSStreamWritermanip<int> setbase(int setTo)
 	{
 		return _TSStreamWritermanip<int>(&tsStreamWriter::setbase, setTo);
 	}
@@ -441,7 +441,7 @@ namespace TSStream {
 	///
 	/// <returns>A reference to this object.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	inline _TSStreamWritermanip<char> __cdecl filler(char setTo)
+	inline _TSStreamWritermanip<char> filler(char setTo)
 	{
 		return _TSStreamWritermanip<char>(&tsStreamWriter::SetFiller, setTo);
 	}
@@ -452,13 +452,13 @@ namespace TSStream {
 	///
 	/// <returns>A reference to this object.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	inline _TSStreamWritermanip<const void *> __cdecl ptr(const void *pointer)
+	inline _TSStreamWritermanip<const void *> ptr(const void *pointer)
 	{
 		return _TSStreamWritermanip<const void *>(&tsStreamWriter::ptr, pointer);
 	}
 
 	template <typename TODUMP>
-	inline _TSStreamWritermanip<TODUMP &> __cdecl hexDump(TODUMP& data)
+	inline _TSStreamWritermanip<TODUMP &> hexDump(TODUMP& data)
 	{
 		return _TSStreamWritermanip<TODUMP&>(&tsStreamWriter::hexDump, data);
 	}

@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -40,15 +40,15 @@ static struct
 	const char* oid;
 } gNameTable[] = 
 {
-	{"CN", DN_PART_COMMONNAME_OID},
-	{"L", DN_PART_LOCALITY_OID },
-	{"ST", DN_PART_STATE_OID },
-	{"O", DN_PART_ORG_OID },
-	{"OU", DN_PART_ORGUNIT_OID },
-	{"C", DN_PART_COUNTRY_OID },
-	{"STREET", DN_PART_STREET_OID },
-	{"DC", DN_PART_DOMAIN_COMPONENT_OID },
-	{"UID", DN_PART_UID_OID },
+	{"CN", id_at_commonName_OID},
+	{"L", id_at_localityName_OID },
+	{"ST", id_at_stateOrProvinceName_OID },
+	{"O", id_at_organizationName_OID },
+	{"OU", id_at_organizationalUnitName_OID },
+	{"C", id_at_countryName_OID },
+	{"STREET", id_at_streetAddress_OID },
+	{"DC", id_DN_PART_DOMAIN_COMPONENT_OID },
+	{"UID", id_DN_PART_UID_OID },
 };
 
 tsDnPart::tsDnPart()
@@ -132,7 +132,7 @@ tsCryptoData tsDnPart::NameAsOID() const
 {
 	for (size_t i = 0; i < sizeof(gNameTable) / sizeof(gNameTable[0]); i++)
 	{
-		if (TsStriCmp(gNameTable[i].name, _name.c_str()) == 0)
+		if (tsStriCmp(gNameTable[i].name, _name.c_str()) == 0)
 			return tsCryptoData(gNameTable[i].oid, tsCryptoData::OID);
 	}
 	return tsCryptoData(_name, tsCryptoData::OID);
@@ -145,7 +145,7 @@ void tsDnPart::NameAsOID(const tsCryptoStringBase& oid)
 {
 	for (size_t i = 0; i < sizeof(gNameTable) / sizeof(gNameTable[0]); i++)
 	{
-		if (TsStrCmp(oid.c_str(), gNameTable[i].oid) == 0)
+		if (tsStrCmp(oid.c_str(), gNameTable[i].oid) == 0)
 		{
 			_name = gNameTable[i].name;
 			return;
@@ -597,7 +597,7 @@ tsDnPart* tsDistinguishedName::findPartByName(const char* name)
 {
 	for (size_t i = 0; i < partCount(); i++)
 	{
-		if (TsStriCmp(part(i).Name().c_str(), name) == 0)
+		if (tsStriCmp(part(i).Name().c_str(), name) == 0)
 			return &part(i);
 	}
 

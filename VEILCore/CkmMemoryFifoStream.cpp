@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -205,14 +205,14 @@ void CkmMemoryFifoStream::Close()
 
 bool CkmMemoryFifoStream::GoToPosition(int64_t setTo)
 {
-	MY_UNREFERENCED_PARAMETER(setTo);
+    UNREFERENCED_PARAMETER(setTo);
 	return false;
 }
 
 int64_t CkmMemoryFifoStream::Seek(int origin, int64_t position)
 {
-	MY_UNREFERENCED_PARAMETER(origin);
-	MY_UNREFERENCED_PARAMETER(position);
+    UNREFERENCED_PARAMETER(origin);
+    UNREFERENCED_PARAMETER(position);
 
 	return false;
 }
@@ -310,7 +310,7 @@ bool CkmMemoryFifoStream::Truncate()
 
 bool CkmMemoryFifoStream::SetFileSize(int64_t setTo)
 {
-	MY_UNREFERENCED_PARAMETER(setTo);
+    UNREFERENCED_PARAMETER(setTo);
 	return false;
 }
 
@@ -321,7 +321,7 @@ bool CkmMemoryFifoStream::CanPrepend() const
 
 bool CkmMemoryFifoStream::Prepend(const tscrypto::tsCryptoData &data)
 {
-	MY_UNREFERENCED_PARAMETER(data);
+    UNREFERENCED_PARAMETER(data);
 	return false;
 }
 #pragma endregion

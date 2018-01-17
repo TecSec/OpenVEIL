@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -48,9 +48,9 @@ using namespace tscrypto::_CryptoAlgType;
 
 bool tscrypto::gPersistAnyfieldAsObject = true; //  Supported as of Crypto 7.0.1 and VEIL 7.0.34
 
-static bool Check_CPU_support_AES();
-static bool Check_CPU_support_SSE();
-static bool Check_CPU_support_SSE2();
+// static bool Check_CPU_support_AES();
+// static bool Check_CPU_support_SSE();
+// static bool Check_CPU_support_SSE2();
 
 static bool loadCryptoModules();
 
@@ -61,7 +61,6 @@ FipsState tscrypto::gFipsState;
 static std::vector<std::function<bool()> > gInitializers;
 static std::vector<std::function<bool()> > gInitialInitializers;
 static std::deque<std::function<bool()> > gTerminators;
-static XP_MODULE hDllModule = XP_MODULE_INVALID;
 
 static std::vector<std::function<bool(TS_ALG_ID AlgID, size_t& pVal)>> gKeySizeFuncs;
 static std::vector<std::function<bool(TS_ALG_ID AlgID, SymmetricMode& pVal)>> gModeFuncs;
@@ -72,11 +71,11 @@ static std::vector<std::function<tsCryptoString(TS_ALG_ID signAlgorithm)>> gSign
 
 typedef struct moduleInfo
 {
-    moduleInfo(const tsCryptoString& name, XP_MODULE mod) : filename(name), module(mod) {}
+    moduleInfo(const tsCryptoString& name, TSSHAREDLIB mod) : filename(name), module(mod) {}
     moduleInfo(const moduleInfo& obj) = delete;
     moduleInfo(moduleInfo&& obj) : filename(std::move(obj.filename)), module(obj.module)
     {
-        obj.module = XP_MODULE_INVALID;
+        obj.module = NULL;
     }
     moduleInfo& operator=(const moduleInfo& obj) = delete;
     moduleInfo& operator=(moduleInfo&& obj)
@@ -85,18 +84,18 @@ typedef struct moduleInfo
         {
             filename = std::move(obj.filename);
             module = obj.module;
-            obj.module = XP_MODULE_INVALID;
+            obj.module = NULL;
         }
         return *this;
     }
     ~moduleInfo() {
-        if (module != XP_MODULE_INVALID)
-            xp_FreeSharedLib(module);
-        module = XP_MODULE_INVALID;
+        if (module != NULL)
+            tsFreeSharedLib(&module);
+        module = NULL;
         filename.clear();
     }
     tsCryptoString filename;
-    XP_MODULE module;
+    TSSHAREDLIB module;
 } moduleInfo;
 static std::vector<moduleInfo> moduleList;
 
@@ -111,9 +110,9 @@ static std::vector<moduleInfo> moduleList;
 //std::vector<std::shared_ptr<BigNum::EccCurve> > gDomains;
 
 // From this file
-bool tscrypto::gCpuSupportsAES = Check_CPU_support_AES();
-bool tscrypto::gCpuSupportsSSE = Check_CPU_support_SSE();
-bool tscrypto::gCpuSupportsSSE2 = Check_CPU_support_SSE2();
+// bool tscrypto::gCpuSupportsAES = Check_CPU_support_AES();
+// bool tscrypto::gCpuSupportsSSE = Check_CPU_support_SSE();
+// bool tscrypto::gCpuSupportsSSE2 = Check_CPU_support_SSE2();
 
 
 static void RunCryptoInitializers();
@@ -173,22 +172,22 @@ std::shared_ptr<tscrypto::ICryptoLocator> tscrypto::CryptoLocator()
         //}
 
         //initializeBaseEccCurves();
-		cryptoWriter->AddClass("SHA256", CreateHash);
-		cryptoWriter->AddClass("SHA384", CreateHash);
-		cryptoWriter->AddClass("SHA512", CreateHash);
-		cryptoWriter->AddClass("SHA3-224", CreateHash);
-		cryptoWriter->AddClass("SHA3-256", CreateHash);
-		cryptoWriter->AddClass("SHA3-384", CreateHash);
-		cryptoWriter->AddClass("SHA3-512", CreateHash);
-		cryptoWriter->AddClass("HASH", CreateHash);
+        cryptoWriter->AddClass("SHA256", CreateHash);
+        cryptoWriter->AddClass("SHA384", CreateHash);
+        cryptoWriter->AddClass("SHA512", CreateHash);
+        cryptoWriter->AddClass("SHA3-224", CreateHash);
+        cryptoWriter->AddClass("SHA3-256", CreateHash);
+        cryptoWriter->AddClass("SHA3-384", CreateHash);
+        cryptoWriter->AddClass("SHA3-512", CreateHash);
+        cryptoWriter->AddClass("HASH", CreateHash);
         cryptoWriter->AddClass("SHA1", CreateHash);
         cryptoWriter->AddClass("SHA224", CreateHash);
         cryptoWriter->AddClass("MD5", CreateHash);
         cryptoWriter->AddClass("RIPEMD160", CreateHash);
         cryptoWriter->AddClass("HMAC", CreateMAC);
 
-		cryptoWriter->AddClass("DES", CreateSymmetricWithModes);
-		cryptoWriter->AddClass("TDES", CreateSymmetricWithModes);
+        cryptoWriter->AddClass("DES", CreateSymmetricWithModes);
+        cryptoWriter->AddClass("TDES", CreateSymmetricWithModes);
         cryptoWriter->AddClass("DES-EDE3", CreateSymmetricWithModes);
         cryptoWriter->AddClass("XTEA", CreateSymmetricWithModes);
         cryptoWriter->AddClass("BLOWFISH", CreateSymmetricWithModes);
@@ -203,16 +202,16 @@ std::shared_ptr<tscrypto::ICryptoLocator> tscrypto::CryptoLocator()
         cryptoWriter->AddClass("KDF-PBKDF2", CreatePbkdf);
         cryptoWriter->AddClass("KDF", CreateKDF);
 
-		cryptoWriter->AddClass("KEYWRAP", CreateKeyWrap);
-		cryptoWriter->AddClass("KEYWRAP_PAD", CreateKeyWrap);
-		cryptoWriter->AddClass("KEYWRAP_INV", CreateKeyWrap);
-		cryptoWriter->AddClass("KEYWRAP_PAD_INV", CreateKeyWrap);
-		cryptoWriter->AddClass("KW", CreateKeyWrap);
-		cryptoWriter->AddClass("KWP", CreateKeyWrap);
-		cryptoWriter->AddClass("KW_INV", CreateKeyWrap);
-		cryptoWriter->AddClass("KWP_INV", CreateKeyWrap);
-		cryptoWriter->AddClass("TKW", CreateKeyWrap);
-		cryptoWriter->AddClass("TKW_INV", CreateKeyWrap);
+        cryptoWriter->AddClass("KEYWRAP", CreateKeyWrap);
+        cryptoWriter->AddClass("KEYWRAP_PAD", CreateKeyWrap);
+        cryptoWriter->AddClass("KEYWRAP_INV", CreateKeyWrap);
+        cryptoWriter->AddClass("KEYWRAP_PAD_INV", CreateKeyWrap);
+        cryptoWriter->AddClass("KW", CreateKeyWrap);
+        cryptoWriter->AddClass("KWP", CreateKeyWrap);
+        cryptoWriter->AddClass("KW_INV", CreateKeyWrap);
+        cryptoWriter->AddClass("KWP_INV", CreateKeyWrap);
+        cryptoWriter->AddClass("TKW", CreateKeyWrap);
+        cryptoWriter->AddClass("TKW_INV", CreateKeyWrap);
 
         cryptoWriter->AddClass("PRIME-PROBABLE", CreateProbablePrime);
         cryptoWriter->AddClass("PRIME-PROVABLE", CreateProvablePrime);
@@ -225,10 +224,19 @@ std::shared_ptr<tscrypto::ICryptoLocator> tscrypto::CryptoLocator()
         cryptoWriter->AddClass("SIGN-RSA", CreateRsaSigner);
 
         cryptoWriter->AddClass("KEY", CreateEccKey);
-		cryptoWriter->AddClass("KEY-P256", CreateEccKey);
-		cryptoWriter->AddClass("KEY-P256K1", CreateEccKey);
-		cryptoWriter->AddClass("KEY-P384", CreateEccKey);
+        cryptoWriter->AddClass("KEY-P256", CreateEccKey);
+        cryptoWriter->AddClass("KEY-P256K1", CreateEccKey);
+        cryptoWriter->AddClass("KEY-P384", CreateEccKey);
         cryptoWriter->AddClass("KEY-P521", CreateEccKey);
+        //cryptoWriter->AddClass("KEY-BLISS-1", CreateEccKey);
+        //cryptoWriter->AddClass("KEY-BLISS-2", CreateEccKey);
+        //cryptoWriter->AddClass("KEY-BLISS-3", CreateEccKey);
+        //cryptoWriter->AddClass("KEY-BLISS-4", CreateEccKey);
+        cryptoWriter->AddClass("KEY-BLISS_B-1", CreateEccKey);
+        cryptoWriter->AddClass("KEY-BLISS_B-2", CreateEccKey);
+        cryptoWriter->AddClass("KEY-BLISS_B-3", CreateEccKey);
+        cryptoWriter->AddClass("KEY-BLISS_B-4", CreateEccKey);
+        cryptoWriter->AddClass("KEY-SIDH", CreateEccKey);
         cryptoWriter->AddClass("SIGN-ECC", []()->tscrypto::ICryptoObject* {return CreateEccSigner("SIGN-ECC"); });
         cryptoWriter->AddClass("SIGN-ECC-SHA256", []()->tscrypto::ICryptoObject* {return CreateEccSigner("SIGN-ECC-SHA256"); });
         cryptoWriter->AddClass("SIGN-ECC-SHA384", []()->tscrypto::ICryptoObject* {return CreateEccSigner("SIGN-ECC-SHA384"); });
@@ -241,12 +249,12 @@ std::shared_ptr<tscrypto::ICryptoLocator> tscrypto::CryptoLocator()
         cryptoWriter->AddClass("SIGN-DSA-SHA256", []()->tscrypto::ICryptoObject* {return CreateEccSigner("SIGN-DSA-SHA256"); });
         cryptoWriter->AddClass("SIGN-DSA-SHA384", []()->tscrypto::ICryptoObject* {return CreateEccSigner("SIGN-DSA-SHA384"); });
         cryptoWriter->AddClass("SIGN-DSA-SHA512", []()->tscrypto::ICryptoObject* {return CreateEccSigner("SIGN-DSA-SHA512"); });
-		cryptoWriter->AddClass("X25519", CreateEccKey);
-		cryptoWriter->AddClass("ED25519", CreateEccKey);
-		cryptoWriter->AddClass("ED25519_PH", CreateEccKey);
-		cryptoWriter->AddClass("KEY-X25519", CreateEccKey);
-		cryptoWriter->AddClass("KEY-ED25519", CreateEccKey);
-		cryptoWriter->AddClass("KEY-ED25519_PH", CreateEccKey);
+        cryptoWriter->AddClass("X25519", CreateEccKey);
+        cryptoWriter->AddClass("ED25519", CreateEccKey);
+        cryptoWriter->AddClass("ED25519_PH", CreateEccKey);
+        cryptoWriter->AddClass("KEY-X25519", CreateEccKey);
+        cryptoWriter->AddClass("KEY-ED25519", CreateEccKey);
+        cryptoWriter->AddClass("KEY-ED25519_PH", CreateEccKey);
 
 #ifndef MINGW
         cryptoWriter->AddClass("numsp256d1", CreateEccKey);
@@ -255,12 +263,12 @@ std::shared_ptr<tscrypto::ICryptoLocator> tscrypto::CryptoLocator()
         cryptoWriter->AddClass("numsp256t1", CreateEccKey);
         cryptoWriter->AddClass("numsp384t1", CreateEccKey);
         cryptoWriter->AddClass("numsp512t1", CreateEccKey);
-		cryptoWriter->AddClass("KEY-numsp256d1", CreateEccKey);
-		cryptoWriter->AddClass("KEY-numsp384d1", CreateEccKey);
-		cryptoWriter->AddClass("KEY-numsp512d1", CreateEccKey);
-		cryptoWriter->AddClass("KEY-numsp256t1", CreateEccKey);
-		cryptoWriter->AddClass("KEY-numsp384t1", CreateEccKey);
-		cryptoWriter->AddClass("KEY-numsp512t1", CreateEccKey);
+        cryptoWriter->AddClass("KEY-numsp256d1", CreateEccKey);
+        cryptoWriter->AddClass("KEY-numsp384d1", CreateEccKey);
+        cryptoWriter->AddClass("KEY-numsp512d1", CreateEccKey);
+        cryptoWriter->AddClass("KEY-numsp256t1", CreateEccKey);
+        cryptoWriter->AddClass("KEY-numsp384t1", CreateEccKey);
+        cryptoWriter->AddClass("KEY-numsp512t1", CreateEccKey);
 #endif
 
 
@@ -440,16 +448,16 @@ std::shared_ptr<tscrypto::ICryptoLocator> tscrypto::CryptoLocator()
             cryptoWriter->DeleteClass("RSAKAS1");
             cryptoWriter->DeleteClass("RSAKAS2");
             cryptoWriter->DeleteClass("RSA-KEM-KWS");
-			cryptoWriter->DeleteClass("KEYWRAP");
-			cryptoWriter->DeleteClass("KEYWRAP_PAD");
-			cryptoWriter->DeleteClass("KEYWRAP_INV");
-			cryptoWriter->DeleteClass("KEYWRAP_PAD_INV");
-			cryptoWriter->DeleteClass("KW");
-			cryptoWriter->DeleteClass("KWP");
-			cryptoWriter->DeleteClass("KW_INV");
-			cryptoWriter->DeleteClass("KWP_INV");
-			cryptoWriter->DeleteClass("TKW");
-			cryptoWriter->DeleteClass("TKW_INV");
+            cryptoWriter->DeleteClass("KEYWRAP");
+            cryptoWriter->DeleteClass("KEYWRAP_PAD");
+            cryptoWriter->DeleteClass("KEYWRAP_INV");
+            cryptoWriter->DeleteClass("KEYWRAP_PAD_INV");
+            cryptoWriter->DeleteClass("KW");
+            cryptoWriter->DeleteClass("KWP");
+            cryptoWriter->DeleteClass("KW_INV");
+            cryptoWriter->DeleteClass("KWP_INV");
+            cryptoWriter->DeleteClass("TKW");
+            cryptoWriter->DeleteClass("TKW_INV");
 
             cryptoTestWriter->DeleteClass("SHAKE128");
             cryptoTestWriter->DeleteClass("POLY1305");
@@ -515,8 +523,8 @@ bool tscrypto::HasCryptoLocator()
 
 void RunCryptoInitializers()
 {
-	if (gInitialInitializers.empty())
-		gInitialInitializers = gInitializers;
+    if (gInitialInitializers.empty())
+        gInitialInitializers = gInitializers;
     for (auto func : gInitializers)
     {
         func();
@@ -541,63 +549,63 @@ void tscrypto::TerminateCryptoSystem()
         gTerminators.pop_back();
         func();
     }
-	gInitialInitializers = gInitialInitializers;
+    gInitialInitializers = gInitialInitializers;
 }
 
-static bool Check_CPU_support_AES()
-{
-#if defined(ANDROID)
-    return false;
-#elif defined(HAVE_CPUID_H)
-    unsigned int vals[4];
+// static bool Check_CPU_support_AES()
+// {
+// #if defined(ANDROID)
+//     return false;
+// #elif defined(HAVE_CPUID_H)
+//     unsigned int vals[4];
 
-    __cpuid(1, vals[0], vals[1], vals[2], vals[3]);
+//     __cpuid(1, vals[0], vals[1], vals[2], vals[3]);
 
-    return (vals[2] & 0x2000000) != 0;
-#else
-    int vals[4];
+//     return (vals[2] & 0x2000000) != 0;
+// #else
+//     int vals[4];
 
-    __cpuid(vals, 1);
+//     __cpuid(vals, 1);
 
-    return (vals[2] & 0x2000000) != 0;
-#endif // HAVE_CPUID_H
-}
-static bool Check_CPU_support_SSE()
-{
-#if defined(ANDROID)
-    return false;
-#elif defined(HAVE_CPUID_H)
-    int vals[4];
+//     return (vals[2] & 0x2000000) != 0;
+// #endif // HAVE_CPUID_H
+// }
+// static bool Check_CPU_support_SSE()
+// {
+// #if defined(ANDROID)
+//     return false;
+// #elif defined(HAVE_CPUID_H)
+//     int vals[4];
 
-    __cpuid(1, vals[0], vals[1], vals[2], vals[3]);
+//     __cpuid(1, vals[0], vals[1], vals[2], vals[3]);
 
-    return (vals[3] & 0x2000000) != 0;
-#else
-    int vals[4];
+//     return (vals[3] & 0x2000000) != 0;
+// #else
+//     int vals[4];
 
-    __cpuid(vals, 1);
+//     __cpuid(vals, 1);
 
-    return (vals[3] & 0x2000000) != 0;
-#endif // HAVE_CPUID_H
-}
-static bool Check_CPU_support_SSE2()
-{
-#if defined(ANDROID)
-    return false;
-#elif defined(HAVE_CPUID_H)
-    int vals[4];
+//     return (vals[3] & 0x2000000) != 0;
+// #endif // HAVE_CPUID_H
+// }
+// static bool Check_CPU_support_SSE2()
+// {
+// #if defined(ANDROID)
+//     return false;
+// #elif defined(HAVE_CPUID_H)
+//     int vals[4];
 
-    __cpuid(1, vals[0], vals[1], vals[2], vals[3]);
+//     __cpuid(1, vals[0], vals[1], vals[2], vals[3]);
 
-    return (vals[3] & 0x4000000) != 0;
-#else
-    int vals[4];
+//     return (vals[3] & 0x4000000) != 0;
+// #else
+//     int vals[4];
 
-    __cpuid(vals, 1);
+//     __cpuid(vals, 1);
 
-    return (vals[3] & 0x4000000) != 0;
-#endif // HAVE_CPUID_H
-}
+//     return (vals[3] & 0x4000000) != 0;
+// #endif // HAVE_CPUID_H
+// }
 
 void tscrypto::XP_Sleep(uint32_t milliseconds)
 {
@@ -617,591 +625,602 @@ typedef struct AlgNameToIds
 } AlgNameToIds;
 
 static AlgNameToIds _nameIdList[] = {
-    {"Sha1", SHA1_OID, TS_ALG_SHA1, cat_Digest},
-    {"Sha224", NIST_SHA224_OID, TS_ALG_SHA224, cat_Digest},
-    {"Sha256", NIST_SHA256_OID, TS_ALG_SHA256, cat_Digest},
-    {"Sha384", NIST_SHA384_OID, TS_ALG_SHA384, cat_Digest},
-    {"Sha512", NIST_SHA512_OID, TS_ALG_SHA512, cat_Digest},
-    {"MD5", MD5_OID, TS_ALG_MD5, cat_Digest},
-    {"RIPEMD160", RIPEMD160_OID, TS_ALG_RIPEMD160, cat_Digest},
-    {"HMAC-SHA1", RSADSI_HMAC_SHA1_OID, TS_ALG_HMAC_SHA1, cat_MAC},
-    {"HMAC-SHA224", RSADSI_HMAC_SHA224_OID, TS_ALG_HMAC_SHA224, cat_MAC},
-    {"HMAC-SHA256", RSADSI_HMAC_SHA256_OID, TS_ALG_HMAC_SHA256, cat_MAC},
-    {"HMAC-SHA384", RSADSI_HMAC_SHA384_OID, TS_ALG_HMAC_SHA384, cat_MAC},
-    {"HMAC-SHA512", RSADSI_HMAC_SHA512_OID, TS_ALG_HMAC_SHA512, cat_MAC},
-    {"HMAC-MD5", HMAC_MD5, TS_ALG_HMAC_MD5, cat_MAC},
-    {"HMAC-RIPEMD160", HMAC_RIPEMD160_OID, TS_ALG_HMAC_RIPEMD160, cat_MAC},
+    {"Sha1", id_SHA1_OID, TS_ALG_SHA1, cat_Digest},
+    {"Sha224", id_NIST_SHA224_OID, TS_ALG_SHA224, cat_Digest},
+    {"Sha256", id_NIST_SHA256_OID, TS_ALG_SHA256, cat_Digest},
+    {"Sha384", id_NIST_SHA384_OID, TS_ALG_SHA384, cat_Digest},
+    {"Sha512", id_NIST_SHA512_OID, TS_ALG_SHA512, cat_Digest},
+    {"MD5", id_RSADSI_MD5_OID, TS_ALG_MD5, cat_Digest},
+    {"RIPEMD160", id_RIPEMD160_OID, TS_ALG_RIPEMD160, cat_Digest},
+    {"HMAC-SHA1", id_RSADSI_HMAC_SHA1_OID, TS_ALG_HMAC_SHA1, cat_MAC},
+    {"HMAC-SHA224", id_RSADSI_HMAC_SHA224_OID, TS_ALG_HMAC_SHA224, cat_MAC},
+    {"HMAC-SHA256", id_RSADSI_HMAC_SHA256_OID, TS_ALG_HMAC_SHA256, cat_MAC},
+    {"HMAC-SHA384", id_RSADSI_HMAC_SHA384_OID, TS_ALG_HMAC_SHA384, cat_MAC},
+    {"HMAC-SHA512", id_RSADSI_HMAC_SHA512_OID, TS_ALG_HMAC_SHA512, cat_MAC},
+    {"HMAC-MD5", id_HMAC_MD5_OID, TS_ALG_HMAC_MD5, cat_MAC},
+    {"HMAC-RIPEMD160", id_HMAC_RIPEMD160_OID, TS_ALG_HMAC_RIPEMD160, cat_MAC},
 
-    {"TDES", ANSI_X9_52_DES_3EDE_CBC, TS_ALG_DES3_THREEKEY_CBC,
+    {"TDES", id_ANSI_X9_52_DES_3EDE_CBC_OID, TS_ALG_DES3_THREEKEY_CBC,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"TDES-64-CBC", TECSEC_DES_CBC, TS_ALG_DES_CBC,
+    {"TDES-64-CBC", id_TECSEC_DES_CBC_OID, TS_ALG_DES_CBC,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"TDES-64-CFB8", TECSEC_DES_CFB8, TS_ALG_DES_CFB8,
+    {"TDES-64-CFB8", id_TECSEC_DES_CFB8_OID, TS_ALG_DES_CFB8,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"TDES-64-CFBfull", TECSEC_DES_CFB64, TS_ALG_DES_CFB64,
+    {"TDES-64-CFBfull", id_TECSEC_DES_CFB64_OID, TS_ALG_DES_CFB64,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"TDES-64-CTR", TECSEC_DES_CTR, TS_ALG_DES_CTR,
+    {"TDES-64-CTR", id_TECSEC_DES_CTR_OID, TS_ALG_DES_CTR,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"TDES-64-ECB", TECSEC_DES_ECB, TS_ALG_DES_ECB,
+    {"TDES-64-ECB", id_TECSEC_DES_ECB_OID, TS_ALG_DES_ECB,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"TDES-64-OFB", TECSEC_DES_OFB, TS_ALG_DES_OFB,
+    {"TDES-64-OFB", id_TECSEC_DES_OFB_OID, TS_ALG_DES_OFB,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"TDES-128-CBC", ANSI_X9_52_DES_3EDE_CBC, TS_ALG_DES3_TWOKEY_CBC,
+    {"TDES-128-CBC", id_ANSI_X9_52_DES_3EDE_CBC_OID, TS_ALG_DES3_TWOKEY_CBC,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"TDES-128-CFB8", TECSEC_TDES_TWOKEY_CFB8, TS_ALG_DES3_TWOKEY_CFB8,
+    {"TDES-128-CFB8", id_TECSEC_TDES_TWOKEY_CFB8_OID, TS_ALG_DES3_TWOKEY_CFB8,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"TDES-128-CFBfull", TECSEC_TDES_TWOKEY_CFB64, TS_ALG_DES3_TWOKEY_CFB64,
+    {"TDES-128-CFBfull", id_TECSEC_TDES_TWOKEY_CFB64_OID, TS_ALG_DES3_TWOKEY_CFB64,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"TDES-128-CTR", TECSEC_TDES_TWOKEY_CTR, TS_ALG_DES3_TWOKEY_CTR,
+    {"TDES-128-CTR", id_TECSEC_TDES_TWOKEY_CTR_OID, TS_ALG_DES3_TWOKEY_CTR,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"TDES-128-ECB", ANSI_X9_52_DES_3EDE_ECB, TS_ALG_DES3_TWOKEY_ECB,
+    {"TDES-128-ECB", id_ANSI_X9_52_DES_3EDE_ECB_OID, TS_ALG_DES3_TWOKEY_ECB,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"TDES-128-OFB", TECSEC_TDES_TWOKEY_OFB, TS_ALG_DES3_TWOKEY_OFB,
+    {"TDES-128-OFB", id_TECSEC_TDES_TWOKEY_OFB_OID, TS_ALG_DES3_TWOKEY_OFB,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"TDES-192-CBC", ANSI_X9_52_DES_3EDE_CBC, TS_ALG_DES3_THREEKEY_CBC,
+    {"TDES-192-CBC", id_ANSI_X9_52_DES_3EDE_CBC_OID, TS_ALG_DES3_THREEKEY_CBC,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"TDES-192-CFB8", TECSEC_TDES_THREEKEY_CFB8, TS_ALG_DES3_THREEKEY_CFB8,
+    {"TDES-192-CFB8", id_TECSEC_TDES_THREEKEY_CFB8_OID, TS_ALG_DES3_THREEKEY_CFB8,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"TDES-192-CFBfull", TECSEC_TDES_THREEKEY_CFB64, TS_ALG_DES3_THREEKEY_CFB64,
+    {"TDES-192-CFBfull", id_TECSEC_TDES_THREEKEY_CFB64_OID, TS_ALG_DES3_THREEKEY_CFB64,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"TDES-192-CTR", TECSEC_TDES_THREEKEY_CTR, TS_ALG_DES3_THREEKEY_CTR,
+    {"TDES-192-CTR", id_TECSEC_TDES_THREEKEY_CTR_OID, TS_ALG_DES3_THREEKEY_CTR,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"TDES-192-ECB", ANSI_X9_52_DES_3EDE_ECB, TS_ALG_DES3_THREEKEY_ECB,
+    {"TDES-192-ECB", id_ANSI_X9_52_DES_3EDE_ECB_OID, TS_ALG_DES3_THREEKEY_ECB,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"TDES-192-OFB", TECSEC_TDES_THREEKEY_OFB, TS_ALG_DES3_THREEKEY_OFB,
+    {"TDES-192-OFB", id_TECSEC_TDES_THREEKEY_OFB_OID, TS_ALG_DES3_THREEKEY_OFB,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"BLOWFISH", TECSEC_BLOWFISH_CBC_OID, TS_ALG_BLOWFISH_CBC,
+    {"BLOWFISH", id_TECSEC_BLOWFISH_CBC_OID, TS_ALG_BLOWFISH_CBC,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"BLOWFISH-CBC", TECSEC_BLOWFISH_CBC_OID, TS_ALG_BLOWFISH_CBC,
+    {"BLOWFISH-CBC", id_TECSEC_BLOWFISH_CBC_OID, TS_ALG_BLOWFISH_CBC,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"BLOWFISH-ECB", TECSEC_BLOWFISH_ECB_OID, TS_ALG_BLOWFISH_ECB,
+    {"BLOWFISH-ECB", id_TECSEC_BLOWFISH_ECB_OID, TS_ALG_BLOWFISH_ECB,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"RC2", RC2_CBC_OID, TS_ALG_RC2_CBC,
+    {"RC2", id_RC2_CBC_OID, TS_ALG_RC2_CBC,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"RC2-40-CBC", RC2_CBC_OID, TS_ALG_RC2_CBC,
+    {"RC2-40-CBC", id_RC2_CBC_OID, TS_ALG_RC2_CBC,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"RC2-40-CFB8", TECSEC_RC2_40_CFB8, TS_ALG_RC2_CFB8,
+    {"RC2-40-CFB8", id_TECSEC_RC2_40_CFB8_OID, TS_ALG_RC2_CFB8,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"RC2-40-CFBfull", TECSEC_RC2_40_CFB64, TS_ALG_RC2_CFB64,
+    {"RC2-40-CFBfull", id_TECSEC_RC2_40_CFB64_OID, TS_ALG_RC2_CFB64,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"RC2-40-CTR", TECSEC_RC2_40_CTR, TS_ALG_RC2_CTR,
+    {"RC2-40-CTR", id_TECSEC_RC2_40_CTR_OID, TS_ALG_RC2_CTR,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"RC2-40-ECB", RC2_ECB_OID, TS_ALG_RC2_ECB,
+    {"RC2-40-ECB", id_RC2_ECB_OID, TS_ALG_RC2_ECB,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"RC2-40-OFB", TECSEC_RC2_40_OFB, TS_ALG_RC2_OFB,
+    {"RC2-40-OFB", id_TECSEC_RC2_40_OFB_OID, TS_ALG_RC2_OFB,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
 
-    {"RC2-128-CBC", TECSEC_RC2_128_CBC, TS_ALG_RC2_128_CBC,
+    {"RC2-128-CBC", id_TECSEC_RC2_128_CBC_OID, TS_ALG_RC2_128_CBC,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"RC2-128-CFB8", TECSEC_RC2_128_CFB8, TS_ALG_RC2_128_CFB8,
+    {"RC2-128-CFB8", id_TECSEC_RC2_128_CFB8_OID, TS_ALG_RC2_128_CFB8,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"RC2-128-CFBfull", TECSEC_RC2_128_CFB64, TS_ALG_RC2_128_CFB64,
+    {"RC2-128-CFBfull", id_TECSEC_RC2_128_CFB64_OID, TS_ALG_RC2_128_CFB64,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"RC2-128-CTR", TECSEC_RC2_128_CTR, TS_ALG_RC2_128_CTR,
+    {"RC2-128-CTR", id_TECSEC_RC2_128_CTR_OID, TS_ALG_RC2_128_CTR,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"RC2-128-ECB", TECSEC_RC2_128_ECB, TS_ALG_RC2_128_ECB,
+    {"RC2-128-ECB", id_TECSEC_RC2_128_ECB_OID, TS_ALG_RC2_128_ECB,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"RC2-128-OFB", TECSEC_RC2_128_OFB, TS_ALG_RC2_128_OFB,
+    {"RC2-128-OFB", id_TECSEC_RC2_128_OFB_OID, TS_ALG_RC2_128_OFB,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"ARCFOUR", RC4_OID, TS_ALG_RC4,
+    {"ARCFOUR", id_RC4_OID, TS_ALG_RC4,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_StreamCipher)},
-    {"AES", NIST_AES_256_CBC_OID, TS_ALG_AES_CBC_256,
+    {"AES", id_NIST_AES_256_CBC_OID, TS_ALG_AES_CBC_256,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"AES-256-CBC", NIST_AES_256_CBC_OID, TS_ALG_AES_CBC_256,
+    {"AES-256-CBC", id_NIST_AES_256_CBC_OID, TS_ALG_AES_CBC_256,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"AES-256-ECB", NIST_AES_256_ECB_OID, TS_ALG_AES_ECB_256,
+    {"AES-256-ECB", id_NIST_AES_256_ECB_OID, TS_ALG_AES_ECB_256,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"AES-256-CFB8", NIST_AES_256_CFB_OID, TS_ALG_AES_CFB8_256,
+    {"AES-256-CFB8", id_NIST_AES_256_CFB_OID, TS_ALG_AES_CFB8_256,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"AES-256-CFBfull", NIST_AES_256_CFB_OID, TS_ALG_AES_CFB128_256,
+    {"AES-256-CFBfull", id_NIST_AES_256_CFB_OID, TS_ALG_AES_CFB128_256,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"AES-256-CTR", TECSEC_AES_256_CTR_OID, TS_ALG_AES_CTR_256,
+    {"AES-256-CTR", id_TECSEC_AES_256_CTR_OID, TS_ALG_AES_CTR_256,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"AES-256-OFB", NIST_AES_256_OFB_OID, TS_ALG_AES_OFB_256,
+    {"AES-256-OFB", id_NIST_AES_256_OFB_OID, TS_ALG_AES_OFB_256,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"AES-192-CBC", NIST_AES_192_CBC_OID, TS_ALG_AES_CBC_192,
+    {"AES-192-CBC", id_NIST_AES_192_CBC_OID, TS_ALG_AES_CBC_192,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"AES-192-ECB", NIST_AES_192_ECB_OID, TS_ALG_AES_ECB_192,
+    {"AES-192-ECB", id_NIST_AES_192_ECB_OID, TS_ALG_AES_ECB_192,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"AES-192-CFB8", NIST_AES_192_CFB_OID, TS_ALG_AES_CFB8_192,
+    {"AES-192-CFB8", id_NIST_AES_192_CFB_OID, TS_ALG_AES_CFB8_192,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"AES-192-CFBfull", NIST_AES_192_CFB_OID, TS_ALG_AES_CFB128_192,
+    {"AES-192-CFBfull", id_NIST_AES_192_CFB_OID, TS_ALG_AES_CFB128_192,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"AES-192-CTR", TECSEC_AES_192_CTR_OID, TS_ALG_AES_CTR_192,
+    {"AES-192-CTR", id_TECSEC_AES_192_CTR_OID, TS_ALG_AES_CTR_192,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"AES-192-OFB", NIST_AES_192_OFB_OID, TS_ALG_AES_OFB_192,
+    {"AES-192-OFB", id_NIST_AES_192_OFB_OID, TS_ALG_AES_OFB_192,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"AES-128-CBC", NIST_AES_128_CBC_OID, TS_ALG_AES_CBC_128,
+    {"AES-128-CBC", id_NIST_AES_128_CBC_OID, TS_ALG_AES_CBC_128,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"AES-128-ECB", NIST_AES_128_ECB_OID, TS_ALG_AES_ECB_128,
+    {"AES-128-ECB", id_NIST_AES_128_ECB_OID, TS_ALG_AES_ECB_128,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"AES-128-CFB8", NIST_AES_128_CFB_OID, TS_ALG_AES_CFB8_128,
+    {"AES-128-CFB8", id_NIST_AES_128_CFB_OID, TS_ALG_AES_CFB8_128,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"AES-128-CFBfull", NIST_AES_128_CFB_OID, TS_ALG_AES_CFB8_128,
+    {"AES-128-CFBfull", id_NIST_AES_128_CFB_OID, TS_ALG_AES_CFB8_128,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"AES-128-CTR", TECSEC_AES_128_CTR_OID, TS_ALG_AES_CTR_128,
+    {"AES-128-CTR", id_TECSEC_AES_128_CTR_OID, TS_ALG_AES_CTR_128,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"AES-128-OFB", NIST_AES_128_OFB_OID, TS_ALG_AES_OFB_128,
+    {"AES-128-OFB", id_NIST_AES_128_OFB_OID, TS_ALG_AES_OFB_128,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"CCM-AES", NIST_AES_256_CCM_OID, TS_ALG_AES_CCM_256,
+    {"CCM-AES", id_NIST_AES_256_CCM_OID, TS_ALG_AES_CCM_256,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
-    {"CCM-AES-256", NIST_AES_256_CCM_OID, TS_ALG_AES_CCM_256,
+    {"CCM-AES-256", id_NIST_AES_256_CCM_OID, TS_ALG_AES_CCM_256,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
-    {"CCM-AES-192", NIST_AES_192_CCM_OID, TS_ALG_AES_CCM_192,
+    {"CCM-AES-192", id_NIST_AES_192_CCM_OID, TS_ALG_AES_CCM_192,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
-    {"CCM-AES-128", NIST_AES_128_CCM_OID, TS_ALG_AES_CCM_128,
+    {"CCM-AES-128", id_NIST_AES_128_CCM_OID, TS_ALG_AES_CCM_128,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
-    {"GCM-AES", NIST_AES_256_GCM_OID, TS_ALG_AES_GCM_256,
+    {"GCM-AES", id_NIST_AES_256_GCM_OID, TS_ALG_AES_GCM_256,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
-    {"GCM-AES-256", NIST_AES_256_GCM_OID, TS_ALG_AES_GCM_256,
+    {"GCM-AES-256", id_NIST_AES_256_GCM_OID, TS_ALG_AES_GCM_256,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
-    {"GCM-AES-192", NIST_AES_192_GCM_OID, TS_ALG_AES_GCM_192,
+    {"GCM-AES-192", id_NIST_AES_192_GCM_OID, TS_ALG_AES_GCM_192,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
-    {"GCM-AES-128", NIST_AES_128_GCM_OID, TS_ALG_AES_GCM_128,
+    {"GCM-AES-128", id_NIST_AES_128_GCM_OID, TS_ALG_AES_GCM_128,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
 
-    {"CMAC-AES", TECSEC_CMAC_AES256_OID, TS_ALG_CMAC_AES256,
+    {"CMAC-AES", id_TECSEC_CMAC_AES256_OID, TS_ALG_CMAC_AES256,
      (CryptoAlgType)(cat_Symmetric | cat_MAC)},
-    {"CMAC-AES-256", TECSEC_CMAC_AES256_OID, TS_ALG_CMAC_AES256,
+    {"CMAC-AES-256", id_TECSEC_CMAC_AES256_OID, TS_ALG_CMAC_AES256,
      (CryptoAlgType)(cat_Symmetric | cat_MAC)},
-    {"CMAC-AES-192", TECSEC_CMAC_AES192_OID, TS_ALG_CMAC_AES192,
+    {"CMAC-AES-192", id_TECSEC_CMAC_AES192_OID, TS_ALG_CMAC_AES192,
      (CryptoAlgType)(cat_Symmetric | cat_MAC)},
-    {"CMAC-AES-128", TECSEC_CMAC_AES128_OID, TS_ALG_CMAC_AES128,
+    {"CMAC-AES-128", id_TECSEC_CMAC_AES128_OID, TS_ALG_CMAC_AES128,
      (CryptoAlgType)(cat_Symmetric | cat_MAC)},
-    {"CMAC-TDES", TECSEC_CMAC_TDES_OID, TS_ALG_CMAC_TDES,
+    {"CMAC-TDES", id_TECSEC_CMAC_TDES_OID, TS_ALG_CMAC_TDES,
      (CryptoAlgType)(cat_Symmetric | cat_MAC)},
-    {"CMAC-TDES-64", TECSEC_CMAC_TDES_OID, TS_ALG_CMAC_TDES,
+    {"CMAC-TDES-64", id_TECSEC_CMAC_TDES_OID, TS_ALG_CMAC_TDES,
      (CryptoAlgType)(cat_Symmetric | cat_MAC)},
-    {"CMAC-TDES-128", TECSEC_CMAC_TDES_OID, TS_ALG_CMAC_TDES,
+    {"CMAC-TDES-128", id_TECSEC_CMAC_TDES_OID, TS_ALG_CMAC_TDES,
      (CryptoAlgType)(cat_Symmetric | cat_MAC)},
-    {"CMAC-TDES-192", TECSEC_CMAC_TDES_OID, TS_ALG_CMAC_TDES,
+    {"CMAC-TDES-192", id_TECSEC_CMAC_TDES_OID, TS_ALG_CMAC_TDES,
      (CryptoAlgType)(cat_Symmetric | cat_MAC)},
-    {"CMAC-BLOWFISH", TECSEC_CMAC_BLOWFISH_OID, TS_ALG_CMAC_BLOWFISH,
+    {"CMAC-BLOWFISH", id_TECSEC_CMAC_BLOWFISH_OID, TS_ALG_CMAC_BLOWFISH,
      (CryptoAlgType)(cat_Symmetric | cat_MAC)},
-    {"CMAC-BLOWFISH-64", TECSEC_CMAC_BLOWFISH_OID, TS_ALG_CMAC_BLOWFISH,
+    {"CMAC-BLOWFISH-64", id_TECSEC_CMAC_BLOWFISH_OID, TS_ALG_CMAC_BLOWFISH,
      (CryptoAlgType)(cat_Symmetric | cat_MAC)},
-    {"CMAC-BLOWFISH-128", TECSEC_CMAC_BLOWFISH_OID, TS_ALG_CMAC_BLOWFISH,
+    {"CMAC-BLOWFISH-128", id_TECSEC_CMAC_BLOWFISH_OID, TS_ALG_CMAC_BLOWFISH,
      (CryptoAlgType)(cat_Symmetric | cat_MAC)},
-    {"CMAC-BLOWFISH-192", TECSEC_CMAC_BLOWFISH_OID, TS_ALG_CMAC_BLOWFISH,
+    {"CMAC-BLOWFISH-192", id_TECSEC_CMAC_BLOWFISH_OID, TS_ALG_CMAC_BLOWFISH,
      (CryptoAlgType)(cat_Symmetric | cat_MAC)},
-    {"CMAC-XTEA", TECSEC_CMAC_XTEA_OID, TS_ALG_CMAC_XTEA,
+    {"CMAC-XTEA", id_TECSEC_CMAC_XTEA_OID, TS_ALG_CMAC_XTEA,
      (CryptoAlgType)(cat_Symmetric | cat_MAC)},
 
-    {"KDF-PBKDF2", TECSEC_KDF_PBKDF2_OID, TS_ALG_PBKDF2, cat_PbKdf},
-    {"KDF-CMAC-AES", TECSEC_KDF_CMAC_AES_OID, TS_ALG_KDF_CMAC_AES, cat_KDF},
-    {"KDF-CMAC-TDES", TECSEC_KDF_CMAC_TDES_OID, TS_ALG_KDF_CMAC_TDES, cat_KDF},
-    {"KDF-CMAC-BLOWFISH", TECSEC_KDF_CMAC_BLOWFISH_OID,
+    {"KDF-PBKDF2", id_TECSEC_KDF_PBKDF2_OID, TS_ALG_PBKDF2, cat_PbKdf},
+    {"KDF-CMAC-AES", id_TECSEC_KDF_CMAC_AES_OID, TS_ALG_KDF_CMAC_AES, cat_KDF},
+    {"KDF-CMAC-TDES", id_TECSEC_KDF_CMAC_TDES_OID, TS_ALG_KDF_CMAC_TDES, cat_KDF},
+    {"KDF-CMAC-BLOWFISH", id_TECSEC_KDF_CMAC_BLOWFISH_OID,
      TS_ALG_KDF_CMAC_BLOWFISH, cat_KDF},
-    {"KDF-CMAC-XTEA", TECSEC_KDF_CMAC_XTEA_OID, TS_ALG_KDF_CMAC_XTEA, cat_KDF},
-    {"KDF-HMAC-MD5", TECSEC_KDF_HMAC_MD5_OID, TS_ALG_KDF_HMAC_MD5, cat_KDF},
-    {"KDF-HMAC-Sha1", TECSEC_KDF_HMAC_SHA1_OID, TS_ALG_KDF_HMAC_SHA1, cat_KDF},
-    {"KDF-HMAC-Sha224", TECSEC_KDF_HMAC_SHA224_OID, TS_ALG_KDF_HMAC_SHA224,
+    {"KDF-CMAC-XTEA", id_TECSEC_KDF_CMAC_XTEA_OID, TS_ALG_KDF_CMAC_XTEA, cat_KDF},
+    {"KDF-HMAC-MD5", id_TECSEC_KDF_HMAC_MD5_OID, TS_ALG_KDF_HMAC_MD5, cat_KDF},
+    {"KDF-HMAC-Sha1", id_TECSEC_KDF_HMAC_SHA1_OID, TS_ALG_KDF_HMAC_SHA1, cat_KDF},
+    {"KDF-HMAC-Sha224", id_TECSEC_KDF_HMAC_SHA224_OID, TS_ALG_KDF_HMAC_SHA224,
      cat_KDF},
-    {"KDF-HMAC-Sha256", TECSEC_KDF_HMAC_SHA256_OID, TS_ALG_KDF_HMAC_SHA256,
+    {"KDF-HMAC-Sha256", id_TECSEC_KDF_HMAC_SHA256_OID, TS_ALG_KDF_HMAC_SHA256,
      cat_KDF},
-    {"KDF-HMAC-Sha384", TECSEC_KDF_HMAC_SHA384_OID, TS_ALG_KDF_HMAC_SHA384,
+    {"KDF-HMAC-Sha384", id_TECSEC_KDF_HMAC_SHA384_OID, TS_ALG_KDF_HMAC_SHA384,
      cat_KDF},
-    {"KDF-HMAC-Sha512", TECSEC_KDF_HMAC_SHA512_OID, TS_ALG_KDF_HMAC_SHA512,
+    {"KDF-HMAC-Sha512", id_TECSEC_KDF_HMAC_SHA512_OID, TS_ALG_KDF_HMAC_SHA512,
      cat_KDF},
-    {"KDF-MD5", TECSEC_KDF_HASH_MD5_OID, TS_ALG_KDF_HASH_MD5, cat_KDF},
-    {"KDF-Sha1", TECSEC_KDF_HASH_SHA1_OID, TS_ALG_KDF_HASH_SHA1, cat_KDF},
-    {"KDF-Sha224", TECSEC_KDF_HASH_SHA224_OID, TS_ALG_KDF_HASH_SHA224, cat_KDF},
-    {"KDF-Sha256", TECSEC_KDF_HASH_SHA256_OID, TS_ALG_KDF_HASH_SHA256, cat_KDF},
-    {"KDF-Sha384", TECSEC_KDF_HASH_SHA384_OID, TS_ALG_KDF_HASH_SHA384, cat_KDF},
-    {"KDF-Sha512", TECSEC_KDF_HASH_SHA512_OID, TS_ALG_KDF_HASH_SHA512, cat_KDF},
-    {"KDF-HMAC-RIPEMD160", TECSEC_KDF_HMAC_RIPEMD160_OID,
+    {"KDF-MD5", id_TECSEC_KDF_HASH_MD5_OID, TS_ALG_KDF_HASH_MD5, cat_KDF},
+    {"KDF-Sha1", id_TECSEC_KDF_HASH_SHA1_OID, TS_ALG_KDF_HASH_SHA1, cat_KDF},
+    {"KDF-Sha224", id_TECSEC_KDF_HASH_SHA224_OID, TS_ALG_KDF_HASH_SHA224, cat_KDF},
+    {"KDF-Sha256", id_TECSEC_KDF_HASH_SHA256_OID, TS_ALG_KDF_HASH_SHA256, cat_KDF},
+    {"KDF-Sha384", id_TECSEC_KDF_HASH_SHA384_OID, TS_ALG_KDF_HASH_SHA384, cat_KDF},
+    {"KDF-Sha512", id_TECSEC_KDF_HASH_SHA512_OID, TS_ALG_KDF_HASH_SHA512, cat_KDF},
+    {"KDF-HMAC-RIPEMD160", id_TECSEC_KDF_HMAC_RIPEMD160_OID,
      TS_ALG_KDF_HMAC_RIPEMD160, cat_KDF},
-    {"KDF-RIPEMD160", TECSEC_KDF_HASH_RIPEMD160_OID, TS_ALG_KDF_HASH_RIPEMD160,
+    {"KDF-RIPEMD160", id_TECSEC_KDF_HASH_RIPEMD160_OID, TS_ALG_KDF_HASH_RIPEMD160,
      cat_KDF},
 
-    {"KEYWRAP-AES", NIST_AES_256_wrap_OID, TS_ALG_KEYWRAP_AES256, cat_KeyTransport},
-    {"KEYWRAP-RFC3394-AES", NIST_AES_256_wrap_OID, TS_ALG_KEYWRAP_AES256, cat_KeyTransport},
-    {"KEYWRAP-RFC3394-AES-256", NIST_AES_256_wrap_OID, TS_ALG_KEYWRAP_AES256, cat_KeyTransport},
-    {"KEYWRAP-RFC3394-AES-192", NIST_AES_192_wrap_OID, TS_ALG_KEYWRAP_AES192, cat_KeyTransport},
-    {"KEYWRAP-RFC3394-AES-128", NIST_AES_128_wrap_OID, TS_ALG_KEYWRAP_AES128, cat_KeyTransport},
-    {"KEYWRAP-TDES", TDES_KEYWRAP_OID, TS_ALG_KEYWRAP_TDES, cat_KeyTransport},
-	{"KEYWRAP-BLOWFISH", TECSEC_KEYWRAP_BLOWFISH_OID, TS_ALG_KEYWRAP_BLOWFISH, cat_KeyTransport},
-    {"KEYWRAP-XTEA", TECSEC_KEYWRAP_XTEA_OID, TS_ALG_KEYWRAP_XTEA, cat_KeyTransport},
-	{"KEYWRAP-CAMELLIA", TECSEC_KEYWRAP_CAMELLIA_OID, TS_ALG_KEYWRAP_CAMELLIA256, cat_KeyTransport },
-	{"KEYWRAP-ARIA", ARIA_256_KW_OID, TS_ALG_KEYWRAP_ARIA256, cat_KeyTransport },
-	{"KEYWRAP-SEED", TECSEC_SEED_128_KW_OID, TS_ALG_KEYWRAP_SEED128, cat_KeyTransport },
+    {"KEYWRAP-AES", id_NIST_AES_256_wrap_OID, TS_ALG_KEYWRAP_AES256, cat_KeyTransport},
+    {"KEYWRAP-RFC3394-AES", id_NIST_AES_256_wrap_OID, TS_ALG_KEYWRAP_AES256, cat_KeyTransport},
+    {"KEYWRAP-RFC3394-AES-256", id_NIST_AES_256_wrap_OID, TS_ALG_KEYWRAP_AES256, cat_KeyTransport},
+    {"KEYWRAP-RFC3394-AES-192", id_NIST_AES_192_wrap_OID, TS_ALG_KEYWRAP_AES192, cat_KeyTransport},
+    {"KEYWRAP-RFC3394-AES-128", id_NIST_AES_128_wrap_OID, TS_ALG_KEYWRAP_AES128, cat_KeyTransport},
+    {"KEYWRAP-TDES", id_TDES_KEYWRAP_OID, TS_ALG_KEYWRAP_TDES, cat_KeyTransport},
+    {"KEYWRAP-BLOWFISH", id_TECSEC_KEYWRAP_BLOWFISH_OID, TS_ALG_KEYWRAP_BLOWFISH, cat_KeyTransport},
+    {"KEYWRAP-XTEA", id_TECSEC_KEYWRAP_XTEA_OID, TS_ALG_KEYWRAP_XTEA, cat_KeyTransport},
+    {"KEYWRAP-CAMELLIA", id_TECSEC_KEYWRAP_CAMELLIA_OID, TS_ALG_KEYWRAP_CAMELLIA256, cat_KeyTransport },
+    {"KEYWRAP-ARIA", id_ARIA_256_KW_OID, TS_ALG_KEYWRAP_ARIA256, cat_KeyTransport },
+    {"KEYWRAP-SEED", id_TECSEC_SEED_128_KW_OID, TS_ALG_KEYWRAP_SEED128, cat_KeyTransport },
 
-    {"KW-AES", NIST_AES_256_wrap_OID, TS_ALG_KEYWRAP_AES256, cat_KeyTransport},
-    {"TKW-TDES", TDES_KEYWRAP_OID, TS_ALG_KEYWRAP_TDES, cat_KeyTransport},
-	{"TKW-BLOWFISH", TECSEC_KEYWRAP_BLOWFISH_OID, TS_ALG_KEYWRAP_BLOWFISH, cat_KeyTransport},
-    {"KW-XTEA", TECSEC_KEYWRAP_XTEA_OID, TS_ALG_KEYWRAP_XTEA, cat_KeyTransport},
-	{"KW-CAMELLIA", TECSEC_KEYWRAP_CAMELLIA256_OID, TS_ALG_KEYWRAP_CAMELLIA256, cat_KeyTransport },
-	{"KW-ARIA", ARIA_256_KW_OID, TS_ALG_KEYWRAP_ARIA256, cat_KeyTransport },
-	{"KW-SEED", TECSEC_SEED_128_KW_OID, TS_ALG_KEYWRAP_SEED128, cat_KeyTransport },
+    {"KW-AES", id_NIST_AES_256_wrap_OID, TS_ALG_KEYWRAP_AES256, cat_KeyTransport},
+    {"TKW-TDES", id_TDES_KEYWRAP_OID, TS_ALG_KEYWRAP_TDES, cat_KeyTransport},
+    {"TKW-BLOWFISH", id_TECSEC_KEYWRAP_BLOWFISH_OID, TS_ALG_KEYWRAP_BLOWFISH, cat_KeyTransport},
+    {"KW-XTEA", id_TECSEC_KEYWRAP_XTEA_OID, TS_ALG_KEYWRAP_XTEA, cat_KeyTransport},
+    {"KW-CAMELLIA", id_TECSEC_KEYWRAP_CAMELLIA256_OID, TS_ALG_KEYWRAP_CAMELLIA256, cat_KeyTransport },
+    {"KW-ARIA", id_ARIA_256_KW_OID, TS_ALG_KEYWRAP_ARIA256, cat_KeyTransport },
+    {"KW-SEED", id_TECSEC_SEED_128_KW_OID, TS_ALG_KEYWRAP_SEED128, cat_KeyTransport },
 
-    {"PRIME-PROVABLE", TECSEC_PROVABLE_PRIME_OID, TS_ALG_PROVABLE_PRIME,
+    {"PRIME-PROVABLE", id_TECSEC_PROVABLE_PRIME_OID, TS_ALG_PROVABLE_PRIME,
      cat_Prime},
-    {"PRIME-PROBABLE", TECSEC_PROBABLE_PRIME_OID, TS_ALG_PROBABLE_PRIME,
+    {"PRIME-PROBABLE", id_TECSEC_PROBABLE_PRIME_OID, TS_ALG_PROBABLE_PRIME,
      cat_Prime},
-    {"PRIME-X9.31", TECSEC_PROBABLE_X9_31_PRIME_OID,
+    {"PRIME-X9.31", id_TECSEC_PROBABLE_X9_31_PRIME_OID,
      TS_ALG_PROBABLE_X9_31_PRIME, cat_Prime},
-    {"PARAMETERSET-DH", TECSEC_DH_PARAMETERS, TS_ALG_DH_PARAMETERS,
+    {"PARAMETERSET-DH", id_TECSEC_DH_PARAMETERS_OID, TS_ALG_DH_PARAMETERS,
      cat_Asymmetric},
-    {"KEY-DH", TECSEC_DH_KEY, TS_ALG_DH_KEY, cat_Asymmetric},
-    {"KEY-DSA", TECSEC_DH_KEY, TS_ALG_DH_KEY, cat_Asymmetric},
-    {"KEY-RSA", TECSEC_RSA_PRIVATE_KEY_BLOB, TS_ALG_RSA, cat_Asymmetric},
-    {"KEY-RSA-X9.31", TECSEC_RSA_PRIVATE_KEY_BLOB, TS_ALG_RSA_X9_31_KEY,
+    {"KEY-DH", id_TECSEC_DH_KEY_OID, TS_ALG_DH_KEY, cat_Asymmetric},
+    {"KEY-DSA", id_TECSEC_DH_KEY_OID, TS_ALG_DH_KEY, cat_Asymmetric},
+    {"KEY-RSA", id_TECSEC_RSA_PRIVATE_KEY_BLOB_OID, TS_ALG_RSA, cat_Asymmetric},
+    {"KEY-RSA-X9.31", id_TECSEC_RSA_PRIVATE_KEY_BLOB_OID, TS_ALG_RSA_X9_31_KEY,
      cat_Asymmetric},
-    {"ENCODE-RSA-X9.31", TECSEC_RSA_X9_31_ENCODE, TS_ALG_RSA_X9_31_ENCODE,
+    {"ENCODE-RSA-X9.31", id_TECSEC_RSA_X9_31_ENCODE_OID, TS_ALG_RSA_X9_31_ENCODE,
      cat_Encoder},
-    {"ENCODE-RSA-PSS", TECSEC_RSA_PSS_ENCODE, TS_ALG_RSA_PSS_ENCODE,
+    {"ENCODE-RSA-PSS", id_TECSEC_RSA_PSS_ENCODE_OID, TS_ALG_RSA_PSS_ENCODE,
      cat_Encoder},
-    {"ENCODE-RSA-PKCS", TECSEC_RSA_PKCS_ENCODE, TS_ALG_RSA_PKCS_v15,
+    {"ENCODE-RSA-PKCS", id_TECSEC_RSA_PKCS_ENCODE_OID, TS_ALG_RSA_PKCS_v15,
      cat_Encoder},
-    //{"ENCODE-RSA-ENCRYPT-PKCS", TECSEC_RSA_PKCS_ENCRYPT_ENCODE, TS_ALG_RSA,
-    // cat_Encoder},
-    {"RSA-OAEP-SHA1", TECSEC_RSA_OAEP_SHA1, TS_ALG_RSA_OAEP_SHA1, cat_Sign},
-    {"RSA-OAEP-SHA224", TECSEC_RSA_OAEP_SHA224, TS_ALG_RSA_OAEP_SHA224,
-     cat_Sign},
-    {"RSA-OAEP-SHA256", TECSEC_RSA_OAEP_SHA256, TS_ALG_RSA_OAEP_SHA256,
-     cat_Sign},
-    {"RSA-OAEP-SHA384", TECSEC_RSA_OAEP_SHA384, TS_ALG_RSA_OAEP_SHA384,
-     cat_Sign},
-    {"RSA-OAEP-SHA512", TECSEC_RSA_OAEP_SHA512, TS_ALG_RSA_OAEP_SHA512,
-     cat_Sign},
-    {"SIGN-RSA-X9.31-SHA1", TECSEC_RSA_X9_31_SHA1, TS_ALG_RSA_X9_31_SHA1,
-     cat_Sign},
-    {"SIGN-RSA-X9.31-SHA224", TECSEC_RSA_X9_31_SHA224, TS_ALG_RSA_X9_31_SHA224,
-     cat_Sign},
-    {"SIGN-RSA-X9.31-SHA256", TECSEC_RSA_X9_31_SHA256, TS_ALG_RSA_X9_31_SHA256,
-     cat_Sign},
-    {"SIGN-RSA-X9.31-SHA384", TECSEC_RSA_X9_31_SHA384, TS_ALG_RSA_X9_31_SHA384,
-     cat_Sign},
-    {"SIGN-RSA-X9.31-SHA512", TECSEC_RSA_X9_31_SHA512, TS_ALG_RSA_X9_31_SHA512,
-     cat_Sign},
-    {"SIGN-RSA-PKCS", RSA_ENCRYPT_OID, TS_ALG_RSA_PKCS, cat_Sign},
-    {"SIGN-RSA-PKCS-MD5", RSADSI_MD5, TS_ALG_RSA_MD5_v15, cat_Sign},
-    {"SIGN-RSA-PKCS-SHA1", RSA_SHA1_SIGN_OID, TS_ALG_RSA_SHA1_v15, cat_Sign},
-    {"SIGN-RSA-PKCS-SHA224", RSA_SHA224_SIGN_OID, TS_ALG_RSA_SHA224_v15,
-     cat_Sign},
-    {"SIGN-RSA-PKCS-SHA256", RSA_SHA256_SIGN_OID, TS_ALG_RSA_SHA256_v15,
-     cat_Sign},
-    {"SIGN-RSA-PKCS-SHA384", RSA_SHA384_SIGN_OID, TS_ALG_RSA_SHA384_v15,
-     cat_Sign},
-    {"SIGN-RSA-PKCS-SHA512", RSA_SHA512_SIGN_OID, TS_ALG_RSA_SHA512_v15,
-     cat_Sign},
-    {"SIGN-RSA-PSS-SHA1", RSASSA_PSS_OID, TS_ALG_RSA_PSS_SHA1, cat_Sign},
-    {"SIGN-RSA-PSS-SHA224", RSASSA_PSS_OID, TS_ALG_RSA_PSS_SHA224, cat_Sign},
-    {"SIGN-RSA-PSS-SHA256", RSASSA_PSS_OID, TS_ALG_RSA_PSS_SHA256, cat_Sign},
-    {"SIGN-RSA-PSS-SHA384", RSASSA_PSS_OID, TS_ALG_RSA_PSS_SHA384, cat_Sign},
-    {"SIGN-RSA-PSS-SHA512", RSASSA_PSS_OID, TS_ALG_RSA_PSS_SHA512, cat_Sign},
+     //{"ENCODE-RSA-ENCRYPT-PKCS", TECSEC_RSA_PKCS_ENCRYPT_ENCODE, TS_ALG_RSA,
+     // cat_Encoder},
+     {"RSA-OAEP-SHA1", id_TECSEC_RSA_OAEP_SHA1_OID, TS_ALG_RSA_OAEP_SHA1, cat_Sign},
+     {"RSA-OAEP-SHA224", id_TECSEC_RSA_OAEP_SHA224_OID, TS_ALG_RSA_OAEP_SHA224,
+      cat_Sign},
+     {"RSA-OAEP-SHA256", id_TECSEC_RSA_OAEP_SHA256_OID, TS_ALG_RSA_OAEP_SHA256,
+      cat_Sign},
+     {"RSA-OAEP-SHA384", id_TECSEC_RSA_OAEP_SHA384_OID, TS_ALG_RSA_OAEP_SHA384,
+      cat_Sign},
+     {"RSA-OAEP-SHA512", id_TECSEC_RSA_OAEP_SHA512_OID, TS_ALG_RSA_OAEP_SHA512,
+      cat_Sign},
+     {"SIGN-RSA-X9.31-SHA1", id_TECSEC_RSA_X9_31_SHA1_OID, TS_ALG_RSA_X9_31_SHA1,
+      cat_Sign},
+     {"SIGN-RSA-X9.31-SHA224", id_TECSEC_RSA_X9_31_SHA224_OID, TS_ALG_RSA_X9_31_SHA224,
+      cat_Sign},
+     {"SIGN-RSA-X9.31-SHA256", id_TECSEC_RSA_X9_31_SHA256_OID, TS_ALG_RSA_X9_31_SHA256,
+      cat_Sign},
+     {"SIGN-RSA-X9.31-SHA384", id_TECSEC_RSA_X9_31_SHA384_OID, TS_ALG_RSA_X9_31_SHA384,
+      cat_Sign},
+     {"SIGN-RSA-X9.31-SHA512", id_TECSEC_RSA_X9_31_SHA512_OID, TS_ALG_RSA_X9_31_SHA512,
+      cat_Sign},
+     {"SIGN-RSA-PKCS", id_RSA_ENCRYPT_OID, TS_ALG_RSA_PKCS, cat_Sign},
+     {"SIGN-RSA-PKCS-MD5", id_RSADSI_MD5_OID, TS_ALG_RSA_MD5_v15, cat_Sign},
+     {"SIGN-RSA-PKCS-SHA1", id_RSA_SHA1_SIGN_OID, TS_ALG_RSA_SHA1_v15, cat_Sign},
+     {"SIGN-RSA-PKCS-SHA224", id_RSA_SHA224_SIGN_OID, TS_ALG_RSA_SHA224_v15,
+      cat_Sign},
+     {"SIGN-RSA-PKCS-SHA256", id_RSA_SHA256_SIGN_OID, TS_ALG_RSA_SHA256_v15,
+      cat_Sign},
+     {"SIGN-RSA-PKCS-SHA384", id_RSA_SHA384_SIGN_OID, TS_ALG_RSA_SHA384_v15,
+      cat_Sign},
+     {"SIGN-RSA-PKCS-SHA512", id_RSA_SHA512_SIGN_OID, TS_ALG_RSA_SHA512_v15,
+      cat_Sign},
+     {"SIGN-RSA-PSS-SHA1", id_RSASSA_PSS_OID, TS_ALG_RSA_PSS_SHA1, cat_Sign},
+     {"SIGN-RSA-PSS-SHA224", id_RSASSA_PSS_OID, TS_ALG_RSA_PSS_SHA224, cat_Sign},
+     {"SIGN-RSA-PSS-SHA256", id_RSASSA_PSS_OID, TS_ALG_RSA_PSS_SHA256, cat_Sign},
+     {"SIGN-RSA-PSS-SHA384", id_RSASSA_PSS_OID, TS_ALG_RSA_PSS_SHA384, cat_Sign},
+     {"SIGN-RSA-PSS-SHA512", id_RSASSA_PSS_OID, TS_ALG_RSA_PSS_SHA512, cat_Sign},
 
-    #ifdef SUPPORT_ECC_P192
-    //	{ "KEY-P192", NIST_P192_CURVE_OID, TS_ALG_ECC_P192 },
-    #endif // SUPPORT_ECC_P192
-    #ifdef SUPPORT_ECC_P224
-    //	{ "KEY-P224", NIST_P224_CURVE_OID, TS_ALG_ECC_P224 },
-    #endif // SUPPORT_ECC_P224
-    {"KEY-P256", SECP256R1_CURVE_OID, TS_ALG_ECC_P256, cat_Asymmetric},
-    {"KEY-P256K1", SECP256K1_OID, TS_ALG_ECC_P256K1, cat_Asymmetric },
-    {"KEY-P384", SECP384R1_CURVE_OID, TS_ALG_ECC_P384, cat_Asymmetric},
-    {"KEY-P521", SECP521R1_CURVE_OID, TS_ALG_ECC_P521, cat_Asymmetric},
-    {"SIGN-ECC-SHA1", ECDSA_SHA1_OID, TS_ALG_ECC_SHA1, cat_Sign},
-    {"SIGN-ECC-SHA224", ECDSA_SHA224_OID, TS_ALG_ECC_SHA224, cat_Sign},
-    {"SIGN-ECC-SHA256", ECDSA_SHA256_OID, TS_ALG_ECC_SHA256, cat_Sign},
-    {"SIGN-ECC-SHA384", ECDSA_SHA384_OID, TS_ALG_ECC_SHA384, cat_Sign},
-    {"SIGN-ECC-SHA512", ECDSA_SHA512_OID, TS_ALG_ECC_SHA512, cat_Sign},
-    {"SIGN-DSA-SHA1", DSA_SHA1_OID, TS_ALG_DSA_SHA1, cat_Sign},
-    {"SIGN-DSA-SHA224", NIST_DSA_SHA224_OID, TS_ALG_DSA_SHA224, cat_Sign},
-    {"SIGN-DSA-SHA256", NIST_DSA_SHA256_OID, TS_ALG_DSA_SHA256, cat_Sign},
-    {"SIGN-DSA-SHA384", TECSEC_DSA_SIGN_SHA384, TS_ALG_DSA_SHA384, cat_Sign},
-    {"SIGN-DSA-SHA512", TECSEC_DSA_SIGN_SHA512, TS_ALG_DSA_SHA512, cat_Sign},
+     #ifdef SUPPORT_ECC_P192
+     //	{ "KEY-P192", NIST_P192_CURVE_OID, TS_ALG_ECC_P192 },
+     #endif // SUPPORT_ECC_P192
+     #ifdef SUPPORT_ECC_P224
+     //	{ "KEY-P224", NIST_P224_CURVE_OID, TS_ALG_ECC_P224 },
+     #endif // SUPPORT_ECC_P224
+     {"KEY-P256", id_SECP256R1_CURVE_OID, TS_ALG_ECC_P256, cat_Asymmetric},
+     {"KEY-P256K1", id_SECP256K1_CURVE_OID, TS_ALG_ECC_P256K1, cat_Asymmetric },
+     {"KEY-P384", id_SECP384R1_CURVE_OID, TS_ALG_ECC_P384, cat_Asymmetric},
+     {"KEY-P521", id_SECP521R1_CURVE_OID, TS_ALG_ECC_P521, cat_Asymmetric},
 
-    { "X25519", id_X25519, TS_ALG_X25519, cat_Asymmetric },
-    { "ED25519", id_X25519, TS_ALG_X25519, cat_Asymmetric },
-    { "ED25519_PH", id_X25519_PH, TS_ALG_X25519_PH, cat_Asymmetric },
-    { "KEY-X25519", id_X25519, TS_ALG_X25519, cat_Asymmetric },
-    { "KEY-ED25519", id_X25519, TS_ALG_X25519, cat_Asymmetric },
-    { "KEY-ED25519_PH", id_X25519_PH, TS_ALG_X25519_PH, cat_Asymmetric },
-    //{ "X448", id_X448, TS_ALG_X448, cat_Asymmetric },
-    //{ "X448_PH", id_X448_PH, TS_ALG_X448_PH, cat_Asymmetric },
+     //{ "KEY-BLISS-1", id_BLISS_PARAM_I_OID, TS_ALG_BLISS_I, cat_Asymmetric },
+     //{ "KEY-BLISS-2", id_BLISS_PARAM_II_OID, TS_ALG_BLISS_II, cat_Asymmetric },
+     //{ "KEY-BLISS-3", id_BLISS_PARAM_III_OID, TS_ALG_BLISS_III, cat_Asymmetric },
+     //{ "KEY-BLISS-4", id_BLISS_PARAM_IV_OID, TS_ALG_BLISS_IV, cat_Asymmetric },
+     { "KEY-BLISS_B-1", id_BLISS_B_PARAM_I_OID, TS_ALG_BLISS_B_I, cat_Asymmetric },
+     { "KEY-BLISS_B-2", id_BLISS_B_PARAM_II_OID, TS_ALG_BLISS_B_II, cat_Asymmetric },
+     { "KEY-BLISS_B-3", id_BLISS_B_PARAM_III_OID, TS_ALG_BLISS_B_III, cat_Asymmetric },
+     { "KEY-BLISS_B-4", id_BLISS_B_PARAM_IV_OID, TS_ALG_BLISS_B_IV, cat_Asymmetric },
+
+
+     {"SIGN-ECC-SHA1", id_ECDSA_SHA1_OID, TS_ALG_ECC_SHA1, cat_Sign},
+     {"SIGN-ECC-SHA224", id_ECDSA_SHA224_OID, TS_ALG_ECC_SHA224, cat_Sign},
+     {"SIGN-ECC-SHA256", id_ECDSA_SHA256_OID, TS_ALG_ECC_SHA256, cat_Sign},
+     {"SIGN-ECC-SHA384", id_ECDSA_SHA384_OID, TS_ALG_ECC_SHA384, cat_Sign},
+     {"SIGN-ECC-SHA512", id_ECDSA_SHA512_OID, TS_ALG_ECC_SHA512, cat_Sign},
+     {"SIGN-DSA-SHA1", id_DSA_SHA1_OID, TS_ALG_DSA_SHA1, cat_Sign},
+     {"SIGN-DSA-SHA224", id_NIST_DSA_SHA224_OID, TS_ALG_DSA_SHA224, cat_Sign},
+     {"SIGN-DSA-SHA256", id_NIST_DSA_SHA256_OID, TS_ALG_DSA_SHA256, cat_Sign},
+     {"SIGN-DSA-SHA384", id_TECSEC_DSA_SIGN_SHA384_OID, TS_ALG_DSA_SHA384, cat_Sign},
+     {"SIGN-DSA-SHA512", id_TECSEC_DSA_SIGN_SHA512_OID, TS_ALG_DSA_SHA512, cat_Sign},
+
+     { "X25519", id_CURVE_25519_OID, TS_ALG_X25519, cat_Asymmetric },
+     { "ED25519", id_CURVE_25519_OID, TS_ALG_X25519, cat_Asymmetric },
+     { "ED25519_PH", id_CURVE_25519_PH_OID, TS_ALG_X25519_PH, cat_Asymmetric },
+     { "KEY-X25519", id_CURVE_25519_OID, TS_ALG_X25519, cat_Asymmetric },
+     { "KEY-ED25519", id_CURVE_25519_OID, TS_ALG_X25519, cat_Asymmetric },
+     { "KEY-ED25519_PH", id_CURVE_25519_PH_OID, TS_ALG_X25519_PH, cat_Asymmetric },
+     //{ "X448", id_X448, TS_ALG_X448, cat_Asymmetric },
+ //{ "X448_PH", id_X448_PH, TS_ALG_X448_PH, cat_Asymmetric },
 
 #ifndef MINGW
-    { "NUMSP256D1", TECSEC_NUMSP256D1, TS_ALG_NUMSP256D1, cat_Asymmetric },
-    { "NUMSP384D1", TECSEC_NUMSP384D1, TS_ALG_NUMSP384D1, cat_Asymmetric },
-    { "NUMSP512D1", TECSEC_NUMSP512D1, TS_ALG_NUMSP512D1, cat_Asymmetric },
-    { "NUMSP256T1", TECSEC_NUMSP256T1, TS_ALG_NUMSP256T1, cat_Asymmetric },
-    { "NUMSP384T1", TECSEC_NUMSP384T1, TS_ALG_NUMSP384T1, cat_Asymmetric },
-    { "NUMSP512T1", TECSEC_NUMSP512T1, TS_ALG_NUMSP512T1, cat_Asymmetric },
-    { "KEY-NUMSP256D1", TECSEC_NUMSP256D1, TS_ALG_NUMSP256D1, cat_Asymmetric },
-    { "KEY-NUMSP384D1", TECSEC_NUMSP384D1, TS_ALG_NUMSP384D1, cat_Asymmetric },
-    { "KEY-NUMSP512D1", TECSEC_NUMSP512D1, TS_ALG_NUMSP512D1, cat_Asymmetric },
-    { "KEY-NUMSP256T1", TECSEC_NUMSP256T1, TS_ALG_NUMSP256T1, cat_Asymmetric },
-    { "KEY-NUMSP384T1", TECSEC_NUMSP384T1, TS_ALG_NUMSP384T1, cat_Asymmetric },
-    { "KEY-NUMSP512T1", TECSEC_NUMSP512T1, TS_ALG_NUMSP512T1, cat_Asymmetric },
+    { "NUMSP256D1", id_TECSEC_NUMSP256D1_OID, TS_ALG_NUMSP256D1, cat_Asymmetric },
+    { "NUMSP384D1", id_TECSEC_NUMSP384D1_OID, TS_ALG_NUMSP384D1, cat_Asymmetric },
+    { "NUMSP512D1", id_TECSEC_NUMSP512D1_OID, TS_ALG_NUMSP512D1, cat_Asymmetric },
+    { "NUMSP256T1", id_TECSEC_NUMSP256T1_OID, TS_ALG_NUMSP256T1, cat_Asymmetric },
+    { "NUMSP384T1", id_TECSEC_NUMSP384T1_OID, TS_ALG_NUMSP384T1, cat_Asymmetric },
+    { "NUMSP512T1", id_TECSEC_NUMSP512T1_OID, TS_ALG_NUMSP512T1, cat_Asymmetric },
+    { "KEY-NUMSP256D1", id_TECSEC_NUMSP256D1_OID, TS_ALG_NUMSP256D1, cat_Asymmetric },
+    { "KEY-NUMSP384D1", id_TECSEC_NUMSP384D1_OID, TS_ALG_NUMSP384D1, cat_Asymmetric },
+    { "KEY-NUMSP512D1", id_TECSEC_NUMSP512D1_OID, TS_ALG_NUMSP512D1, cat_Asymmetric },
+    { "KEY-NUMSP256T1", id_TECSEC_NUMSP256T1_OID, TS_ALG_NUMSP256T1, cat_Asymmetric },
+    { "KEY-NUMSP384T1", id_TECSEC_NUMSP384T1_OID, TS_ALG_NUMSP384T1, cat_Asymmetric },
+    { "KEY-NUMSP512T1", id_TECSEC_NUMSP512T1_OID, TS_ALG_NUMSP512T1, cat_Asymmetric },
 #endif
 
-    {"CKMAUTH", TECSEC_CKMAUTH_OID, TS_ALG_CKMAUTH, cat_CkmAuth},
-    {"CKMAUTH_CALCULATOR-PBKDF2-SHA1", TECSEC_CKMAUTH_PBKDF_SHA1_OID,
+    {"CKMAUTH", id_TECSEC_CKMAUTH_OID, TS_ALG_CKMAUTH, cat_CkmAuth},
+    {"CKMAUTH_CALCULATOR-PBKDF2-SHA1", id_TECSEC_CKMAUTH_PBKDF_SHA1_OID,
      TS_ALG_CKMAUTH_PBKDF_SHA1, cat_CkmAuth},
-    {"CKMAUTH_CALCULATOR-PBKDF2-SHA224", TECSEC_CKMAUTH_PBKDF_SHA224_OID,
+    {"CKMAUTH_CALCULATOR-PBKDF2-SHA224", id_TECSEC_CKMAUTH_PBKDF_SHA224_OID,
      TS_ALG_CKMAUTH_PBKDF_SHA224, (CryptoAlgType)(cat_CkmAuth | cat_PbKdf)},
-    {"CKMAUTH_CALCULATOR-PBKDF2-SHA256", TECSEC_CKMAUTH_PBKDF_SHA256_OID,
+    {"CKMAUTH_CALCULATOR-PBKDF2-SHA256", id_TECSEC_CKMAUTH_PBKDF_SHA256_OID,
      TS_ALG_CKMAUTH_PBKDF_SHA256, (CryptoAlgType)(cat_CkmAuth | cat_PbKdf)},
-    {"CKMAUTH_CALCULATOR-PBKDF2-SHA384", TECSEC_CKMAUTH_PBKDF_SHA384_OID,
+    {"CKMAUTH_CALCULATOR-PBKDF2-SHA384", id_TECSEC_CKMAUTH_PBKDF_SHA384_OID,
      TS_ALG_CKMAUTH_PBKDF_SHA384, (CryptoAlgType)(cat_CkmAuth | cat_PbKdf)},
-    {"CKMAUTH_CALCULATOR-PBKDF2-SHA512", TECSEC_CKMAUTH_PBKDF_SHA512_OID,
+    {"CKMAUTH_CALCULATOR-PBKDF2-SHA512", id_TECSEC_CKMAUTH_PBKDF_SHA512_OID,
      TS_ALG_CKMAUTH_PBKDF_SHA512, (CryptoAlgType)(cat_CkmAuth | cat_PbKdf)},
-    {"SHA3-512", NIST_SHA3_512_OID, TS_ALG_SHA3_512, cat_Digest},
-    {"SHA3-224", NIST_SHA3_224_OID, TS_ALG_SHA3_224, cat_Digest},
-    {"SHA3-256", NIST_SHA3_256_OID, TS_ALG_SHA3_256, cat_Digest},
-    {"SHA3-384", NIST_SHA3_384_OID, TS_ALG_SHA3_384, cat_Digest},
-    {"SHAKE128", NIST_SHAKE128_OID, TS_ALG_SHAKE128,
+    {"SHA3-512", id_NIST_SHA3_512_OID, TS_ALG_SHA3_512, cat_Digest},
+    {"SHA3-224", id_NIST_SHA3_224_OID, TS_ALG_SHA3_224, cat_Digest},
+    {"SHA3-256", id_NIST_SHA3_256_OID, TS_ALG_SHA3_256, cat_Digest},
+    {"SHA3-384", id_NIST_SHA3_384_OID, TS_ALG_SHA3_384, cat_Digest},
+    {"SHAKE128", id_NIST_SHAKE128_OID, TS_ALG_SHAKE128,
      (CryptoAlgType)(cat_Digest | cat_XOF)},
-    {"SHAKE256", NIST_SHAKE256_OID, TS_ALG_SHAKE256,
+    {"SHAKE256", id_NIST_SHAKE256_OID, TS_ALG_SHAKE256,
      (CryptoAlgType)(cat_Digest | cat_XOF)},
-    {"HMAC-SHA3-224", NIST_HMAC_SHA3_224_OID, TS_ALG_HMAC_SHA3_224, cat_MAC},
-    {"HMAC-SHA3-256", NIST_HMAC_SHA3_256_OID, TS_ALG_HMAC_SHA3_256, cat_MAC},
-    {"HMAC-SHA3-384", NIST_HMAC_SHA3_384_OID, TS_ALG_HMAC_SHA3_384, cat_MAC},
-    {"HMAC-SHA3-512", NIST_HMAC_SHA3_512_OID, TS_ALG_HMAC_SHA3_512, cat_MAC},
+    {"HMAC-SHA3-224", id_NIST_HMAC_SHA3_224_OID, TS_ALG_HMAC_SHA3_224, cat_MAC},
+    {"HMAC-SHA3-256", id_NIST_HMAC_SHA3_256_OID, TS_ALG_HMAC_SHA3_256, cat_MAC},
+    {"HMAC-SHA3-384", id_NIST_HMAC_SHA3_384_OID, TS_ALG_HMAC_SHA3_384, cat_MAC},
+    {"HMAC-SHA3-512", id_NIST_HMAC_SHA3_512_OID, TS_ALG_HMAC_SHA3_512, cat_MAC},
 
-    {"KDF-HMAC-SHA3-224", TECSEC_KDF_HMAC_SHA3_224_OID,
+    {"KDF-HMAC-SHA3-224", id_TECSEC_KDF_HMAC_SHA3_224_OID,
      TS_ALG_KDF_HMAC_SHA3_224, cat_KDF},
-    {"KDF-HMAC-SHA3-256", TECSEC_KDF_HMAC_SHA3_256_OID,
+    {"KDF-HMAC-SHA3-256", id_TECSEC_KDF_HMAC_SHA3_256_OID,
      TS_ALG_KDF_HMAC_SHA3_256, cat_KDF},
-    {"KDF-HMAC-SHA3-384", TECSEC_KDF_HMAC_SHA3_384_OID,
+    {"KDF-HMAC-SHA3-384", id_TECSEC_KDF_HMAC_SHA3_384_OID,
      TS_ALG_KDF_HMAC_SHA3_384, cat_KDF},
-    {"KDF-HMAC-SHA3-512", TECSEC_KDF_HMAC_SHA3_512_OID,
+    {"KDF-HMAC-SHA3-512", id_TECSEC_KDF_HMAC_SHA3_512_OID,
      TS_ALG_KDF_HMAC_SHA3_512, cat_KDF},
-    {"KDF-SHA3-224", TECSEC_KDF_HASH_SHA3_224_OID, TS_ALG_KDF_HASH_SHA3_224,
+    {"KDF-SHA3-224", id_TECSEC_KDF_HASH_SHA3_224_OID, TS_ALG_KDF_HASH_SHA3_224,
      cat_KDF},
-    {"KDF-SHA3-256", TECSEC_KDF_HASH_SHA3_256_OID, TS_ALG_KDF_HASH_SHA3_256,
+    {"KDF-SHA3-256", id_TECSEC_KDF_HASH_SHA3_256_OID, TS_ALG_KDF_HASH_SHA3_256,
      cat_KDF},
-    {"KDF-SHA3-384", TECSEC_KDF_HASH_SHA3_384_OID, TS_ALG_KDF_HASH_SHA3_384,
+    {"KDF-SHA3-384", id_TECSEC_KDF_HASH_SHA3_384_OID, TS_ALG_KDF_HASH_SHA3_384,
      cat_KDF},
-    {"KDF-SHA3-512", TECSEC_KDF_HASH_SHA3_512_OID, TS_ALG_KDF_HASH_SHA3_512,
+    {"KDF-SHA3-512", id_TECSEC_KDF_HASH_SHA3_512_OID, TS_ALG_KDF_HASH_SHA3_512,
      cat_KDF},
 
-    {"POLY1305", TECSEC_POLY1305, TS_ALG_POLY1305, (CryptoAlgType)(cat_MAC)},
-    {"SALSA20", TECSEC_SALSA20, TS_ALG_SALSA20,
+    {"POLY1305", id_TECSEC_POLY1305_OID, TS_ALG_POLY1305, (CryptoAlgType)(cat_MAC)},
+    {"SALSA20", id_TECSEC_SALSA20_OID, TS_ALG_SALSA20,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_StreamCipher)},
-    {"XSALSA20", TECSEC_XSALSA20, TS_ALG_XSALSA20,
+    {"XSALSA20", id_TECSEC_XSALSA20_OID, TS_ALG_XSALSA20,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_StreamCipher)},
-    {"SALSA20_POLY1305", TECSEC_SALSA20_POLY1305_OID, TS_ALG_SALSA20_POLY1305,
+    {"SALSA20_POLY1305", id_TECSEC_SALSA20_POLY1305_OID, TS_ALG_SALSA20_POLY1305,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
-    {"CHACHA20", TECSEC_CHACHA20, TS_ALG_CHACHA20,
+    {"CHACHA20", id_TECSEC_CHACHA20_OID, TS_ALG_CHACHA20,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_StreamCipher)},
-    {"CHACHA20_POLY1305", TECSEC_CHACHA20_POLY1305_OID,
+    {"CHACHA20_POLY1305", id_TECSEC_CHACHA20_POLY1305_OID,
      TS_ALG_CHACHA20_POLY1305,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
-    {"CAMELLIA", CAMELLIA_256_CBC_OID, TS_ALG_CAMELLIA_CBC_256,
+    {"CAMELLIA", id_CAMELLIA_256_CBC_OID, TS_ALG_CAMELLIA_CBC_256,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"CAMELLIA-256-CBC", CAMELLIA_256_CBC_OID, TS_ALG_CAMELLIA_CBC_256,
+    {"CAMELLIA-256-CBC", id_CAMELLIA_256_CBC_OID, TS_ALG_CAMELLIA_CBC_256,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"CAMELLIA-256-ECB", CAMELLIA_256_ECB_OID, TS_ALG_CAMELLIA_ECB_256,
+    {"CAMELLIA-256-ECB", id_CAMELLIA_256_ECB_OID, TS_ALG_CAMELLIA_ECB_256,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"CAMELLIA-256-CFB8", CAMELLIA_256_CFB_OID, TS_ALG_CAMELLIA_CFB8_256,
+    {"CAMELLIA-256-CFB8", id_CAMELLIA_256_CFB_OID, TS_ALG_CAMELLIA_CFB8_256,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"CAMELLIA-256-CFBfull", CAMELLIA_256_CFB_OID, TS_ALG_CAMELLIA_CFB128_256,
+    {"CAMELLIA-256-CFBfull", id_CAMELLIA_256_CFB_OID, TS_ALG_CAMELLIA_CFB128_256,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"CAMELLIA-256-CTR", CAMELLIA_256_CTR_OID, TS_ALG_CAMELLIA_CTR_256,
+    {"CAMELLIA-256-CTR", id_CAMELLIA_256_CTR_OID, TS_ALG_CAMELLIA_CTR_256,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"CAMELLIA-256-OFB", CAMELLIA_256_OFB_OID, TS_ALG_CAMELLIA_OFB_256,
+    {"CAMELLIA-256-OFB", id_CAMELLIA_256_OFB_OID, TS_ALG_CAMELLIA_OFB_256,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"CAMELLIA-192-CBC", CAMELLIA_192_CBC_OID, TS_ALG_CAMELLIA_CBC_192,
+    {"CAMELLIA-192-CBC", id_CAMELLIA_192_CBC_OID, TS_ALG_CAMELLIA_CBC_192,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"CAMELLIA-192-ECB", CAMELLIA_192_ECB_OID, TS_ALG_CAMELLIA_ECB_192,
+    {"CAMELLIA-192-ECB", id_CAMELLIA_192_ECB_OID, TS_ALG_CAMELLIA_ECB_192,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"CAMELLIA-192-CFB8", CAMELLIA_192_CFB_OID, TS_ALG_CAMELLIA_CFB8_192,
+    {"CAMELLIA-192-CFB8", id_CAMELLIA_192_CFB_OID, TS_ALG_CAMELLIA_CFB8_192,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"CAMELLIA-192-CFBfull", CAMELLIA_192_CFB_OID, TS_ALG_CAMELLIA_CFB128_192,
+    {"CAMELLIA-192-CFBfull", id_CAMELLIA_192_CFB_OID, TS_ALG_CAMELLIA_CFB128_192,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"CAMELLIA-192-CTR", CAMELLIA_192_CTR_OID, TS_ALG_CAMELLIA_CTR_192,
+    {"CAMELLIA-192-CTR", id_CAMELLIA_192_CTR_OID, TS_ALG_CAMELLIA_CTR_192,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"CAMELLIA-192-OFB", CAMELLIA_192_OFB_OID, TS_ALG_CAMELLIA_OFB_192,
+    {"CAMELLIA-192-OFB", id_CAMELLIA_192_OFB_OID, TS_ALG_CAMELLIA_OFB_192,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"CAMELLIA-128-CBC", CAMELLIA_128_CBC_OID, TS_ALG_CAMELLIA_CBC_128,
+    {"CAMELLIA-128-CBC", id_CAMELLIA_128_CBC_OID, TS_ALG_CAMELLIA_CBC_128,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"CAMELLIA-128-ECB", CAMELLIA_128_ECB_OID, TS_ALG_CAMELLIA_ECB_128,
+    {"CAMELLIA-128-ECB", id_CAMELLIA_128_ECB_OID, TS_ALG_CAMELLIA_ECB_128,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"CAMELLIA-128-CFB8", CAMELLIA_128_CFB_OID, TS_ALG_CAMELLIA_CFB8_128,
+    {"CAMELLIA-128-CFB8", id_CAMELLIA_128_CFB_OID, TS_ALG_CAMELLIA_CFB8_128,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"CAMELLIA-128-CFBfull", CAMELLIA_128_CFB_OID, TS_ALG_CAMELLIA_CFB8_128,
+    {"CAMELLIA-128-CFBfull", id_CAMELLIA_128_CFB_OID, TS_ALG_CAMELLIA_CFB8_128,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"CAMELLIA-128-CTR", CAMELLIA_128_CTR_OID, TS_ALG_CAMELLIA_CTR_128,
+    {"CAMELLIA-128-CTR", id_CAMELLIA_128_CTR_OID, TS_ALG_CAMELLIA_CTR_128,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"CAMELLIA-128-OFB", CAMELLIA_128_OFB_OID, TS_ALG_CAMELLIA_OFB_128,
+    {"CAMELLIA-128-OFB", id_CAMELLIA_128_OFB_OID, TS_ALG_CAMELLIA_OFB_128,
      (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"CMAC-CAMELLIA", CAMELLIA_256_CMAC_OID, TS_ALG_CMAC_CAMELLIA256,
+    {"CMAC-CAMELLIA", id_CAMELLIA_256_CMAC_OID, TS_ALG_CMAC_CAMELLIA256,
      (CryptoAlgType)(cat_Symmetric | cat_MAC)},
-    {"CMAC-CAMELLIA-256", CAMELLIA_256_CMAC_OID, TS_ALG_CMAC_CAMELLIA256,
+    {"CMAC-CAMELLIA-256", id_CAMELLIA_256_CMAC_OID, TS_ALG_CMAC_CAMELLIA256,
      (CryptoAlgType)(cat_Symmetric | cat_MAC)},
-    {"CMAC-CAMELLIA-192", CAMELLIA_192_CMAC_OID, TS_ALG_CMAC_CAMELLIA192,
+    {"CMAC-CAMELLIA-192", id_CAMELLIA_192_CMAC_OID, TS_ALG_CMAC_CAMELLIA192,
      (CryptoAlgType)(cat_Symmetric | cat_MAC)},
-    {"CMAC-CAMELLIA-128", CAMELLIA_128_CMAC_OID, TS_ALG_CMAC_CAMELLIA128,
+    {"CMAC-CAMELLIA-128", id_CAMELLIA_128_CMAC_OID, TS_ALG_CMAC_CAMELLIA128,
      (CryptoAlgType)(cat_Symmetric | cat_MAC)},
-    {"KDF-CMAC-CAMELLIA", TECSEC_KDF_CMAC_CAMELLIA_OID,
+    {"KDF-CMAC-CAMELLIA", id_TECSEC_KDF_CMAC_CAMELLIA_OID,
      TS_ALG_KDF_CMAC_CAMELLIA, cat_KDF},
-    // {"GCM-CAMELLIA", CAMELLIA_256_GCM_OID, TS_ALG_CAMELLIA_GCM_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
-    // {"GCM-CAMELLIA-256", CAMELLIA_256_GCM_OID, TS_ALG_CAMELLIA_GCM_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
-    // {"GCM-CAMELLIA-192", CAMELLIA_192_GCM_OID, TS_ALG_CAMELLIA_GCM_192, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
-    // {"GCM-CAMELLIA-128", CAMELLIA_128_GCM_OID, TS_ALG_CAMELLIA_GCM_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
-    // { "CCM-CAMELLIA", CAMELLIA_256_CCM_OID, TS_ALG_CAMELLIA_CCM_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD) },
-    // { "CCM-CAMELLIA-256", CAMELLIA_256_CCM_OID, TS_ALG_CAMELLIA_CCM_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD) },
-    // { "CCM-CAMELLIA-192", CAMELLIA_192_CCM_OID, TS_ALG_CAMELLIA_CCM_192, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD) },
-    // { "CCM-CAMELLIA-128", CAMELLIA_128_CCM_OID, TS_ALG_CAMELLIA_CCM_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD) },
-    {"ARIA", ARIA_256_CBC_OID, TS_ALG_ARIA_CBC_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"ARIA-256-CBC", ARIA_256_CBC_OID, TS_ALG_ARIA_CBC_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"ARIA-256-ECB", ARIA_256_ECB_OID, TS_ALG_ARIA_ECB_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"ARIA-256-CFB8", TECSEC_ARIA_256_CFB8_OID, TS_ALG_ARIA_CFB8_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"ARIA-256-CFBfull", ARIA_256_CFB_OID, TS_ALG_ARIA_CFB128_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"ARIA-256-CTR", ARIA_256_CTR_OID, TS_ALG_ARIA_CTR_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"ARIA-256-OFB", ARIA_256_OFB_OID, TS_ALG_ARIA_OFB_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"ARIA-192-CBC", ARIA_192_CBC_OID, TS_ALG_ARIA_CBC_192, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"ARIA-192-ECB", ARIA_192_ECB_OID, TS_ALG_ARIA_ECB_192, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"ARIA-192-CFB8", TECSEC_ARIA_192_CFB8_OID, TS_ALG_ARIA_CFB8_192, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"ARIA-192-CFBfull", ARIA_192_CFB_OID, TS_ALG_ARIA_CFB128_192, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"ARIA-192-CTR", ARIA_192_CTR_OID, TS_ALG_ARIA_CTR_192, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"ARIA-192-OFB", ARIA_192_OFB_OID, TS_ALG_ARIA_OFB_192, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"ARIA-128-CBC", ARIA_128_CBC_OID, TS_ALG_ARIA_CBC_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"ARIA-128-ECB", ARIA_128_ECB_OID, TS_ALG_ARIA_ECB_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"ARIA-128-CFB8", TECSEC_ARIA_128_CFB8_OID, TS_ALG_ARIA_CFB8_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"ARIA-128-CFBfull", ARIA_128_CFB_OID, TS_ALG_ARIA_CFB8_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"ARIA-128-CTR", ARIA_128_CTR_OID, TS_ALG_ARIA_CTR_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"ARIA-128-OFB", ARIA_128_OFB_OID, TS_ALG_ARIA_OFB_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"CMAC-ARIA", ARIA_256_CMAC_OID, TS_ALG_CMAC_ARIA256, (CryptoAlgType)(cat_Symmetric | cat_MAC)},
-    {"CMAC-ARIA-256", ARIA_256_CMAC_OID, TS_ALG_CMAC_ARIA256, (CryptoAlgType)(cat_Symmetric | cat_MAC)},
-    {"CMAC-ARIA-192", ARIA_192_CMAC_OID, TS_ALG_CMAC_ARIA192, (CryptoAlgType)(cat_Symmetric | cat_MAC)},
-    {"CMAC-ARIA-128", ARIA_128_CMAC_OID, TS_ALG_CMAC_ARIA128, (CryptoAlgType)(cat_Symmetric | cat_MAC)},
-    {"KDF-CMAC-ARIA", TECSEC_KDF_CMAC_ARIA_OID, TS_ALG_KDF_CMAC_ARIA, cat_KDF},
-    // {"CCM-ARIA", ARIA_256_CCM_OID, TS_ALG_ARIA_CCM_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
-    // {"CCM-ARIA-256", ARIA_256_CCM_OID, TS_ALG_ARIA_CCM_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
-    // {"CCM-ARIA-192", ARIA_192_CCM_OID, TS_ALG_ARIA_CCM_192, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
-    // {"CCM-ARIA-128", ARIA_128_CCM_OID, TS_ALG_ARIA_CCM_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
-    // {"GCM-ARIA", ARIA_256_GCM_OID, TS_ALG_ARIA_GCM_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
-    // {"GCM-ARIA-256", ARIA_256_GCM_OID, TS_ALG_ARIA_GCM_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
-    // {"GCM-ARIA-192", ARIA_192_GCM_OID, TS_ALG_ARIA_GCM_192, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
-    // {"GCM-ARIA-128", ARIA_128_GCM_OID, TS_ALG_ARIA_GCM_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
-    {"SEED", SEED_128_CBC_OID, TS_ALG_SEED_CBC_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"SEED-128-CBC", SEED_128_CBC_OID, TS_ALG_SEED_CBC_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"SEED-128-ECB", SEED_128_ECB_OID, TS_ALG_SEED_ECB_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"SEED-128-CFB8", TECSEC_SEED_128_CFB8_OID, TS_ALG_SEED_CFB8_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"SEED-128-CFBfull", SEED_128_CFB_OID, TS_ALG_SEED_CFB8_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"SEED-128-CTR", TECSEC_SEED_128_CTR_OID, TS_ALG_SEED_CTR_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"SEED-128-OFB", SEED_128_OFB_OID, TS_ALG_SEED_OFB_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
-    {"CMAC-SEED", SEED_128_CMAC_OID, TS_ALG_CMAC_SEED128, (CryptoAlgType)(cat_Symmetric | cat_MAC)},
-    {"CMAC-SEED-128", SEED_128_CMAC_OID, TS_ALG_CMAC_SEED128, (CryptoAlgType)(cat_Symmetric | cat_MAC)},
-    {"KDF-CMAC-SEED", TECSEC_KDF_CMAC_SEED_OID, TS_ALG_KDF_CMAC_SEED, cat_KDF},
-    // {"CCM-SEED", TECSEC_SEED_128_CCM_OID, TS_ALG_SEED_CCM_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
-    // {"CCM-SEED-128", TECSEC_SEED_128_CCM_OID, TS_ALG_SEED_CCM_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
-    // {"GCM-SEED", TECSEC_SEED_128_GCM_OID, TS_ALG_SEED_GCM_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
-    // {"GCM-SEED-128", TECSEC_SEED_128_GCM_OID, TS_ALG_SEED_GCM_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
-    {"XTS-AES", XTS_AES_256_OID, TS_ALG_AES_XTS_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_XTS)},
-    {"XTS-AES-256", XTS_AES_256_OID, TS_ALG_AES_XTS_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_XTS)},
-    {"XTS-AES-192", TECSEC_AES_192_XTS_OID, TS_ALG_AES_XTS_192, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_XTS)},
-    {"XTS-AES-128", XTS_AES_128_OID, TS_ALG_AES_XTS_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_XTS)},
-    // {"XTS-CAMELLIA", TECSEC_CAMELLIA_256_XTS_OID, TS_ALG_CAMELLIA_XTS_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_XTS)},
-    // {"XTS-CAMELLIA-256", TECSEC_CAMELLIA_256_XTS_OID, TS_ALG_CAMELLIA_XTS_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_XTS)},
-    // {"XTS-CAMELLIA-192", TECSEC_CAMELLIA_192_XTS_OID, TS_ALG_CAMELLIA_XTS_192, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_XTS)},
-    // {"XTS-CAMELLIA-128", TECSEC_CAMELLIA_128_XTS_OID, TS_ALG_CAMELLIA_XTS_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_XTS)},
-    // {"XTS-ARIA", TECSEC_ARIA_256_XTS_OID, TS_ALG_ARIA_XTS_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_XTS)},
-    // {"XTS-ARIA-256", TECSEC_ARIA_256_XTS_OID, TS_ALG_ARIA_XTS_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_XTS)},
-    // {"XTS-ARIA-192", TECSEC_ARIA_192_XTS_OID, TS_ALG_ARIA_XTS_192, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_XTS)},
-    // {"XTS-ARIA-128", TECSEC_ARIA_128_XTS_OID, TS_ALG_ARIA_XTS_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_XTS)},
-    // {"XTS-SEED", TECSEC_SEED_128_XTS_OID, TS_ALG_SEED_XTS_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_XTS)},
-    // {"XTS-SEED-128", TECSEC_SEED_128_XTS_OID, TS_ALG_SEED_XTS_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_XTS)},
+     // {"GCM-CAMELLIA", CAMELLIA_256_GCM_OID, TS_ALG_CAMELLIA_GCM_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
+     // {"GCM-CAMELLIA-256", CAMELLIA_256_GCM_OID, TS_ALG_CAMELLIA_GCM_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
+     // {"GCM-CAMELLIA-192", CAMELLIA_192_GCM_OID, TS_ALG_CAMELLIA_GCM_192, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
+     // {"GCM-CAMELLIA-128", CAMELLIA_128_GCM_OID, TS_ALG_CAMELLIA_GCM_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
+     // { "CCM-CAMELLIA", CAMELLIA_256_CCM_OID, TS_ALG_CAMELLIA_CCM_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD) },
+     // { "CCM-CAMELLIA-256", CAMELLIA_256_CCM_OID, TS_ALG_CAMELLIA_CCM_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD) },
+     // { "CCM-CAMELLIA-192", CAMELLIA_192_CCM_OID, TS_ALG_CAMELLIA_CCM_192, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD) },
+     // { "CCM-CAMELLIA-128", CAMELLIA_128_CCM_OID, TS_ALG_CAMELLIA_CCM_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD) },
+     {"ARIA", id_ARIA_256_CBC_OID, TS_ALG_ARIA_CBC_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
+     {"ARIA-256-CBC", id_ARIA_256_CBC_OID, TS_ALG_ARIA_CBC_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
+     {"ARIA-256-ECB", id_ARIA_256_ECB_OID, TS_ALG_ARIA_ECB_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
+     {"ARIA-256-CFB8", id_TECSEC_ARIA_256_CFB8_OID, TS_ALG_ARIA_CFB8_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
+     {"ARIA-256-CFBfull", id_ARIA_256_CFB_OID, TS_ALG_ARIA_CFB128_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
+     {"ARIA-256-CTR", id_ARIA_256_CTR_OID, TS_ALG_ARIA_CTR_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
+     {"ARIA-256-OFB", id_ARIA_256_OFB_OID, TS_ALG_ARIA_OFB_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
+     {"ARIA-192-CBC", id_ARIA_192_CBC_OID, TS_ALG_ARIA_CBC_192, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
+     {"ARIA-192-ECB", id_ARIA_192_ECB_OID, TS_ALG_ARIA_ECB_192, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
+     {"ARIA-192-CFB8", id_TECSEC_ARIA_192_CFB8_OID, TS_ALG_ARIA_CFB8_192, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
+     {"ARIA-192-CFBfull", id_ARIA_192_CFB_OID, TS_ALG_ARIA_CFB128_192, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
+     {"ARIA-192-CTR", id_ARIA_192_CTR_OID, TS_ALG_ARIA_CTR_192, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
+     {"ARIA-192-OFB", id_ARIA_192_OFB_OID, TS_ALG_ARIA_OFB_192, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
+     {"ARIA-128-CBC", id_ARIA_128_CBC_OID, TS_ALG_ARIA_CBC_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
+     {"ARIA-128-ECB", id_ARIA_128_ECB_OID, TS_ALG_ARIA_ECB_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
+     {"ARIA-128-CFB8", id_TECSEC_ARIA_128_CFB8_OID, TS_ALG_ARIA_CFB8_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
+     {"ARIA-128-CFBfull", id_ARIA_128_CFB_OID, TS_ALG_ARIA_CFB8_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
+     {"ARIA-128-CTR", id_ARIA_128_CTR_OID, TS_ALG_ARIA_CTR_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
+     {"ARIA-128-OFB", id_ARIA_128_OFB_OID, TS_ALG_ARIA_OFB_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
+     {"CMAC-ARIA", id_ARIA_256_CMAC_OID, TS_ALG_CMAC_ARIA256, (CryptoAlgType)(cat_Symmetric | cat_MAC)},
+     {"CMAC-ARIA-256", id_ARIA_256_CMAC_OID, TS_ALG_CMAC_ARIA256, (CryptoAlgType)(cat_Symmetric | cat_MAC)},
+     {"CMAC-ARIA-192", id_ARIA_192_CMAC_OID, TS_ALG_CMAC_ARIA192, (CryptoAlgType)(cat_Symmetric | cat_MAC)},
+     {"CMAC-ARIA-128", id_ARIA_128_CMAC_OID, TS_ALG_CMAC_ARIA128, (CryptoAlgType)(cat_Symmetric | cat_MAC)},
+     {"KDF-CMAC-ARIA", id_TECSEC_KDF_CMAC_ARIA_OID, TS_ALG_KDF_CMAC_ARIA, cat_KDF},
+     // {"CCM-ARIA", ARIA_256_CCM_OID, TS_ALG_ARIA_CCM_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
+     // {"CCM-ARIA-256", ARIA_256_CCM_OID, TS_ALG_ARIA_CCM_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
+     // {"CCM-ARIA-192", ARIA_192_CCM_OID, TS_ALG_ARIA_CCM_192, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
+     // {"CCM-ARIA-128", ARIA_128_CCM_OID, TS_ALG_ARIA_CCM_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
+     // {"GCM-ARIA", ARIA_256_GCM_OID, TS_ALG_ARIA_GCM_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
+     // {"GCM-ARIA-256", ARIA_256_GCM_OID, TS_ALG_ARIA_GCM_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
+     // {"GCM-ARIA-192", ARIA_192_GCM_OID, TS_ALG_ARIA_GCM_192, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
+     // {"GCM-ARIA-128", ARIA_128_GCM_OID, TS_ALG_ARIA_GCM_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
+     {"SEED", id_SEED_128_CBC_OID, TS_ALG_SEED_CBC_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
+     {"SEED-128-CBC", id_SEED_128_CBC_OID, TS_ALG_SEED_CBC_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
+     {"SEED-128-ECB", id_SEED_128_ECB_OID, TS_ALG_SEED_ECB_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
+     {"SEED-128-CFB8", id_TECSEC_SEED_128_CFB8_OID, TS_ALG_SEED_CFB8_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
+     {"SEED-128-CFBfull", id_SEED_128_CFB_OID, TS_ALG_SEED_CFB8_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
+     {"SEED-128-CTR", id_TECSEC_SEED_128_CTR_OID, TS_ALG_SEED_CTR_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
+     {"SEED-128-OFB", id_SEED_128_OFB_OID, TS_ALG_SEED_OFB_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt)},
+     {"CMAC-SEED", id_SEED_128_CMAC_OID, TS_ALG_CMAC_SEED128, (CryptoAlgType)(cat_Symmetric | cat_MAC)},
+     {"CMAC-SEED-128", id_SEED_128_CMAC_OID, TS_ALG_CMAC_SEED128, (CryptoAlgType)(cat_Symmetric | cat_MAC)},
+     {"KDF-CMAC-SEED", id_TECSEC_KDF_CMAC_SEED_OID, TS_ALG_KDF_CMAC_SEED, cat_KDF},
+     // {"CCM-SEED", TECSEC_SEED_128_CCM_OID, TS_ALG_SEED_CCM_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
+     // {"CCM-SEED-128", TECSEC_SEED_128_CCM_OID, TS_ALG_SEED_CCM_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
+     // {"GCM-SEED", TECSEC_SEED_128_GCM_OID, TS_ALG_SEED_GCM_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
+     // {"GCM-SEED-128", TECSEC_SEED_128_GCM_OID, TS_ALG_SEED_GCM_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_AEAD)},
+     {"XTS-AES", id_XTS_AES_256_OID, TS_ALG_AES_XTS_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_XTS)},
+     {"XTS-AES-256", id_XTS_AES_256_OID, TS_ALG_AES_XTS_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_XTS)},
+     {"XTS-AES-192", id_TECSEC_AES_192_XTS_OID, TS_ALG_AES_XTS_192, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_XTS)},
+     {"XTS-AES-128", id_XTS_AES_128_OID, TS_ALG_AES_XTS_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_XTS)},
+     // {"XTS-CAMELLIA", TECSEC_CAMELLIA_256_XTS_OID, TS_ALG_CAMELLIA_XTS_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_XTS)},
+     // {"XTS-CAMELLIA-256", TECSEC_CAMELLIA_256_XTS_OID, TS_ALG_CAMELLIA_XTS_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_XTS)},
+     // {"XTS-CAMELLIA-192", TECSEC_CAMELLIA_192_XTS_OID, TS_ALG_CAMELLIA_XTS_192, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_XTS)},
+     // {"XTS-CAMELLIA-128", TECSEC_CAMELLIA_128_XTS_OID, TS_ALG_CAMELLIA_XTS_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_XTS)},
+     // {"XTS-ARIA", TECSEC_ARIA_256_XTS_OID, TS_ALG_ARIA_XTS_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_XTS)},
+     // {"XTS-ARIA-256", TECSEC_ARIA_256_XTS_OID, TS_ALG_ARIA_XTS_256, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_XTS)},
+     // {"XTS-ARIA-192", TECSEC_ARIA_192_XTS_OID, TS_ALG_ARIA_XTS_192, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_XTS)},
+     // {"XTS-ARIA-128", TECSEC_ARIA_128_XTS_OID, TS_ALG_ARIA_XTS_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_XTS)},
+     // {"XTS-SEED", TECSEC_SEED_128_XTS_OID, TS_ALG_SEED_XTS_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_XTS)},
+     // {"XTS-SEED-128", TECSEC_SEED_128_XTS_OID, TS_ALG_SEED_XTS_128, (CryptoAlgType)(cat_Symmetric | cat_Encrypt | cat_XTS)},
 
-    {"SIGN-RSA-X9.31-SHA3-224", TECSEC_RSA_X9_31_SHA3_224,
-     TS_ALG_RSA_X9_31_SHA3_224, cat_Sign},
-    {"SIGN-RSA-X9.31-SHA3-256", TECSEC_RSA_X9_31_SHA3_256,
-     TS_ALG_RSA_X9_31_SHA3_256, cat_Sign},
-    {"SIGN-RSA-X9.31-SHA3-384", TECSEC_RSA_X9_31_SHA3_384,
-     TS_ALG_RSA_X9_31_SHA3_384, cat_Sign},
-    {"SIGN-RSA-X9.31-SHA3-512", TECSEC_RSA_X9_31_SHA3_512,
-     TS_ALG_RSA_X9_31_SHA3_512, cat_Sign},
-    {"SIGN-RSA-PKCS-SHA3-224", NIST_RSA_PKCS_SHA3_224,
-     TS_ALG_RSA_PKCS_SHA3_224, cat_Sign},
-    {"SIGN-RSA-PKCS-SHA3-256", NIST_RSA_PKCS_SHA3_256,
-     TS_ALG_RSA_PKCS_SHA3_256, cat_Sign},
-    {"SIGN-RSA-PKCS-SHA3-384", NIST_RSA_PKCS_SHA3_384,
-     TS_ALG_RSA_PKCS_SHA3_384, cat_Sign},
-    {"SIGN-RSA-PKCS-SHA3-512", NIST_RSA_PKCS_SHA3_512,
-     TS_ALG_RSA_PKCS_SHA3_512, cat_Sign},
-    {"SIGN-RSA-PSS-SHA3-224", RSASSA_PSS_OID, TS_ALG_RSA_PSS_SHA3_224,
-     cat_Sign},
-    {"SIGN-RSA-PSS-SHA3-256", RSASSA_PSS_OID, TS_ALG_RSA_PSS_SHA3_256,
-     cat_Sign},
-    {"SIGN-RSA-PSS-SHA3-384", RSASSA_PSS_OID, TS_ALG_RSA_PSS_SHA3_384,
-     cat_Sign},
-    {"SIGN-RSA-PSS-SHA3-512", RSASSA_PSS_OID, TS_ALG_RSA_PSS_SHA3_512,
-     cat_Sign},
-    {"SIGN-ECC-SHA3-224", NIST_ECDSA_SHA3_224_OID, TS_ALG_ECC_SHA3_224,
-     cat_Sign},
-    {"SIGN-ECC-SHA3-256", NIST_ECDSA_SHA3_256_OID, TS_ALG_ECC_SHA3_256,
-     cat_Sign},
-    {"SIGN-ECC-SHA3-384", NIST_ECDSA_SHA3_384_OID, TS_ALG_ECC_SHA3_384,
-     cat_Sign},
-    {"SIGN-ECC-SHA3-512", NIST_ECDSA_SHA3_512_OID, TS_ALG_ECC_SHA3_512,
-     cat_Sign},
-    {"SIGN-DSA-SHA3-224", NIST_DSA_SHA3_224_OID, TS_ALG_DSA_SHA3_224,
-     cat_Sign},
-    {"SIGN-DSA-SHA3-256", NIST_DSA_SHA3_256_OID, TS_ALG_DSA_SHA3_256,
-     cat_Sign},
-    {"SIGN-DSA-SHA3-384", NIST_DSA_SHA3_384_OID, TS_ALG_DSA_SHA3_384,
-     cat_Sign},
-    {"SIGN-DSA-SHA3-512", NIST_DSA_SHA3_512_OID, TS_ALG_DSA_SHA3_512,
-     cat_Sign},
-    {"KAS", TECSEC_DH_ECDH_KAS, TS_ALG_DH_ECDH_KAS, cat_KeyAgreement},
-    {"RSASVE", TECSEC_RSASVE, TS_ALG_RSASVE, cat_KeyTransport},
-    {"RSA-KEM-KWS", TECSEC_RSA_KEM_KWS, TS_ALG_RSA_KEM_KWS, cat_KeyTransport},
-    {"RSAKAS1", TECSEC_RSA_KAS1, TS_ALG_RSA_KAS1, cat_KeyAgreement},
-    {"RSAKAS2", TECSEC_RSA_KAS2, TS_ALG_RSA_KAS2, cat_KeyAgreement},
-    {"KTS-OAEP", TECSEC_RSA_KTS_OAEP, TS_ALG_RSA_KTS_OAEP, cat_KeyTransport},
-    {"KTS-KEM-KWS", TECSEC_RSA_KTS_KEM_KWS, TS_ALG_RSA_KTS_KEM_KWS,
-     cat_KeyTransport},
+     {"SIGN-RSA-X9.31-SHA3-224", id_TECSEC_RSA_X9_31_SHA3_224_OID,
+      TS_ALG_RSA_X9_31_SHA3_224, cat_Sign},
+     {"SIGN-RSA-X9.31-SHA3-256", id_TECSEC_RSA_X9_31_SHA3_256_OID,
+      TS_ALG_RSA_X9_31_SHA3_256, cat_Sign},
+     {"SIGN-RSA-X9.31-SHA3-384", id_TECSEC_RSA_X9_31_SHA3_384_OID,
+      TS_ALG_RSA_X9_31_SHA3_384, cat_Sign},
+     {"SIGN-RSA-X9.31-SHA3-512", id_TECSEC_RSA_X9_31_SHA3_512_OID,
+      TS_ALG_RSA_X9_31_SHA3_512, cat_Sign},
+     {"SIGN-RSA-PKCS-SHA3-224", id_NIST_RSA_PKCS_SHA3_224_OID,
+      TS_ALG_RSA_PKCS_SHA3_224, cat_Sign},
+     {"SIGN-RSA-PKCS-SHA3-256", id_NIST_RSA_PKCS_SHA3_256_OID,
+      TS_ALG_RSA_PKCS_SHA3_256, cat_Sign},
+     {"SIGN-RSA-PKCS-SHA3-384", id_NIST_RSA_PKCS_SHA3_384_OID,
+      TS_ALG_RSA_PKCS_SHA3_384, cat_Sign},
+     {"SIGN-RSA-PKCS-SHA3-512", id_NIST_RSA_PKCS_SHA3_512_OID,
+      TS_ALG_RSA_PKCS_SHA3_512, cat_Sign},
+     {"SIGN-RSA-PSS-SHA3-224", id_RSASSA_PSS_OID, TS_ALG_RSA_PSS_SHA3_224,
+      cat_Sign},
+     {"SIGN-RSA-PSS-SHA3-256", id_RSASSA_PSS_OID, TS_ALG_RSA_PSS_SHA3_256,
+      cat_Sign},
+     {"SIGN-RSA-PSS-SHA3-384", id_RSASSA_PSS_OID, TS_ALG_RSA_PSS_SHA3_384,
+      cat_Sign},
+     {"SIGN-RSA-PSS-SHA3-512", id_RSASSA_PSS_OID, TS_ALG_RSA_PSS_SHA3_512,
+      cat_Sign},
+     {"SIGN-ECC-SHA3-224", id_NIST_ECDSA_SHA3_224_OID, TS_ALG_ECC_SHA3_224,
+      cat_Sign},
+     {"SIGN-ECC-SHA3-256", id_NIST_ECDSA_SHA3_256_OID, TS_ALG_ECC_SHA3_256,
+      cat_Sign},
+     {"SIGN-ECC-SHA3-384", id_NIST_ECDSA_SHA3_384_OID, TS_ALG_ECC_SHA3_384,
+      cat_Sign},
+     {"SIGN-ECC-SHA3-512", id_NIST_ECDSA_SHA3_512_OID, TS_ALG_ECC_SHA3_512,
+      cat_Sign},
+     {"SIGN-DSA-SHA3-224", id_NIST_DSA_SHA3_224_OID, TS_ALG_DSA_SHA3_224,
+      cat_Sign},
+     {"SIGN-DSA-SHA3-256", id_NIST_DSA_SHA3_256_OID, TS_ALG_DSA_SHA3_256,
+      cat_Sign},
+     {"SIGN-DSA-SHA3-384", id_NIST_DSA_SHA3_384_OID, TS_ALG_DSA_SHA3_384,
+      cat_Sign},
+     {"SIGN-DSA-SHA3-512", id_NIST_DSA_SHA3_512_OID, TS_ALG_DSA_SHA3_512,
+      cat_Sign},
+     {"KAS", id_TECSEC_DH_ECDH_KAS_OID, TS_ALG_DH_ECDH_KAS, cat_KeyAgreement},
+     {"RSASVE", id_TECSEC_RSASVE_OID, TS_ALG_RSASVE, cat_KeyTransport},
+     {"RSA-KEM-KWS", id_TECSEC_RSA_KEM_KWS_OID, TS_ALG_RSA_KEM_KWS, cat_KeyTransport},
+     {"RSAKAS1", id_TECSEC_RSA_KAS1_OID, TS_ALG_RSA_KAS1, cat_KeyAgreement},
+     {"RSAKAS2", id_TECSEC_RSA_KAS2_OID, TS_ALG_RSA_KAS2, cat_KeyAgreement},
+     {"KTS-OAEP", id_TECSEC_RSA_KTS_OAEP_OID, TS_ALG_RSA_KTS_OAEP, cat_KeyTransport},
+     {"KTS-KEM-KWS", id_TECSEC_RSA_KTS_KEM_KWS_OID, TS_ALG_RSA_KTS_KEM_KWS,
+      cat_KeyTransport},
 
-    {"CKM7CRYPTOGROUP-P256-SHA512", TECSEC_CKM7_CRYPTOGROUP_P256_SHA512,
-     TS_ALG_CKM7_CRYPTOGROUP_P256_SHA512, cat_CryptoGroup},
-    {"CKM7CRYPTOGROUP-P384-SHA512", TECSEC_CKM7_CRYPTOGROUP_P384_SHA512,
-     TS_ALG_CKM7_CRYPTOGROUP_P384_SHA512, cat_CryptoGroup},
-    {"CKM7CRYPTOGROUP-P521-SHA512", TECSEC_CKM7_CRYPTOGROUP_P521_SHA512,
-     TS_ALG_CKM7_CRYPTOGROUP_P521_SHA512, cat_CryptoGroup},
-    {"CKM7CRYPTOGROUP-X25519-SHA512", TECSEC_CKM7_CRYPTOGROUP_X25519_SHA512,
-     TS_ALG_CKM7_CRYPTOGROUP_X25519_SHA512, cat_CryptoGroup},
-    { "CKM7CRYPTOGROUP-P256K1-SHA512", TECSEC_CKM7_CRYPTOGROUP_P256K1_SHA512, TS_ALG_CKM7_CRYPTOGROUP_P256K1_SHA512, cat_CryptoGroup},
+     {"CKM7CRYPTOGROUP-P256-SHA512", id_TECSEC_CKM7_CRYPTOGROUP_P256_SHA512_OID,
+      TS_ALG_CKM7_CRYPTOGROUP_P256_SHA512, cat_CryptoGroup},
+     {"CKM7CRYPTOGROUP-P384-SHA512", id_TECSEC_CKM7_CRYPTOGROUP_P384_SHA512_OID,
+      TS_ALG_CKM7_CRYPTOGROUP_P384_SHA512, cat_CryptoGroup},
+     {"CKM7CRYPTOGROUP-P521-SHA512", id_TECSEC_CKM7_CRYPTOGROUP_P521_SHA512_OID,
+      TS_ALG_CKM7_CRYPTOGROUP_P521_SHA512, cat_CryptoGroup},
+     {"CKM7CRYPTOGROUP-X25519-SHA512", id_TECSEC_CKM7_CRYPTOGROUP_X25519_SHA512_OID,
+      TS_ALG_CKM7_CRYPTOGROUP_X25519_SHA512, cat_CryptoGroup},
+     { "CKM7CRYPTOGROUP-P256K1-SHA512", id_TECSEC_CKM7_CRYPTOGROUP_P256K1_SHA512_OID, TS_ALG_CKM7_CRYPTOGROUP_P256K1_SHA512, cat_CryptoGroup},
 
-#ifndef MINGW
-    { "CKM7CRYPTOGROUP-NUMSP256D1-SHA512", TECSEC_CKM7_CRYPTOGROUP_NUMSP256D1_SHA512, TS_ALG_CKM7_CRYPTOGROUP_NUMSP256D1_SHA512, cat_CryptoGroup },
-    { "CKM7CRYPTOGROUP-NUMSP384D1-SHA512", TECSEC_CKM7_CRYPTOGROUP_NUMSP384D1_SHA512, TS_ALG_CKM7_CRYPTOGROUP_NUMSP384D1_SHA512, cat_CryptoGroup },
-    { "CKM7CRYPTOGROUP-NUMSP512D1-SHA512", TECSEC_CKM7_CRYPTOGROUP_NUMSP512D1_SHA512, TS_ALG_CKM7_CRYPTOGROUP_NUMSP512D1_SHA512, cat_CryptoGroup },
-    { "CKM7CRYPTOGROUP-NUMSP256T1-SHA512", TECSEC_CKM7_CRYPTOGROUP_NUMSP256T1_SHA512, TS_ALG_CKM7_CRYPTOGROUP_NUMSP256T1_SHA512, cat_CryptoGroup },
-    { "CKM7CRYPTOGROUP-NUMSP384T1-SHA512", TECSEC_CKM7_CRYPTOGROUP_NUMSP384T1_SHA512, TS_ALG_CKM7_CRYPTOGROUP_NUMSP384T1_SHA512, cat_CryptoGroup },
-    { "CKM7CRYPTOGROUP-NUMSP512T1-SHA512", TECSEC_CKM7_CRYPTOGROUP_NUMSP512T1_SHA512, TS_ALG_CKM7_CRYPTOGROUP_NUMSP512T1_SHA512, cat_CryptoGroup},
-#endif 
+ #ifndef MINGW
+     { "CKM7CRYPTOGROUP-NUMSP256D1-SHA512", id_TECSEC_CKM7_CRYPTOGROUP_NUMSP256D1_SHA512_OID, TS_ALG_CKM7_CRYPTOGROUP_NUMSP256D1_SHA512, cat_CryptoGroup },
+     { "CKM7CRYPTOGROUP-NUMSP384D1-SHA512", id_TECSEC_CKM7_CRYPTOGROUP_NUMSP384D1_SHA512_OID, TS_ALG_CKM7_CRYPTOGROUP_NUMSP384D1_SHA512, cat_CryptoGroup },
+     { "CKM7CRYPTOGROUP-NUMSP512D1-SHA512", id_TECSEC_CKM7_CRYPTOGROUP_NUMSP512D1_SHA512_OID, TS_ALG_CKM7_CRYPTOGROUP_NUMSP512D1_SHA512, cat_CryptoGroup },
+     { "CKM7CRYPTOGROUP-NUMSP256T1-SHA512", id_TECSEC_CKM7_CRYPTOGROUP_NUMSP256T1_SHA512_OID, TS_ALG_CKM7_CRYPTOGROUP_NUMSP256T1_SHA512, cat_CryptoGroup },
+     { "CKM7CRYPTOGROUP-NUMSP384T1-SHA512", id_TECSEC_CKM7_CRYPTOGROUP_NUMSP384T1_SHA512_OID, TS_ALG_CKM7_CRYPTOGROUP_NUMSP384T1_SHA512, cat_CryptoGroup },
+     { "CKM7CRYPTOGROUP-NUMSP512T1-SHA512", id_TECSEC_CKM7_CRYPTOGROUP_NUMSP512T1_SHA512_OID, TS_ALG_CKM7_CRYPTOGROUP_NUMSP512T1_SHA512, cat_CryptoGroup},
+ #endif 
 
-    {"CKM7ATTRIBUTE-SYM", TECSEC_CKM7_ATTR_SYM, TS_ALG_CKM7_ATTRIBUTE_SYM,
-     cat_Attribute},
-    {"CKM7ATTRIBUTE-P256", TECSEC_CKM7_ATTR_P256, TS_ALG_CKM7_ATTRIBUTE_P256,
-     cat_Attribute},
-    {"CKM7ATTRIBUTE-P384", TECSEC_CKM7_ATTR_P384, TS_ALG_CKM7_ATTRIBUTE_P384,
-     cat_Attribute},
-    {"CKM7ATTRIBUTE-P521", TECSEC_CKM7_ATTR_P521, TS_ALG_CKM7_ATTRIBUTE_P521,
-     cat_Attribute},
-    {"CKM7ATTRIBUTE-X25519", TECSEC_CKM7_ATTR_X25519,
-     TS_ALG_CKM7_ATTRIBUTE_X25519, cat_Attribute},
-    { "CKM7ATTRIBUTE-P256K1", TECSEC_CKM7_ATTR_P256K1, TS_ALG_CKM7_ATTRIBUTE_P256K1, cat_Attribute},
+     {"CKM7ATTRIBUTE-SYM", id_TECSEC_CKM7_ATTR_SYM_OID, TS_ALG_CKM7_ATTRIBUTE_SYM,
+      cat_Attribute},
+     {"CKM7ATTRIBUTE-P256", id_TECSEC_CKM7_ATTR_P256_OID, TS_ALG_CKM7_ATTRIBUTE_P256,
+      cat_Attribute},
+     {"CKM7ATTRIBUTE-P384", id_TECSEC_CKM7_ATTR_P384_OID, TS_ALG_CKM7_ATTRIBUTE_P384,
+      cat_Attribute},
+     {"CKM7ATTRIBUTE-P521", id_TECSEC_CKM7_ATTR_P521_OID, TS_ALG_CKM7_ATTRIBUTE_P521,
+      cat_Attribute},
+     {"CKM7ATTRIBUTE-X25519", id_TECSEC_CKM7_ATTR_X25519_OID,
+      TS_ALG_CKM7_ATTRIBUTE_X25519, cat_Attribute},
+     { "CKM7ATTRIBUTE-P256K1", id_TECSEC_CKM7_ATTR_P256K1_OID, TS_ALG_CKM7_ATTRIBUTE_P256K1, cat_Attribute},
 
-    { "CKM7ATTRIBUTE-NUMSP256D1", TECSEC_CKM7_ATTR_NUMSP256D1, TS_ALG_CKM7_ATTRIBUTE_NUMSP256D1, cat_Attribute },
-    { "CKM7ATTRIBUTE-NUMSP384D1", TECSEC_CKM7_ATTR_NUMSP384D1, TS_ALG_CKM7_ATTRIBUTE_NUMSP384D1, cat_Attribute },
-    { "CKM7ATTRIBUTE-NUMSP512D1", TECSEC_CKM7_ATTR_NUMSP512D1, TS_ALG_CKM7_ATTRIBUTE_NUMSP512D1, cat_Attribute },
-    { "CKM7ATTRIBUTE-NUMSP256T1", TECSEC_CKM7_ATTR_NUMSP256T1, TS_ALG_CKM7_ATTRIBUTE_NUMSP256T1, cat_Attribute },
-    { "CKM7ATTRIBUTE-NUMSP384T1", TECSEC_CKM7_ATTR_NUMSP384T1, TS_ALG_CKM7_ATTRIBUTE_NUMSP384T1, cat_Attribute },
-    { "CKM7ATTRIBUTE-NUMSP512T1", TECSEC_CKM7_ATTR_NUMSP512T1, TS_ALG_CKM7_ATTRIBUTE_NUMSP512T1, cat_Attribute},
+     { "CKM7ATTRIBUTE-NUMSP256D1", id_TECSEC_CKM7_ATTR_NUMSP256D1_OID, TS_ALG_CKM7_ATTRIBUTE_NUMSP256D1, cat_Attribute },
+     { "CKM7ATTRIBUTE-NUMSP384D1", id_TECSEC_CKM7_ATTR_NUMSP384D1_OID, TS_ALG_CKM7_ATTRIBUTE_NUMSP384D1, cat_Attribute },
+     { "CKM7ATTRIBUTE-NUMSP512D1", id_TECSEC_CKM7_ATTR_NUMSP512D1_OID, TS_ALG_CKM7_ATTRIBUTE_NUMSP512D1, cat_Attribute },
+     { "CKM7ATTRIBUTE-NUMSP256T1", id_TECSEC_CKM7_ATTR_NUMSP256T1_OID, TS_ALG_CKM7_ATTRIBUTE_NUMSP256T1, cat_Attribute },
+     { "CKM7ATTRIBUTE-NUMSP384T1", id_TECSEC_CKM7_ATTR_NUMSP384T1_OID, TS_ALG_CKM7_ATTRIBUTE_NUMSP384T1, cat_Attribute },
+     { "CKM7ATTRIBUTE-NUMSP512T1", id_TECSEC_CKM7_ATTR_NUMSP512T1_OID, TS_ALG_CKM7_ATTRIBUTE_NUMSP512T1, cat_Attribute},
 
-    {"CKM7COMBINER", TECSEC_CKM7_OID, TS_ALG_CKM7, cat_Combiner},
-    {"CKMAUTH_CALCULATOR-PBKDF2-SHA3-224", TECSEC_CKMAUTH_PBKDF_SHA3_224_OID,
-     TS_ALG_CKMAUTH_PBKDF_SHA3_224, (CryptoAlgType)(cat_CkmAuth | cat_PbKdf)},
-    {"CKMAUTH_CALCULATOR-PBKDF2-SHA3-256", TECSEC_CKMAUTH_PBKDF_SHA3_256_OID,
-     TS_ALG_CKMAUTH_PBKDF_SHA3_256, (CryptoAlgType)(cat_CkmAuth | cat_PbKdf)},
-    {"CKMAUTH_CALCULATOR-PBKDF2-SHA3-384", TECSEC_CKMAUTH_PBKDF_SHA3_384_OID,
-     TS_ALG_CKMAUTH_PBKDF_SHA3_384, (CryptoAlgType)(cat_CkmAuth | cat_PbKdf)},
-    {"CKMAUTH_CALCULATOR-PBKDF2-SHA3-512", TECSEC_CKMAUTH_PBKDF_SHA3_512_OID,
-     TS_ALG_CKMAUTH_PBKDF_SHA3_512, (CryptoAlgType)(cat_CkmAuth | cat_PbKdf)},
+     {"CKM7COMBINER", id_TECSEC_CKM7_OID, TS_ALG_CKM7, cat_Combiner},
+     {"CKMAUTH_CALCULATOR-PBKDF2-SHA3-224", id_TECSEC_CKMAUTH_PBKDF_SHA3_224_OID,
+      TS_ALG_CKMAUTH_PBKDF_SHA3_224, (CryptoAlgType)(cat_CkmAuth | cat_PbKdf)},
+     {"CKMAUTH_CALCULATOR-PBKDF2-SHA3-256", id_TECSEC_CKMAUTH_PBKDF_SHA3_256_OID,
+      TS_ALG_CKMAUTH_PBKDF_SHA3_256, (CryptoAlgType)(cat_CkmAuth | cat_PbKdf)},
+     {"CKMAUTH_CALCULATOR-PBKDF2-SHA3-384", id_TECSEC_CKMAUTH_PBKDF_SHA3_384_OID,
+      TS_ALG_CKMAUTH_PBKDF_SHA3_384, (CryptoAlgType)(cat_CkmAuth | cat_PbKdf)},
+     {"CKMAUTH_CALCULATOR-PBKDF2-SHA3-512", id_TECSEC_CKMAUTH_PBKDF_SHA3_512_OID,
+      TS_ALG_CKMAUTH_PBKDF_SHA3_512, (CryptoAlgType)(cat_CkmAuth | cat_PbKdf)},
 };
 
 class AlgorithmList : public tscrypto::IAlgorithmList, public tscrypto::ICryptoObject
@@ -1398,7 +1417,7 @@ public:
 
         for (int i = 0; i < (int)size(); i++)
         {
-            if (TsStriCmp(_algs[i].algName.c_str(), tmpAlgName.c_str()) == 0)
+            if (tsStriCmp(_algs[i].algName.c_str(), tmpAlgName.c_str()) == 0)
             {
                 return _algs[i].algId;
             }
@@ -1412,7 +1431,7 @@ public:
 
         for (int i = 0; i < (int)size(); i++)
         {
-            if (TsStriCmp(_algs[i].algName.c_str(), tmpAlgName.c_str()) == 0)
+            if (tsStriCmp(_algs[i].algName.c_str(), tmpAlgName.c_str()) == 0)
             {
                 return _algs[i].algOid;
             }
@@ -1426,7 +1445,7 @@ public:
 
         for (int i = 0; i < (int)size(); i++)
         {
-            if (TsStriCmp(_algs[i].algOid.c_str(), tmpOid.c_str()) == 0)
+            if (tsStriCmp(_algs[i].algOid.c_str(), tmpOid.c_str()) == 0)
             {
                 return _algs[i].algName;
             }
@@ -1439,7 +1458,7 @@ public:
 
         for (int i = 0; i < (int)size(); i++)
         {
-            if (TsStriCmp(_algs[i].algOid.c_str(), tmpOid.c_str()) == 0)
+            if (tsStriCmp(_algs[i].algOid.c_str(), tmpOid.c_str()) == 0)
             {
                 return _algs[i].algId;
             }
@@ -2699,13 +2718,13 @@ void tscrypto::CryptoTestFailed()
 
 bool tscrypto::GenerateRandom(tsCryptoData& data, size_t lenInBytes)
 {
-	data.resize(lenInBytes);
-	return internalGenerateRandomBits(data.rawData(), (uint32_t)(lenInBytes * 8), true, nullptr, 0);
+    data.resize(lenInBytes);
+    return tsInternalGenerateRandomBits(data.rawData(), (uint32_t)(lenInBytes * 8), true, nullptr, 0);
 }
 
 bool tscrypto::GenerateRandom(uint8_t* data, size_t lenInBytes)
 {
-	return internalGenerateRandomBits(data, (uint32_t)(lenInBytes * 8), true, nullptr, 0);
+    return tsInternalGenerateRandomBits(data, (uint32_t)(lenInBytes * 8), true, nullptr, 0);
 }
 #ifdef __cplusplus
 extern "C"
@@ -2916,19 +2935,19 @@ bool tscrypto::TSGenerateECCKeysBySize(size_t bitSize, std::shared_ptr<EccKey>& 
         break;
 #endif
     case 255:
-        oid = tsCryptoData(id_X25519, tsCryptoData::HEX);
+        oid = tsCryptoData(id_CURVE_25519_OID, tsCryptoData::HEX);
         break;
     case 256:
-        oid = tsCryptoData(SECP256R1_CURVE_OID, tsCryptoData::OID);
+        oid = tsCryptoData(id_SECP256R1_CURVE_OID, tsCryptoData::OID);
         break;
     case 384:
-        oid = tsCryptoData(SECP384R1_CURVE_OID, tsCryptoData::OID);
+        oid = tsCryptoData(id_SECP384R1_CURVE_OID, tsCryptoData::OID);
         break;
     case 448:
-        oid = tsCryptoData(id_X448, tsCryptoData::HEX);
+        oid = tsCryptoData(id_CURVE_448_OID, tsCryptoData::HEX);
         break;
     case 521:
-        oid = tsCryptoData(SECP521R1_CURVE_OID, tsCryptoData::OID);
+        oid = tsCryptoData(id_SECP521R1_CURVE_OID, tsCryptoData::OID);
         break;
     default:
         return false;
@@ -2991,27 +3010,32 @@ bool tscrypto::TSBuildECCKeyFromBlob(const tsCryptoData &blob, std::shared_ptr<E
     std::shared_ptr<EccKey> eccAlg;
     tsCryptoString oidStr;
 
-    if (!TSBuildEccKey(tsCryptoString("X25519"), eccAlg))
+    if (!TSBuildEccKey(tsCryptoString("KEY-BLISS_B-4"), eccAlg))
         return false;
 
     if (!eccAlg->fromByteArray(blob))
     {
-        if (!TSBuildEccKey(tsCryptoString("KEY-P256"), eccAlg))
+        if (!TSBuildEccKey(tsCryptoString("X25519"), eccAlg))
             return false;
+
         if (!eccAlg->fromByteArray(blob))
         {
             if (!TSBuildEccKey(tsCryptoString("KEY-P256"), eccAlg))
                 return false;
             if (!eccAlg->fromByteArray(blob))
             {
-                if (!TSBuildEccKey(tsCryptoString("NUMSP256D1"), eccAlg))
+                if (!TSBuildEccKey(tsCryptoString("KEY-P256"), eccAlg))
                     return false;
                 if (!eccAlg->fromByteArray(blob))
-                    return false;
+                {
+                    if (!TSBuildEccKey(tsCryptoString("NUMSP256D1"), eccAlg))
+                        return false;
+                    if (!eccAlg->fromByteArray(blob))
+                        return false;
+                }
             }
         }
     }
-
     key = eccAlg;
     return true;
 }
@@ -3330,7 +3354,7 @@ tsCryptoData tscrypto::TSBuildRSAPublicKeyBlob(const tsCryptoData &modulus, cons
     std::shared_ptr<TlvNode> nullNode = blobDoc->CreateTlvNode(0x05, 0);
 
     blobDoc->DocumentElement()->AppendChild(alg);
-    oid->InnerData(tsCryptoData(RSA_ENCRYPT_OID, tsCryptoData::OID)); //RsaEncryption
+    oid->InnerData(tsCryptoData(id_RSA_ENCRYPT_OID, tsCryptoData::OID)); //RsaEncryption
     alg->AppendChild(oid);
     alg->AppendChild(nullNode);
 
@@ -3369,7 +3393,7 @@ tsCryptoData tscrypto::TSBuildRSAPrivateKeyBlob(const tsCryptoData &modulus, con
     std::shared_ptr<TlvNode> nullNode = blobDoc->CreateTlvNode(0x05, 0);
 
     blobDoc->DocumentElement()->AppendChild(alg);
-    oid->InnerData(tsCryptoData(TECSEC_RSA_PRIVATE_KEY_BLOB, tsCryptoData::OID)); //TecSec Private RSA Key Blob
+    oid->InnerData(tsCryptoData(id_TECSEC_RSA_PRIVATE_KEY_BLOB_OID, tsCryptoData::OID)); //TecSec Private RSA Key Blob
     alg->AppendChild(oid);
     alg->AppendChild(nullNode);
 
@@ -3431,7 +3455,7 @@ bool tscrypto::TSBuildRSAKeyFromBlob(const tsCryptoData &blob, std::shared_ptr<R
         return false;
     }
     oidStr = alg->Children()->at(0)->InnerData().ToOIDString();
-    if (TsStrCmp(oidStr.c_str(), tsCryptoString(RSA_ENCRYPT_OID).c_str()) == 0)
+    if (tsStrCmp(oidStr.c_str(), tsCryptoString(id_RSA_ENCRYPT_OID).c_str()) == 0)
     {
         tsCryptoData e, n;
 
@@ -3449,7 +3473,7 @@ bool tscrypto::TSBuildRSAKeyFromBlob(const tsCryptoData &blob, std::shared_ptr<R
         if (!rsaAlg->IsPublicLoaded())
             return false;
     }
-    else if (TsStrCmp(oidStr.c_str(), tsCryptoString(TECSEC_RSA_PRIVATE_KEY_BLOB).c_str()) == 0)
+    else if (tsStrCmp(oidStr.c_str(), tsCryptoString(id_TECSEC_RSA_PRIVATE_KEY_BLOB_OID).c_str()) == 0)
     {
         tsCryptoData e, n, d, p, q, dp, dq, qInv;
 
@@ -3554,7 +3578,7 @@ bool tscrypto::TSGenerateRSAKeys(size_t bitSize, tsCryptoData &PublicKey, tsCryp
 
     return true;
 }
-bool tscrypto::TSRSAPKCS11Sign(const tsCryptoData &RSAPrivate, const BYTE *value, size_t valueLen, tsCryptoData &signature, TS_ALG_ID signAlgorithm)
+bool tscrypto::TSRSAPKCS11Sign(const tsCryptoData &RSAPrivate, const uint8_t *value, size_t valueLen, tsCryptoData &signature, TS_ALG_ID signAlgorithm)
 {
     return TSRSAPKCS11Sign(RSAPrivate, tsCryptoData(value, valueLen), signature, signAlgorithm);
 }
@@ -3849,7 +3873,7 @@ bool tscrypto::TSVerifyHash(std::shared_ptr<AsymmetricKey> key, const tsCryptoDa
 static tsCryptoString GetSignAlgName(TS_ALG_ID signAlgorithm)
 {
     tsCryptoString name;
-    
+
     for (auto& fn : gSignNameFuncs)
     {
         name = fn(signAlgorithm);
@@ -3987,7 +4011,7 @@ bool tscrypto::TSRSAPKCS11Sign(const tsCryptoData &RSAPrivate, const tsCryptoDat
     }
     return true;
 }
-bool tscrypto::TSRSAPKCS11Verify(const tsCryptoData &RSAPublic, const BYTE *value, const uint32_t valueLen, const tsCryptoData &signature, TS_ALG_ID signAlgorithm)
+bool tscrypto::TSRSAPKCS11Verify(const tsCryptoData &RSAPublic, const uint8_t *value, const uint32_t valueLen, const tsCryptoData &signature, TS_ALG_ID signAlgorithm)
 {
     return TSRSAPKCS11Verify(RSAPublic, tsCryptoData(value, valueLen), signature, signAlgorithm);
 }
@@ -4392,69 +4416,75 @@ void tscrypto::xor32(const uint8_t* src, const uint8_t* second, uint8_t* dest)
 
 bool loadCryptoModules()
 {
-    tsCryptoString moduleName, dir, file, ext;
+    char moduleName[MAX_PATH] = { 0, };
+    tsCryptoString dir, file, ext;
     typedef bool(*initFn)();
+    char filename[MAX_PATH] = { 0, };
 
-    xp_GetModuleFileName(hDllModule, moduleName);
+    tsGetModuleFileName(nullptr, moduleName, sizeof(moduleName));
     xp_SplitPath(moduleName, dir, file, ext);
 
-//printf("Searching for modules %s\n", (dir + "*.crypto").c_str());
+    //printf("Searching for modules %s\n", (dir + "*.crypto").c_str());
 #ifdef _DEBUG
-    XP_FileListHandle list = xp_GetFileListHandle(dir + "*_d.crypto");
+    TSFileListHandle list = tsGetFileListHandle((dir + "*_d.crypto").c_str());
 #else
-    XP_FileListHandle list = xp_GetFileListHandle(dir + "*.crypto");
+    TSFileListHandle list = tsGetFileListHandle((dir + "*.crypto").c_str());
 #endif
-    if (!!list)
+    if (list != NULL)
     {
-        for (auto& filename : *list)
+        for (uint32_t i = 0; i < tsGetFileCount(list); i++)
         {
-            XP_MODULE module;
-
-//printf("  Loading module:  %s\n", filename.c_str());
-            // TODO:  Authenticate the module
-            // TODO:  Validate the license
-            if (xp_LoadSharedLib(filename, &module) == 0)
+            if (tsGetFileName(list, i, filename, sizeof(filename)))
             {
-                tsCryptoString tmp;
-                xp_SplitPath(filename, tmp, file, ext);
+                TSSHAREDLIB module = NULL;
 
-//printf("module loaded\n");
-                ext = tmp + filename;
-                moduleList.push_back(moduleInfo(ext, module));
+                //printf("  Loading module:  %s\n", filename.c_str());
+                            // TODO:  Authenticate the module
+                            // TODO:  Validate the license
+                if (tsLoadSharedLib(filename, &module))
+                {
+                    tsCryptoString tmp;
+                    xp_SplitPath(filename, tmp, file, ext);
 
-                AddCryptoTerminationFunction([ext]() {
-                    moduleList.erase(std::remove_if(moduleList.begin(), moduleList.end(), [ext](moduleInfo& info) {
-                        return info.filename == ext;
-                    }), moduleList.end());
-                    return true;
-                });
+                    //printf("module loaded\n");
+                    ext = tmp + filename;
+                    moduleList.push_back(moduleInfo(ext, module));
+
+                    AddCryptoTerminationFunction([ext]() {
+                        moduleList.erase(std::remove_if(moduleList.begin(), moduleList.end(), [ext](moduleInfo& info) {
+                            return info.filename == ext;
+                        }), moduleList.end());
+                        return true;
+                    });
 
 #ifdef _DEBUG
-                if (file.size() > 2 && file[file.size() - 1] == 'd' && file[file.size() - 2] == '_')
-                    file.resize(file.size() - 2);
+                    if (file.size() > 2 && file[file.size() - 1] == 'd' && file[file.size() - 2] == '_')
+                        file.resize(file.size() - 2);
 #endif
-                initFn func = (initFn)xp_GetProcAddress(module, ("Initialize_" + file).c_str());
-                if (func != nullptr)
-                {
-                    if (!(*func)())
+                    initFn func = (initFn)tsGetProcAddress(module, ("Initialize_" + file).c_str());
+                    if (func != nullptr)
+                    {
+                        if (!(*func)())
+                        {
+                            moduleList.erase(std::remove_if(moduleList.begin(), moduleList.end(), [ext](moduleInfo& info) {
+                                return info.filename == ext;
+                            }), moduleList.end());
+                        }
+                        else
+                        {
+                            //printf ("module initialized\n");
+                        }
+                    }
+                    else
                     {
                         moduleList.erase(std::remove_if(moduleList.begin(), moduleList.end(), [ext](moduleInfo& info) {
                             return info.filename == ext;
                         }), moduleList.end());
                     }
-                    else
-                    {
-//printf ("module initialized\n");
-                    }
-                }
-                else
-                {
-                    moduleList.erase(std::remove_if(moduleList.begin(), moduleList.end(), [ext](moduleInfo& info) {
-                        return info.filename == ext;
-                    }), moduleList.end());
                 }
             }
         }
+        tsCloseFileList(list);
     }
     return true;
 }

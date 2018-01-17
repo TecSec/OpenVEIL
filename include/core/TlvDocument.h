@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -150,7 +150,7 @@ namespace tscrypto {
 		///
 		/// <returns>null if it fails, else the new tlv node.</returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
-		std::shared_ptr<TlvNode> CreateTlvNode(int tag, BYTE type);
+		std::shared_ptr<TlvNode> CreateTlvNode(int tag, uint8_t type);
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>Creates a universal OID node and initializes it</summary>
 		///
@@ -218,7 +218,7 @@ namespace tscrypto {
 		///
 		/// <returns>null if it fails, else the new number node.</returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
-		std::shared_ptr<TlvNode> CreateNumberNode(BYTE number);
+		std::shared_ptr<TlvNode> CreateNumberNode(uint8_t number);
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>Creates a number node and initializes it</summary>
 		///
@@ -281,7 +281,7 @@ namespace tscrypto {
 		///
 		/// <returns>null if it fails, else the new bit string.</returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
-		std::shared_ptr<TlvNode> CreateBitString(BYTE unusedBits, BYTE data);
+		std::shared_ptr<TlvNode> CreateBitString(uint8_t unusedBits, uint8_t data);
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>Creates a bit-string (array of bits) node and initializes it</summary>
 		///
@@ -290,7 +290,7 @@ namespace tscrypto {
 		///
 		/// <returns>null if it fails, else the new bit string.</returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
-		std::shared_ptr<TlvNode> CreateBitString(BYTE unusedBits, const tsCryptoData &data);
+		std::shared_ptr<TlvNode> CreateBitString(uint8_t unusedBits, const tsCryptoData &data);
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>Gets the top level node</summary>
 		///

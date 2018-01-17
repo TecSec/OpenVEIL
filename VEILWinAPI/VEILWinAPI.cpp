@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -36,14 +36,14 @@
 
 #pragma comment(lib, "htmlhelp.lib")
 
-XP_MODULE hDllInstance = XP_MODULE_INVALID;
+HINSTANCE hDllInstance = nullptr;
 HBITMAP logo = NULL;
 static ATOM registeredGrid = 0;
 static ATOM registeredList = 0;
 
 BOOL APIENTRY DllMain(HMODULE hModule,
 	DWORD  ul_reason_for_call,
-	LPVOID /*lpReserved*/
+	void* /*lpReserved*/
 	)
 {
 	INITCOMMONCONTROLSEX icc;
@@ -51,14 +51,12 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 	switch (ul_reason_for_call)
 	{
 	case DLL_PROCESS_ATTACH:
-		hDllInstance = (XP_MODULE)hModule;
+		hDllInstance = hModule;
 
 		icc.dwSize = sizeof(icc);
 		icc.dwICC = ICC_HOTKEY_CLASS | ICC_ANIMATE_CLASS | ICC_BAR_CLASSES | ICC_DATE_CLASSES | ICC_LINK_CLASS |
 			ICC_LISTVIEW_CLASSES | ICC_PAGESCROLLER_CLASS | ICC_PROGRESS_CLASS | ICC_STANDARD_CLASSES |
 			ICC_TREEVIEW_CLASSES | ICC_UPDOWN_CLASS | ICC_USEREX_CLASSES;
-
-		hDllInstance = (XP_MODULE)hModule;
 
 		InitCommonControlsEx(&icc);
 
@@ -78,12 +76,12 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 		logo = NULL;
 		if (registeredGrid)
 		{
-			UnregisterClassA((const char *)(INT_PTR)registeredGrid, hModule);
+			UnregisterClassA((const char *)(intptr_t)registeredGrid, hModule);
 			registeredGrid = 0;
 		}
 		if (registeredList)
 		{
-			UnregisterClassA((const char *)(INT_PTR)registeredList, hModule);
+			UnregisterClassA((const char *)(intptr_t)registeredList, hModule);
 			registeredList = 0;
 		}
 		break;
@@ -148,7 +146,7 @@ XP_WINDOW TS_HtmlHelp(XP_WINDOW hwndCaller, const tscrypto::tsCryptoString& pszF
 #endif
 }
 
-//typedef HWND(__stdcall * helpFn)(HWND hwndCaller, LPCSTR pszFile, UINT uCommand, DWORD_PTR dwData);
+//typedef HWND(__stdcall * helpFn)(HWND hwndCaller, const char* pszFile, UINT uCommand, DWORD_PTR dwData);
 //
 //static HINSTANCE gHelpLib = NULL;
 //static helpFn gHelpFn = NULL;

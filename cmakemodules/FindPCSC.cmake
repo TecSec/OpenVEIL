@@ -1,4 +1,4 @@
-#	Copyright (c) 2017, TecSec, Inc.
+#	Copyright (c) 2018, TecSec, Inc.
 #
 #	Redistribution and use in source and binary forms, with or without
 #	modification, are permitted provided that the following conditions are met:
@@ -53,8 +53,8 @@ endfunction()
 if (PKG_CONFIG_FOUND)
 	pkg_check_modules(PCSC libpcsclite)
 else()
-	set(PCSC_INCLUDE_DIRS ${PCSC_INCLUDE_DIRS} /usr/local/include)
-	set(PCSC_LIBRARY_DIRS ${PCSC_LIBRARY_DIRS} /usr/local/lib)
+	set(PCSC_INCLUDE_DIRS ${PCSC_INCLUDE_DIRS} /usr/local/include /usr/include)
+	set(PCSC_LIBRARY_DIRS ${PCSC_LIBRARY_DIRS} /usr/local/lib /usr/lib)
 endif()
 
 find_path(PCSC_INCLUDE_DIR pcsclite.h winscard.h PATHS ${PCSC_INCLUDE_DIRS} PATH_SUFFIXES PCSC)

@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -131,7 +131,7 @@ protected:
 	///
 	/// <returns>true if it succeeds, false if it fails.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual bool saveConfigurationChangesForLocation(JsonConfigLocation location) { MY_UNREFERENCED_PARAMETER(location); return true; }
+	virtual bool saveConfigurationChangesForLocation(JsonConfigLocation location) { UNREFERENCED_PARAMETER(location); return true; }
 	//virtual bool saveConfigurationChangesForLocation(JsonConfigLocation location);
 	/**
 	 * \brief Loads configuration values for the specified location.
@@ -141,7 +141,7 @@ protected:
 	 *
 	 * \return true if it succeeds, false if it fails.
 	 */
-	virtual bool loadValuesForLocation(JsonConfigLocation location, const tscrypto::JSONObject &config) { MY_UNREFERENCED_PARAMETER(location); MY_UNREFERENCED_PARAMETER(config); return true; }
+	virtual bool loadValuesForLocation(JsonConfigLocation location, const tscrypto::JSONObject &config) { UNREFERENCED_PARAMETER(location); UNREFERENCED_PARAMETER(config); return true; }
 	//virtual bool loadValuesForLocation(JsonConfigLocation location, const tscrypto::JSONObject &config);
 	/**
 	 * \brief Determines if we can use entries.

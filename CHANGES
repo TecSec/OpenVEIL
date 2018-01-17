@@ -51,3 +51,5 @@ Changes for 7.0.41
  Changes for 7.0.58
  * Partial support for the new OS Adaption Layer (OAL) written in C and adopted by the crypto system - some breaking changes but simple to fixed
  
+ Changes for 7.0.63
+ * Support for CyberVEIL 7.1.13

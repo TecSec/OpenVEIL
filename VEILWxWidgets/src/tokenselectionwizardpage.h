@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -116,10 +116,10 @@ public:
 ////@begin TokenSelectionWizardPage member function declarations
 
     /// Gets the previous page
-    virtual wxWizardPage* GetPrev() const;
+    virtual wxWizardPage* GetPrev() const override;
 
     /// Gets the next page
-    virtual wxWizardPage* GetNext() const;
+    virtual wxWizardPage* GetNext() const override;
 
     /// Retrieves bitmap resources
     wxBitmap GetBitmapResource( const wxString& name );
@@ -143,7 +143,7 @@ public:
 	void SetNextPage(wxWizardPage* setTo) { nextPage = setTo; }
 	void SetPrevPage(wxWizardPage* setTo) { prevPage = setTo; }
 
-	void updateControls();
+	void updateControls(bool initialSetup);
 	
 	// ISkippablePage
 	virtual bool skipMe() override;

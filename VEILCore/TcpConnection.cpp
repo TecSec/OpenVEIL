@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -39,7 +39,7 @@
 #ifdef _WIN32
 static struct SocketErrors
 {
-	DWORD number;
+	uint32_t number;
 	const char *value;
 } gSocketErrors[] =
 {
@@ -159,7 +159,7 @@ static struct SocketErrors
 	{ WSA_QOS_RESERVED_PETYPE, "reserved policy element in provider specific buffer" }
 };
 
-const char *resolveSocketError(DWORD error)
+const char *resolveSocketError(uint32_t error)
 {
 	for (int i = 0; i < sizeof(gSocketErrors) / sizeof(gSocketErrors[0]); i++)
 	{
@@ -169,7 +169,7 @@ const char *resolveSocketError(DWORD error)
 	return "unknown socket error";
 }
 #else
-const char *resolveSocketError(DWORD error)
+const char *resolveSocketError(uint32_t error)
 {
 	// TODO:  Implement me
 	return "unknown socket error";
@@ -204,7 +204,7 @@ const tscrypto::tsCryptoString &TcpConnection::Server() const
 }
 void TcpConnection::Server(const tscrypto::tsCryptoString &setTo)
 {
-	if (TsStriCmp(m_server.c_str(), setTo.c_str()) != 0)
+	if (tsStriCmp(m_server.c_str(), setTo.c_str()) != 0)
 	{
 		if (!!_stack)
 		{
@@ -214,12 +214,12 @@ void TcpConnection::Server(const tscrypto::tsCryptoString &setTo)
 		else
 		{
 #ifdef _WIN32
-		closesocket(m_socket);
-		m_socket = 0;
+			closesocket(m_socket);
+			m_socket = 0;
 #else
-		if (m_socket != SOCKET::invalid())
-			close((int)m_socket);
-		m_socket = SOCKET::invalid();
+			if (m_socket != SOCKET::invalid())
+				close((int)m_socket);
+			m_socket = SOCKET::invalid();
 #endif
 		}
 		m_isConnected = false;
@@ -243,12 +243,12 @@ void TcpConnection::Port(unsigned short setTo)
 		else
 		{
 #ifdef _WIN32
-		closesocket(m_socket);
-		m_socket = 0;
+			closesocket(m_socket);
+			m_socket = 0;
 #else
-		if (m_socket != SOCKET::invalid())
-			close((int)m_socket);
-		m_socket = SOCKET::invalid();
+			if (m_socket != SOCKET::invalid())
+				close((int)m_socket);
+			m_socket = SOCKET::invalid();
 #endif
 		}
 		m_isConnected = false;
@@ -275,77 +275,77 @@ bool TcpConnection::RawSend(const tscrypto::tsCryptoData& data)
 	else
 	{
 #ifdef _WIN32
-	if (send(m_socket, (const char *)data.c_str(), (int)data.size(), 0) == SOCKET_ERROR)
+		if (send(m_socket, (const char *)data.c_str(), (int)data.size(), 0) == SOCKET_ERROR)
 #else
-	if (send((int)m_socket, (const char *)data.c_str(), (int)data.size(), 0) == SOCKET_ERROR)
+		if (send((int)m_socket, (const char *)data.c_str(), (int)data.size(), 0) == SOCKET_ERROR)
 #endif
-	{
-#ifdef _WIN32
-		switch (WSAGetLastError())
 		{
-		case WSAENOTSOCK:
-		case WSAENOTCONN:
-		case WSAECONNRESET:
-		case WSAECONNABORTED:
-			closesocket(m_socket);
-			m_socket = 0;
-			m_isConnected = false;
-			if (!Connect() ||
-				send(m_socket, (const char *)data.c_str(), (int)data.size(), 0) == SOCKET_ERROR)
+#ifdef _WIN32
+			switch (WSAGetLastError())
 			{
-				m_errors += "Unable to reconnect and send the request\n";
+			case WSAENOTSOCK:
+			case WSAENOTCONN:
+			case WSAECONNRESET:
+			case WSAECONNABORTED:
+				closesocket(m_socket);
+				m_socket = 0;
+				m_isConnected = false;
+				if (!Connect() ||
+					send(m_socket, (const char *)data.c_str(), (int)data.size(), 0) == SOCKET_ERROR)
+				{
+					m_errors += "Unable to reconnect and send the request\n";
+					_errorSignals.Fire(this, m_errors);
+					return false;
+				}
+				break;
+			default:
+				m_errors += "Error ";
+				m_errors << WSAGetLastError();
+				m_errors += " occurred while attempting to send the request\n";
 				_errorSignals.Fire(this, m_errors);
 				return false;
 			}
-			break;
-		default:
-			m_errors += "Error ";
-			m_errors << WSAGetLastError();
-			m_errors += " occurred while attempting to send the request\n";
-			_errorSignals.Fire(this, m_errors);
-			return false;
-		}
 #else
-		switch (errno)
-		{
-		case ENOTSOCK:
-		case ENOTCONN:
-		case ECONNRESET:
-		case ECONNABORTED:
+			switch (errno)
+			{
+			case ENOTSOCK:
+			case ENOTCONN:
+			case ECONNRESET:
+			case ECONNABORTED:
 #ifdef _WIN32
-			closesocket(m_socket);
-			m_socket = 0;
+				closesocket(m_socket);
+				m_socket = 0;
 #else
-			if (m_socket != SOCKET::invalid())
-				close((int)m_socket);
-			m_socket = SOCKET::invalid();
+				if (m_socket != SOCKET::invalid())
+					close((int)m_socket);
+				m_socket = SOCKET::invalid();
 #endif
-			m_isConnected = false;
+				m_isConnected = false;
 #ifdef _WIN32
-			if (!Connect() ||
-				send(m_socket, data.c_str(), data.size(), 0) == SOCKET_ERROR)
+				if (!Connect() ||
+					send(m_socket, data.c_str(), data.size(), 0) == SOCKET_ERROR)
 #else
-			if (!Connect() ||
-				send((int)m_socket, data.c_str(), data.size(), 0) == SOCKET_ERROR)
+				if (!Connect() ||
+					send((int)m_socket, data.c_str(), data.size(), 0) == SOCKET_ERROR)
 #endif // _WIN32
-			{
-				m_errors += "Unable to reconnect and send the request\n";
+				{
+					m_errors += "Unable to reconnect and send the request\n";
+					_errorSignals.Fire(this, m_errors);
+					return false;
+				}
+
+				LOG(httpData, "Raw Sent:" << tscrypto::endl << data.ToHexDump());
+
+				break;
+			default:
+				m_errors += "Error ";
+				m_errors << errno;
+				m_errors += " occurred while attempting to send the request\n";
 				_errorSignals.Fire(this, m_errors);
 				return false;
 			}
-
-            LOG(httpData, "Raw Sent:" << tscrypto::endl << data.ToHexDump());
-
-			break;
-		default:
-			m_errors += "Error ";
-			m_errors << errno;
-			m_errors += " occurred while attempting to send the request\n";
-			_errorSignals.Fire(this, m_errors);
-			return false;
-		}
 #endif
-	}
+		}
 	}
 
 	//LOG(httpLog, "Send in " << (GetTicks() - start) / 1000.0 << " ms");
@@ -377,52 +377,52 @@ bool TcpConnection::RawReceive(tscrypto::tsCryptoData& _data, size_t size)
 	}
 	else
 	{
-	buff.resize(size);
+		buff.resize(size);
 #ifdef _WIN32
-	len = recv(m_socket, (char*)buff.rawData(), targetLength, MSG_PEEK);
+		len = recv(m_socket, (char*)buff.rawData(), targetLength, MSG_PEEK);
 #else
-	len = recv((int)m_socket, (char*)buff.rawData(), targetLength, MSG_PEEK);
+		len = recv((int)m_socket, (char*)buff.rawData(), targetLength, MSG_PEEK);
 #endif
 
-	//
-	// Is there data in the buffer?
-	//
-	if (len > 0)
-	{
 		//
-		// Get it
+		// Is there data in the buffer?
 		//
-#ifdef _WIN32
-		len = recv(m_socket, (char*)buff.rawData(), len, 0);
-#else
-		len = recv((int)m_socket, (char*)buff.rawData(), len, 0);
-#endif
 		if (len > 0)
 		{
-			buff.resize(len);
-
-			LOG(httpData, "recv'd" << tscrypto::endl << buff.ToHexDump());
-
-			if (buff.size() > 0)
+			//
+			// Get it
+			//
+#ifdef _WIN32
+			len = recv(m_socket, (char*)buff.rawData(), len, 0);
+#else
+			len = recv((int)m_socket, (char*)buff.rawData(), len, 0);
+#endif
+			if (len > 0)
 			{
-				_data += buff.ToUtf8String();
+				buff.resize(len);
+
+				LOG(httpData, "recv'd" << tscrypto::endl << buff.ToHexDump());
+
+				if (buff.size() > 0)
+				{
+					_data += buff.ToUtf8String();
+				}
+				return true;
 			}
-			return true;
+			else if (len == SOCKET_ERROR)
+				return false;
+			else
+			{
+				m_errors += "Unable to read the data from the socket\n";
+				_errorSignals.Fire(this, m_errors);
+				//
+				// Data retrieval error (should never happen)
+				//
+				return false;
+			}
 		}
-		else if (len == SOCKET_ERROR)
-			return false;
 		else
 		{
-			m_errors += "Unable to read the data from the socket\n";
-			_errorSignals.Fire(this, m_errors);
-			//
-			// Data retrieval error (should never happen)
-			//
-			return false;
-		}
-	}
-	else
-	{
 			return true;
 		}
 	}
@@ -440,17 +440,17 @@ bool TcpConnection::isConnected() const
 	else
 	{
 		if (!isWSAInitialized())
-		return false;
+			return false;
 
 #ifdef _WIN32
-	if (SOCKET_ERROR == send(m_socket, "", 0, 0))
+		if (SOCKET_ERROR == send(m_socket, "", 0, 0))
 #else
-	if (SOCKET_ERROR == send((int)m_socket, "", 0, 0))
+		if (SOCKET_ERROR == send((int)m_socket, "", 0, 0))
 #endif
-	{
-		m_isConnected = false;
-		return false;
-	}
+		{
+			m_isConnected = false;
+			return false;
+		}
 	}
 	return true;
 }
@@ -467,31 +467,31 @@ bool TcpConnection::Disconnect()
 		else
 		{
 #ifdef _WIN32
-		if (closesocket(m_socket) == SOCKET_ERROR)
-		{
-			LOG(FrameworkInfo1, "Unable to close the socket");
-			m_errors += "Unable to close the socket\n";
-			_errorSignals.Fire(this, m_errors);
-			closesocket(m_socket);
-			m_socket = 0;
-			m_isConnected = false;
-			return false;
-		}
-#else
-		if (m_socket != INVALID_SOCKET)
-		{
-			if (close((int)m_socket) == SOCKET_ERROR)
+			if (closesocket(m_socket) == SOCKET_ERROR)
 			{
 				LOG(FrameworkInfo1, "Unable to close the socket");
 				m_errors += "Unable to close the socket\n";
 				_errorSignals.Fire(this, m_errors);
-				m_socket = INVALID_SOCKET;
+				closesocket(m_socket);
+				m_socket = 0;
 				m_isConnected = false;
 				return false;
 			}
-		}
+#else
+			if (m_socket != INVALID_SOCKET)
+			{
+				if (close((int)m_socket) == SOCKET_ERROR)
+				{
+					LOG(FrameworkInfo1, "Unable to close the socket");
+					m_errors += "Unable to close the socket\n";
+					_errorSignals.Fire(this, m_errors);
+					m_socket = INVALID_SOCKET;
+					m_isConnected = false;
+					return false;
+				}
+			}
 #endif
-		m_socket = INVALID_SOCKET;
+			m_socket = INVALID_SOCKET;
 		}
 		_disconnectSignals.Fire(this);
 	}
@@ -504,7 +504,7 @@ bool TcpConnection::Connect()
 	if (m_isConnected)
 		return true;
 
-	if (TsStrniCmp(m_server.c_str(), "local:", 6) == 0)
+	if (tsStrniCmp(m_server.c_str(), "local:", 6) == 0)
 	{
 		tsCryptoString name(m_server);
 
@@ -528,101 +528,101 @@ bool TcpConnection::Connect()
 	}
 	else
 	{
-	struct addrinfo hints, *res, *p;
-	int status;
-	tscrypto::tsCryptoString portStr;
-	const char *addr = nullptr;
+		struct addrinfo hints, *res, *p;
+		int status;
+		tscrypto::tsCryptoString portStr;
+		const char *addr = nullptr;
 
-	if (!WSAInitialize())
-		return false;
+		if (!WSAInitialize())
+			return false;
 
-	if (m_isConnected)
-		return true;
+		if (m_isConnected)
+			return true;
 
 
-	m_bufferedData.clear();
+		m_bufferedData.clear();
 
-	memset(&hints, 0, sizeof(hints));
-	hints.ai_socktype = SOCK_STREAM;
+		memset(&hints, 0, sizeof(hints));
+		hints.ai_socktype = SOCK_STREAM;
 
-	hints.ai_family = AF_UNSPEC;
+		hints.ai_family = AF_UNSPEC;
 
-	portStr << m_port;
+		portStr << m_port;
 
-	if (m_server.size() > 0 && m_server != "*")
-	{
-		addr = m_server.c_str();
-	}
-	else
-	{
-		hints.ai_flags = AI_PASSIVE;
-	}
-	if ((status = getaddrinfo(addr, portStr.c_str(), &hints, &res)) != 0)
-	{
-		LOG(FrameworkError, "Unable to resolve the specified network address.  " << addr << ":" << portStr);
-		m_errors << "An error occurred while attempting to resolve that IP address.\n";
-		_errorSignals.Fire(this, m_errors);
-		return false;
-	}
-	for (p = res; p != nullptr; p = p->ai_next)
-	{
-		char ipstr[512];
-
-		if (p->ai_family == AF_INET)
+		if (m_server.size() > 0 && m_server != "*")
 		{
-			inet_ntop(p->ai_family, (void*)&(((struct sockaddr_in*)p->ai_addr)->sin_addr), ipstr, sizeof(ipstr));
-			//addrSize = (int)sizeof(struct sockaddr_in);
+			addr = m_server.c_str();
 		}
 		else
 		{
-			inet_ntop(p->ai_family, (void*)&(((struct sockaddr_in6*)p->ai_addr)->sin6_addr), ipstr, sizeof(ipstr));
-			//addrSize = (int)sizeof(struct sockaddr_in6);
+			hints.ai_flags = AI_PASSIVE;
 		}
-#ifdef _WIN32
-		m_socket = WSASocketW(p->ai_family, p->ai_socktype, p->ai_protocol, nullptr, 0, WSA_FLAG_OVERLAPPED);
-#else
-		m_socket = (SOCKET)socket(p->ai_family, p->ai_socktype, p->ai_protocol);
-#endif
-		if (m_socket == INVALID_SOCKET)
+		if ((status = getaddrinfo(addr, portStr.c_str(), &hints, &res)) != 0)
 		{
-#ifdef _WIN32
-			LOG(FrameworkError, "server listener socket() failed on addr " << ipstr << ":" << portStr << " with error '" << resolveSocketError(WSAGetLastError()) << "' [" << WSAGetLastError() << "]");
-#else
-			LOG(FrameworkError, "server listener socket() failed on addr " << ipstr << ":" << portStr << " with error '" << errno << "'");
-#endif
-			closesocket(m_socket);
-			m_socket = INVALID_SOCKET;
+			LOG(FrameworkError, "Unable to resolve the specified network address.  " << addr << ":" << portStr);
+			m_errors << "An error occurred while attempting to resolve that IP address.\n";
+			_errorSignals.Fire(this, m_errors);
+			return false;
 		}
-		else
+		for (p = res; p != nullptr; p = p->ai_next)
 		{
-			memcpy(&m_serverInfo, p->ai_addr, p->ai_addrlen);
+			char ipstr[512];
 
+			if (p->ai_family == AF_INET)
+			{
+				inet_ntop(p->ai_family, (void*)&(((struct sockaddr_in*)p->ai_addr)->sin_addr), ipstr, sizeof(ipstr));
+				//addrSize = (int)sizeof(struct sockaddr_in);
+			}
+			else
+			{
+				inet_ntop(p->ai_family, (void*)&(((struct sockaddr_in6*)p->ai_addr)->sin6_addr), ipstr, sizeof(ipstr));
+				//addrSize = (int)sizeof(struct sockaddr_in6);
+			}
 #ifdef _WIN32
-			if (connect(m_socket, p->ai_addr /*(sockaddr*)&m_serverInfo*/, (int)p->ai_addrlen) == SOCKET_ERROR)
+			m_socket = WSASocketW(p->ai_family, p->ai_socktype, p->ai_protocol, nullptr, 0, WSA_FLAG_OVERLAPPED);
 #else
-			if (connect((int)m_socket, p->ai_addr /*(sockaddr*)&m_serverInfo*/, (int)p->ai_addrlen) == SOCKET_ERROR)
+			m_socket = (SOCKET)socket(p->ai_family, p->ai_socktype, p->ai_protocol);
 #endif
+			if (m_socket == INVALID_SOCKET)
 			{
 #ifdef _WIN32
-				LOG(FrameworkInfo1, "Unable to connect to the socket [" << WSAGetLastError() << " - " << ipstr << ":" << portStr << "]");
+				LOG(FrameworkError, "server listener socket() failed on addr " << ipstr << ":" << portStr << " with error '" << resolveSocketError(WSAGetLastError()) << "' [" << WSAGetLastError() << "]");
 #else
-				LOG(FrameworkInfo1, "Unable to connect to the socket [" << errno << " - " << m_server << " - " << m_port << "]");
+				LOG(FrameworkError, "server listener socket() failed on addr " << ipstr << ":" << portStr << " with error '" << errno << "'");
 #endif
-				if (m_socket != INVALID_SOCKET)
-					closesocket(m_socket);
+				closesocket(m_socket);
 				m_socket = INVALID_SOCKET;
-				continue;
 			}
-			m_isConnected = true;
-			freeaddrinfo(res);
-			_connectSignals.Fire(this);
-			return true;
+			else
+			{
+				memcpy(&m_serverInfo, p->ai_addr, p->ai_addrlen);
+
+#ifdef _WIN32
+				if (connect(m_socket, p->ai_addr /*(sockaddr*)&m_serverInfo*/, (int)p->ai_addrlen) == SOCKET_ERROR)
+#else
+				if (connect((int)m_socket, p->ai_addr /*(sockaddr*)&m_serverInfo*/, (int)p->ai_addrlen) == SOCKET_ERROR)
+#endif
+				{
+#ifdef _WIN32
+					LOG(FrameworkInfo1, "Unable to connect to the socket [" << WSAGetLastError() << " - " << ipstr << ":" << portStr << "]");
+#else
+					LOG(FrameworkInfo1, "Unable to connect to the socket [" << errno << " - " << m_server << " - " << m_port << "]");
+#endif
+					if (m_socket != INVALID_SOCKET)
+						closesocket(m_socket);
+					m_socket = INVALID_SOCKET;
+					continue;
+				}
+				m_isConnected = true;
+				freeaddrinfo(res);
+				_connectSignals.Fire(this);
+				return true;
+			}
 		}
-	}
-	freeaddrinfo(res);
-	m_errors += "Unable to resolve IP address\n";
-	_errorSignals.Fire(this, m_errors);
-	return false;
+		freeaddrinfo(res);
+		m_errors += "Unable to resolve IP address\n";
+		_errorSignals.Fire(this, m_errors);
+		return false;
 	}
 }
 

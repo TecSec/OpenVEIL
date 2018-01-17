@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -124,9 +124,7 @@ namespace tscrypto {
 		tsCryptoData(const_pointer data);
 		template <class InputIt>
 		tsCryptoData(InputIt first, InputIt last) :
-			m_data(nullptr),
-			m_used(0),
-			m_allocated(-1)
+			_data(nullptr)
 		{
 			assign(first, last);
 		}
@@ -139,6 +137,9 @@ namespace tscrypto {
 		explicit tsCryptoData(std::initializer_list<char> init);
 		tsCryptoData(value_type ch);
 		explicit tsCryptoData(char ch);
+        explicit tsCryptoData(TSBYTE_BUFF&& data);
+        explicit tsCryptoData(const TSBYTE_BUFF& data);
+
 		~tsCryptoData();
 
 		tsCryptoData &operator=(const tsCryptoData &obj);
@@ -148,6 +149,12 @@ namespace tscrypto {
 		tsCryptoData &operator=(std::initializer_list<value_type> iList);
 		tsCryptoData &operator=(const tsCryptoStringBase &obj); // ASCII ONLY - tecsec addition
 		tsCryptoData &operator=(const char *data); // zero terminated - tecsec addition
+        tsCryptoData &operator=(TSBYTE_BUFF&& obj);
+        tsCryptoData &operator=(const TSBYTE_BUFF& obj);
+
+        TSBYTE_BUFF getByteBuff();
+        TSBYTE_BUFF* getByteBuffPtr();
+
 
 		tsCryptoData& assign(size_type count, value_type ch);
 		tsCryptoData& assign(const tsCryptoData &obj);
@@ -194,7 +201,7 @@ namespace tscrypto {
 		size_type size() const;
 		size_type length() const;
 		size_type max_size() const;
-		_Post_satisfies_(this->m_data != nullptr) void reserve(size_type newSize = 0);
+		_Post_satisfies_(this->_data != nullptr) void reserve(size_type newSize = 0);
 		size_type capacity() const;
 		void clear();
 
@@ -222,10 +229,11 @@ namespace tscrypto {
 				throw tscrypto::OutOfRange();
 
 			resize(size() + count);
-			memmove(&m_data[index + count], &m_data[index], sizeof(value_type) * (oldsize - index));
+			pointer ptr = rawData();
+			memmove(&ptr[index + count], &ptr[index], sizeof(value_type) * (oldsize - index));
 			for (auto it = first; it != last; ++it)
 			{
-				m_data[index++] = *it;
+				ptr[index++] = *it;
 			}
 			return *this;
 		}
@@ -248,9 +256,10 @@ namespace tscrypto {
 		{
 			size_type oldsize = size();
 			resize(size() + (last - first));
+			pointer ptr = rawData();
 			for (auto it = first; it != last; ++it)
 			{
-				m_data[oldsize++] = *it;
+				ptr[oldsize++] = *it;
 			}
 			return *this;
 		}
@@ -289,8 +298,8 @@ namespace tscrypto {
 
 		tsCryptoData substr(size_type start = 0, size_type count = npos) const;
 		size_type copy(pointer dest, size_type count, size_type pos = 0) const;
-		_Post_satisfies_(this->m_data != nullptr) void resize(size_type newSize);
-		_Post_satisfies_(this->m_data != nullptr) void resize(size_type newSize, value_type value);
+		_Post_satisfies_(this->_data != nullptr) void resize(size_type newSize);
+		_Post_satisfies_(this->_data != nullptr) void resize(size_type newSize, value_type value);
 		void swap(tsCryptoData &obj);
 
 		size_type find(const tsCryptoData& str, size_type pos = 0) const;
@@ -429,14 +438,12 @@ namespace tscrypto {
 		bool hasEncodingBOM() const;
 		bool hasEncodingBOM(uint8_t *data, size_t size) const;
 		size_t BOMByteCount() const;
-		size_t BOMByteCount(uint8_t *data, size_t size) const;
+		size_t BOMByteCount(const uint8_t *data, size_t size) const;
 		static tsCryptoData computeBOM(UnicodeEncodingType type);
 		tsCryptoData &prependBOM(UnicodeEncodingType type);
 
 	protected:
-		BYTE *m_data; ///< The allocated data buffer
-		size_type m_used; ///< The number of bytes in the array
-		difference_type m_allocated; ///< The number of bytes allocated for the array
+        mutable TSBYTE_BUFF _data;
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>Copies from the object specified in 'obj'.</summary>
 		///

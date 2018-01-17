@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -31,7 +31,7 @@
 
 #include "stdafx.h"
 
-std::shared_ptr<IKeyGenCallback> CreateEncryptProcessor(DWORD taskCount, DWORD currentTask, std::shared_ptr<IFileVEILOperationStatus> status, std::shared_ptr<IDataReader> reader, std::shared_ptr<IDataWriter> writer, bool prependHeader);
+std::shared_ptr<IKeyGenCallback> CreateEncryptProcessor(uint32_t taskCount, uint32_t currentTask, std::shared_ptr<IFileVEILOperationStatus> status, std::shared_ptr<IDataReader> reader, std::shared_ptr<IDataWriter> writer, bool prependHeader);
 
 class HIDDEN CCKMCryptoHelperImpl :
 	public ICryptoHelper,
@@ -63,10 +63,10 @@ public:
 	virtual tscrypto::tsCryptoData ComputeHeaderIdentity(std::shared_ptr<ICmsHeader> header) override {
 		return computeHeaderIdentity(header);
 	}
-	virtual bool padHeaderToSize(std::shared_ptr<ICmsHeaderBase> header, DWORD size) override;
+	virtual bool padHeaderToSize(std::shared_ptr<ICmsHeaderBase> header, uint32_t size) override;
 	virtual bool PrepareHeader(std::shared_ptr<ICmsHeader> header7, CompressionType comp, TS_ALG_ID algorithm, TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData,
 		CMSFileFormatIds DataFormat, bool randomIvec, SymmetricPaddingType paddingType, int blockSize, int64_t fileSize) override;
-	virtual DWORD   ReservedHeaderLength() const override;
+	virtual uint32_t   ReservedHeaderLength() const override;
 	virtual bool SetKeyGenCallback(std::shared_ptr<IKeyGenCallback> callback) override;
 	virtual bool SetSessionCallback(std::shared_ptr<IFileVEILSessionCallback> callback) override;
 
@@ -84,14 +84,14 @@ protected:
 		std::shared_ptr<IDataReader>& reader, std::shared_ptr<IDataWriter>& writer);
 	bool DecryptEncAuthData(const tscrypto::tsCryptoData &key, std::shared_ptr<ICmsHeader>& header, int headerSize, int blocksize,
 		std::shared_ptr<IDataReader>& reader, std::shared_ptr<IDataWriter>& writer);
-	bool padHeaderToSize(std::shared_ptr<ICmsHeader>& header, DWORD size);
+	bool padHeaderToSize(std::shared_ptr<ICmsHeader>& header, uint32_t size);
 
 	void LogError(tscrypto::tsCryptoString error, ...)
 	{
 		va_list args;
 		tscrypto::tsCryptoString msg;
 
-		if (error == NULL)
+		if (error.empty())
 			return;
 		va_start(args, error);
 		msg.FormatArg(error, args);
@@ -162,7 +162,7 @@ private:
 	std::shared_ptr<IFileVEILOperationStatus>		m_status;
 	int									m_taskNumber;
 	int									m_taskCount;
-	DWORD                               m_reservedHeaderLength;
+	uint32_t                               m_reservedHeaderLength;
 	std::shared_ptr<ICryptoHelperDecryptCallback> m_decryptCallback;
 	std::shared_ptr<IFileVEILSessionCallback>  m_sessionCallback;
 
@@ -1463,7 +1463,7 @@ bool CCKMCryptoHelperImpl::PrepareHeader(std::shared_ptr<ICmsHeader> header7, Co
 	return true;
 }
 
-bool CCKMCryptoHelperImpl::padHeaderToSize(std::shared_ptr<ICmsHeaderBase> header, DWORD size)
+bool CCKMCryptoHelperImpl::padHeaderToSize(std::shared_ptr<ICmsHeaderBase> header, uint32_t size)
 {
 	std::shared_ptr<ICmsHeader> header7;
 
@@ -1473,7 +1473,7 @@ bool CCKMCryptoHelperImpl::padHeaderToSize(std::shared_ptr<ICmsHeaderBase> heade
 	return padHeaderToSize(header7, size);
 }
 
-bool CCKMCryptoHelperImpl::padHeaderToSize(std::shared_ptr<ICmsHeader>& header, DWORD size)
+bool CCKMCryptoHelperImpl::padHeaderToSize(std::shared_ptr<ICmsHeader>& header, uint32_t size)
 {
 	std::shared_ptr<ICkmOperations> ops = std::dynamic_pointer_cast<ICkmOperations>(header);
 
@@ -1487,7 +1487,7 @@ bool CCKMCryptoHelperImpl::padHeaderToSize(std::shared_ptr<ICmsHeader>& header, 
 	return true;
 }
 
-DWORD   CCKMCryptoHelperImpl::ReservedHeaderLength() const
+uint32_t   CCKMCryptoHelperImpl::ReservedHeaderLength() const
 {
 	return m_reservedHeaderLength;
 }
@@ -1701,7 +1701,7 @@ WaitableBool CCKMCryptoHelperImpl::InitializeDecryptHashed(std::shared_ptr<IFifo
 	tscrypto::tsCryptoData encKey;
 	tscrypto::tsCryptoData workingKey(wk);
 
-	MY_UNREFERENCED_PARAMETER(fifo);
+    UNREFERENCED_PARAMETER(fifo);
 
 	m_finalHash = finalHash;
 	m_fileSize = filesize;
@@ -1929,7 +1929,7 @@ WaitableBool CCKMCryptoHelperImpl::ProcessFifoProcessHashedDataDecrypt(std::shar
 
 WaitableBool CCKMCryptoHelperImpl::ProcessFifoFinishDecryptHashed(std::shared_ptr<IFifoStream>& fifo)
 {
-	MY_UNREFERENCED_PARAMETER(fifo);
+    UNREFERENCED_PARAMETER(fifo);
 
 	TSDECLARE_FUNCTIONExt(true);
 
@@ -2037,8 +2037,8 @@ WaitableBool CCKMCryptoHelperImpl::InitializeDecryptEncAuth(std::shared_ptr<IFif
 	const tscrypto::tsCryptoData &hashOid, TS_ALG_ID encAlg, CompressionType compType, const tscrypto::tsCryptoData &authData, const tscrypto::tsCryptoData &ivec, int64_t filesize,
 	SymmetricPaddingType paddingType)
 {
-	MY_UNREFERENCED_PARAMETER(paddingType);
-	MY_UNREFERENCED_PARAMETER(fifo);
+    UNREFERENCED_PARAMETER(paddingType);
+    UNREFERENCED_PARAMETER(fifo);
 
 	TSDECLARE_FUNCTIONExt(true);
 
@@ -2320,7 +2320,7 @@ WaitableBool CCKMCryptoHelperImpl::ProcessFifoProcessEncAuthBlockDecrypt(std::sh
 
 WaitableBool CCKMCryptoHelperImpl::ProcessFifoFinishDecryptEncAuth(std::shared_ptr<IFifoStream>& fifo)
 {
-	MY_UNREFERENCED_PARAMETER(fifo);
+    UNREFERENCED_PARAMETER(fifo);
 
 	TSDECLARE_FUNCTIONExt(true);
 

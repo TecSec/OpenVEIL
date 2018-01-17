@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -53,7 +53,7 @@ extern "C" {
 
 struct GRID_CREATE_STRUCT
 {
-	WORD size;
+	uint16_t size;
 	COLORREF textColor;
 	COLORREF backColor;
 	COLORREF gridColor;
@@ -62,7 +62,7 @@ struct GRID_CREATE_STRUCT
 struct COLUMN
 {
 	int32_t colwt;					// Column width.
-	INT_PTR lpszhdrtext; 			// Handle for the header text.
+    intptr_t lpszhdrtext; 			// Handle for the header text.
 	int32_t halign;				// Header text alignment.
 	int32_t calign; 				// Column text alignment.
 	int32_t ctype;					// Column data type.

@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -59,20 +59,20 @@ typedef struct {
     LPWSTR lpszMoreInfoLink;
 } SPROG_PUBLISHERINFO, *PSPROG_PUBLISHERINFO;
 
-static BYTE hexCharToByte(char hex)
+static uint8_t hexCharToByte(char hex)
 {
     if (hex >= 'a' && hex <= 'f')
-        return (BYTE)(hex - 'a' + 10);
+        return (uint8_t)(hex - 'a' + 10);
     if (hex >= 'A' && hex <= 'F')
-        return (BYTE)(hex - 'A' + 10);
+        return (uint8_t)(hex - 'A' + 10);
     if (hex >= '0' && hex <= '9')
-        return (BYTE)(hex - '0');
+        return (uint8_t)(hex - '0');
     return 0;
 }
 
-static bool compareHex(const char*hex, const BYTE* data, int dataLen)
+static bool compareHex(const char*hex, const uint8_t* data, int dataLen)
 {
-    BYTE c;
+    uint8_t c;
 
     while (dataLen > 0)
     {
@@ -93,7 +93,7 @@ static BOOL FindCertificateInfo(PCCERT_CONTEXT pCertContext)
 {
 	BOOL fReturn = FALSE;
 	DWORD dwData = 0L;	// krr -> fixed compiler warning C4706:
-    BYTE buffer[512];
+    uint8_t buffer[512];
     DWORD len;
 
 	for(;;)
@@ -137,7 +137,7 @@ static BOOL FindCertificateInfo(PCCERT_CONTEXT pCertContext)
 		}
 
 //			if(!strstr(tsName.c_str(), "VeriSign Class 3 Code Signing 2010 CA" ) && !strstr(tsName.c_str(), "TecSec Secure Services"))
-		if(strcmp((LPSTR)buffer, ("TecSec-CERTSERVER-CA")) != 0)
+		if(TsStrCmp((LPSTR)buffer, ("TecSec-CERTSERVER-CA")) != 0)
 		{
 			printf ("  ERROR:  The signing certificate is invalid - Issuer is invalid.\n");
 			break;
@@ -155,7 +155,7 @@ static BOOL FindCertificateInfo(PCCERT_CONTEXT pCertContext)
 			break;
 		}
 
-		if (strcmp((LPSTR)buffer, ("TecSec Secure Services")) != 0)
+		if (TsStrCmp((LPSTR)buffer, ("TecSec Secure Services")) != 0)
 		{
 			printf ("  ERROR:  The signing certificate is invalid - Subject is invalid.\n");
 			break;
@@ -175,7 +175,7 @@ static int32_t VerifyEmbeddedSignature(const char *aFileName)
 	LONG lStatus = ERROR_SUCCESS;	// 11/23/09 krr fixed compiler warning C4701 uninitialied variable
     ts_wchar tsSourceFile[MAX_PATH] = {0, };
 
-    MultiByteToWideChar(0, 0, aFileName, (int)strlen(aFileName), tsSourceFile, sizeof(tsSourceFile) / sizeof(tsSourceFile[0]));
+    MultiByteToWideChar(0, 0, aFileName, (int)TsStrLen(aFileName), tsSourceFile, sizeof(tsSourceFile) / sizeof(tsSourceFile[0]));
 
 	WINTRUST_FILE_INFO WinTrustFileInfo;
 	memset(&WinTrustFileInfo, 0, sizeof(WinTrustFileInfo));

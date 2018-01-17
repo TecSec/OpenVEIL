@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -156,7 +156,7 @@ public:
     ///
     /// <returns>The CryptoGroup's unique identifier.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual GUID GetCryptoGroupGuid() = 0;
+	virtual tscrypto::tsCryptoData GetCryptoGroupId() = 0;
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Gets the current maintenance level.</summary>
     ///
@@ -483,12 +483,12 @@ public:
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Adds a CryptoGroup to this list and returns the index of the newly added CryptoGroup.</summary>
     ///
-    /// <param name="sryptoGroupGuid">Unique identifier for the CryptoGroup.</param>
+    /// <param name="sryptoGroupId">Unique identifier for the CryptoGroup.</param>
     /// <param name="pVal">		 [out] The index of the newly added CryptoGroup.</param>
     ///
     /// <returns>true if it succeeds, false if it fails.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual bool AddCryptoGroup(const GUID &cryptoGroupGuid, int *pVal) = 0;
+	virtual bool AddCryptoGroup(const tscrypto::tsCryptoData &cryptoGroupId, int *pVal) = 0;
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Gets the specified CryptoGroup.</summary>
     ///
@@ -664,15 +664,15 @@ public:
     ///
     /// <returns>The attribute unique identifier.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual GUID GetAttributeGUID() = 0;
+	virtual tscrypto::tsCryptoData GetAttributeId() = 0;
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Sets the attribute unique identifier.</summary>
     ///
-    /// <param name="guid">Unique identifier.</param>
+    /// <param name="id">Unique identifier.</param>
     ///
     /// <returns>true if it succeeds, false if it fails.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual bool SetAttributeGuid(const GUID &guid) = 0;
+	virtual bool SetAttributeId(const tscrypto::tsCryptoData &id) = 0;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Gets the attribute key version.</summary>
@@ -1296,12 +1296,12 @@ public:
     /// <remarks>This is a helper function that looks for the header extension and provides the
     /// required functionality in an easier to use package.</remarks>
     ///
-    /// <param name="cryptoGroupGuid">Unique identifier for the CryptoGroup.</param>
+    /// <param name="cryptoGroupId">Unique identifier for the CryptoGroup.</param>
     /// <param name="pVal">		 [out] The index of the new CryptoGroup object.</param>
     ///
     /// <returns>true if it succeeds, false if it fails.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual bool AddCryptoGroup(const GUID &cryptoGroupGuid, int *pVal) = 0;
+	virtual bool AddCryptoGroup(const tscrypto::tsCryptoData &cryptoGroupId, int *pVal) = 0;
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Gets the specified CryptoGroup.</summary>
     ///
@@ -1320,12 +1320,12 @@ public:
     /// <remarks>This is a helper function that looks for the header extension and provides the
     /// required functionality in an easier to use package.</remarks>
     ///
-    /// <param name="cryptoGroupGuid">Unique identifier for the CryptoGroup.</param>
+    /// <param name="cryptoGroupId">Unique identifier for the CryptoGroup.</param>
     /// <param name="pVal"> [out] The CryptoGroup object.</param>
     ///
     /// <returns>true if it succeeds, false if it fails.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual bool GetCryptoGroupByGuid(const GUID &cryptoGroupGuid, std::shared_ptr<ICmsHeaderCryptoGroup>& pVal) = 0;
+	virtual bool GetCryptoGroupById(const tscrypto::tsCryptoData &cryptoGroupId, std::shared_ptr<ICmsHeaderCryptoGroup>& pVal) = 0;
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Removes the CryptoGroup described by index.</summary>
     ///
@@ -1338,16 +1338,16 @@ public:
     ////////////////////////////////////////////////////////////////////////////////////////////////////
 	virtual bool RemoveCryptoGroup(size_t index) = 0;
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// <summary>Removes the CryptoGroup described by cryptoGroupGuid.</summary>
+    /// <summary>Removes the CryptoGroup described by cryptoGroupId.</summary>
     ///
     /// <remarks>This is a helper function that looks for the header extension and provides the
     /// required functionality in an easier to use package.</remarks>
     ///
-    /// <param name="cryptoGroupGuid">Unique identifier for the CryptoGroup.</param>
+    /// <param name="cryptoGroupId">Unique identifier for the CryptoGroup.</param>
     ///
     /// <returns>true if it succeeds, false if it fails.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual bool RemoveCryptoGroupByGuid(const GUID &cryptoGroupGuid) = 0;
+	virtual bool RemoveCryptoGroupById(const tscrypto::tsCryptoData &cryptoGroupId) = 0;
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Clears the CryptoGroup list.</summary>
     ///
@@ -1479,13 +1479,13 @@ public:
 	 *
 	 * \return The object identifier.
 	 */
-	virtual GUID GetObjectID() = 0;
+	virtual tscrypto::tsCryptoData GetObjectID() = 0;
 	/**
 	 * \brief Sets object identifier that represents the encrypted data blob.
 	 *
 	 * \param setTo The set to.
 	 */
-	virtual void SetObjectID(const GUID& setTo) = 0;
+	virtual void SetObjectID(const tscrypto::tsCryptoData& setTo) = 0;
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Gets the padded header size in bytes before any conversions took place.</summary>
 	///
@@ -1557,7 +1557,7 @@ public:
 	///
 	/// <returns>S_OK for success or a standard COM error for failure.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual bool padHeaderToSize(DWORD size) = 0;
+	virtual bool padHeaderToSize(uint32_t size) = 0;
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Modifies a CKM 7 header and preloads the encryption parameters in preparation of
 	/// creating the working key.</summary>

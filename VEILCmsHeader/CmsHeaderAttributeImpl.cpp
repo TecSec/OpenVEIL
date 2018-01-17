@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -38,8 +38,8 @@ public:
 	virtual ~CmsHeaderAttributeImpl(void);
 
 	// ICmsHeaderAttribute
-	virtual GUID GetAttributeGUID();
-	virtual bool SetAttributeGuid(const GUID &guid);
+	virtual tscrypto::tsCryptoData GetAttributeId();
+	virtual bool SetAttributeId(const tscrypto::tsCryptoData &id);
 	virtual int GetKeyVersion();
 	virtual bool SetKeyVersion(int setTo);
 	virtual int GetCryptoGroupNumber();
@@ -48,7 +48,7 @@ public:
 	virtual bool SetSignature(const tscrypto::tsCryptoData &setTo);
 
 private:
-	GUID m_id;
+    tscrypto::tsCryptoData m_id;
 	int m_version;
 	int m_cryptoGroupNumber;
 	tscrypto::tsCryptoData m_signature;
@@ -64,14 +64,14 @@ CmsHeaderAttributeImpl::~CmsHeaderAttributeImpl(void)
 {
 }
 
-GUID CmsHeaderAttributeImpl::GetAttributeGUID()
+tscrypto::tsCryptoData CmsHeaderAttributeImpl::GetAttributeId()
 {
     return m_id;
 }
 
-bool CmsHeaderAttributeImpl::SetAttributeGuid(const GUID &guid)
+bool CmsHeaderAttributeImpl::SetAttributeId(const tscrypto::tsCryptoData &id)
 {
-    m_id = guid;
+    m_id = id;
     return true;
 }
 

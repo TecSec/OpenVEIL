@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -37,164 +37,164 @@ class PbKdfImpl : public PbKdf, public TSName, public tscrypto::ICryptoObject, p
 {
 public:
     PbKdfImpl(const tsCryptoStringBase& algorithm)
-	{
-		SetName(algorithm);
-		desc = findPbkdfAlgorithm("PBKDF");
-	}
-	virtual ~PbKdfImpl(void)
-	{
-	}
+    {
+        SetName(algorithm);
+        desc = tsFindPbkdfAlgorithm("PBKDF");
+    }
+    virtual ~PbKdfImpl(void)
+    {
+    }
 
     // AlgorithmInfo
     virtual tsCryptoString  AlgorithmName() const override
-	{
-		return GetName();
-	}
-	virtual tsCryptoString  AlgorithmOID() const override
-	{
-		return LookUpAlgOID(GetName());
-	}
-	virtual TS_ALG_ID AlgorithmID() const override
-	{
-		return LookUpAlgID(GetName());
-	}
+    {
+        return GetName();
+    }
+    virtual tsCryptoString  AlgorithmOID() const override
+    {
+        return LookUpAlgOID(GetName());
+    }
+    virtual TS_ALG_ID AlgorithmID() const override
+    {
+        return LookUpAlgID(GetName());
+    }
 
     // Pbkdf
     virtual bool PKCS5_PBKDF2(const tsCryptoStringBase& hmacName, const tsCryptoData &password, const tsCryptoData &salt, size_t counter, tsCryptoData &key, size_t keyLenNeeded) const override
-	{
-		const MAC_Descriptor* macDesc = nullptr;
-		SmartCryptoWorkspace macWorkspace;
+    {
+        const TSMacDescriptor* macDesc = nullptr;
+        SmartCryptoWorkspace macWorkspace;
 
-		if (!gFipsState.operational() || desc == nullptr)
-		{
-			return false;
-		}
+        if (!gFipsState.operational() || desc == nullptr)
+        {
+            return false;
+        }
 
-		if (TsStrniCmp(hmacName.c_str(), "HMAC-", 5) != 0)
-		{
-			macDesc = findMacAlgorithm(("HMAC-" + hmacName).c_str());
-		}
-		if (macDesc == nullptr)
-		{
-			macDesc = findMacAlgorithm(hmacName.c_str());
-		}
-		if (macDesc == nullptr)
-			return false;
-		macWorkspace = macDesc;
+        if (tsStrniCmp(hmacName.c_str(), "HMAC-", 5) != 0)
+        {
+            macDesc = tsFindMacAlgorithm(("HMAC-" + hmacName).c_str());
+        }
+        if (macDesc == nullptr)
+        {
+            macDesc = tsFindMacAlgorithm(hmacName.c_str());
+        }
+        if (macDesc == nullptr)
+            return false;
+        macWorkspace = macDesc;
 
-		key.clear();
+        key.clear();
 
-		if (password.size() == 0)
-		{
-			return false;
-		}
+        if (password.size() == 0)
+        {
+            return false;
+        }
 
-		key.resize(keyLenNeeded);
+        key.resize(keyLenNeeded);
 
-		bool retVal = desc->PKCS5_PBKDF2(desc, macDesc, macWorkspace, password.c_str(), (uint32_t)password.size(), salt.c_str(), (uint32_t)salt.size(), (uint32_t)counter, key.rawData(), (uint32_t)keyLenNeeded);
+        bool retVal = desc->PKCS5_PBKDF2(desc, macDesc, macWorkspace, password.c_str(), (uint32_t)password.size(), salt.c_str(), (uint32_t)salt.size(), (uint32_t)counter, key.rawData(), (uint32_t)keyLenNeeded);
 
-		if (!retVal)
-			key.clear();
-		return retVal;
-	}
-	virtual bool PKCS5_PBKDF2_With_Mac(const tsCryptoStringBase& hmacName, const tsCryptoData &password, const tsCryptoData &salt, size_t counter, tsCryptoData &key, size_t keyLenNeeded, 
-		tsCryptoData &mac) const override
-	{
-		const MAC_Descriptor* macDesc = nullptr;
-		SmartCryptoWorkspace macWorkspace;
+        if (!retVal)
+            key.clear();
+        return retVal;
+    }
+    virtual bool PKCS5_PBKDF2_With_Mac(const tsCryptoStringBase& hmacName, const tsCryptoData &password, const tsCryptoData &salt, size_t counter, tsCryptoData &key, size_t keyLenNeeded, 
+        tsCryptoData &mac) const override
+    {
+        const TSMacDescriptor* macDesc = nullptr;
+        SmartCryptoWorkspace macWorkspace;
 
-		if (!gFipsState.operational() || desc == nullptr)
-		{
-			return false;
-		}
+        if (!gFipsState.operational() || desc == nullptr)
+        {
+            return false;
+        }
 
-		if (TsStrniCmp(hmacName.c_str(), "HMAC-", 5) != 0)
-		{
-			macDesc = findMacAlgorithm(("HMAC-" + hmacName).c_str());
-		}
-		if (macDesc == nullptr)
-		{
-			macDesc = findMacAlgorithm(hmacName.c_str());
-		}
-		if (macDesc == nullptr)
-			return false;
-		macWorkspace = macDesc;
+        if (tsStrniCmp(hmacName.c_str(), "HMAC-", 5) != 0)
+        {
+            macDesc = tsFindMacAlgorithm(("HMAC-" + hmacName).c_str());
+        }
+        if (macDesc == nullptr)
+        {
+            macDesc = tsFindMacAlgorithm(hmacName.c_str());
+        }
+        if (macDesc == nullptr)
+            return false;
+        macWorkspace = macDesc;
 
-		key.clear();
+        key.clear();
 
-		if (password.size() == 0)
-		{
-			return false;
-		}
+        if (password.size() == 0)
+        {
+            return false;
+        }
 
-		key.resize(keyLenNeeded);
-		mac.resize(macDesc->getDigestSize(macDesc));
+        key.resize(keyLenNeeded);
+        mac.resize(macDesc->getDigestSize(macDesc));
 
-		bool retVal = desc->PKCS5_PBKDF2_With_Mac(desc, macDesc, macWorkspace, password.c_str(), (uint32_t)password.size(), salt.c_str(), (uint32_t)salt.size(), (uint32_t)counter, key.rawData(), (uint32_t)keyLenNeeded, mac.rawData(), (uint32_t)mac.size());
+        bool retVal = desc->PKCS5_PBKDF2_With_Mac(desc, macDesc, macWorkspace, password.c_str(), (uint32_t)password.size(), salt.c_str(), (uint32_t)salt.size(), (uint32_t)counter, key.rawData(), (uint32_t)keyLenNeeded, mac.rawData(), (uint32_t)mac.size());
 
-		if (!retVal)
-		{
-			key.clear();
-			mac.clear();
-		}
-		return retVal;
-	}
-	virtual bool Pkcs12Pbkdf_Ascii(const tsCryptoStringBase& hashAlg, const tsCryptoStringBase& password, uint8_t id, const tsCryptoData& salt, size_t iter, size_t outputLengthInBits, 
-		tsCryptoData& Key) const override
-	{
-		const HASH_Descriptor* hasher;
-		SmartCryptoWorkspace hashWorkspace;
-
-		if (!gFipsState.operational() || desc == nullptr)
-			return false;
-
-		hasher = findHashAlgorithm(hashAlg.c_str());
-		if (hasher == nullptr)
-			return false;
-		hashWorkspace = hasher;
-
-		Key.clear();
-		Key.resize((outputLengthInBits + 7) / 8);
-
-		bool retVal = desc->Pkcs12Pbkdf_Ascii(desc, hasher, hashWorkspace, password.c_str(), id, salt.c_str(), (uint32_t)salt.size(), (uint32_t)iter, (uint32_t)outputLengthInBits, Key.rawData());
-		if (!retVal)
-			Key.clear();
-		return retVal;
-	}
-	virtual bool PBKDF1(const tsCryptoStringBase& hashName, const tsCryptoStringBase & password, const tsCryptoData & iv, int keyLenInBytes, tsCryptoData& Key) const override
-	{
-		const HASH_Descriptor* hasher;
+        if (!retVal)
+        {
+            key.clear();
+            mac.clear();
+        }
+        return retVal;
+    }
+    virtual bool Pkcs12Pbkdf_Ascii(const tsCryptoStringBase& hashAlg, const tsCryptoStringBase& password, uint8_t id, const tsCryptoData& salt, size_t iter, size_t outputLengthInBits, 
+        tsCryptoData& Key) const override
+    {
+        const TSHashDescriptor* hasher;
         SmartCryptoWorkspace hashWorkspace;
 
-		if (!gFipsState.operational() || desc == nullptr)
-			return false;
+        if (!gFipsState.operational() || desc == nullptr)
+            return false;
 
-		hasher = findHashAlgorithm(hashName.c_str());
-		if (hasher == nullptr)
-			return false;
-		hashWorkspace = hasher;
+        hasher = tsFindHashAlgorithm(hashAlg.c_str());
+        if (hasher == nullptr)
+            return false;
+        hashWorkspace = hasher;
 
-		Key.clear();
-		Key.resize(keyLenInBytes);
-		bool retVal = desc->PBKDF1(desc, hasher, hashWorkspace, password.c_str(), iv.c_str(), (uint32_t)iv.size(), keyLenInBytes, Key.rawData());
-		if (!retVal)
-			Key.clear();
-		return retVal;
-	}
+        Key.clear();
+        Key.resize((outputLengthInBits + 7) / 8);
 
-	// tscrypto::IInitializableObject
-	virtual bool InitializeWithFullName(const tscrypto::tsCryptoStringBase& fullName) override
-	{
-		SetName(fullName);
-		return true;
-	}
+        bool retVal = desc->Pkcs12Pbkdf_Ascii(desc, hasher, hashWorkspace, password.c_str(), id, salt.c_str(), (uint32_t)salt.size(), (uint32_t)iter, (uint32_t)outputLengthInBits, Key.rawData());
+        if (!retVal)
+            Key.clear();
+        return retVal;
+    }
+    virtual bool PBKDF1(const tsCryptoStringBase& hashName, const tsCryptoStringBase & password, const tsCryptoData & iv, int keyLenInBytes, tsCryptoData& Key) const override
+    {
+        const TSHashDescriptor* hasher;
+        SmartCryptoWorkspace hashWorkspace;
+
+        if (!gFipsState.operational() || desc == nullptr)
+            return false;
+
+        hasher = tsFindHashAlgorithm(hashName.c_str());
+        if (hasher == nullptr)
+            return false;
+        hashWorkspace = hasher;
+
+        Key.clear();
+        Key.resize(keyLenInBytes);
+        bool retVal = desc->PBKDF1(desc, hasher, hashWorkspace, password.c_str(), iv.c_str(), (uint32_t)iv.size(), keyLenInBytes, Key.rawData());
+        if (!retVal)
+            Key.clear();
+        return retVal;
+    }
+
+    // tscrypto::IInitializableObject
+    virtual bool InitializeWithFullName(const tscrypto::tsCryptoStringBase& fullName) override
+    {
+        SetName(fullName);
+        return true;
+    }
 
 protected:
-	const PBKDF_Descriptor* desc;
+    const TSPbkdfDescriptor* desc;
 };
 
 tscrypto::ICryptoObject* CreatePbkdf()
 {
-	return dynamic_cast<tscrypto::ICryptoObject*>(new PbKdfImpl("KDF-PBKDF2"));
+    return dynamic_cast<tscrypto::ICryptoObject*>(new PbKdfImpl("KDF-PBKDF2"));
 }
 

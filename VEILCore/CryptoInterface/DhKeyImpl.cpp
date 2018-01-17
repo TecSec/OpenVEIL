@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -37,404 +37,404 @@ using namespace tscrypto;
 
 class DhKeyImpl : public DhKey, public TSName, 
                   public DhEccPrimitives, 
-				  public tscrypto::ICryptoObject, public tscrypto::IInitializableObject, public AlgorithmInfo, public TSALG_Access
+                  public tscrypto::ICryptoObject, public tscrypto::IInitializableObject, public AlgorithmInfo, public TSALG_Access
 {
 public:
     DhKeyImpl(const tsCryptoStringBase& algorithm) :
-		desc(nullptr),
-		reason(kvf_NoFailure)
-	{
-		desc = findDhAlgorithm("DH");
-		SetName(algorithm);
-	}
+        desc(nullptr),
+        reason(tskvf_NoFailure)
+    {
+        desc = tsFindDhAlgorithm("DH");
+        SetName(algorithm);
+    }
     virtual ~DhKeyImpl(void)
-	{
-		desc = nullptr;
-		dhKey.reset();
-	}
+    {
+        desc = nullptr;
+        dhKey.reset();
+    }
 
     // AssymetricKey
-	virtual void Clear() override
-	{
-		reason = kvf_NoFailure;
-		if (desc != nullptr && dhKey != nullptr)
-		{
-			desc->clearKey(desc, dhKey);
-		}
-	}
-	virtual size_t KeySize() const override
-	{
-		if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
-			return 0;
-		return desc->getPrimeSize(desc, dhKey);
-	}
+    virtual void Clear() override
+    {
+        reason = tskvf_NoFailure;
+        if (desc != nullptr && dhKey != nullptr)
+        {
+            desc->clearKey(desc, dhKey);
+        }
+    }
+    virtual size_t KeySize() const override
+    {
+        if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
+            return 0;
+        return desc->getPrimeSize(desc, dhKey);
+    }
     virtual bool IsPublicLoaded() const override
-	{
-		if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
-			return false;
-		return desc->hasPublicKey(desc, dhKey);
-	}
-	virtual bool IsPrivateLoaded() const override
-	{
-		if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
-			return false;
-		return desc->hasPrivateKey(desc, dhKey);
-	}
-	virtual bool IsPublicVerified() const override
-	{
-		if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
-			return false;
-		return desc->publicIsValidated(desc, dhKey);
-	}
-	virtual bool IsPrivateVerified() const override
-	{
-		if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
-			return false;
-		return desc->privateIsValidated(desc, dhKey);
-	}
-	virtual bool HasPublicKey() const override
-	{
-		if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
-			return false;
-		return desc->hasPublicKey(desc, dhKey);
-	}
-	virtual bool HasPrivateKey() const override
-	{
-		if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
-			return false;
-		return desc->hasPrivateKey(desc, dhKey);
-	}
-	virtual bool ValidateKeys() override
-	{
-		if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
-			return false;
-		return desc->validateKeys(desc, dhKey, &reason);
-	}
-	virtual bool KeysAreCompatible(std::shared_ptr<AsymmetricKey> secondKey) const override
-	{
-		if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
-			return false;
-		std::shared_ptr<TSALG_Access> ts = std::dynamic_pointer_cast<TSALG_Access>(secondKey);
+    {
+        if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
+            return false;
+        return desc->hasPublicKey(desc, dhKey);
+    }
+    virtual bool IsPrivateLoaded() const override
+    {
+        if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
+            return false;
+        return desc->hasPrivateKey(desc, dhKey);
+    }
+    virtual bool IsPublicVerified() const override
+    {
+        if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
+            return false;
+        return desc->publicIsValidated(desc, dhKey);
+    }
+    virtual bool IsPrivateVerified() const override
+    {
+        if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
+            return false;
+        return desc->privateIsValidated(desc, dhKey);
+    }
+    virtual bool HasPublicKey() const override
+    {
+        if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
+            return false;
+        return desc->hasPublicKey(desc, dhKey);
+    }
+    virtual bool HasPrivateKey() const override
+    {
+        if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
+            return false;
+        return desc->hasPrivateKey(desc, dhKey);
+    }
+    virtual bool ValidateKeys() override
+    {
+        if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
+            return false;
+        return desc->validateKeys(desc, dhKey, &reason);
+    }
+    virtual bool KeysAreCompatible(std::shared_ptr<AsymmetricKey> secondKey) const override
+    {
+        if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
+            return false;
+        std::shared_ptr<TSALG_Access> ts = std::dynamic_pointer_cast<TSALG_Access>(secondKey);
 
-		if (!ts)
-			return false;
+        if (!ts)
+            return false;
 
-		return desc->keysAreCompatible(desc, dhKey, ts->getKeyPair());
-	}
-	virtual bool generateKeyPair(bool forSignature) override
-	{
-		if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
-			return false;
+        return desc->keysAreCompatible(desc, dhKey, ts->getKeyPair());
+    }
+    virtual bool generateKeyPair(bool forSignature) override
+    {
+        if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
+            return false;
 
-		return desc->generateKeyPair(desc, dhKey);
-	}
+        return desc->generateKeyPair(desc, dhKey);
+    }
     virtual bool CanComputeZ() const override
-	{
-		if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
-			return false;
-		return desc->canComputeZ;
-	}
-	virtual bool ComputeZ(std::shared_ptr<AsymmetricKey> secondKey, tsCryptoData &Z) const override
-	{
-		uint32_t len = MAX_KEY_SIZE_BYTES;
-		ts_bool retVal;
-		std::shared_ptr<TSALG_Access> ts = std::dynamic_pointer_cast<TSALG_Access>(secondKey);
-		if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr || !ts)
-			return false;
-		
-		Z.clear();
-		Z.resize(len);
-		retVal = desc->computeZ(desc, dhKey, ts->getKeyPair(), Z.rawData(), &len);
-		if (!retVal)
-			len = 0;
-		Z.resize(len);
-		return retVal;
-	}
-	virtual ValidationFailureType ValidationFailureReason() const override
-	{
-		return reason;
-	}
+    {
+        if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
+            return false;
+        return desc->canComputeZ;
+    }
+    virtual bool ComputeZ(std::shared_ptr<AsymmetricKey> secondKey, tsCryptoData &Z) const override
+    {
+        uint32_t len = MAX_KEY_SIZE_BYTES;
+        ts_bool retVal;
+        std::shared_ptr<TSALG_Access> ts = std::dynamic_pointer_cast<TSALG_Access>(secondKey);
+        if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr || !ts)
+            return false;
+        
+        Z.clear();
+        Z.resize(len);
+        retVal = desc->computeZ(desc, dhKey, ts->getKeyPair(), Z.rawData(), &len);
+        if (!retVal)
+            len = 0;
+        Z.resize(len);
+        return retVal;
+    }
+    virtual ValidationFailureType ValidationFailureReason() const override
+    {
+        return reason;
+    }
     virtual tsCryptoData toByteArray() const override
-	{
-		std::shared_ptr<TlvDocument> doc = TlvDocument::Create();
-		std::shared_ptr<TlvNode> sequence;
-		std::shared_ptr<DhParameters> params;
+    {
+        std::shared_ptr<TlvDocument> doc = TlvDocument::Create();
+        std::shared_ptr<TlvNode> sequence;
+        std::shared_ptr<DhParameters> params;
 
-		doc->DocumentElement()->Tag(TlvNode::Tlv_Sequence);
-		doc->DocumentElement()->Type(0);
-		doc->DocumentElement()->AppendChild(sequence = doc->CreateSequence());
-		sequence->AppendChild(doc->CreateOIDNode(tsCryptoData(TECSEC_DH_KEY, tsCryptoData::OID)));
-		doc->DocumentElement()->AppendChild(MakeIntegerNode(get_PrivateKey(), doc));
-		doc->DocumentElement()->AppendChild(MakeIntegerNode(get_PublicKey(), doc));
-		if (!(params = get_DomainParameters()))
-		{
-			std::shared_ptr<TlvNode> tmp;
+        doc->DocumentElement()->Tag(TlvNode::Tlv_Sequence);
+        doc->DocumentElement()->Type(0);
+        doc->DocumentElement()->AppendChild(sequence = doc->CreateSequence());
+        sequence->AppendChild(doc->CreateOIDNode(tsCryptoData(id_TECSEC_DH_KEY_OID, tsCryptoData::OID)));
+        doc->DocumentElement()->AppendChild(MakeIntegerNode(get_PrivateKey(), doc));
+        doc->DocumentElement()->AppendChild(MakeIntegerNode(get_PublicKey(), doc));
+        if (!(params = get_DomainParameters()))
+        {
+            std::shared_ptr<TlvNode> tmp;
 
-			doc->DocumentElement()->AppendChild(tmp = doc->CreateSequence());
-			tmp->OuterData(params->toByteArray());
-		}
-		return doc->SaveTlv();
-	}
-	virtual bool fromByteArray(const tsCryptoData &data) override
-	{
-		if (!gFipsState.operational())
-			return false;
-		std::shared_ptr<TlvDocument> doc = TlvDocument::Create();
-		std::shared_ptr<DhParameters> params;
-		std::shared_ptr<TlvNode> top;
-		tsCryptoData priv, pub;
+            doc->DocumentElement()->AppendChild(tmp = doc->CreateSequence());
+            tmp->OuterData(params->toByteArray());
+        }
+        return doc->SaveTlv();
+    }
+    virtual bool fromByteArray(const tsCryptoData &data) override
+    {
+        if (!gFipsState.operational())
+            return false;
+        std::shared_ptr<TlvDocument> doc = TlvDocument::Create();
+        std::shared_ptr<DhParameters> params;
+        std::shared_ptr<TlvNode> top;
+        tsCryptoData priv, pub;
 
-		Clear();
+        Clear();
 
-		if (!doc->LoadTlv(data))
-			return false;
+        if (!doc->LoadTlv(data))
+            return false;
 
-		top = doc->DocumentElement();
+        top = doc->DocumentElement();
 
-		if (top->Tag() != TlvNode::Tlv_Sequence || top->Type() != 0 || !top->IsConstructed() || top->Children()->size() < 3 || !IsSequenceOID(top->ChildAt(0), tsCryptoData(TECSEC_DH_KEY, tsCryptoData::OID)))
-			return false;
+        if (top->Tag() != TlvNode::Tlv_Sequence || top->Type() != 0 || !top->IsConstructed() || top->Children()->size() < 3 || !IsSequenceOID(top->ChildAt(0), tsCryptoData(id_TECSEC_DH_KEY_OID, tsCryptoData::OID)))
+            return false;
 
-		if (top->ChildAt(1)->Tag() != TlvNode::Tlv_Number || top->ChildAt(1)->Type() != TlvNode::Type_Universal)
-			return false;
-		priv = AdjustASN1Number(top->ChildAt(1)->InnerData());
+        if (top->ChildAt(1)->Tag() != TlvNode::Tlv_Number || top->ChildAt(1)->Type() != TlvNode::Type_Universal)
+            return false;
+        priv = AdjustASN1Number(top->ChildAt(1)->InnerData());
 
-		if (top->ChildAt(2)->Tag() != TlvNode::Tlv_Number || top->ChildAt(2)->Type() != TlvNode::Type_Universal)
-			return false;
-		pub = AdjustASN1Number(top->ChildAt(2)->InnerData());
+        if (top->ChildAt(2)->Tag() != TlvNode::Tlv_Number || top->ChildAt(2)->Type() != TlvNode::Type_Universal)
+            return false;
+        pub = AdjustASN1Number(top->ChildAt(2)->InnerData());
 
-		if (top->ChildCount() > 3)
-		{
-			// We have fiefdom parameters
-			if (top->ChildAt(3)->Tag() != TlvNode::Tlv_Sequence || top->ChildAt(3)->Type() != TlvNode::Type_Universal)
-				return false;
+        if (top->ChildCount() > 3)
+        {
+            // We have fiefdom parameters
+            if (top->ChildAt(3)->Tag() != TlvNode::Tlv_Sequence || top->ChildAt(3)->Type() != TlvNode::Type_Universal)
+                return false;
 
-			if (!(params = std::dynamic_pointer_cast<DhParameters>(CryptoFactory("PARAMETERSET-DH"))))
-				return false;
+            if (!(params = std::dynamic_pointer_cast<DhParameters>(CryptoFactory("PARAMETERSET-DH"))))
+                return false;
 
-			if (!params->fromByteArray(top->ChildAt(3)->OuterData()) || !set_DomainParameters(params))
-				return false;
-		}
+            if (!params->fromByteArray(top->ChildAt(3)->OuterData()) || !set_DomainParameters(params))
+                return false;
+        }
 
-		if (!set_PrivateKey(priv) || !set_PublicKey(pub))
-			return false;
-		return true;
-	}
-	virtual size_t minimumKeySizeInBits() const override
-	{
-		if (desc == nullptr)
-			return 0;
-		return desc->minimumKeySizeInBits(desc);
-	}
-	virtual size_t maximumKeySizeInBits() const override
-	{
-		if (desc == nullptr)
-			return 0;
-		return desc->maximumKeySizeInBits(desc);
-	}
-	virtual size_t keySizeIncrementInBits() const override
-	{
-		if (desc == nullptr)
-			return 0;
-		return desc->keySizeIncrementInBits(desc);
-	}
-	virtual std::shared_ptr<AsymmetricKey> generateNewKeyPair(bool forSignature) const override
-	{
-		std::shared_ptr<AsymmetricKey> key = std::dynamic_pointer_cast<AsymmetricKey>(CryptoFactory(GetName()));
-		std::shared_ptr<DhKey> dh = std::dynamic_pointer_cast<DhKey>(key);
+        if (!set_PrivateKey(priv) || !set_PublicKey(pub))
+            return false;
+        return true;
+    }
+    virtual size_t minimumKeySizeInBits() const override
+    {
+        if (desc == nullptr)
+            return 0;
+        return desc->minimumKeySizeInBits(desc);
+    }
+    virtual size_t maximumKeySizeInBits() const override
+    {
+        if (desc == nullptr)
+            return 0;
+        return desc->maximumKeySizeInBits(desc);
+    }
+    virtual size_t keySizeIncrementInBits() const override
+    {
+        if (desc == nullptr)
+            return 0;
+        return desc->keySizeIncrementInBits(desc);
+    }
+    virtual std::shared_ptr<AsymmetricKey> generateNewKeyPair(bool forSignature) const override
+    {
+        std::shared_ptr<AsymmetricKey> key = std::dynamic_pointer_cast<AsymmetricKey>(CryptoFactory(GetName()));
+        std::shared_ptr<DhKey> dh = std::dynamic_pointer_cast<DhKey>(key);
 
-		if (!!key)
-		{
-			dh->set_DomainParameters(get_DomainParameters());
-			if (!key->generateKeyPair())
-			{
-				key.reset();
-			}
-		}
-		return key;
-	}
-	virtual bool signatureKey() const override 
-	{ 
-		return true; 
-	}
-	virtual bool encryptionKey() const override 
-	{ 
-		return true; 
-	}
-	virtual bool prehashSignatures() const override 
-	{ 
-		return true; 
-	}
-	virtual void set_signatureKey(bool /*setTo*/) override 
-	{
-	}
-	virtual void set_encryptionKey(bool /*setTo*/) override 
-	{
-	}
+        if (!!key)
+        {
+            dh->set_DomainParameters(get_DomainParameters());
+            if (!key->generateKeyPair())
+            {
+                key.reset();
+            }
+        }
+        return key;
+    }
+    virtual bool signatureKey() const override 
+    { 
+        return true; 
+    }
+    virtual bool encryptionKey() const override 
+    { 
+        return true; 
+    }
+    virtual bool prehashSignatures() const override 
+    { 
+        return true; 
+    }
+    virtual void set_signatureKey(bool /*setTo*/) override 
+    {
+    }
+    virtual void set_encryptionKey(bool /*setTo*/) override 
+    {
+    }
 
     // DhKey
-	virtual std::shared_ptr<DhParameters> get_DomainParameters() const override
-	{
-		return dhParams;
-	}
-	virtual bool set_DomainParameters(std::shared_ptr<DhParameters> setTo) override
-	{
-		std::shared_ptr<TSALG_Access> ts = std::dynamic_pointer_cast<TSALG_Access>(setTo);
+    virtual std::shared_ptr<DhParameters> get_DomainParameters() const override
+    {
+        return dhParams;
+    }
+    virtual bool set_DomainParameters(std::shared_ptr<DhParameters> setTo) override
+    {
+        std::shared_ptr<TSALG_Access> ts = std::dynamic_pointer_cast<TSALG_Access>(setTo);
 
-		if (!gFipsState.operational())
-			return false;
-		dhKey.reset();
-		dhParams = setTo;
-		if (!!dhParams && !!ts)
-		{
-			dhKey = desc->createKeyStructure(desc, (const DH_Parameters_Descriptor*)ts->Descriptor(), (CRYPTO_DH_PARAMS)ts->getKeyPair());
-			return dhKey != nullptr;
-		}
-		return true;
-	}
-	virtual tsCryptoData get_PrivateKey() const override
-	{
-		tsCryptoData tmp;
-		uint32_t len = MAX_KEY_SIZE_BYTES;
+        if (!gFipsState.operational())
+            return false;
+        dhKey.reset();
+        dhParams = setTo;
+        if (!!dhParams && !!ts)
+        {
+            dhKey = desc->createKeyStructure(desc, (const TSDhParametersDescriptor*)ts->Descriptor(), (TSCRYPTO_DH_PARAMS)ts->getKeyPair());
+            return dhKey != nullptr;
+        }
+        return true;
+    }
+    virtual tsCryptoData get_PrivateKey() const override
+    {
+        tsCryptoData tmp;
+        uint32_t len = MAX_KEY_SIZE_BYTES;
 
-		if (desc == nullptr || dhKey == nullptr)
-			return tsCryptoData();
+        if (desc == nullptr || dhKey == nullptr)
+            return tsCryptoData();
 
-		tmp.resize(len);
-		if (!desc->exportPrivateKey(desc, dhKey, tmp.rawData(), &len))
-			return tsCryptoData();
-		tmp.resize(len);
-		return tmp;
-	}
+        tmp.resize(len);
+        if (!desc->exportPrivateKey(desc, dhKey, tmp.rawData(), &len))
+            return tsCryptoData();
+        tmp.resize(len);
+        return tmp;
+    }
     virtual bool set_PrivateKey(const tsCryptoData &data) override
-	{
-		if (!gFipsState.operational() || desc == nullptr || dhParams == nullptr)
-			return false;
+    {
+        if (!gFipsState.operational() || desc == nullptr || dhParams == nullptr)
+            return false;
 
-		if (data.size() == 0)
-			return false;
-		return desc->addPrivateKey(desc, dhKey, data.c_str(), (uint32_t)data.size());;
-	}
-	virtual tsCryptoData get_PublicKey() const override
-	{
-		tsCryptoData tmp;
-		uint32_t len = MAX_KEY_SIZE_BYTES;
+        if (data.size() == 0)
+            return false;
+        return desc->addPrivateKey(desc, dhKey, data.c_str(), (uint32_t)data.size());;
+    }
+    virtual tsCryptoData get_PublicKey() const override
+    {
+        tsCryptoData tmp;
+        uint32_t len = MAX_KEY_SIZE_BYTES;
 
-		if (desc == nullptr || dhKey == nullptr)
-			return tsCryptoData();
+        if (desc == nullptr || dhKey == nullptr)
+            return tsCryptoData();
 
-		tmp.resize(len);
-		if (!desc->exportPublicKey(desc, dhKey, tmp.rawData(), &len))
-			return tsCryptoData();
-		tmp.resize(len);
-		return tmp;
-	}
-	virtual bool set_PublicKey(const tsCryptoData &data) override
-	{
-		if (!gFipsState.operational() || desc == nullptr || dhParams == nullptr)
-			return false;
+        tmp.resize(len);
+        if (!desc->exportPublicKey(desc, dhKey, tmp.rawData(), &len))
+            return tsCryptoData();
+        tmp.resize(len);
+        return tmp;
+    }
+    virtual bool set_PublicKey(const tsCryptoData &data) override
+    {
+        if (!gFipsState.operational() || desc == nullptr || dhParams == nullptr)
+            return false;
 
-		if (data.size() == 0)
-			return false;
-		return desc->addPublicKey(desc, dhKey, data.c_str(), (uint32_t)data.size());;
-	}
+        if (data.size() == 0)
+            return false;
+        return desc->addPublicKey(desc, dhKey, data.c_str(), (uint32_t)data.size());;
+    }
 
     // DhEccPrimitives
-	virtual bool SignUsingData(const tsCryptoData &data, tsCryptoData &r, tsCryptoData &s) const override
-	{
-		uint32_t Rlen = MAX_KEY_SIZE_BYTES;
-		uint32_t Slen = MAX_KEY_SIZE_BYTES;
-		ts_bool retVal;
-		if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
-			return false;
+    virtual bool SignUsingData(const tsCryptoData &data, tsCryptoData &r, tsCryptoData &s) const override
+    {
+        uint32_t Rlen = MAX_KEY_SIZE_BYTES;
+        uint32_t Slen = MAX_KEY_SIZE_BYTES;
+        ts_bool retVal;
+        if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
+            return false;
 
-		r.resize(Rlen);
-		s.resize(Slen);
+        r.resize(Rlen);
+        s.resize(Slen);
 
-		retVal = desc->signUsingData(desc, dhKey, data.c_str(), (uint32_t)data.size(), r.rawData(), &Rlen, s.rawData(), &Slen);
-		if (!retVal)
-		{
-			Rlen = 0;
-			Slen = 0;
-		}
-		r.resize(Rlen);
-		s.resize(Slen);
-		return retVal;
-	}
+        retVal = desc->signUsingData(desc, dhKey, data.c_str(), (uint32_t)data.size(), r.rawData(), &Rlen, s.rawData(), &Slen);
+        if (!retVal)
+        {
+            Rlen = 0;
+            Slen = 0;
+        }
+        r.resize(Rlen);
+        s.resize(Slen);
+        return retVal;
+    }
     virtual bool VerifySignatureForData(const tsCryptoData &data, const tsCryptoData &r, const tsCryptoData &s) const override
-	{
-		if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
-			return false;
+    {
+        if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
+            return false;
 
-		return desc->verifySignatureForData(desc, dhKey, data.c_str(), (uint32_t)data.size(), r.c_str(), (uint32_t)r.size(), s.c_str(), (uint32_t)s.size());
-	}
-	virtual bool DH(const tsCryptoData &publicKey, tsCryptoData &Z) const override
-	{
-		Z.clear();
-		if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
-			return false;
+        return desc->verifySignatureForData(desc, dhKey, data.c_str(), (uint32_t)data.size(), r.c_str(), (uint32_t)r.size(), s.c_str(), (uint32_t)s.size());
+    }
+    virtual bool DH(const tsCryptoData &publicKey, tsCryptoData &Z) const override
+    {
+        Z.clear();
+        if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
+            return false;
 
-		std::shared_ptr<DhKey> key = ServiceLocator()->get_instance<DhKey>("KEY-DH");
-		if (!key || !key->set_DomainParameters(dhParams) || !key->set_PublicKey(publicKey))
-			return false;
-		return ComputeZ(key, Z);
-	}
+        std::shared_ptr<DhKey> key = ServiceLocator()->get_instance<DhKey>("KEY-DH");
+        if (!key || !key->set_DomainParameters(dhParams) || !key->set_PublicKey(publicKey))
+            return false;
+        return ComputeZ(key, Z);
+    }
 
     // AlgorithmInfo
     virtual tsCryptoString AlgorithmName() const override
-	{
-		return GetName();
-	}
-	virtual tsCryptoString AlgorithmOID() const override
-	{
-		return LookUpAlgOID(GetName());
-	}
-	virtual TS_ALG_ID AlgorithmID() const override
-	{
-		return LookUpAlgID(GetName());
-	}
+    {
+        return GetName();
+    }
+    virtual tsCryptoString AlgorithmOID() const override
+    {
+        return LookUpAlgOID(GetName());
+    }
+    virtual TS_ALG_ID AlgorithmID() const override
+    {
+        return LookUpAlgID(GetName());
+    }
 
-	// tscrypto::IInitializableObject
-	virtual bool InitializeWithFullName(const tscrypto::tsCryptoStringBase& fullName) override
-	{
-		SetName(fullName);
+    // tscrypto::IInitializableObject
+    virtual bool InitializeWithFullName(const tscrypto::tsCryptoStringBase& fullName) override
+    {
+        SetName(fullName);
 
-		return true;
-	}
+        return true;
+    }
 
-	// Inherited via TSALG_Access
-	virtual const TSALG_Base_Descriptor * Descriptor() const override
-	{
-		return desc;
-	}
-	virtual CRYPTO_ASYMKEY getKeyPair() const override
-	{
-		return dhKey;
-	}
-	virtual CRYPTO_WORKSPACE getWorkspace() const override
-	{
-		return nullptr;
-	}
-	virtual CRYPTO_ASYMKEY detachFromKeyPair() override
-	{
-        return (CRYPTO_ASYMKEY)dhKey.detach();
-	}
-	virtual CRYPTO_ASYMKEY cloneKeyPair() const override
-	{
-		if (desc == nullptr || dhKey == nullptr)
-			return nullptr;
-		return desc->cloneKey(desc, dhKey);
-	}
+    // Inherited via TSALG_Access
+    virtual const TSCryptoBaseDescriptor * Descriptor() const override
+    {
+        return desc;
+    }
+    virtual TSCRYPTO_ASYMKEY getKeyPair() const override
+    {
+        return dhKey;
+    }
+    virtual TSCRYPTO_WORKSPACE getWorkspace() const override
+    {
+        return nullptr;
+    }
+    virtual TSCRYPTO_ASYMKEY detachFromKeyPair() override
+    {
+        return (TSCRYPTO_ASYMKEY)dhKey.detach();
+    }
+    virtual TSCRYPTO_ASYMKEY cloneKeyPair() const override
+    {
+        if (desc == nullptr || dhKey == nullptr)
+            return nullptr;
+        return desc->cloneKey(desc, dhKey);
+    }
 
 private:
-	const DH_Descriptor* desc;
-	SmartCryptoKey dhKey;
-	tsalg_keyValidationFailureType reason;
-	std::shared_ptr<tscrypto::DhParameters> dhParams;
+    const TSDhDescriptor* desc;
+    SmartCryptoKey dhKey;
+    TSKeyValidationFailureType reason;
+    std::shared_ptr<tscrypto::DhParameters> dhParams;
 };
 
 tscrypto::ICryptoObject* CreateDhKey(const tsCryptoStringBase& algorithm)
 {
-	return dynamic_cast<tscrypto::ICryptoObject*>(new DhKeyImpl(algorithm));
+    return dynamic_cast<tscrypto::ICryptoObject*>(new DhKeyImpl(algorithm));
 }
 
 //bool DhKeyImpl::RunSelfTestsFor(const tsCryptoStringBase& baseProtocolName, std::shared_ptr<tscrypto::ICryptoObject> baseProtocol, bool runDetailedTests)

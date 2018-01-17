@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -116,7 +116,7 @@ public:
 class VEILWINAPI_EXPORT IAttributeSelector : public IVEILUIBase
 {
 public:
-	virtual bool Start(std::shared_ptr<IKeyVEILSession> session, XP_WINDOW parent, const GUID& CryptoGroupId, std::shared_ptr<ICmsHeaderAttributeGroup> group, std::shared_ptr<ICmsHeaderAttributeListExtension> attrList) = 0;
+	virtual bool Start(std::shared_ptr<IKeyVEILSession> session, XP_WINDOW parent, const tscrypto::tsCryptoData& CryptoGroupId, std::shared_ptr<ICmsHeaderAttributeGroup> group, std::shared_ptr<ICmsHeaderAttributeListExtension> attrList) = 0;
 };
 
 // "/WinAPI/TokenLogIn"
@@ -178,7 +178,7 @@ public:
 	///
 	/// <returns>true if it succeeds, false if it fails.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual bool showWindow(BOOL bShow) = 0;
+	virtual bool showWindow(bool bShow) = 0;
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Determines if the cancel button was pressed.</summary>
 	///
@@ -263,7 +263,7 @@ public:
 	virtual void EnableCancelButton(bool bShowCancel) = 0;
 };
 
-extern XP_WINDOW VEILWINAPI_EXPORT TS_HtmlHelp(XP_WINDOW hwndCaller, const tscrypto::tsCryptoString& pszFile, UINT uCommand, DWORD_PTR dwData);
+extern XP_WINDOW VEILWINAPI_EXPORT TS_HtmlHelp(XP_WINDOW hwndCaller, const tscrypto::tsCryptoString& pszFile, uint32_t uCommand, DWORD_PTR dwData);
 
 // "/WinAPI/PropertySheet"
 class VEILWINAPI_EXPORT IVEILPropertySheet : public IVEILUIBase
@@ -272,7 +272,7 @@ public:
 	typedef enum {VEILFileSettings, GeneralSettings} StandardPropPage;
 	virtual bool Start(XP_WINDOW parent) = 0;
 	virtual void AddStandardPage(StandardPropPage page) = 0;
-	virtual void AddCustomPage(tscrypto::XP_MODULE resourceModule, int64_t resourceId, std::function<int64_t(XP_WINDOW, uint32_t, uint64_t, uint64_t)> func, const tscrypto::tsCryptoString& title) = 0;
+	virtual void AddCustomPage(HINSTANCE resourceModule, int64_t resourceId, std::function<int64_t(XP_WINDOW, uint32_t, uint64_t, uint64_t)> func, const tscrypto::tsCryptoString& title) = 0;
 	virtual std::shared_ptr<BasicVEILPreferences> BasicPreferences() = 0;
 };
 

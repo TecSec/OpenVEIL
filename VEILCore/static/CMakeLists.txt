@@ -1,4 +1,4 @@
-#	Copyright (c) 2017, TecSec, Inc.
+#	Copyright (c) 2018, TecSec, Inc.
 #
 #	Redistribution and use in source and binary forms, with or without
 #	modification, are permitted provided that the following conditions are met:
@@ -59,7 +59,7 @@ else()
     # add_precompiled_header(VEILCore_s include/stdafx.h FORCEINCLUDE SOURCE_CXX stdafx.cpp)
 endif(WIN32)
 
-set_target_properties(VEILCore_s PROPERTIES FOLDER "Modules/Static" COMPILE_DEFINITIONS "VEILCORE_STATIC;_STATIC_TSALG;_STATIC_TS_SUP")
+set_target_properties(VEILCore_s PROPERTIES FOLDER "Modules/Static" COMPILE_DEFINITIONS "VEILCORE_STATIC;_STATIC_CYBERVEIL")
 
 if(APPLE)
 else()

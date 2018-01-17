@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -260,20 +260,16 @@ void KeyVEILLoginDlg::OnOkClick( wxCommandEvent& event )
 
     event.StopPropagation();
 
-    if ((int)TsStrLen(_vars->_pinBuffer.c_str()) < KEYVEIL_MIN_PIN_LEN)
+    if ((int)tsStrLen(_vars->_pinBuffer.c_str()) < KEYVEIL_MIN_PIN_LEN)
     {
         char buff[MAX_PATH + 1];
 
-#ifdef HAVE_SPRINTF_S
-        sprintf_s(buff, sizeof(buff), "The minimum password length is %d.", KEYVEIL_MIN_PIN_LEN);
-#else
-        sprintf(buff, "The minimum password length is %d.", KEYVEIL_MIN_PIN_LEN);
-#endif
+        tsSnPrintf(buff, sizeof(buff), "The minimum password length is %d.", KEYVEIL_MIN_PIN_LEN);
         wxTsMessageBox(buff, "Error", wxOK);
     }
     else
     {
-        _vars->_pinBuffer.resize(TsStrLen(_vars->_pinBuffer.c_str()));
+        _vars->_pinBuffer.resize(tsStrLen(_vars->_pinBuffer.c_str()));
 
         wxBusyCursor busyCursor;
         wxWindowDisabler disabler;
@@ -291,7 +287,7 @@ void KeyVEILLoginDlg::OnOkClick( wxCommandEvent& event )
         {
             char buff[MAX_PATH + 1];
 
-            TsStrCpy(buff, sizeof(buff), "The communications to the server was lost.");
+            tsStrCpy(buff, sizeof(buff), "The communications to the server was lost.");
             wxTsMessageBox(buff, "Error", wxOK);
 
             edtStatus->SetLabelText(buff);
@@ -301,7 +297,7 @@ void KeyVEILLoginDlg::OnOkClick( wxCommandEvent& event )
         {
             char buff[MAX_PATH + 1];
 
-            TsStrCpy(buff, sizeof(buff), "The specified URL is invalid.");
+            tsStrCpy(buff, sizeof(buff), "The specified URL is invalid.");
             wxTsMessageBox(buff, "Error", wxOK);
             edtStatus->SetLabelText(buff);
         }
@@ -310,7 +306,7 @@ void KeyVEILLoginDlg::OnOkClick( wxCommandEvent& event )
         {
             char buff[MAX_PATH + 1];
 
-            TsStrCpy(buff, sizeof(buff), "The protocol specifier on the URL was not recognized.");
+            tsStrCpy(buff, sizeof(buff), "The protocol specifier on the URL was not recognized.");
             wxTsMessageBox(buff, "Error", wxOK);
             edtStatus->SetLabelText(buff);
         }

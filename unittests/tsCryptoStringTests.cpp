@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -459,7 +459,7 @@ TEST(tsCryptoString, EqualOp)
 	}
 	{
 		tsCryptoString tmp = "test";
-		EXPECT_FALSE(NULL == tmp);
+		EXPECT_FALSE(tsCryptoString() == tmp);
 	}
 
 	//inline testing
@@ -492,7 +492,7 @@ TEST(tsCryptoString, NotEqualOp)
 	}
 	{
 		tsCryptoString tmp = "test";
-		EXPECT_TRUE(NULL != tmp);
+		EXPECT_TRUE(tsCryptoString() != tmp);
 	}
 }
 
@@ -1230,23 +1230,23 @@ TEST(tsCryptoString, Prepend)
 		}
 	}
 
-	//tsCryptoString &tsCryptoString::prepend(BYTE data)
+	//tsCryptoString &tsCryptoString::prepend(uint8_t data)
 	{
 		{
 			tsCryptoString tmp = "test";
-			BYTE b = 0x31; //ascii byte for '1'
+            uint8_t b = 0x31; //ascii byte for '1'
 			tmp.prepend(b);
 			EXPECT_STREQ("1test", tmp.c_str());
 		}
 		{
 			tsCryptoString tmp = "01234567890123456789012345678901234567890123456789"; // length = 50
-			BYTE b = 0x31; //ascii byte for '1'
+            uint8_t b = 0x31; //ascii byte for '1'
 			tmp.prepend(b);
 			EXPECT_STREQ("101234567890123456789012345678901234567890123456789", tmp.c_str());
 		}
 		{
 			tsCryptoString tmp("t" "\0" "est", 5);
-			BYTE b = 0x31; //ascii byte for '1'
+            uint8_t b = 0x31; //ascii byte for '1'
 			size_t sizeBeforePrepend = tmp.size();
 			tmp.prepend(b);
 			EXPECT_EQ(++sizeBeforePrepend, tmp.size());
@@ -1254,7 +1254,7 @@ TEST(tsCryptoString, Prepend)
 		}
 		{
 			tsCryptoString tmp = "test";
-			BYTE b = 0;
+            uint8_t b = 0;
 			size_t sizeBeforePrepend = tmp.size();
 			tmp.prepend(b);
 			EXPECT_EQ(++sizeBeforePrepend, tmp.size());
@@ -1263,7 +1263,7 @@ TEST(tsCryptoString, Prepend)
 		}
 		{
 			tsCryptoString tmp = NULL;
-			BYTE b = 0x31; //ascii byte for '1'
+            uint8_t b = 0x31; //ascii byte for '1'
 			size_t sizeBeforePrepend = tmp.size();
 			tmp.prepend(b);
 			EXPECT_EQ(++sizeBeforePrepend, tmp.size());
@@ -1272,7 +1272,7 @@ TEST(tsCryptoString, Prepend)
 		{
 			//todo is this correct?
 			tsCryptoString tmp = "test";
-			BYTE b = 0; // NULL = 0
+            uint8_t b = 0; // NULL = 0
 			size_t sizeBeforePrepend = tmp.size();
 			tmp.prepend(b);
 			EXPECT_EQ(++sizeBeforePrepend, tmp.size());
@@ -1570,17 +1570,17 @@ TEST(tsCryptoString, Append)
 		}
 	}
 
-	//tsCryptoString &tsCryptoString::append(BYTE data)
+	//tsCryptoString &tsCryptoString::append(uint8_t data)
 	{
 		{
 			tsCryptoString tmp = "test";
-			BYTE b = 0x31; 
+            uint8_t b = 0x31;
 			tmp.append(b);
 			EXPECT_STREQ("test49", tmp.c_str());
 		}
 		{
 			tsCryptoString tmp("t" "\0" "est", 5);
-			BYTE b = 0x31; //ascii byte for '1'
+            uint8_t b = 0x31; //ascii byte for '1'
 			size_t sizeBeforeAppend = tmp.size();
 			tmp.append(b);
 			EXPECT_EQ(sizeBeforeAppend + 2, tmp.size());
@@ -1597,7 +1597,7 @@ TEST(tsCryptoString, Append)
 		}
 		{
 			tsCryptoString tmp = NULL;
-			BYTE b = 0x31; //ascii byte for '1'
+            uint8_t b = 0x31; //ascii byte for '1'
 			size_t sizeBeforeAppend = tmp.size();
 			tmp.append(b);
 			EXPECT_EQ(sizeBeforeAppend + 2, tmp.size());

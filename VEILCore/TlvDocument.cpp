@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -143,7 +143,7 @@ tsCryptoData TlvDocument::SaveTlv() const
     }
 }
 
-std::shared_ptr<TlvNode> TlvDocument::CreateTlvNode (int tag, BYTE type)
+std::shared_ptr<TlvNode> TlvDocument::CreateTlvNode (int tag, uint8_t type)
 {
 	return TlvNode::Create(_ThisDoc, tag, type);
 }
@@ -197,11 +197,11 @@ std::shared_ptr<TlvNode> TlvDocument::CreatePrivateNode(int tag)
     return CreateTlvNode(tag, 3);
 }
 
-std::shared_ptr<TlvNode> TlvDocument::CreateNumberNode(BYTE number)
+std::shared_ptr<TlvNode> TlvDocument::CreateNumberNode(uint8_t number)
 {
     tsCryptoData tmp;
 
-    tmp += (BYTE)number;
+    tmp += (uint8_t)number;
     return CreateNumberNode(tmp);
 }
 
@@ -210,8 +210,8 @@ std::shared_ptr<TlvNode> TlvDocument::CreateNumberNode(short number)
     tsCryptoData data;
 
     if ( (number >> 8) & 0xff )
-        data += (BYTE)((number >> 8) & 0xff);
-    data += (BYTE)((number)      & 0xff);
+        data += (uint8_t)((number >> 8) & 0xff);
+    data += (uint8_t)((number)      & 0xff);
     return CreateNumberNode(data);
 }
 
@@ -220,12 +220,12 @@ std::shared_ptr<TlvNode> TlvDocument::CreateNumberNode(int number)
     tsCryptoData data;
 
     if ( (number >> 24) & 0xff )
-        data += (BYTE)((number >> 24) & 0xff);
+        data += (uint8_t)((number >> 24) & 0xff);
     if ( (number >> 16) )
-        data += (BYTE)((number >> 16) & 0xff);
+        data += (uint8_t)((number >> 16) & 0xff);
     if ( (number >> 8) )
-        data += (BYTE)((number >> 8)  & 0xff);
-    data += (BYTE)((number)       & 0xff);
+        data += (uint8_t)((number >> 8)  & 0xff);
+    data += (uint8_t)((number)       & 0xff);
     return CreateNumberNode(data);
 }
 
@@ -234,20 +234,20 @@ std::shared_ptr<TlvNode> TlvDocument::CreateNumberNode(int64_t number)
     tsCryptoData data;
 
     if ( (number >> 56) )
-        data += (BYTE)((number >> 56) & 0xff);
+        data += (uint8_t)((number >> 56) & 0xff);
     if ( (number >> 48) )
-        data += (BYTE)((number >> 48) & 0xff);
+        data += (uint8_t)((number >> 48) & 0xff);
     if ( (number >> 40) )
-        data += (BYTE)((number >> 40) & 0xff);
+        data += (uint8_t)((number >> 40) & 0xff);
     if ( (number >> 32) )
-        data += (BYTE)((number >> 32) & 0xff);
+        data += (uint8_t)((number >> 32) & 0xff);
     if ( (number >> 24) )
-        data += (BYTE)((number >> 24) & 0xff);
+        data += (uint8_t)((number >> 24) & 0xff);
     if ( (number >> 16) )
-        data += (BYTE)((number >> 16) & 0xff);
+        data += (uint8_t)((number >> 16) & 0xff);
     if ( (number >> 8) )
-        data += (BYTE)((number >> 8)  & 0xff);
-    data += (BYTE)((number)       & 0xff);
+        data += (uint8_t)((number >> 8)  & 0xff);
+    data += (uint8_t)((number)       & 0xff);
     return CreateNumberNode(data);
 }
 
@@ -256,20 +256,20 @@ std::shared_ptr<TlvNode> TlvDocument::CreateNumberNode(uint64_t number)
     tsCryptoData data;
 
     if ( (number >> 56) )
-        data += (BYTE)((number >> 56) & 0xff);
+        data += (uint8_t)((number >> 56) & 0xff);
     if ( (number >> 48) )
-        data += (BYTE)((number >> 48) & 0xff);
+        data += (uint8_t)((number >> 48) & 0xff);
     if ( (number >> 40) )
-        data += (BYTE)((number >> 40) & 0xff);
+        data += (uint8_t)((number >> 40) & 0xff);
     if ( (number >> 32) )
-        data += (BYTE)((number >> 32) & 0xff);
+        data += (uint8_t)((number >> 32) & 0xff);
     if ( (number >> 24) )
-        data += (BYTE)((number >> 24) & 0xff);
+        data += (uint8_t)((number >> 24) & 0xff);
     if ( (number >> 16) )
-        data += (BYTE)((number >> 16) & 0xff);
+        data += (uint8_t)((number >> 16) & 0xff);
     if ( (number >> 8) )
-        data += (BYTE)((number >> 8)  & 0xff);
-    data += (BYTE)((number)       & 0xff);
+        data += (uint8_t)((number >> 8)  & 0xff);
+    data += (uint8_t)((number)       & 0xff);
     return CreateNumberNode(data);
 }
 
@@ -288,7 +288,7 @@ std::shared_ptr<TlvNode> TlvDocument::CreateNumberNode(const tsCryptoData &numbe
     if ( (number[0] & 0x80) != 0 )
     {
         tsCryptoData data(number);
-        data.insert(0, (BYTE)0);
+        data.insert(0, (uint8_t)0);
         node->InnerData(data);
     }
     else
@@ -309,7 +309,7 @@ std::shared_ptr<TlvNode> TlvDocument::CreateUTF8String(const tsCryptoStringBase 
     return node;
 }
 
-std::shared_ptr<TlvNode> TlvDocument::CreateBitString(BYTE unusedBits, BYTE data)
+std::shared_ptr<TlvNode> TlvDocument::CreateBitString(uint8_t unusedBits, uint8_t data)
 {
     std::shared_ptr<TlvNode> node = CreateTlvNode(3, 0);
     tsCryptoData newData;
@@ -320,7 +320,7 @@ std::shared_ptr<TlvNode> TlvDocument::CreateBitString(BYTE unusedBits, BYTE data
     return node;
 }
 
-std::shared_ptr<TlvNode> TlvDocument::CreateBitString(BYTE unusedBits, const tsCryptoData &data)
+std::shared_ptr<TlvNode> TlvDocument::CreateBitString(uint8_t unusedBits, const tsCryptoData &data)
 {
     std::shared_ptr<TlvNode> node = CreateTlvNode(3, 0);
     tsCryptoData newData;

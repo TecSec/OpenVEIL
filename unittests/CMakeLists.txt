@@ -1,4 +1,4 @@
-#	Copyright (c) 2017, TecSec, Inc.
+#	Copyright (c) 2018, TecSec, Inc.
 #
 #	Redistribution and use in source and binary forms, with or without
 #	modification, are permitted provided that the following conditions are met:
@@ -62,7 +62,7 @@ add_custom_command(
     DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/CodeGenTemplates.xasn
     COMMAND
-        ${xmlCodeGen} -o=${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/CodeGenTemplates.xasn
+        ${xmlCodeGen} --output=${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/CodeGenTemplates.xasn
     COMMAND
         ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/CodeGenTemplates.h ${PUBLIC_BINARY_TOP_DIR}/CodeGenTemplates.h
     COMMAND
@@ -88,7 +88,7 @@ add_custom_command(
     DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/Asn1ParserTest.xasn
     COMMAND
-        ${xmlCodeGen} -o=${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/Asn1ParserTest.xasn
+        ${xmlCodeGen} --output=${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/Asn1ParserTest.xasn
     COMMAND
         ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/Asn1ParserTest.h ${PUBLIC_BINARY_TOP_DIR}/Asn1ParserTest.h
     COMMAND
@@ -107,13 +107,13 @@ add_custom_command(
         ${CMAKE_CURRENT_SOURCE_DIR}/Asn1ParserTestImport.xasn
 		${PUBLIC_BINARY_TOP_DIR}/Asn1ParserTest.h
     COMMAND
-        ${xmlCodeGen} -o=${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/Asn1ParserTestImport.xasn
+        ${xmlCodeGen} --output=${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/Asn1ParserTestImport.xasn
     COMMAND
         ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/Asn1ParserTestImport.h ${PUBLIC_BINARY_TOP_DIR}/Asn1ParserTestImport.h
     )
 
 if(WIN32)
-    CopyImportTargetBinariesToBuildFolder(TSALG ${EXTRA_FILE_OUTPUT})
+    CopyImportTargetBinariesToBuildFolder(CyberVEIL ${EXTRA_FILE_OUTPUT})
     CopyImportTargetBinariesToBuildFolder(GTEST ${EXTRA_FILE_OUTPUT})
     CopyImportTargetBinariesToBuildFolder(GTEST_MAIN ${EXTRA_FILE_OUTPUT})
 endif(WIN32)
@@ -161,10 +161,16 @@ endif()
 add_precompiled_header(CryptoTests stdafx.h FORCEINCLUDE SOURCE_CXX stdafx.cpp)
 # add_dependencies(CryptoTests Generate_KeyVEILData_Code )
 set_target_properties(CryptoTests PROPERTIES FOLDER "UnitTests")
-TARGET_LINK_LIBRARIES(CryptoTests
-	VEILCore
-    GTEST
-    TS_SUP_DLL
-	)
-
+if(APPLE)
+    TARGET_LINK_LIBRARIES(CryptoTests
+        VEILCore
+        GTEST
+        ${CyberVEIL_TARGET}
+        )
+else()
+    TARGET_LINK_LIBRARIES(CryptoTests
+        VEILCore
+        GTEST
+        )
+endif(APPLE)
 install(TARGETS CryptoTests ARCHIVE DESTINATION ${LIB_DIR} LIBRARY DESTINATION ${SHLIB_DIR} RUNTIME DESTINATION ${BIN_DIR})

@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -141,12 +141,12 @@ bool FileVEILOperationsImpl::secureDeleteFile(const tscrypto::tsCryptoString& in
 	TSDECLARE_FUNCTIONExt(true);
 
 	tscrypto::tsCryptoData buffer;
-	BYTE *ptr;
+    uint8_t *ptr;
 	int index;
 	int64_t fileSize = 0, numBlocks = 0, block;
 
 	buffer.resize(BLOCK_SIZE);
-	if (!internalGenerateRandomBits(buffer.rawData(), BLOCK_SIZE * 8, false, nullptr, 0))
+	if (!tsInternalGenerateRandomBits(buffer.rawData(), BLOCK_SIZE * 8, false, nullptr, 0))
 		return false;
 
 	buffer.resize(2 * BLOCK_SIZE, 0xff);
@@ -244,11 +244,7 @@ bool FileVEILOperationsImpl::secureDeleteFile(const tscrypto::tsCryptoString& in
 			return TSRETURN_ERROR(("Cancelled"), false);
 		}
 	}
-#ifdef HAVE__UNLINK
-	if (_unlink(inFilename.c_str()))
-#else
-	if (unlink(inFilename.c_str()))
-#endif
+    if (!tsDeleteFile(inFilename.c_str()))
 	{
 		LogError("Unable to delete file '%s'", inFilename.c_str());
 		return TSRETURN_ERROR(("Delete Failed"), false);
@@ -350,7 +346,7 @@ bool FileVEILOperationsImpl::secureDeleteStreams(const tscrypto::tsCryptoString&
 	BOOL bContinue;
 	void * ctx = NULL;
 	WIN32_STREAM_ID sid;
-	DWORD dwRead, lo, hi;
+    DWORD dwRead, lo, hi;
 
 	// open the file whose streams we want to delete
 	if (INVALID_HANDLE_VALUE == (hFile = CreateFileA(inFilename.c_str(), GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, 0)))
@@ -368,7 +364,7 @@ bool FileVEILOperationsImpl::secureDeleteStreams(const tscrypto::tsCryptoString&
 	tscrypto::tsCryptoString tmpStr;
 
 	// read the first 20 bytes of the stream (all but the last field)
-	while ((bContinue = BackupRead(hFile, (LPBYTE)&sid,
+	while ((bContinue = BackupRead(hFile, (uint8_t*)&sid,
 		sizeof(sid) - sizeof(WCHAR *), &dwRead, FALSE, FALSE, &ctx)) != FALSE)
 	{
 		// if we are done or there was no data read, break out
@@ -382,7 +378,7 @@ bool FileVEILOperationsImpl::secureDeleteStreams(const tscrypto::tsCryptoString&
 			streamName.clear();
 			streamName.resize(sid.dwStreamNameSize / sizeof(ts_wchar));
 
-			BackupRead(hFile, (byte *)streamName.data(), sid.dwStreamNameSize, &dwRead, FALSE, FALSE, &ctx);
+			BackupRead(hFile, (uint8_t *)streamName.data(), sid.dwStreamNameSize, &dwRead, FALSE, FALSE, &ctx);
 
 			if (wcslen(streamName.c_str()) >= 6 && wcscmp(&streamName[wcslen(streamName.c_str()) - 6], L":$DATA") == 0)
 			{
@@ -398,7 +394,7 @@ bool FileVEILOperationsImpl::secureDeleteStreams(const tscrypto::tsCryptoString&
 	}
 
 	// free memory allocated by BackupRead and close the file
-	BackupRead(hFile, (LPBYTE)&sid, 0, &dwRead, TRUE, FALSE, &ctx);
+	BackupRead(hFile, (uint8_t*)&sid, 0, &dwRead, TRUE, FALSE, &ctx);
 	CloseHandle(hFile);
 
 	m_taskCount += streamCnt;
@@ -422,7 +418,7 @@ void FileVEILOperationsImpl::LogError(tscrypto::tsCryptoString error, ...)
 	va_list args;
 	tscrypto::tsCryptoString msg;
 
-	if (error == NULL)
+	if (error.empty())
 		return;
 	va_start(args, error);
 	msg.FormatArg(error, args);
@@ -512,7 +508,7 @@ bool FileVEILOperationsImpl::DecryptVerify(std::shared_ptr<ICmsHeader> header, c
 
 	if (!(reader = std::dynamic_pointer_cast<IDataReader>(CreateFileReader(sFilename))))
 	{
-		xp_DeleteFile(sTempFile);
+		tsDeleteFile(sTempFile.c_str());
 		LogError("Error occured trying to open input file '%s'.", sFilename.c_str());
 		return TSRETURN_ERROR(("Bad File"), false);
 	}
@@ -521,7 +517,7 @@ bool FileVEILOperationsImpl::DecryptVerify(std::shared_ptr<ICmsHeader> header, c
 	if (!(writer = std::dynamic_pointer_cast<IDataWriter>(CreateDataWriter(sTempFile))))
 	{
 		reader->Close();
-		xp_DeleteFile(sTempFile);
+        tsDeleteFile(sTempFile.c_str());
 		LogError("Error occured trying to open input file '%s'.", sFilename.c_str());
 		return TSRETURN_ERROR(("Bad File"), false);
 	}
@@ -537,7 +533,7 @@ bool FileVEILOperationsImpl::DecryptVerify(std::shared_ptr<ICmsHeader> header, c
 			{
 				LogError("No session.");
 				reader->Close();
-				xp_DeleteFile(sTempFile);
+                tsDeleteFile(sTempFile.c_str());
 				return TSRETURN_ERROR(("Returns ~~"), false);
 			}
 		}
@@ -546,7 +542,7 @@ bool FileVEILOperationsImpl::DecryptVerify(std::shared_ptr<ICmsHeader> header, c
 	{
 		LogError("Unable to retrieve the cryptographic helper object from the CKM Runtime.");
 		reader->Close();
-		xp_DeleteFile(sTempFile);
+        tsDeleteFile(sTempFile.c_str());
 		return TSRETURN_ERROR(("Returns ~~"), false);
 	}
 	else
@@ -555,7 +551,7 @@ bool FileVEILOperationsImpl::DecryptVerify(std::shared_ptr<ICmsHeader> header, c
 		{
 			LogError("Unable to retrieve the cryptographic helper object from the CKM Runtime.");
 			reader->Close();
-			xp_DeleteFile(sTempFile);
+            tsDeleteFile(sTempFile.c_str());
 			return TSRETURN_ERROR(("Returns ~~"), false);
 		}
 	}
@@ -580,14 +576,14 @@ bool FileVEILOperationsImpl::DecryptVerify(std::shared_ptr<ICmsHeader> header, c
 
 	if (lpszTempFile.size() == 0)
 	{
-		xp_DeleteFile(sDecryptedFilename);
+		tsDeleteFile(sDecryptedFilename.c_str());
 
 		// Copy the temp file to the destination file
 		// According to Jeffrey Richter, "...MoveFile() does not support
 		// the moving/renaming of streams."
 		// (http://www.microsoft.com/msj/1198/ntfs/ntfs.aspx)
 		//if(!MoveFile(sTempFile, sEncryptedFilename))
-		if (!xp_RenameFile(sTempFile, sDecryptedFilename))
+		if (!tsRenameFile(sTempFile.c_str(), sDecryptedFilename.c_str()))
 		{
 			tscrypto::tsCryptoString msg;
 
@@ -600,7 +596,7 @@ bool FileVEILOperationsImpl::DecryptVerify(std::shared_ptr<ICmsHeader> header, c
 				msg = "The source file does not exist";
 				break;
 			case EINVAL:
-				if ((xp_GetFileAttributes(sDecryptedFilename.c_str()) & XP_FILE_ATTRIBUTE_DIRECTORY) != 0)
+				if ((tsGetFileAttributes(sDecryptedFilename.c_str()) & TS_FILE_ATTRIBUTE_DIRECTORY) != 0)
 					msg = "There is a directory called " + sDecryptedFilename + " already.";
 				else
 					msg = "The file name contains invalid characters";
@@ -612,9 +608,9 @@ bool FileVEILOperationsImpl::DecryptVerify(std::shared_ptr<ICmsHeader> header, c
 			// Process any inserts in lpMsgBuf.
 			// ...
 			// Check to see if this was a file permissions error
-			DWORD dwAttributes = ::xp_GetFileAttributes(sDecryptedFilename.c_str());
+			uint32_t dwAttributes = ::tsGetFileAttributes(sDecryptedFilename.c_str());
 
-			if (dwAttributes & XP_FILE_ATTRIBUTE_READONLY)
+			if (dwAttributes & TS_FILE_ATTRIBUTE_READONLY)
 				LogError("The specified output file cannot be accessed because it has Read Only permissions.");
 			//else if(dwAttributes & FILE_ATTRIBUTE_SYSTEM)
 			//	SetErrorMessage("The specified output file cannot be accessed because it is used exclusively by the Operating System.");
@@ -627,7 +623,7 @@ bool FileVEILOperationsImpl::DecryptVerify(std::shared_ptr<ICmsHeader> header, c
 			return TSRETURN_ERROR(("FAILED"), false);
 		}
 
-		xp_DeleteFile(sTempFile);
+		tsDeleteFile(sTempFile.c_str());
 		//CKMUtility::secureDelete((CKMString)sTempFile);
 	}
 	return TSRETURN(("OK"), true);
@@ -635,24 +631,18 @@ bool FileVEILOperationsImpl::DecryptVerify(std::shared_ptr<ICmsHeader> header, c
 
 bool  FileVEILOperationsImpl::FileStartsWithCmsHeader(const tscrypto::tsCryptoString& filename, std::shared_ptr<ICmsHeaderBase>& pVal)
 {
-	FILE *infile;
+	TSFILE infile;
 	tscrypto::tsCryptoData contents;
 	std::shared_ptr<ICmsHeaderBase> header;
 	std::shared_ptr<tsmod::IObject> iunk;
 	int len;
 	int headerLen = 0;
 	int64_t fileLength;
-	// 06/15/2010 krr c4996
-	errno_t err;
 
 	m_failureReason.clear();
-	fileLength = xp_GetFileSize(filename);
+	fileLength = tsGetFileSizeFromName(filename.c_str());
 
-	// 06/15/2010 KRR C4996
-	//	infile = fopen(filename, "rb");
-	err = fopen_s(&infile, filename.c_str(), ("rb"));
-
-	if (infile == NULL || err != 0)
+    if (tsFOpen(&infile, filename.c_str(), "rb", tsShare_DenyWR) != 0)
 		return false;
 
 	if (fileLength > 20480)
@@ -661,12 +651,12 @@ bool  FileVEILOperationsImpl::FileStartsWithCmsHeader(const tscrypto::tsCryptoSt
 		len = (int)fileLength;
 
 	contents.resize(len);
-	if ((int)fread(contents.rawData(), 1, len, infile) != len)
+	if ((int)tsReadFile(contents.rawData(), 1, len, infile) != len)
 	{
-		fclose(infile);
+        tsCloseFile(infile);
 		return false;
 	}
-	fclose(infile);
+    tsCloseFile(infile);
 	if (!ExtractHeaderFromStream(contents.c_str(), len, &headerLen, iunk) ||
 		!(header = std::dynamic_pointer_cast<ICmsHeader>(iunk)) ||
 		headerLen == 0)
@@ -687,7 +677,7 @@ bool  FileVEILOperationsImpl::Encrypt_File(const tscrypto::tsCryptoString& sFile
 	// Delete temp file, in case it exists.
 	sTempFile = sEncrFile;
 	sTempFile += ".tmp";
-	xp_DeleteFile(sTempFile.c_str());
+	tsDeleteFile(sTempFile.c_str());
 
 	m_taskCount = 1;
 	m_currentTask = 1;
@@ -712,7 +702,7 @@ bool  FileVEILOperationsImpl::EncryptFileAndStreams(const tscrypto::tsCryptoStri
 	// Delete temp file, in case it exists.
 	sTempFile = sEncrFile;
 	sTempFile += ".tmp";
-	xp_DeleteFile(sTempFile.c_str());
+	tsDeleteFile(sTempFile.c_str());
 
 	// Enumerate all streams associated with given file.
 	if (::GetStreamNames(sFile, streamList))
@@ -726,7 +716,7 @@ bool  FileVEILOperationsImpl::EncryptFileAndStreams(const tscrypto::tsCryptoStri
 		size_t streamCount;
 
 		streamCount = streamList->size();
-		m_taskCount += (DWORD)streamCount;
+		m_taskCount += (uint32_t)streamCount;
 
 		for (Pos = 0; Pos < streamCount; Pos++)
 		{
@@ -944,7 +934,7 @@ bool FileVEILOperationsImpl::EncryptSignFile(const tscrypto::tsCryptoString &sFi
 	if (!(inputFile = std::dynamic_pointer_cast<IDataReader>(CreateFileReader(sFilename.c_str()))))
 	{
 		outputFile->Close();
-		xp_DeleteFile(sTempFile);
+		tsDeleteFile(sTempFile.c_str());
 		LogError("Error occurred trying to open input file '%s'.", sFilename.c_str());
 		return TSRETURN_ERROR(("Bad File"), false);
 	}
@@ -953,7 +943,7 @@ bool FileVEILOperationsImpl::EncryptSignFile(const tscrypto::tsCryptoString &sFi
 	{
 		inputFile->Close();
 		outputFile->Close();
-		xp_DeleteFile(sTempFile);
+		tsDeleteFile(sTempFile.c_str());
 		return TSRETURN_ERROR(("Returns ~~"), false);
 	}
 	inputFile->Close();
@@ -961,7 +951,7 @@ bool FileVEILOperationsImpl::EncryptSignFile(const tscrypto::tsCryptoString &sFi
 
 	if (lpszTempFile.size() == 0)
 	{
-		xp_DeleteFile(sEncryptedFilename);
+		tsDeleteFile(sEncryptedFilename.c_str());
 
 		// Copy the temp file to the destination file
 		// According to Jeffrey Richter, "...MoveFile() does not support
@@ -969,7 +959,7 @@ bool FileVEILOperationsImpl::EncryptSignFile(const tscrypto::tsCryptoString &sFi
 		// (http://www.microsoft.com/msj/1198/ntfs/ntfs.aspx)
 		//if(!MoveFile(sTempFile, sEncryptedFilename))
 
-		if (!xp_RenameFile(sTempFile, sEncryptedFilename))
+		if (!tsRenameFile(sTempFile.c_str(), sEncryptedFilename.c_str()))
 		{
 			tscrypto::tsCryptoString msg;
 
@@ -982,7 +972,7 @@ bool FileVEILOperationsImpl::EncryptSignFile(const tscrypto::tsCryptoString &sFi
 				msg = "The source file does not exist";
 				break;
 			case EINVAL:
-				if ((xp_GetFileAttributes(sEncryptedFilename.c_str()) & XP_FILE_ATTRIBUTE_DIRECTORY) != 0)
+				if ((tsGetFileAttributes(sEncryptedFilename.c_str()) & TS_FILE_ATTRIBUTE_DIRECTORY) != 0)
 					msg = "There is a directory called " + sEncryptedFilename + " already.";
 				else
 					msg = "The file name contains invalid characters";
@@ -994,9 +984,9 @@ bool FileVEILOperationsImpl::EncryptSignFile(const tscrypto::tsCryptoString &sFi
 			// Process any inserts in lpMsgBuf.
 			// ...
 			// Check to see if this was a file permissions error
-			DWORD dwAttributes = ::xp_GetFileAttributes(sEncryptedFilename.c_str());
+			uint32_t dwAttributes = ::tsGetFileAttributes(sEncryptedFilename.c_str());
 
-			if (dwAttributes & XP_FILE_ATTRIBUTE_READONLY)
+			if (dwAttributes & TS_FILE_ATTRIBUTE_READONLY)
 				LogError("The specified output file cannot be accessed because it has Read Only permissions.");
 			//else if(dwAttributes & FILE_ATTRIBUTE_SYSTEM)
 			//	SetErrorMessage("The specified output file cannot be accessed because it is used exclusively by the Operating System.");
@@ -1009,7 +999,7 @@ bool FileVEILOperationsImpl::EncryptSignFile(const tscrypto::tsCryptoString &sFi
 			return TSRETURN_ERROR(("FAILED"), false);
 		}
 
-		xp_DeleteFile(sTempFile);
+		tsDeleteFile(sTempFile.c_str());
 		//CKMUtility::secureDelete((CKMString)sTempFile);
 	}
 	return TSRETURN(("OK"), true);
@@ -1058,8 +1048,9 @@ bool FileVEILOperationsImpl::EncryptSignStream(std::shared_ptr<IDataReader> inpu
 
 	//	CkmDevOnly << "Header after prepare" << endl << indent << TSHeaderToString(header7) << endl << outdent;
 
-#ifdef HAVE_BSTR
+#ifdef _WIN32
 	// TODO:  Implement Linux mime support here - libmagic
+    if (CryptoUtf16::isValidUtf8(inputData->DataName().c_str()))
 	{
 		tscrypto::tsCryptoData tmp;
 		CryptoUtf16 tmpBstr(inputData->DataName());
@@ -1067,16 +1058,16 @@ bool FileVEILOperationsImpl::EncryptSignStream(std::shared_ptr<IDataReader> inpu
 
 		if (inputData->PeekData(4096, tmp))
 		{
-			if (FindMimeFromData(NULL, tmpBstr.c_str(), tmp.rawData(), (DWORD)tmp.size(), NULL, 3 /*FMFD_ENABLEMIMESNIFFING | FMFD_URLASFILENAME*/, &mime, 0) >= 0)
+			if (FindMimeFromData(NULL, tmpBstr.c_str(), tmp.rawData(), (uint32_t)tmp.size(), NULL, 3 /*FMFD_ENABLEMIMESNIFFING | FMFD_URLASFILENAME*/, &mime, 0) >= 0)
 			{
 				if (mime != NULL && mime[0] != 0)
 				{
-					header7->SetMimeType(CryptoUtf16(mime).toUtf8());
+                    header7->SetMimeType(CryptoUtf16(mime).toUtf8());
 				}
 			}
 		}
 	}
-#endif // HAVE_BSTR
+#endif // _WIN32
 
 	std::shared_ptr<ICryptoHelper> helper;
 
@@ -1351,7 +1342,7 @@ void FileVEILOperationsImpl::getCkmInfo(const tscrypto::tsCryptoString& name, ts
 {
 	int64_t fileLength;
 	//	int len;
-	FILE* infile;
+	TSFILE infile;
 	std::shared_ptr<ICmsHeader> header7;
 	bool isCkm7 = true;
 	tscrypto::tsCryptoData fileContents;
@@ -1360,38 +1351,27 @@ void FileVEILOperationsImpl::getCkmInfo(const tscrypto::tsCryptoString& name, ts
 	Asn1::CTS::_POD_CkmRecipe recipe;
 	Asn1::CTS::_POD_Profile profile;
 
-	if (fopen_s(&infile, name.c_str(), ("rb")) != 0 || infile == NULL)
+	if (tsFOpen(&infile, name.c_str(), "rb", tsShare_DenyNO) != 0 || infile == NULL)
 	{
 		o.add("canOpen", false);
 		return;
 	}
 	o.add("canOpen", true);
-#ifdef HAVE__FTELLI64
-	_fseeki64(infile, 0, SEEK_END);
-	fileLength = _ftelli64(infile);
-	_fseeki64(infile, 0, SEEK_SET);
-#elif defined(HAVE_FTELL)
-	fseek(infile, 0, SEEK_END);
-	fileLength = ftell(infile);
-	fseek(infile, 0, SEEK_SET);
-#else
-#error Need an implementation of ftell
-#endif // HAVE__FTELLI64
-
+    fileLength = tsGetFileSize64FromHandle(infile);
 
 	if (fileLength > 300000)
 		fileContents.resize(300000);
 	else
 		fileContents.resize((int)fileLength);
 
-	if (fread(fileContents.rawData(), 1, fileContents.size(), infile) != (DWORD)fileContents.size())
+	if (tsReadFile(fileContents.rawData(), 1, (uint32_t)fileContents.size(), infile) != (uint32_t)fileContents.size())
 	{
-		fclose(infile);
+        tsCloseFile(infile);
 		o.add("canRead", false);
 		return;
 	}
 	o.add("canRead", false);
-	fclose(infile);
+    tsCloseFile(infile);
 
 	// Now we need to look at the contents to determine its type:
 
@@ -1444,7 +1424,7 @@ void FileVEILOperationsImpl::getCkmInfo(const tscrypto::tsCryptoString& name, ts
 	else if (profile.Decode(fileContents))
 	{
 		// This is a some type of Token.  Go through the types here ...
-		if (profile.get_OID().ToOIDString() == Asn1::CTS::TECSEC_DATA_CTS)
+		if (profile.get_OID().ToOIDString() == id_TECSEC_DATA_CTS_OID)
 		{
 			o.add("type", "CTS");
 
@@ -1471,7 +1451,7 @@ void FileVEILOperationsImpl::getCkmInfo(const tscrypto::tsCryptoString& name, ts
 			profile.clear_PrivateData();
 			o.add("ctsInfo", profile.toJSON());
 		}
-		else if (profile.get_OID().ToOIDString() == tscrypto::TECSEC_TOKEN_UPDATE_OID)
+		else if (profile.get_OID().ToOIDString() == id_TECSEC_TOKEN_UPDATE_OID)
 		{
 			o.add("type", "Token Update");
 			//<String Name = "MemberName" JSONName = "memberName" / >
@@ -1498,7 +1478,7 @@ void FileVEILOperationsImpl::getCkmInfo(const tscrypto::tsCryptoString& name, ts
 			profile.clear_PrivateData();
 			o.add("tufInfo", profile.toJSON());
 		}
-		else if (profile.get_OID().ToOIDString() == tscrypto::TECSEC_SOFT_TOKEN_OID)
+		else if (profile.get_OID().ToOIDString() == id_TECSEC_SOFT_TOKEN_OID)
 		{
 			o.add("type", "Soft Token");
 			//<String Name = "MemberName" JSONName = "memberName" / >
@@ -1523,7 +1503,7 @@ void FileVEILOperationsImpl::getCkmInfo(const tscrypto::tsCryptoString& name, ts
 			profile.clear_PrivateData();
 			o.add("sftInfo", profile.toJSON());
 		}
-		else if (profile.get_OID().ToOIDString() == tscrypto::TECSEC_SOFT_TOKEN_UNLOCK_OID)
+		else if (profile.get_OID().ToOIDString() == id_TECSEC_SOFT_TOKEN_UNLOCK_OID)
 		{
 			o.add("type", "Soft Token Unlock");
 			//<String Name = "MemberName" JSONName = "memberName" / >
@@ -1583,14 +1563,14 @@ void FileVEILOperationsImpl::getCkmInfo(const tscrypto::tsCryptoString& name, ts
 
 void FileVEILOperationsImpl::getFileStreamNamesAndInfo(const tscrypto::tsCryptoString& name, tscrypto::JSONObject& o, bool includeCkmInfo)
 {
-	tscrypto::tsCryptoString tmp;
+    char tmp[MAX_PATH] = { 0, };
 	tscrypto::tsCryptoString stream;
 	std::shared_ptr<IVEILFileList> filelist;
 
 	o.add("file", name);
-	xp_GetLongPathName(name, tmp);
+	tsGetLongPathName(name.c_str(), tmp, sizeof(tmp));
 	o.add("fullPath", tmp);
-	if (xp_IsDirectory(name))
+	if (tsIsDirectory(name.c_str()))
 	{
 		o.add("isDirectory", true);
 		return;
@@ -1599,7 +1579,7 @@ void FileVEILOperationsImpl::getFileStreamNamesAndInfo(const tscrypto::tsCryptoS
 	{
 		o.add("isDirectory", false);
 	}
-	if (!xp_FileExists(name))
+	if (!tsFileExists(name.c_str()))
 	{
 		o.add("exists", false);
 		return;
@@ -1608,7 +1588,7 @@ void FileVEILOperationsImpl::getFileStreamNamesAndInfo(const tscrypto::tsCryptoS
 	{
 		o.add("exists", true);
 	}
-	o.add("size", xp_GetFileSize(name));
+	o.add("size", tsGetFileSizeFromName(name.c_str()));
 
 	if (includeCkmInfo)
 	{
@@ -1623,7 +1603,7 @@ void FileVEILOperationsImpl::getFileStreamNamesAndInfo(const tscrypto::tsCryptoS
 	else
 	{
 		o.createArrayField("streams");
-		for (DWORD i = 0; i < filelist->FileCount(); i++)
+		for (uint32_t i = 0; i < filelist->FileCount(); i++)
 		{
 			tscrypto::JSONObject s;
 
@@ -1633,7 +1613,7 @@ void FileVEILOperationsImpl::getFileStreamNamesAndInfo(const tscrypto::tsCryptoS
 					.add("file", stream)
 					.add("fullPath", tmp + stream)
 					.add("streamNamePart", stream)
-					.add("size", xp_GetFileSize(tmp + stream))
+					.add("size", tsGetFileSizeFromName((tmp + stream).c_str()))
 					;
 				if (includeCkmInfo)
 				{
@@ -1707,7 +1687,7 @@ bool  FileVEILOperationsImpl::RecoverKeys(const tscrypto::tsCryptoString& inputF
 		if (retVal)
 		{
 			count = lStreams->size();
-			m_taskCount += (DWORD)count;
+			m_taskCount += (uint32_t)count;
 
 			for (size_t index = 0; index < count; index++)
 			{
@@ -1745,7 +1725,7 @@ bool FileVEILOperationsImpl::DecryptFileAndStreams(const tscrypto::tsCryptoStrin
 	// Delete temp file, in case it exists.
 	sTempFile = sDecrFile;
 	sTempFile += ".tmp";
-	xp_DeleteFile(sTempFile.c_str());
+	tsDeleteFile(sTempFile.c_str());
 
 	// Enumerate all streams associated with given file.
 	if ((retVal = ::GetStreamNames(sFile, lStreams)) != false)
@@ -1758,7 +1738,7 @@ bool FileVEILOperationsImpl::DecryptFileAndStreams(const tscrypto::tsCryptoStrin
 		size_t count;
 
 		count = lStreams->size();
-		m_taskCount += (DWORD)count;
+		m_taskCount += (uint32_t)count;
 
 		for (size_t index = 0; index < count; index++)
 		{

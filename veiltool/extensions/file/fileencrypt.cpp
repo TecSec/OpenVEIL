@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -313,7 +313,7 @@ public:
 			{
 				if (outputFile.size() > 0)
 				{
-					if (!xp_IsDirectory(outputFile))
+					if (!tsIsDirectory(outputFile.c_str()))
 					{
 						ERROR("If an output file/path was specified using the '--output' argument and there are more than 1 input files, then the output must be a path. The specified output was not a valid path.");
 						return 13;
@@ -321,7 +321,7 @@ public:
 				}
 			}
 
-			if (xp_IsDirectory(outputFile))
+			if (tsIsDirectory(outputFile.c_str()))
 			{
 				outputPath = outputFile;
 				outputFile.clear();
@@ -574,11 +574,13 @@ protected:
 	}
 	bool ReadDefaultSettings(JSONObject& settings)
 	{
-		tscrypto::tsCryptoString path;
+        char path[MAX_PATH] = { 0, };
 
-		xp_GetSpecialFolder(sft_UserConfigFolder, path);
+		tsGetSpecialFolder(tsSft_UserConfigFolder, path, sizeof(path));
 
-		std::shared_ptr<IDataReader> reader = std::dynamic_pointer_cast<IDataReader>(CreateFileReader(path + "default.ovc"));
+        tsStrCat(path, sizeof(path), "default.ovc");
+
+		std::shared_ptr<IDataReader> reader = std::dynamic_pointer_cast<IDataReader>(CreateFileReader(path));
 
 		if (reader->DataLength() > 0)
 		{
@@ -628,7 +630,7 @@ protected:
 		fflush(stdin);
 		fgets(buff, sizeof(buff), stdin);
 
-		int len = (int)strlen(buff);
+		int len = (int)tsStrLen(buff);
 		if (len > 0)
 		{
 			if (buff[len - 1] == '\n')
@@ -652,7 +654,7 @@ protected:
 		fflush(stdin);
 		fgets(buff, sizeof(buff), stdin);
 
-		int len = (int)strlen(buff);
+		int len = (int)tsStrLen(buff);
 		if (len > 0)
 		{
 			if (buff[len - 1] == '\n')
@@ -671,13 +673,14 @@ protected:
 		utils->console().GetPin(password, 64, "Enter the password:  ");
 		return password;
 	}
-	bool attributeNameToGUID(Asn1::CTS::_POD_CryptoGroup* pCG, const tscrypto::tsCryptoString& name, GUID &id, bool &isAsym)
+	bool attributeNameToGUID(Asn1::CTS::_POD_CryptoGroup* pCG, const tscrypto::tsCryptoString& name, tscrypto::tsCryptoData &id, bool &isAsym)
 	{
 		Asn1::CTS::_POD_Attribute* attr;
+        GUID gId;
 
-		TSStringToGuid(name, id);
-
-		if (id != GUID_NULL)
+		TSStringToGuid(name, gId);
+        id.assign((const uint8_t*)&gId, sizeof(GUID));
+		if (gId != GUID_NULL)
 		{
 			if (!(attr = pCG->get_AttributeById(id)))
 				return false;
@@ -705,9 +708,9 @@ protected:
 		std::shared_ptr<ICmsHeader>         header;
 		std::shared_ptr<Asn1::CTS::_POD_Profile> profile;
 		GUID enterprise;
-		GUID cg;
+        tscrypto::tsCryptoData cg;
 		GUID member;
-		GUID id;
+        tscrypto::tsCryptoData id;
 		bool hasAsym = false;
 
 		pVal.reset();
@@ -722,15 +725,15 @@ protected:
 		enterprise = profile->get_EnterpriseId();
 		member = profile->get_MemberId();
 
-		if (!header->AddProtectedExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext) ||
+		if (!header->AddProtectedExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_CRYPTOGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext) ||
 			!(cgList = std::dynamic_pointer_cast<ICmsHeaderCryptoGroupListExtension>(ext)) ||
 			!ReleasePtr(ext) ||
-			!header->AddProtectedExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext) ||
+			!header->AddProtectedExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext) ||
 			!(attrList = std::dynamic_pointer_cast<ICmsHeaderAttributeListExtension>(ext)) ||
 			!ReleasePtr(ext) ||
 			!cgList->AddCryptoGroup(cg, &cgNumber) ||
 			!cgList->GetCryptoGroup(cgNumber, headCg) ||
-			!header->AddProtectedExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext) ||
+			!header->AddProtectedExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext) ||
 			!(andGroupList = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(ext)) ||
 			!ReleasePtr(ext))
 		{
@@ -768,7 +771,7 @@ protected:
 					headerAttr.reset();
 					if (attrList->GetAttribute(idx, headerAttr))
 					{
-						if (headerAttr->GetAttributeGUID() == id)
+						if (headerAttr->GetAttributeId() == id)
 							attributeIndex = idx;
 					}
 				}
@@ -778,7 +781,7 @@ protected:
 					attributeIndex = attrList->AddAttribute();
 					if (attrList->GetAttribute(attributeIndex, headerAttr))
 					{
-						if (!headerAttr->SetAttributeGuid(id) ||
+						if (!headerAttr->SetAttributeId(id) ||
 							!headerAttr->SetCryptoGroupNumber(cgNumber) ||
 							!headerAttr->SetKeyVersion(0))
 						{
@@ -808,11 +811,11 @@ protected:
 			tscrypto::tsCryptoData tmp;
 
 			tmp.resize(65);
-			header->SetSignatureAlgorithmOID(tscrypto::tsCryptoData(ECDSA_SHA512_OID, tscrypto::tsCryptoData::OID));
+			header->SetSignatureAlgorithmOID(tscrypto::tsCryptoData(id_ECDSA_SHA512_OID, tscrypto::tsCryptoData::OID));
 			header->SetHeaderSigningPublicKey(tmp);
 		}
 		//	header->SetCompressionType(gFilePrefs->getCompressionType());
-		header->SetKeyUsageOID(tscrypto::tsCryptoData(TECSEC_CKM7_KEY_AND_IVEC_OID, tscrypto::tsCryptoData::OID));
+		header->SetKeyUsageOID(tscrypto::tsCryptoData(id_TECSEC_CKM7_KEY_AND_IVEC_OID, tscrypto::tsCryptoData::OID));
 
 		size_t keySize = 0;
 		size_t ivSize = 0;
@@ -822,7 +825,7 @@ protected:
 		keySize += ivSize * 8;
 
 		header->SetKeySizeInBits((int)keySize);
-		header->SetDataHashOID(tscrypto::tsCryptoData(NIST_SHA512_OID, tscrypto::tsCryptoData::OID));
+		header->SetDataHashOID(tscrypto::tsCryptoData(id_NIST_SHA512_OID, tscrypto::tsCryptoData::OID));
 
 		pVal = header;
 		return true;
@@ -839,7 +842,7 @@ protected:
 		std::shared_ptr<ICmsHeader> header;
 		std::shared_ptr<IFileVEILOperationStatus> status;
 
-		if (xp_GetFileAttributes(inputFile) == XP_INVALID_FILE_ATTRIBUTES || xp_IsDirectory(inputFile))
+		if (tsGetFileAttributes(inputFile.c_str()) == TS_INVALID_FILE_ATTRIBUTES || tsIsDirectory(inputFile.c_str()))
 		{
 			ERROR("File -> " << inputFile.c_str() << " <- does not exist Encrypt operation aborted");
 			return 300;

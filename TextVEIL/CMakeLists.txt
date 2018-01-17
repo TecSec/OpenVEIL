@@ -1,4 +1,4 @@
-#	Copyright (c) 2017, TecSec, Inc.
+#	Copyright (c) 2018, TecSec, Inc.
 #
 #	Redistribution and use in source and binary forms, with or without
 #	modification, are permitted provided that the following conditions are met:
@@ -35,14 +35,19 @@ INCLUDE_DIRECTORIES(
     )
 
 if(APPLE)
-    add_definitions(-D_FILE_OFFSET_BITS=64 -DWXUSINGDLL -D__WXMAC__ -D__WXOSX__ -D__WXOSX_COCOA__)
+	foreach(_def ${wxWidgets_DEFINITIONS})
+		add_definitions(-D${_def})
+	endforeach()
+	INCLUDE_DIRECTORIES(${wxWidgets_INCLUDE_DIRS})
 elseif(WIN32)
-    add_definitions(-DWXUSINGDLL)
 	add_definitions(-D_UNICODE)
 	add_definitions(-DUNICODE)
-    add_definitions(-D_CRT_SECURE_NO_WARNINGS=1 -D__WXMSW__)
+	add_definitions(-D_CRT_SECURE_NO_WARNINGS=1 -D__WXMSW__ -DWXUSINGDLL)
 else()
-    add_definitions(-D_FILE_OFFSET_BITS=64 -DWXUSINGDLL)
+	foreach(_def ${wxWidgets_DEFINITIONS})
+		add_definitions(-D${_def})
+	endforeach()
+	INCLUDE_DIRECTORIES(${wxWidgets_INCLUDE_DIRS})
 endif(APPLE)
 
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/TextVEIL.rc.in ${CMAKE_CURRENT_BINARY_DIR}/TextVEIL.rc @ONLY)
@@ -50,25 +55,35 @@ CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/TextVEIL.rc.in ${CMAKE_CURRENT_BINARY
 set(CppSources
     TextVEIL.cpp
     stdafx.cpp
-	)
+    )
 add_executable(TextVEIL WIN32
-	targetver.h 
-	stdafx.h 
-	${CppSources} 
-	${CMAKE_CURRENT_SOURCE_DIR}/TextVEIL.rc.in 
-	${CMAKE_CURRENT_BINARY_DIR}/TextVEIL.rc 
-	)
+    targetver.h 
+    stdafx.h 
+    ${CppSources} 
+    ${CMAKE_CURRENT_SOURCE_DIR}/TextVEIL.rc.in 
+    ${CMAKE_CURRENT_BINARY_DIR}/TextVEIL.rc 
+    )
 add_precompiled_header(TextVEIL stdafx.h FORCEINCLUDE SOURCE_CXX stdafx.cpp)
 
 set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/TextVEIL.rc PROPERTIES COMPILE_DEFINITIONS RC_COMPILED)
 set_target_properties(TextVEIL PROPERTIES FOLDER "Tools")
-TARGET_LINK_LIBRARIES(TextVEIL 
-	VEILCore
-	VEILCmsHeader
-	VEILFileSupport
-	VEILWxWidgets
-    TS_SUP_DLL
-	)
+if(APPLE)
+    TARGET_LINK_LIBRARIES(TextVEIL 
+        VEILCore
+        VEILCmsHeader
+        VEILFileSupport
+        VEILWxWidgets
+        ${CyberVEIL_TARGET}
+        )
+else()
+    TARGET_LINK_LIBRARIES(TextVEIL 
+        VEILCore
+        VEILCmsHeader
+        VEILFileSupport
+        VEILWxWidgets
+        CyberVEIL
+        )
+endif(APPLE)
 if(UNIX)
     set_target_properties(TextVEIL PROPERTIES OUTPUT_NAME_DEBUG TextVEIL.debug)
 endif(UNIX)

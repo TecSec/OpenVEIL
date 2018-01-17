@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -130,7 +130,7 @@ public:
 	{
 		_vars._session.reset();
 		_vars._session = setTo;
-			
+
 	}
 	virtual tscrypto::tsCryptoData HeaderData() override
 	{
@@ -158,41 +158,41 @@ public:
 			_cookie = _vars._connector->AddKeyVEILChangeCallback([this](JSONObject& eventData) {
 				if (_dlg != nullptr)
 				{
-				if (eventData.AsString("type") == "Token")
-				{
-					if (eventData.AsString("event") == "add")
+					if (eventData.AsString("type") == "Token")
 					{
+						if (eventData.AsString("event") == "add")
+						{
 							_dlg->OnTokenAdd(eventData.AsString("serial").HexToData());
-					}
-					else if (eventData.AsString("event") == "delete")
-					{
+						}
+						else if (eventData.AsString("event") == "delete")
+						{
 							_dlg->OnTokenRemove(eventData.AsString("serial").HexToData());
-					}
-					else
-					{
+						}
+						else
+						{
 							//_dlg->OnTokenDataChange(eventData.AsString("serial").HexToData());
+						}
+					}
+					else if (eventData.AsString("type") == "Favorite")
+					{
+						_dlg->InitFavorites();
+						// OnFavoriteAdd
 					}
 				}
-				else if (eventData.AsString("type") == "Favorite")
-				{
-						_dlg->InitFavorites();
-					// OnFavoriteAdd
-				}
-		}
 			});
-	}
+		}
 		_parent = parent;
 		//_AppName = appName;
 
 		if (!_vars._connector)
 			return false;
 
-					return true;
-				}
+		return true;
+	}
 	virtual void HideKeyVEILLogin(bool setTo) override
-			{
+	{
 		_vars._hideKeyVEILLogin = setTo;
-			}
+	}
 
 private:
 

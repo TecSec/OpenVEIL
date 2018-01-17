@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -239,7 +239,7 @@ public:
 
 				if (list->size() > 1)
 				{
-					if (TsStriCmp(list->at(0).c_str(), "filename") == 0)
+					if (tsStriCmp(list->at(0).c_str(), "filename") == 0)
 					{
 						filename = list->at(1);
 					}
@@ -247,22 +247,23 @@ public:
 			}
 		}
 
-		tscrypto::tsCryptoString path;
+        char path[MAX_PATH] = { 0, };
 
-		xp_GetSpecialFolder(sft_UserTokensFolder, path);
-		if (path.size() > 0)
+		tsGetSpecialFolder(tsSft_UserTokensFolder, path, sizeof(path));
+		if (tsStrLen(path) > 0)
 		{
-			if (xp_GetFileAttributes(path) == XP_INVALID_FILE_ATTRIBUTES)
+			if (tsGetFileAttributes(path) == TS_INVALID_FILE_ATTRIBUTES)
 			{
-				xp_CreateDirectory(path, true);
+				tsCreateDirectory(path, true);
 			}
-			path << filename;
+			tsStrCat(path, sizeof(path), filename.c_str());
 		}
 		else
-			path = filename;
+			tsStrCpy(path, sizeof(path), filename.c_str());
 
 		printf("\n");
-		if (xp_WriteBytes(path, connector->dataPart()))
+        const tsCryptoData& data = connector->dataPart();
+		if (tsWriteByteArray(path, data.c_str(), (uint32_t)data.size()))
 		{
 			LOGC(gLog, "The CTS file has been created in: " << path);
 		}

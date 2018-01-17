@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -33,7 +33,7 @@
 
 AttributeSelectorGridWrapper::AttributeSelectorGridWrapper() : _parent(nullptr), _dlg(nullptr)
 {
-	vars._cryptoGroupId = GUID_NULL;
+	vars._cryptoGroupId.clear();
 	vars._selectedAttributeCount = 0;
 }
 AttributeSelectorGridWrapper::~AttributeSelectorGridWrapper()
@@ -51,7 +51,7 @@ bool AttributeSelectorGridWrapper::Destroy()
 	_dlg = nullptr;
 	_parent = XP_WINDOW_INVALID;
 	vars._session.reset();
-	vars._cryptoGroupId = GUID_NULL;
+	vars._cryptoGroupId.clear();
 	vars._ckm7group.reset();
 	vars._attrsList.reset();
 	vars._selectedAttributeCount = 0;
@@ -89,7 +89,7 @@ int  AttributeSelectorGridWrapper::DisplayModal(XP_WINDOW wnd)
 }
 
 // IAudienceSelector
-bool AttributeSelectorGridWrapper::Start(std::shared_ptr<IKeyVEILSession> session, XP_WINDOW parent, const GUID& CryptoGroupId, std::shared_ptr<ICmsHeaderAttributeGroup> group, std::shared_ptr<ICmsHeaderAttributeListExtension> attrList) 
+bool AttributeSelectorGridWrapper::Start(std::shared_ptr<IKeyVEILSession> session, XP_WINDOW parent, const tscrypto::tsCryptoData& CryptoGroupId, std::shared_ptr<ICmsHeaderAttributeGroup> group, std::shared_ptr<ICmsHeaderAttributeListExtension> attrList)
 {
 	if (session == NULL || group == NULL)
 		return false;

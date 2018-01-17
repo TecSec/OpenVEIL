@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -229,20 +229,16 @@ void TokenLogin::OnOkClick( wxCommandEvent& event )
         return;
 
     _vars->_pinBuffer = edtPassword->GetValue().c_str().AsChar();
-    if ((int)TsStrLen(_vars->_pinBuffer.c_str()) < _vars->_minLen)
+    if ((int)tsStrLen(_vars->_pinBuffer.c_str()) < _vars->_minLen)
     {
         char buff[MAX_PATH + 1];
 
-#ifdef HAVE_SPRINTF_S
-        sprintf_s(buff, sizeof(buff), "The minimum password length is %d.", _vars->_minLen);
-#else
-        sprintf(buff, "The minimum password length is %d.", _vars->_minLen);
-#endif
+        tsSnPrintf(buff, sizeof(buff), "The minimum password length is %d.", _vars->_minLen);
         wxTsMessageBox(buff, "Error", wxOK);
     }
     else
     {
-        _vars->_pinBuffer.resize(TsStrLen(_vars->_pinBuffer.c_str()));
+        _vars->_pinBuffer.resize(tsStrLen(_vars->_pinBuffer.c_str()));
         LoginStatus result = _vars->_session->Login(_vars->_pinBuffer);
         switch (result)
         {
@@ -278,7 +274,7 @@ void TokenLogin::OnOkClick( wxCommandEvent& event )
         {
             char buff[MAX_PATH + 1];
 
-            TsStrCpy(buff, sizeof(buff), "The communications to the server was lost.");
+            tsStrCpy(buff, sizeof(buff), "The communications to the server was lost.");
             wxTsMessageBox(buff, "Error", wxOK);
             lblStatus->SetLabel(buff);
         }

@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -62,22 +62,22 @@ END_EVENT_TABLE()
 
 
 /*
-	 * AudienceSelector2 constructors
-	 */
+ * AudienceSelector2 constructors
+ */
 
 AudienceSelector2::AudienceSelector2() : _vars(nullptr)
 {
-	Init();
+    Init();
 }
 
 AudienceSelector2::AudienceSelector2( wxWindow* parent, wxWindowID id, const wxPoint& pos ) : _vars(nullptr)
 {
-	Init();
-	Create(parent, id, pos);
+    Init();
+    Create(parent, id, pos);
 }
 
-wxWizardPage *AudienceSelector2::GetFirstPage() const
-{
+wxWizardPage *AudienceSelector2::GetFirstPage() const 
+{ 
 	if (_vars == nullptr || (((!_vars->_connector || !_vars->_connector->isConnected()) || _vars->_connector->errorCode() == 401 || _vars->_connector->errorCode() == 440) && !_vars->_hideKeyVEILLogin))
 		return _keyVeilPage;
 	return _keyVeilPage->GetNext();
@@ -96,18 +96,18 @@ bool AudienceSelector2::Create( wxWindow* parent, wxWindowID id, const wxPoint& 
 {
 ////@begin AudienceSelector2 creation
     SetExtraStyle(wxWS_EX_BLOCK_EVENTS|wxWIZARD_EX_HELPBUTTON);
-	wxBitmap wizardBitmap(wxNullBitmap);
+    wxBitmap wizardBitmap(wxNullBitmap);
     wxWizard::Create( parent, id, _("Audience Selector"), wizardBitmap, pos, wxDEFAULT_DIALOG_STYLE|wxCAPTION );
 
-	CreateControls();
+    CreateControls();
 	////@end AudienceSelector2 creation
 
-		//SetIcon(wxICON(sample));
+	//SetIcon(wxICON(sample));
 
-		// Allow the bitmap to be expanded to fit the page height
+	// Allow the bitmap to be expanded to fit the page height
 //	SetBitmapPlacement(wxWIZARD_VALIGN_CENTRE);
 
-		// Enable scrolling adaptation
+	// Enable scrolling adaptation
 	SetLayoutAdaptationMode(wxDIALOG_ADAPTATION_MODE_ENABLED);
 
 	return true;
@@ -132,11 +132,11 @@ AudienceSelector2::~AudienceSelector2()
 void AudienceSelector2::Init()
 {
 ////@begin AudienceSelector2 member initialisation
-	_keyVeilPage = NULL;
-	_tokenPage = NULL;
-	_favoriteSelectionPage = NULL;
-	_accessGroupPage = NULL;
-	_savePage = NULL;
+    _keyVeilPage = NULL;
+    _tokenPage = NULL;
+    _favoriteSelectionPage = NULL;
+    _accessGroupPage = NULL;
+    _savePage = NULL;
 ////@end AudienceSelector2 member initialisation
 }
 
@@ -146,12 +146,12 @@ void AudienceSelector2::Init()
  */
 
 void AudienceSelector2::CreateControls()
-{
+{    
 	leftPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize);
 	leftPanel->SetBackgroundColour(wxColour(199, 179, 159));
 	m_sizerBmpAndPage->Add(
 		leftPanel,
-		0,
+		0, 
 		wxALL| wxEXPAND, // Border all around, top alignment
 		0 // Border width
 	);
@@ -161,24 +161,24 @@ void AudienceSelector2::CreateControls()
 
 
 	////@begin AudienceSelector2 content construction
-	AudienceSelector2* itemWizard1 = this;
+    AudienceSelector2* itemWizard1 = this;
 
     _keyVeilPage = new KeyVEILWizardPage( itemWizard1 );
-	itemWizard1->GetPageAreaSizer()->Add(_keyVeilPage);
+    itemWizard1->GetPageAreaSizer()->Add(_keyVeilPage);
 
     _tokenPage = new TokenSelectionWizardPage( itemWizard1 );
-	itemWizard1->GetPageAreaSizer()->Add(_tokenPage);
+    itemWizard1->GetPageAreaSizer()->Add(_tokenPage);
 
     _favoriteSelectionPage = new FavoriteSelectionPage( itemWizard1 );
-	itemWizard1->GetPageAreaSizer()->Add(_favoriteSelectionPage);
+    itemWizard1->GetPageAreaSizer()->Add(_favoriteSelectionPage);
 
     _accessGroupPage = new GroupEditorWizardPage( itemWizard1 );
-	itemWizard1->GetPageAreaSizer()->Add(_accessGroupPage);
+    itemWizard1->GetPageAreaSizer()->Add(_accessGroupPage);
 
     _savePage = new SaveSelectionWizardPage( itemWizard1 );
-	itemWizard1->GetPageAreaSizer()->Add(_savePage);
+    itemWizard1->GetPageAreaSizer()->Add(_savePage);
 
-	wxWizardPageSimple* lastPage = NULL;
+    wxWizardPageSimple* lastPage = NULL;
 	////@end AudienceSelector2 content construction
 	_keyVeilPage->SetName("Login KeyVEIL");
 	_keyVeilPage->SetNextPage(_tokenPage);
@@ -304,7 +304,7 @@ bool AudienceSelector2::Run()
 
 bool AudienceSelector2::ShowToolTips()
 {
-	return true;
+    return true;
 }
 
 /*
@@ -334,7 +334,7 @@ wxIcon AudienceSelector2::GetIconResource( const wxString& name )
 void AudienceSelector2::OnAudienceselectorPageChanged( wxWizardEvent& event )
 {
 	setupLeftPanel();
-	event.Skip();
+    event.Skip();
 }
 
 
@@ -345,8 +345,8 @@ void AudienceSelector2::OnAudienceselectorPageChanged( wxWizardEvent& event )
 void AudienceSelector2::OnAudienceselectorPageChanging( wxWizardEvent& event )
 {
 ////@begin wxEVT_WIZARD_PAGE_CHANGING event handler for ID_AUDIENCESELECTOR in AudienceSelector2.
-		// Before editing this code, remove the block markers.
-	event.Skip();
+    // Before editing this code, remove the block markers.
+    event.Skip();
 ////@end wxEVT_WIZARD_PAGE_CHANGING event handler for ID_AUDIENCESELECTOR in AudienceSelector2. 
 }
 
@@ -358,8 +358,8 @@ void AudienceSelector2::OnAudienceselectorPageChanging( wxWizardEvent& event )
 void AudienceSelector2::OnAudienceselectorFinished( wxWizardEvent& event )
 {
 ////@begin wxEVT_WIZARD_FINISHED event handler for ID_AUDIENCESELECTOR in AudienceSelector2.
-		// Before editing this code, remove the block markers.
-	event.Skip();
+    // Before editing this code, remove the block markers.
+    event.Skip();
 ////@end wxEVT_WIZARD_FINISHED event handler for ID_AUDIENCESELECTOR in AudienceSelector2. 
 }
 
@@ -371,8 +371,8 @@ void AudienceSelector2::OnAudienceselectorFinished( wxWizardEvent& event )
 void AudienceSelector2::OnInitDialog( wxInitDialogEvent& event )
 {
 ////@begin wxEVT_INIT_DIALOG event handler for ID_AUDIENCESELECTOR in AudienceSelector2.
-	// Before editing this code, remove the block markers.
-	event.Skip();
+    // Before editing this code, remove the block markers.
+    event.Skip();
 ////@end wxEVT_INIT_DIALOG event handler for ID_AUDIENCESELECTOR in AudienceSelector2. 
 }
 

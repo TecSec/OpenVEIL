@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -277,17 +277,17 @@ protected:
 		{
 			(dynamic_cast<JSONField*>(ele))->Value(nullptr);
 		}
-		else if (TsStriCmp(value.c_str(), "true") == 0)
+		else if (tsStriCmp(value.c_str(), "true") == 0)
 		{
 			(dynamic_cast<JSONField*>(ele))->Value(true);
 		}
-		else if (TsStriCmp(value.c_str(), "false") == 0)
+		else if (tsStriCmp(value.c_str(), "false") == 0)
 		{
 			(dynamic_cast<JSONField*>(ele))->Value(false);
 		}
 		else if (IsNumber(value))
 		{
-			(dynamic_cast<JSONField*>(ele))->Value(TsStrToInt64(value.c_str()));
+			(dynamic_cast<JSONField*>(ele))->Value(tsStrToInt64(value.c_str()));
 		}
 		else
 		{
@@ -315,7 +315,7 @@ protected:
 		if (!tsJsonPreferencesBase::buildAndTestPath(loc, config, path))
 			return true;
 
-		if (xp_GetFileSize(path) > 1000000)
+		if (tsGetFileSizeFromName(path.c_str()) > 1000000)
 			return false;
 
 		if (!xp_ReadAllText(path, json))
@@ -356,7 +356,7 @@ protected:
 
 		json = obj.ToJSON();
 
-		if (!xp_WriteText(path, json))
+		if (!tsWriteByteArray(path.c_str(), (const uint8_t*)json.c_str(), (uint32_t)json.size()))
 			return false;
 		return true;
 	}

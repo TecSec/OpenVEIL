@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -63,7 +63,7 @@ protected:
 	virtual ~CkmFileReaderImpl(void);
 
 private:
-	FILE *m_inputFile;
+	TSFILE m_inputFile;
 	int64_t m_dataLength;
 	tscrypto::tsCryptoString m_filename;
 };
@@ -78,22 +78,9 @@ CkmFileReaderImpl::CkmFileReaderImpl(const tscrypto::tsCryptoString& filename) :
 	m_dataLength(0),
 	m_filename(filename)
 {
-#ifdef _WIN32
-	m_inputFile = _fsopen(filename.c_str(), ("rb"), _SH_DENYNO);
-#else
-    m_inputFile = fopen(filename.c_str(), "rb");
-#endif
-	if (m_inputFile != NULL)
+    if (tsFOpen(&m_inputFile, filename.c_str(), ("rb"), tsShare_DenyNO) == 0)
 	{
-#ifdef HAVE__FSEEKI64
-		_fseeki64(m_inputFile, 0, SEEK_END);
-		m_dataLength = _ftelli64(m_inputFile);
-		_fseeki64(m_inputFile, 0, SEEK_SET);
-#else
-		fseek(m_inputFile, 0, SEEK_END);
-		m_dataLength = ftell(m_inputFile);
-		fseek(m_inputFile, 0, SEEK_SET);
-#endif // HAVE__FSEEKI64
+        m_dataLength = tsGetFileSize64FromHandle(m_inputFile);
 	}
 	else
 	{
@@ -121,7 +108,7 @@ bool CkmFileReaderImpl::IsEndOfFile() const
 {
 	if (m_inputFile == NULL)
 		return true;
-	return feof(m_inputFile) != 0;
+	return tsIsEOF(m_inputFile);
 }
 
 bool CkmFileReaderImpl::KnowsRemainingData() const
@@ -143,11 +130,7 @@ int64_t CkmFileReaderImpl::CurrentPosition() const
 {
 	if (m_inputFile == NULL)
 		return 0;
-#ifdef HAVE__FSEEKI64
-	return _ftelli64(m_inputFile);
-#else
-	return ftell(m_inputFile);
-#endif // HAVE__FSEEKI64
+	return tsGetFilePosition64FromHandle(m_inputFile);
 }
 
 tscrypto::tsCryptoString CkmFileReaderImpl::DataName() const
@@ -163,7 +146,7 @@ void CkmFileReaderImpl::SetDataName(const tscrypto::tsCryptoString& setTo)
 void CkmFileReaderImpl::Close()
 {
 	if (m_inputFile != NULL)
-		fclose(m_inputFile);
+		tsCloseFile(m_inputFile);
 	m_inputFile = NULL;
 }
 #pragma endregion
@@ -173,11 +156,8 @@ bool CkmFileReaderImpl::GoToPosition(int64_t setTo)
 {
 	if (m_inputFile == NULL)
 		return false;
-#ifdef HAVE__FSEEKI64
-	return _fseeki64(m_inputFile, setTo, SEEK_SET) == 0;
-#else
-	return fseek(m_inputFile, setTo, SEEK_SET) == 0;
-#endif
+
+    return tsSeekFilePosition64FromHandle(m_inputFile, setTo, SEEK_SET) == 0;
 }
 
 int64_t CkmFileReaderImpl::Seek(int origin, int64_t position)
@@ -185,11 +165,7 @@ int64_t CkmFileReaderImpl::Seek(int origin, int64_t position)
 	if (m_inputFile == NULL)
 		return CurrentPosition();
 
-#ifdef HAVE__FSEEKI64
-	_fseeki64(m_inputFile, position, origin);
-#else
-	fseek(m_inputFile, position, origin);
-#endif
+    tsSeekFilePosition64FromHandle(m_inputFile, position, origin);
 	return CurrentPosition();
 }
 
@@ -200,10 +176,10 @@ bool CkmFileReaderImpl::ReadData(int byteCount, tscrypto::tsCryptoData &data)
 
 	data.resize(byteCount);
 
-	int count = (int)fread(data.rawData(), 1, byteCount, m_inputFile);
+	int count = (int)tsReadFile(data.rawData(), 1, byteCount, m_inputFile);
 
 	data.resize(count);
-	return ferror(m_inputFile) == 0;
+	return tsGetFileError(m_inputFile) == 0;
 }
 
 int CkmFileReaderImpl::ReadData(int byteCount, int dataOffset, tscrypto::tsCryptoData &data)
@@ -216,9 +192,9 @@ int CkmFileReaderImpl::ReadData(int byteCount, int dataOffset, tscrypto::tsCrypt
 		data.resize(dataOffset + byteCount);
 	}
 
-	int count = (int)fread(&data.rawData()[dataOffset], 1, byteCount, m_inputFile);
+	int count = (int)tsReadFile(&data.rawData()[dataOffset], 1, byteCount, m_inputFile);
 
-	if (ferror(m_inputFile) != 0)
+	if (tsGetFileError(m_inputFile) != 0)
 		count = -count;
 	return count;
 }
@@ -230,11 +206,11 @@ bool CkmFileReaderImpl::PeekData(int byteCount, tscrypto::tsCryptoData &data)
 	data.resize(byteCount);
 
 	int64_t currPos = CurrentPosition();
-	int count = (int)fread(data.rawData(), 1, byteCount, m_inputFile);
+	int count = (int)tsReadFile(data.rawData(), 1, byteCount, m_inputFile);
 	GoToPosition(currPos);
 
 	data.resize(count);
-	return ferror(m_inputFile) == 0;
+	return tsGetFileError(m_inputFile) == 0;
 }
 
 int CkmFileReaderImpl::PeekData(int byteCount, int dataOffset, tscrypto::tsCryptoData &data)
@@ -248,10 +224,10 @@ int CkmFileReaderImpl::PeekData(int byteCount, int dataOffset, tscrypto::tsCrypt
 	}
 
 	int64_t currPos = CurrentPosition();
-	int count = (int)fread(&data.rawData()[dataOffset], 1, byteCount, m_inputFile);
+	int count = (int)tsReadFile(&data.rawData()[dataOffset], 1, byteCount, m_inputFile);
 	GoToPosition(currPos);
 
-	if (ferror(m_inputFile) != 0)
+	if (tsGetFileError(m_inputFile) != 0)
 		count = -count;
 	return count;
 }

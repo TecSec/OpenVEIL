@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -105,21 +105,21 @@ public:
 		}
 		else
 		{
-		parser.setScheme("");
+			parser.setScheme("");
 
-		cmd = parser.BuildUrl();
+			cmd = parser.BuildUrl();
 
-		_genericBaseUrl << cmd;
+			_genericBaseUrl << cmd;
 
 			tcpChannel->Server(parser.getServer());
-			tcpChannel->Port(parser.getPort() == 0 ? 80 : (WORD)parser.getPort());
+			tcpChannel->Port(parser.getPort() == 0 ? 80 : (uint16_t)parser.getPort());
 		}
 		if (cmd.size() > 0 && cmd[cmd.size() - 1] == '/')
 			cmd.resize(cmd.size() - 1);
 
-		if (cmd.size() >= 14 && TsStriCmp("/bin", &cmd.c_str()[cmd.size() - 14]) == 0)
+		if (cmd.size() >= 14 && tsStriCmp("/bin", &cmd.c_str()[cmd.size() - 14]) == 0)
 			cmd.resize(cmd.size() - 14);
-		else if (cmd.size() > 4 && TsStriCmp("/bin", &cmd.c_str()[cmd.size() - 4]) == 0)
+		else if (cmd.size() > 4 && tsStriCmp("/bin", &cmd.c_str()[cmd.size() - 4]) == 0)
 			cmd.resize(cmd.size() - 4);
 
 		_baseUri << cmd << "/bin/";
@@ -241,16 +241,16 @@ public:
 		}
 		else
 		{
-		parser.setScheme("");
+			parser.setScheme("");
 
-		cmd = parser.BuildUrl();
+			cmd = parser.BuildUrl();
 
-		_baseUri.clear();
-		_baseUri << cmd << "/bin/";
-		_baseUri.Replace("//bin", "/bin");
+			_baseUri.clear();
+			_baseUri << cmd << "/bin/";
+			_baseUri.Replace("//bin", "/bin");
 
 			tcpChannel->Server(parser.getServer());
-			tcpChannel->Port(parser.getPort() == 0 ? 80 : (WORD)parser.getPort());
+			tcpChannel->Port(parser.getPort() == 0 ? 80 : (uint16_t)parser.getPort());
 		}
 
 		if (!tcpChannel->Connect())
@@ -582,7 +582,7 @@ public:
 	{
 		return _hdr->dataPart();
 	}
-	virtual WORD errorCode() const override
+	virtual uint16_t errorCode() const override
 	{
 		return _hdr->errorCode();
 	}
@@ -1037,7 +1037,7 @@ protected:
 			}
 			else if ((str)[0] == 'i')
 			{
-				iter = TsStrToInt(str.substring(2, str.size() - 2).c_str());
+				iter = tsStrToInt(str.substring(2, str.size() - 2).c_str());
 			}
 			else if ((str)[0] == 'm')
 			{
@@ -1081,7 +1081,7 @@ protected:
 
 		authParams.clear();
 		authParams.get_params().set_selectedItem(_POD_CkmAuthServerParameters_params::Choice_Pbkdf);
-		authParams.get_params().get_Pbkdf().get_hmacAlgorithm().set_oid(RSADSI_HMAC_SHA512_OID);
+		authParams.get_params().get_Pbkdf().get_hmacAlgorithm().set_oid(id_RSADSI_HMAC_SHA512_OID);
 		authParams.get_params().get_Pbkdf().set_IterationCount(iter);
 		authParams.get_params().get_Pbkdf().set_Salt(salt);
 		authParams.Encode(bsAuthParams);
@@ -1124,7 +1124,7 @@ protected:
 		sMITMProof << "v=" << MITMProof.ToBase64();
 
 		runJsonCommand(_channel, hdr, baseUri + "CkmAuth", "PUT", [&_channel, &retVal, &sMITMProof, &initiatorSessionKey, this](const tscrypto::tsCryptoData& data, int code) {
-			MY_UNREFERENCED_PARAMETER(code);
+            UNREFERENCED_PARAMETER(code);
 			retVal = LoginPart3(_channel, sMITMProof, initiatorSessionKey, data);
 		}, nullptr, obj.ToJSON().ToUTF8Data());
 
@@ -1149,7 +1149,7 @@ protected:
 		}
 
 		runJsonCommand(_channel, hdr, baseUri + "CkmAuth", "PUT", [&_channel, hdr, &baseUri, &retVal, &Pin, this](const tscrypto::tsCryptoData& data, int code) {
-			MY_UNREFERENCED_PARAMETER(code);
+            UNREFERENCED_PARAMETER(code);
 			retVal = LoginPart2(_channel, hdr, baseUri, Pin, data);
 		}, nullptr, obj.ToJSON().ToUTF8Data());
 
@@ -1273,14 +1273,14 @@ protected:
 
 				while (_callbackThread.Active())
 				{
-					switch (_callbackThread.cancelEvent().WaitForEvent(timeout))
-					{
-					case tscrypto::CryptoEvent::Timeout:
-						break;
-					case tscrypto::CryptoEvent::AlreadyLocked:
-					case tscrypto::CryptoEvent::Succeeded_Object1:
-						return 0;
-					case tscrypto::CryptoEvent::Failed:
+                    switch (tsWaitForEvent(_callbackThread.cancelEvent(), timeout))
+                    {
+                    case tsevent_Timeout:
+                        break;
+                    case tsevent_AlreadyLocked:
+                    case tsevent_Succeeded_Object1:
+                        return 0;
+                    case tsevent_Failed:
 						return 1;
 					default:
 						break;
@@ -1364,7 +1364,7 @@ protected:
 		va_list args;
 		tscrypto::tsCryptoString msg;
 
-		if (error == NULL)
+		if (error.empty())
 			return;
 		va_start(args, error);
 		msg.FormatArg(error, args);

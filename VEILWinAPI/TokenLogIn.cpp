@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -110,7 +110,7 @@ protected:
 		return (int)session->retriesLeft();
 	}
 
-	static INT_PTR CALLBACK	LoginProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+	static intptr_t CALLBACK	LoginProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		TokenLogIn *params = (TokenLogIn*)GetWindowLongPtr(hWnd, DWLP_USER);
 
@@ -208,14 +208,14 @@ protected:
 				buff.clear();
 				buff.resize(512);
 				GetUserObjectInformation(station, UOI_NAME, buff.rawData(), (DWORD)buff.size(), &count);
-				if (TsStrStr(buff.c_str(), ("WinSta0")) == NULL)
+				if (tsStrStr(buff.c_str(), ("WinSta0")) == NULL)
 				{
 					params->_result = E_FAIL;
 					EndDialog(hWnd, IDCANCEL);
 				}
 			}
 
-			return (INT_PTR)TRUE;
+			return (intptr_t)TRUE;
 		}
 		case WM_COMMAND:
 			if (LOWORD(wParam) == IDC_ABOUT)
@@ -232,20 +232,16 @@ protected:
 					params->_pinBuffer.clear();
 					params->_pinBuffer.resize(100);
 					GetDlgItemTextA(hWnd, IDC_PASSWORD, params->_pinBuffer.rawData(), (int)params->_pinBuffer.size());
-					if ((int)TsStrLen(params->_pinBuffer.c_str()) < params->_minLen)
+					if ((int)tsStrLen(params->_pinBuffer.c_str()) < params->_minLen)
 					{
 						char buff[MAX_PATH + 1];
 
-#ifdef HAVE_SPRINTF_S
-						sprintf_s(buff, sizeof(buff), "The minimum password length is %d.", params->_minLen);
-#else
-						sprintf(buff, "The minimum password length is %d.", params->_minLen);
-#endif
+                        tsSnPrintf(buff, sizeof(buff), "The minimum password length is %d.", params->_minLen);
 						MessageBoxA(hWnd, buff, "Error", MB_OK);
 					}
 					else
 					{
-						params->_pinBuffer.resize(TsStrLen(params->_pinBuffer.c_str()));
+						params->_pinBuffer.resize(tsStrLen(params->_pinBuffer.c_str()));
 						params->_result = params->_session->Login(params->_pinBuffer);
 						switch ((LoginStatus)params->_result)
 						{
@@ -282,25 +278,25 @@ protected:
 						{
 							char buff[MAX_PATH + 1];
 
-							TsStrCpy(buff, sizeof(buff), "The communications to the server was lost.");
+							tsStrCpy(buff, sizeof(buff), "The communications to the server was lost.");
 							MessageBoxA(hWnd, buff, "Error", MB_OK);
 							SetDlgItemTextA(hWnd, IDC_STATUS, buff);
 						}
 							break;
 						}
 					}
-					return (INT_PTR)TRUE;
+					return (intptr_t)TRUE;
 				}
-				return (INT_PTR)FALSE;
+				return (intptr_t)FALSE;
 			}
 			if (LOWORD(wParam) == IDCANCEL)
 			{
 				EndDialog(hWnd, LOWORD(wParam));
-				return (INT_PTR)TRUE;
+				return (intptr_t)TRUE;
 			}
 			break;
 		}
-		return (INT_PTR)FALSE;
+		return (intptr_t)FALSE;
 	}
 };
 

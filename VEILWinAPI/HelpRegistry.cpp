@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -32,6 +32,7 @@
 #include "stdafx.h"
 #include "resource.h"
 #include "help/FileVEILHelp.h"
+#include "filelist_interface.h"
 
 typedef struct HelpRegistryItem
 {
@@ -72,12 +73,11 @@ public:
 				}
 				else
 				{
-					tscrypto::tsCryptoString path;
+                    char path[MAX_PATH] = { 0, };
 
-
-					if (xp_GetSpecialFolder(sft_TecSecFolder, path))
+					if (tsGetSpecialFolder(tsSft_TecSecFolder, path, sizeof(path)))
 					{
-						path += i.helpFilename;
+						tsStrCat(path, sizeof(path), i.helpFilename.c_str());
 						if (i.helpId == 0)
 							TS_HtmlHelp(wnd, path, HH_DISPLAY_TOC, i.helpId);
 						else
@@ -85,7 +85,7 @@ public:
 					}
 					else
 					{
-						if (!xp_PathSearch(i.helpFilename, path))
+						if (!tsPathSearch(i.helpFilename.c_str(), path, sizeof(path)))
 						{
 							MessageBoxA((HWND)wnd, ("We were unable to locate the requested help file."), ("Error"), MB_OK);
 						}

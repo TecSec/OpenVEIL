@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -323,20 +323,20 @@ void AudienceSelectorDlg::OnDeleteFavoriteClick( wxCommandEvent& event )
         return;
     }
 
-    GUID id = GUID_NULL;
+    tscrypto::tsCryptoData id;
     int idx = (int)(intptr_t)cmbFavorites->GetClientData(_CurFavIndex);
 
-    if (idx >= 0 && idx < (int)_guidMap.size())
+    if (idx >= 0 && idx < (int)_idMap.size())
     {
-        id = _guidMap[idx];
+        id = _idMap[idx];
     }
 
-    if (id == GUID_NULL)
+    if (id.size() != sizeof(GUID))
     {
         wxTsMessageBox("An error occurred while attempting to retrieve the favorite.", "Error", wxICON_HAND | wxOK);
         return;
     }
-    if (_vars == nullptr || !_vars->_connector->DeleteFavorite(id))
+    if (_vars == nullptr || !_vars->_connector->DeleteFavorite(*(const GUID*)id.c_str()))
     {
         wxTsMessageBox("An error occurred while attempting to delete the favorite.", "Error", wxICON_HAND | wxOK);
         return;
@@ -361,7 +361,7 @@ void AudienceSelectorDlg::OnCreateFavoriteClick( wxCommandEvent& event )
     std::shared_ptr<ICmsHeaderExtension> ext;
     std::shared_ptr<ICmsHeaderAccessGroupExtension> groupList;
 
-    if (_vars == nullptr || !_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) ||
+    if (_vars == nullptr || !_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) ||
         !(groupList = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(ext)) || groupList->GetAccessGroupCount() == 0)
     {
         wxTsMessageBox("No access groups have been created.", "Error", wxICON_HAND | wxOK);
@@ -388,7 +388,7 @@ void AudienceSelectorDlg::OnCreateFavoriteClick( wxCommandEvent& event )
         }
         if (cmbFavorites->FindString(favName.c_str()) < 0)
         {
-            cmbFavorites->Append(favName.c_str(), (void*)(intptr_t)findGuidIndex(id, true));
+            cmbFavorites->Append(favName.c_str(), (void*)(intptr_t)findIdIndex(tsCryptoData((const uint8_t*)&id, sizeof(GUID)), true));
         }
         return;
     }
@@ -396,9 +396,9 @@ void AudienceSelectorDlg::OnCreateFavoriteClick( wxCommandEvent& event )
     {
         int idx = (int)(intptr_t)cmbFavorites->GetClientData(_CurFavIndex);
 
-        if (idx >= 0 && idx < (ssize_t)_guidMap.size())
+        if (idx >= 0 && idx < (ssize_t)_idMap.size() && _idMap[idx].size() == sizeof(GUID))
         {
-            id = _guidMap[idx];
+            id = *(const GUID*)_idMap[idx].c_str();
         }
     }
 
@@ -443,7 +443,7 @@ void AudienceSelectorDlg::OnDeleteClick( wxCommandEvent& event )
     std::shared_ptr<ICmsHeaderAccessGroupExtension> extGroup;
     std::shared_ptr<ICmsHeaderAccessGroup> andGroup;
 
-    if (!_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) ||
+    if (!_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) ||
         !(extGroup = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(ext)))
     {
         wxTsMessageBox("Unable to delete... The access group list is not available.", "Error", wxICON_HAND | wxOK);
@@ -517,9 +517,9 @@ void AudienceSelectorDlg::OnEditClick( wxCommandEvent& event )
     std::shared_ptr<ICmsHeaderExtension> ext;
     std::shared_ptr<ICmsHeaderAccessGroupExtension> extGroup;
 
-    if (!newHeader->GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
+    if (!newHeader->GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
     {
-        newHeader->AddProtectedExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext);
+        newHeader->AddProtectedExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext);
     }
 
     if (!ext || !(extGroup = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(ext)))
@@ -542,9 +542,9 @@ void AudienceSelectorDlg::OnEditClick( wxCommandEvent& event )
 
     std::shared_ptr<ICmsHeaderAttributeListExtension> attrsList;
 
-    if (!_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
+    if (!_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
     {
-        if (!_vars->_header->AddProtectedExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext))
+        if (!_vars->_header->AddProtectedExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext))
         {
             wxTsMessageBox("Unable to edit... Unable to retrieve the attribute list.", "Error", wxICON_HAND | wxOK);
             return;
@@ -629,9 +629,9 @@ void AudienceSelectorDlg::OnAddClick( wxCommandEvent& event )
     std::shared_ptr<ICmsHeaderExtension> ext;
     std::shared_ptr<ICmsHeaderAccessGroupExtension> groupList;
 
-    if (!_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
+    if (!_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
     {
-        if (!_vars->_header->AddProtectedExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext))
+        if (!_vars->_header->AddProtectedExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext))
         {
             wxTsMessageBox("OnGroupAdd: Unable to add a new access group list to the CKM Header.", "Error", wxICON_HAND | wxOK);
             return;
@@ -656,9 +656,9 @@ void AudienceSelectorDlg::OnAddClick( wxCommandEvent& event )
 
     std::shared_ptr<ICmsHeaderAttributeListExtension> attrList;
 
-    if (!_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
+    if (!_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
     {
-        if (!_vars->_header->AddProtectedExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext))
+        if (!_vars->_header->AddProtectedExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext))
         {
             wxTsMessageBox("OnGroupAdd: Unable to add a new attribute list to the CKM Header.", "Error", wxICON_HAND | wxOK);
             return;
@@ -832,9 +832,9 @@ void AudienceSelectorDlg::OnFavoritelistSelected( wxCommandEvent& event )
     }
 
     idx = (int)(intptr_t)cmbFavorites->GetClientData(favIndex);
-    if (idx >= 0 && idx < (ssize_t)_guidMap.size())
+    if (idx >= 0 && idx < (ssize_t)_idMap.size() && _idMap[idx].size() == sizeof(GUID))
     {
-        id = _guidMap[idx];
+        id = *(const GUID*)_idMap[idx].c_str();
     }
 
     size_t accessGroupCount = 0;
@@ -842,7 +842,7 @@ void AudienceSelectorDlg::OnFavoritelistSelected( wxCommandEvent& event )
         std::shared_ptr<ICmsHeaderExtension> ext;
         std::shared_ptr<ICmsHeaderAccessGroupExtension> groupList;
 
-        if (!_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) ||
+        if (!_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) ||
             !(groupList = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(ext)))
         {
         }
@@ -856,7 +856,7 @@ void AudienceSelectorDlg::OnFavoritelistSelected( wxCommandEvent& event )
     }
 
     // TODO:  Reenable the last term once we implement PKI
-    if (name.size() > 0 && TsStrCmp(name.c_str(), AS_SEL_DOM_STR) != 0 && accessGroupCount > 0)// || mySelectedCertVector.size() > 0)
+    if (name.size() > 0 && tsStrCmp(name.c_str(), AS_SEL_DOM_STR) != 0 && accessGroupCount > 0)// || mySelectedCertVector.size() > 0)
     {
         //int nResponse = ::MessageBox(_hDlg, "Selecting a favorite will cause all current Attribute and certificate selections to be lost.\n\n Do you wish to continue?", "Warning", wxYES_NO | wxICON_INFORMATION);
         int nResponse = ::wxTsMessageBox("Selecting a favorite will cause all current Attribute selections to be lost.\n\n Do you wish to continue?", "Warning", wxYES_NO | wxICON_INFORMATION);
@@ -935,7 +935,7 @@ void AudienceSelectorDlg::OnFavoritelistSelected( wxCommandEvent& event )
     }
 
     //BOOL bContinue ;
-    BOOL bLoaded = FALSE;
+    bool bLoaded = false;
     //Load the cryptogroup for Token selected, login and load the attributes
     //Then check the Favorites cryptogroup and attributes with that of the Token
     //if not matched, give the user the opportunity to select another Token
@@ -1192,9 +1192,9 @@ void AudienceSelectorDlg::OnLoginTokenClick( wxCommandEvent& event )
         wxWindowDisabler disabler;
         wxBusyInfo busyInfo(_("Retrieving token information..."));
 
-        GUID cgID = GetProfile()->get_EnterpriseCryptoGroup();
+        tscrypto::tsCryptoData cgID = GetProfile()->get_EnterpriseCryptoGroup();
 
-        _ActiveCryptoGroup = GetCGbyGuid(cgID);
+        _ActiveCryptoGroup = GetCGbyId(cgID);
 
         if (!_ActiveCryptoGroup)
         {
@@ -1310,8 +1310,8 @@ void AudienceSelectorDlg::InitSettings()
 	//{
 	//	int count = (int)SendMessage(_TokenCombo, CB_GETCOUNT, 0, 0);
 	//	std::shared_ptr<ICKMTokenProvider> prov;
-	//	DWORD provId = (DWORD)-1;
-	//	DWORD slot = session->GetSlotID();
+	//	uint32_t provId = (uint32_t)-1;
+	//	uint32_t slot = session->GetSlotID();
 
 	//	if (SUCCEEDED(session->GetProvider(&prov)))
 	//	{
@@ -1367,7 +1367,7 @@ void AudienceSelectorDlg::resetConsumer()
 	//	con->Disconnect();
 }
 
-Asn1::CTS::_POD_CryptoGroup* AudienceSelectorDlg::GetCGbyGuid(const GUID& id)
+Asn1::CTS::_POD_CryptoGroup* AudienceSelectorDlg::GetCGbyId(const tscrypto::tsCryptoData& id)
 {
 	if (_vars == nullptr || !_vars->_session || !HasProfile())
 		return nullptr;
@@ -1382,7 +1382,7 @@ Asn1::CTS::_POD_CryptoGroup* AudienceSelectorDlg::GetCGbyGuid(const GUID& id)
 	return nullptr;
 }
 
-int AudienceSelectorDlg::findCgByGuid(const GUID& id)
+int AudienceSelectorDlg::findCgById(const tscrypto::tsCryptoData& id)
 {
 	if (_vars == nullptr || !_vars->_session || !HasProfile() || GetProfile()->get_cryptoGroupList()->size() == 0)
 		return -1;
@@ -1395,7 +1395,7 @@ int AudienceSelectorDlg::findCgByGuid(const GUID& id)
 	return -1;
 }
 
-BOOL AudienceSelectorDlg::LoadFavoriteForToken(std::shared_ptr<IFavorite> fav, std::shared_ptr<ICmsHeader> favHeader)
+bool AudienceSelectorDlg::LoadFavoriteForToken(std::shared_ptr<IFavorite> fav, std::shared_ptr<ICmsHeader> favHeader)
 {
 	//    int index;
 	//    int count;
@@ -1442,7 +1442,7 @@ BOOL AudienceSelectorDlg::LoadFavoriteForToken(std::shared_ptr<IFavorite> fav, s
 		Asn1::CTS::_POD_CryptoGroup* tempCG;
 		std::shared_ptr<ICmsHeaderCryptoGroup> hCG;
 		std::shared_ptr<ICmsHeader> fav_header;
-		GUID cgGuid;
+		tscrypto::tsCryptoData cgGuid;
 
 		// set the token selection and re-read the fiefdom list
 		////_TokenCombo.SetCurSel(index); // RDBJ use the currently selected token
@@ -1453,7 +1453,7 @@ BOOL AudienceSelectorDlg::LoadFavoriteForToken(std::shared_ptr<IFavorite> fav, s
 		{
 			//fav->Delete();
 			cmbFavorites->SetSelection(0);
-			return FALSE;
+			return false;
 		}
 		fav_header->FromBytes(fav->headerData());
 
@@ -1461,15 +1461,15 @@ BOOL AudienceSelectorDlg::LoadFavoriteForToken(std::shared_ptr<IFavorite> fav, s
 		{
 			//fav->Delete();
 			cmbFavorites->SetSelection(0);
-			return FALSE;
+			return false;
 		}
 		if (!!hCG && !!_vars->_session)
 		{
-			cgGuid = hCG->GetCryptoGroupGuid();
+			cgGuid = hCG->GetCryptoGroupId();
 			// now we have to find the proper fiefdom
-			if (!!(tempCG = GetCGbyGuid(cgGuid)))
+			if (!!(tempCG = GetCGbyId(cgGuid)))
 			{
-				int index = findCgByGuid(cgGuid);
+				int index = findCgById(cgGuid);
 				//int cgIndex;
 				//int cgCount;
 
@@ -1495,7 +1495,7 @@ BOOL AudienceSelectorDlg::LoadFavoriteForToken(std::shared_ptr<IFavorite> fav, s
 			{
 				cmbTokens->SetSelection(-1);
 				_vars->_session.reset();
-				return FALSE;
+				return false;
 			}
 		}
 		//else
@@ -1565,7 +1565,7 @@ BOOL AudienceSelectorDlg::LoadFavoriteForToken(std::shared_ptr<IFavorite> fav, s
 	//    }
 	//    // update the certificate display
 	//    UpdateCertDisplay();
-	return TRUE;
+	return true;
 }
 
 void AudienceSelectorDlg::ClearAccessGroups()
@@ -1573,8 +1573,8 @@ void AudienceSelectorDlg::ClearAccessGroups()
 	/* Clear group control box and all ag lists. */
 	if (_vars != nullptr && !!_vars->_header)
 	{
-		_vars->_header->RemoveExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID));
-		_vars->_header->RemoveExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID));
+		_vars->_header->RemoveExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID));
+		_vars->_header->RemoveExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID));
 	}
 
 	lstGroups->Clear();
@@ -1584,7 +1584,7 @@ tscrypto::tsCryptoString AudienceSelectorDlg::BuildAttrsLine(std::shared_ptr<ICm
 {
 	int index, idx;
 	int count;
-	GUID id;
+    tscrypto::tsCryptoData id;
 	Asn1::CTS::_POD_Attribute* attr;
 	std::shared_ptr<ICmsHeaderAttribute> headerAttr;
 	std::shared_ptr<ICmsHeaderAttributeListExtension> attrList;
@@ -1593,7 +1593,7 @@ tscrypto::tsCryptoString AudienceSelectorDlg::BuildAttrsLine(std::shared_ptr<ICm
 	tscrypto::tsCryptoString list;
 
 	if (_vars == nullptr || _ActiveCryptoGroup == nullptr || 
-		!_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) ||
+		!_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) ||
 		!(attrList = std::dynamic_pointer_cast<ICmsHeaderAttributeListExtension>(ext)))
 	{
 		return "";
@@ -1607,7 +1607,7 @@ tscrypto::tsCryptoString AudienceSelectorDlg::BuildAttrsLine(std::shared_ptr<ICm
 		headerAttr.reset();
 		if (attrList->GetAttribute(idx, headerAttr))
 		{
-			id = headerAttr->GetAttributeGUID();
+			id = headerAttr->GetAttributeId();
 
 			attr = _ActiveCryptoGroup->get_AttributeById(id);
 			if (!!attr)
@@ -1615,12 +1615,12 @@ tscrypto::tsCryptoString AudienceSelectorDlg::BuildAttrsLine(std::shared_ptr<ICm
 				name = attr->get_Name();
 				if (name.size() == 0)
 				{
-					name.Format("<attr %s>", TSGuidToString(id).c_str());
+					name.Format("<attr %s>", id.ToHexString().c_str());
 				}
 			}
 			else
 			{
-				name.Format("<attr %s>", TSGuidToString(id).c_str());
+				name.Format("<attr %s>", id.ToHexString().c_str());
 			}
 			if (list.size() > 0)
 			{
@@ -1632,7 +1632,7 @@ tscrypto::tsCryptoString AudienceSelectorDlg::BuildAttrsLine(std::shared_ptr<ICm
 
 	return list;
 }
-BOOL AudienceSelectorDlg::RebuildAccessGroupList()
+bool AudienceSelectorDlg::RebuildAccessGroupList()
 {
 	tscrypto::tsCryptoString line;
 
@@ -1650,14 +1650,14 @@ BOOL AudienceSelectorDlg::RebuildAccessGroupList()
 
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderAccessGroupExtension> extGroup;
-		if (!_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
+		if (!_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
 		{
-			_vars->_header->AddProtectedExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext);
+			_vars->_header->AddProtectedExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext);
 		}
 
 		if (!ext || !(extGroup = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(ext)))
 		{
-			return TRUE;
+			return true;
 		}
 		ext.reset();
 
@@ -1692,7 +1692,7 @@ BOOL AudienceSelectorDlg::RebuildAccessGroupList()
 		lstGroups->Enable(accessGroupCount > 0);
 	}
 	UpdateDialogControls();
-	return TRUE;
+	return true;
 }
 void AudienceSelectorDlg::SetItemSelected(int index)
 {
@@ -1703,7 +1703,7 @@ void AudienceSelectorDlg::AddGroupText(const char *text)
 	lstGroups->Append(text);
 	UpdateDialogControls();
 }
-BOOL AudienceSelectorDlg::QueryAndClearAccessGroups()
+bool AudienceSelectorDlg::QueryAndClearAccessGroups()
 {
 	if (lstGroups->GetCount() > 0)
 	{
@@ -1712,7 +1712,7 @@ BOOL AudienceSelectorDlg::QueryAndClearAccessGroups()
 		name = lstGroups->GetString(0).c_str().AsChar();
 		/* If there is one item in the list and it is the text string AS_SEL_DOM_STR, don't
 		pop up the warning message. */
-		if (lstGroups->GetCount() != 1 || TsStrCmp(name.c_str(), AS_SEL_DOM_STR) != 0)
+		if (lstGroups->GetCount() != 1 || tsStrCmp(name.c_str(), AS_SEL_DOM_STR) != 0)
 		{
 			int nResponse = ::wxTsMessageBox("Changing Tokens will cause all current Attribute selections to be lost.\n\n Do you wish to continue?", "Warning", wxYES_NO | wxICON_INFORMATION);
 
@@ -1720,7 +1720,7 @@ BOOL AudienceSelectorDlg::QueryAndClearAccessGroups()
 			{
 				// Restore the value to the prior selection
 				cmbTokens->SetSelection(_LastTokenSelection);
-				return FALSE;
+				return false;
 			}
 		}
 
@@ -1729,19 +1729,19 @@ BOOL AudienceSelectorDlg::QueryAndClearAccessGroups()
 		AddGroupText(AS_SEL_DOM_STR);
 		lstGroups->Enable(false);
 	}
-	return TRUE;
+	return true;
 }
 //
 // when called by other functions we don't auto-select a CryptoGroup
 //
-BOOL AudienceSelectorDlg::ChangeToken()
+bool AudienceSelectorDlg::ChangeToken()
 {
 	int index;
 
 	// return false if nothing is selected
 	index = (int)cmbTokens->GetSelection();
 	if (0 > index) {
-		return FALSE;
+		return false;
 	}
 
 	// empty the CryptoGroup combo box and free any memory being used
@@ -1751,8 +1751,8 @@ BOOL AudienceSelectorDlg::ChangeToken()
 
 	if (_vars != nullptr && !!_vars->_header)
 	{
-		_vars->_header->RemoveExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID));
-		_vars->_header->RemoveExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID));
+		_vars->_header->RemoveExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID));
+		_vars->_header->RemoveExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID));
 	}
 
 	/* Don't forget to clean up any existing access groups that are saved in the _GroupCtrl. */
@@ -1786,7 +1786,7 @@ BOOL AudienceSelectorDlg::ChangeToken()
 		name = cmbTokens->GetString(index).c_str().AsChar();
 		name << "  Unable to change Token.";
 		wxTsMessageBox(name.c_str(), "Error", wxOK);
-		return FALSE;
+		return false;
 	}
 	if (_vars != nullptr)
 		_vars->_session = tok->openSession();
@@ -1797,7 +1797,7 @@ BOOL AudienceSelectorDlg::ChangeToken()
 		name = cmbTokens->GetString(index).c_str().AsChar();
 		name << "  Unable to change Token.";
 		wxTsMessageBox(name.c_str(), "Error", wxOK);
-		return FALSE;
+		return false;
 	}
 
 	EnableDisableOK();
@@ -1811,10 +1811,10 @@ BOOL AudienceSelectorDlg::ChangeToken()
 		wxWindowDisabler disabler;
 		wxBusyInfo busyInfo(_("Retrieving token information..."));
 
-		GUID cgID = GetProfile()->get_EnterpriseCryptoGroup();
+        tscrypto::tsCryptoData cgID = GetProfile()->get_EnterpriseCryptoGroup();
 
 		lstGroups->Clear();
-		_ActiveCryptoGroup = GetCGbyGuid(cgID);
+		_ActiveCryptoGroup = GetCGbyId(cgID);
 
 		if (!_ActiveCryptoGroup)
 		{
@@ -1830,7 +1830,7 @@ BOOL AudienceSelectorDlg::ChangeToken()
 		UpdateDialogControls();
 	}
 
-	return TRUE;
+	return true;
 }
 void AudienceSelectorDlg::UpdateDialogControls()
 {
@@ -1867,8 +1867,8 @@ void AudienceSelectorDlg::UpdateDialogControls()
 void AudienceSelectorDlg::EnableDisableOK()
 {
 	int attributeCount = 0;
-	BOOL bEnableOK = FALSE;
-	BOOL bEnableFav = FALSE;
+	bool bEnableOK = false;
+	bool bEnableFav = false;
 
 	if (_vars == nullptr)
 		return;
@@ -1884,16 +1884,16 @@ void AudienceSelectorDlg::EnableDisableOK()
 			tscrypto::tsCryptoString name;
 
 			name = lstGroups->GetString(0).c_str().AsChar();
-			if (TsStrCmp(name.c_str(), AS_SEL_DOM_STR) != 0)
+			if (tsStrCmp(name.c_str(), AS_SEL_DOM_STR) != 0)
 			{
-				bEnableOK = TRUE;
-				bEnableFav = TRUE;
+				bEnableOK = true;
+				bEnableFav = true;
 			}
 		}
 		else
 		{
-			bEnableOK = TRUE;
-			bEnableFav = TRUE;
+			bEnableOK = true;
+			bEnableFav = true;
 		}
 	}
 
@@ -1903,8 +1903,8 @@ void AudienceSelectorDlg::EnableDisableOK()
 	//        bEnableOK = TRUE;
 	//		bEnableFav = TRUE;
 	//	}
-	btnOK->Enable(bEnableOK != FALSE);
-	btnCreateFavorite->Enable(bEnableFav != FALSE);
+	btnOK->Enable(bEnableOK != false);
+	btnCreateFavorite->Enable(bEnableFav != false);
 	btnDeleteFavorite->Enable(_vars->_favoriteManager && _CurFavIndex > 0);
 }
 bool AudienceSelectorDlg::InitTokenInfoList()
@@ -2073,7 +2073,7 @@ void AudienceSelectorDlg::OnTokenRemove(wxTokenEvent& event)
 		int serialIndex = (int)(intptr_t)cmbTokens->GetClientData(curToken);
 		name[0] = 0;
 		nameLen = sizeof(name);
-		TsSnPrintf(name, sizeof(name), "%s%s", EMPTY_SLOT_PREFIX, EMPTY_SLOT_SUFFIX);
+		tsSnPrintf(name, sizeof(name), "%s%s", EMPTY_SLOT_PREFIX, EMPTY_SLOT_SUFFIX);
 
 		cmbTokens->Delete(curToken);
 		cmbTokens->Append(name, (void*)(intptr_t)serialIndex);
@@ -2086,7 +2086,7 @@ void AudienceSelectorDlg::OnTokenRemove(wxTokenEvent& event)
 		}
 	}
 }
-BOOL AudienceSelectorDlg::CheckAccessGroup(std::shared_ptr<ICmsHeaderAttributeGroup> newAttrs)
+bool AudienceSelectorDlg::CheckAccessGroup(std::shared_ptr<ICmsHeaderAttributeGroup> newAttrs)
 {
 	int index;
 	int matchCount = 0;
@@ -2101,10 +2101,10 @@ BOOL AudienceSelectorDlg::CheckAccessGroup(std::shared_ptr<ICmsHeaderAttributeGr
 	std::shared_ptr<ICmsHeaderExtension> ext;
 	std::shared_ptr<ICmsHeaderAccessGroupExtension> groupList;
 
-	if (_vars == nullptr || !_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) ||
+	if (_vars == nullptr || !_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) ||
 		!(groupList = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(ext)))
 	{
-		return FALSE;
+		return false;
 	}
 
 	attrListCount = (int)groupList->GetAccessGroupCount();
@@ -2128,7 +2128,7 @@ BOOL AudienceSelectorDlg::CheckAccessGroup(std::shared_ptr<ICmsHeaderAttributeGr
 	//
 	if (matchCount != 1)
 	{
-		return FALSE;
+		return false;
 	}
 	//
 	// Now clear the attrs in the new attr list and put the sorted attrs into the list.
@@ -2138,22 +2138,22 @@ BOOL AudienceSelectorDlg::CheckAccessGroup(std::shared_ptr<ICmsHeaderAttributeGr
 
 	for (index = 0; index < (int)newList.size() / 4; index++)
 	{
-		newAttrs->AddAttributeIndex(((DWORD*)newList.c_str())[index]);
+		newAttrs->AddAttributeIndex(((uint32_t*)newList.c_str())[index]);
 	}
-	return TRUE;
+	return true;
 }
 void AudienceSelectorDlg::BuildIntList(std::shared_ptr<ICmsHeaderAttributeGroup> attrGroup, tscrypto::tsCryptoData &list)
 {
 	int attributeCount;
-	DWORD *p;
+	uint32_t *p;
 	int insertedCount = 0;
-	DWORD id;
+	uint32_t id;
 	int i, j;
 
 	attributeCount = (int)attrGroup->GetAttributeCount();
 	list.erase();
 	list.resize(attributeCount * 4);
-	p = (DWORD*)list.rawData();
+	p = (uint32_t*)list.rawData();
 
 	for (i = 0; i < attributeCount; i++)
 	{
@@ -2193,7 +2193,7 @@ bool AudienceSelectorDlg::FindSelectedAccessGroup(std::shared_ptr<ICmsHeaderAcce
 
 	std::shared_ptr<ICmsHeaderExtension> ext;
 	std::shared_ptr<ICmsHeaderAccessGroupExtension> extGroup;
-	if (!_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) ||
+	if (!_vars->_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) ||
 		!(extGroup = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(ext)))
 	{
 		return false;
@@ -2217,7 +2217,7 @@ bool AudienceSelectorDlg::FindSelectedAccessGroup(std::shared_ptr<ICmsHeaderAcce
 			!!(attrGroup = std::dynamic_pointer_cast<ICmsHeaderAttributeGroup>(andGroup)))
 		{
 			line = BuildAttrsLine(attrGroup);
-			if (TsStrCmp(line.c_str(), name.c_str()) == 0)
+			if (tsStrCmp(line.c_str(), name.c_str()) == 0)
 			{
 				attrs = attrGroup;
 				accessGroup = andGroup;
@@ -2228,25 +2228,25 @@ bool AudienceSelectorDlg::FindSelectedAccessGroup(std::shared_ptr<ICmsHeaderAcce
 
 	return false;
 }
-int AudienceSelectorDlg::findGuidIndex(const GUID& id, bool insert)
+int AudienceSelectorDlg::findIdIndex(const tscrypto::tsCryptoData& id, bool insert)
 {
-	for (size_t i = 0; i < _guidMap.size(); i++)
+	for (size_t i = 0; i < _idMap.size(); i++)
 	{
-		if (_guidMap[i] == id)
+		if (_idMap[i] == id)
 		{
 			return (int)i;
 		}
 	}
 	if (!insert)
 		return -1;
-	_guidMap.push_back(id);
-	return (int)_guidMap.size() - 1;
+	_idMap.push_back(id);
+	return (int)_idMap.size() - 1;
 }
 void AudienceSelectorDlg::OnInitFavorites(wxCommandEvent& event)
 {
 	std::shared_ptr<IFavorite> fav;
 	int index = -1;
-	DWORD favIndex;
+	uint32_t favIndex;
 	size_t count;
 	tscrypto::tsCryptoString name;
 
@@ -2275,7 +2275,8 @@ void AudienceSelectorDlg::OnInitFavorites(wxCommandEvent& event)
 			name = fav->favoriteName();
 			if (cmbFavorites->FindString(name.c_str()) < 0)
 			{
-				cmbFavorites->Append(name.c_str(), (void*)(intptr_t)findGuidIndex(fav->favoriteId(), true));
+				GUID id = fav->favoriteId();
+				cmbFavorites->Append(name.c_str(), (void*)(intptr_t)findIdIndex(tsCryptoData((const uint8_t*)&id, sizeof(GUID)), true));
 			}
 		}
 	}

@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -53,12 +53,12 @@ void    FileVEILFileListImpl::Clear()
     m_fileList->clear();
 }
 
-DWORD   FileVEILFileListImpl::FileCount()
+uint32_t   FileVEILFileListImpl::FileCount()
 {
-    return (DWORD)m_fileList->size();
+    return (uint32_t)m_fileList->size();
 }
 
-bool FileVEILFileListImpl::RemoveFile(DWORD index)
+bool FileVEILFileListImpl::RemoveFile(uint32_t index)
 {
     if ( index < FileCount() )
     {
@@ -70,7 +70,7 @@ bool FileVEILFileListImpl::RemoveFile(DWORD index)
     return false;
 }
 
-bool FileVEILFileListImpl::GetFileName(DWORD index, tscrypto::tsCryptoString& name)
+bool FileVEILFileListImpl::GetFileName(uint32_t index, tscrypto::tsCryptoString& name)
 {
     if ( index >= FileCount() )
         return false;

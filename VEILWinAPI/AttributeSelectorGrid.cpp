@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -37,7 +37,7 @@
 class AttributeSelectorGrid : public IAttributeSelector, public tsmod::IObject
 {
 public:
-	AttributeSelectorGrid() : _parent(nullptr), _cryptoGroupId(GUID_NULL), _himl(NULL), _selectedAttributeCount(0), _cryptoGroup(nullptr)
+	AttributeSelectorGrid() : _parent(nullptr), _himl(NULL), _selectedAttributeCount(0), _cryptoGroup(nullptr)
 	{}
 	virtual ~AttributeSelectorGrid(){}
 
@@ -46,7 +46,7 @@ public:
 	{
 		_parent = XP_WINDOW_INVALID;
 		_session.reset();
-		_cryptoGroupId = GUID_NULL;
+		_cryptoGroupId.clear();
 		_ckm7group.reset();
 		_attrsList.reset();
 		_GuidMap.clear();
@@ -68,7 +68,7 @@ public:
 	}
 
 	// IAudienceSelector
-	virtual bool Start(std::shared_ptr<IKeyVEILSession> session, XP_WINDOW parent, const GUID& CryptoGroupId, std::shared_ptr<ICmsHeaderAttributeGroup> group, std::shared_ptr<ICmsHeaderAttributeListExtension> attrList) override
+	virtual bool Start(std::shared_ptr<IKeyVEILSession> session, XP_WINDOW parent, const tscrypto::tsCryptoData& CryptoGroupId, std::shared_ptr<ICmsHeaderAttributeGroup> group, std::shared_ptr<ICmsHeaderAttributeListExtension> attrList) override
 	{
 		INITCOMMONCONTROLSEX icc;
 
@@ -93,10 +93,10 @@ public:
 protected:
 	XP_WINDOW											_parent;
 	std::shared_ptr<IKeyVEILSession>					_session;
-	GUID												_cryptoGroupId;
+    tscrypto::tsCryptoData								_cryptoGroupId;
 	std::shared_ptr<ICmsHeaderAttributeGroup>			_ckm7group;
 	std::shared_ptr<ICmsHeaderAttributeListExtension>	_attrsList;
-	std::vector<GUID>									_GuidMap;
+	std::vector<tscrypto::tsCryptoData>					_GuidMap;
 	HIMAGELIST											_himl;
 	Asn1::CTS::_POD_CryptoGroup*						_cryptoGroup;
 	int													_selectedAttributeCount;
@@ -131,14 +131,14 @@ protected:
 				id = (int)SendMessage(hGrd, GM_GETCELLITEMDATA, (row << 16) | col, 0);
 				if (name[0] == '-')
 				{
-					GUID attributeGuid = _GuidMap[id];
+					tscrypto::tsCryptoData attributeGuid = _GuidMap[id];
 					std::shared_ptr<ICmsHeaderAttribute> attr;
 
 					for (int i = 0; i < count; i++)
 					{
 						attr.reset();
 
-						if (_attrsList->GetAttribute(_ckm7group->GetAttributeIndex(i), attr) && attr->GetAttributeGUID() == attributeGuid)
+						if (_attrsList->GetAttribute(_ckm7group->GetAttributeIndex(i), attr) && attr->GetAttributeId() == attributeGuid)
 						{
 							_selectedAttributeCount++;
 							name[0] = '+';
@@ -218,7 +218,7 @@ protected:
 				name = cat->get_Name();
 
 				col.lParam = i;
-				col.lpszhdrtext = (INT_PTR)name.c_str();
+				col.lpszhdrtext = (intptr_t)name.c_str();
 
 				column = (int)SendMessage(hGrd, GM_ADDCOL, 0, (LPARAM)&col);
 				if (cat->exists_AttributeList())
@@ -274,8 +274,7 @@ protected:
 								{
 									SendMessage(hGrd, GM_SETCELLDATA, (row << 16) | i, (LPARAM)name.c_str());
 
-									GUID attributeGuid = attr.get_Id();
-									_GuidMap.push_back(attributeGuid);
+									_GuidMap.push_back(attr.get_Id());
 									SendMessage(hGrd, GM_SETCELLITEMDATA, (row << 16) | i, (LPARAM)_GuidMap.size() - 1);
 									row++;
 								}
@@ -290,7 +289,7 @@ protected:
 			count = 0;
 	}
 
-	Asn1::CTS::_POD_CryptoGroup* GetCryptoGroupById(std::shared_ptr<IKeyVEILSession> session, const GUID& id)
+	Asn1::CTS::_POD_CryptoGroup* GetCryptoGroupById(std::shared_ptr<IKeyVEILSession> session, const tscrypto::tsCryptoData& id)
 	{
 		if (!_profile->exists_cryptoGroupList())
 			return nullptr;
@@ -315,7 +314,7 @@ protected:
 		return &_profile->get_cryptoGroupList()->get_at(index);
 	}
 
-	Asn1::CTS::_POD_CryptoGroup* GetCryptoGroup(HWND hWnd, std::shared_ptr<IKeyVEILSession> session, const GUID& cgId)
+	Asn1::CTS::_POD_CryptoGroup* GetCryptoGroup(HWND hWnd, std::shared_ptr<IKeyVEILSession> session, const tscrypto::tsCryptoData& cgId)
 	{
 		//if (cgId == GUID_NULL)
 		//	CryptoGroup = GetCryptoGroup(_session, (int)SendDlgItemMessage(hWnd, IDC_CRYPTOGROUPS, CB_GETITEMDATA, (int)SendDlgItemMessage(hWnd, IDC_CRYPTOGROUPS, CB_GETCURSEL, 0, 0), 0));
@@ -323,7 +322,7 @@ protected:
 			return GetCryptoGroupById(session, cgId);
 	}
 
-	int FindAttrIndex(std::shared_ptr<ICmsHeaderAttributeListExtension> attrList, const GUID &id)
+	int FindAttrIndex(std::shared_ptr<ICmsHeaderAttributeListExtension> attrList, const tscrypto::tsCryptoData &id)
 	{
 		int count = (int)attrList->GetAttributeCount();
 		std::shared_ptr<ICmsHeaderAttribute> attr;
@@ -331,17 +330,17 @@ protected:
 		for (int i = 0; i < count; i++)
 		{
 			attr.reset();
-			if (attrList->GetAttribute(i, attr) && attr->GetAttributeGUID() == id)
+			if (attrList->GetAttribute(i, attr) && attr->GetAttributeId() == id)
 				return i;
 		}
 		count = attrList->AddAttribute();
 		attr.reset();
-		if (attrList->GetAttribute(count, attr) && attr->SetAttributeGuid(id) && attr->SetCryptoGroupNumber(0))
+		if (attrList->GetAttribute(count, attr) && attr->SetAttributeId(id) && attr->SetCryptoGroupNumber(0))
 			return count;
 		return -1;
 	}
 
-	static INT_PTR CALLBACK	SelectAttributesGridProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+	static intptr_t CALLBACK	SelectAttributesGridProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		AttributeSelectorGrid *params = (AttributeSelectorGrid*)GetWindowLongPtr(hWnd, DWLP_USER);
 
@@ -367,7 +366,7 @@ protected:
 				}
 			}
 
-			if (params->_cryptoGroupId == GUID_NULL)
+			if (params->_cryptoGroupId.size() == 0)
 			{
 				::MessageBox(hWnd, "You must specify the Crypto Group that is to be used.", "PROGRAMMING ERROR", MB_OK);
 				//std::shared_ptr<Asn1::CTS::CryptoGroup> CryptoGroup;
@@ -427,7 +426,7 @@ protected:
 				params->MarkIncomingAttributes(hWnd);
 			}
 			EnableWindow(GetDlgItem(hWnd, IDOK), (params->_selectedAttributeCount > 0) ? TRUE : FALSE);
-			return (INT_PTR)TRUE;
+			return (intptr_t)TRUE;
 
 		case WM_COMMAND:
 			if (LOWORD(wParam) == IDOK && HIWORD(wParam) == BN_CLICKED)
@@ -461,7 +460,7 @@ protected:
 							SendMessage(hGrd, GM_GETCELLDATA, (row << 16) | col, (LPARAM)name);
 							if (name[0] == '+')
 							{
-								GUID attributeGuid = params->_GuidMap[(int)SendMessage(hGrd, GM_GETCELLITEMDATA, (row << 16) | col, 0)];
+                                tscrypto::tsCryptoData attributeGuid = params->_GuidMap[(int)SendMessage(hGrd, GM_GETCELLITEMDATA, (row << 16) | col, 0)];
 
 								int idx = params->FindAttrIndex(params->_attrsList, attributeGuid);
 
@@ -507,7 +506,7 @@ protected:
 		break;
 
 		}
-		return (INT_PTR)FALSE;
+		return (intptr_t)FALSE;
 	}
 
 

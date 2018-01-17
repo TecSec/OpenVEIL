@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -42,21 +42,21 @@ public:
 		m_nInitialPos(0),
 		m_bInitialCancel(0),
 		m_dwExitCode(0),
-		m_bCancel(FALSE),
-		m_bShowPercent(TRUE),
-		m_bParentDisabled(FALSE),
+		m_bCancel(false),
+		m_bShowPercent(true),
+		m_bParentDisabled(false),
 		m_pParentWnd(NULL)
 	{
-		m_bCancel = FALSE;
-		m_bShowPercent = TRUE;
-		m_bParentDisabled = FALSE;
+		m_bCancel = false;
+		m_bShowPercent = true;
+		m_bParentDisabled = false;
 
 		m_nStep = 10;
 		m_nLower = 0;
 		m_nUpper = 100;
 		m_dwExitCode = 0;
 		m_nInitialPos = 0;
-		m_bInitialCancel = TRUE;
+		m_bInitialCancel = true;
 
 		m_StatusMsg = "";
 		m_WindowTitle = "Processing...";
@@ -95,12 +95,12 @@ public:
 		_dlg = new ProgressDlg((wxWindow*)pParent, 10000, m_WindowTitle.c_str());
 		_dlg->setTask(m_StatusMsg.c_str());
 
-		return TRUE;
+		return true;
 	}
-	virtual bool  showWindow(BOOL bShow) override
+	virtual bool  showWindow(bool bShow) override
 	{
 		if (_dlg != nullptr)
-			_dlg->Show(bShow != FALSE);
+			_dlg->Show(bShow != false);
 		return true;
 	}
 	virtual bool  CheckCancelButton() override
@@ -232,7 +232,7 @@ public:
 		_dlg->SetTitle(sText.c_str());
 	}
 	//    virtual int   DisplayMessage(const tscrypto::tsCryptoString &sText);
-	virtual int   DisplayMessage(const tscrypto::tsCryptoString &sText, int32_t lMB)
+	virtual int   DisplayMessage(const tscrypto::tsCryptoString &sText, int32_t lMB) override
 	{
 		//    return MessageBoxA(m_hWnd, sText.c_str(), (""), MB_YESNO | MB_ICONINFORMATION);
 		return wxTsMessageBox(sText.c_str(), (""), lMB | wxICON_INFORMATION, (XP_WINDOW)_dlg);
@@ -263,8 +263,8 @@ public:
 
 		if (_dlg->IsVisible())
 		{
-			showWindow(FALSE);
-			showWindow(TRUE);
+			showWindow(false);
+			showWindow(true);
 		}
 	}
 
@@ -375,11 +375,11 @@ private:
 	tscrypto::tsCryptoString m_StatusMsg;
 	tscrypto::tsCryptoString m_WindowTitle;
 
-	DWORD m_dwExitCode;
+	uint32_t m_dwExitCode;
 
-	BOOL m_bCancel;
-	BOOL m_bShowPercent;
-	BOOL m_bParentDisabled;
+	bool m_bCancel;
+	bool m_bShowPercent;
+	bool m_bParentDisabled;
 	XP_WINDOW m_pParentWnd;
 };
 

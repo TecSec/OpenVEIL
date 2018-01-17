@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -40,13 +40,13 @@ public:
 	virtual bool connect(const tscrypto::tsCryptoStringBase& path, tsmod::IReportError* log) override;
 	virtual void disconnect() override;
 	virtual tscrypto::tsCryptoString Name() const override { return _name; }
-	XP_MODULE Handle() const { return _handle; }
-	virtual bool isValid() const override { return _handle != XP_MODULE_INVALID; }
+    TSSHAREDLIB Handle() const { return _handle; }
+	virtual bool isValid() const override { return _handle != nullptr; }
 	virtual bool Initialize(tsmod::IReportError* log) override;
 	virtual bool Terminate() override;
 
 private:
-	XP_MODULE _handle;
+	TSSHAREDLIB _handle;
 	tscrypto::tsCryptoString _name;
 	tscrypto::AutoCriticalSection _lock;
     tscrypto::tsCryptoString _baseName;
@@ -189,7 +189,7 @@ private:
 	std::shared_ptr<tsmod::IServiceLocator> myServices;
 };
 
-PluginModule::PluginModule() : _handle(XP_MODULE_INVALID)
+PluginModule::PluginModule() : _handle(nullptr)
 {
 }
 
@@ -208,7 +208,8 @@ PluginModule::~PluginModule()
 
 bool PluginModule::connect(const tscrypto::tsCryptoStringBase& _path, tsmod::IReportError* log)
 {
-    tscrypto::tsCryptoString tmp1, tmp2, path;
+    char path[MAX_PATH] = { 0, };
+    tscrypto::tsCryptoString tmp1, tmp2;
  //   if (!localAuthenticateModule(path))
 	//{
 	//	log->SetFault("Server", "The specified module could not load because it has been modified.", "");
@@ -216,9 +217,9 @@ bool PluginModule::connect(const tscrypto::tsCryptoStringBase& _path, tsmod::IRe
 	//}
  //
 
- 	xp_GetFullPathName(_path, path, nullptr);
+ 	tsGetFullPathName(_path.c_str(), path, sizeof(path), nullptr);
 //printf("Loading module %s\n", path.c_str());
-    if (xp_LoadSharedLib(path, &_handle) != 0)
+    if (tsLoadSharedLib(path, &_handle))
     {
 //printf ("Module load returned %s\n", GetLastDLError());
 
@@ -247,7 +248,7 @@ void PluginModule::disconnect()
     {
         // TODO:  Disabled for now due to problems closing VEILssm     xp_FreeSharedLib(_handle);
     }
-	_handle = XP_MODULE_INVALID;
+	_handle = nullptr;
 	_name.clear();
 }
 
@@ -271,32 +272,32 @@ bool PluginModule::Initialize(tsmod::IReportError* log)
 //	if (log != nullptr)
 	{
 #if defined(_WIN32) || defined(__APPLE__)
-		fn = (fn_t)xp_GetProcAddress(_handle, "Initialize");
+		fn = (fn_t)tsGetProcAddress(_handle, "Initialize");
 #endif
 		if (fn == nullptr)
 		{
-			fn = (fn_t)xp_GetProcAddress(_handle, "_Initialize");
+			fn = (fn_t)tsGetProcAddress(_handle, "_Initialize");
 		}
 		if (fn == nullptr)
 		{
-			fn = (fn_t)xp_GetProcAddress(_handle, ("_Initialize_" + _baseName).c_str());
+			fn = (fn_t)tsGetProcAddress(_handle, ("_Initialize_" + _baseName).c_str());
 		}
 		if (fn == nullptr)
 		{
-			fn = (fn_t)xp_GetProcAddress(_handle, ("Initialize_" + _baseName).c_str());
+			fn = (fn_t)tsGetProcAddress(_handle, ("Initialize_" + _baseName).c_str());
 		}
 		if (fn == nullptr)
 		{
-			fn = (fn_t)xp_GetProcAddress(_handle, ("_Initialize_" + _baseName + "_d").c_str());
+			fn = (fn_t)tsGetProcAddress(_handle, ("_Initialize_" + _baseName + "_d").c_str());
 		}
 		if (fn == nullptr)
 		{
-			fn = (fn_t)xp_GetProcAddress(_handle, ("Initialize_" + _baseName + "_d").c_str());
+			fn = (fn_t)tsGetProcAddress(_handle, ("Initialize_" + _baseName + "_d").c_str());
 		}
 		if (fn == nullptr)
 		{
 			if (log != nullptr)
-			log->SetJSONFault("SystemException", "The service specification is invalid.  The service is missing the initialization entry point.", "Server", "");
+				log->SetJSONFault("SystemException", "The service specification is invalid.  The service is missing the initialization entry point.", "Server", "");
 			else
 			{
 				LOG(FrameworkError, "The service specification is invalid.  The service is missing the initialization entry point.  Name: " << _name << "  Basename: " << _baseName);
@@ -327,11 +328,11 @@ bool PluginModule::Terminate()
         return false;
 
 #ifdef _WIN32
-    fn = (fn_t)xp_GetProcAddress(_handle, "Terminate");
+    fn = (fn_t)tsGetProcAddress(_handle, "Terminate");
 #endif
 	if (fn == nullptr)
 	{
-		fn = (fn_t)xp_GetProcAddress(_handle, ("Terminate" + _baseName).c_str());
+		fn = (fn_t)tsGetProcAddress(_handle, ("Terminate" + _baseName).c_str());
 	}
     if (fn == nullptr)
         return true;

@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -257,7 +257,7 @@ protected:
 	size_t										_cookie;
 	std::shared_ptr<Asn1::CTS::_POD_Profile>	_profile;
 
-	static INT_PTR CALLBACK	AudienceSelectorProc(HWND _hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
+	static intptr_t CALLBACK	AudienceSelectorProc(HWND _hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		AudienceSelector *params = (AudienceSelector*)GetWindowLongPtr(_hDlg, DWLP_USER);
 
@@ -404,7 +404,7 @@ protected:
 		}
 		return FALSE;
 	}
-	INT_PTR OnInitDialog()
+    intptr_t OnInitDialog()
 	{
 		_GroupCtrl = GetDlgItem(_hDlg, IDC_GROUPLIST);
 		_RichCertList = GetDlgItem(_hDlg, IDC_RICHCERTLIST);
@@ -521,7 +521,7 @@ protected:
 		//}
 		//m_tokenChange.reset();
 	}
-	INT_PTR OnOK()
+    intptr_t OnOK()
 	{
 		//int index;
 		int count;
@@ -624,7 +624,7 @@ protected:
 		//if (!!con)
 		//	con->Disconnect();
 	}
-	INT_PTR OnHelp()
+    intptr_t OnHelp()
 	{
 		std::shared_ptr<IVEILHelpRegistry> help = ::TopServiceLocator()->get_instance<IVEILHelpRegistry>("/WinAPI/HelpRegistry");
 
@@ -638,12 +638,12 @@ protected:
 		}
 		return FALSE;
 	}
-	INT_PTR OnUseMyCert()
+    intptr_t OnUseMyCert()
 	{
 		// TODO:  Implement me
 		return FALSE;
 	}
-	INT_PTR OnGroupAdd()
+    intptr_t OnGroupAdd()
 	{
 		// if nothing is selected, display an error
 		if (-1 == SendMessage(_TokenCombo, CB_GETCURSEL, 0, 0)) {
@@ -676,9 +676,9 @@ protected:
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderAccessGroupExtension> groupList;
 
-		if (!_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
+		if (!_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
 		{
-			if (!_header->AddProtectedExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext))
+			if (!_header->AddProtectedExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext))
 			{
 				MessageBoxA(_hDlg, "OnGroupAdd: Unable to add a new access group list to the CKM Header.", "Error", MB_ICONHAND | MB_OK);
 				return FALSE;
@@ -703,9 +703,9 @@ protected:
 
 		std::shared_ptr<ICmsHeaderAttributeListExtension> attrList;
 
-		if (!_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
+		if (!_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
 		{
-			if (!_header->AddProtectedExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext))
+			if (!_header->AddProtectedExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext))
 			{
 				MessageBoxA(_hDlg, "OnGroupAdd: Unable to add a new attribute list to the CKM Header.", "Error", MB_ICONHAND | MB_OK);
 				return FALSE;
@@ -752,7 +752,7 @@ protected:
 		EnableDisableOK();
 		return FALSE;
 	}
-	INT_PTR OnGroupDelete()
+    intptr_t OnGroupDelete()
 	{
 		int index;
 
@@ -766,7 +766,7 @@ protected:
 		std::shared_ptr<ICmsHeaderAccessGroupExtension> extGroup;
 		std::shared_ptr<ICmsHeaderAccessGroup> andGroup;
 
-		if (!_header || !_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) ||
+		if (!_header || !_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) ||
 			!(extGroup = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(ext)))
 		{
 			MessageBoxA(_hDlg, "Unable to delete... The access group list is not available.", "Error", MB_ICONHAND | MB_OK);
@@ -803,7 +803,7 @@ protected:
 		return FALSE;
 	}
 
-	INT_PTR OnCertDelete()
+    intptr_t OnCertDelete()
 	{
 		int index;
 
@@ -817,7 +817,7 @@ protected:
 		std::shared_ptr<ICmsHeaderAccessGroupExtension> extGroup;
 		std::shared_ptr<ICmsHeaderAccessGroup> andGroup;
 
-		if (!_header || !_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) ||
+		if (!_header || !_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) ||
 			!(extGroup = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(ext)))
 		{
 			MessageBoxA(_hDlg, "Unable to delete... The access group list is not available.", "Error", MB_ICONHAND | MB_OK);
@@ -854,7 +854,7 @@ protected:
 		return FALSE;
 	}
 
-	INT_PTR OnGroupEdit()
+    intptr_t OnGroupEdit()
 	{
 		int index;
 
@@ -886,9 +886,9 @@ protected:
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderAccessGroupExtension> extGroup;
 
-		if (!newHeader->GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
+		if (!newHeader->GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
 		{
-			newHeader->AddProtectedExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext);
+			newHeader->AddProtectedExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext);
 		}
 
 		if (!ext || !(extGroup = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(ext)))
@@ -911,9 +911,9 @@ protected:
 
 		std::shared_ptr<ICmsHeaderAttributeListExtension> attrsList;
 
-		if (!_header || !_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
+		if (!_header || !_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
 		{
-			if (!_header || !_header->AddProtectedExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext))
+			if (!_header || !_header->AddProtectedExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext))
 			{
 				MessageBoxA(_hDlg, "Unable to edit... Unable to retrieve the attribute list.", "Error", MB_ICONHAND | MB_OK);
 				return FALSE;
@@ -957,12 +957,12 @@ protected:
 		return FALSE;
 	}
 
-	INT_PTR OnCreateFavorite()
+    intptr_t OnCreateFavorite()
 	{
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderAccessGroupExtension> groupList;
 
-		if (!_header || !_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) ||
+		if (!_header || !_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) ||
 			!(groupList = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(ext)) || groupList->GetAccessGroupCount() == 0)
 		{
 			MessageBoxA(_hDlg, "No access groups have been created.", "Error", MB_ICONHAND | MB_OK);
@@ -1025,7 +1025,7 @@ protected:
 		return FALSE;
 	}
 
-	INT_PTR OnDeleteFavorite()
+    intptr_t OnDeleteFavorite()
 	{
 		if (_CurFavIndex == 0)
 		{
@@ -1059,14 +1059,14 @@ protected:
 		EnableDisableOK();
 		return FALSE;
 	}
-	INT_PTR OnPeople()
+    intptr_t OnPeople()
 	{
 		MessageBox(NULL, "People selected", "INFO", MB_OK);
 		// TODO:  Implement me
 		return FALSE;
 	}
 
-	INT_PTR OnPassword()
+    intptr_t OnPassword()
 	{
 		//tscrypto::tsCryptoString description;
 
@@ -1106,18 +1106,18 @@ protected:
 		return FALSE;
 	}
 
-	//INT_PTR OnCryptoGroupBoxPress()
+	//intptr_t OnCryptoGroupBoxPress()
 	//{
 	//	PostMessage(_hDlg, WM_CRYPTOGROUPLOGIN, 0, 0);
 	//	return FALSE;
 	//}
 
-	//INT_PTR CryptoGroupKeyPressLogin()
+	//intptr_t CryptoGroupKeyPressLogin()
 	//{
 	//	return populateCryptoGroupList();
 	//}
 
-	Asn1::CTS::_POD_CryptoGroup* GetCGbyGuid(const GUID& id)
+	Asn1::CTS::_POD_CryptoGroup* GetCGbyGuid(const tscrypto::tsCryptoData& id)
 	{
 		if (!HasSession() || !Session()->IsValid() || !HasProfile())
 			return nullptr;
@@ -1135,7 +1135,7 @@ protected:
 		return nullptr;
 	}
 
-	int findCgByGuid(const GUID& id)
+	int findCgByGuid(const tscrypto::tsCryptoData& id)
 	{
 		if (!HasSession() || !Session()->IsValid() || !HasProfile() || !GetProfile()->exists_cryptoGroupList() || GetProfile()->get_cryptoGroupList()->size() == 0)
 			return -1;
@@ -1212,7 +1212,7 @@ protected:
 			Asn1::CTS::_POD_CryptoGroup* tempCG = nullptr;
 			std::shared_ptr<ICmsHeaderCryptoGroup> hCG;
 			std::shared_ptr<ICmsHeader> fav_header;
-			GUID cgGuid;
+            tscrypto::tsCryptoData cgGuid;
 
 			// set the token selection and re-read the fiefdom list
 			////_TokenCombo.SetCurSel(index); // RDBJ use the currently selected token
@@ -1235,7 +1235,7 @@ protected:
 			}
 			if (!!hCG && HasSession())
 			{
-				cgGuid = hCG->GetCryptoGroupGuid();
+				cgGuid = hCG->GetCryptoGroupId();
 				// now we have to find the proper fiefdom
 				//if (!!(tempCG = GetCGbyGuid(cgGuid)))
 				//{
@@ -1361,7 +1361,7 @@ protected:
 			UpdateDialogControls();
 		}
 	}
-	INT_PTR OnChangeFavorite()
+    intptr_t OnChangeFavorite()
 	{
 		int favIndex;
 		std::shared_ptr<IFavorite> fav;
@@ -1402,7 +1402,7 @@ protected:
 			std::shared_ptr<ICmsHeaderExtension> ext;
 			std::shared_ptr<ICmsHeaderAccessGroupExtension> groupList;
 
-			if (!_header || !_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) ||
+			if (!_header || !_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) ||
 				!(groupList = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(ext)))
 			{
 			}
@@ -1418,11 +1418,11 @@ protected:
 			item.pszText = name.rawData();
 			item.cchTextMax = (int)name.size();
 			SendMessageA(_GroupCtrl, LVM_GETITEMTEXTA, 0, (LPARAM)&item);
-			name.resize(strlen(name.c_str()));
+			name.resize(tsStrLen(name.c_str()));
 		}
 
 		// TODO:  Reenable the last term once we implement PKI
-		if (name.size() > 0 && TsStrCmp(name.c_str(), AS_SEL_DOM_STR) != 0 && accessGroupCount > 0)// || mySelectedCertVector.size() > 0)
+		if (name.size() > 0 && tsStrCmp(name.c_str(), AS_SEL_DOM_STR) != 0 && accessGroupCount > 0)// || mySelectedCertVector.size() > 0)
 		{
 			//UINT nResponse = ::MessageBox(_hDlg, "Selecting a favorite will cause all current Attribute and certificate selections to be lost.\n\n Do you wish to continue?", "Warning", MB_YESNO | MB_ICONINFORMATION);
 			UINT nResponse = ::MessageBoxA(_hDlg, "Selecting a favorite will cause all current Attribute selections to be lost.\n\n Do you wish to continue?", "Warning", MB_YESNO | MB_ICONINFORMATION);
@@ -1699,8 +1699,8 @@ protected:
 		/* Clear group control box and all ag lists. */
 		if (!!_header)
 		{
-			_header->RemoveExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID));
-			_header->RemoveExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID));
+			_header->RemoveExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID));
+			_header->RemoveExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID));
 		}
 
 		SendMessage(_GroupCtrl, LVM_DELETEALLITEMS, 0, 0);
@@ -1710,7 +1710,7 @@ protected:
 	{
 		int index, idx;
 		int count;
-		GUID id;
+        tscrypto::tsCryptoData id;
 		Asn1::CTS::_POD_Attribute* attr = nullptr;
 		std::shared_ptr<ICmsHeaderAttribute> headerAttr;
 		std::shared_ptr<ICmsHeaderAttributeListExtension> attrList;
@@ -1718,7 +1718,7 @@ protected:
 		tscrypto::tsCryptoString name;
 		tscrypto::tsCryptoString list;
 
-		if (!_ActiveCryptoGroup || !_header || !_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) ||
+		if (!_ActiveCryptoGroup || !_header || !_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) ||
 			!(attrList = std::dynamic_pointer_cast<ICmsHeaderAttributeListExtension>(ext)))
 		{
 			return "";
@@ -1732,7 +1732,7 @@ protected:
 			headerAttr.reset();
 			if (attrList->GetAttribute(idx, headerAttr))
 			{
-				id = headerAttr->GetAttributeGUID();
+				id = headerAttr->GetAttributeId();
 
 				attr = _ActiveCryptoGroup->get_AttributeById(id);
 				if (!!attr)
@@ -1740,12 +1740,12 @@ protected:
 					name = attr->get_Name();
 					if (name.size() == 0)
 					{
-						name.Format("<attr %s>", TSGuidToString(id).c_str());
+						name.Format("<attr %s>", id.ToHexString().c_str());
 					}
 				}
 				else
 				{
-					name.Format("<attr %s>", TSGuidToString(id).c_str());
+					name.Format("<attr %s>", id.ToHexString().c_str());
 				}
 				if (list.size() > 0)
 				{
@@ -1784,9 +1784,9 @@ protected:
 
 			std::shared_ptr<ICmsHeaderExtension> ext;
 			std::shared_ptr<ICmsHeaderAccessGroupExtension> extGroup;
-			if (!_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
+			if (!_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext))
 			{
-				_header->AddProtectedExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext);
+				_header->AddProtectedExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), true, ext);
 			}
 
 			if (!ext || !(extGroup = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(ext)))
@@ -1864,7 +1864,7 @@ protected:
 		memset(&item, 0, sizeof(item));
 		item.mask = LVIF_TEXT;
 		item.pszText = (char *)text;
-		item.cchTextMax = (int)TsStrLen(text) + 1;
+		item.cchTextMax = (int)tsStrLen(text) + 1;
 		item.iItem = 0x7FFFFFFF;
 
 		SendMessageA(_GroupCtrl, LVM_INSERTITEMA, 0, (LPARAM)&item);
@@ -1877,7 +1877,7 @@ protected:
 		memset(&item, 0, sizeof(item));
 		item.mask = LVIF_TEXT;
 		item.pszText = (char *)text;
-		item.cchTextMax = (int)TsStrLen(text) + 1;
+		item.cchTextMax = (int)tsStrLen(text) + 1;
 		item.iItem = 0x7FFFFFFF;
 
 		SendMessageA(_RichCertList, LVM_INSERTITEMA, 0, (LPARAM)&item);
@@ -1899,7 +1899,7 @@ protected:
 			SendMessageA(_GroupCtrl, LVM_GETITEMTEXTA, 0, (LPARAM)&item);
 			/* If there is one item in the list and it is the text string AS_SEL_DOM_STR, don't
 			pop up the warning message. */
-			if (SendMessage(_GroupCtrl, LVM_GETITEMCOUNT, 0, 0) != 1 || TsStrCmp(name, AS_SEL_DOM_STR) != 0)
+			if (SendMessage(_GroupCtrl, LVM_GETITEMCOUNT, 0, 0) != 1 || tsStrCmp(name, AS_SEL_DOM_STR) != 0)
 			{
 				UINT nResponse = ::MessageBoxA(_hDlg, "Changing Tokens will cause all current Attribute selections to be lost.\n\n Do you wish to continue?", "Warning", MB_YESNO | MB_ICONINFORMATION);
 
@@ -1919,7 +1919,7 @@ protected:
 		return TRUE;
 	}
 
-	INT_PTR OnChangeTokenByControl()
+    intptr_t OnChangeTokenByControl()
 	{
 		// if the programmer has specified an initial token, and a reason
 		// not to change it, we won't allow the user to switch to a new token
@@ -2036,8 +2036,8 @@ protected:
 
 		if (!!_header)
 		{
-			_header->RemoveExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID));
-			_header->RemoveExtension(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID));
+			_header->RemoveExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID));
+			_header->RemoveExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ATTRIBUTELIST_EXT_OID, tscrypto::tsCryptoData::OID));
 		}
 
 		/* Don't forget to clean up any existing access groups that are saved in the _GroupCtrl. */
@@ -2070,7 +2070,7 @@ protected:
 			char name[512];
 
 			SendMessage(_TokenCombo, CB_GETLBTEXT, index, (LPARAM)name);
-			TsStrCat(name, sizeof(name), "  Unable to change Token.");
+			tsStrCat(name, sizeof(name), "  Unable to change Token.");
 			MessageBoxA(_hDlg, name, "Error", MB_OK);
 			return FALSE;
 		}
@@ -2080,7 +2080,7 @@ protected:
 			char name[512];
 
 			SendMessage(_TokenCombo, CB_GETLBTEXT, index, (LPARAM)name);
-			TsStrCat(name, sizeof(name), "  Unable to change Token.");
+			tsStrCat(name, sizeof(name), "  Unable to change Token.");
 			MessageBoxA(_hDlg, name, "Error", MB_OK);
 			return FALSE;
 		}
@@ -2092,7 +2092,7 @@ protected:
 			SendMessage(_GroupCtrl, LVM_DELETEALLITEMS, 0, 0);
 			EnableWindow(_GroupCtrl, TRUE);
 
-			GUID cgID = GetProfile()->get_EnterpriseCryptoGroup();
+            tscrypto::tsCryptoData cgID = GetProfile()->get_EnterpriseCryptoGroup();
 
 			_ActiveCryptoGroup = GetCGbyGuid(cgID);
 			//if ( !header )
@@ -2146,7 +2146,7 @@ protected:
 		{
 			if (!_ActiveCryptoGroup)
 			{
-				GUID cgID = GetProfile()->get_EnterpriseCryptoGroup();
+                tscrypto::tsCryptoData cgID = GetProfile()->get_EnterpriseCryptoGroup();
 
 				_ActiveCryptoGroup = GetCGbyGuid(cgID);
 			}
@@ -2161,7 +2161,7 @@ protected:
 			if (!login->Start(Session(), (XP_WINDOW)_hDlg) || login->DisplayModal() != IDOK)
 				return FALSE;
 
-			GUID cgID = GetProfile()->get_EnterpriseCryptoGroup();
+            tscrypto::tsCryptoData cgID = GetProfile()->get_EnterpriseCryptoGroup();
 
 			_ActiveCryptoGroup = GetCGbyGuid(cgID);
 			//if ( !header )
@@ -2199,7 +2199,7 @@ protected:
 		return TRUE;
 	}
 
-	//	INT_PTR OnChangeCryptoGroup()
+	//	intptr_t OnChangeCryptoGroup()
 	//	{
 	//		int index;
 	//		std::shared_ptr<Asn1::CTS::CryptoGroup> tempCryptoGroup;
@@ -2356,25 +2356,25 @@ protected:
 	//		UpdateDialogControls();
 	//		return FALSE;
 	//	}
-	INT_PTR OnChangeRichEdit()
+intptr_t OnChangeRichEdit()
 	{
 		UpdateDialogControls();
 		return FALSE;
 	}
 
-	INT_PTR OnChangeGroupList()
+intptr_t OnChangeGroupList()
 	{
 		UpdateDialogControls();
 		return FALSE;
 	}
 
-	INT_PTR OnDblclkGrouplist()
+intptr_t OnDblclkGrouplist()
 	{
 		OnGroupEdit();
 		return FALSE;
 	}
 
-	INT_PTR OnDblclkCertList()
+intptr_t OnDblclkCertList()
 	{
 		// TODO:  Implement me
 		return FALSE;
@@ -2424,7 +2424,7 @@ protected:
 		}
 		EnableWindow(GetDlgItem(_hDlg, IDC_TOKEN_LOGIN), HasSession() && (!Session()->IsValid() || !Session()->IsLoggedIn()));
 	}
-	INT_PTR InitSettings()
+    intptr_t InitSettings()
 	{
 		int index;
 		CWaitCursor wc;
@@ -2543,7 +2543,7 @@ protected:
 		//SetTimer(_hDlg, 1, 500, NULL);
 		return 1;
 	}
-	//INT_PTR CryptoGroupPressLogin()
+	//intptr_t CryptoGroupPressLogin()
 	//{
 	//	asdfadsf
 	//	populateCryptoGroupList();
@@ -2573,7 +2573,7 @@ protected:
 				item.cchTextMax = sizeof(name) / sizeof(char);
 
 				SendMessageA(_GroupCtrl, LVM_GETITEMTEXTA, 0, (LPARAM)&item);
-				if (item.pszText != NULL && TsStrCmp(item.pszText, AS_SEL_DOM_STR) != 0)
+				if (item.pszText != NULL && tsStrCmp(item.pszText, AS_SEL_DOM_STR) != 0)
 				{
 					bEnableOK = TRUE;
 					bEnableFav = TRUE;
@@ -2759,7 +2759,7 @@ protected:
 			int serialIndex = (int)SendMessage(_TokenCombo, CB_GETITEMDATA, curToken, 0);
 			name[0] = 0;
 			nameLen = sizeof(name);
-			TsSnPrintf(name, sizeof(name), "%s%s", EMPTY_SLOT_PREFIX, EMPTY_SLOT_SUFFIX);
+			tsSnPrintf(name, sizeof(name), "%s%s", EMPTY_SLOT_PREFIX, EMPTY_SLOT_SUFFIX);
 
 			SendMessage(_TokenCombo, CB_DELETESTRING, curToken, 0);
 			curToken = (int)SendMessage(_TokenCombo, CB_ADDSTRING, 0, (LPARAM)name);
@@ -2905,7 +2905,7 @@ protected:
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderAccessGroupExtension> groupList;
 
-		if (!_header || !_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) ||
+		if (!_header || !_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) ||
 			!(groupList = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(ext)))
 		{
 			return FALSE;
@@ -2998,7 +2998,7 @@ protected:
 
 		std::shared_ptr<ICmsHeaderExtension> ext;
 		std::shared_ptr<ICmsHeaderAccessGroupExtension> extGroup;
-		if (!_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) ||
+		if (!_header->GetProtectedExtensionByOID(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_ACCESSGROUPLIST_EXT_OID, tscrypto::tsCryptoData::OID), ext) ||
 			!(extGroup = std::dynamic_pointer_cast<ICmsHeaderAccessGroupExtension>(ext)))
 		{
 			return false;
@@ -3028,7 +3028,7 @@ protected:
 				!!(attrGroup = std::dynamic_pointer_cast<ICmsHeaderAttributeGroup>(andGroup)))
 			{
 				line = BuildAttrsLine(attrGroup);
-				if (TsStrCmp(line.c_str(), name) == 0)
+				if (tsStrCmp(line.c_str(), name) == 0)
 				{
 					attrs = attrGroup;
 					accessGroup = andGroup;

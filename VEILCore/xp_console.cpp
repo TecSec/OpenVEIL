@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -35,6 +35,7 @@
 #else
 #ifdef MAC
 #include <termios.h>
+#include <sys/ioctl.h>
 #else
 #include <termio.h>
 #endif
@@ -434,8 +435,8 @@ void xp_console::processData(tscrypto::tsCryptoString &data)
 
 	while (data.size() > 0)
 	{
-		doWriteLine = (TsStrChr(data.rawData(), '\n') != NULL);
-		p = TsStrTok(data.rawData(), ("\n"), &context);
+		doWriteLine = (tsStrChr(data.rawData(), '\n') != NULL);
+		p = tsStrTok(data.rawData(), ("\n"), &context);
 		tmp.clear();
 		//if (justHadNewline && indentLevel > 0)
 		//{
@@ -449,8 +450,8 @@ void xp_console::processData(tscrypto::tsCryptoString &data)
 		//}
 		tmp += p;
 		if (p != NULL)
-		{	// 10/11/11 krr added cast for warning C2220 strlen() so x64 would build
-			data.DeleteAt(0, (uint32_t)TsStrLen(p) + 1);
+		{
+			data.DeleteAt(0, (uint32_t)tsStrLen(p) + 1);
 		}
 		else
 		{
@@ -501,7 +502,7 @@ void xp_console::HandleColorChange()
 xp_console &xp_console::Black()
 {
 #ifdef _WIN32
-	WORD newColor = (WORD)(0 | (_currentColor & 0xFFF0));
+	uint16_t newColor = (uint16_t)(0 | (_currentColor & 0xFFF0));
 	if (newColor != _currentColor)
 	{
 		HandleColorChange();
@@ -516,7 +517,7 @@ xp_console &xp_console::Black()
 xp_console &xp_console::Red()
 {
 #ifdef _WIN32
-	WORD newColor = (WORD)(FOREGROUND_RED | (_currentColor & 0xFFF0));
+	uint16_t newColor = (uint16_t)(FOREGROUND_RED | (_currentColor & 0xFFF0));
 	if (newColor != _currentColor)
 	{
 		HandleColorChange();
@@ -531,7 +532,7 @@ xp_console &xp_console::Red()
 xp_console &xp_console::Green()
 {
 #ifdef _WIN32
-	WORD newColor = (WORD)(FOREGROUND_GREEN | (_currentColor & 0xFFF0));
+	uint16_t newColor = (uint16_t)(FOREGROUND_GREEN | (_currentColor & 0xFFF0));
 	if (newColor != _currentColor)
 	{
 		HandleColorChange();
@@ -546,7 +547,7 @@ xp_console &xp_console::Green()
 xp_console &xp_console::Yellow()
 {
 #ifdef _WIN32
-	WORD newColor = (WORD)(FOREGROUND_RED | FOREGROUND_GREEN | (_currentColor & 0xFFF0));
+	uint16_t newColor = (uint16_t)(FOREGROUND_RED | FOREGROUND_GREEN | (_currentColor & 0xFFF0));
 	if (newColor != _currentColor)
 	{
 		HandleColorChange();
@@ -561,7 +562,7 @@ xp_console &xp_console::Yellow()
 xp_console &xp_console::Blue()
 {
 #ifdef _WIN32
-	WORD newColor = (WORD)(FOREGROUND_BLUE | (_currentColor & 0xFFF0));
+	uint16_t newColor = (uint16_t)(FOREGROUND_BLUE | (_currentColor & 0xFFF0));
 	if (newColor != _currentColor)
 	{
 		HandleColorChange();
@@ -576,7 +577,7 @@ xp_console &xp_console::Blue()
 xp_console &xp_console::Purple()
 {
 #ifdef _WIN32
-	WORD newColor = (WORD)(FOREGROUND_RED | FOREGROUND_BLUE | (_currentColor & 0xFFF0));
+	uint16_t newColor = (uint16_t)(FOREGROUND_RED | FOREGROUND_BLUE | (_currentColor & 0xFFF0));
 	if (newColor != _currentColor)
 	{
 		HandleColorChange();
@@ -591,7 +592,7 @@ xp_console &xp_console::Purple()
 xp_console &xp_console::Cyan()
 {
 #ifdef _WIN32
-	WORD newColor = (WORD)(FOREGROUND_BLUE | FOREGROUND_GREEN | (_currentColor & 0xFFF0));
+	uint16_t newColor = (uint16_t)(FOREGROUND_BLUE | FOREGROUND_GREEN | (_currentColor & 0xFFF0));
 	if (newColor != _currentColor)
 	{
 		HandleColorChange();
@@ -606,7 +607,7 @@ xp_console &xp_console::Cyan()
 xp_console &xp_console::White()
 {
 #ifdef _WIN32
-	WORD newColor = (WORD)(FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | (_currentColor & 0xFFF0));
+	uint16_t newColor = (uint16_t)(FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | (_currentColor & 0xFFF0));
 	if (newColor != _currentColor)
 	{
 		HandleColorChange();
@@ -621,7 +622,7 @@ xp_console &xp_console::White()
 xp_console &xp_console::BoldBlack()
 {
 #ifdef _WIN32
-	WORD newColor = (WORD)(0 | FOREGROUND_INTENSITY | (_currentColor & 0xFFF0));
+	uint16_t newColor = (uint16_t)(0 | FOREGROUND_INTENSITY | (_currentColor & 0xFFF0));
 	if (newColor != _currentColor)
 	{
 		HandleColorChange();
@@ -636,7 +637,7 @@ xp_console &xp_console::BoldBlack()
 xp_console &xp_console::BoldRed()
 {
 #ifdef _WIN32
-	WORD newColor = (WORD)(FOREGROUND_RED | FOREGROUND_INTENSITY | (_currentColor & 0xFFF0));
+	uint16_t newColor = (uint16_t)(FOREGROUND_RED | FOREGROUND_INTENSITY | (_currentColor & 0xFFF0));
 	if (newColor != _currentColor)
 	{
 		HandleColorChange();
@@ -651,7 +652,7 @@ xp_console &xp_console::BoldRed()
 xp_console &xp_console::BoldGreen()
 {
 #ifdef _WIN32
-	WORD newColor = (WORD)(FOREGROUND_GREEN | FOREGROUND_INTENSITY | (_currentColor & 0xFFF0));
+	uint16_t newColor = (uint16_t)(FOREGROUND_GREEN | FOREGROUND_INTENSITY | (_currentColor & 0xFFF0));
 	if (newColor != _currentColor)
 	{
 		HandleColorChange();
@@ -666,7 +667,7 @@ xp_console &xp_console::BoldGreen()
 xp_console &xp_console::BoldYellow()
 {
 #ifdef _WIN32
-	WORD newColor = (WORD)(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY | (_currentColor & 0xFFF0));
+	uint16_t newColor = (uint16_t)(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY | (_currentColor & 0xFFF0));
 	if (newColor != _currentColor)
 	{
 		HandleColorChange();
@@ -681,7 +682,7 @@ xp_console &xp_console::BoldYellow()
 xp_console &xp_console::BoldBlue()
 {
 #ifdef _WIN32
-	WORD newColor = (WORD)(FOREGROUND_BLUE | FOREGROUND_INTENSITY | (_currentColor & 0xFFF0));
+	uint16_t newColor = (uint16_t)(FOREGROUND_BLUE | FOREGROUND_INTENSITY | (_currentColor & 0xFFF0));
 	if (newColor != _currentColor)
 	{
 		HandleColorChange();
@@ -696,7 +697,7 @@ xp_console &xp_console::BoldBlue()
 xp_console &xp_console::BoldPurple()
 {
 #ifdef _WIN32
-	WORD newColor = (WORD)(FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY | (_currentColor & 0xFFF0));
+	uint16_t newColor = (uint16_t)(FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY | (_currentColor & 0xFFF0));
 	if (newColor != _currentColor)
 	{
 		HandleColorChange();
@@ -711,7 +712,7 @@ xp_console &xp_console::BoldPurple()
 xp_console &xp_console::BoldCyan()
 {
 #ifdef _WIN32
-	WORD newColor = (WORD)(FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY | (_currentColor & 0xFFF0));
+	uint16_t newColor = (uint16_t)(FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY | (_currentColor & 0xFFF0));
 	if (newColor != _currentColor)
 	{
 		HandleColorChange();
@@ -726,7 +727,7 @@ xp_console &xp_console::BoldCyan()
 xp_console &xp_console::BoldWhite()
 {
 #ifdef _WIN32
-	WORD newColor = (WORD)(FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY | (_currentColor & 0xFFF0));
+	uint16_t newColor = (uint16_t)(FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY | (_currentColor & 0xFFF0));
 	if (newColor != _currentColor)
 	{
 		HandleColorChange();
@@ -741,7 +742,7 @@ xp_console &xp_console::BoldWhite()
 xp_console &xp_console::Black_Background()
 {
 #ifdef _WIN32
-	WORD newColor = (WORD)(0 | (_currentColor & 0xFF0F));
+	uint16_t newColor = (uint16_t)(0 | (_currentColor & 0xFF0F));
 	if (newColor != _currentColor)
 	{
 		HandleColorChange();
@@ -756,7 +757,7 @@ xp_console &xp_console::Black_Background()
 xp_console &xp_console::Red_Background()
 {
 #ifdef _WIN32
-	WORD newColor = (WORD)(BACKGROUND_RED | (_currentColor & 0xFF0F));
+	uint16_t newColor = (uint16_t)(BACKGROUND_RED | (_currentColor & 0xFF0F));
 	if (newColor != _currentColor)
 	{
 		HandleColorChange();
@@ -771,7 +772,7 @@ xp_console &xp_console::Red_Background()
 xp_console &xp_console::Green_Background()
 {
 #ifdef _WIN32
-	WORD newColor = (WORD)(BACKGROUND_GREEN | (_currentColor & 0xFF0F));
+	uint16_t newColor = (uint16_t)(BACKGROUND_GREEN | (_currentColor & 0xFF0F));
 	if (newColor != _currentColor)
 	{
 		HandleColorChange();
@@ -786,7 +787,7 @@ xp_console &xp_console::Green_Background()
 xp_console &xp_console::Yellow_Background()
 {
 #ifdef _WIN32
-	WORD newColor = (WORD)(BACKGROUND_RED | BACKGROUND_GREEN | (_currentColor & 0xFF0F));
+	uint16_t newColor = (uint16_t)(BACKGROUND_RED | BACKGROUND_GREEN | (_currentColor & 0xFF0F));
 	if (newColor != _currentColor)
 	{
 		HandleColorChange();
@@ -801,7 +802,7 @@ xp_console &xp_console::Yellow_Background()
 xp_console &xp_console::Blue_Background()
 {
 #ifdef _WIN32
-	WORD newColor = (WORD)(BACKGROUND_BLUE | (_currentColor & 0xFF0F));
+	uint16_t newColor = (uint16_t)(BACKGROUND_BLUE | (_currentColor & 0xFF0F));
 	if (newColor != _currentColor)
 	{
 		HandleColorChange();
@@ -816,7 +817,7 @@ xp_console &xp_console::Blue_Background()
 xp_console &xp_console::Purple_Background()
 {
 #ifdef _WIN32
-	WORD newColor = (WORD)(BACKGROUND_RED | BACKGROUND_BLUE | (_currentColor & 0xFF0F));
+	uint16_t newColor = (uint16_t)(BACKGROUND_RED | BACKGROUND_BLUE | (_currentColor & 0xFF0F));
 	if (newColor != _currentColor)
 	{
 		HandleColorChange();
@@ -831,7 +832,7 @@ xp_console &xp_console::Purple_Background()
 xp_console &xp_console::Cyan_Background()
 {
 #ifdef _WIN32
-	WORD newColor = (WORD)(BACKGROUND_BLUE | BACKGROUND_GREEN | (_currentColor & 0xFF0F));
+	uint16_t newColor = (uint16_t)(BACKGROUND_BLUE | BACKGROUND_GREEN | (_currentColor & 0xFF0F));
 	if (newColor != _currentColor)
 	{
 		HandleColorChange();
@@ -846,7 +847,7 @@ xp_console &xp_console::Cyan_Background()
 xp_console &xp_console::White_Background()
 {
 #ifdef _WIN32
-	WORD newColor = (WORD)(BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED | (_currentColor & 0xFF0F));
+	uint16_t newColor = (uint16_t)(BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED | (_currentColor & 0xFF0F));
 	if (newColor != _currentColor)
 	{
 		HandleColorChange();
@@ -885,7 +886,7 @@ size_t xp_console::consoleHeight()
 #ifdef _WIN32
 void xp_console::GetPin(tscrypto::tsCryptoString& enteredPin, uint32_t len, const tscrypto::tsCryptoString& prompt)
 {
-	DWORD md;
+	uint32_t md;
 	HANDLE h;
 
 	h = GetStdHandle(STD_INPUT_HANDLE);
@@ -898,11 +899,11 @@ void xp_console::GetPin(tscrypto::tsCryptoString& enteredPin, uint32_t len, cons
 	enteredPin.resize(len);
 
 	/* set no echo */
-	GetConsoleMode(h, &md);
+	GetConsoleMode(h, (LPDWORD)&md);
 	SetConsoleMode(h, md & ~ENABLE_ECHO_INPUT);
 
 	fgets(enteredPin.rawData(), len, stdin);
-	enteredPin.resize(TsStrLen(enteredPin.c_str()));
+	enteredPin.resize(tsStrLen(enteredPin.c_str()));
 	enteredPin.TrimEnd("\r\n");
 
 	/* reset echo */
@@ -950,6 +951,6 @@ void xp_console::GetPin(tscrypto::tsCryptoString& enteredPin, uint32_t len, cons
 
 	printf("\n\n");
 
-	enteredPin.resize(strlen(enteredPin.c_str()) - 1);
+	enteredPin.resize(tsStrLen(enteredPin.c_str()) - 1);
 }
 #endif

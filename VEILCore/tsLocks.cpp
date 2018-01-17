@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -33,25 +33,23 @@
 
 TSAutoCriticalSection::TSAutoCriticalSection() 
 { 
-	InitializeCriticalSection(&m_section); 
+	m_section = tsCreateMutex(); 
 }
 TSAutoCriticalSection::~TSAutoCriticalSection() 
 { 
-	DeleteCriticalSection(&m_section); 
+	tsDestroyMutex(&m_section); 
 }
 
-BOOL TSAutoCriticalSection::Lock(uint32_t timeout) 
+bool TSAutoCriticalSection::Lock(uint32_t timeout) 
 { 
 	MY_UNREFERENCED_PARAMETER(timeout); 
-	EnterCriticalSection(&m_section); 
-	return TRUE; 
+	return tsLockMutex(&m_section); 
 }
-BOOL TSAutoCriticalSection::Unlock() 
+bool TSAutoCriticalSection::Unlock() 
 { 
-	LeaveCriticalSection(&m_section); 
-	return TRUE; 
+	return tsUnlockMutex(&m_section); 
 }
-BOOL TSAutoCriticalSection::isValid() 
+bool TSAutoCriticalSection::isValid() 
 { 
-	return TRUE; 
+	return true; 
 }

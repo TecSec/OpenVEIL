@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -75,9 +75,13 @@ class SmartCardInfoTool : public tsmod::IVeilToolCommand, public tsmod::IObject
 {
 public:
 	SmartCardInfoTool() : gSmartCardDone(true, false)
-	{}
+	{
+        tsWinscardInit();
+    }
 	~SmartCardInfoTool()
-	{}
+	{
+        tsWinscardRelease();
+    }
 
 	// tsmod::IObject
 	virtual void OnConstructionFinished() override
@@ -115,20 +119,13 @@ public:
 			}
 		}
 
-		std::shared_ptr<ICkmWinscardMonitor> _monitor;
-
 		std::cout << "Insert the smart card that you want to inspect." << std::endl;
 
-		if (!(_monitor = ::TopServiceLocator()->try_get_instance<ICkmWinscardMonitor>("/SmartCardMonitor")))
-			return false;
+        gSmartCardDone.Reset();
 
-		_monitor->ScanForChanges();
-
-		gSmartCardDone.Reset();
-
-		int cookie = _monitor->RegisterChangeReceiver(std::shared_ptr<ICkmWinscardChange>(new SmartCardChanges([this](const tscrypto::tsCryptoString& readerName) {GetSmartCardInfo(readerName);} )));
-		auto cleanup1 = finally([&cookie, &_monitor]() {_monitor->UnregisterChangeReceiver(cookie); });
-		gSmartCardDone.WaitForEvent(INFINITE);
+        uint32_t cookie = tsSmartCard_RegisterChangeConsumer(&mySmartcardChanges, this);
+        auto cleanup1 = finally([&cookie]() {tsSmartCard_UnregisterChangeConsumer(cookie); });
+        gSmartCardDone.WaitForEvent(INFINITE);
 		return 0;
 	}
 	virtual tscrypto::tsCryptoString getCommandName() const override
@@ -140,24 +137,56 @@ protected:
 	{
 		utils->Usage(options, sizeof(options) / sizeof(options[0]));
 	}
+    void processKeyInfo(uint8_t* info, uint32_t infoLen, JSONObject& applet)
+    {
+        std::shared_ptr<TlvDocument> doc = TlvDocument::Create();
+
+        if (doc->LoadTlv(tsCryptoData(info, infoLen)))
+        {
+            int count = (int)doc->DocumentElement()->ChildCount();
+            for (int i = 0; i < count; i++)
+            {
+                std::shared_ptr<TlvNode> node = doc->DocumentElement()->ChildAt(i);
+
+                tscrypto::tsCryptoData data = node->InnerData();
+
+                if (data.size() >= 4)
+                {
+                    if (data[0] == 1 && data[1] < 0x70)
+                    {
+                        JSONObject keyinfo;
+
+                        keyinfo
+                            .add("KeyVersion", (int64_t)data[1])
+                            .add("KeyNumber", (int64_t)data[0])
+                            .add("KeyType", (int64_t)data[2])
+                            .add("KeyLength", (int64_t)data[3])
+                            .add("OtherInfo", data.substring(4, data.size() - 4).ToHexStringWithSpaces());
+                        applet.add("KeyList", keyinfo);
+
+                    }
+                }
+            }
+        }
+    }
 	void GetSmartCardInfo(const tscrypto::tsCryptoString& readerName)
 	{
-		std::shared_ptr<ISmartCardConnection> connection;
-		std::shared_ptr<ISmartCardInformation> cardinfo;
+        TSSMARTCARD_CONNECTION connection = NULL;
+        TSSMARTCARD_INFORMATION cardinfo = NULL;
 		JSONObject out;
 		tscrypto::tsCryptoData selectResponse;
 
-		if (!(connection = ::TopServiceLocator()->get_instance<ISmartCardConnection>("LocalSmartCardConnection")) ||
-			!(cardinfo = ::TopServiceLocator()->get_instance<ISmartCardInformation>("SmartCardInformation")))
+		if (!(connection = tsCreateSmartcardConnection()) ||
+			!(cardinfo = tsCreateSmartCardInformation()))
 		{
+            tsFreeSmartCardInformation(&cardinfo);
 			std::cout << "ERROR:  Unable to create the Winscard Connector." << std::endl;
 			gSmartCardDone.Set();
 			return;
 		}
-		connection->ReaderName(readerName);
-
-		if (!connection->Start())
+		if (!tsSmartcardConnectToReader(connection, readerName.c_str()))
 		{
+            tsFreeSmartCardInformation(&cardinfo);
 			std::cout << "ERROR:  Unable to start the smart card connector\n" << std::endl;
 			gSmartCardDone.Set();
 			return;
@@ -173,125 +202,114 @@ protected:
 		}
 		else
 		{
-			cardinfo->PopulateCardInformation(connection);
+            tsSmartCardInfo_PopulateCardInfo(cardinfo, connection);
+            uint8_t tmp[1000];
+            uint32_t len = sizeof(tmp);
+            char tmpStr[300];
 
-			out
-				.add("TransportLocked", false)
-				.add("OSVersion", cardinfo->OSVersion())
-				.add("ChipID", (int64_t)cardinfo->ChipID())
-				.add("SerialNumber", cardinfo->SerialNumber().ToHexStringWithSpaces())
-				.add("IsFlash", cardinfo->isFlashChip())
-				.add("IsROM", cardinfo->isRomChip())
-				.add("IsContact", cardinfo->isContact())
-				.add("IsContactless", cardinfo->isContactless())
-				.add("IIN", cardinfo->IIN().ToHexStringWithSpaces())
-				.add("CIN", cardinfo->CIN().ToHexStringWithSpaces());
+            out
+                .add("TransportLocked", false)
+                .add("OSVersion", tsSmartCardInfo_GetOSVersion(cardinfo))
+                .add("ChipID", (int64_t)tsSmartCardInfo_GetChipID(cardinfo))
+                .add("IsFlash", tsSmartCardInfo_IsFlashChip(cardinfo))
+                .add("IsROM", tsSmartCardInfo_IsRomChip(cardinfo))
+                .add("IsContact", tsSmartCardInfo_IsContact(cardinfo))
+                .add("IsContactless", tsSmartCardInfo_IsContactless(cardinfo));
+            tsSmartCardInfo_SerialNumber(cardinfo, tmp, &len);
+            tsToHexStringWithSpaces(tmp, len, tmpStr, sizeof(tmpStr));
+            out.add("SerialNumber", tmpStr);
+            len = sizeof(tmp);
+            tsSmartCardInfo_IIN(cardinfo, tmp, &len);
+            tsToHexStringWithSpaces(tmp, len, tmpStr, sizeof(tmpStr));
+            out.add("IIN", tmpStr);
+            len = sizeof(tmp);
+            tsSmartCardInfo_CIN(cardinfo, tmp, &len);
+            tsToHexStringWithSpaces(tmp, len, tmpStr, sizeof(tmpStr));
+            out.add("CIN", tmpStr);
 
-			if (cardinfo->IsdAid().size() > 0)
+            len = sizeof(tmp);
+            tsSmartCardInfo_IsdAid(cardinfo, tmp, &len);
+
+			if (len > 0)
 			{
 				JSONObject applet;
 
+                tsToHexStringWithSpaces(tmp, len, tmpStr, sizeof(tmpStr));
+
 				applet
-					.add("AID", cardinfo->IsdAid().ToHexStringWithSpaces())
-					.add("SCPProtocol", (int64_t)cardinfo->ISDSecureChannelProtocol())
-					.add("SCPParameter", (int64_t)cardinfo->ISDSecureChannelParameter())
-					.add("KeyVersion", (int64_t)cardinfo->ISDKeyVersion())
-					.add("KeyLength", (int64_t)cardinfo->ISDKeyLength())
-					.add("KeyType", (int64_t)cardinfo->ISDKeyType())
-					.add("MaxSecLevel", (int64_t)cardinfo->ISDMaximumSecurityLevel())
+					.add("AID", tmpStr)
+					.add("SCPProtocol", (int64_t)tsSmartCardInfo_ISDSecureChannelProtocol(cardinfo))
+					.add("SCPParameter", (int64_t)tsSmartCardInfo_ISDSecureChannelParameter(cardinfo))
+					.add("KeyVersion", (int64_t)tsSmartCardInfo_ISDKeyVersion(cardinfo))
+					.add("KeyLength", (int64_t)tsSmartCardInfo_ISDKeyLength(cardinfo))
+					.add("KeyType", (int64_t)tsSmartCardInfo_ISDKeyType(cardinfo))
+					.add("MaxSecLevel", (int64_t)tsSmartCardInfo_ISDMaximumSecurityLevel(cardinfo))
 					.createArrayField("KeyList");
 
-				for (size_t i = 0; i < cardinfo->ISDKeyCount(); i++)
-				{
-					std::shared_ptr<ISmartCardKeyInformation> info;
-
-					if (cardinfo->ISDKeyItem(i, info))
-					{
-						JSONObject keyinfo;
-
-						keyinfo
-							.add("KeyVersion", (int64_t)info->KeyVersion())
-							.add("KeyNumber", (int64_t)info->KeyNumber())
-							.add("KeyType", (int64_t)info->KeyType())
-							.add("KeyLength", (int64_t)info->KeyLength())
-							.add("OtherInfo", info->OtherInfo().ToHexStringWithSpaces());
-						applet.add("KeyList", keyinfo);
-					}
-				}
+                len = sizeof(tmp);
+                if (tsSmartCardInfo_ISDKeyInfo(cardinfo, tmp, &len) && len > 0)
+                {
+                    processKeyInfo(tmp, len, applet);
+                }
 
 				out.add("ISD", applet);
 			}
-			if (cardinfo->SsdAid().size() > 0)
+            len = sizeof(tmp);
+            tsSmartCardInfo_SsdAid(cardinfo, tmp, &len);
+
+			if (len > 0)
 			{
 				JSONObject applet;
 
+                tsToHexStringWithSpaces(tmp, len, tmpStr, sizeof(tmpStr));
+
 				applet
-					.add("AID", cardinfo->SsdAid().ToHexStringWithSpaces())
-					.add("SCPProtocol", (int64_t)cardinfo->SSDSecureChannelProtocol())
-					.add("SCPParameter", (int64_t)cardinfo->SSDSecureChannelParameter())
-					.add("KeyVersion", (int64_t)cardinfo->SSDKeyVersion())
-					.add("KeyLength", (int64_t)cardinfo->SSDKeyLength())
-					.add("KeyType", (int64_t)cardinfo->SSDKeyType())
-					.add("MaxSecLevel", (int64_t)cardinfo->SSDMaximumSecurityLevel())
-					.createArrayField("KeyList");
+                    .add("AID", tmpStr)
+                    .add("SCPProtocol", (int64_t)tsSmartCardInfo_SSDSecureChannelProtocol(cardinfo))
+                    .add("SCPParameter", (int64_t)tsSmartCardInfo_SSDSecureChannelParameter(cardinfo))
+                    .add("KeyVersion", (int64_t)tsSmartCardInfo_SSDKeyVersion(cardinfo))
+                    .add("KeyLength", (int64_t)tsSmartCardInfo_SSDKeyLength(cardinfo))
+                    .add("KeyType", (int64_t)tsSmartCardInfo_SSDKeyType(cardinfo))
+                    .add("MaxSecLevel", (int64_t)tsSmartCardInfo_SSDMaximumSecurityLevel(cardinfo))
+                    .createArrayField("KeyList");
 
-				for (size_t i = 0; i < cardinfo->SSDKeyCount(); i++)
-				{
-					std::shared_ptr<ISmartCardKeyInformation> info;
-
-					if (cardinfo->SSDKeyItem(i, info))
-					{
-						JSONObject keyinfo;
-
-						keyinfo
-							.add("KeyVersion", (int64_t)info->KeyVersion())
-							.add("KeyNumber", (int64_t)info->KeyNumber())
-							.add("KeyType", (int64_t)info->KeyType())
-							.add("KeyLength", (int64_t)info->KeyLength())
-							.add("OtherInfo", info->OtherInfo().ToHexStringWithSpaces());
-						applet.add("KeyList", keyinfo);
-					}
-				}
+                len = sizeof(tmp);
+                if (tsSmartCardInfo_SSDKeyInfo(cardinfo, tmp, &len) && len > 0)
+                {
+                    processKeyInfo(tmp, len, applet);
+                }
 
 				out.add("SSD", applet);
 			}
-			if (cardinfo->DapAid().size() > 0)
-			{
+            len = sizeof(tmp);
+            tsSmartCardInfo_DapAid(cardinfo, tmp, &len);
+
+            if (len > 0)
+            {
 				JSONObject applet;
 
 				applet
-					.add("AID", cardinfo->DapAid().ToHexStringWithSpaces())
-					.add("SCPProtocol", (int64_t)cardinfo->DAPSecureChannelProtocol())
-					.add("SCPParameter", (int64_t)cardinfo->DAPSecureChannelParameter())
-					.add("KeyVersion", (int64_t)cardinfo->DAPKeyVersion())
-					.add("KeyLength", (int64_t)cardinfo->DAPKeyLength())
-					.add("KeyType", (int64_t)cardinfo->DAPKeyType())
-					.add("MaxSecLevel", (int64_t)cardinfo->DAPMaximumSecurityLevel())
-					.createArrayField("KeyList");
+                    .add("AID", tmpStr)
+                    .add("SCPProtocol", (int64_t)tsSmartCardInfo_DAPSecureChannelProtocol(cardinfo))
+                    .add("SCPParameter", (int64_t)tsSmartCardInfo_DAPSecureChannelParameter(cardinfo))
+                    .add("KeyVersion", (int64_t)tsSmartCardInfo_DAPKeyVersion(cardinfo))
+                    .add("KeyLength", (int64_t)tsSmartCardInfo_DAPKeyLength(cardinfo))
+                    .add("KeyType", (int64_t)tsSmartCardInfo_DAPKeyType(cardinfo))
+                    .add("MaxSecLevel", (int64_t)tsSmartCardInfo_DAPMaximumSecurityLevel(cardinfo))
+                    .createArrayField("KeyList");
 
-				for (size_t i = 0; i < cardinfo->DAPKeyCount(); i++)
-				{
-					std::shared_ptr<ISmartCardKeyInformation> info;
-
-					if (cardinfo->DAPKeyItem(i, info))
-					{
-						JSONObject keyinfo;
-
-						keyinfo
-							.add("KeyVersion", (int64_t)info->KeyVersion())
-							.add("KeyNumber", (int64_t)info->KeyNumber())
-							.add("KeyType", (int64_t)info->KeyType())
-							.add("KeyLength", (int64_t)info->KeyLength())
-							.add("OtherInfo", info->OtherInfo().ToHexStringWithSpaces());
-						applet.add("KeyList", keyinfo);
-					}
-				}
+                len = sizeof(tmp);
+                if (tsSmartCardInfo_DAPKeyInfo(cardinfo, tmp, &len) && len > 0)
+                {
+                    processKeyInfo(tmp, len, applet);
+                }
 
 				out.add("DAP", applet);
 			}
 
-			connection->Status("Checking for resource availability...");
+			printf("Checking for resource availability...\n");
 			// Memory information
+            
 			if (SelectCkmInfo(connection, selectResponse) == 0x9000)
 			{
 				int ee = GetFreeCardMemory(connection);
@@ -353,7 +371,7 @@ protected:
 								applet.add("Algorithm", "Unknown");
 								break;
 							}
-							_snprintf_s(buff, sizeof(buff), sizeof(buff), "%d.%03d", data[1], data[2]);
+							tsSnPrintf(buff, sizeof(buff), "%d.%03d", data[1], data[2]);
 							applet.add("Version", tsCryptoString(buff));
 							switch (data[3])
 							{
@@ -395,32 +413,37 @@ protected:
 			}
 		}
 
-		trans.ExitTransaction(SCardLeaveCard);
+		trans.ExitTransaction(false);
 
+        tsFreeSmartCardInformation(&cardinfo);
 		DisplayCardInfo(out);
 		gSmartCardDone.Set();
 	}
-	int SelectCkmInfo(std::shared_ptr<ISmartCardConnection> connection, tscrypto::tsCryptoData& selectResponse)
+    int SelectCkmInfo(TSSMARTCARD_CONNECTION connection, uint8_t* selectResponse, uint32_t* selectResponseLen)
+    {
+        return SelectApplet(connection, gCkmInfoAid, (uint32_t)sizeof(gCkmInfoAid), selectResponse, selectResponseLen);
+    }
+    int SelectCkmInfo(TSSMARTCARD_CONNECTION connection, tscrypto::tsCryptoData& selectResponse)
+    {
+        return SelectApplet(connection, tscrypto::tsCryptoData(gCkmInfoAid, sizeof(gCkmInfoAid)), selectResponse);
+    }
+    int GetFreeCardMemory(TSSMARTCARD_CONNECTION connection)
 	{
-		return SelectApplet(connection, tscrypto::tsCryptoData(gCkmInfoAid, sizeof(gCkmInfoAid)), selectResponse);
-	}
-	int GetFreeCardMemory(std::shared_ptr<ISmartCardConnection> connection)
-	{
-		tscrypto::tsCryptoData outData;
-		int sw;
+        uint8_t outData[280];
+        uint32_t outDataLen = sizeof(outData);
+        uint32_t sw;
 
-		if (!SelectCkmInfo(connection, outData))
+		if (!SelectCkmInfo(connection, outData, &outDataLen))
 		{
 			return -1;
 		}
-
-		connection->Transmit(tscrypto::tsCryptoData(gGetEEAvailable, sizeof(gGetEEAvailable)), 0, outData, sw);
-		if (sw == 0x9000)
+        outDataLen = sizeof(outData);
+        if (tsSmartcardSendCommand(connection, gGetEEAvailable, sizeof(gGetEEAvailable), 0, outData, &outDataLen, &sw) && sw == 0x9000)
 		{
 			uint32_t value;
 
 			// Size comes from card big-endian, convert it to UInt32 and then fix if needed
-			value = *(uint32_t*)outData.rawData();
+			value = *(uint32_t*)outData;
 			TS_BIG_ENDIAN4(value);
 			return (int)value;
 		}
@@ -429,23 +452,23 @@ protected:
 			return -1;
 		}
 	}
-	int GetFreeDeselectRam(std::shared_ptr<ISmartCardConnection>  connection)
+	int GetFreeDeselectRam(TSSMARTCARD_CONNECTION  connection)
 	{
-		tscrypto::tsCryptoData outData;
-		int sw;
+        uint8_t outData[280];
+        uint32_t outDataLen = sizeof(outData);
+        uint32_t sw;
 
-		if (!SelectCkmInfo(connection, outData))
-		{
-			return -1;
-		}
-
-		connection->Transmit(tscrypto::tsCryptoData(gGetDeselectRamAvailable, sizeof(gGetDeselectRamAvailable)), 0, outData, sw);
-		if (sw == 0x9000)
+        if (!SelectCkmInfo(connection, outData, &outDataLen))
+        {
+            return -1;
+        }
+        outDataLen = sizeof(outData);
+        if (tsSmartcardSendCommand(connection, gGetDeselectRamAvailable, sizeof(gGetDeselectRamAvailable), 0, outData, &outDataLen, &sw) && sw == 0x9000)
 		{
 			uint16_t value;
 
 			// Size comes from card big-endian, convert it to UInt16 and then fix if needed
-			value = *(uint16_t*)outData.rawData();
+			value = *(uint16_t*)outData;
 			value = _TS_BIG_ENDIAN2(value);
 			return (int)value;
 		}
@@ -454,23 +477,23 @@ protected:
 			return -1;
 		}
 	}
-	int GetFreeResetRam(std::shared_ptr<ISmartCardConnection>  connection)
+	int GetFreeResetRam(TSSMARTCARD_CONNECTION  connection)
 	{
-		tscrypto::tsCryptoData outData;
-		int sw;
+        uint8_t outData[280];
+        uint32_t outDataLen = sizeof(outData);
+        uint32_t sw;
 
-		if (!SelectCkmInfo(connection, outData))
-		{
-			return -1;
-		}
-
-		connection->Transmit(tscrypto::tsCryptoData(gGetResetRamAvailable, sizeof(gGetResetRamAvailable)), 0, outData, sw);
-		if (sw == 0x9000)
+        if (!SelectCkmInfo(connection, outData, &outDataLen))
+        {
+            return -1;
+        }
+        outDataLen = sizeof(outData);
+        if (tsSmartcardSendCommand(connection, gGetResetRamAvailable, sizeof(gGetResetRamAvailable), 0, outData, &outDataLen, &sw) && sw == 0x9000)
 		{
 			uint16_t value;
 
 			// Size comes from card big-endian, convert it to UInt16 and then fix if needed
-			value = *(uint16_t*)outData.rawData();
+			value = *(uint16_t*)outData;
 			value = _TS_BIG_ENDIAN2(value);
 			return (int)value;
 		}
@@ -479,39 +502,56 @@ protected:
 			return -1;
 		}
 	}
-	int SelectISD(std::shared_ptr<ISmartCardConnection> connection, tscrypto::tsCryptoData& selectResponse)
+	int SelectISD(TSSMARTCARD_CONNECTION connection, tscrypto::tsCryptoData& selectResponse)
 	{
 		return SelectApplet(connection, tscrypto::tsCryptoData(gIsdAid, sizeof(gIsdAid)), selectResponse);
 	}
-	int SelectPiv(std::shared_ptr<ISmartCardConnection> connection, tscrypto::tsCryptoData& selectResponse)
+	int SelectPiv(TSSMARTCARD_CONNECTION connection, tscrypto::tsCryptoData& selectResponse)
 	{
 		return SelectApplet(connection, tscrypto::tsCryptoData(gPivAid, sizeof(gPivAid)), selectResponse);
 	}
-	int SelectBmoc(std::shared_ptr<ISmartCardConnection> connection, tscrypto::tsCryptoData& selectResponse)
+	int SelectBmoc(TSSMARTCARD_CONNECTION connection, tscrypto::tsCryptoData& selectResponse)
 	{
 		return SelectApplet(connection, tscrypto::tsCryptoData(gBmocAid, sizeof(gBmocAid)), selectResponse);
 	}
-	int SelectApplet(std::shared_ptr<ISmartCardConnection> connection, const tscrypto::tsCryptoData& aid, tscrypto::tsCryptoData& selectResponse)
-	{
-		int sw;
-		tscrypto::tsCryptoData cmd("00 A4 04 00", tscrypto::tsCryptoData::HEX);
+    int SelectApplet(TSSMARTCARD_CONNECTION connection, const tscrypto::tsCryptoData& aid, tscrypto::tsCryptoData& selectResponse)
+    {
+        uint32_t len = 280;
+        uint32_t sw;
+        tscrypto::tsCryptoData cmd("00 A4 04 00", tscrypto::tsCryptoData::HEX);
 
-		if (connection == NULL)
-			return 0x6F00;
+        if (connection == NULL)
+            return 0x6F00;
 
-		cmd << (uint8_t)aid.size() << aid;
-		connection->Transmit(cmd, 0, selectResponse, sw);
-		return (int)sw;
-	}
-	void GetSiloInfo(std::shared_ptr<ISmartCardConnection> connection, JSONObject& obj, const tscrypto::tsCryptoString& name, const tscrypto::tsCryptoData& aid)
+        cmd << (uint8_t)aid.size() << aid;
+
+        selectResponse.resize(len);
+        tsSmartcardSendCommand(connection, cmd.c_str(), (uint32_t)cmd.size(), 0, selectResponse.rawData(), &len, &sw);
+        selectResponse.resize(len);
+        return (int)sw;
+    }
+    int SelectApplet(TSSMARTCARD_CONNECTION connection, const uint8_t* aid, uint32_t aidLen, uint8_t* selectResponse, uint32_t* selectResponseLen)
+    {
+        uint32_t sw;
+        tscrypto::tsCryptoData cmd("00 A4 04 00", tscrypto::tsCryptoData::HEX);
+
+        if (connection == NULL)
+            return 0x6F00;
+
+        cmd << (uint8_t)aidLen << tsCryptoData(aid, aidLen);
+        tsSmartcardSendCommand(connection, cmd.c_str(), (uint32_t)cmd.size(), 0, selectResponse, selectResponseLen, &sw);
+        return (int)sw;
+    }
+    void GetSiloInfo(TSSMARTCARD_CONNECTION connection, JSONObject& obj, const tscrypto::tsCryptoString& name, const tscrypto::tsCryptoData& aid)
 	{
 		tscrypto::tsCryptoData selectResponse;
 
 		if (SelectApplet(connection, aid, selectResponse) == 0x9000)
 		{
 			JSONObject o;
-			int sw;
-			tscrypto::tsCryptoData outData;
+			uint32_t sw;
+			uint8_t outData[280];
+            uint32_t outDataLen;
 
 			if (!obj.hasField("Silos"))
 				obj.createArrayField("Silos");
@@ -559,8 +599,8 @@ protected:
 			}
 			o.add("SerialNumber", GetSerialNumber(connection).ToHexString());
 
-			sw = connection->SendCommand(tscrypto::tsCryptoData("0020001000", tscrypto::tsCryptoData::HEX), outData);
-			if (sw == 0x9000)
+            outDataLen = sizeof(outData);
+            if (tsSmartcardSendCommand(connection, tscrypto::tsCryptoData("0020001000", tscrypto::tsCryptoData::HEX).c_str(), 5, 0, outData, &outDataLen, &sw) && sw == 0x9000)
 			{
 				o.add("userLogin", "Authenticated");
 			}
@@ -586,19 +626,20 @@ protected:
 			obj.add("Silos", o);
 		}
 	}
-	tscrypto::tsCryptoData GetSerialNumber(std::shared_ptr<ISmartCardConnection> card)
+	tscrypto::tsCryptoData GetSerialNumber(TSSMARTCARD_CONNECTION card)
 	{
-		tscrypto::tsCryptoData outData;
-		int sw;
+        uint8_t outData[280];
+        uint32_t outDataLen = sizeof(outData);
+        uint32_t sw;
 
 		if (card == NULL)
 			return tscrypto::tsCryptoData();
 
-		if (!card->Transmit(tscrypto::tsCryptoData("80 34 00 01 00", tscrypto::tsCryptoData::HEX), 0, outData, sw) || sw != 0x9000)
+        if (!tsSmartcardSendCommand(card, tscrypto::tsCryptoData("80 34 00 01 00", tscrypto::tsCryptoData::HEX).c_str(), 5, 0, outData, &outDataLen, &sw) || sw != 0x9000)
 			return tscrypto::tsCryptoData();
-		if (outData.size() < 20)
+		if (outDataLen < 20)
 			return tscrypto::tsCryptoData();
-		return outData.substring(11, 8);
+		return tsCryptoData(outData + 11, 8);
 	}
 	void DumpApplet(const char* appletName, const JSONObject& obj)
 	{
@@ -616,7 +657,7 @@ protected:
 	{
 		printf("%s:\n  AID: %s  \n", appletName, obj.AsString("AID").c_str());
 		printf("    Version %2d.%02d    Secure Channel:  %02X/%02X  CKM Version:  %d\n", (int)obj.AsNumber("AppletMajor", 0), (int)obj.AsNumber("AppletMinor", 0), (int)obj.AsNumber("ChannelType", 0), (int)obj.AsNumber("ChannelSub", 0), (int)obj.AsNumber("CkmVersion", 0));
-		printf("    Hash type:  %s   Lifecycle State:  %s\n", obj.AsString("HashType").c_str(), GetLcsi((byte)obj.AsNumber("LCSI", 0)));
+		printf("    Hash type:  %s   Lifecycle State:  %s\n", obj.AsString("HashType").c_str(), GetLcsi((uint8_t)obj.AsNumber("LCSI", 0)));
 		printf("    SerialNumber:  %s    Login state:  %s\n", obj.AsString("SerialNumber").c_str(), obj.AsString("userLogin").c_str());
 	}
 	void DisplayCardInfo(JSONObject& obj)
@@ -670,7 +711,7 @@ protected:
 			}
 		}
 	}
-	const char *GetLcsi(byte lcsi)
+	const char *GetLcsi(uint8_t lcsi)
 	{
 		switch (lcsi)
 		{
@@ -691,6 +732,18 @@ protected:
 protected:
 	std::shared_ptr<tsmod::IVeilUtilities> utils;
 	tscrypto::CryptoEvent gSmartCardDone;
+
+    static void CardInserted(void* params, const char* readerName)
+    {
+        SmartCardInfoTool* This = (SmartCardInfoTool*)params;
+        This->GetSmartCardInfo(readerName);
+    }
+
+    static const TSSmartCard_ChangeConsumer mySmartcardChanges;
+
+};
+const TSSmartCard_ChangeConsumer SmartCardInfoTool::mySmartcardChanges = {
+    NULL, NULL, &SmartCardInfoTool::CardInserted, NULL,
 };
 
 tsmod::IObject* HIDDEN CreateSmartCardInfoTool()

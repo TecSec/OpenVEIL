@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -43,14 +43,14 @@
  * KeyVEILWizardPage type definition
  */
 
-IMPLEMENT_DYNAMIC_CLASS(KeyVEILWizardPage, wxWizardPageSimple)
+IMPLEMENT_DYNAMIC_CLASS(KeyVEILWizardPage, wxWizardPage)
 
 
 /*
  * KeyVEILWizardPage event table definition
  */
 
-	BEGIN_EVENT_TABLE(KeyVEILWizardPage, wxWizardPageSimple)
+	BEGIN_EVENT_TABLE(KeyVEILWizardPage, wxWizardPage)
 
 	////@begin KeyVEILWizardPage event table entries
     EVT_WIZARD_PAGE_CHANGED( -1, KeyVEILWizardPage::OnKeyveilLoginPageChanged )

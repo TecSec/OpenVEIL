@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -267,7 +267,7 @@ public:
 			{
 				if (outputFile.size() > 0)
 				{
-					if (!xp_IsDirectory(outputFile))
+					if (!tsIsDirectory(outputFile.c_str()))
 					{
 						ERROR("If an output file/path was specified using the '--output' argument and there are more than 1 input files, then the output must be a path. The specified output was not a valid path.");
 						return 13;
@@ -275,7 +275,7 @@ public:
 				}
 			}
 
-			if (xp_IsDirectory(outputFile))
+			if (tsIsDirectory(outputFile.c_str()))
 			{
 				outputPath = outputFile;
 				outputFile.clear();
@@ -384,7 +384,7 @@ public:
 					tscrypto::tsCryptoString dir, file, ext;
 
 					xp_SplitPath(inputFile, dir, file, ext);
-					if (TsStriCmp(ext.c_str(), ".ckm") != 0)
+					if (tsStriCmp(ext.c_str(), ".ckm") != 0)
 					{
 						ERROR("Output File not specified and input file does not have a .ckm extension.");
 						return 54;
@@ -463,11 +463,13 @@ protected:
 	}
 	bool ReadDefaultSettings(JSONObject& settings)
 	{
-		tscrypto::tsCryptoString path;
+        char path[MAX_PATH] = { 0, };
 
-		xp_GetSpecialFolder(sft_UserConfigFolder, path);
+		tsGetSpecialFolder(tsSft_UserConfigFolder, path, sizeof(path));
 
-		std::shared_ptr<IDataReader> reader = std::dynamic_pointer_cast<IDataReader>(CreateFileReader(path + "default.ovc"));
+        tsStrCat(path, sizeof(path), "default.ovc");
+
+		std::shared_ptr<IDataReader> reader = std::dynamic_pointer_cast<IDataReader>(CreateFileReader(path));
 
 		if (reader->DataLength() > 0)
 		{
@@ -517,7 +519,7 @@ protected:
 		fflush(stdin);
 		fgets(buff, sizeof(buff), stdin);
 
-		int len = (int)strlen(buff);
+		int len = (int)tsStrLen(buff);
 		if (len > 0)
 		{
 			if (buff[len - 1] == '\n')
@@ -541,7 +543,7 @@ protected:
 		fflush(stdin);
 		fgets(buff, sizeof(buff), stdin);
 
-		int len = (int)strlen(buff);
+		int len = (int)tsStrLen(buff);
 		if (len > 0)
 		{
 			if (buff[len - 1] == '\n')
@@ -568,7 +570,7 @@ protected:
 		std::shared_ptr<IFileVEILOperations> fileOps;
 		std::shared_ptr<IFileVEILOperationStatus> status;
 
-		if (xp_GetFileAttributes(inputFile) == XP_INVALID_FILE_ATTRIBUTES || xp_IsDirectory(inputFile))
+		if (tsGetFileAttributes(inputFile.c_str()) == TS_INVALID_FILE_ATTRIBUTES || tsIsDirectory(inputFile.c_str()))
 		{
 			ERROR("File -> " << inputFile.c_str() << " <- does not exist Decrypt operation aborted");
 			return 100;

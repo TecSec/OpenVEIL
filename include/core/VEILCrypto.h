@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -36,7 +36,23 @@
 
 #pragma once
 
-#include "utilities_interface.h"
+#ifdef __APPLE__
+#   include "CyberVEIL/CyberVEIL.h"
+#else
+#   include "CyberVEIL.h"
+#endif
+
+#ifndef _WIN32
+#   include <sys/socket.h>
+#   include <sys/un.h> 
+#   include <netinet/ip.h>
+#   include <netdb.h>
+#   include <arpa/inet.h>
+#   define SOCKET_ERROR -1
+
+static inline bool operator==(const GUID& left, const GUID& right) { return memcmp(&left, &right, sizeof(GUID)) == 0; }
+static inline bool operator!=(const GUID& left, const GUID& right) { return memcmp(&left, &right, sizeof(GUID)) != 0; }
+#endif
 
 #ifdef NO_LOGGING
 #define LOG(a,...)
@@ -218,7 +234,6 @@ namespace tscrypto
 #endif
 #include "xp_sharedlib.h"
 #include "xp_file.h"
-#include "CryptoStringFuncs.h"
 #include "CryptoEvent.h"
 #include "Endian.h"
 #ifndef ONLY_ALG_LIBS
@@ -336,18 +351,18 @@ namespace tscrypto
 	};
 	typedef tsCryptoData HashDigest;
 
-	/// <summary>
-	/// A flag indicating that the cpu supports AESNI instructions
-	/// </summary>
-	extern VEILCORE_API bool gCpuSupportsAES;
-	/// <summary>
-	/// A flag indicating that the cpu supports SSE instructions
-	/// </summary>
-	extern VEILCORE_API bool gCpuSupportsSSE;
-	/// <summary>
-	/// A flag indicating that the cpu supports SSE-2 instructions
-	/// </summary>
-	extern VEILCORE_API bool gCpuSupportsSSE2;
+	// /// <summary>
+	// /// A flag indicating that the cpu supports AESNI instructions
+	// /// </summary>
+	// extern VEILCORE_API bool gCpuSupportsAES;
+	// /// <summary>
+	// /// A flag indicating that the cpu supports SSE instructions
+	// /// </summary>
+	// extern VEILCORE_API bool gCpuSupportsSSE;
+	// /// <summary>
+	// /// A flag indicating that the cpu supports SSE-2 instructions
+	// /// </summary>
+	// extern VEILCORE_API bool gCpuSupportsSSE2;
 
 	/// <summary>
 	/// A service locator for the cryptograpic operations in this SDK.
@@ -904,7 +919,7 @@ namespace tscrypto
 	/// <param name="signAlgorithm">The signature algorithm to use.</param>
 	/// <returns>true if successful.</returns>
 	/// \ingroup HighLevelHelpers
-	_Check_return_ extern VEILCORE_API bool TSRSAPKCS11Sign(const tsCryptoData &RSAPrivate, const BYTE *value, size_t valueLen, tsCryptoData &signature, tscrypto::TS_ALG_ID signAlgorithm);
+	_Check_return_ extern VEILCORE_API bool TSRSAPKCS11Sign(const tsCryptoData &RSAPrivate, const uint8_t *value, size_t valueLen, tsCryptoData &signature, tscrypto::TS_ALG_ID signAlgorithm);
 	/// <summary>
 	/// Signs the data using the RSA key blob and PKCS #11 signature formatting.
 	/// </summary>
@@ -925,7 +940,7 @@ namespace tscrypto
 	/// <param name="signAlgorithm">The signature algorithm that was used to create the signature.</param>
 	/// <returns>true if successful.</returns>
 	/// \ingroup HighLevelHelpers
-	_Check_return_ extern VEILCORE_API bool TSRSAPKCS11Verify(const tsCryptoData &RSAPublic, const BYTE *value, const uint32_t valueLen, const tsCryptoData &signature, tscrypto::TS_ALG_ID signAlgorithm);
+	_Check_return_ extern VEILCORE_API bool TSRSAPKCS11Verify(const tsCryptoData &RSAPublic, const uint8_t *value, const uint32_t valueLen, const tsCryptoData &signature, tscrypto::TS_ALG_ID signAlgorithm);
 	/// <summary>
 	/// Verifies an RSA PKCS #11 signature
 	/// </summary>
@@ -1042,51 +1057,6 @@ namespace tscrypto
 /// </summary>
 namespace tscrypto
 {
-#ifndef ANDROID
-	/// <summary>Defines an alias representing handle to a file list.</summary>
-	typedef tsCryptoStringList XP_FileListHandle;
-
-	/// <summary>The definition of an invalid file list.</summary>
-#define XP_FILELIST_INVALID nullptr
-
-	/// <summary>Initiates a file search and returns the file search handle.</summary>
-	/// <param name="searchSpec">Information describing the search.</param>
-	/// <returns>the file search handle.</returns>
-	/// \ingroup LowLevelClasses
-	VEILCORE_API XP_FileListHandle xp_GetFileListHandle(const tsCryptoStringBase& searchSpec);
-	/// <summary>
-	/// Initiates a directory search and returns the directory search handle
-	/// </summary>
-	/// <param name="searchSpec">The search spec.</param>
-	/// <returns>XP_FileListHandle.</returns>
-	/// \ingroup LowLevelClasses
-	VEILCORE_API 	XP_FileListHandle xp_GetDirListHandle(const tsCryptoStringBase &searchSpec);
-	/// <summary>
-	/// Retrieves the number of files or directories in the list
-	/// </summary>
-	/// <param name="list">The list to query.</param>
-	/// <returns>The number of names in the list.</returns>
-	/// \ingroup LowLevelClasses
-	VEILCORE_API size_t xp_GetFileCount(XP_FileListHandle list);
-	/// <summary>
-	/// Retrieves the specified name from the list
-	/// </summary>
-	/// <param name="list">The list to query.</param>
-	/// <param name="index">The index to retrieve (0 based).</param>
-	/// <param name="name">The name is put here.</param>
-	/// <returns>true if successful.</returns>
-	/// \ingroup LowLevelClasses
-	_Check_return_ VEILCORE_API bool xp_GetFileName(XP_FileListHandle list, DWORD index, tsCryptoStringBase &name);
-	/// <summary>
-	/// Closes the search handle and free's any resources.
-	/// </summary>
-	/// <param name="list">The list to be closed.</param>
-	/// \ingroup LowLevelClasses
-	VEILCORE_API void xp_CloseFileList(XP_FileListHandle list);
-
-#endif // ANDROID
-
-
 	/// <summary>
 	/// Performs a byte by byte exclusive-or of 64 bit blocks and puts the result in dest.  dest may point to either of the input buffers.
 	/// </summary>

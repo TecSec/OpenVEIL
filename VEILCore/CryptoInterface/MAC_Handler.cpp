@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -36,192 +36,192 @@ using namespace tscrypto;
 class MAC_Handler : public TSName, public MessageAuthenticationCode, public tscrypto::ICryptoObject, public tscrypto::IInitializableObject, public AlgorithmInfo
 {
 public:
-	MAC_Handler()
-	{
-		desc = findMacAlgorithm("HMAC-SHA512");
-	}
-	virtual ~MAC_Handler(void)
-	{
-	}
+    MAC_Handler()
+    {
+        desc = tsFindMacAlgorithm("HMAC-SHA512");
+    }
+    virtual ~MAC_Handler(void)
+    {
+    }
 
     // MessageAuthenticationCode
     virtual bool initialize(const tsCryptoData &key) override
-	{
-		if (!gFipsState.operational() || desc == nullptr)
-			return false;
+    {
+        if (!gFipsState.operational() || desc == nullptr)
+            return false;
 
-		context = desc;
+        context = desc;
 
-		return desc->init(desc, context, key.c_str(), (uint32_t)key.size());
-	}
-	virtual bool update(const tsCryptoData &data) override
-	{
-		if (!gFipsState.operational() || desc == nullptr || context.empty())
-			return false;
+        return desc->init(desc, context, key.c_str(), (uint32_t)key.size());
+    }
+    virtual bool update(const tsCryptoData &data) override
+    {
+        if (!gFipsState.operational() || desc == nullptr || context.empty())
+            return false;
 
-		if (data.size() > 0)
-		{
-			return desc->update(desc, context, data.c_str(), (uint32_t)data.size());
-		}
-		return true;
-	}
-	virtual bool finish(tsCryptoData &digest) override
-	{
-		if (!gFipsState.operational() || desc == nullptr || context.empty())
-			return false;
+        if (data.size() > 0)
+        {
+            return desc->update(desc, context, data.c_str(), (uint32_t)data.size());
+        }
+        return true;
+    }
+    virtual bool finish(tsCryptoData &digest) override
+    {
+        if (!gFipsState.operational() || desc == nullptr || context.empty())
+            return false;
 
-		digest.clear();
-		digest.resize(desc->getDigestSize(desc));
-		bool retVal = desc->finish(desc, context, digest.rawData(), (uint32_t)digest.size());
-		if (!retVal)
-			digest.clear();
-		context.reset();
-		return retVal;
-	}
-	virtual size_t GetBlockSize() override
-	{
-		if (desc == nullptr)
-			return 0;
-		return desc->getBlockSize(desc);
-	}
-	virtual size_t GetDigestSize() override
-	{
-		if (desc == nullptr)
-			return 0;
-		return desc->getDigestSize(desc);
-	}
-	virtual bool isUsableKey(const tsCryptoData &key) override
-	{
-		return desc != nullptr && desc->isUsableKey(desc, key.c_str(), (uint32_t)key.size());
-	}
-	virtual bool requiresKey() const override
-	{
-		if (desc == nullptr)
-			return false;
-		return desc->getMinimumKeySize(desc) > 0;
-	}
-	virtual size_t minimumKeySizeInBits() const override
-	{
-		if (desc == nullptr)
-			return 0;
-		return desc->getMaximumKeySize(desc);
-	}
-	virtual size_t maximumKeySizeInBits() const override
-	{
-		if (desc == nullptr)
-			return 0;
-		return desc->getMaximumKeySize(desc);
-	}
-	virtual size_t keySizeIncrementInBits() const override
-	{
-		if (desc == nullptr)
-			return 0;
-		return desc->getKeySizeIncrement(desc);
-	}
+        digest.clear();
+        digest.resize(desc->getDigestSize(desc));
+        bool retVal = desc->finish(desc, context, digest.rawData(), (uint32_t)digest.size());
+        if (!retVal)
+            digest.clear();
+        context.reset();
+        return retVal;
+    }
+    virtual size_t GetBlockSize() override
+    {
+        if (desc == nullptr)
+            return 0;
+        return desc->getBlockSize(desc);
+    }
+    virtual size_t GetDigestSize() override
+    {
+        if (desc == nullptr)
+            return 0;
+        return desc->getDigestSize(desc);
+    }
+    virtual bool isUsableKey(const tsCryptoData &key) override
+    {
+        return desc != nullptr && desc->isUsableKey(desc, key.c_str(), (uint32_t)key.size());
+    }
+    virtual bool requiresKey() const override
+    {
+        if (desc == nullptr)
+            return false;
+        return desc->getMinimumKeySize(desc) > 0;
+    }
+    virtual size_t minimumKeySizeInBits() const override
+    {
+        if (desc == nullptr)
+            return 0;
+        return desc->getMaximumKeySize(desc);
+    }
+    virtual size_t maximumKeySizeInBits() const override
+    {
+        if (desc == nullptr)
+            return 0;
+        return desc->getMaximumKeySize(desc);
+    }
+    virtual size_t keySizeIncrementInBits() const override
+    {
+        if (desc == nullptr)
+            return 0;
+        return desc->getKeySizeIncrement(desc);
+    }
 
     // AlgorithmInfo
     virtual tsCryptoString AlgorithmName() const override
-	{
-		return GetName();
-	}
-	virtual tsCryptoString AlgorithmOID() const override
-	{
-		return LookUpAlgOID(GetName());
-	}
-	virtual TS_ALG_ID AlgorithmID() const override
-	{
-		return LookUpAlgID(GetName());
-	}
+    {
+        return GetName();
+    }
+    virtual tsCryptoString AlgorithmOID() const override
+    {
+        return LookUpAlgOID(GetName());
+    }
+    virtual TS_ALG_ID AlgorithmID() const override
+    {
+        return LookUpAlgID(GetName());
+    }
 
-	// tscrypto::IInitializableObject
-	virtual bool InitializeWithFullName(const tscrypto::tsCryptoStringBase& fullName) override
-	{
-		tsCryptoString algorithm(fullName);
+    // tscrypto::IInitializableObject
+    virtual bool InitializeWithFullName(const tscrypto::tsCryptoStringBase& fullName) override
+    {
+        tsCryptoString algorithm(fullName);
 
-		context.reset();
-		desc = nullptr;
-		if (TsStrniCmp(algorithm.c_str(), "HMAC", 4) == 0)
-		{
-			if (algorithm.size() <= 5)
-			{
-				algorithm = "HMAC-SHA512";
-			}
-			else if (TsStriCmp(algorithm.c_str(), "HMAC-SHA3") == 0)
-			{
-				algorithm += "-512";
-			}
-			tsCryptoString algName(algorithm);
+        context.reset();
+        desc = nullptr;
+        if (tsStrniCmp(algorithm.c_str(), "HMAC", 4) == 0)
+        {
+            if (algorithm.size() <= 5)
+            {
+                algorithm = "HMAC-SHA512";
+            }
+            else if (tsStriCmp(algorithm.c_str(), "HMAC-SHA3") == 0)
+            {
+                algorithm += "-512";
+            }
+            tsCryptoString algName(algorithm);
 
-			algName.ToUpper().Replace("SHA3-", "SHA3_");
+            algName.ToUpper().Replace("SHA3-", "SHA3_");
 
-			SetName(algorithm);
-			desc = findMacAlgorithm(algName.c_str());
-		}
-		else if (TsStrniCmp(algorithm.c_str(), "CMAC", 4) == 0)
-		{
-			if (algorithm.size() < 6)
-			{
-				SetName("CMAC-AES");
-				desc = findMacAlgorithm("CMAC-AES");
-				if (desc == nullptr)
-				{
-					return false;
-				}
-				SetName("CMAC-AES");
-			}
-			else
-			{
-				tsCryptoString name = "CMAC-";
-				name << &algorithm[5];
-				desc = findMacAlgorithm(name.c_str());
-				if (desc == nullptr)
-				{
-					tsCryptoStringList parts = name.split("-");
-					bool foundIt = false;
-					while (parts->size() > 2)
-					{
-						tsCryptoString tmp;
-						parts->pop_back();
+            SetName(algorithm);
+            desc = tsFindMacAlgorithm(algName.c_str());
+        }
+        else if (tsStrniCmp(algorithm.c_str(), "CMAC", 4) == 0)
+        {
+            if (algorithm.size() < 6)
+            {
+                SetName("CMAC-AES");
+                desc = tsFindMacAlgorithm("CMAC-AES");
+                if (desc == nullptr)
+                {
+                    return false;
+                }
+                SetName("CMAC-AES");
+            }
+            else
+            {
+                tsCryptoString name = "CMAC-";
+                name << &algorithm[5];
+                desc = tsFindMacAlgorithm(name.c_str());
+                if (desc == nullptr)
+                {
+                    tsCryptoStringList parts = name.split("-");
+                    bool foundIt = false;
+                    while (parts->size() > 2)
+                    {
+                        tsCryptoString tmp;
+                        parts->pop_back();
 
-						for (tsCryptoString& s : *parts)
-						{
-							if (!tmp.empty())
-								tmp << "-";
-							tmp << s;
-							desc = findMacAlgorithm(tmp.c_str());
-							if (desc != nullptr)
-							{
-								foundIt = true;
-								break;
-							}
-						}
-					}
-					if (!foundIt)
-						return false;
-				}
-				SetName(name);
-			}
-		}
-		else if (TsStrniCmp(algorithm.c_str(), "POLY1305", 8) == 0)
-		{
-			algorithm = "POLY1305";
-			SetName("POLY1305");
-			desc = findMacAlgorithm("POLY1305");
-		}
-		
-		if (desc == nullptr)
-			return false;
-		return true;
-	}
+                        for (tsCryptoString& s : *parts)
+                        {
+                            if (!tmp.empty())
+                                tmp << "-";
+                            tmp << s;
+                            desc = tsFindMacAlgorithm(tmp.c_str());
+                            if (desc != nullptr)
+                            {
+                                foundIt = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!foundIt)
+                        return false;
+                }
+                SetName(name);
+            }
+        }
+        else if (tsStrniCmp(algorithm.c_str(), "POLY1305", 8) == 0)
+        {
+            algorithm = "POLY1305";
+            SetName("POLY1305");
+            desc = tsFindMacAlgorithm("POLY1305");
+        }
+        
+        if (desc == nullptr)
+            return false;
+        return true;
+    }
 
 private:
     SmartCryptoWorkspace context;
-	const MAC_Descriptor* desc;
+    const TSMacDescriptor* desc;
 };
 
 tscrypto::ICryptoObject* CreateMAC()
 {
-	return dynamic_cast<tscrypto::ICryptoObject*>(new MAC_Handler());
+    return dynamic_cast<tscrypto::ICryptoObject*>(new MAC_Handler());
 }
 
 #if 0
@@ -229,40 +229,40 @@ bool HMAC::RunSelfTestsFor(const tsCryptoStringBase& baseProtocolName, std::shar
 {
     if (!gFipsState.operational())
         return false;
-	if (!baseProtocol || baseProtocolName.size() == 0)
-	{
-		gFipsState.testFailed();
-		return false;
-	}
+    if (!baseProtocol || baseProtocolName.size() == 0)
+    {
+        gFipsState.testFailed();
+        return false;
+    }
 
-	if (desc->underlyingHash == nullptr)
-		return false;
+    if (desc->underlyingHash == nullptr)
+        return false;
 
-	std::shared_ptr<Hash> hasher = std::dynamic_pointer_cast<Hash>(CryptoFactory(desc->underlyingHash->name));
+    std::shared_ptr<Hash> hasher = std::dynamic_pointer_cast<Hash>(CryptoFactory(desc->underlyingHash->name));
 
-	if (baseProtocolName == "KDF")
-	{
-		std::shared_ptr<TSExtensibleSelfTest> exSelfTest = std::dynamic_pointer_cast<TSExtensibleSelfTest>(hasher);
+    if (baseProtocolName == "KDF")
+    {
+        std::shared_ptr<TSExtensibleSelfTest> exSelfTest = std::dynamic_pointer_cast<TSExtensibleSelfTest>(hasher);
 
-		if (!!exSelfTest)
-		{
-			if (!exSelfTest->RunSelfTestsFor("KDF-HMAC", baseProtocol, runDetailedTests))
-			{
-				gFipsState.testFailed();
-				return false;
-			}
-			return true;
-		}
-		else
-		{
-			gFipsState.testFailed();
-			return false;
-		}
-	}
+        if (!!exSelfTest)
+        {
+            if (!exSelfTest->RunSelfTestsFor("KDF-HMAC", baseProtocol, runDetailedTests))
+            {
+                gFipsState.testFailed();
+                return false;
+            }
+            return true;
+        }
+        else
+        {
+            gFipsState.testFailed();
+            return false;
+        }
+    }
 
 
-	gFipsState.testFailed();
-	return false;
+    gFipsState.testFailed();
+    return false;
 }
 
 bool HMAC::runTests(bool runDetailedTests)
@@ -272,20 +272,20 @@ bool HMAC::runTests(bool runDetailedTests)
     if (!gFipsState.operational())
         return false;
 
-	if (desc->underlyingHash == nullptr)
+    if (desc->underlyingHash == nullptr)
         return false;
 
-	std::shared_ptr<Hash> hasher = std::dynamic_pointer_cast<Hash>(CryptoFactory(desc->underlyingHash->name));
-	
-	if (!hasher)
+    std::shared_ptr<Hash> hasher = std::dynamic_pointer_cast<Hash>(CryptoFactory(desc->underlyingHash->name));
+    
+    if (!hasher)
         return false;
 
-	std::shared_ptr<TSExtensibleSelfTest> exSelfTest = std::dynamic_pointer_cast<TSExtensibleSelfTest>(hasher);
+    std::shared_ptr<TSExtensibleSelfTest> exSelfTest = std::dynamic_pointer_cast<TSExtensibleSelfTest>(hasher);
 
-	if (!!exSelfTest)
-	{
-		testPassed = exSelfTest->RunSelfTestsFor("HMAC", _me.lock(), runDetailedTests);
-	}
+    if (!!exSelfTest)
+    {
+        testPassed = exSelfTest->RunSelfTestsFor("HMAC", _me.lock(), runDetailedTests);
+    }
     if (!testPassed)
     {
         gFipsState.testFailed();

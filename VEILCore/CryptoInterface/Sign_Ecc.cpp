@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -79,7 +79,7 @@ public:
 		if (parts->size() < 3)
 			SetName((GetName() + tsCryptoString("-SHA256")).c_str());
 
-		if (TsStrLen(GetName().c_str()) > strlen("SIGN-ECC") && TsStrniCmp(GetName().c_str(), ("SIGN-ECC"), 8) == 0)
+		if (tsStrLen(GetName().c_str()) > tsStrLen("SIGN-ECC") && tsStrniCmp(GetName().c_str(), ("SIGN-ECC"), 8) == 0)
 		{
 			m_isEcc = true;
 			if (!(m_hasher = std::dynamic_pointer_cast<Hash>(CryptoFactory(&GetName()[9]))))
@@ -87,7 +87,7 @@ public:
 				return false;
 			}
 		}
-		else if (TsStrLen(GetName().c_str()) > strlen("SIGN-DSA") && TsStrniCmp(GetName().c_str(), ("SIGN-DSA"), 8) == 0)
+		else if (tsStrLen(GetName().c_str()) > tsStrLen("SIGN-DSA") && tsStrniCmp(GetName().c_str(), ("SIGN-DSA"), 8) == 0)
 		{
 			if (!(m_hasher = std::dynamic_pointer_cast<Hash>(CryptoFactory(&GetName()[9]))))
 			{

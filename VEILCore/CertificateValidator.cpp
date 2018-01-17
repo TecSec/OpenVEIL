@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -34,37 +34,37 @@
 static const struct tag_AlgInfo
 {
     const char* oid;
-    SSL_HashAlgorithm hashAlg;
-    SSL_SignatureAlgorithm sigAlg;
+    TSSslHashAlgorithm hashAlg;
+    TSSslSignatureAlgorithm sigAlg;
 } gAlgs[] =
 {
-    { RSA_SHA1_SIGN_OID, sslhash_sha1, sslsign_rsa },
-    { RSA_SHA224_SIGN_OID,sslhash_sha224,sslsign_rsa },
-    { RSA_SHA256_SIGN_OID,sslhash_sha256, sslsign_rsa },
-    { RSA_SHA384_SIGN_OID,sslhash_sha384,sslsign_rsa },
-    { RSA_SHA512_SIGN_OID,sslhash_sha512,sslsign_rsa },
-    { ECDSA_SHA1_OID,sslhash_sha1,sslsign_ecdsa },
-    { ECDSA_SHA224_OID,sslhash_sha224,sslsign_ecdsa },
-    { ECDSA_SHA256_OID,sslhash_sha256,sslsign_ecdsa },
-    { ECDSA_SHA384_OID,sslhash_sha384,sslsign_ecdsa },
-    { ECDSA_SHA512_OID,sslhash_sha512,sslsign_ecdsa },
-    { DSA_SHA1_OID,sslhash_sha1,sslsign_dsa },
-    { NIST_DSA_SHA224_OID,sslhash_sha224,sslsign_dsa },
-    { NIST_DSA_SHA256_OID,sslhash_sha256,sslsign_dsa },
-    { DSA_PARAMETER_SET,sslhash_sha1,sslsign_dsa },
+    { id_RSA_SHA1_SIGN_OID, tsSslhash_sha1, tsSslsign_rsa },
+    { id_RSA_SHA224_SIGN_OID,tsSslhash_sha224,tsSslsign_rsa },
+    { id_RSA_SHA256_SIGN_OID,tsSslhash_sha256, tsSslsign_rsa },
+    { id_RSA_SHA384_SIGN_OID,tsSslhash_sha384,tsSslsign_rsa },
+    { id_RSA_SHA512_SIGN_OID,tsSslhash_sha512,tsSslsign_rsa },
+    { id_ECDSA_SHA1_OID,tsSslhash_sha1,tsSslsign_ecdsa },
+    { id_ECDSA_SHA224_OID,tsSslhash_sha224,tsSslsign_ecdsa },
+    { id_ECDSA_SHA256_OID,tsSslhash_sha256,tsSslsign_ecdsa },
+    { id_ECDSA_SHA384_OID,tsSslhash_sha384,tsSslsign_ecdsa },
+    { id_ECDSA_SHA512_OID,tsSslhash_sha512,tsSslsign_ecdsa },
+    { id_DSA_SHA1_OID,tsSslhash_sha1,tsSslsign_dsa },
+    { id_NIST_DSA_SHA224_OID,tsSslhash_sha224,tsSslsign_dsa },
+    { id_NIST_DSA_SHA256_OID,tsSslhash_sha256,tsSslsign_dsa },
+    { id_DSA_PARAMETER_SET_OID,tsSslhash_sha1,tsSslsign_dsa },
 };
 
 static const struct tag_AlgInfo* getAlgInfo(const char* oid)
 {
     for (size_t i = 0; i < sizeof(gAlgs) / sizeof(gAlgs[0]); i++)
     {
-        if (strcmp(oid, gAlgs[i].oid) == 0)
+        if (tsStrCmp(oid, gAlgs[i].oid) == 0)
             return &gAlgs[i];
     }
     return nullptr;
 }
 
-VEILCORE_API bool tscrypto::GetCertificateSignatureInfo(const tscrypto::tsCryptoString& oid, SSL_HashAlgorithm& hashAlg, SSL_SignatureAlgorithm& sigAlg)
+VEILCORE_API bool tscrypto::GetCertificateSignatureInfo(const tscrypto::tsCryptoString& oid, TSSslHashAlgorithm& hashAlg, TSSslSignatureAlgorithm& sigAlg)
 {
     const struct tag_AlgInfo* alg = getAlgInfo(oid.c_str());
 
@@ -75,7 +75,7 @@ VEILCORE_API bool tscrypto::GetCertificateSignatureInfo(const tscrypto::tsCrypto
     sigAlg = alg->sigAlg;
     return true;
 }
-VEILCORE_API bool tscrypto::GetCertificateSignatureInfo(const tscrypto::tsCryptoData& oid, SSL_HashAlgorithm& hashAlg, SSL_SignatureAlgorithm& sigAlg)
+VEILCORE_API bool tscrypto::GetCertificateSignatureInfo(const tscrypto::tsCryptoData& oid, TSSslHashAlgorithm& hashAlg, TSSslSignatureAlgorithm& sigAlg)
 {
     const struct tag_AlgInfo* alg = getAlgInfo(oid.ToOIDString().c_str());
 
@@ -102,13 +102,13 @@ protected:
     std::shared_ptr<ICertificateValidatorOptions> _options;
     std::shared_ptr<ICertificateRevocationChecker> _revoker;
 
-    virtual bool GetCertificateSignatureInfo(const tscrypto::tsCertificateParser& cert, SSL_HashAlgorithm& hashAlg, SSL_SignatureAlgorithm& sigAlg) override
+    virtual bool GetCertificateSignatureInfo(const tscrypto::tsCertificateParser& cert, TSSslHashAlgorithm& hashAlg, TSSslSignatureAlgorithm& sigAlg) override
     {
         tsCryptoString oid = cert.SignatureAlgorithmOID().ToOIDString();
 
         return tscrypto::GetCertificateSignatureInfo(oid, hashAlg, sigAlg);
     }
-    virtual bool GetCertificateSignatureInfo(const tscrypto::tsCryptoData& cert, SSL_HashAlgorithm& hashAlg, SSL_SignatureAlgorithm& sigAlg) override
+    virtual bool GetCertificateSignatureInfo(const tscrypto::tsCryptoData& cert, TSSslHashAlgorithm& hashAlg, TSSslSignatureAlgorithm& sigAlg) override
     {
         tsCertificateParser parser;
 
@@ -117,33 +117,33 @@ protected:
         return GetCertificateSignatureInfo(parser, hashAlg, sigAlg);
     }
 
-    virtual SSL_AlertDescription basicCertValidation(const tscrypto::tsCertificateParser& cert, std::shared_ptr<tscrypto::AsymmetricKey> priorKey, bool sslCert, SSL_CIPHER cipher) override
+    virtual TSSslAlertDescription basicCertValidation(const tscrypto::tsCertificateParser& cert, std::shared_ptr<tscrypto::AsymmetricKey> priorKey, bool sslCert, TSSslCipher cipher) override
     {
-        SSL_HashAlgorithm hashAlg;
-        SSL_SignatureAlgorithm sigAlg;
+        TSSslHashAlgorithm hashAlg;
+        TSSslSignatureAlgorithm sigAlg;
 
         if (!GetCertificateSignatureInfo(cert, hashAlg, sigAlg))
-            return sslalert_bad_certificate;
+            return tsSslalert_bad_certificate;
         if (cipher != tsTLS_NULL_WITH_NULL_NULL && !_options->CertSignatureTypeOkForCipher(hashAlg, sigAlg, sslCert, cipher))
-            return sslalert_bad_certificate;
+            return tsSslalert_bad_certificate;
         if (!!priorKey && !cert.VerifySignature(priorKey))
-            return sslalert_bad_certificate;
+            return tsSslalert_bad_certificate;
         if (cert.ValidFrom() > tsCryptoDate::Now() || cert.ValidTo() < tsCryptoDate::Now())
-            return sslalert_certificate_expired;
+            return tsSslalert_certificate_expired;
 
         if (!!_revoker)
         {
             if (_revoker->IsRevoked(cert))
-                return sslalert_certificate_revoked;
+                return tsSslalert_certificate_revoked;
         }
-        return sslalert_no_error;
+        return tsSslalert_no_error;
     }
-    virtual SSL_AlertDescription basicCertValidation(const tscrypto::tsCryptoData& cert, std::shared_ptr<tscrypto::AsymmetricKey> priorKey, bool sslCert, SSL_CIPHER cipher) override
+    virtual TSSslAlertDescription basicCertValidation(const tscrypto::tsCryptoData& cert, std::shared_ptr<tscrypto::AsymmetricKey> priorKey, bool sslCert, TSSslCipher cipher) override
     {
         tsCertificateParser parser;
 
         if (!parser.LoadCertificate(cert))
-            return sslalert_bad_certificate;
+            return tsSslalert_bad_certificate;
         return basicCertValidation(parser, priorKey, sslCert, cipher);
     }
 
@@ -161,11 +161,11 @@ protected:
         return IsSelfSigned(parser);
     }
 
-    virtual SSL_AlertDescription ValidateCertificate(const tscrypto::tsCryptoDataList& certificates, SSL_CIPHER cipher) override
+    virtual TSSslAlertDescription ValidateCertificate(const tscrypto::tsCryptoDataList& certificates, TSSslCipher cipher) override
     {
         bool first = true;
         //int32_t startAt;
-        SSL_AlertDescription retVal;
+        TSSslAlertDescription retVal;
         std::shared_ptr<tscrypto::AsymmetricKey> priorKey;
         std::shared_ptr<ICertificateRetriever> retriever;
         std::vector<tsCertificateParser> certs;
@@ -173,12 +173,12 @@ protected:
         bool trustedIntermediaryFound = false;
 
         if (!certificates || certificates->size() == 0)
-            return sslalert_bad_certificate;
+            return tsSslalert_bad_certificate;
 
         retriever = _options->getCertificateRetriever();
 
         if (!retriever)
-            return sslalert_certificate_unknown;
+            return tsSslalert_certificate_unknown;
 
         for (const auto& it : *certificates)
         {
@@ -186,7 +186,7 @@ protected:
 
             if (!certParser.LoadCertificate(it))
             {
-                return sslalert_bad_certificate;
+                return tsSslalert_bad_certificate;
             }
             certs.push_back(certParser);
             if (certs.size() > 1)
@@ -210,7 +210,7 @@ protected:
             // If the trusted root/intermediary is not found then retrieve the chain.
             if (!retriever->getTrustChainForCert(certs.back(), trustList, trustedRootFound, trustedIntermediaryFound))
             {
-                return sslalert_bad_certificate;
+                return tsSslalert_bad_certificate;
             }
             for (const auto& it : *trustList)
             {
@@ -218,7 +218,7 @@ protected:
 
                 if (!certParser.LoadCertificate(it))
                 {
-                    return sslalert_bad_certificate;
+                    return tsSslalert_bad_certificate;
                 }
                 certs.push_back(certParser);
             }
@@ -227,12 +227,12 @@ protected:
         {
             if (!IsSelfSigned(certs.back()))
             {
-                return sslalert_bad_certificate;
+                return tsSslalert_bad_certificate;
             }
             else
             {
                 if (!_options->allowSelfSignedCerts())
-                    return sslalert_bad_certificate;
+                    return tsSslalert_bad_certificate;
                 else
                 {
                     priorKey = certs.back().getPublicKeyObject();
@@ -247,26 +247,26 @@ protected:
             const tsCertificateParser& cert = certs.at(i);
 
             retVal = basicCertValidation(cert, priorKey, (i == 0), cipher);
-            if (retVal != sslalert_no_error)
+            if (retVal != tsSslalert_no_error)
                 return retVal;
 
             if (i > 0)
             {
-                SSL_HashAlgorithm hashAlg;
-                SSL_SignatureAlgorithm sigAlg;
+                TSSslHashAlgorithm hashAlg;
+                TSSslSignatureAlgorithm sigAlg;
 
                 if ((cert.GetKeyUsage() & CA_Certificate_Request::digitialSignature) == 0 || (cert.GetKeyUsage() & CA_Certificate_Request::keyCertSign) == 0)
-                    return sslalert_bad_certificate;
+                    return tsSslalert_bad_certificate;
 
                 if (!GetCertificateSignatureInfo(cert, hashAlg, sigAlg))
-                    return sslalert_bad_certificate;
+                    return tsSslalert_bad_certificate;
 
                 if (!_options->CertSignatureTypeOkForCipher(hashAlg, sigAlg, false, cipher))
-                    return sslalert_bad_certificate;
+                    return tsSslalert_bad_certificate;
 
                  priorKey = cert.getPublicKeyObject();
                  if (!_options->KeySizeOkForCipher(hashAlg, sigAlg, (uint32_t)priorKey->KeySize(), false, cipher))
-                     return sslalert_bad_certificate;
+                     return tsSslalert_bad_certificate;
             }
             if (trustedRootFound)
             {
@@ -274,10 +274,10 @@ protected:
                 int maxIntermediaries = 1000000;
 
                 if (!cert.getBasicConstraintInfo(isCA, maxIntermediaries) || !isCA)
-                    return sslalert_bad_certificate;
+                    return tsSslalert_bad_certificate;
 
                 if (maxIntermediaries + 2 > certs.size())
-                    return sslalert_bad_certificate;
+                    return tsSslalert_bad_certificate;
                 trustedRootFound = false; // clear the flag for the reset of the testing
             }
             else if (i > 0)
@@ -286,64 +286,64 @@ protected:
                 int maxIntermediaries = 1000000;
 
                 if (cert.getBasicConstraintInfo(isCA, maxIntermediaries) && isCA)
-                    return sslalert_unsupported_certificate;
+                    return tsSslalert_unsupported_certificate;
             }
         }
 
         // Validate the flags for the sslCert
-        const TlsSupport_Descriptor* supDesc = (const TlsSupport_Descriptor*)findCkmAlgorithm("TLS-SUPPORT");
+        const TSTlsSupportDescriptor* supDesc = (const TSTlsSupportDescriptor*)tsFindCkmAlgorithm("TLS-SUPPORT");
 
         if (supDesc == nullptr)
-            return sslalert_certificate_unknown;
+            return tsSslalert_certificate_unknown;
 
         const char* info = supDesc->keyExchange(cipher);
 
         if (info != nullptr)
         {
-            if (TsStriCmp(info, "RSA") == 0)
+            if (tsStriCmp(info, "RSA") == 0)
             {
                 if ((certs.front().GetKeyUsage() & CA_Certificate_Request::digitialSignature) == 0 && (certs.front().GetKeyUsage() & CA_Certificate_Request::dataEncipherment) == 0)
-                    return sslalert_bad_certificate;
+                    return tsSslalert_bad_certificate;
             }
-            else if (TsStriCmp(info, "DSA") == 0)
+            else if (tsStriCmp(info, "DSA") == 0)
             {
                 if ((certs.front().GetKeyUsage() & CA_Certificate_Request::digitialSignature) == 0)
-                    return sslalert_bad_certificate;
+                    return tsSslalert_bad_certificate;
             }
-            else if (TsStriCmp(info, "ECDSA") == 0)
+            else if (tsStriCmp(info, "ECDSA") == 0)
             {
                 if ((certs.front().GetKeyUsage() & CA_Certificate_Request::digitialSignature) == 0)
-                    return sslalert_bad_certificate;
+                    return tsSslalert_bad_certificate;
             }
-            else if (TsStriCmp(info, "DH") == 0)
+            else if (tsStriCmp(info, "DH") == 0)
             {
                 if ((certs.front().GetKeyUsage() & CA_Certificate_Request::dataEncipherment) == 0)
-                    return sslalert_bad_certificate;
+                    return tsSslalert_bad_certificate;
             }
-            else if (TsStriCmp(info, "ECDH") == 0)
+            else if (tsStriCmp(info, "ECDH") == 0)
             {
                 if ((certs.front().GetKeyUsage() & CA_Certificate_Request::dataEncipherment) == 0)
-                    return sslalert_bad_certificate;
+                    return tsSslalert_bad_certificate;
             }
             else 
             {
-                return sslalert_bad_certificate;
+                return tsSslalert_bad_certificate;
             }
         }
         else
         {
-            return sslalert_bad_certificate;
+            return tsSslalert_bad_certificate;
         }
 
-        return sslalert_no_error;
+        return tsSslalert_no_error;
 
-        //sslalert_no_error = 1024,
+        //tsSslalert_no_error = 1024,
         //sslalert_no_certificate_RESERVED = 41,
-        //sslalert_bad_certificate = 42,
-        //sslalert_unsupported_certificate = 43,
-        //sslalert_certificate_revoked = 44,
-        //sslalert_certificate_expired = 45,
-        //sslalert_certificate_unknown = 46,
+        //tsSslalert_bad_certificate = 42,
+        //tsSslalert_unsupported_certificate = 43,
+        //tsSslalert_certificate_revoked = 44,
+        //tsSslalert_certificate_expired = 45,
+        //tsSslalert_certificate_unknown = 46,
 
     }
 
@@ -429,12 +429,12 @@ protected:
         return _retriever;
     }
 
-    virtual bool CertSignatureTypeOkForCipher(SSL_HashAlgorithm hashAlg, SSL_SignatureAlgorithm sigAlg, bool sslCert, SSL_CIPHER cipher) override
+    virtual bool CertSignatureTypeOkForCipher(TSSslHashAlgorithm hashAlg, TSSslSignatureAlgorithm sigAlg, bool sslCert, TSSslCipher cipher) override
     {
         return true;
     }
 
-    virtual bool KeySizeOkForCipher(SSL_HashAlgorithm hashAlg, SSL_SignatureAlgorithm sigAlg, uint32_t keySize, bool sslCert, SSL_CIPHER cipher) override
+    virtual bool KeySizeOkForCipher(TSSslHashAlgorithm hashAlg, TSSslSignatureAlgorithm sigAlg, uint32_t keySize, bool sslCert, TSSslCipher cipher) override
     {
         return true;
     }

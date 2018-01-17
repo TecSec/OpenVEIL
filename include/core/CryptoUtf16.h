@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -102,6 +102,8 @@ namespace tscrypto {
 		explicit CryptoUtf16(std::initializer_list<char> init);
 		~CryptoUtf16();
 
+        static bool isValidUtf8(const char* s);
+        static bool isValidUtf8(const char* s, uint32_t count);
 		CryptoUtf16 &operator=(const CryptoUtf16 &obj);
 		CryptoUtf16 &operator=(CryptoUtf16 &&obj);
 		CryptoUtf16 &operator=(const_pointer data); /* zero terminated */

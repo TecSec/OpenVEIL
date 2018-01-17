@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -43,14 +43,14 @@
  * TokenSelectionWizardPage type definition
  */
 
-IMPLEMENT_DYNAMIC_CLASS(TokenSelectionWizardPage, wxWizardPageSimple)
+IMPLEMENT_DYNAMIC_CLASS(TokenSelectionWizardPage, wxWizardPage)
 
 
 /*
  * TokenSelectionWizardPage event table definition
  */
 
-    BEGIN_EVENT_TABLE(TokenSelectionWizardPage, wxWizardPageSimple)
+    BEGIN_EVENT_TABLE(TokenSelectionWizardPage, wxWizardPage)
 
     ////@begin TokenSelectionWizardPage event table entries
     EVT_WIZARD_PAGE_CHANGED( -1, TokenSelectionWizardPage::OnSelectTokenPageChanged )
@@ -96,7 +96,7 @@ bool TokenSelectionWizardPage::Create(wxWizard* parent)
     if (GetSizer())
         GetSizer()->Fit(this);
     ////@end TokenSelectionWizardPage creation
-    updateControls();
+    updateControls(true);
     return true;
 }
 
@@ -223,14 +223,14 @@ void TokenSelectionWizardPage::OnSelectTokenPageChanged(wxWizardEvent& event)
             }
             else
             {
-				if (!!wiz->_vars->_session && !!!wiz->_vars->_session->HasProfile())
-				{
-					wxBusyCursor busyCursor;
-					wxWindowDisabler disabler;
-					wxBusyInfo busyInfo(_("Retrieving token information..."));
+                if (!!wiz->_vars->_session && !!!wiz->_vars->_session->HasProfile())
+                {
+                    wxBusyCursor busyCursor;
+                    wxWindowDisabler disabler;
+                    wxBusyInfo busyInfo(_("Retrieving token information..."));
 
                     wiz->_vars->_session->GetProfile();
-				}
+                }
 
                 if (!!wiz->_vars->_session && !!wiz->_vars->_session->GetProfile() && wiz->_vars->_session->GetProfile()->exists_SerialNumber() &&
                     *wiz->_vars->_session->GetProfile()->get_SerialNumber() == wiz->_vars->_token->serialNumber())
@@ -258,9 +258,9 @@ void TokenSelectionWizardPage::OnSelectTokenPageChanged(wxWizardEvent& event)
 #ifdef __APPLE__
     if (_txtTokenPassword->IsEnabled())
         _txtTokenPassword->SetFocus();
-#endif __APPLE__
+#endif // __APPLE__
     Layout();
-    updateControls();
+    updateControls(true);
     event.Skip();
 }
 
@@ -341,7 +341,7 @@ void TokenSelectionWizardPage::OnTokenSelected(wxCommandEvent& event)
     wiz->_vars->_session.reset();
     if (_cmbToken->GetSelection() < 0)
     {
-        updateControls();
+        updateControls(true);
         return;
     }
 
@@ -369,7 +369,7 @@ void TokenSelectionWizardPage::OnTokenSelected(wxCommandEvent& event)
     }
     // _txtTokenPassword->Enable(!wiz->_vars->_session->IsLoggedIn());
     _txtTokenPassword->SetValue("");
-    updateControls();
+    updateControls(true);
 }
 
 
@@ -379,7 +379,7 @@ void TokenSelectionWizardPage::OnTokenSelected(wxCommandEvent& event)
 
 void TokenSelectionWizardPage::OnTokenPasswordTextUpdated(wxCommandEvent& event)
 {
-    updateControls();
+    updateControls(false);
 }
 
 
@@ -414,7 +414,7 @@ wxIcon TokenSelectionWizardPage::GetIconResource(const wxString& name)
     ////@end TokenSelectionWizardPage icon retrieval
 }
 
-void TokenSelectionWizardPage::updateControls()
+void TokenSelectionWizardPage::updateControls(bool initialSetup)
 {
     AudienceSelector2* wiz = dynamic_cast<AudienceSelector2*>(GetParent());
 
@@ -427,27 +427,37 @@ void TokenSelectionWizardPage::updateControls()
     //_txtTokenPassword->Enable(_cmbToken->GetSelection() >= 0);
     //_btnTokenLogin->Enable(_txtTokenPassword->GetValue().size() > 0);
     
-    if (!!wiz->_vars->_session && !wiz->_vars->_session->IsLoggedIn())
+    if (initialSetup)
     {
-        _txtTokenPassword->Show(true);
-        _btnTokenLogin->Show(true);
-        lblTokenPassword->Show(true);
-		_txtTokenPassword->Enable(_cmbToken->GetSelection() >= 0);
-		_btnTokenLogin->Enable(_txtTokenPassword->GetValue().size() > 0);
-        Layout();
-    }
-    else
-    {
-        _txtTokenPassword->Show(false);
-        _btnTokenLogin->Show(false);
-        lblTokenPassword->Show(false);
-        Layout();
+        if (!!wiz->_vars->_session && !wiz->_vars->_session->IsLoggedIn())
+        {
+            _txtTokenPassword->Show(true);
+            _btnTokenLogin->Show(true);
+            lblTokenPassword->Show(true);
+            _txtTokenPassword->Enable(_cmbToken->GetSelection() >= 0);
+            Layout();
+        }
+        else
+        {
+            _txtTokenPassword->Show(false);
+            _btnTokenLogin->Show(false);
+            lblTokenPassword->Show(false);
+            Layout();
+        }
     }
 
     if (_txtTokenPassword->GetValue().size() > 0)
+    {
         _btnTokenLogin->SetDefault();
+        if (_btnTokenLogin->IsShown())
+            _btnTokenLogin->Enable(true);
+    }
     else
+    {
         ((wxButton*)FindWindowById(wxID_FORWARD, this->GetParent()))->SetDefault();
+        if (_btnTokenLogin->IsShown())
+            _btnTokenLogin->Enable(false);
+    }
 
     if (!wiz->_vars->_session)
     {
@@ -497,7 +507,7 @@ void TokenSelectionWizardPage::OnTokenLoginClick(wxCommandEvent& event)
     {
         wiz->_vars->_session.reset();
         _txtTokenPassword->SetValue("");
-        updateControls();
+        updateControls(true);
         return;
     }
     if (_cmbToken->GetSelection() < 0 || !wiz->_vars->_token)
@@ -505,7 +515,7 @@ void TokenSelectionWizardPage::OnTokenLoginClick(wxCommandEvent& event)
         wiz->_vars->_session.reset();
         wxTsMessageBox("You must select a token before proceeding.", "ERROR", wxICON_HAND | wxOK, (XP_WINDOW)this);
         _txtTokenPassword->SetValue("");
-        updateControls();
+        updateControls(true);
         return;
     }
     if (!!wiz->_vars->_session &&
@@ -535,7 +545,7 @@ void TokenSelectionWizardPage::OnTokenLoginClick(wxCommandEvent& event)
             {
             case loginStatus_Connected:
                 _txtTokenPassword->SetValue("");
-                updateControls();
+                updateControls(true);
                 
                 entID = GUID_NULL;
                 {
@@ -584,7 +594,7 @@ void TokenSelectionWizardPage::OnTokenLoginClick(wxCommandEvent& event)
         }
     }
     _txtTokenPassword->SetValue("");
-    updateControls();
+    updateControls(true);
 }
 
 
@@ -594,11 +604,11 @@ void TokenSelectionWizardPage::OnTokenLoginClick(wxCommandEvent& event)
 
 wxWizardPage* TokenSelectionWizardPage::GetPrev() const
 {
-	ISkippablePage* tokPg = dynamic_cast<ISkippablePage*>(prevPage);
+    ISkippablePage* tokPg = dynamic_cast<ISkippablePage*>(prevPage);
 
-	if (tokPg != nullptr && tokPg->skipMe())
-		return prevPage->GetPrev();
-	return prevPage;
+    if (tokPg != nullptr && tokPg->skipMe())
+        return prevPage->GetPrev();
+    return prevPage;
 }
 
 
@@ -608,29 +618,29 @@ wxWizardPage* TokenSelectionWizardPage::GetPrev() const
 
 wxWizardPage* TokenSelectionWizardPage::GetNext() const
 {
-	ISkippablePage* tokPg = dynamic_cast<ISkippablePage*>(nextPage);
+    ISkippablePage* tokPg = dynamic_cast<ISkippablePage*>(nextPage);
 
-	if (tokPg != nullptr && tokPg->skipMe())
-		return nextPage->GetNext();
-	return nextPage;
+    if (tokPg != nullptr && tokPg->skipMe())
+        return nextPage->GetNext();
+    return nextPage;
 }
 
 bool TokenSelectionWizardPage::skipMe()
 {
-	AudienceSelector2* wiz = dynamic_cast<AudienceSelector2*>(GetParent());
+    AudienceSelector2* wiz = dynamic_cast<AudienceSelector2*>(GetParent());
 
-	if (wiz == nullptr || wiz->_vars == nullptr)
-		return false;
+    if (wiz == nullptr || wiz->_vars == nullptr)
+        return false;
 
-	if (!wiz->_vars->_connector || wiz->_vars->_connector->tokenCount() != 1)
-		return false;
+    if (!wiz->_vars->_connector || wiz->_vars->_connector->tokenCount() != 1)
+        return false;
 
-	if (!wiz->_vars->_session)
-	{
-		wiz->_vars->_session = wiz->_vars->_connector->token(0)->openSession();
-	}
-	if (!wiz->_vars->_session || !wiz->_vars->_session->IsLoggedIn())
-		return false;
-	return true;
+    if (!wiz->_vars->_session)
+    {
+        wiz->_vars->_session = wiz->_vars->_connector->token(0)->openSession();
+    }
+    if (!wiz->_vars->_session || !wiz->_vars->_session->IsLoggedIn())
+        return false;
+    return true;
 }
 

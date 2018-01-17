@@ -1,4 +1,4 @@
-#	Copyright (c) 2017, TecSec, Inc.
+#	Copyright (c) 2018, TecSec, Inc.
 #
 #	Redistribution and use in source and binary forms, with or without
 #	modification, are permitted provided that the following conditions are met:
@@ -67,18 +67,6 @@ function(CopyFilelist source dest)
     endforeach()
 endfunction()
 
-set(OVHeaders @SOURCE_DIR@/include/VEILSmartCard.h)
-set(VEILSmartCardHeaders @VEILSmartCardHeaders@)
-
-execute_process(
-    COMMAND 
-        ${CMAKE_COMMAND} -E remove_directory @CMAKE_CURRENT_BINARY_DIR@/out/VEILSmartCard${DSO_POSTFIX}.framework
-)
-execute_process(
-    COMMAND 
-        ${CMAKE_COMMAND} -E remove_directory @CMAKE_CURRENT_BINARY_DIR@/out/sdk/VEILSmartCard${DSO_POSTFIX}.framework
-)
-
 
 
 execute_process(
@@ -142,7 +130,6 @@ execute_process(
 
 # now process the headers
 CopyFilelist(OVHeaders @CMAKE_CURRENT_BINARY_DIR@/out/sdk/VEILSmartCard${DSO_POSTFIX}.framework/Versions/${OSX_FRAMEWORK_VERSION}/Headers)
-CopyFilelist(VEILSmartCardHeaders @CMAKE_CURRENT_BINARY_DIR@/out/sdk/VEILSmartCard${DSO_POSTFIX}.framework/Versions/${OSX_FRAMEWORK_VERSION}/Headers/VEILSmartCard)
 
 
 # Now create the installers

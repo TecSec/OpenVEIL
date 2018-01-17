@@ -1,4 +1,4 @@
-#	Copyright (c) 2017, TecSec, Inc.
+#	Copyright (c) 2018, TecSec, Inc.
 #
 #	Redistribution and use in source and binary forms, with or without
 #	modification, are permitted provided that the following conditions are met:
@@ -42,7 +42,7 @@ if(APPLE)
 elseif(WIN32)
     set(wxFlags "_UNICODE;UNICODE;_CRT_SECURE_NO_WARNINGS=1;__WXMSW__")
 else()
-    set(wxFlags ${wxWidgets_DEFINITIONS})
+	set(wxFlags ${wxWidgets_DEFINITIONS})
 endif(APPLE)
 
 # source_group("Generated" FILES )
@@ -56,7 +56,7 @@ set(CppSources
     ${CMAKE_CURRENT_SOURCE_DIR}/audienceselector2Wrapper.h
     ${CMAKE_CURRENT_SOURCE_DIR}/audienceselector2Wrapper.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/attributeselectorgrid.h
-	${CMAKE_CURRENT_SOURCE_DIR}/attributeselectorgrid.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/AttributeSelectorGrid.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/groupeditorwizardpage.h
 	${CMAKE_CURRENT_SOURCE_DIR}/groupeditorwizardpage.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/keyveilwizardpage.h
@@ -96,7 +96,7 @@ set(CppSources
     ${CMAKE_CURRENT_SOURCE_DIR}/VEILFileSettingsPage.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/ProgressDlgWrapper.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/progressdlg.h
-	${CMAKE_CURRENT_SOURCE_DIR}/progressdlg.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/ProgressDlg.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/EnterPinDlgWrapper.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/enterpindlg.h
 	${CMAKE_CURRENT_SOURCE_DIR}/enterpindlg.cpp
@@ -120,14 +120,14 @@ CopyImportTargetBinariesToBuildFolder(WxWidgets ${EXTRA_FILE_OUTPUT})
 
 add_library(VEILWxWidgets SHARED
     VEILWxWidgets.rc.in
-	${CMAKE_CURRENT_BINARY_DIR}/VEILWxWidgets.rc
+    ${CMAKE_CURRENT_BINARY_DIR}/VEILWxWidgets.rc
     stdafx.cpp
     stdafx.h
 
     ${CppSources}
-	${OVWxWinHeaders}
+    ${OVWxWinHeaders}
 
-	${soFilesToCopy}
+    ${soFilesToCopy}
 )
 set_target_properties(VEILWxWidgets PROPERTIES COMPILE_DEFINITIONS "${wxFlags};WXUSINGDLL;VEILWXWIDGETSDEF")
 
@@ -213,27 +213,29 @@ Source_Group(ChangeName FILES
 target_include_directories(VEILWxWidgets INTERFACE $<BUILD_INTERFACE:${PUBLIC_SOURCE_TOP_DIR}/include> $<INSTALL_INTERFACE:${TS_MODULE}/include>)
 
 if(ANDROID)
-	set_target_properties(VEILWxWidgets PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
+    set_target_properties(VEILWxWidgets PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
 endif()
 add_precompiled_header(VEILWxWidgets stdafx.h FORCEINCLUDE SOURCE_CXX stdafx.cpp)
 if(WIN32)
-	TARGET_LINK_LIBRARIES(VEILWxWidgets VEILCore TS_SUP_DLL VEILCmsHeader ${WxWidgets_Targets})
+	TARGET_LINK_LIBRARIES(VEILWxWidgets VEILCore CyberVEIL VEILCmsHeader ${WxWidgets_Targets})
+elseif(APPLE)
+	TARGET_LINK_LIBRARIES(VEILWxWidgets VEILCore ${CyberVEIL_TARGET} VEILCmsHeader ${wxWidgets_LIBRARIES})
 else()
-	TARGET_LINK_LIBRARIES(VEILWxWidgets VEILCore TS_SUP_DLL VEILCmsHeader ${wxWidgets_LIBRARIES})
+	TARGET_LINK_LIBRARIES(VEILWxWidgets VEILCore CyberVEIL VEILCmsHeader ${wxWidgets_LIBRARIES})
 endif()
 IF(WIN32)
-	TARGET_LINK_LIBRARIES(VEILWxWidgets Version.lib)
+    TARGET_LINK_LIBRARIES(VEILWxWidgets Version.lib)
 ENDIF(WIN32)
 set_target_properties(VEILWxWidgets PROPERTIES 
-	FOLDER "Modules" 
-	VERSION ${${VEILCORENAME_U}_VERSION} 
-	SOVERSION ${${VEILCORENAME_U}_SO_VERSION} 
-	)
+    FOLDER "Modules" 
+    VERSION ${${VEILCORENAME_U}_VERSION} 
+    SOVERSION ${${VEILCORENAME_U}_SO_VERSION} 
+    )
 if(UNIX AND CMAKE_OBJCOPY)
-	add_custom_command(TARGET VEILWxWidgets POST_BUILD 
-		COMMAND ${CMAKE_OBJCOPY} --only-keep-debug $<TARGET_FILE:VEILWxWidgets> $<TARGET_FILE_DIR:VEILWxWidgets>/$<TARGET_FILE_NAME:VEILWxWidgets>.dbg 
-		COMMAND ${CMAKE_OBJCOPY} --strip-debug $<TARGET_FILE:VEILWxWidgets>
-		)
+    add_custom_command(TARGET VEILWxWidgets POST_BUILD 
+        COMMAND ${CMAKE_OBJCOPY} --only-keep-debug $<TARGET_FILE:VEILWxWidgets> $<TARGET_FILE_DIR:VEILWxWidgets>/$<TARGET_FILE_NAME:VEILWxWidgets>.dbg 
+        COMMAND ${CMAKE_OBJCOPY} --strip-debug $<TARGET_FILE:VEILWxWidgets>
+        )
 endif()
 
 if(APPLE)
@@ -255,5 +257,6 @@ endif()
 
 
 
-
-add_subdirectory(static)
+if(WIN32)
+	add_subdirectory(static)
+endif(WIN32)

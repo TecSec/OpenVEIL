@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<!--	Copyright (c) 2017, TecSec, Inc.
+<!--	Copyright (c) 2018, TecSec, Inc.
 
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions are met:
@@ -35,11 +35,6 @@
   <File Name="TokenPacket" ExportSymbol="VEILCORE_API" TemplateExternSymbol="VEILCORE_TEMPLATE_EXTERN">
     <Import Name="CryptoAsn1.export" />
 
-    <ID Name="id_TokenPacket" Value="2.23.42.9.10.3.0.5"/>
-    <ID Name="id_SoftTokenPacket" Value="2.23.42.9.10.3.0.5.0"/>
-    <ID Name="id_SmartCardTokenPacket" Value="2.23.42.9.10.3.0.5.1"/>
-    <ID Name="id_CkmKeyUsageForTokenPacket" Value="2.23.42.9.10.3.0.5.2"/>
-    <ID Name="id_TecSecDocumentAuthorization" Value="2.23.42.9.10.3.0.5.3"/>
 
     <Namespace Name="Asn1">
 
@@ -74,8 +69,8 @@
         <ID Name="cmd_SequenceCheck" Value="8"/>
       </Enum>
 
-      <Sequence Name="TokenPacket" ElementType="TokenPacket" OID="id_SoftTokenPacket" DefaultVersion="0">
-        <Version Name="Soft0" OID="id_SoftTokenPacket" MinNumber="0" MaxNumber="0">
+      <Sequence Name="TokenPacket" ElementType="TokenPacket" OID="id_TECSEC_SOFT_TOKEN_PACKET_OID" DefaultVersion="0">
+        <Version Name="Soft0" OID="id_TECSEC_SOFT_TOKEN_PACKET_OID" MinNumber="0" MaxNumber="0">
           <Guid Name="memberGuid"/>
           <Enum Name="packetType" Tag="Number"/>
           <Enum Name="providerID" Tag="Number"/>
@@ -90,7 +85,7 @@
           <OctetString Name="encryptedData"/>
           <OctetString Name="signature"/>
         </Version>
-        <Version Name="Smart0" OID="id_SmartCardTokenPacket" MinNumber="0" MaxNumber="0">
+        <Version Name="Smart0" OID="id_TECSEC_SMART_CARD_TOKEN_PACKET_OID" MinNumber="0" MaxNumber="0">
           <Guid Name="memberGuid"/>
           <Enum Name="packetType" Tag="Number"/>
           <Enum Name="providerID" Tag="Number"/>
@@ -175,7 +170,7 @@
       </Sequence>
 
       <Sequence Name="TP_Attr" ElementType="TP_Attr">
-        <Guid Name="attributeId"/>
+        <OctetString Name="attributeId"/>
         <Int32 Name="keyVersion" Initializer="0"/>
         <OctetString Name="signature" Optional="true" Tag="0" Type="Context"/>
       </Sequence>
@@ -190,7 +185,7 @@
       <Sequence Name="TP_MiniHeader" ElementType="TP_MiniHeader">
         <Int32 Name="ckmVersion" Initializer="7"/>
         <Int32 Name="currentKgkLevel" Initializer="0"/>
-        <Guid Name="fiefdom"/>
+        <OctetString Name="fiefdom"/>
         <Date Name="creationDate"/>
         <OctetString Name="EphemeralPublic" Optional="true" Tag="0" Type="Context"/>
         <Bool Name="allowAsymetric" Initializer="false"/>
@@ -287,11 +282,6 @@
 
     <Namespace Name="Asn1">
       <Namespace Name="CTS">
-        <ID Name="TECSEC_DATA_CTS" Value="2.23.42.9.10.3.0.9.5.22"/>
-        <ID Name="TECSEC_DATA_CTS_COMBINE" Value="2.23.42.9.10.3.0.9.5.22.0"/>
-        <ID Name="TECSEC_DATA_TOKEN_AUTH" Value="2.23.42.9.10.3.0.9.5.22.1"/>
-        <ID Name="id_Favorite" Value="2.23.42.9.10.3.0.5.4"/>
-        <ID Name="TECSEC_DATA_CTS_RECIPE" Value="2.23.42.9.10.3.0.9.5.22.2"/>
 
         <Enum Name="CryptoGroupUsage">
           <ID Name="cgu_User" Value="0"/>
@@ -330,7 +320,7 @@
         <Sequence Name="Attribute" DefaultVersion="0" JSONName="attribute">
           <Version Name="V0" MinNumber="0" MaxNumber="0">
             <String Name="Name"/>
-            <Guid Name="Id"/>
+            <OctetString Name="Id"/>
             <Bool Name="hasRead"/>
             <Bool Name="hasWrite"/>
             <Int32 Name="ForwardVersion"/>
@@ -345,7 +335,7 @@
             <Bool Name="AllowSSO"/>
           </Version>
           <String Name="Name" JSONName="name"/>
-          <Guid Name="Id" JSONName="id"/>
+          <OctetString Name="Id" JSONName="id"/>
           <Bool Name="hasRead" JSONName="hasRead"/>
           <Bool Name="hasWrite" JSONName="hasWrite"/>
           <Int32 Name="ForwardVersion" Initializer="0" JSONName="forward"/>
@@ -395,7 +385,7 @@
         <Sequence Name="CryptoGroup" DefaultVersion="0" JSONName="cryptoGroup">
           <Version Name="V0" MinNumber="0" MaxNumber="0">
             <String Name="Name"/>
-            <Guid Name="Id"/>
+            <OctetString Name="Id"/>
             <NamedInt Name="Type" Tag="Number"/>
             <Enum Name="Usage" Tag="Number"/>
             <Int32 Name="ForwardVersion"/>
@@ -412,7 +402,7 @@
             <Bool Name="cacheSmartCard"/>
           </Version>
           <String Name="Name" JSONName="name"/>
-          <Guid Name="Id" JSONName="id"/>
+          <OctetString Name="Id" JSONName="id"/>
           <NamedInt Name="Type" ElementType="CkmCryptoGroupType" JSONName="type" Initializer="ct_None"/>
           <Enum Name="Usage" ElementType="CryptoGroupUsage" JSONName="usage" Initializer="cgu_User"/>
           <Int32 Name="ForwardVersion" Initializer="0" JSONName="forward"/>
@@ -429,7 +419,7 @@
           <OctetString Name="EncryptedCrypto" Optional="true"/>
           <Int32 Name="FileID" Initializer="0" Optional="true"/>
           <Bool Name="cacheSmartCard" Initializer="false" Optional="true" Tag="1" Type="Context" JSONName="cacheSmartCard"/>
-          <Function ReturnType="Asn1::CTS::_POD_Attribute*" Name="get_AttributeById" Parameters="const GUID&amp; id">
+          <Function ReturnType="Asn1::CTS::_POD_Attribute*" Name="get_AttributeById" Parameters="const tscrypto::tsCryptoData&amp; id">
             <Description>
               <![CDATA[<Summary> This function searches the CryptoGroup for an attribute based on the attribute ID</Summary>
 ]]>
@@ -522,8 +512,8 @@ return nullptr;
           <Bool Name="allowPINChange" Initializer="false" JSONName="allowPinChange"/>
         </Sequence>
 
-        <Sequence Name="TokenAuthentication" OID="TECSEC_DATA_TOKEN_AUTH" DefaultVersion="0">
-          <Version Name="V0" OID="TECSEC_DATA_TOKEN_AUTH">
+        <Sequence Name="TokenAuthentication" OID="id_TECSEC_DATA_TOKEN_AUTH_OID" DefaultVersion="0">
+          <Version Name="V0" OID="id_TECSEC_DATA_TOKEN_AUTH_OID">
             <OctetString Name="edek"/>
             <Choice Name="AuthData"/>
             <Enum Name="State" Tag="Number"/>
@@ -570,8 +560,8 @@ return true;
           </Function>
         </Sequence>
 
-        <Sequence Name="Profile" OID="TECSEC_DATA_CTS" DefaultVersion="0" JSONName="profile">
-          <Version Name="V0_CTS" OID="TECSEC_DATA_CTS" MinNumber="0" MaxNumber="0">
+        <Sequence Name="Profile" OID="id_TECSEC_DATA_CTS_OID" DefaultVersion="0" JSONName="profile">
+          <Version Name="V0_CTS" OID="id_TECSEC_DATA_CTS_OID" MinNumber="0" MaxNumber="0">
             <String Name="MemberName" JSONName="memberName"/>
             <Guid Name="MemberId" JSONName="memid"/>
             <String Name="EnterpriseName" JSONName="enterpriseName"/>
@@ -582,7 +572,7 @@ return true;
             <Date Name="Expire" JSONName="expire"/>
             <Sequence Name="passwordPolicy" ElementType="PasswordPolicy" JSONName="passwordPolicy"/>
             <Sequence Name="enterpriseSigning" ElementType="EnterpriseSigning" JSONName="signing"/>
-            <Guid Name="EnterpriseCryptoGroup" JSONName="enterpriseCryptoGroup"/>
+            <OctetString Name="EnterpriseCryptoGroup" JSONName="enterpriseCryptoGroup"/>
             <SequenceOf Name="cryptoGroupList" JSONName="cryptoGroups"/>
             <String Name="uid" JSONName="uid"/>
             <String Name="url" JSONName="url"/>
@@ -593,7 +583,7 @@ return true;
             <OctetString Name="PrivateData" />
             <Bool Name="AllowSingleSignOn" JSONName="allowSSO"/>
           </Version>
-          <Version Name="V0_Update" OID="tscrypto::TECSEC_TOKEN_UPDATE_OID" MinNumber="0" MaxNumber="0">
+          <Version Name="V0_Update" OID="id_TECSEC_TOKEN_UPDATE_OID" MinNumber="0" MaxNumber="0">
             <String Name="MemberName" JSONName="memberName"/>
             <Guid Name="MemberId" JSONName="memid"/>
             <String Name="EnterpriseName" JSONName="enterpriseName"/>
@@ -604,7 +594,7 @@ return true;
             <Date Name="Expire" JSONName="expire"/>
             <Sequence Name="passwordPolicy" ElementType="PasswordPolicy" JSONName="passwordPolicy"/>
             <Sequence Name="enterpriseSigning" ElementType="EnterpriseSigning" JSONName="signing"/>
-            <Guid Name="EnterpriseCryptoGroup" JSONName="enterpriseCryptoGroup"/>
+            <OctetString Name="EnterpriseCryptoGroup" JSONName="enterpriseCryptoGroup"/>
             <SequenceOf Name="cryptoGroupList" JSONName="cryptoGroups"/>
             <String Name="uid" JSONName="uid"/>
             <String Name="url" JSONName="url"/>
@@ -616,7 +606,7 @@ return true;
             <Bool Name="AllowSingleSignOn" JSONName="allowSSO"/>
             <OctetString Name="Signature"/>
           </Version>
-          <Version Name="V0_Soft" OID="tscrypto::TECSEC_SOFT_TOKEN_OID" MinNumber="0" MaxNumber="0">
+          <Version Name="V0_Soft" OID="id_TECSEC_SOFT_TOKEN_OID" MinNumber="0" MaxNumber="0">
             <String Name="MemberName" JSONName="memberName"/>
             <Guid Name="MemberId" JSONName="memid"/>
             <String Name="EnterpriseName" JSONName="enterpriseName"/>
@@ -627,7 +617,7 @@ return true;
             <Date Name="Expire" JSONName="expire"/>
             <Sequence Name="passwordPolicy" ElementType="PasswordPolicy" JSONName="passwordPolicy"/>
             <Sequence Name="enterpriseSigning" ElementType="EnterpriseSigning" JSONName="signing"/>
-            <Guid Name="EnterpriseCryptoGroup" JSONName="enterpriseCryptoGroup"/>
+            <OctetString Name="EnterpriseCryptoGroup" JSONName="enterpriseCryptoGroup"/>
             <SequenceOf Name="cryptoGroupList" JSONName="cryptoGroups"/>
             <String Name="tokenName" JSONName="tokenName"/>
             <Sequence Name="authData" ElementType="TokenAuthentication"/>
@@ -637,7 +627,7 @@ return true;
             <Bool Name="AllowSingleSignOn" JSONName="allowSSO"/>
             <OctetString Name="Signature"/>
           </Version>
-          <Version Name="V0_SoftUnlock" OID="tscrypto::TECSEC_SOFT_TOKEN_UNLOCK_OID" MinNumber="0" MaxNumber="0">
+          <Version Name="V0_SoftUnlock" OID="id_TECSEC_SOFT_TOKEN_UNLOCK_OID" MinNumber="0" MaxNumber="0">
             <String Name="MemberName" JSONName="memberName"/>
             <Guid Name="MemberId" JSONName="memid"/>
             <String Name="EnterpriseName" JSONName="enterpriseName"/>
@@ -645,7 +635,7 @@ return true;
             <OctetString Name="keyId" JSONName="keyid"/>
             <String Name="DistinguishName" JSONName="memdn"/>
             <Sequence Name="enterpriseSigning" ElementType="EnterpriseSigning" JSONName="signing"/>
-            <Guid Name="EnterpriseCryptoGroup" JSONName="enterpriseCryptoGroup"/>
+            <OctetString Name="EnterpriseCryptoGroup" JSONName="enterpriseCryptoGroup"/>
             <Sequence Name="authData" ElementType="TokenAuthentication"/>
             <Int32 Name="UpdateNumber" JSONName="updateNumber" />
             <OctetString Name="SerialNumber" JSONName="serno"/>
@@ -664,7 +654,7 @@ return true;
             <Date Name="Expire" JSONName="expire"/>
             <Sequence Name="passwordPolicy" ElementType="PasswordPolicy" JSONName="passwordPolicy"/>
             <Sequence Name="enterpriseSigning" ElementType="EnterpriseSigning" JSONName="signing"/>
-            <Guid Name="EnterpriseCryptoGroup" JSONName="enterpriseCryptoGroup"/>
+            <OctetString Name="EnterpriseCryptoGroup" JSONName="enterpriseCryptoGroup"/>
             <String Name="uid" JSONName="uid"/>
             <String Name="url" JSONName="url"/>
             <String Name="tokenName" JSONName="tokenName"/>
@@ -676,7 +666,7 @@ return true;
             <SequenceOf Name="cryptoGroupList" JSONName="cryptoGroups"/>
           </Part>
           <Part Name="signable">
-            <Version Name="V0_CTS_signable" OID="TECSEC_DATA_CTS" MinNumber="0" MaxNumber="0">
+            <Version Name="V0_CTS_signable" OID="id_TECSEC_DATA_CTS_OID" MinNumber="0" MaxNumber="0">
               <String Name="MemberName" JSONName="memberName"/>
               <Guid Name="MemberId" JSONName="memid"/>
               <String Name="EnterpriseName" JSONName="enterpriseName"/>
@@ -687,7 +677,7 @@ return true;
               <Date Name="Expire" JSONName="expire"/>
               <Sequence Name="passwordPolicy" ElementType="PasswordPolicy" JSONName="passwordPolicy"/>
               <Sequence Name="enterpriseSigning" ElementType="EnterpriseSigning" JSONName="signing"/>
-              <Guid Name="EnterpriseCryptoGroup" JSONName="enterpriseCryptoGroup"/>
+              <OctetString Name="EnterpriseCryptoGroup" JSONName="enterpriseCryptoGroup"/>
               <SequenceOf Name="cryptoGroupList" JSONName="cryptoGroups"/>
               <String Name="uid" JSONName="uid"/>
               <String Name="url" JSONName="url"/>
@@ -698,7 +688,7 @@ return true;
               <OctetString Name="PrivateData" />
               <Bool Name="AllowSingleSignOn" JSONName="allowSSO"/>
             </Version>
-            <Version Name="V0_Update_signable" OID="tscrypto::TECSEC_TOKEN_UPDATE_OID" MinNumber="0" MaxNumber="0">
+            <Version Name="V0_Update_signable" OID="id_TECSEC_TOKEN_UPDATE_OID" MinNumber="0" MaxNumber="0">
               <String Name="MemberName" JSONName="memberName"/>
               <Guid Name="MemberId" JSONName="memid"/>
               <String Name="EnterpriseName" JSONName="enterpriseName"/>
@@ -709,7 +699,7 @@ return true;
               <Date Name="Expire" JSONName="expire"/>
               <Sequence Name="passwordPolicy" ElementType="PasswordPolicy" JSONName="passwordPolicy"/>
               <Sequence Name="enterpriseSigning" ElementType="EnterpriseSigning" JSONName="signing"/>
-              <Guid Name="EnterpriseCryptoGroup" JSONName="enterpriseCryptoGroup"/>
+              <OctetString Name="EnterpriseCryptoGroup" JSONName="enterpriseCryptoGroup"/>
               <SequenceOf Name="cryptoGroupList" JSONName="cryptoGroups"/>
               <String Name="uid" JSONName="uid"/>
               <String Name="url" JSONName="url"/>
@@ -720,7 +710,7 @@ return true;
               <OctetString Name="PrivateData" />
               <Bool Name="AllowSingleSignOn" JSONName="allowSSO"/>
             </Version>
-            <Version Name="V0_Soft_signable" OID="tscrypto::TECSEC_SOFT_TOKEN_OID" MinNumber="0" MaxNumber="0">
+            <Version Name="V0_Soft_signable" OID="id_TECSEC_SOFT_TOKEN_OID" MinNumber="0" MaxNumber="0">
               <String Name="MemberName" JSONName="memberName"/>
               <Guid Name="MemberId" JSONName="memid"/>
               <String Name="EnterpriseName" JSONName="enterpriseName"/>
@@ -731,7 +721,7 @@ return true;
               <Date Name="Expire" JSONName="expire"/>
               <Sequence Name="passwordPolicy" ElementType="PasswordPolicy" JSONName="passwordPolicy"/>
               <Sequence Name="enterpriseSigning" ElementType="EnterpriseSigning" JSONName="signing"/>
-              <Guid Name="EnterpriseCryptoGroup" JSONName="enterpriseCryptoGroup"/>
+              <OctetString Name="EnterpriseCryptoGroup" JSONName="enterpriseCryptoGroup"/>
               <SequenceOf Name="cryptoGroupList" JSONName="cryptoGroups"/>
               <String Name="tokenName" JSONName="tokenName"/>
               <Sequence Name="authData" ElementType="TokenAuthentication"/>
@@ -740,7 +730,7 @@ return true;
               <OctetString Name="PrivateData" />
               <Bool Name="AllowSingleSignOn" JSONName="allowSSO"/>
             </Version>
-            <Version Name="V0_SoftUnlock_signable" OID="tscrypto::TECSEC_SOFT_TOKEN_UNLOCK_OID" MinNumber="0" MaxNumber="0">
+            <Version Name="V0_SoftUnlock_signable" OID="id_TECSEC_SOFT_TOKEN_UNLOCK_OID" MinNumber="0" MaxNumber="0">
               <String Name="MemberName" JSONName="memberName"/>
               <Guid Name="MemberId" JSONName="memid"/>
               <String Name="EnterpriseName" JSONName="enterpriseName"/>
@@ -748,7 +738,7 @@ return true;
               <OctetString Name="keyId" JSONName="keyid"/>
               <String Name="DistinguishName" JSONName="memdn"/>
               <Sequence Name="enterpriseSigning" ElementType="EnterpriseSigning" JSONName="signing"/>
-              <Guid Name="EnterpriseCryptoGroup" JSONName="enterpriseCryptoGroup"/>
+              <OctetString Name="EnterpriseCryptoGroup" JSONName="enterpriseCryptoGroup"/>
               <Sequence Name="authData" ElementType="TokenAuthentication"/>
               <Int32 Name="UpdateNumber" JSONName="updateNumber" />
               <OctetString Name="SerialNumber" JSONName="serno"/>
@@ -764,7 +754,7 @@ return true;
             <Date Name="Expire" JSONName="expire"/>
             <Sequence Name="passwordPolicy" ElementType="PasswordPolicy" JSONName="passwordPolicy"/>
             <Sequence Name="enterpriseSigning" ElementType="EnterpriseSigning" JSONName="signing"/>
-            <Guid Name="EnterpriseCryptoGroup" JSONName="enterpriseCryptoGroup"/>
+            <OctetString Name="EnterpriseCryptoGroup" JSONName="enterpriseCryptoGroup"/>
             <SequenceOf Name="cryptoGroupList" JSONName="cryptoGroups"/>
             <String Name="uid" JSONName="uid"/>
             <String Name="url" JSONName="url"/>
@@ -786,7 +776,7 @@ return true;
           <Date Name="Expire" JSONName="expire"/>
           <Sequence Name="passwordPolicy" ElementType="PasswordPolicy" JSONName="passwordPolicy"/>
           <Sequence Name="enterpriseSigning" ElementType="EnterpriseSigning" JSONName="signing"/>
-          <Guid Name="EnterpriseCryptoGroup" JSONName="enterpriseCryptoGroup"/>
+          <OctetString Name="EnterpriseCryptoGroup" JSONName="enterpriseCryptoGroup"/>
           <SequenceOf Name="cryptoGroupList" Tag="0" Type="Context" Optional="true" JSONName="cryptoGroups">
             <Sequence Name="CryptoGroup" ElementType="CryptoGroup" Tag="Sequence" Type="Universal" JSONName="cryptoGroup"/>
           </SequenceOf>
@@ -831,7 +821,7 @@ return true;
 
 
         <Sequence Name="AttributeIdentifier" JSONName="attributeIdentifier">
-          <Guid Name="id" JSONName="id"/>
+          <OctetString Name="id" JSONName="id"/>
           <Int32 Name="version" JSONName="version"/>
         </Sequence>
 
@@ -843,19 +833,19 @@ return true;
         </Sequence>
 
         <Sequence Name="AttributeSignature" JSONName="attributeSignature">
-          <Guid Name="attributeId" JSONName="attributeId"/>
+          <OctetString Name="attributeId" JSONName="attributeId"/>
           <Int32 Name="version" JSONName="version"/>
           <OctetString Name="signature" JSONName="signature"/>
         </Sequence>
 
-        <Sequence Name="CkmCombineParameters" OID="TECSEC_DATA_CTS_COMBINE" DefaultVersion="0" JSONName="ckmCombineParameters">
-          <Version Name="V0" OID="TECSEC_DATA_CTS_COMBINE" MinNumber="0" MaxNumber="0">
-            <Guid Name="cryptoGroupId" JSONName="cgid"/>
+        <Sequence Name="CkmCombineParameters" OID="id_TECSEC_DATA_CTS_COMBINE_OID" DefaultVersion="0" JSONName="ckmCombineParameters">
+          <Version Name="V0" OID="id_TECSEC_DATA_CTS_COMBINE_OID" MinNumber="0" MaxNumber="0">
+            <OctetString Name="cryptoGroupId" JSONName="cgid"/>
             <OctetString Name="publicKey" JSONName="pubKey"/>
             <Int32 Name="bitSize" JSONName="bitsize"/>
             <Bool Name="sign" JSONName="sign"/>
             <SequenceOf Name="groups" JSONName="groups"/>
-            <Guid Name="objectId" JSONName="objectId"/>
+            <OctetString Name="objectId" JSONName="objectId"/>
             <OID Name="keyUsage" JSONName="keyUsage"/>
             <OctetString Name="preHash" JSONName="preHash"/>
             <OctetString Name="prependHash" JSONName="prependHash"/>
@@ -872,12 +862,12 @@ return true;
           <Part Name="combine">
             <OID Name="OID"/>
             <Int32 Name="VERSION"/>
-            <Guid Name="cryptoGroupId" JSONName="cgid"/>
+            <OctetString Name="cryptoGroupId" JSONName="cgid"/>
             <OctetString Name="publicKey" JSONName="pubKey"/>
             <Int32 Name="bitSize" JSONName="bitsize"/>
             <Bool Name="sign" JSONName="sign"/>
             <SequenceOf Name="groups" JSONName="groups"/>
-            <Guid Name="objectId" JSONName="objectId"/>
+            <OctetString Name="objectId" JSONName="objectId"/>
             <OID Name="keyUsage" JSONName="keyUsage"/>
             <OctetString Name="preHash" JSONName="preHash"/>
             <OctetString Name="prependHash" JSONName="prependHash"/>
@@ -887,12 +877,12 @@ return true;
           <Part Name="combineResults">
             <OID Name="OID"/>
             <Int32 Name="VERSION"/>
-            <Guid Name="cryptoGroupId" JSONName="cgid"/>
+            <OctetString Name="cryptoGroupId" JSONName="cgid"/>
             <OctetString Name="publicKey" JSONName="pubKey"/>
             <Int32 Name="bitSize" JSONName="bitsize"/>
             <Bool Name="sign" JSONName="sign"/>
             <SequenceOf Name="groups" JSONName="groups"/>
-            <Guid Name="objectId" JSONName="objectId"/>
+            <OctetString Name="objectId" JSONName="objectId"/>
             <OID Name="keyUsage" JSONName="keyUsage"/>
             <OctetString Name="preHash" JSONName="preHash"/>
             <OctetString Name="prependHash" JSONName="prependHash"/>
@@ -909,11 +899,11 @@ return true;
           <Part Name="recombine">
             <OID Name="OID"/>
             <Int32 Name="VERSION"/>
-            <Guid Name="cryptoGroupId" JSONName="cgid"/>
+            <OctetString Name="cryptoGroupId" JSONName="cgid"/>
             <OctetString Name="publicKey" JSONName="pubKey"/>
             <Int32 Name="bitSize" JSONName="bitsize"/>
             <SequenceOf Name="groups" JSONName="groups"/>
-            <Guid Name="objectId" JSONName="objectId"/>
+            <OctetString Name="objectId" JSONName="objectId"/>
             <OID Name="keyUsage" JSONName="keyUsage"/>
             <OctetString Name="preHash" JSONName="preHash"/>
             <OctetString Name="prependHash" JSONName="prependHash"/>
@@ -928,11 +918,11 @@ return true;
           <Part Name="recombineResults">
             <OID Name="OID"/>
             <Int32 Name="VERSION"/>
-            <Guid Name="cryptoGroupId" JSONName="cgid"/>
+            <OctetString Name="cryptoGroupId" JSONName="cgid"/>
             <OctetString Name="publicKey" JSONName="pubKey"/>
             <Int32 Name="bitSize" JSONName="bitsize"/>
             <SequenceOf Name="groups" JSONName="groups"/>
-            <Guid Name="objectId" JSONName="objectId"/>
+            <OctetString Name="objectId" JSONName="objectId"/>
             <OID Name="keyUsage" JSONName="keyUsage"/>
             <OctetString Name="preHash" JSONName="preHash"/>
             <OctetString Name="prependHash" JSONName="prependHash"/>
@@ -947,14 +937,14 @@ return true;
             <Guid Name="enterpriseId" JSONName="entid"/>
           </Part>
 
-          <Guid Name="cryptoGroupId" JSONName="cgid"/>
+          <OctetString Name="cryptoGroupId" JSONName="cgid"/>
           <OctetString Name="publicKey" JSONName="pubKey"/>
           <Int32 Name="bitSize" JSONName="bitsize"/>
           <Bool Name="sign" JSONName="sign"/>
           <SequenceOf Name="groups" Tag="0" Type="Context" JSONName="groups">
             <Sequence Name="group" ElementType="AccessGroup" JSONName="group"/>
           </SequenceOf>
-          <Guid Name="objectId" JSONName="objectId"/>
+          <OctetString Name="objectId" JSONName="objectId"/>
           <OID Name="keyUsage" JSONName="keyUsage"/>
           <OctetString Name="preHash" JSONName="preHash"/>
           <OctetString Name="prependHash" JSONName="prependHash"/>
@@ -973,32 +963,32 @@ return true;
           <Guid Name="enterpriseId" JSONName="entid"/>
         </Sequence>
 
-        <Sequence Name="CkmRecipe" OID="TECSEC_DATA_CTS_RECIPE" DefaultVersion="0" JSONName="recipe">
-          <Version Name="V0" OID="TECSEC_DATA_CTS_RECIPE" MinNumber="0" MaxNumber="0">
+        <Sequence Name="CkmRecipe" OID="id_TECSEC_DATA_CTS_RECIPE_OID" DefaultVersion="0" JSONName="recipe">
+          <Version Name="V0" OID="id_TECSEC_DATA_CTS_RECIPE_OID" MinNumber="0" MaxNumber="0">
             <Int32 Name="ckmVersion" JSONName="ckmVersion"/>
-            <Guid Name="cryptoGroupId" JSONName="cgid"/>
+            <OctetString Name="cryptoGroupId" JSONName="cgid"/>
             <OctetString Name="publicKey" JSONName="pubKey"/>
             <Int32 Name="bitSize" JSONName="bitsize"/>
             <Bool Name="sign" JSONName="sign"/>
             <SequenceOf Name="groups" JSONName="groups"/>
-            <Guid Name="objectId" JSONName="objectId"/>
+            <OctetString Name="objectId" JSONName="objectId"/>
             <OID Name="keyUsage" JSONName="keyUsage"/>
           </Version>
 
           <Int32 Name="ckmVersion" JSONName="ckmVersion" Initializer="7"/>
-          <Guid Name="cryptoGroupId" JSONName="cgid"/>
+          <OctetString Name="cryptoGroupId" JSONName="cgid"/>
           <OctetString Name="publicKey" JSONName="pubKey"/>
           <Int32 Name="bitSize" JSONName="bitsize"/>
           <Bool Name="sign" JSONName="sign"/>
           <SequenceOf Name="groups" Tag="0" Type="Context" JSONName="groups">
             <Sequence Name="group" ElementType="AccessGroup" JSONName="group"/>
           </SequenceOf>
-          <Guid Name="objectId" JSONName="objectId"/>
+          <OctetString Name="objectId" JSONName="objectId"/>
           <OID Name="keyUsage" JSONName="keyUsage"/>
         </Sequence>
 
-        <Sequence Name="Favorite" OID="id_Favorite" DefaultVersion="0">
-          <Version Name="V0" OID="id_Favorite" MinNumber="0" MaxNumber="0">
+        <Sequence Name="Favorite" OID="id_TECSEC_FAVORITE_OID" DefaultVersion="0">
+          <Version Name="V0" OID="id_TECSEC_FAVORITE_OID" MinNumber="0" MaxNumber="0">
             <Guid Name="Id"/>
             <String Name="Name"/>
             <OctetString Name="serialNumber"/>

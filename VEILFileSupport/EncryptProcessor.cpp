@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -39,7 +39,7 @@
 class EncryptProcessor : public IKeyGenCallback, public IDecryptProcessor, public IFifoStreamReaderCallback, public tsmod::IObject, public IEncryptProcessor
 {
 public:
-	EncryptProcessor(DWORD taskCount, DWORD currentTask, std::shared_ptr<IFileVEILOperationStatus> status, std::shared_ptr<IDataReader> reader, std::shared_ptr<IDataWriter> writer, bool prependHeader);
+	EncryptProcessor(uint32_t taskCount, uint32_t currentTask, std::shared_ptr<IFileVEILOperationStatus> status, std::shared_ptr<IDataReader> reader, std::shared_ptr<IDataWriter> writer, bool prependHeader);
 	virtual ~EncryptProcessor();
 
 	// IKeyGenCallback
@@ -89,8 +89,8 @@ private:
 	std::shared_ptr<IDataWriter> m_writer;
 	std::shared_ptr<IFileVEILOperationStatus> m_status;
 	std::shared_ptr<IKeyGenCallback> m_nextCallback;
-	const DWORD                                        m_taskCount;
-	const DWORD                                        m_currentTask;
+	const uint32_t                                        m_taskCount;
+	const uint32_t                                        m_currentTask;
 	int m_headerLen;
 	bool m_prependHeader;
 
@@ -121,12 +121,12 @@ private:
     EncryptProcessor& operator=(const EncryptProcessor&) = delete;
 };
 
-std::shared_ptr<IKeyGenCallback> CreateEncryptProcessor(DWORD taskCount, DWORD currentTask, std::shared_ptr<IFileVEILOperationStatus> status, std::shared_ptr<IDataReader> reader, std::shared_ptr<IDataWriter> writer, bool prependHeader)
+std::shared_ptr<IKeyGenCallback> CreateEncryptProcessor(uint32_t taskCount, uint32_t currentTask, std::shared_ptr<IFileVEILOperationStatus> status, std::shared_ptr<IDataReader> reader, std::shared_ptr<IDataWriter> writer, bool prependHeader)
 {
 	return ::TopServiceLocator()->Finish<IKeyGenCallback>(new EncryptProcessor(taskCount, currentTask, status, reader, writer, prependHeader));
 }
 
-EncryptProcessor::EncryptProcessor(DWORD taskCount, DWORD currentTask, std::shared_ptr<IFileVEILOperationStatus> status, std::shared_ptr<IDataReader> reader, std::shared_ptr<IDataWriter> writer,
+EncryptProcessor::EncryptProcessor(uint32_t taskCount, uint32_t currentTask, std::shared_ptr<IFileVEILOperationStatus> status, std::shared_ptr<IDataReader> reader, std::shared_ptr<IDataWriter> writer,
 	bool prependHeader)
 	:
 	m_reader(reader),
@@ -315,11 +315,7 @@ void EncryptProcessor::LogError(tscrypto::tsCryptoString error, ...)
 		return;
 	msg.resize(10240);
 	va_start(args, error);
-	// 06/15/2010 KRR C4996
-	//    vsnprintf(msg.rawData(), 10240, error, args);
-	TsVsnPrintf(msg.rawData(), 10240, error, args);
-	//	vsnprintf( buff, sizeof(buff) - 1, formatstring, args);
-
+	tsVsnPrintf(msg.rawData(), 10240, error.c_str(), args);
 	va_end(args);
 	LOG(DebugError, msg);
 	if (!!m_status)
@@ -337,7 +333,7 @@ bool EncryptProcessor::SetNextCallback(std::shared_ptr<IKeyGenCallback> callback
 
 bool EncryptProcessor::EncryptHashedPart(std::shared_ptr<IFifoStream> fifo)
 {
-	MY_UNREFERENCED_PARAMETER(fifo);
+    UNREFERENCED_PARAMETER(fifo);
 	TSDECLARE_FUNCTIONExt(true);
 
 	int percent = 0;
@@ -431,7 +427,7 @@ bool EncryptProcessor::ProcessHashed(const tscrypto::tsCryptoData &_key, std::sh
 {
 	TSDECLARE_FUNCTIONExt(true);
 
-	const BYTE *key = _key.c_str();
+	const uint8_t *key = _key.c_str();
 	size_t keyLen = (int)_key.size();
 	int percent = 0;
 	int64_t inOffset = 0;
@@ -720,7 +716,7 @@ bool EncryptProcessor::ProcessHashed(const tscrypto::tsCryptoData &_key, int blo
 {
 	TSDECLARE_FUNCTIONExt(true);
 
-	const BYTE *key = _key.c_str();
+	const uint8_t *key = _key.c_str();
 	int keyLen = (int)_key.size();
 	int percent = 0;
 	int64_t inOffset = 0;
@@ -1128,7 +1124,7 @@ bool EncryptProcessor::ProcessEncAuthHashed(const tscrypto::tsCryptoData &_key, 
 {
 	TSDECLARE_FUNCTIONExt(true);
 
-	const BYTE *key = _key.c_str();
+	const uint8_t *key = _key.c_str();
 	int keyLen = (int)_key.size();
 	int percent = 0;
 	tscrypto::TS_ALG_ID encAlg = _TS_ALG_ID::TS_ALG_INVALID;
@@ -1401,7 +1397,7 @@ bool EncryptProcessor::ProcessEncAuthHashed(const tscrypto::tsCryptoData &_key, 
 bool EncryptProcessor::ProcessEncAuthHashed(const tscrypto::tsCryptoData &_key, int blocksize, std::shared_ptr<IFifoStream> fifo, tscrypto::TS_ALG_ID encAlg, const tscrypto::tsCryptoData &hashOid, CompressionType compType,
 	const tscrypto::tsCryptoData &_ivec, tscrypto::SymmetricPaddingType padding, const tscrypto::tsCryptoData &authData, tscrypto::tsCryptoData &finalHash)
 {
-	MY_UNREFERENCED_PARAMETER(padding);
+    UNREFERENCED_PARAMETER(padding);
 
 	TSDECLARE_FUNCTIONExt(true);
 
@@ -1410,7 +1406,7 @@ bool EncryptProcessor::ProcessEncAuthHashed(const tscrypto::tsCryptoData &_key, 
 	size_t encKeySize = 0, ivecSize = 0, encBlocksize;
 	tscrypto::tsCryptoData encKey, macKey, ivec, tag;
 	int chunkSize;
-	const BYTE *key = _key.c_str();
+	const uint8_t *key = _key.c_str();
 	int keyLen = (int)_key.size();
 
 	ClearStreamVariables();
@@ -1918,7 +1914,7 @@ bool EncryptProcessor::DecryptEncAuthData(const tscrypto::tsCryptoData &_key, st
 	size_t encKeySize = 0, ivecSize = 0, encBlocksize;
 	tscrypto::tsCryptoData encKey, macKey, ivec, tag;
 	int percent;
-	const BYTE *key = _key.c_str();
+	const uint8_t *key = _key.c_str();
 	int keyLen = (int)_key.size();
 
 	m_fileSize = (int64_t)header->GetFileLength();
@@ -2186,7 +2182,7 @@ bool EncryptProcessor::DecryptEncAuthData(const tscrypto::tsCryptoData &_key, st
 bool EncryptProcessor::DecryptEncAuthData(const tscrypto::tsCryptoData &_key, int blocksize, std::shared_ptr<IFifoStream> fifo,
 	tscrypto::TS_ALG_ID encAlg, const tscrypto::tsCryptoData &hashOid, CompressionType compType, const tscrypto::tsCryptoData &_ivec, tscrypto::SymmetricPaddingType padding, const tscrypto::tsCryptoData &authData, const tscrypto::tsCryptoData &finalHash)
 {
-	MY_UNREFERENCED_PARAMETER(padding);
+    UNREFERENCED_PARAMETER(padding);
 
 	TSDECLARE_FUNCTIONExt(true);
 
@@ -2195,7 +2191,7 @@ bool EncryptProcessor::DecryptEncAuthData(const tscrypto::tsCryptoData &_key, in
 	size_t encKeySize = 0, ivecSize = 0, encBlocksize;
 	tscrypto::tsCryptoData encKey, macKey, ivec, tag;
 	int percent;
-	const BYTE *key = _key.c_str();
+	const uint8_t *key = _key.c_str();
 	int keyLen = (int)_key.size();
 
 	if (m_reader->KnowsRemainingData())
@@ -2465,7 +2461,7 @@ bool EncryptProcessor::DecryptEncAuthData(const tscrypto::tsCryptoData &_key, in
 
 bool EncryptProcessor::DecryptHashedPart(std::shared_ptr<IFifoStream> fifo)
 {
-	MY_UNREFERENCED_PARAMETER(fifo);
+    UNREFERENCED_PARAMETER(fifo);
 
 	TSDECLARE_FUNCTIONExt(true);
 
@@ -2558,7 +2554,7 @@ bool EncryptProcessor::DecryptHashed(const tscrypto::tsCryptoData &_key, std::sh
 	size_t encKeySize = 0, ivecSize = 0, encBlocksize;
 	tscrypto::tsCryptoData encKey, macKey, ivec, tag;
 	int percent;
-	const BYTE *key = _key.c_str();
+	const uint8_t *key = _key.c_str();
 	int keyLen = (int)_key.size();
 
 	m_fileSize = (int64_t)header->GetFileLength();
@@ -2853,7 +2849,7 @@ bool EncryptProcessor::DecryptHashed(const tscrypto::tsCryptoData &_key, int blo
 	size_t encKeySize = 0, ivecSize = 0, encBlocksize;
 	tscrypto::tsCryptoData encKey, macKey, ivec, tag;
 	int percent;
-	const BYTE *key = _key.c_str();
+	const uint8_t *key = _key.c_str();
 	int keyLen = (int)_key.size();
 
 	if (m_reader->KnowsRemainingData())
@@ -3167,7 +3163,7 @@ bool EncryptProcessor::PrevalidateData(std::shared_ptr<ICmsHeaderBase> header)
 	}
 
 	if (!m_reader->AllowsRandomAccess())
-		return TSRETURN_ERROR(("FALSE"), true);
+		return TSRETURN_ERROR(("true"), true);
 
 	origPosition = m_reader->CurrentPosition();
 
@@ -3204,7 +3200,7 @@ bool EncryptProcessor::PrevalidateDataHash(const tscrypto::tsCryptoData &finalHa
 	bool retVal;
 
 	if (!m_reader->AllowsRandomAccess())
-		return TSRETURN_ERROR(("FALSE"), true);
+		return TSRETURN_ERROR(("true"), true);
 
 	origPosition = m_reader->CurrentPosition();
 
@@ -3290,7 +3286,7 @@ bool EncryptProcessor::ValidateEncAuthFormat(std::shared_ptr<ICmsHeader> header,
 }
 bool EncryptProcessor::ValidateEncAuthFormat(const tscrypto::tsCryptoData &finalhash, const tscrypto::tsCryptoData &hashOid, const tscrypto::tsCryptoData &authData, int64_t fileSize)
 {
-	MY_UNREFERENCED_PARAMETER(authData);
+    UNREFERENCED_PARAMETER(authData);
 
 	tscrypto::tsCryptoData tmp;
 	std::shared_ptr<MessageAuthenticationCode> hasher;

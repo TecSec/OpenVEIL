@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -149,7 +149,7 @@ public:
 
 	typedef std::vector<TokenVecEntry> TokenVec;
 	TokenVec             m_TokenVec;
-	DWORD                m_nLVWidth;
+	uint32_t                m_nLVWidth;
 	bool                 m_bShowSlots;
 	std::shared_ptr<IKeyVEILSession> _session;
 	long                 _nextId;

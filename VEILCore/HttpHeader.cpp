@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -51,8 +51,8 @@ public:
 	virtual const tscrypto::tsCryptoData& dataPart() const override;
 	virtual void dataPart(const tscrypto::tsCryptoString& setTo) override;
 	virtual void dataPart(const tscrypto::tsCryptoData& setTo) override;
-	virtual WORD errorCode() const override;
-	virtual void errorCode(WORD setTo) override;
+	virtual uint16_t errorCode() const override;
+	virtual void errorCode(uint16_t setTo) override;
 	virtual size_t attributeCount() const override
 	{
 		return m_attributes.size();
@@ -69,7 +69,7 @@ public:
 	}
 	virtual const HttpAttribute* attributeByName(const char *index) const override
 	{
-		auto it = std::find_if(m_attributes.begin(), m_attributes.end(), [&index](const HttpAttribute& attr)->bool { return TsStriCmp(index, attr.m_Name.c_str()) == 0; });
+		auto it = std::find_if(m_attributes.begin(), m_attributes.end(), [&index](const HttpAttribute& attr)->bool { return tsStriCmp(index, attr.m_Name.c_str()) == 0; });
 		if (it == m_attributes.end())
 			return nullptr;
 		return &*it;
@@ -101,16 +101,16 @@ private:
 	tscrypto::tsCryptoString                    m_reason;
 	tscrypto::tsCryptoString                    m_lastAttribute;
 	tscrypto::tsCryptoString                    m_errors;
-	WORD                       m_errorCode;
+	uint16_t                       m_errorCode;
 	parseStateEnum             m_parseState;
 	bool                       m_isSimpleRequest;
 	std::vector<HttpAttribute> m_attributes;
 };
 
 HttpHeader::HttpHeader() :
-    m_errorCode(404),
+	m_errorCode(404),
 	m_parseState(pse_InRequest),
-    m_isSimpleRequest(false)
+	m_isSimpleRequest(false)
 {
 }
 
@@ -158,95 +158,95 @@ HttpHeader::ReadCode HttpHeader::ReadStream(std::shared_ptr<ITcpConnection> chan
 		//
 		if (!buff.empty())
 		{
-				LOG(httpData, "recv'd" << tscrypto::endl << buff.ToHexDump());
+			LOG(httpData, "recv'd" << tscrypto::endl << buff.ToHexDump());
 
-				if (processor != nullptr)
+			if (processor != nullptr)
+			{
+				if (!processor->UnwrapTransport(buff))
 				{
-					if (!processor->UnwrapTransport(buff))
-					{
-						m_errors += "Malformed response - Transport failed\n";
-						return hh_Failure;
-					}
-				}
-
-				if (buff.size() > 0)
-				{
-					m_dataPart += buff.ToUtf8String();
-					if (m_parseState == pse_InHeader || m_parseState == pse_InRequest)
-					{
-						ParseOffHeaders();
-						if (m_parseState == pse_InData)
-						{
-							const HttpAttribute* p = attributeByName("content-length");
-
-							if (p == nullptr || p->m_Value.size() == 0)
-							{
-							if (TsStrToInt(m_status.c_str()) != 200)
-								{
-									m_parseState = pse_Done;
-								m_errorCode = (WORD)TsStrToInt(m_status.c_str());
-									return hh_Success;
-								}
-								m_errors += "Malformed response - no content-length attribute\n";
-								return hh_Failure;
-							}
-						requiredDataLength = TsStrToInt(p->m_Value.c_str());
-							if ((int)m_dataPart.size() >= requiredDataLength && m_parseState == pse_InData)
-								m_parseState = pse_Done;
-						}
-					}
-					else if ((int)m_dataPart.size() >= requiredDataLength && m_parseState == pse_InData)
-						m_parseState = pse_Done;
+					m_errors += "Malformed response - Transport failed\n";
+					return hh_Failure;
 				}
 			}
-			else
+
+			if (buff.size() > 0)
 			{
-		    return hh_CloseSocket;
+				m_dataPart += buff.ToUtf8String();
+				if (m_parseState == pse_InHeader || m_parseState == pse_InRequest)
+				{
+					ParseOffHeaders();
+					if (m_parseState == pse_InData)
+					{
+						const HttpAttribute* p = attributeByName("content-length");
+
+						if (p == nullptr || p->m_Value.size() == 0)
+						{
+							if (tsStrToInt(m_status.c_str()) != 200)
+							{
+								m_parseState = pse_Done;
+								m_errorCode = (uint16_t)tsStrToInt(m_status.c_str());
+								return hh_Success;
+							}
+							m_errors += "Malformed response - no content-length attribute\n";
+							return hh_Failure;
+						}
+						requiredDataLength = tsStrToInt(p->m_Value.c_str());
+						if ((int)m_dataPart.size() >= requiredDataLength && m_parseState == pse_InData)
+							m_parseState = pse_Done;
+					}
+				}
+				else if ((int)m_dataPart.size() >= requiredDataLength && m_parseState == pse_InData)
+					m_parseState = pse_Done;
+			}
+		}
+		else
+		{
+			return hh_CloseSocket;
 		}
 	} while (m_parseState != pse_Done && m_parseState != pse_Error);
 
 
-	m_errorCode = (WORD)TsStrToInt(m_status.c_str());
+	m_errorCode = (uint16_t)tsStrToInt(m_status.c_str());
 	return hh_Success;
 }
 
 void HttpHeader::clear()
 {
-    m_dataPart.clear();
-    m_version.clear();
-    m_status.clear();
+	m_dataPart.clear();
+	m_version.clear();
+	m_status.clear();
 	m_reason.clear();
 	m_lastAttribute.clear();
-    m_errorCode = 404;
+	m_errorCode = 404;
 	m_parseState = pse_InRequest;
-    m_isSimpleRequest = false;
-    m_attributes.clear();
-    m_errors.clear();
+	m_isSimpleRequest = false;
+	m_attributes.clear();
+	m_errors.clear();
 }
 
 tscrypto::tsCryptoString HttpHeader::status() const
 {
-    return m_status;
+	return m_status;
 }
 
 tscrypto::tsCryptoString HttpHeader::reason() const
 {
-    return m_reason;
+	return m_reason;
 }
 
 tscrypto::tsCryptoString HttpHeader::version() const
 {
-    return m_version;
+	return m_version;
 }
 
 size_t HttpHeader::dataPartSize() const
 {
-    return m_dataPart.size();
+	return m_dataPart.size();
 }
 
 const tscrypto::tsCryptoData& HttpHeader::dataPart() const
 {
-    return m_dataPart;
+	return m_dataPart;
 }
 
 void HttpHeader::dataPart(const tscrypto::tsCryptoString& setTo)
@@ -261,9 +261,9 @@ void HttpHeader::dataPart(const tscrypto::tsCryptoData& setTo)
 
 void HttpHeader::ParseOffHeaders()
 {
-    tscrypto::tsCryptoData line;
-    int posi = 0;
-    tscrypto::tsCryptoData nextPart;
+	tscrypto::tsCryptoData line;
+	int posi = 0;
+	tscrypto::tsCryptoData nextPart;
 
 	if (m_parseState == pse_InRequest)
 	{
@@ -292,12 +292,12 @@ void HttpHeader::ParseOffHeaders()
 		}
 		m_parseState = pse_InHeader;
 	}
-    //
-    // Now get the attributes from the header
-    //
-    while (PeekLine(posi, false, line) && line.size() > 0)
-    {
-        tscrypto::tsCryptoData attrName;
+	//
+	// Now get the attributes from the header
+	//
+	while (PeekLine(posi, false, line) && line.size() > 0)
+	{
+		tscrypto::tsCryptoData attrName;
 		//bool append = false;
 
 		if (IsWhiteSpace(posi))
@@ -328,17 +328,17 @@ void HttpHeader::ParseOffHeaders()
 			attrName.erase(attrName.size() - 1, 1);
 			m_lastAttribute = attrName.ToUtf8String();
 		}
-        GetLine(posi, true, line);
-        while (PeekLine(posi, false, nextPart) && nextPart.size() > 0 &&
+		GetLine(posi, true, line);
+		while (PeekLine(posi, false, nextPart) && nextPart.size() > 0 &&
 			(nextPart[0] == ' ' || nextPart[0] == 9))
-        {
-            GetLine(posi, true, nextPart);
-            line += (BYTE)0x20;
-            line += nextPart;
-        }
+		{
+			GetLine(posi, true, nextPart);
+			line += (uint8_t)0x20;
+			line += nextPart;
+		}
 		//if ( append )
 		//{
-		//	auto it = m_attributes.first_that([&attrName](HttpAttribute& attr)->bool{ return TsStriCmp(attrName.ToUtf8String(), attr.m_Name) == 0; });
+		//	auto it = m_attributes.first_that([&attrName](HttpAttribute& attr)->bool{ return tsStriCmp(attrName.ToUtf8String(), attr.m_Name) == 0; });
 
 		//	if ( it.AtEnd() )
 		//	{
@@ -356,67 +356,67 @@ void HttpHeader::ParseOffHeaders()
 			attr.m_Value = line.ToUtf8String();
 			m_attributes.push_back(attr);
 		}
-    }
+	}
 	if (PeekLine(posi, false, nextPart) && nextPart.size() == 0)
-    {
+	{
 		GetLine(posi, false, nextPart);
 		m_parseState = pse_InData;
-	    m_errorCode = 200;
-    }
-    m_dataPart.erase(0, posi);
-    return;
+		m_errorCode = 200;
+	}
+	m_dataPart.erase(0, posi);
+	return;
 }
 
 bool HttpHeader::ParseOffResponseLine(int &posi)
 {
-    tscrypto::tsCryptoData token;
+	tscrypto::tsCryptoData token;
 	if (!GetNextToken(posi, token))
-    {
-        return false;
-    }
-    m_version = token.ToUtf8String();
+	{
+		return false;
+	}
+	m_version = token.ToUtf8String();
 	if (!GetNextToken(posi, token))
-    {
-        return false;
-    }
-    m_status = token.ToUtf8String();
+	{
+		return false;
+	}
+	m_status = token.ToUtf8String();
 	if (!GetLine(posi, true, token))
-        return false;
-    m_reason = token.ToUtf8String();
+		return false;
+	m_reason = token.ToUtf8String();
 
-    // TODO: Not sure about this
-    //if ( !GetLine(posi, true, token) )
-    //    return false;
-    //if ( token.size() == 0 )
-    //{
-    //    m_isSimpleRequest = true;
-    //    return true;
-    //}
-    return true;
+	// TODO: Not sure about this
+	//if ( !GetLine(posi, true, token) )
+	//    return false;
+	//if ( token.size() == 0 )
+	//{
+	//    m_isSimpleRequest = true;
+	//    return true;
+	//}
+	return true;
 }
 
 bool HttpHeader::GetNextToken(int &posi, tscrypto::tsCryptoData &token)
 {
-    token.clear();
+	token.clear();
 	if (posi >= (int)m_dataPart.size())
-        return false;
+		return false;
 	while (posi < (int)m_dataPart.size() && (m_dataPart[posi] == 0x20))
-        posi++;
+		posi++;
 	if (posi >= (int)m_dataPart.size())
-        return false;
+		return false;
 	while (posi < (int)m_dataPart.size() && m_dataPart[posi] != 0x20 && m_dataPart[posi] != 10 && m_dataPart[posi] != 13)
-    {
-        token += (BYTE)m_dataPart[posi++];
-    }
+	{
+		token += (uint8_t)m_dataPart[posi++];
+	}
 	if (token.size() == 0)
-        return false;
-    return true;
+		return false;
+	return true;
 }
 
 bool HttpHeader::IsWhiteSpace(int posi) const
 {
 	if (posi >= (int)m_dataPart.size())
-        return false;
+		return false;
 	if (m_dataPart.c_at(posi) == ' ' || m_dataPart.c_at(posi) == 9)
 		return true;
 	return false;
@@ -424,46 +424,46 @@ bool HttpHeader::IsWhiteSpace(int posi) const
 
 bool HttpHeader::GetLine(int &posi, bool eat_spaces, tscrypto::tsCryptoData &line)
 {
-    line.clear();
+	line.clear();
 	if (posi >= (int)m_dataPart.size())
-        return false;
+		return false;
 	if (eat_spaces)
-    {
+	{
 		while (posi < (int)m_dataPart.size() && (m_dataPart[posi] == 0x20))
-            posi++;
-    }
+			posi++;
+	}
 	while (posi < (int)m_dataPart.size() && m_dataPart[posi] != 10 && m_dataPart[posi] != 13)
-    {
-        line += (BYTE)m_dataPart[posi++];
-    }
+	{
+		line += (uint8_t)m_dataPart[posi++];
+	}
 	if (posi >= (int)m_dataPart.size())
-        return false;
+		return false;
 	if (m_dataPart[posi] == 13)
-    {
-        posi++;
+	{
+		posi++;
 		if (m_dataPart[posi] == 10)
-            posi++;
-        else
-            return false;
-    }
+			posi++;
+		else
+			return false;
+	}
 	else if (m_dataPart[posi] == 10)
-        posi++;
-    else
-        return false;
-    return true;
+		posi++;
+	else
+		return false;
+	return true;
 }
 
 bool HttpHeader::PeekLine(int posi, bool eat_spaces, tscrypto::tsCryptoData &line)
 {
-    return GetLine(posi, eat_spaces, line);
+	return GetLine(posi, eat_spaces, line);
 }
 
-WORD HttpHeader::errorCode() const
+uint16_t HttpHeader::errorCode() const
 {
-    return m_errorCode;
+	return m_errorCode;
 }
 
-void HttpHeader::errorCode(WORD setTo)
+void HttpHeader::errorCode(uint16_t setTo)
 {
 	m_errorCode = setTo;
 }
@@ -472,21 +472,21 @@ void HttpHeader::errorCode(WORD setTo)
 int HTMLHelper::FindAttributeIndexHelper(HTMLHelper::HttpAttribute *data, void *param)
 {
 	if (param == NULL)
-        return 0;
-	if (stricmp(data->m_Name.c_str(), ((const char *)param)) == 0)
-        return 1;
-    return 0;
+		return 0;
+	if (tsStriCmp(data->m_Name.c_str(), ((const char *)param)) == 0)
+		return 1;
+	return 0;
 }
 #endif
 
 const tscrypto::tsCryptoString &HttpHeader::Errors()const
 {
-    return m_errors;
+	return m_errors;
 }
 
 void HttpHeader::ClearErrors()
 {
-    m_errors.clear();
+	m_errors.clear();
 }
 
 tscrypto::tsCryptoData HttpHeader::recreateResponse() const

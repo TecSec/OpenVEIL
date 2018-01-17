@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -44,7 +44,7 @@ static struct NamePartListItem
     NamePartType type;
     const char *name;
     uint32_t oidLen;
-    BYTE oid[20];
+    uint8_t oid[20];
 } NamePartXref[]=
 {
     {CommonName, "CN", 3, {85, 4, 3}  }

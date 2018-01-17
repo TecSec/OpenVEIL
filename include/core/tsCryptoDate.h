@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -40,19 +40,19 @@
 
 namespace tscrypto {
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// <summary>Converts a ZULU date into a SYSTEMTIME structure.</summary>
+	/// <summary>Converts a ZULU date into a TsDateStruct_t structure.</summary>
 	///
 	/// <param name="date">The zulu date.</param>
-	/// <param name="tm">  [in,out] The SYSTEMTIME structure.</param>
+	/// <param name="tm">  [in,out] The TsDateStruct_t structure.</param>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	VEILCORE_API void TSZuluStringToTM(const tsCryptoStringBase &date, SYSTEMTIME &tm);
+	VEILCORE_API void TSZuluStringToTM(const tsCryptoStringBase &date, TsDateStruct_t &tm);
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// <summary>Converts a SYSTEMTIME structure into a ZULU date</summary>
+	/// <summary>Converts a TsDateStruct_t structure into a ZULU date</summary>
 	///
-	/// <param name="tm">  The SYSTEMTIME structure.</param>
+	/// <param name="tm">  The TsDateStruct_t structure.</param>
 	/// <param name="date">[in,out] The zulu date.</param>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	VEILCORE_API void TSTMToZuluString(const SYSTEMTIME &tm, tsCryptoStringBase &date);
+	VEILCORE_API void TSTMToZuluString(const TsDateStruct_t &tm, tsCryptoStringBase &date);
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Converts an ODBC formatted date into a ZULU date (yyyymmddhhmmssZ)</summary>
 	///
@@ -131,65 +131,28 @@ namespace tscrypto {
 	/// @return	.
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	tsCryptoString VEILCORE_API ZuluToDateTime(const tsCryptoStringBase &_zuluTime);
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// <summary>Compute the difference in days (and fractions of a day) between the two dates
-	/// specified.</summary>
-	///
-	/// <param name="date1">[in,out] The first date.</param>
-	/// <param name="date2">[in,out] The second date.</param>
-	///
-	/// <returns>The difference in days (and fractions of a day) between the two dates.</returns>
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	VEILCORE_API double diffsystemtime(SYSTEMTIME *date1, SYSTEMTIME *date2);
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// <summary>Converts a SYSTEMTIME structure into a FILETIME.</summary>
-	///
-	/// <param name="tm">	 The SYSTEMTIME to convert.</param>
-	/// <param name="fileTm">[out] The FILETIME.</param>
-	///
-	/// <returns>true if it succeeds, false if it fails.</returns>
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	VEILCORE_API BOOL SYSTEMTIMEToFileTime(const SYSTEMTIME *tm, FILETIME *fileTm);
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// <summary>Adjust a FILETIME by the specified time span.</summary>
-	///
-	/// <param name="fileTm"> [in,out] The FILETIME to adjust.</param>
-	/// <param name="days">   The number of days.</param>
-	/// <param name="hours">  The number of hours.</param>
-	/// <param name="minutes">The number of minutes.</param>
-	/// <param name="seconds">The number of seconds.</param>
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	VEILCORE_API void AdjustFileTime(FILETIME *fileTm, int days, int hours, int minutes, int seconds);
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// <summary>Queries a SYSTEMTIME structure to see if it is valid.</summary>
-	///
-	/// <param name="tm">[in] The SYSTEMTIME structure.</param>
-	///
-	/// <returns>true if it succeeds, false if it fails.</returns>
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	VEILCORE_API bool SYSTEMTIMEIsValid(SYSTEMTIME *tm);
 	VEILCORE_API int64_t GetTicks();
 
-#ifdef _WIN32
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// <summary>VARIANT to OLE date.</summary>
-	///
-	/// <param name="from">VARIANT holding the date information.</param>
-	/// <param name="to">  [out] The OLE date.</param>
-	///
-	/// <returns>S_OK for success or a standard COM error code for failure.</returns>
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	bool VEILCORE_API TSCKMDATEToDATE(VARIANT from, double *to);
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// <summary>Converts an OLE date to a VARIANT</summary>
-	///
-	/// <param name="from">The OLE date</param>
-	/// <param name="to">  [out] The VARIANT.</param>
-	///
-	/// <returns>S_OK for success or a standard COM error code for failure</returns>
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	bool VEILCORE_API TSDATEToCKMDATE(double from, VARIANT *to);
-#endif // _WIN32
+//#ifdef _WIN32
+//	////////////////////////////////////////////////////////////////////////////////////////////////////
+//	/// <summary>VARIANT to OLE date.</summary>
+//	///
+//	/// <param name="from">VARIANT holding the date information.</param>
+//	/// <param name="to">  [out] The OLE date.</param>
+//	///
+//	/// <returns>S_OK for success or a standard COM error code for failure.</returns>
+//	////////////////////////////////////////////////////////////////////////////////////////////////////
+//	bool VEILCORE_API TSCKMDATEToDATE(VARIANT from, double *to);
+//	////////////////////////////////////////////////////////////////////////////////////////////////////
+//	/// <summary>Converts an OLE date to a VARIANT</summary>
+//	///
+//	/// <param name="from">The OLE date</param>
+//	/// <param name="to">  [out] The VARIANT.</param>
+//	///
+//	/// <returns>S_OK for success or a standard COM error code for failure</returns>
+//	////////////////////////////////////////////////////////////////////////////////////////////////////
+//	bool VEILCORE_API TSDATEToCKMDATE(double from, VARIANT *to);
+//#endif // _WIN32
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Converts a date into a Julian value</summary>
 	///
@@ -202,7 +165,7 @@ namespace tscrypto {
 	///
 	/// <returns>The number of days since Jan 1, 0001 where Jan 1, 0001 is a value of 1.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	int32_t VEILCORE_API SYSTEMTIMEtoJulian(WORD wYear, WORD wMonth, WORD wDay);
+	int32_t VEILCORE_API TsDateStruct_ttoJulian(uint16_t wYear, uint16_t wMonth, uint16_t wDay);
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Converts a date and time into a Julian value.</summary>
 	///
@@ -219,24 +182,16 @@ namespace tscrypto {
 	///
 	/// <returns>The number of days since Jan 1, 0001 where Jan 1, 0001 is a value of 1.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	double VEILCORE_API SYSTEMTIMEtoJulian(WORD wYear, WORD wMonth, WORD wDay, WORD mHour, WORD mMinute, WORD mSecond, WORD mMillisecond);
+	double VEILCORE_API TsDateStruct_ttoJulian(uint16_t wYear, uint16_t wMonth, uint16_t wDay, uint16_t mHour, uint16_t mMinute, uint16_t mSecond, uint16_t mMillisecond);
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// <summary>Converts a Julian date into the SYSTEMTIME structure</summary>
+	/// <summary>Converts a Julian date into the TsDateStruct_t structure</summary>
 	///
 	/// <param name="dtSrc"> The source date and type.</param>
 	/// <param name="tmDest">[out] The converted date.</param>
 	///
 	/// <returns>true if it succeeds, false if it fails.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	bool VEILCORE_API JulianToSYSTEMTIME(double dtSrc, SYSTEMTIME *tmDest);
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// <summary>System time is valid.</summary>
-	///
-	/// <param name="tm">[in] the SYSTEMTIME structure to validate.</param>
-	///
-	/// <returns>true if it succeeds, false if it fails.</returns>
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	bool VEILCORE_API SystemTimeIsValid(SYSTEMTIME *tm);
+	bool VEILCORE_API JulianToTsDateStruct_t(double dtSrc, TsDateStruct_t *tmDest);
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>A macro that defines OLE datetime error.</summary>
@@ -330,17 +285,17 @@ namespace tscrypto {
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		tsCryptoDate(const tsCryptoDate& dateSrc);
 		////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// <summary>Creates a tsCryptoDate from a SYSTEMTIME</summary>
+		/// <summary>Creates a tsCryptoDate from a TsDateStruct_t</summary>
 		///
-		/// <param name="systimeSrc">The SYSTEMTIME date and time.</param>
+		/// <param name="systimeSrc">The TsDateStruct_t date and time.</param>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
-		tsCryptoDate(const SYSTEMTIME& systimeSrc);
+		tsCryptoDate(const TsDateStruct_t& systimeSrc);
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>Constructor.</summary>
 		///
 		/// <param name="filetimeSrc">The filetime source.</param>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
-		tsCryptoDate(const FILETIME& filetimeSrc);
+		tsCryptoDate(uint64_t filetimeSrc);
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>Constructor.</summary>
 		///
@@ -352,14 +307,14 @@ namespace tscrypto {
 		/// <param name="nSec">  The second.</param>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		tsCryptoDate(int nYear, int nMonth, int nDay, int nHour, int nMin, int nSec);
-#ifdef HAVE_WINDOWS_H
-		////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// <summary>Constructor.</summary>
-		///
-		/// <param name="oleDate">OLE date</param>
-		////////////////////////////////////////////////////////////////////////////////////////////////////
-		tsCryptoDate(DATE oleDate);
-#endif // HAVE_WINDOWS_H
+//#ifdef _WIN32
+//		////////////////////////////////////////////////////////////////////////////////////////////////////
+//		/// <summary>Constructor.</summary>
+//		///
+//		/// <param name="oleDate">OLE date</param>
+//		////////////////////////////////////////////////////////////////////////////////////////////////////
+//		tsCryptoDate(DATE oleDate);
+//#endif // _WIN32
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>Constructor.</summary>
@@ -417,13 +372,13 @@ namespace tscrypto {
 		DateTimeStatus GetStatus() const;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// <summary>Gets as a SYSTEMTIME.</summary>
+		/// <summary>Gets as a TsDateStruct_t.</summary>
 		///
-		/// <param name="sysTime">[out] Date and time in a SYSTEMTIME structure.</param>
+		/// <param name="sysTime">[out] Date and time in a TsDateStruct_t structure.</param>
 		///
 		/// <returns>true if it succeeds, false if it fails.</returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
-		bool GetAsSystemTime(SYSTEMTIME& sysTime) const;
+		bool GetAsSystemTime(TsDateStruct_t& sysTime) const;
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>Gets as zulu time.</summary>
 		///
@@ -460,9 +415,9 @@ namespace tscrypto {
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>Converts this object to a system time.</summary>
 		///
-		/// <returns>SYSTEMTIME.</returns>
+		/// <returns>TsDateStruct_t.</returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
-		SYSTEMTIME AsSystemTime() const;
+		TsDateStruct_t AsSystemTime() const;
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>Converts this object to a zulu time.</summary>
 		///
@@ -545,7 +500,7 @@ namespace tscrypto {
 		///
 		/// <returns>A reference to this object.</returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
-		const tsCryptoDate& operator=(const SYSTEMTIME& systimeSrc);
+		const tsCryptoDate& operator=(const TsDateStruct_t& systimeSrc);
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>Assignment operator.</summary>
 		///
@@ -553,7 +508,7 @@ namespace tscrypto {
 		///
 		/// <returns>A reference to this object.</returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
-		const tsCryptoDate& operator=(const FILETIME& filetimeSrc);
+		const tsCryptoDate& operator=(uint64_t filetimeSrc);
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>Equality operator.</summary>
@@ -687,14 +642,14 @@ namespace tscrypto {
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		tsCryptoDate &AddInterval(int32_t lDays, int32_t nHours, int32_t nMins, int32_t nSecs);
 
-#ifdef HAVE_WINDOWS_H
-		////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// <summary>Converts this object to an OLE date.</summary>
-		///
-		/// <returns>This object as a DATE.</returns>
-		////////////////////////////////////////////////////////////////////////////////////////////////////
-		DATE ToOleDate();
-#endif // HAVE_WINDOWS_H
+//#ifdef _WIN32
+//		////////////////////////////////////////////////////////////////////////////////////////////////////
+//		/// <summary>Converts this object to an OLE date.</summary>
+//		///
+//		/// <returns>This object as a DATE.</returns>
+//		////////////////////////////////////////////////////////////////////////////////////////////////////
+//		DATE ToOleDate();
+//#endif // _WIN32
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>Converts this object to a zulu time.</summary>
@@ -721,16 +676,16 @@ namespace tscrypto {
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		tsCryptoString ToISO8601Time() const;
 
-#ifdef HAVE_WINDOWS_H
-		////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// <summary>Initializes this object from the given OLE date.</summary>
-		///
-		/// <param name="oleDate">OLE date.</param>
-		///
-		/// <returns>true if it succeeds, false if it fails.</returns>
-		////////////////////////////////////////////////////////////////////////////////////////////////////
-		bool FromOleDate(DATE oleDate);
-#endif // HAVE_WINDOWS_H
+//#ifdef _WIN32
+//		////////////////////////////////////////////////////////////////////////////////////////////////////
+//		/// <summary>Initializes this object from the given OLE date.</summary>
+//		///
+//		/// <param name="oleDate">OLE date.</param>
+//		///
+//		/// <returns>true if it succeeds, false if it fails.</returns>
+//		////////////////////////////////////////////////////////////////////////////////////////////////////
+//		bool FromOleDate(DATE oleDate);
+//#endif // _WIN32
 
 		tsCryptoString ToString() const;
 		tsCryptoString ToDateString() const;
@@ -751,7 +706,7 @@ namespace tscrypto {
 		bool AllNumbers(const char *str, int len);
 
 	protected:
-		SYSTEMTIME m_dt;
+		TsDateStruct_t m_dt;
 		DateTimeStatus m_status;
 	};
 }

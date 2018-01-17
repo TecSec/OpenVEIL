@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -50,7 +50,7 @@ void NamespaceSupport::extractNamespaceAttributes(tsAttributeMap &attrs)
 	for (ptrdiff_t i = attrs.count() - 1; i >= 0; i--)
 	{
 		tscrypto::tsCryptoString name = attrs.name(i);
-		if (strcmp(name.c_str(), "xmlns") == 0)
+		if (tsStrCmp(name.c_str(), "xmlns") == 0)
 		{
 			m_namespaces.RemoveItem("xmlns");
 			m_namespaces.AddItem("xmlns", attrs.item(i));
@@ -72,7 +72,7 @@ void NamespaceSupport::addNamespacesToAttributeList(tsAttributeMap &attrs)
 	{
 		tscrypto::tsCryptoString name = m_namespaces.name(i);
 
-		if (strcmp(name.c_str(), "xmlns") != 0)
+		if (tsStrCmp(name.c_str(), "xmlns") != 0)
 		{
 			name.prepend("xmlns:");
 		}
@@ -94,7 +94,7 @@ tscrypto::tsCryptoString NamespaceSupport::getEBNamespaceName() const
 {
 	for (size_t i = 0; i < m_namespaces.count(); i++)
 	{
-		if (_stricmp(m_namespaces.item(i).c_str(), gEbNamespace) == 0)
+		if (tsStriCmp(m_namespaces.item(i).c_str(), gEbNamespace) == 0)
 		{
 			return m_namespaces.name(i);
 		}
@@ -106,14 +106,14 @@ bool NamespaceSupport::EbNamespaceIsDefault() const
 {
 	tscrypto::tsCryptoString ns = getEBNamespaceName();
 
-	return (strcmp(ns.c_str(), "xmlns") == 0);
+	return (tsStrCmp(ns.c_str(), "xmlns") == 0);
 }
 
 tscrypto::tsCryptoString NamespaceSupport::getSoap12NamespaceName() const
 {
 	for (size_t i = 0; i < m_namespaces.count(); i++)
 	{
-		if (_stricmp(m_namespaces.item(i).c_str(), gSoap12Namespace) == 0)
+		if (tsStriCmp(m_namespaces.item(i).c_str(), gSoap12Namespace) == 0)
 		{
 			return m_namespaces.name(i);
 		}
@@ -235,7 +235,7 @@ std::shared_ptr<tsXmlNode> tsXmlNode::StartTextSubnode(const tscrypto::tsCryptoS
 {
 	char buffer[100];
 
-	_i64toa_s(setTo, buffer, sizeof(buffer), (int64_t)10);
+	tsSnPrintf(buffer, sizeof(buffer), "%lld", setTo);
 	return StartTextSubnode(name, buffer);
 }
 
@@ -243,7 +243,7 @@ std::shared_ptr<tsXmlNode> tsXmlNode::StartTextSubnode(const tscrypto::tsCryptoS
 {
 	char buffer[100];
 
-	_i64toa_s(setTo, buffer, sizeof(buffer), (int64_t)10);
+	tsSnPrintf(buffer, sizeof(buffer), "%lld", setTo);
 	return StartTextSubnode(name, buffer);
 }
 
@@ -345,7 +345,7 @@ bool tsXmlNode::NodeText(const tscrypto::tsCryptoStringBase &setTo)
 
 int tsXmlNode::NodeTextAsNumber() const
 {
-	return atoi(NodeText().c_str());
+	return tsStrToInt(NodeText().c_str());
 }
 
 void tsXmlNode::NodeTextAsNumber(int setTo)
@@ -595,7 +595,7 @@ std::shared_ptr<tsXmlNode> tsXmlNode::ChildByTSID(const tscrypto::tsCryptoString
 		if ((*m_Children->at(i)).Attributes().hasItem("TSID"))
 		{
 			value = (*m_Children->at(i)).Attributes().item("TSID");
-			if ((strcmp(tsid.c_str(), value.c_str()) == 0)) {
+			if ((tsStrCmp(tsid.c_str(), value.c_str()) == 0)) {
 				return m_Children->at(i);
 			}
 		}
@@ -609,7 +609,7 @@ std::shared_ptr<tsXmlNode> tsXmlNode::ChildByTSID(const tscrypto::tsCryptoString
 	{
 		if ((*m_Children->at(i)).Attributes().hasItem("TSID"))
 		{
-			if ((strcmp(tsid.c_str(), (*m_Children->at(i)).Attributes().item("TSID").c_str()) == 0)) {
+			if ((tsStrCmp(tsid.c_str(), (*m_Children->at(i)).Attributes().item("TSID").c_str()) == 0)) {
 				return m_Children->at(i);
 			}
 		}
@@ -737,7 +737,7 @@ bool tsXmlNode::CheckErrorHandling() const
 {
 	if (!Attributes().hasItem("Errors"))
 		return false;
-	return (_stricmp(Attributes().item("Errors").c_str(), ("Ignore")) == 0);
+	return (tsStriCmp(Attributes().item("Errors").c_str(), ("Ignore")) == 0);
 }
 
 void tsXmlNode::ClearErrors()
@@ -1399,7 +1399,7 @@ bool tsXmlNode::DecryptForChannel(tscrypto::tsCryptoStringBase &/*Results*/)
 }
 
 tsXmlParserCallback::resultCodes tsXmlNode::StartNode(const tscrypto::tsCryptoStringBase &NodeName,
-	tsAttributeMap &attributes,
+	const tsAttributeMap &attributes,
 	const tscrypto::tsCryptoStringBase &InnerXML,
 	bool SingleNode,
 	tscrypto::tsCryptoStringBase &Results)
@@ -1410,13 +1410,13 @@ tsXmlParserCallback::resultCodes tsXmlNode::StartNode(const tscrypto::tsCryptoSt
 		AddError("AgentRequestor", "CARNodeSubmit::StartNode()", "Node Name was NULL", 0);
 		return tsXmlParserCallback::rcAbort;
 	}
-	/*if ( TsStrCmp(NodeName, ("Error")) == 0 )
+	/*if ( tsStrCmp(NodeName, ("Error")) == 0 )
 	{
 		if (!m_RunnableParseNode) {
 			tsXmlNode::AddError("AgentRequestor", "CARNodeSubmit::StartNode()", "Unexpected null node", 0);
 		}
 	}
-	else*/ if (strcmp(NodeName.c_str(), ("Reauth")) == 0)
+	else*/ if (tsStrCmp(NodeName.c_str(), ("Reauth")) == 0)
 	{
 		m_RootNode->m_needsReauth = true;
 		return tsXmlParserCallback::rcSuccess;
@@ -1471,12 +1471,12 @@ tsXmlParserCallback::resultCodes tsXmlNode::StartNode(const tscrypto::tsCryptoSt
 
 	if (m_forceHashChecks)
 	{
-		if (strcmp(NodeName.c_str(), ("EnterpriseBuilder")) == 0 ||
-			strcmp(NodeName.c_str(), ("EnterpriseBuilderAdmin")) == 0 ||
-			strcmp(NodeName.c_str(), ("CKMSystemConfig")) == 0 ||
-			strcmp(NodeName.c_str(), ("Auth")) == 0)
+		if (tsStrCmp(NodeName.c_str(), ("EnterpriseBuilder")) == 0 ||
+			tsStrCmp(NodeName.c_str(), ("EnterpriseBuilderAdmin")) == 0 ||
+			tsStrCmp(NodeName.c_str(), ("CKMSystemConfig")) == 0 ||
+			tsStrCmp(NodeName.c_str(), ("Auth")) == 0)
 		{
-			m_RunnableParseNode->RequiresProtection(strcmp(NodeName.c_str(), ("Auth")) != 0);
+			m_RunnableParseNode->RequiresProtection(tsStrCmp(NodeName.c_str(), ("Auth")) != 0);
 		}
 	}
 	if (m_RunnableParseNode->RequiresProtection())
@@ -1613,11 +1613,11 @@ void tsXmlNode::__convertNodesToAttrs(std::shared_ptr<tsXmlNode> pNode, tsXmlNod
 			const char *c;
 			c = strrchr(child->NodeName().c_str(), ATTRIBUTE_RSEARCH);
 
-			if (c != NULL && strcmp(c, ATTRIBUTE_SUFFIX) == 0)
+			if (c != NULL && tsStrCmp(c, ATTRIBUTE_SUFFIX) == 0)
 			{
 				tscrypto::tsCryptoString name(child->NodeName());
 
-				name.DeleteAt((uint32_t)(name.length() - strlen(ATTRIBUTE_SUFFIX)), (uint32_t)strlen(ATTRIBUTE_SUFFIX));
+				name.DeleteAt((uint32_t)(name.length() - tsStrLen(ATTRIBUTE_SUFFIX)), (uint32_t)tsStrLen(ATTRIBUTE_SUFFIX));
 				pNode->Attributes().AddItem(name, child->NodeText());
 				pNode->RemoveChild(i);
 			}
@@ -1646,7 +1646,7 @@ void tsXmlNode::ConvertNodesToAttributes()
 
 void tsXmlNode::__convertErrorNode(std::shared_ptr<tsXmlNode> pNode, std::shared_ptr<tsXmlNode> errorNode)
 {
-	pNode->AddFirstError(errorNode->Attributes().item("Component"), errorNode->Attributes().item("Method"), errorNode->Attributes().item("Value"), atoi(errorNode->Attributes().item("Number").c_str()));
+	pNode->AddFirstError(errorNode->Attributes().item("Component"), errorNode->Attributes().item("Method"), errorNode->Attributes().item("Value"), tsStrToInt(errorNode->Attributes().item("Number").c_str()));
 }
 
 void tsXmlNode::__convertErrorNodes(std::shared_ptr<tsXmlNode> pNode)
@@ -1710,7 +1710,7 @@ std::shared_ptr<tsXmlNode> tsXmlNode::ChildByName(const tscrypto::tsCryptoString
 	{
 		ptr = (*m_Children->at(i)).NodeName().c_str();
 
-		if ((ptr) && (strcmp(name.c_str(), ptr) == 0)) {
+		if ((ptr) && (tsStrCmp(name.c_str(), ptr) == 0)) {
 			return m_Children->at(i);
 		}
 	}
@@ -1727,7 +1727,7 @@ tsXmlNodeList tsXmlNode::ChildrenByName(const tscrypto::tsCryptoStringBase &_nam
 	{
 		ptr = (*m_Children->at(i)).NodeName().c_str();
 
-		if ((ptr) && (strcmp(name.c_str(), ptr) == 0)) {
+		if ((ptr) && (tsStrCmp(name.c_str(), ptr) == 0)) {
 			list->push_back(m_Children->at(i));
 		}
 	}
@@ -1744,7 +1744,7 @@ tsXmlNodeList tsXmlNode::ChildrenByName(const tscrypto::tsCryptoStringBase &_nam
 	{
 		ptr = (*m_Children->at(i)).NodeName().c_str();
 
-		if ((ptr) && (strcmp(name.c_str(), ptr) == 0)) {
+		if ((ptr) && (tsStrCmp(name.c_str(), ptr) == 0)) {
 			list->push_back(m_Children->at(i));
 		}
 	}
@@ -1760,7 +1760,7 @@ std::shared_ptr<tsXmlNode> tsXmlNode::ChildByName(const tscrypto::tsCryptoString
 	{
 		ptr = (*m_Children->at(i)).NodeName().c_str();
 
-		if ((ptr) && (strcmp(name.c_str(), ptr) == 0)) {
+		if ((ptr) && (tsStrCmp(name.c_str(), ptr) == 0)) {
 			return m_Children->at(i);
 		}
 	}
@@ -1773,9 +1773,9 @@ std::shared_ptr<tsXmlNode> tsXmlNode::ChildByNameWithAttributeValue(const tscryp
 	{
 		std::shared_ptr<tsXmlNode> node = m_Children->at(i);
 
-		if (strcmp(_name.c_str(), node->NodeName().c_str()) == 0)
+		if (tsStrCmp(_name.c_str(), node->NodeName().c_str()) == 0)
 		{
-			if (node->Attributes().hasItem(attributeName) && _stricmp(node->Attributes().item(attributeName).c_str(), tscrypto::tsCryptoString(attributeValue).c_str()) == 0)
+			if (node->Attributes().hasItem(attributeName) && tsStriCmp(node->Attributes().item(attributeName).c_str(), tscrypto::tsCryptoString(attributeValue).c_str()) == 0)
 			{
 				return node;
 			}
@@ -1790,9 +1790,9 @@ std::shared_ptr<tsXmlNode> tsXmlNode::ChildByNameWithAttributeValue(const tscryp
 	{
 		std::shared_ptr<tsXmlNode> node = m_Children->at(i);
 
-		if (strcmp(_name.c_str(), node->NodeName().c_str()) == 0)
+		if (tsStrCmp(_name.c_str(), node->NodeName().c_str()) == 0)
 		{
-			if (node->Attributes().hasItem(attributeName) && _stricmp(node->Attributes().item(attributeName).c_str(), tscrypto::tsCryptoString(attributeValue).c_str()) == 0)
+			if (node->Attributes().hasItem(attributeName) && tsStriCmp(node->Attributes().item(attributeName).c_str(), tscrypto::tsCryptoString(attributeValue).c_str()) == 0)
 			{
 				return node;
 			}
@@ -1807,9 +1807,9 @@ std::shared_ptr<tsXmlNode> tsXmlNode::ChildByNameWithAttributeValueExact(const t
 	{
 		std::shared_ptr<tsXmlNode> node = m_Children->at(i);
 
-		if (strcmp(_name.c_str(), node->NodeName().c_str()) == 0)
+		if (tsStrCmp(_name.c_str(), node->NodeName().c_str()) == 0)
 		{
-			if (node->Attributes().hasItem(attributeName) && strcmp(node->Attributes().item(attributeName).c_str(), tscrypto::tsCryptoString(attributeValue).c_str()) == 0)
+			if (node->Attributes().hasItem(attributeName) && tsStrCmp(node->Attributes().item(attributeName).c_str(), tscrypto::tsCryptoString(attributeValue).c_str()) == 0)
 			{
 				return node;
 			}
@@ -1824,9 +1824,9 @@ std::shared_ptr<tsXmlNode> tsXmlNode::ChildByNameWithAttributeValueExact(const t
 	{
 		std::shared_ptr<tsXmlNode> node = m_Children->at(i);
 
-		if (strcmp(_name.c_str(), node->NodeName().c_str()) == 0)
+		if (tsStrCmp(_name.c_str(), node->NodeName().c_str()) == 0)
 		{
-			if (node->Attributes().hasItem(attributeName) && strcmp(node->Attributes().item(attributeName).c_str(), tscrypto::tsCryptoString(attributeValue).c_str()) == 0)
+			if (node->Attributes().hasItem(attributeName) && tsStrCmp(node->Attributes().item(attributeName).c_str(), tscrypto::tsCryptoString(attributeValue).c_str()) == 0)
 			{
 				return node;
 			}
@@ -1991,29 +1991,29 @@ static bool processAttributePredicate(std::shared_ptr<tsXmlNode> node, const tsc
 		testValue.DeleteAt(0, 1);
 		testValue.resize(testValue.size() - 1);
 
-		if (strcmp(op.c_str(), ("=")) == 0)
+		if (tsStrCmp(op.c_str(), ("=")) == 0)
 		{
-			return (strcmp(node->Attributes().item(name).c_str(), testValue.c_str()) == 0);
+			return (tsStrCmp(node->Attributes().item(name).c_str(), testValue.c_str()) == 0);
 		}
-		else if (strcmp(op.c_str(), ("!=")) == 0)
+		else if (tsStrCmp(op.c_str(), ("!=")) == 0)
 		{
-			return (strcmp(node->Attributes().item(name).c_str(), testValue.c_str()) != 0);
+			return (tsStrCmp(node->Attributes().item(name).c_str(), testValue.c_str()) != 0);
 		}
-		else if (strcmp(op.c_str(), ("<=")) == 0)
+		else if (tsStrCmp(op.c_str(), ("<=")) == 0)
 		{
-			return (strcmp(node->Attributes().item(name).c_str(), testValue.c_str()) <= 0);
+			return (tsStrCmp(node->Attributes().item(name).c_str(), testValue.c_str()) <= 0);
 		}
-		else if (strcmp(op.c_str(), (">=")) == 0)
+		else if (tsStrCmp(op.c_str(), (">=")) == 0)
 		{
-			return (strcmp(node->Attributes().item(name).c_str(), testValue.c_str()) >= 0);
+			return (tsStrCmp(node->Attributes().item(name).c_str(), testValue.c_str()) >= 0);
 		}
-		else if (strcmp(op.c_str(), ("<")) == 0)
+		else if (tsStrCmp(op.c_str(), ("<")) == 0)
 		{
-			return (strcmp(node->Attributes().item(name).c_str(), testValue.c_str()) < 0);
+			return (tsStrCmp(node->Attributes().item(name).c_str(), testValue.c_str()) < 0);
 		}
-		else if (strcmp(op.c_str(), (">")) == 0)
+		else if (tsStrCmp(op.c_str(), (">")) == 0)
 		{
-			return (strcmp(node->Attributes().item(name).c_str(), testValue.c_str()) > 0);
+			return (tsStrCmp(node->Attributes().item(name).c_str(), testValue.c_str()) > 0);
 		}
 		else
 		{
@@ -2022,30 +2022,30 @@ static bool processAttributePredicate(std::shared_ptr<tsXmlNode> node, const tsc
 	}
 	else if (strchr(value.c_str(), '.') != NULL || strchr(node->Attributes().item(name).c_str(), '.') != NULL)
 	{
-		double left = atof(node->Attributes().item(name).c_str());
-		double right = atof(value.c_str());
+		double left = tsStrToDouble(node->Attributes().item(name).c_str());
+		double right = tsStrToDouble(value.c_str());
 
-		if (strcmp(op.c_str(), ("=")) == 0)
+		if (tsStrCmp(op.c_str(), ("=")) == 0)
 		{
 			return left == right;
 		}
-		else if (strcmp(op.c_str(), ("!=")) == 0)
+		else if (tsStrCmp(op.c_str(), ("!=")) == 0)
 		{
 			return left != right;
 		}
-		else if (strcmp(op.c_str(), ("<=")) == 0)
+		else if (tsStrCmp(op.c_str(), ("<=")) == 0)
 		{
 			return left <= right;
 		}
-		else if (strcmp(op.c_str(), (">=")) == 0)
+		else if (tsStrCmp(op.c_str(), (">=")) == 0)
 		{
 			return left >= right;
 		}
-		else if (strcmp(op.c_str(), ("<")) == 0)
+		else if (tsStrCmp(op.c_str(), ("<")) == 0)
 		{
 			return left < right;
 		}
-		else if (strcmp(op.c_str(), (">")) == 0)
+		else if (tsStrCmp(op.c_str(), (">")) == 0)
 		{
 			return left > right;
 		}
@@ -2056,30 +2056,30 @@ static bool processAttributePredicate(std::shared_ptr<tsXmlNode> node, const tsc
 	}
 	else
 	{
-		int64_t left = _atoi64(node->Attributes().item(name).c_str());
-		int64_t right = _atoi64(value.c_str());
+		int64_t left = tsStrToInt64(node->Attributes().item(name).c_str());
+		int64_t right = tsStrToInt64(value.c_str());
 
-		if (strcmp(op.c_str(), ("=")) == 0)
+		if (tsStrCmp(op.c_str(), ("=")) == 0)
 		{
 			return left == right;
 		}
-		else if (strcmp(op.c_str(), ("!=")) == 0)
+		else if (tsStrCmp(op.c_str(), ("!=")) == 0)
 		{
 			return left != right;
 		}
-		else if (strcmp(op.c_str(), ("<=")) == 0)
+		else if (tsStrCmp(op.c_str(), ("<=")) == 0)
 		{
 			return left <= right;
 		}
-		else if (strcmp(op.c_str(), (">=")) == 0)
+		else if (tsStrCmp(op.c_str(), (">=")) == 0)
 		{
 			return left >= right;
 		}
-		else if (strcmp(op.c_str(), ("<")) == 0)
+		else if (tsStrCmp(op.c_str(), ("<")) == 0)
 		{
 			return left < right;
 		}
-		else if (strcmp(op.c_str(), (">")) == 0)
+		else if (tsStrCmp(op.c_str(), (">")) == 0)
 		{
 			return left > right;
 		}
@@ -2114,44 +2114,44 @@ static bool processNodePredicate(std::shared_ptr<tsXmlNode> node, const tscrypto
 			testValue.DeleteAt(0, 1);
 			testValue.resize(testValue.size() - 1);
 
-			if (strcmp(op.c_str(), ("=")) == 0)
+			if (tsStrCmp(op.c_str(), ("=")) == 0)
 			{
-				if (strcmp(nodeText.c_str(), testValue.c_str()) == 0)
+				if (tsStrCmp(nodeText.c_str(), testValue.c_str()) == 0)
 				{
 					return true;
 				}
 			}
-			else if (strcmp(op.c_str(), ("!=")) == 0)
+			else if (tsStrCmp(op.c_str(), ("!=")) == 0)
 			{
-				if (strcmp(nodeText.c_str(), testValue.c_str()) != 0)
+				if (tsStrCmp(nodeText.c_str(), testValue.c_str()) != 0)
 				{
 					return true;
 				}
 			}
-			else if (strcmp(op.c_str(), ("<=")) == 0)
+			else if (tsStrCmp(op.c_str(), ("<=")) == 0)
 			{
-				if (strcmp(nodeText.c_str(), testValue.c_str()) <= 0)
+				if (tsStrCmp(nodeText.c_str(), testValue.c_str()) <= 0)
 				{
 					return true;
 				}
 			}
-			else if (strcmp(op.c_str(), (">=")) == 0)
+			else if (tsStrCmp(op.c_str(), (">=")) == 0)
 			{
-				if (strcmp(nodeText.c_str(), testValue.c_str()) >= 0)
+				if (tsStrCmp(nodeText.c_str(), testValue.c_str()) >= 0)
 				{
 					return true;
 				}
 			}
-			else if (strcmp(op.c_str(), ("<")) == 0)
+			else if (tsStrCmp(op.c_str(), ("<")) == 0)
 			{
-				if (strcmp(nodeText.c_str(), testValue.c_str()) < 0)
+				if (tsStrCmp(nodeText.c_str(), testValue.c_str()) < 0)
 				{
 					return true;
 				}
 			}
-			else if (strcmp(op.c_str(), (">")) == 0)
+			else if (tsStrCmp(op.c_str(), (">")) == 0)
 			{
-				if (strcmp(nodeText.c_str(), testValue.c_str()) > 0)
+				if (tsStrCmp(nodeText.c_str(), testValue.c_str()) > 0)
 				{
 					return true;
 				}
@@ -2163,45 +2163,45 @@ static bool processNodePredicate(std::shared_ptr<tsXmlNode> node, const tscrypto
 		}
 		else if (strchr(value.c_str(), '.') != NULL || strchr(nodeText.c_str(), '.') != NULL)
 		{
-			double left = atof(nodeText.c_str());
-			double right = atof(value.c_str());
+			double left = tsStrToDouble(nodeText.c_str());
+			double right = tsStrToDouble(value.c_str());
 
-			if (strcmp(op.c_str(), ("=")) == 0)
+			if (tsStrCmp(op.c_str(), ("=")) == 0)
 			{
 				if (left == right)
 				{
 					return true;
 				}
 			}
-			else if (strcmp(op.c_str(), ("!=")) == 0)
+			else if (tsStrCmp(op.c_str(), ("!=")) == 0)
 			{
 				if (left != right)
 				{
 					return true;
 				}
 			}
-			else if (strcmp(op.c_str(), ("<=")) == 0)
+			else if (tsStrCmp(op.c_str(), ("<=")) == 0)
 			{
 				if (left <= right)
 				{
 					return true;
 				}
 			}
-			else if (strcmp(op.c_str(), (">=")) == 0)
+			else if (tsStrCmp(op.c_str(), (">=")) == 0)
 			{
 				if (left >= right)
 				{
 					return true;
 				}
 			}
-			else if (strcmp(op.c_str(), ("<")) == 0)
+			else if (tsStrCmp(op.c_str(), ("<")) == 0)
 			{
 				if (left < right)
 				{
 					return true;
 				}
 			}
-			else if (strcmp(op.c_str(), (">")) == 0)
+			else if (tsStrCmp(op.c_str(), (">")) == 0)
 			{
 				if (left > right)
 				{
@@ -2215,45 +2215,45 @@ static bool processNodePredicate(std::shared_ptr<tsXmlNode> node, const tscrypto
 		}
 		else
 		{
-			int64_t left = _atoi64(nodeText.c_str());
-			int64_t right = _atoi64(value.c_str());
+			int64_t left = tsStrToInt64(nodeText.c_str());
+			int64_t right = tsStrToInt64(value.c_str());
 
-			if (strcmp(op.c_str(), ("=")) == 0)
+			if (tsStrCmp(op.c_str(), ("=")) == 0)
 			{
 				if (left == right)
 				{
 					return true;
 				}
 			}
-			else if (strcmp(op.c_str(), ("!=")) == 0)
+			else if (tsStrCmp(op.c_str(), ("!=")) == 0)
 			{
 				if (left != right)
 				{
 					return true;
 				}
 			}
-			else if (strcmp(op.c_str(), ("<=")) == 0)
+			else if (tsStrCmp(op.c_str(), ("<=")) == 0)
 			{
 				if (left <= right)
 				{
 					return true;
 				}
 			}
-			else if (strcmp(op.c_str(), (">=")) == 0)
+			else if (tsStrCmp(op.c_str(), (">=")) == 0)
 			{
 				if (left >= right)
 				{
 					return true;
 				}
 			}
-			else if (strcmp(op.c_str(), ("<")) == 0)
+			else if (tsStrCmp(op.c_str(), ("<")) == 0)
 			{
 				if (left < right)
 				{
 					return true;
 				}
 			}
-			else if (strcmp(op.c_str(), (">")) == 0)
+			else if (tsStrCmp(op.c_str(), (">")) == 0)
 			{
 				if (left > right)
 				{
@@ -2351,7 +2351,7 @@ static void processNode(std::shared_ptr<tsXmlNode> startNode, const char *posi, 
 	for (i = 0; i < count; i++)
 	{
 		std::shared_ptr<tsXmlNode> node = startNode->Children()->at(i);
-		if (strcmp(node->NodeName().c_str(), nodeName.c_str()) == 0)
+		if (tsStrCmp(node->NodeName().c_str(), nodeName.c_str()) == 0)
 		{
 			nodesToTest->push_back(node);
 		}
@@ -2402,7 +2402,7 @@ static void collectAllNodesOfName(std::shared_ptr<tsXmlNode> node, const tscrypt
 	if (node == NULL)
 		return;
 
-	if (strcmp(node->NodeName().c_str(), nodeName.c_str()) == 0)
+	if (tsStrCmp(node->NodeName().c_str(), nodeName.c_str()) == 0)
 	{
 		nodesFound->push_back(node);
 	}
@@ -2445,7 +2445,7 @@ static const char *processStartNode(std::shared_ptr<tsXmlNode> startNode, const 
 		{
 			parseFieldName(posi, name);
 
-			if (strcmp(name.c_str(), startNode->NodeName().c_str()) == 0)
+			if (tsStrCmp(name.c_str(), startNode->NodeName().c_str()) == 0)
 			{
 				nodesToTest->push_back(startNode);
 			}
@@ -2631,22 +2631,22 @@ void tsXmlNode::SetNamedChildNodeText(const tscrypto::tsCryptoStringBase& name, 
 
 void tsXmlNode::RemoveAllNamespaces()
 {
-	Attributes().remove_if([](const __tsAttributeMapItem& item) -> bool {
-		if (strcmp(item.m_name.c_str(), "xmlns") == 0 || strncmp(item.m_name.c_str(), "xmlns:", 6) == 0)
+	Attributes().remove_if([](const char* name, const char* value) -> bool {
+		if (tsStrCmp(name, "xmlns") == 0 || strncmp(name, "xmlns:", 6) == 0)
 			return true;
 		return false;
 	});
-	Attributes().foreach([this](__tsAttributeMapItem& item) {
-		if (strchr(item.m_name.c_str(), ':') != nullptr)
-		{
-			tscrypto::tsCryptoStringList parts = item.m_name.split(":");
-			tscrypto::tsCryptoString newName = parts->back();
-			if (!this->Attributes().hasItem(newName))
-			{
-				item.m_name = newName;
-			}
-		}
-	});
+	Attributes().foreach([this](const char* name, const char* value) {
+        if (tsStrChr(name, ':') != nullptr)
+        {
+            const char* p = tsStrChr(name, ':');
+            tsCryptoString newName = p + 1;
+            if (!this->Attributes().hasItem(newName))
+            {
+                Attributes().RenameItem(name, newName);
+            }
+        }
+    });
 	if (strchr(NodeName().c_str(), ':') != nullptr)
 	{
 		tscrypto::tsCryptoStringList parts = NodeName().split(":");
@@ -2690,21 +2690,21 @@ tscrypto::JSONField tsXmlNode::ToJSON(bool attributesAreVariables) const
 
 	if (attributesAreVariables)
 	{
-		Attributes().foreach([&obj](const __tsAttributeMapItem& item) {
-			tscrypto::tsCryptoStringList list = item.m_name.split(":");
-			tscrypto::tsCryptoString name;
+		Attributes().foreach([&obj](const char* name, const char* value) {
+			tscrypto::tsCryptoStringList list = tsCryptoString(name).split(":");
+			tscrypto::tsCryptoString _name;
 
 			// assemble the name with 'Att.' prefix on the name part (not the namespaces)
 			for (size_t i = 0; i < list->size() - 1; i++)
 			{
 				if (i > 0)
-					name += ":";
-				name += list->at(i);
+					_name += ":";
+                _name += list->at(i);
 			}
-			if (name.size() > 0)
-				name += ":";
-			name.append("Att.").append(list->back());
-			obj.add(name, item.m_value);
+			if (_name.size() > 0)
+                _name += ":";
+            _name.append("Att.").append(list->back());
+			obj.add(_name, value);
 		});
 	}
 

@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -177,21 +177,21 @@ public:
 	std::shared_ptr<Asn1::CTS::_POD_Profile>		_profile;
 	std::shared_ptr<IFavorite>						_favorite;
 	std::vector<tscrypto::tsCryptoData>				_tokenSerialNumbers;
-	std::vector<GUID>								_guidMap;
+	std::vector<tscrypto::tsCryptoData>				_idMap;
 
     void setVariables(audienceSelector2Variables* inVars);
     void InitSettings();
     void resetConsumer();
-    Asn1::CTS::_POD_CryptoGroup* GetCGbyGuid(const GUID& id);
-    int findCgByGuid(const GUID& id);
-    BOOL LoadFavoriteForToken(std::shared_ptr<IFavorite> fav, std::shared_ptr<ICmsHeader> favHeader);
+    Asn1::CTS::_POD_CryptoGroup* GetCGbyId(const tscrypto::tsCryptoData& id);
+    int findCgById(const tscrypto::tsCryptoData& id);
+    bool LoadFavoriteForToken(std::shared_ptr<IFavorite> fav, std::shared_ptr<ICmsHeader> favHeader);
     void ClearAccessGroups();
     tscrypto::tsCryptoString BuildAttrsLine(std::shared_ptr<ICmsHeaderAttributeGroup> attrs);
-    BOOL RebuildAccessGroupList();
+    bool RebuildAccessGroupList();
     void SetItemSelected(int index);
     void AddGroupText(const char *text);
-    BOOL QueryAndClearAccessGroups();
-    BOOL ChangeToken();
+    bool QueryAndClearAccessGroups();
+    bool ChangeToken();
     void UpdateDialogControls();
     void EnableDisableOK();
     bool InitTokenInfoList();
@@ -200,10 +200,10 @@ public:
     void OnTokenRemove(const tscrypto::tsCryptoData& serialNumber);
 	void OnTokenAdd(wxTokenEvent& event);
 	void OnTokenRemove(wxTokenEvent& event);
-	BOOL CheckAccessGroup(std::shared_ptr<ICmsHeaderAttributeGroup> newAttrs);
+	bool CheckAccessGroup(std::shared_ptr<ICmsHeaderAttributeGroup> newAttrs);
     void BuildIntList(std::shared_ptr<ICmsHeaderAttributeGroup> attrGroup, tscrypto::tsCryptoData &list);
     bool FindSelectedAccessGroup(std::shared_ptr<ICmsHeaderAccessGroup>& accessGroup, std::shared_ptr<ICmsHeaderAttributeGroup>& attrs);
-    int findGuidIndex(const GUID& id, bool insert = false);
+    int findIdIndex(const tscrypto::tsCryptoData& id, bool insert = false);
 	void InitFavorites();
 	void OnInitFavorites(wxCommandEvent& event);
 	int  FindTokenOnComboBox(const tscrypto::tsCryptoData& serialNumber);

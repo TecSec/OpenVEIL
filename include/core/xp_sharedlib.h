@@ -1,4 +1,4 @@
-//	Copyright (c) 2017, TecSec, Inc.
+//	Copyright (c) 2018, TecSec, Inc.
 //
 //	Redistribution and use in source and binary forms, with or without
 //	modification, are permitted provided that the following conditions are met:
@@ -42,56 +42,18 @@
 
 namespace tscrypto {
 
-#ifdef _WIN32
-	/// <summary>the handle to the exe or a dll loaded in memory.</summary>
-	struct __xp_module {};
-	typedef ID<__xp_module, HINSTANCE, nullptr> XP_MODULE;
-#else
-	struct __xp_module {};
-	typedef ID<__xp_module, void*, (void*)nullptr> XP_MODULE;
-#endif
-	/// <summary>The invalid module handle value</summary>
-#define XP_MODULE_INVALID XP_MODULE::invalid()
+//#ifdef _WIN32
+//	/// <summary>the handle to the exe or a dll loaded in memory.</summary>
+//	struct __xp_module {};
+//	typedef ID<__xp_module, HINSTANCE, nullptr> XP_MODULE;
+//#else
+//	struct __xp_module {};
+//	typedef ID<__xp_module, void*, (void*)nullptr> XP_MODULE;
+//#endif
+//	/// <summary>The invalid module handle value</summary>
+//#define XP_MODULE_INVALID XP_MODULE::invalid()
 
 
-/// <summary>Defines an alias representing the generic procedure function.</summary>
-	typedef void(*ProcAddressFn)();
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// <summary>Cross platform function used to get a dll (shared library) entry point from the specified dll module</summary>
-	///
-	/// <param name="phDll">   The module handle of the DLL</param>
-	/// <param name="procName">The name of the function to find</param>
-	///
-	/// <returns>the function pointer</returns>
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	ProcAddressFn VEILCORE_API xp_GetProcAddress(XP_MODULE phDll, const char *procName);
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// <summary>Cross platform function used load a dll (shared library) into the process</summary>
-	///
-	/// <param name="pPath">Full pathname of the file.</param>
-	/// <param name="phDll">[out] the module handle is placed here.</param>
-	///
-	/// <returns>0 for success and -1 for failure</returns>
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	int32_t          VEILCORE_API xp_LoadSharedLib(const tsCryptoStringBase &pPath, XP_MODULE * phDll);
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// <summary>Cross platform function that unloads a dll (shared library) from memory.</summary>
-	///
-	/// <param name="hDll">The DLL module handle</param>
-	///
-	/// <returns>0</returns>
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	uint32_t VEILCORE_API xp_FreeSharedLib(XP_MODULE hDll);
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// <summary>Cross Platform function used to get the path and file name of the specified module</summary>
-	///
-	/// <param name="module">The module handle.</param>
-	/// <param name="name">  [out] The path and file name is placed here.</param>
-	///
-	/// <returns>true if it succeeds, false if it fails.</returns>
-	////////////////////////////////////////////////////////////////////////////////////////////////////
-	BOOL          VEILCORE_API xp_GetModuleFileName(XP_MODULE module, tsCryptoStringBase &name);
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Cross platform function used to retrieve the command line parameters used to start the application</summary>
 	///
@@ -105,7 +67,7 @@ namespace tscrypto {
 	///
 	/// <returns>XP_MODULE_INVALID for failure or the module handle</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	XP_MODULE     VEILCORE_API xp_GetModuleHandle(const tsCryptoStringBase &moduleName);
+	//XP_MODULE     VEILCORE_API xp_GetModuleHandle(const tsCryptoStringBase &moduleName);
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Cross platform function used to get the current process ID</summary>
 	///
