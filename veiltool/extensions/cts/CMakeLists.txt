@@ -54,9 +54,9 @@ add_precompiled_header(cts stdafx.h FORCEINCLUDE SOURCE_CXX stdafx.cpp)
 set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/cts.rc PROPERTIES COMPILE_DEFINITIONS RC_COMPILED)
 set_target_properties(cts PROPERTIES FOLDER "Tools/veilExtensions")
 if(APPLE)
-    TARGET_LINK_LIBRARIES(cts VEILCore ${CyberVEIL_TARGET})
+    TARGET_LINK_LIBRARIES(cts VEILCore ${CyberVEIL_TARGET} ${CyberVEILsup_TARGET})
 else()
-    TARGET_LINK_LIBRARIES(cts VEILCore CyberVEIL)
+    TARGET_LINK_LIBRARIES(cts VEILCore CyberVEIL CyberVEILsup)
 endif(APPLE)
 set_target_properties(cts PROPERTIES 
 	SUFFIX ".veil"  

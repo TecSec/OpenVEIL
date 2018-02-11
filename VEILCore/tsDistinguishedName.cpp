@@ -47,7 +47,7 @@ static struct
 	{"OU", id_at_organizationalUnitName_OID },
 	{"C", id_at_countryName_OID },
 	{"STREET", id_at_streetAddress_OID },
-	{"DC", id_DN_PART_DOMAIN_COMPONENT_OID },
+	{"DC", id_domainComponent_OID },
 	{"UID", id_DN_PART_UID_OID },
 };
 

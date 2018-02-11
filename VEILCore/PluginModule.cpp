@@ -219,7 +219,7 @@ bool PluginModule::connect(const tscrypto::tsCryptoStringBase& _path, tsmod::IRe
 
  	tsGetFullPathName(_path.c_str(), path, sizeof(path), nullptr);
 //printf("Loading module %s\n", path.c_str());
-    if (tsLoadSharedLib(path, &_handle))
+    if (!tsLoadSharedLib(path, &_handle))
     {
 //printf ("Module load returned %s\n", GetLastDLError());
 

@@ -152,7 +152,7 @@ namespace tscrypto {
         tsCryptoData &operator=(TSBYTE_BUFF&& obj);
         tsCryptoData &operator=(const TSBYTE_BUFF& obj);
 
-        TSBYTE_BUFF getByteBuff();
+        TSBYTE_BUFF getByteBuff() const;
         TSBYTE_BUFF* getByteBuffPtr();
 
 

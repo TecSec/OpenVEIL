@@ -79,40 +79,9 @@
 
       <Namespace Name="PKIX">
 
-        <ID Name="id_pkix" Value="1.3.6.1.5.5.7"/>
-        <ID Name="id_pe" Value="1.3.6.1.5.5.7.1"/>
-        <ID Name="id_qt" Value="1.3.6.1.5.5.7.2"/>
-        <ID Name="id_kp" Value="1.3.6.1.5.5.7.3"/>
-        <ID Name="id_ad" Value="1.3.6.1.5.5.7.48"/>
 
-        <ID Name="id_ad_ocsp" Value="1.3.6.1.5.5.7.48.1"/>
-        <ID Name="id_ad_caIssuers" Value="1.3.6.1.5.5.7.48.2"/>
-        <ID Name="id_ad_timeStamping" Value="1.3.6.1.5.5.7.48.3"/>
-        <ID Name="id_ad_caRepository" Value="1.3.6.1.5.5.7.48.5"/>
-
-        <ID Name="id_at" Value="2.5.4"/>
-
-        <ID Name="id_at_name" Value="2.5.4.41"/>
-        <ID Name="id_at_surname" Value="2.5.4.4"/>
-        <ID Name="id_at_givenName" Value="2.5.4.42"/>
-        <ID Name="id_at_initials" Value="2.5.4.43"/>
-        <ID Name="id_at_generationQualifier" Value="2.5.4.44"/>
-        <ID Name="id_at_commonName" Value="2.5.4.3"/>
-        <ID Name="id_at_localityName" Value="2.5.4.7"/>
-        <ID Name="id_at_stateOrProvinceName" Value="2.5.4.8"/>
-        <ID Name="id_at_organizationName" Value="2.5.4.10"/>
-        <ID Name="id_at_organizationalUnitName" Value="2.5.4.11"/>
-        <ID Name="id_at_title" Value="2.5.4.12"/>
-        <ID Name="id_at_dnQualifier" Value="2.5.4.46"/>
-        <ID Name="id_at_countryName" Value="2.5.4.6"/>
-        <ID Name="id_at_serialNumber" Value="2.5.4.5"/>
-        <ID Name="id_at_pseudonym" Value="2.5.4.65"/>
-        <ID Name="id_domainComponent" Value="0.9.2342.19200300.100.1.25"/>
-        <ID Name="pkcs_9" Value="1.2.840.113549.1.9"/>
-        <ID Name="id_emailAddress" Value="1.2.840.113549.1.9.1"/>
-
-        <!--<Sequence Name="Extension" ElementType="ResponseExtension" OID="id_pkix" Final="false">
-          <Version Name="dummy" OID="id_pkix"/>
+        <!--<Sequence Name="Extension" ElementType="ResponseExtension" OID="id_pkix_OID" Final="false">
+          <Version Name="dummy" OID="id_pkix_OID"/>
           <Bool Name="critical" Default="false" Initializer="false"/>
           <OctetString Name="extnValue"/>
         </Sequence>-->
@@ -146,55 +115,55 @@
         at-emailAddress, ... 
       }-->
         <Sequence Name="RDNPart" Exported="true">
-          <Version Name="at_name" OID="id_at_name">
+          <Version Name="at_name" OID="id_at_name_OID">
             <Choice Name="value"/>
           </Version>
-          <Version Name="at_surname" OID="id_at_surname">
+          <Version Name="at_surname" OID="id_at_surname_OID">
             <Choice Name="value"/>
           </Version>
-          <Version Name="at_givenName" OID="id_at_givenName">
+          <Version Name="at_givenName" OID="id_at_givenName_OID">
             <Choice Name="value"/>
           </Version>
-          <Version Name="at_initials" OID="id_at_initials">
+          <Version Name="at_initials" OID="id_at_initials_OID">
             <Choice Name="value"/>
           </Version>
-          <Version Name="at_generationQualifier" OID="id_at_generationQualifier">
+          <Version Name="at_generationQualifier" OID="id_at_generationQualifier_OID">
             <Choice Name="value"/>
           </Version>
-          <Version Name="at_commonName" OID="id_at_commonName">
+          <Version Name="at_commonName" OID="id_at_commonName_OID">
             <Choice Name="value"/>
           </Version>
-          <Version Name="at_localityName" OID="id_at_localityName">
+          <Version Name="at_localityName" OID="id_at_localityName_OID">
             <Choice Name="value"/>
           </Version>
-          <Version Name="at_stateOrProvinceName" OID="id_at_stateOrProvinceName">
+          <Version Name="at_stateOrProvinceName" OID="id_at_stateOrProvinceName_OID">
             <Choice Name="value"/>
           </Version>
-          <Version Name="at_organizationName" OID="id_at_organizationName">
+          <Version Name="at_organizationName" OID="id_at_organizationName_OID">
             <Choice Name="value"/>
           </Version>
-          <Version Name="at_organizationUnitName" OID="id_at_organizationalUnitName">
+          <Version Name="at_organizationUnitName" OID="id_at_organizationalUnitName_OID">
             <Choice Name="value"/>
           </Version>
-          <Version Name="at_title" OID="id_at_title">
+          <Version Name="at_title" OID="id_at_title_OID">
             <Choice Name="value"/>
           </Version>
-          <Version Name="at_dnQualifier" OID="id_at_dnQualifier">
+          <Version Name="at_dnQualifier" OID="id_at_dnQualifier_OID">
             <Choice Name="value"/>
           </Version>
-          <Version Name="at_countryName" OID="id_at_countryName">
+          <Version Name="at_countryName" OID="id_at_countryName_OID">
             <Choice Name="value"/>
           </Version>
-          <Version Name="at_serialNumber" OID="id_at_serialNumber">
+          <Version Name="at_serialNumber" OID="id_at_serialNumber_OID">
             <Choice Name="value"/>
           </Version>
-          <Version Name="at_pseudonym" OID="id_at_pseudonym">
+          <Version Name="at_pseudonym" OID="id_at_pseudonym_OID">
             <Choice Name="value"/>
           </Version>
-          <Version Name="domainComponent" OID="id_domainComponent">
+          <Version Name="domainComponent" OID="id_domainComponent_OID">
             <Choice Name="value"/>
           </Version>
-          <Version Name="emailAddress" OID="id_emailAddress">
+          <Version Name="emailAddress" OID="id_emailAddress_OID">
             <Choice Name="value"/>
           </Version>
           <Version Name="other" OID="*">
@@ -228,7 +197,7 @@
               _POD_RelativeDistinguishedName rdn;
               _POD_RDNPart rdnpart;
               rdnpart.set_OID(part.NameAsOID());
-              if (part.NameAsOID().ToOIDString() == id_emailAddress)
+              if (part.NameAsOID().ToOIDString() == id_emailAddress_OID)
               {
 				  rdnpart.get_value().set_selectedItem(_POD_DirectoryString::Choice_iasString);
 				  rdnpart.get_value().set_iasString(part.Value());
@@ -315,48 +284,6 @@
       <Namespace Name="PKIX">
         <Namespace Name="Cert">
 
-          <!--OID for CPS qualifier-->
-          <ID Name="id_qt_cps" Value="1.3.6.1.5.5.7.2.1"/>
-          <!--OID for user notice qualifier-->
-          <ID Name="id_qt_unotice" Value="1.3.6.1.5.5.7.2.2"/>
-          <ID Name="id_ce" Value="2.5.29"/>
-          <ID Name="id_ce_authorityKeyIdentifier" Value="2.5.29.35"/>
-          <ID Name="id_ce_subjectKeyIdentifier" Value="2.5.29.14"/>
-          <ID Name="id_ce_keyUsage" Value="2.5.29.15"/>
-          <ID Name="id_ce_privateKeyUsagePeriod" Value="2.5.29.16"/>
-          <ID Name="id_ce_certificatePolicies" Value="2.5.29.32"/>
-          <ID Name="id_ce_policyMappings" Value="2.5.29.33"/>
-          <ID Name="id_ce_subjectAltName" Value="2.5.29.17"/>
-          <ID Name="id_ce_issuerAltName" Value="2.5.29.18"/>
-          <ID Name="id_ce_subjectDirectoryAttributes" Value="2.5.29.9"/>
-          <ID Name="id_ce_basicConstraints" Value="2.5.29.19"/>
-          <ID Name="id_ce_nameConstraints" Value="2.5.29.30"/>
-          <ID Name="id_ce_policyConstraints" Value="2.5.29.36"/>
-          <ID Name="id_ce_cRLDistributionPoints" Value="2.5.29.31"/>
-          <ID Name="id_ce_extKeyUsage" Value="2.5.29.37"/>
-          <ID Name="id_ce_inhibitAnyPolicy" Value="2.5.29.54"/>
-          <ID Name="id_ce_freshestCRL" Value="2.5.29.46"/>
-          <ID Name="id_ce_cRLNumber" Value="2.5.29.20"/>
-          <ID Name="id_ce_issuingDistributionPoint" Value="2.5.29.28"/>
-          <ID Name="id_ce_deltaCRLIndicator" Value="2.5.29.27"/>
-          <ID Name="id_ce_cRLReasons" Value="2.5.29.21"/>
-          <ID Name="id_ce_certificateIssuer" Value="2.5.29.29"/>
-          <ID Name="id_ce_holdInstructionCode" Value="2.5.29.23"/>
-          <ID Name="id_ce_invalidityDate" Value="2.5.29.24"/>
-          <ID Name="id_kp_serverAuth" Value="1.3.6.1.5.5.7.3.1"/>
-          <ID Name="id_kp_clientAuth" Value="1.3.6.1.5.5.7.3.2"/>
-          <ID Name="id_kp_codeSigning" Value="1.3.6.1.5.5.7.3.3"/>
-          <ID Name="id_kp_emailProtection" Value="1.3.6.1.5.5.7.3.4"/>
-          <ID Name="id_kp_timeStamping" Value="1.3.6.1.5.5.7.3.8"/>
-          <ID Name="id_kp_OCSPSigning" Value="1.3.6.1.5.5.7.3.9"/>
-          <ID Name="id_pe_authorityInfoAccess" Value="1.3.6.1.5.5.7.1.1"/>
-          <ID Name="id_pe_subjectInfoAccess" Value="1.3.6.1.5.5.7.1.11"/>
-          <ID Name="holdInstruction" Value="2.2.840.10040.2"/>
-          <!--deprecated-->
-          <ID Name="id_holdinstruction_none" Value="2.2.840.10040.2.1"/>
-          <ID Name="id_holdinstruction_callissuer" Value="2.2.840.10040.2.2}"/>
-          <ID Name="id_holdinstruction_reject" Value="2.2.840.10040.2.3}"/>
-          <ID Name="anyExtendedKeyUsage" Value="2.5.29.37.0"/>
 
           <!--
            ext-AuthorityKeyIdentifier EXTENSION ::= { SYNTAX
@@ -498,10 +425,10 @@
           </Sequence>
 
           <Sequence Name="PolicyQualifierInfo">
-            <Version Name="cps" OID="id_qt_cps">
+            <Version Name="cps" OID="id_qt_cps_OID">
               <IA5String Name="cPSuri"/>
             </Version>
-            <Version Name="unotice" OID="id_qt_unotice">
+            <Version Name="unotice" OID="id_qt_unotice_OID">
               <Sequence Name="userNotice" ElementType="UserNotice"/>
             </Version>
             <IA5String Name="cPSuri"/>
@@ -781,75 +708,75 @@
            ubMax INTEGER ::= 32768
           -->
           <Sequence Name="CertificateExtension">
-            <Version Name="ext_authorityKeyIdentifier" OID="id_ce_authorityKeyIdentifier">
+            <Version Name="ext_authorityKeyIdentifier" OID="id_ce_authorityKeyIdentifier_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue" EncodedType="AuthorityKeyIdentifier" EncodedAccessor="AuthorityKeyId"/>
             </Version>
-            <Version Name="ext_subjectKeyIdentifier" OID="id_ce_subjectKeyIdentifier">
+            <Version Name="ext_subjectKeyIdentifier" OID="id_ce_subjectKeyIdentifier_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue" EncodedType="OctetString" EncodedAccessor="SubjectKeyIdentifier"/>
             </Version>
-            <Version Name="ext_keyUsage" OID="id_ce_keyUsage">
+            <Version Name="ext_keyUsage" OID="id_ce_keyUsage_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue" EncodedType="KeyUsage" EncodedAccessor="KeyUsage"/>
             </Version>
-            <Version Name="ext_privateKeyUsagePeriod" OID="id_ce_privateKeyUsagePeriod">
+            <Version Name="ext_privateKeyUsagePeriod" OID="id_ce_privateKeyUsagePeriod_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue" EncodedType="PrivateKeyUsagePeriod" EncodedAccessor="PrivateKeyUsagePeriod"/>
             </Version>
-            <Version Name="ext_certificatePolicies" OID="id_ce_certificatePolicies">
+            <Version Name="ext_certificatePolicies" OID="id_ce_certificatePolicies_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue" EncodedType="CertificatePolicies" EncodedAccessor="CertificatePolicies"/>
             </Version>
-            <Version Name="ext_policyMappings" OID="id_ce_policyMappings">
+            <Version Name="ext_policyMappings" OID="id_ce_policyMappings_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue" EncodedType="PolicyMappings" EncodedAccessor="PolicyMappings"/>
             </Version>
-            <Version Name="ext_subjectAltName" OID="id_ce_subjectAltName">
+            <Version Name="ext_subjectAltName" OID="id_ce_subjectAltName_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue" EncodedType="GeneralNames" EncodedAccessor="SubjectAltNames"/>
             </Version>
-            <Version Name="ext_issuerAltName" OID="id_ce_issuerAltName">
+            <Version Name="ext_issuerAltName" OID="id_ce_issuerAltName_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue" EncodedType="GeneralNames" EncodedAccessor="IssuerAltNames"/>
             </Version>
-            <Version Name="ext_subjectDirectoryAttributes" OID="id_ce_subjectDirectoryAttributes">
+            <Version Name="ext_subjectDirectoryAttributes" OID="id_ce_subjectDirectoryAttributes_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue"/>
             </Version>
-            <Version Name="ext_basicConstraints" OID="id_ce_basicConstraints">
+            <Version Name="ext_basicConstraints" OID="id_ce_basicConstraints_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue" EncodedType="BasicConstraints" EncodedAccessor="BasicConstraints"/>
             </Version>
-            <Version Name="ext_nameConstraints" OID="id_ce_nameConstraints">
+            <Version Name="ext_nameConstraints" OID="id_ce_nameConstraints_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue" EncodedType="NameConstraints" EncodedAccessor="NameConstraints"/>
             </Version>
-            <Version Name="ext_policyConstraints" OID="id_ce_policyConstraints">
+            <Version Name="ext_policyConstraints" OID="id_ce_policyConstraints_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue" EncodedType="PolicyConstraints" EncodedAccessor="PolicyConstraints"/>
             </Version>
-            <Version Name="ext_extKeyUsage" OID="id_ce_extKeyUsage">
+            <Version Name="ext_extKeyUsage" OID="id_ce_extKeyUsage_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue" EncodedType="ExtKeyUsageSyntax" EncodedAccessor="ExtKeyUsageSyntax"/>
             </Version>
-            <Version Name="ext_cRLDistributionPoints" OID="id_ce_cRLDistributionPoints">
+            <Version Name="ext_cRLDistributionPoints" OID="id_ce_cRLDistributionPoints_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue" EncodedType="CRLDistributionPoints" EncodedAccessor="CRLDistributionPoints"/>
             </Version>
-            <Version Name="ext_inhibitAnyPolicy" OID="id_ce_inhibitAnyPolicy">
+            <Version Name="ext_inhibitAnyPolicy" OID="id_ce_inhibitAnyPolicy_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue" EncodedType="Int32" EncodedAccessor="InhibitAnyPolicy"/>
             </Version>
-            <Version Name="ext_freshestCRL" OID="id_ce_freshestCRL">
+            <Version Name="ext_freshestCRL" OID="id_ce_freshestCRL_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue" EncodedType="CRLDistributionPoints" EncodedAccessor="FreshestCRL"/>
             </Version>
-            <Version Name="ext_authorityInfoAccess" OID="id_pe_authorityInfoAccess">
+            <Version Name="ext_authorityInfoAccess" OID="id_pe_authorityInfoAccess_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue" EncodedType="AuthorityInfoAccessSyntax" EncodedAccessor="AuthorityInfoAccess"/>
             </Version>
-            <Version Name="ext_subjectInfoAccess" OID="id_pe_subjectInfoAccess">
+            <Version Name="ext_subjectInfoAccess" OID="id_pe_subjectInfoAccess_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue" EncodedType="SubjectInfoAccessSyntax" EncodedAccessor="SubjectInfoAccess"/>
             </Version>
@@ -1048,19 +975,19 @@ set_version(ver);
                GeneralizedTime IDENTIFIED BY id-ce-invalidityDate }
           -->
           <Sequence Name="CrlEntryExtension">
-            <Version Name="ext_CRLReason" OID="id_ce_cRLReasons">
+            <Version Name="ext_CRLReason" OID="id_ce_cRLReasons_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue" EncodedType="CRLReason" EncodedAccessor="CRLReason"/>
             </Version>
-            <Version Name="ext_certificateIssuer" OID="id_ce_certificateIssuer">
+            <Version Name="ext_certificateIssuer" OID="id_ce_certificateIssuer_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue" EncodedType="GeneralNames" EncodedAccessor="issuer"/>
             </Version>
-            <Version Name="ext_holdInstructionCode" OID="id_ce_holdInstructionCode">
+            <Version Name="ext_holdInstructionCode" OID="id_ce_holdInstructionCode_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue" EncodedType="OID" EncodedAccessor="HoldCode"/>
             </Version>
-            <Version Name="ext_invalidityDate" OID="id_ce_invalidityDate">
+            <Version Name="ext_invalidityDate" OID="id_ce_invalidityDate_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue" EncodedType="GeneralizedTime" EncodedAccessor="invalidDate"/>
             </Version>
@@ -1085,27 +1012,27 @@ set_version(ver);
                    ext-IssuingDistributionPoint |  ext-FreshestCRL, ... }
           -->
           <Sequence Name="CrlExtension">
-            <Version Name="ext_authorityKeyIdentifier" OID="id_ce_authorityKeyIdentifier">
+            <Version Name="ext_authorityKeyIdentifier" OID="id_ce_authorityKeyIdentifier_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue"/>
             </Version>
-            <Version Name="ext_issuerAltName" OID="id_ce_issuerAltName">
+            <Version Name="ext_issuerAltName" OID="id_ce_issuerAltName_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue"/>
             </Version>
-            <Version Name="ext_cRLNumber" OID="id_ce_cRLNumber">
+            <Version Name="ext_cRLNumber" OID="id_ce_cRLNumber_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue"/>
             </Version>
-            <Version Name="ext_deltaCRLIndicator" OID="id_ce_deltaCRLIndicator">
+            <Version Name="ext_deltaCRLIndicator" OID="id_ce_deltaCRLIndicator_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue"/>
             </Version>
-            <Version Name="ext_issuingDistributionPoint" OID="id_ce_issuingDistributionPoint">
+            <Version Name="ext_issuingDistributionPoint" OID="id_ce_issuingDistributionPoint_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue"/>
             </Version>
-            <Version Name="ext_freshestCRL" OID="id_ce_freshestCRL">
+            <Version Name="ext_freshestCRL" OID="id_ce_freshestCRL_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue"/>
             </Version>
@@ -1215,17 +1142,6 @@ set_version(ver);
     <Namespace Name="tscrypto">
       <Namespace Name="PKIX">
         <Namespace Name="OCSP">
-          <ID Name="id_kp_OCSPSigning" Value="1.3.6.1.5.5.7.3.9"/>
-          <ID Name="id_pkix_ocsp" Value="id-ad-ocsp"/>
-          <ID Name="id_pkix_ocsp_basic" Value="1.3.6.1.5.5.7.48.1.1"/>
-          <ID Name="id_pkix_ocsp_nonce" Value="1.3.6.1.5.5.7.48.1.2"/>
-          <ID Name="id_pkix_ocsp_crl" Value="1.3.6.1.5.5.7.48.1.3"/>
-          <ID Name="id_pkix_ocsp_response" Value="1.3.6.1.5.5.7.48.1.4"/>
-          <ID Name="id_pkix_ocsp_nocheck" Value="1.3.6.1.5.5.7.48.1.5"/>
-          <ID Name="id_pkix_ocsp_archive_cutoff" Value="1.3.6.1.5.5.7.48.1.6"/>
-          <ID Name="id_pkix_ocsp_service_locator" Value="1.3.6.1.5.5.7.48.1.7"/>
-          <ID Name="id_pkix_ocsp_pref_sig_algs" Value="1.3.6.1.5.5.7.48.1.8"/>
-          <ID Name="id_pkix_ocsp_extended_revoke" Value="1.3.6.1.5.5.7.48.1.9"/>
 
           <!--OCSPResponseStatus ::= ENUMERATED {             EXPLICIT
             successful            (0), - Response has valid confirmations
@@ -1264,11 +1180,11 @@ set_version(ver);
           re-ocsp-extended-revoke EXTENSION ::= { SYNTAX NULL IDENTIFIED BY id-pkix-ocsp-extended-revoke }-->
 
           <Sequence Name="ResponseExtension">
-            <Version Name="re_ocsp_nonce" OID="id_pkix_ocsp_nonce">
+            <Version Name="re_ocsp_nonce" OID="id_pkix_ocsp_nonce_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue"/>
             </Version>
-            <Version Name="re_ocsp_extended_revoke" OID="id_pkix_ocsp_extended_revoke">
+            <Version Name="re_ocsp_extended_revoke" OID="id_pkix_ocsp_extended_revoke_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue"/>
             </Version>
@@ -1277,11 +1193,11 @@ set_version(ver);
           </Sequence>
 
           <Sequence Name="SingleResponseExtension">
-            <Version Name="re_ocsp_crl" OID="id_pkix_ocsp_crl">
+            <Version Name="re_ocsp_crl" OID="id_pkix_ocsp_crl_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue" EncodedType="CrlID" EncodedAccessor="Crl"/>
             </Version>
-            <Version Name="re_ocsp_archive_cutoff" OID="id_pkix_ocsp_archive_cutoff">
+            <Version Name="re_ocsp_archive_cutoff" OID="id_pkix_ocsp_archive_cutoff_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue" EncodedType="ArchiveCutoff" EncodedAccessor="ArchiveCutoff"/>
             </Version>
@@ -1297,15 +1213,15 @@ set_version(ver);
           re-ocsp-preferred-signature-algorithms EXTENSION ::= { SYNTAX PreferredSignatureAlgorithms IDENTIFIED BY id-pkix-ocsp-pref-sig-algs  }-->
 
           <Sequence Name="RequestExtension">
-            <Version Name="re_ocsp_nonce" OID="id_pkix_ocsp_nonce">
+            <Version Name="re_ocsp_nonce" OID="id_pkix_ocsp_nonce_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue" EncodedType="OctetString" EncodedAccessor="NonceValue"/>
             </Version>
-            <Version Name="re_ocsp_response" OID="id_pkix_ocsp_response">
+            <Version Name="re_ocsp_response" OID="id_pkix_ocsp_response_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue"/>
             </Version>
-            <Version Name="re_ocsp_preferred_signature_algorithms" OID="id_pkix_ocsp_pref_sig_algs">
+            <Version Name="re_ocsp_preferred_signature_algorithms" OID="id_pkix_ocsp_pref_sig_algs_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue"/>
             </Version>
@@ -1316,7 +1232,7 @@ set_version(ver);
             <Sequence Name="item" ElementType="RequestExtension"/>
           </SequenceOf>
           <Sequence Name="SingleRequestExtension">
-            <Version Name="re_ocsp_service_locator" OID="id_pkix_ocsp_service_locator">
+            <Version Name="re_ocsp_service_locator" OID="id_pkix_ocsp_service_locator_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue"/>
             </Version>
@@ -1326,8 +1242,8 @@ set_version(ver);
 
           <!--Certificate Extensions-->
           <!--ext-ocsp-nocheck EXTENSION ::= { SYNTAX NULL IDENTIFIED BY id-pkix-ocsp-nocheck }-->
-          <Sequence Name="CertificateExtension" OID="id_pkix_ocsp_nocheck">
-            <Version Name="ext_ocsp_nocheck" OID="id_pkix_ocsp_nocheck">
+          <Sequence Name="CertificateExtension" OID="id_pkix_ocsp_nocheck_OID">
+            <Version Name="ext_ocsp_nocheck" OID="id_pkix_ocsp_nocheck_OID">
               <Bool Name="critical"/>
               <OctetString Name="extnValue"/>
             </Version>
@@ -1486,7 +1402,7 @@ set_version(ver);
           RESPONSE ::= TYPE-IDENTIFIER
           -->
           <Sequence Name="ResponseBytes">
-            <Version Name="basic" OID="id_pkix_ocsp_basic">
+            <Version Name="basic" OID="id_pkix_ocsp_basic_OID">
               <OctetString Name="response"/>
             </Version>
             <OctetString Name="response"/>

@@ -270,7 +270,7 @@ protected:
         name.FromString(request.dn.c_str());
 
         if (request.email.size() > 0)
-            name.Parts()->insert(name.Parts()->begin(), tsDnPart(tsCryptoData(id_CERT_EMAIL_ADDRESS_OID, tsCryptoData::OID), request.email));
+            name.Parts()->insert(name.Parts()->begin(), tsDnPart(tsCryptoData(id_emailAddress_OID, tsCryptoData::OID), request.email));
 
         _POD_Name nameVal;
         nameVal.SetFromDN(name);
@@ -446,7 +446,7 @@ protected:
         std::shared_ptr<TlvNode> contextSix = outer->OwnerDocument().lock()->CreateContextNode(6);
 
         outer->AppendChild(sequence);
-        sequence->AppendChild(outer->OwnerDocument().lock()->CreateOIDNode(tsCryptoData(id_CERT_CA_ISSUERS_OID, tsCryptoData::OID)));
+        sequence->AppendChild(outer->OwnerDocument().lock()->CreateOIDNode(tsCryptoData(id_ad_caIssuers_OID, tsCryptoData::OID)));
         sequence->AppendChild(contextSix);
         contextSix->InnerString(value);
     }
@@ -469,10 +469,10 @@ protected:
                 AddCrl(innerDoc->DocumentElement(), point);
             }
 
-            ext.oid = id_CERT_CRL_DISTRIBUTION_POINTS_OID;
+            ext.oid = id_ce_cRLDistributionPoints_OID;
             ext.critical = false;
             ext.contents = innerDoc->SaveTlv();
-            Member.extensions->erase(std::remove_if(Member.extensions->begin(), Member.extensions->end(), [](const CA_Certificate_Extension& ext) { return ext.oid == id_CERT_CRL_DISTRIBUTION_POINTS_OID; }), Member.extensions->end());
+            Member.extensions->erase(std::remove_if(Member.extensions->begin(), Member.extensions->end(), [](const CA_Certificate_Extension& ext) { return ext.oid == id_ce_cRLDistributionPoints_OID; }), Member.extensions->end());
             Member.extensions->push_back(ext);
         }
     }
@@ -596,10 +596,10 @@ protected:
             appZero->Children()->at(1)->AppendChild(innerDoc->CreateTlvNode(0x0c, 0));
             appZero->Children()->at(1)->Children()->at(0)->InnerString(Member.loginName);
 
-            ext.oid = id_CERT_SUBJECT_ALT_NAME_OID;
+            ext.oid = id_ce_subjectAltName_OID;
             ext.critical = false;
             ext.contents = innerDoc->SaveTlv();
-            req.extensions->erase(std::remove_if(req.extensions->begin(), req.extensions->end(), [](const CA_Certificate_Extension& ext) { return ext.oid == id_CERT_SUBJECT_ALT_NAME_OID; }), req.extensions->end());
+            req.extensions->erase(std::remove_if(req.extensions->begin(), req.extensions->end(), [](const CA_Certificate_Extension& ext) { return ext.oid == id_ce_subjectAltName_OID; }), req.extensions->end());
             req.extensions->push_back(ext);
         }
         ////			sequence = attrNode->OwnerDocument().lock()->CreateTlvNode(0x10, 0);
@@ -699,7 +699,7 @@ protected:
         ext.oid = ce.get_OID().ToOIDString();
         ext.critical = false;
         ext.contents = ce.get_extnValue();
-        req.extensions->erase(std::remove_if(req.extensions->begin(), req.extensions->end(), [](const CA_Certificate_Extension& ext) { return ext.oid == id_CERT_SUBJECT_KEY_ID_OID; }), req.extensions->end());
+        req.extensions->erase(std::remove_if(req.extensions->begin(), req.extensions->end(), [](const CA_Certificate_Extension& ext) { return ext.oid == id_ce_subjectKeyIdentifier_OID; }), req.extensions->end());
         req.extensions->push_back(ext);
     }
 
@@ -719,7 +719,7 @@ protected:
         ext.oid = ce.get_OID().ToOIDString();
         ext.critical = false;
         ext.contents = ce.get_extnValue();
-        req.extensions->erase(std::remove_if(req.extensions->begin(), req.extensions->end(), [](const CA_Certificate_Extension& ext) { return ext.oid == id_CERT_SUBJECT_KEY_ID_OID; }), req.extensions->end());
+        req.extensions->erase(std::remove_if(req.extensions->begin(), req.extensions->end(), [](const CA_Certificate_Extension& ext) { return ext.oid == id_ce_subjectKeyIdentifier_OID; }), req.extensions->end());
         req.extensions->push_back(ext);
     }
 
@@ -773,10 +773,10 @@ protected:
     {
         CA_Certificate_Extension ext;
 
-        ext.oid = id_CERT_BASIC_CONSTRAINTS_OID;
+        ext.oid = id_ce_basicConstraints_OID;
         ext.critical = true;
         ext.contents = tsCryptoData("30030101FF", tsCryptoData::HEX);
-        req.extensions->erase(std::remove_if(req.extensions->begin(), req.extensions->end(), [](const CA_Certificate_Extension& ext) { return ext.oid == id_CERT_BASIC_CONSTRAINTS_OID; }), req.extensions->end());
+        req.extensions->erase(std::remove_if(req.extensions->begin(), req.extensions->end(), [](const CA_Certificate_Extension& ext) { return ext.oid == id_ce_basicConstraints_OID; }), req.extensions->end());
         req.extensions->push_back(ext);
     }
 

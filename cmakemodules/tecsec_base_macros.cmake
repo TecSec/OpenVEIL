@@ -409,7 +409,7 @@ macro(Tlb2TypesDll idlName asmName namespace Product dependency configName)
         DEPENDS 
             ${CMAKE_CURRENT_BINARY_DIR}/${TS_VS_CONFIGURATION}/${idlName}.tlb
         COMMAND 
-            tlbimp.exe -nologo /out:${CMAKE_CURRENT_BINARY_DIR}/${TS_VS_CONFIGURATION}/${asmName}.dll /namespace:${namespace} /delaysign /keyfile:${PUBLIC_SOURCE_TOP_DIR}/SolutionItems/${TSF_KEY_FILE} /primary /machine:${TS_X_PLATFORM} /asmversion:"${TSF_FULL_VERSION}" ${ARGN} /productversion:"${TSF_FULL_VERSION}" ${SDK_ROOT_VS}/include/${TS_X_PLATFORM}/${idlName}.tlb /company:"TecSec Inc" "/copyright:Copyright (c) 2017 TecSec, Inc. All rights reserved" /product:"${Product}"
+            tlbimp.exe -nologo /out:${CMAKE_CURRENT_BINARY_DIR}/${TS_VS_CONFIGURATION}/${asmName}.dll /namespace:${namespace} /delaysign /keyfile:${PUBLIC_SOURCE_TOP_DIR}/SolutionItems/${TSF_KEY_FILE} /primary /machine:${TS_X_PLATFORM} /asmversion:"${TSF_FULL_VERSION}" ${ARGN} /productversion:"${TSF_FULL_VERSION}" ${SDK_ROOT_VS}/include/${TS_X_PLATFORM}/${idlName}.tlb /company:"TecSec Inc" "/copyright:Copyright (c) 2018 TecSec, Inc. All rights reserved" /product:"${Product}"
         COMMAND 
             mt.exe -nologo -manifest "${CMAKE_CURRENT_BINARY_DIR}/${asmName}.manifest" -hashupdate -outputresource:${CMAKE_CURRENT_BINARY_DIR}/${TS_VS_CONFIGURATION}/${asmName}.dll\;2 
         )

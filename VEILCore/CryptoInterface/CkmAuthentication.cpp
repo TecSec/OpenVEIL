@@ -77,7 +77,7 @@ public:
 	virtual bool computeResponderValues(const tsCryptoData& responderParameters, const tsCryptoData& storedKey, authenticationResponderKeyHandler* keyAccess, 
 		tsCryptoData& responderMITMProof, tsCryptoData& sessionKey) override
 	{
-		const TSCkmAuthDescriptor *resp = (const TSCkmAuthDescriptor *)tsFindCkmAlgorithm("CKMAUTH");
+		const TSCkmAuthDescriptor *resp = (const TSCkmAuthDescriptor *)tsFindGeneralAlgorithm("CKMAUTH");
 		SmartCryptoWorkspace workspace;
 		uint32_t mitmLen;
 		uint32_t sessionKeyLen;
@@ -118,7 +118,7 @@ public:
 	virtual bool computeInitiatorValues(const tsCryptoData& initiatorParameters, const tsCryptoData& authenticationInformation, tsCryptoData& responderParameters, 
 		tsCryptoData& responderMITMProof, tsCryptoData& sessionKey) override
 	{
-		const TSCkmAuthDescriptor *init = (const TSCkmAuthDescriptor *)tsFindCkmAlgorithm("CKMAUTH");
+		const TSCkmAuthDescriptor *init = (const TSCkmAuthDescriptor *)tsFindGeneralAlgorithm("CKMAUTH");
 		const TSEccDescriptor* pkDesc = nullptr;
 		SmartCryptoWorkspace workspace;
 		SmartCryptoKey respKeyPair;
@@ -181,7 +181,7 @@ public:
 	virtual bool testInitiatorValues(const tsCryptoData& initiatorParameters, const tsCryptoData& authenticationInformation, const tsCryptoData& KGK, const tsCryptoData& ephPriv, 
 		const tsCryptoData& ephPub, const tsCryptoData& responderParameters, const tsCryptoData& responderMITMProof, const tsCryptoData& sessionKey) override
 	{
-		const TSCkmAuthDescriptor *init = (const TSCkmAuthDescriptor *)tsFindCkmAlgorithm("CKMAUTH");
+		const TSCkmAuthDescriptor *init = (const TSCkmAuthDescriptor *)tsFindGeneralAlgorithm("CKMAUTH");
 		const TSEccDescriptor* pkDesc = nullptr;
 		SmartCryptoWorkspace workspace;
 		SmartCryptoKey respKeyPair;

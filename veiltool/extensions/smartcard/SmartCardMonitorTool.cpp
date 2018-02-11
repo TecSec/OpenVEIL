@@ -97,11 +97,9 @@ class SmartCardMonitorTool : public tsmod::IVeilToolCommand, public tsmod::IObje
 public:
 	SmartCardMonitorTool()
 	{
-        tsWinscardInit();
     }
 	~SmartCardMonitorTool()
 	{
-        tsWinscardRelease();
     }
 
 	// tsmod::IObject
@@ -156,20 +154,20 @@ public:
 		//   changeMonitor->LookForChanges();
 		//   monitor->ScanForChanges();
 
-        TSBYTE_BUFF_LIST readers = tsAllReaders();
+        TSBYTE_BUFF_LIST readers = scMan->allReaders();
 
 		int i = 0;
         int count = (int)tsByteBufferListUsed(readers);
         for (i = 0; i < count; i++)
 		{
             const char* readerName = tsGetByteBufferListItemAsString(readers, i);
-            printf("Reader %d:  %-40s %08X\n", i, readerName, tsGetReaderStatus(readerName));
+            printf("Reader %d:  %-40s %08X\n", i, readerName, scMan->getReaderStatus(readerName));
 		}
         tsFreeByteBufferList(&readers);
 
 		printf("\nDetected changes\n");
-        uint32_t cookie = tsSmartCard_RegisterChangeConsumer(&mySmartcardChanges, NULL);
-        auto unreg1 = finally([&cookie]() {tsSmartCard_UnregisterChangeConsumer(cookie); });
+        uint32_t cookie = scMan->registerChangeConsumer(&mySmartcardChanges, NULL);
+        auto unreg1 = finally([&cookie]() {scMan->unregisterChangeConsumer(cookie); });
 
         if (cookie == 0)
             return 1;

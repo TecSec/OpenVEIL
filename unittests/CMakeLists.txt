@@ -114,6 +114,8 @@ add_custom_command(
 
 if(WIN32)
     CopyImportTargetBinariesToBuildFolder(CyberVEIL ${EXTRA_FILE_OUTPUT})
+    CopyImportTargetBinariesToBuildFolder(CyberVEILsup ${EXTRA_FILE_OUTPUT})
+    CopyImportTargetBinariesToBuildFolder(CyberVEILdb ${EXTRA_FILE_OUTPUT})
     CopyImportTargetBinariesToBuildFolder(GTEST ${EXTRA_FILE_OUTPUT})
     CopyImportTargetBinariesToBuildFolder(GTEST_MAIN ${EXTRA_FILE_OUTPUT})
 endif(WIN32)
@@ -166,11 +168,14 @@ if(APPLE)
         VEILCore
         GTEST
         ${CyberVEIL_TARGET}
+        ${CyberVEILsup_TARGET}
         )
 else()
     TARGET_LINK_LIBRARIES(CryptoTests
         VEILCore
         GTEST
+        CyberVEIL
+        CyberVEILsup
         )
 endif(APPLE)
 install(TARGETS CryptoTests ARCHIVE DESTINATION ${LIB_DIR} LIBRARY DESTINATION ${SHLIB_DIR} RUNTIME DESTINATION ${BIN_DIR})

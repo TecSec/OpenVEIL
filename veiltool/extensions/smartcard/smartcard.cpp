@@ -31,6 +31,8 @@
 
 #include "stdafx.h"
 
+const TSSmartCardManagerDescriptor* scMan = nullptr;
+
 static tsmod::IObject* CreateSmartCardTool()
 {
 	std::shared_ptr<tsmod::IVeilUtilities> utils = ::TopServiceLocator()->get_instance<tsmod::IVeilUtilities>("VeilUtilities");
@@ -73,7 +75,11 @@ bool EXPORTME Initialize_smartcard(std::shared_ptr<tsmod::IServiceLocator> servL
 	UNREFERENCED_PARAMETER(servLoc);
 	UNREFERENCED_PARAMETER(log);
 
-    tsWinscardInit();
+    scMan = (const TSSmartCardManagerDescriptor*)tsFindGeneralAlgorithm("SMARTCARDMANAGER");
+    if (scMan == nullptr)
+        return false;
+
+    scMan->winscardInit();
 
 
 	::TopServiceLocator()->AddClass("/COMMANDS/SMARTCARD", CreateSmartCardTool);
@@ -119,7 +125,11 @@ bool EXPORTME Terminate_smartcard(std::shared_ptr<tsmod::IServiceLocator> servLo
 		::TopServiceLocator()->CleanEmptyCollections();
 		::TopServiceLocator()->DeleteClass("/COMMANDS/SMARTCARD");
 	}
-    tsWinscardRelease();
+    if (scMan != nullptr)
+    {
+        scMan->winscardRelease();
+        scMan = nullptr;
+    }
 	return true;
 }
 

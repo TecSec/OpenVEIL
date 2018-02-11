@@ -56,7 +56,8 @@ public:
 	virtual bool DecryptStream(std::shared_ptr<IDataReader> sFile, std::shared_ptr<IDataWriter> sDecrFile) override;
 	virtual bool DecryptFileAndStreams(const tscrypto::tsCryptoString& sFile, const tscrypto::tsCryptoString& sDecrFile) override;
 
-	virtual bool ValidateFileContents_PublicOnly( const tscrypto::tsCryptoString& sFile ) override;
+    virtual bool ValidateFileContents_PublicOnly(const tscrypto::tsCryptoString& sFile) override;
+    virtual bool ValidateBufferContents_PublicOnly(const tscrypto::tsCryptoData& buffer) override;
 	virtual bool SetSessionCallback(std::shared_ptr<IFileVEILSessionCallback> callback) override;
 	virtual bool DecryptStreamWithHeader(std::shared_ptr<IDataReader> sFile, std::shared_ptr<IDataWriter> sDecrFile, std::shared_ptr<ICmsHeaderBase>& header) override;
 	virtual bool EncryptCryptoData(const tscrypto::tsCryptoData &inputData, tscrypto::tsCryptoData &outputData, std::shared_ptr<ICmsHeader> header, CompressionType comp, tscrypto::TS_ALG_ID algorithm, tscrypto::TS_ALG_ID hashAlgorithm,
@@ -66,6 +67,7 @@ public:
 	virtual bool DecryptCryptoDataWithHeader(const tscrypto::tsCryptoData &inputData, tscrypto::tsCryptoData &outputData, std::shared_ptr<ICmsHeaderBase>& header) override;
 	virtual bool  DataStartsWithCmsHeader(const tscrypto::tsCryptoData& contents, std::shared_ptr<ICmsHeaderBase>& pVal) override;
 	virtual tscrypto::tsCryptoString failureReason() override { return m_failureReason; }
+    virtual bool GetDataInformation(const tscrypto::tsCryptoData& buffer, tscrypto::JSONObject& info) override;
 	virtual bool GetFileInformation(const tscrypto::tsCryptoString & filename, tscrypto::JSONObject & info) override;
 
 private:
@@ -86,7 +88,9 @@ private:
     bool RegenerateStreamKey(const tscrypto::tsCryptoString &sFilename, tscrypto::tsCryptoData& headerSignature, tscrypto::tsCryptoData& workingKey);
 
 	void getFileStreamNamesAndInfo(const tscrypto::tsCryptoString& name, tscrypto::JSONObject& o, bool includeCkmInfo = false);
+    void getBufferInfo(const tscrypto::tsCryptoString& name, const tscrypto::tsCryptoData& buffer, tscrypto::JSONObject& o, bool includeCkmInfo = false);
 	void getCkmInfo(const tscrypto::tsCryptoString& name, tscrypto::JSONObject& o);
+    void getCkmInfoForBuffer(const tscrypto::tsCryptoData& buffer, tscrypto::JSONObject& o);
 
     std::shared_ptr<IFileVEILOperationStatus>    m_status;
     std::shared_ptr<IKeyVEILSession>             m_session;

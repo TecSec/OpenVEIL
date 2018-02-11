@@ -41,7 +41,7 @@ class TunnelInitiatorImpl : public IClientTunnel, public TSName, public Selftest
 public:
     TunnelInitiatorImpl(const tsCryptoStringBase& algorithm) : _keyHandler(nullptr), _ctrlChannel(nullptr)
     {
-        desc = (const TSCkmTunnelInitiatorDescriptor*)tsFindCkmAlgorithm("CKMTUNNEL-INITIATOR");
+        desc = (const TSCkmTunnelInitiatorDescriptor*)tsFindGeneralAlgorithm("CKMTUNNEL-INITIATOR");
     }
     virtual ~TunnelInitiatorImpl(void)
     {

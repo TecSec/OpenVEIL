@@ -344,23 +344,23 @@ namespace tsstd {
 #include "CkmReadWriteFile.h"
 #include "xp_console.h"
 
-// RFC 1950 compression for HTTP
-_Check_return_ bool VEILCORE_API zlibCompress(const uint8_t* src, size_t srcLen, int level, uint8_t* dest, size_t& destLen);
-_Check_return_ bool VEILCORE_API zlibDecompress(const uint8_t* src, size_t srcLen, uint8_t* dest, size_t& destLen);
-_Check_return_ bool VEILCORE_API zlibDecompress(const uint8_t* src, size_t srcLen, tscrypto::tsCryptoData& outputData);
-
-// RFC 1951 compression for HTTP (raw deflate with no header
-_Check_return_ bool VEILCORE_API raw_zlibCompress(const uint8_t* src, size_t srcLen, int level, uint8_t* dest, size_t& destLen);
-_Check_return_ bool VEILCORE_API raw_zlibDecompress(const uint8_t* src, size_t srcLen, uint8_t* dest, size_t& destLen);
-_Check_return_ bool VEILCORE_API raw_zlibDecompress(const uint8_t* src, size_t srcLen, tscrypto::tsCryptoData& outputData);
-
-// RFC 1952 GZIP compression for HTTP
-_Check_return_ bool VEILCORE_API gzipCompress(const uint8_t* src, size_t srcLen, int level, uint8_t* dest, size_t& destLen);
-_Check_return_ bool VEILCORE_API gzipDecompress(const uint8_t* src, size_t srcLen, uint8_t* dest, size_t& destLen);
-_Check_return_ bool VEILCORE_API gzipDecompress(const uint8_t* src, size_t srcLen, tscrypto::tsCryptoData& outputData);
-
-_Check_return_ tscrypto::tsCryptoData VEILCORE_API zlibCompress(const tscrypto::tsCryptoData& src, int level);
-_Check_return_ tscrypto::tsCryptoData VEILCORE_API zlibDecompress(const tscrypto::tsCryptoData& src);
+//// RFC 1950 compression for HTTP
+//_Check_return_ bool VEILCORE_API zlibCompress(const uint8_t* src, size_t srcLen, int level, uint8_t* dest, size_t& destLen);
+//_Check_return_ bool VEILCORE_API zlibDecompress(const uint8_t* src, size_t srcLen, uint8_t* dest, size_t& destLen);
+//_Check_return_ bool VEILCORE_API zlibDecompress(const uint8_t* src, size_t srcLen, tscrypto::tsCryptoData& outputData);
+//
+//// RFC 1951 compression for HTTP (raw deflate with no header
+//_Check_return_ bool VEILCORE_API raw_zlibCompress(const uint8_t* src, size_t srcLen, int level, uint8_t* dest, size_t& destLen);
+//_Check_return_ bool VEILCORE_API raw_zlibDecompress(const uint8_t* src, size_t srcLen, uint8_t* dest, size_t& destLen);
+//_Check_return_ bool VEILCORE_API raw_zlibDecompress(const uint8_t* src, size_t srcLen, tscrypto::tsCryptoData& outputData);
+//
+//// RFC 1952 GZIP compression for HTTP
+//_Check_return_ bool VEILCORE_API gzipCompress(const uint8_t* src, size_t srcLen, int level, uint8_t* dest, size_t& destLen);
+//_Check_return_ bool VEILCORE_API gzipDecompress(const uint8_t* src, size_t srcLen, uint8_t* dest, size_t& destLen);
+//_Check_return_ bool VEILCORE_API gzipDecompress(const uint8_t* src, size_t srcLen, tscrypto::tsCryptoData& outputData);
+//
+//_Check_return_ tscrypto::tsCryptoData VEILCORE_API zlibCompress(const tscrypto::tsCryptoData& src, int level);
+//_Check_return_ tscrypto::tsCryptoData VEILCORE_API zlibDecompress(const tscrypto::tsCryptoData& src);
 
 namespace TecSecResources {
     struct oldResourceHeader

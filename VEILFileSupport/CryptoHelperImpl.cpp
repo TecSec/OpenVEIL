@@ -57,6 +57,7 @@ public:
 		SymmetricPaddingType paddingType, const tscrypto::tsCryptoData &authData, const tscrypto::tsCryptoData &finalHash, int blockSize) override;
 	virtual bool    StreamStartsWithCkmHeader(std::shared_ptr<IDataReader> stream, std::shared_ptr<ICmsHeaderBase>& pVal) override;
 	virtual bool ValidateFileContents_PublicOnly(std::shared_ptr<IDataReader> reader) override;
+    virtual bool ValidateBufferContents_PublicOnly(const tscrypto::tsCryptoData& buffer) override;
 	virtual bool SetOperationStatusCallback(std::shared_ptr<IFileVEILOperationStatus> setTo) override;
 	virtual bool SetTaskInformation(int taskNumber, int taskCount) override;
 	virtual bool SetDecryptCallback(std::shared_ptr<ICryptoHelperDecryptCallback> setTo) override;
@@ -76,6 +77,7 @@ public:
 	virtual bool GenerateWorkingKey(std::shared_ptr<ICmsHeader>& header, std::shared_ptr<IKeyGenCallback> callback, tscrypto::tsCryptoData& workingKey) override;
 	virtual bool RegenerateWorkingKey(std::shared_ptr<ICmsHeader>& header, tscrypto::tsCryptoData& workingKey) override;
 	virtual tscrypto::tsCryptoString failureReason() override { return m_failureReason; }
+    virtual bool    BufferStartsWithCkmHeader(const tscrypto::tsCryptoData& buffer, uint32_t& headerLen, std::shared_ptr<ICmsHeaderBase>& pVal) override;
 
 protected:
 	bool computeAlgParams(TS_ALG_ID algorithm, tscrypto::tsCryptoData &workingKey, KeyType &keyType, tscrypto::tsCryptoData &ivec,
@@ -1367,7 +1369,36 @@ bool    CCKMCryptoHelperImpl::StreamStartsWithCkmHeader(std::shared_ptr<IDataRea
 	pVal = header;
 	return true;
 }
+bool    CCKMCryptoHelperImpl::BufferStartsWithCkmHeader(const tscrypto::tsCryptoData& buffer, uint32_t& out_headerLen, std::shared_ptr<ICmsHeaderBase>& pVal)
+{
+    std::shared_ptr<ICmsHeaderBase> header;
+    int len;
+    int headerLen = 0;
+    int64_t fileLength;
+    std::shared_ptr<tsmod::IObject> iunk;
 
+    out_headerLen = 0;
+    m_failureReason.clear();
+    if (buffer.size() == 0)
+        return false;
+
+    fileLength = buffer.size();
+
+    if (fileLength > 20480)
+        len = 20480;
+    else
+        len = (int)fileLength;
+
+    if (!(ExtractHeaderFromStream(buffer.c_str(), len, &headerLen, iunk)) || !(header = std::dynamic_pointer_cast<ICmsHeaderBase>(iunk)) || headerLen == 0)
+    {
+        return false;
+    }
+
+    out_headerLen = headerLen;
+
+    pVal = header;
+    return true;
+}
 bool CCKMCryptoHelperImpl::ValidateFileContents_PublicOnly(std::shared_ptr<IDataReader> reader)
 {
 	TSDECLARE_FUNCTIONExt(true);
@@ -1423,7 +1454,68 @@ bool CCKMCryptoHelperImpl::ValidateFileContents_PublicOnly(std::shared_ptr<IData
 	}
 	return TSRETURN(("OK"), true);
 }
+bool CCKMCryptoHelperImpl::ValidateBufferContents_PublicOnly(const tscrypto::tsCryptoData& buffer)
+{
+    TSDECLARE_FUNCTIONExt(true);
 
+    std::shared_ptr<ICmsHeaderBase> header;
+    bool hr;
+    uint32_t headerLen = 0;
+
+    m_failureReason.clear();
+    LOG(DebugInfo3, "Validating buffer");
+
+
+    if (!BufferStartsWithCkmHeader(buffer, headerLen, header))
+    {
+        LOG(DebugInfo1, "The buffer is not encrypted.");
+        return TSRETURN(("OK"), true);
+    }
+
+    std::shared_ptr<ICmsHeader> header7;
+
+    if (!(header7 = std::dynamic_pointer_cast<ICmsHeader>(header)))
+    {
+        LOG(DebugInfo1, "The buffer has an unrecognized header format.");
+        return TSRETURN(("FAIL"), false);
+    }
+
+    if (header7->HasHeaderSigningPublicKey())
+    {
+        if (!header7->ValidateSignature())
+        {
+            LOG(DebugInfo1, "The buffer has a header that has been modified");
+            return TSRETURN(("FAIL"), false);
+        }
+    }
+    else
+    {
+        LOG(DebugInfo1, "CKM 7 header with HMAC - Header was not validated as no working key regeneration will be performed in this operation.");
+    }
+
+    std::shared_ptr<IDecryptProcessor> processor;
+    std::shared_ptr<IDataIOBase> stream = CreateMemoryStream();
+    std::shared_ptr<IDataReader> reader = std::dynamic_pointer_cast<IDataReader>(stream);
+    std::shared_ptr<ICkmPersistable> persist = std::dynamic_pointer_cast<ICkmPersistable>(stream);
+
+    if (!persist->FromBytes(buffer))
+
+    reader->GoToPosition(0);
+
+    std::shared_ptr<IDataWriter> emptyWriter;
+    if (!(processor = std::dynamic_pointer_cast<IDecryptProcessor>(CreateEncryptProcessor(m_taskCount, m_taskNumber, m_status, reader, emptyWriter, true))))
+    {
+        LogError("Unable to create the decryption processor.");
+        return TSRETURN_ERROR(("Unable to create the decryption processor"), false);
+    }
+
+    if (!(hr = processor->PrevalidateData(header)))
+    {
+        LogError("ERROR:  The file has been modified.");
+        return TSRETURN_ERROR(("The file has been modified."), false);
+    }
+    return TSRETURN(("OK"), true);
+}
 bool CCKMCryptoHelperImpl::SetOperationStatusCallback(std::shared_ptr<IFileVEILOperationStatus> setTo)
 {
 	m_status.reset();

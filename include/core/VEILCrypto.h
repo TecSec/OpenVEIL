@@ -38,8 +38,16 @@
 
 #ifdef __APPLE__
 #   include "CyberVEIL/CyberVEIL.h"
+#   include "CyberVEILsup/CyberVEILsup.h"
+#   include "CyberVEILdb/CyberVEILdb.h"
+#   include "CyberVEILnet/CyberVEILnet.h"
+#   include "CyberVEILsc/CyberVEILsc.h"
 #else
 #   include "CyberVEIL.h"
+#   include "CyberVEILsup.h"
+#   include "CyberVEILdb.h"
+#   include "CyberVEILnet.h"
+#   include "CyberVEILsc.h"
 #endif
 
 #ifndef _WIN32
@@ -50,7 +58,6 @@
 #   include <arpa/inet.h>
 #   define SOCKET_ERROR -1
 
-static inline bool operator==(const GUID& left, const GUID& right) { return memcmp(&left, &right, sizeof(GUID)) == 0; }
 static inline bool operator!=(const GUID& left, const GUID& right) { return memcmp(&left, &right, sizeof(GUID)) != 0; }
 #endif
 

@@ -62,11 +62,9 @@ class ChangeActPasswordTool : public tsmod::IVeilToolCommand, public tsmod::IObj
 public:
 	ChangeActPasswordTool() : gSmartCardDone(true, false)
 	{
-        tsWinscardInit();
     }
 	~ChangeActPasswordTool()
 	{
-        tsWinscardRelease();
     }
 
 	// tsmod::IObject
@@ -109,8 +107,8 @@ public:
 
 		gSmartCardDone.Reset();
 
-		uint32_t cookie = tsSmartCard_RegisterChangeConsumer(&mySmartcardChanges, this);
-		auto cleanup1 = finally([&cookie]() {tsSmartCard_UnregisterChangeConsumer(cookie); });
+		uint32_t cookie = scMan->registerChangeConsumer(&mySmartcardChanges, this);
+		auto cleanup1 = finally([&cookie]() {scMan->unregisterChangeConsumer(cookie); });
 		gSmartCardDone.WaitForEvent(INFINITE);
 		return 0;
 
@@ -128,6 +126,7 @@ protected:
 	{
 		tscrypto::tsCryptoData cardcmd("00 A4 04 00", tscrypto::tsCryptoData::HEX);
 		TSSMARTCARD_CONNECTION card = NULL;
+        const TSSmartCardConnectionDescriptor* cardDesc = nullptr;
 		tscrypto::tsCryptoString tokenName;
 		uint8_t outData[280];
         uint32_t outDataLen;
@@ -140,22 +139,26 @@ protected:
 		tscrypto::tsCryptoData data, key2, mac2, kek;
 		xp_console ts_out;
 
-        card = tsCreateSmartcardConnection();
-        if (!tsSmartcardConnectToReader(card, readerName.c_str()))
+        card = tsCreateWorkspaceForAlgorithm("SMARTCARD_CONNECTION");
+        cardDesc = (const TSSmartCardConnectionDescriptor*)tsGetDescriptorFromWorkspace(card);
+        if (cardDesc == nullptr)
+            return;
+
+        if (!cardDesc->connectToReader(card, readerName.c_str()))
 		{
 			std::cout << "ERROR:  Unable to connect to the smart card." << std::endl;
 			gSmartCardDone.Set();
-            tsFreeSmartcardConnection(&card);
+            tsFreeWorkspace(&card);
 			return;
 		}
-        auto discon = finally([&card, &outData]() { tsFreeSmartcardConnection(&card); memset(outData, 0, sizeof(outData)); });
+        auto discon = finally([&card, &outData]() { tsFreeWorkspace(&card); memset(outData, 0, sizeof(outData)); });
 
 		cardcmd << (uint8_t)gActivationAID.size() << gActivationAID;
 		{
 			SmartCardTransaction trans(card);
 
             outDataLen = sizeof(outData);
-			if (!tsSmartcardSendCommand(card, cardcmd.c_str(), (uint32_t)cardcmd.size(), 0, outData, &outDataLen, &sw) || sw != 0x9000)
+			if (!cardDesc->sendCommand(card, cardcmd.c_str(), (uint32_t)cardcmd.size(), 0, outData, &outDataLen, &sw) || sw != 0x9000)
 			{
 				std::cout << "ERROR:  That card does not contain the activation information for this enterprise." << std::endl;
 				gSmartCardDone.Set();
@@ -232,7 +235,7 @@ protected:
             bool retVal;
 
 
-			if (!tsSmartcardSendCommand(card, cardcmd.c_str(), (uint32_t)cardcmd.size(), 0, outData, &outDataLen, &sw) || sw != 0x9000)
+			if (!cardDesc->sendCommand(card, cardcmd.c_str(), (uint32_t)cardcmd.size(), 0, outData, &outDataLen, &sw) || sw != 0x9000)
 			{
 				std::cout << "ERROR:  That card does not contain the activation information for this enterprise." << std::endl;
                 memset(outData, 0, sizeof(outData));
@@ -244,26 +247,23 @@ protected:
                 memset(outData, 0, sizeof(outData));
 				return;
 			}
-            channel = tsSmartcardGetSecureChannel(card);
+            channel = cardDesc->getSecureChannel(card);
 			// Retrieve the server pin
             outDataLen = sizeof(outData);
-            retVal = tsSmartcardSendCommand(card, tscrypto::tsCryptoData("00A40000020030", tscrypto::tsCryptoData::HEX).c_str(), 7, 0, outData, &outDataLen, &sw) && sw == 0x9000;
+            retVal = cardDesc->sendCommand(card, tscrypto::tsCryptoData("00A40000020030", tscrypto::tsCryptoData::HEX).c_str(), 7, 0, outData, &outDataLen, &sw) && sw == 0x9000;
             outDataLen = sizeof(outData);
-            retVal = retVal && (tsSmartcardSendCommand(card, tscrypto::tsCryptoData("00B0000000", tscrypto::tsCryptoData::HEX).c_str(), 5, 0, outData, &outDataLen, &sw) && sw == 0x9000);
-			if (!retVal)
-			{
+            retVal = retVal && (cardDesc->sendCommand(card, tscrypto::tsCryptoData("00B0000000", tscrypto::tsCryptoData::HEX).c_str(), 5, 0, outData, &outDataLen, &sw) && sw == 0x9000);
 				if (!channel)
 				{
-                    tsServerSecureChannelFinish(channel);
+                const TSSmartCardServerSecureChannelDescriptor* desc = (const TSSmartCardServerSecureChannelDescriptor*)tsGetDescriptorFromWorkspace(channel);
+                desc->finish(channel);
 				}
+			if (!retVal)
+			{
                 memset(outData, 0, sizeof(outData));
 				std::cout << "ERROR:  Unable to retrieve the server authentication." << std::endl;
 				return;
 			}
-			if (!channel)
-			{
-                tsServerSecureChannelFinish(channel);
-            }
 			oldPinInfo.assign(outData, outDataLen);
             memset(outData, 0, sizeof(outData));
 		}
@@ -318,7 +318,7 @@ protected:
 			TSSECURE_CHANNEL channel = NULL;
 
 
-            if (!tsSmartcardSendCommand(card, cardcmd.c_str(), (uint32_t)cardcmd.size(), 0, outData, &outDataLen, &sw) || sw != 0x9000)
+            if (!cardDesc->sendCommand(card, cardcmd.c_str(), (uint32_t)cardcmd.size(), 0, outData, &outDataLen, &sw) || sw != 0x9000)
 			{
                 memset(outData, 0, sizeof(outData));
 				std::cout << "ERROR:  That card does not contain the activation information for this enterprise." << std::endl;
@@ -330,14 +330,14 @@ protected:
 				std::cout << "ERROR:  The specified pin did not work." << std::endl;
 				return;
 			}
-            channel = tsSmartcardGetSecureChannel(card);
+            channel = cardDesc->getSecureChannel(card);
 
 			cardcmd.FromHexString("00 24 01 10");
 			cardcmd << (uint8_t)key2.size();
 			cardcmd << key2;
 
             outDataLen = sizeof(outData);
-            if (!tsSmartcardSendCommand(card, cardcmd.c_str(), (uint32_t)cardcmd.size(), 0, outData, &outDataLen, &sw) || sw != 0x9000)
+            if (!cardDesc->sendCommand(card, cardcmd.c_str(), (uint32_t)cardcmd.size(), 0, outData, &outDataLen, &sw) || sw != 0x9000)
             {
 				// TODO:  This may be the bug in 1.002 ckm applet where ChangeRef fails but ResetRetry works.  Try it
 
@@ -349,7 +349,7 @@ protected:
 				cardcmd << key2;
 
                 outDataLen = sizeof(outData);
-                if (!tsSmartcardSendCommand(card, cardcmd.c_str(), (uint32_t)cardcmd.size(), 0, outData, &outDataLen, &sw) || sw != 0x9000)
+                if (!cardDesc->sendCommand(card, cardcmd.c_str(), (uint32_t)cardcmd.size(), 0, outData, &outDataLen, &sw) || sw != 0x9000)
                 {
                     memset(outData, 0, sizeof(outData));
 					std::cout << "ERROR:  Unable to change reference data" << std::endl;
@@ -358,7 +358,9 @@ protected:
 			}
 			if (!channel)
 			{
-                tsServerSecureChannelFinish(channel);
+                const TSSmartCardServerSecureChannelDescriptor* desc = (const TSSmartCardServerSecureChannelDescriptor*)tsGetDescriptorFromWorkspace(channel);
+
+                desc->finish(channel);
 			}
             memset(outData, 0, sizeof(outData));
 		}
@@ -369,17 +371,18 @@ protected:
 		uint8_t outData[280];
         uint32_t outDataLen = sizeof(outData);
 		uint32_t sw;
+        const TSSmartCardConnectionDescriptor* cardDesc = (const TSSmartCardConnectionDescriptor*)tsGetDescriptorFromWorkspace(card);
 
 		if (card == NULL)
 			return "";
 
-        if (!tsSmartcardSendCommand(card, tscrypto::tsCryptoData("00 A4 00 00 02 60 00", tscrypto::tsCryptoData::HEX).c_str(), 7, 0, outData, &outDataLen, &sw) || sw != 0x9000)
+        if (!cardDesc->sendCommand(card, tscrypto::tsCryptoData("00 A4 00 00 02 60 00", tscrypto::tsCryptoData::HEX).c_str(), 7, 0, outData, &outDataLen, &sw) || sw != 0x9000)
         {
             memset(outData, 0, sizeof(outData));
             return "";
         }
         outDataLen = sizeof(outData);
-        if (!tsSmartcardSendCommand(card, tscrypto::tsCryptoData("00 B0 00 00 00", tscrypto::tsCryptoData::HEX).c_str(), 5, 0, outData, &outDataLen, &sw) || sw != 0x9000)
+        if (!cardDesc->sendCommand(card, tscrypto::tsCryptoData("00 B0 00 00 00", tscrypto::tsCryptoData::HEX).c_str(), 5, 0, outData, &outDataLen, &sw) || sw != 0x9000)
         {
             memset(outData, 0, sizeof(outData));
             return "";
@@ -436,26 +439,30 @@ protected:
         uint32_t outdataLen = sizeof(outdata);
 		uint32_t sw;
 		TSSECURE_CHANNEL channel = NULL;
+        const TSSmartCardServerSecureChannelDescriptor* desc = nullptr;
+        const TSSmartCardConnectionDescriptor* cardDesc = (const TSSmartCardConnectionDescriptor*)tsGetDescriptorFromWorkspace(connection);
 
 		if (connection == NULL)
 			return 0x6F00;
 
-        channel = tsSmartcardGetSecureChannel(connection);
+        channel = cardDesc->getSecureChannel(connection);
+        desc = (const TSSmartCardServerSecureChannelDescriptor*)tsGetDescriptorFromWorkspace(channel);
 
 		if (!channel)
 		{
-			if (!(channel = tsCreateServerSecureChannel()))
+			if (!(channel = tsCreateWorkspaceForAlgorithm("SECURE_CHANNEL_SERVER")))
 				return 0x6F80;
-            tsSmartcardSetSecureChannel(connection, channel);
+            cardDesc->setSecureChannel(connection, channel);
+            desc = (const TSSmartCardServerSecureChannelDescriptor*)tsGetDescriptorFromWorkspace(channel);
 		}
-        tsServerSecureChannelSetSCPVersion(channel, SCPVersion);
-        tsServerSecureChannelSetSCPLevel(channel, SCPLevel);
-        tsServerSecureChannelFinish(channel);
+        desc->setSCPVersion(channel, SCPVersion);
+        desc->setSCPLevel(channel, SCPLevel);
+        desc->finish(channel);
 
 		uint8_t cmd[260];
         uint32_t cmdLen = sizeof(cmd);
 
-        if (!tsServerSecureChannelComputeHostChallengeCommand(channel, keyRef, cmd, &cmdLen))
+        if (!desc->computeHostChallengeCommand(channel, keyRef, cmd, &cmdLen))
 			return 0x6F00;
 
 		if (keyRef != 0 && keyVersion != 0)
@@ -464,28 +471,28 @@ protected:
 			cmd[3] = keyRef;
 		}
 
-        if (!tsSmartcardSendCommand(connection, cmd, cmdLen, 0, outdata, &outdataLen, &sw) || sw != 0x9000)
+        if (!cardDesc->sendCommand(connection, cmd, cmdLen, 0, outdata, &outdataLen, &sw) || sw != 0x9000)
 		{
             memset(outdata, 0, sizeof(outdata));
             return (int)sw;
 		}
-        tsServerSecureChannelSetBaseKeys(channel, encKey.c_str(), (uint32_t)encKey.size(), macKey.c_str(), (uint32_t)macKey.size(), kek.c_str(), (uint32_t)kek.size());
+        desc->setBaseKeys(channel, encKey.c_str(), (uint32_t)encKey.size(), macKey.c_str(), (uint32_t)macKey.size(), kek.c_str(), (uint32_t)kek.size());
 
         cmdLen = sizeof(cmd);
-        if (!tsServerSecureChannelComputeAuthentication(channel, outdata, outdataLen, SecurityLevel, cmd, &cmdLen))
+        if (!desc->computeAuthentication(channel, outdata, outdataLen, SecurityLevel, cmd, &cmdLen))
         {
             memset(outdata, 0, sizeof(outdata));
             return 0x6F00;
         }
 
         outdataLen = sizeof(outdata);
-        if (!tsSmartcardSendCommand(connection, cmd, cmdLen, 0, outdata, &outdataLen, &sw) || sw != 0x9000)
+        if (!cardDesc->sendCommand(connection, cmd, cmdLen, 0, outdata, &outdataLen, &sw) || sw != 0x9000)
 		{
             memset(outdata, 0, sizeof(outdata));
             return (int)sw;
 		}
         memset(outdata, 0, sizeof(outdata));
-        tsServerSecureChannelActivateChannel(channel);
+        desc->activateChannel(channel);
 		return (int)sw;
 	}
 	bool getUserSaltAndKek(TSSMARTCARD_CONNECTION connection, tscrypto::tsCryptoData &salt, tscrypto::tsCryptoData& kek)
@@ -493,16 +500,17 @@ protected:
         uint8_t outData[280];
         uint32_t outDataLen = sizeof(outData);
         uint32_t sw;
+        const TSSmartCardConnectionDescriptor* cardDesc = (const TSSmartCardConnectionDescriptor*)tsGetDescriptorFromWorkspace(connection);
 
 		salt.clear();
 
-        if (!tsSmartcardSendCommand(connection, tscrypto::tsCryptoData("00A40000020030", tscrypto::tsCryptoData::HEX).c_str(), 7, 0, outData, &outDataLen, &sw) || sw != 0x9000)
+        if (!cardDesc->sendCommand(connection, tscrypto::tsCryptoData("00A40000020030", tscrypto::tsCryptoData::HEX).c_str(), 7, 0, outData, &outDataLen, &sw) || sw != 0x9000)
 		{
             memset(outData, 0, sizeof(outData));
 			return false;
 		}
         outDataLen = sizeof(outData);
-        if (!tsSmartcardSendCommand(connection, tscrypto::tsCryptoData("00B0000000", tscrypto::tsCryptoData::HEX).c_str(), 5, 0, outData, &outDataLen, &sw) || sw != 0x9000)
+        if (!cardDesc->sendCommand(connection, tscrypto::tsCryptoData("00B0000000", tscrypto::tsCryptoData::HEX).c_str(), 5, 0, outData, &outDataLen, &sw) || sw != 0x9000)
 		{
             memset(outData, 0, sizeof(outData));
 			return false;

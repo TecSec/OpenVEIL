@@ -894,7 +894,7 @@ tsCryptoData tsCertificateParser::getExtensionValue(const char* oid) const
 
 CA_Certificate_Request::KeyUsageFlags tsCertificateParser::GetKeyUsage() const
 {
-    tsCryptoData usage = getExtensionValue(id_CERT_KEY_USAGE_OID);
+    tsCryptoData usage = getExtensionValue(id_ce_keyUsage_OID);
     CA_Certificate_Request::KeyUsageFlags tmp = (CA_Certificate_Request::KeyUsageFlags)0;
 
     usage.erase(0, 3);
@@ -1165,7 +1165,7 @@ bool tsCertificateParser::IsCACert() const
 
 bool tsCertificateParser::getBasicConstraintInfo(bool& isCA, int32_t& maxNumberIntermediaries) const
 {
-    tsCryptoData extData = getExtensionValue(id_CERT_BASIC_CONSTRAINTS_OID);
+    tsCryptoData extData = getExtensionValue(id_ce_basicConstraints_OID);
 
     isCA = false;
     maxNumberIntermediaries = 0;

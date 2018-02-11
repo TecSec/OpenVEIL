@@ -60,9 +60,9 @@ add_precompiled_header(keyveiltool stdafx.h FORCEINCLUDE SOURCE_CXX stdafx.cpp)
 set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/keyveil.rc PROPERTIES COMPILE_DEFINITIONS RC_COMPILED)
 set_target_properties(keyveiltool PROPERTIES FOLDER "Tools/veilExtensions")
 if(APPLE)
-    TARGET_LINK_LIBRARIES(keyveiltool VEILCore ${CyberVEIL_TARGET})
+    TARGET_LINK_LIBRARIES(keyveiltool VEILCore ${CyberVEIL_TARGET} ${CyberVEILsup_TARGET})
 else()
-    TARGET_LINK_LIBRARIES(keyveiltool VEILCore CyberVEIL)
+    TARGET_LINK_LIBRARIES(keyveiltool VEILCore CyberVEIL CyberVEILsup)
 endif(APPLE)
 set_target_properties(keyveiltool PROPERTIES 
 	SUFFIX ".veil"  

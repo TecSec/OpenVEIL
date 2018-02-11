@@ -963,8 +963,10 @@ protected:
         if (attr != nullptr && tsStriCmp(attr->m_Value.c_str(), "deflate") == 0)
         {
             tscrypto::tsCryptoData tmp;
+            const TSCompressionDescriptor* Desc = (const TSCompressionDescriptor*)tsFindGeneralAlgorithm("COMPRESSION-ZLIB");
+            const TSCompressionDescriptor* rawDesc = (const TSCompressionDescriptor*)tsFindGeneralAlgorithm("COMPRESSION-RAWZLIB");
 
-            if (!zlibDecompress(header->dataPart().c_str(), header->dataPartSize(), tmp) && !raw_zlibDecompress(header->dataPart().c_str(), header->dataPartSize(), tmp))
+            if (!Desc->decompressBufferAll(header->dataPart().getByteBuff(), tmp.getByteBuff()) && !rawDesc->decompressBufferAll(header->dataPart().getByteBuff(), tmp.getByteBuff()))
                 return false;
             header->dataPart(tmp);
         }
@@ -972,8 +974,9 @@ protected:
         if (attr != nullptr && tsStriCmp(attr->m_Value.c_str(), "gzip") == 0)
         {
             tscrypto::tsCryptoData tmp;
+            const TSCompressionDescriptor* Desc = (const TSCompressionDescriptor*)tsFindGeneralAlgorithm("COMPRESSION-GZIP");
 
-            if (!gzipDecompress(header->dataPart().c_str(), header->dataPartSize(), tmp))
+            if (!Desc->decompressBufferAll(header->dataPart().getByteBuff(), tmp.getByteBuff()))
                 return false;
             header->dataPart(tmp);
         }

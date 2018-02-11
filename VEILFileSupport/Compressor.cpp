@@ -36,9 +36,11 @@ class HIDDEN CCkmBZ2Compression : public ICompression, public tsmod::IObject
 public:
     CCkmBZ2Compression()
         :
-        handle(nullptr)
+        handle(nullptr),
+        desc(nullptr)
     {
-        handle = tsCreateConpressor("BZIP2");
+        handle = tsCreateWorkspaceForAlgorithm("COMPRESSION-BZIP2");
+        desc = (const TSCompressionDescriptor*)tsGetDescriptorFromWorkspace(handle);
     }
 
     virtual ~CCkmBZ2Compression()
@@ -48,13 +50,13 @@ public:
 
     virtual bool CompressInit(int level)
     {
-        return tsCompressInit(handle, level);
+        return desc->compressInit(handle, level);
     }
     virtual bool Compress(const tscrypto::tsCryptoData &inBuff, tscrypto::tsCryptoData &outBuff, CompressionAction action)
     {
         TSBYTE_BUFF buff = tsCreateBuffer();
 
-        bool retVal = tsCompress(handle, inBuff.c_str(), (uint32_t)inBuff.size(), buff, (tsCompressionActionEnum)action);
+        bool retVal = desc->compress(handle, inBuff.c_str(), (uint32_t)inBuff.size(), buff, (tsCompressionActionEnum)action);
         outBuff.clear();
         if (buff != NULL && tsBufferUsed(buff) > 0)
         {
@@ -67,7 +69,7 @@ public:
     {
         TSBYTE_BUFF buff = tsCreateBuffer();
 
-        bool retVal = tsCompressFinal(handle, buff);
+        bool retVal = desc->compressFinal(handle, buff);
         outBuff.clear();
         if (buff != NULL && tsBufferUsed(buff) > 0)
         {
@@ -79,13 +81,13 @@ public:
 
     virtual bool DecompressInit()
     {
-        return tsDecompressInit(handle);
+        return desc->decompressInit(handle);
     }
     virtual bool Decompress(const tscrypto::tsCryptoData &inBuff, tscrypto::tsCryptoData &outBuff, CompressionAction action)
     {
         TSBYTE_BUFF buff = tsCreateBuffer();
 
-        bool retVal = tsDecompress(handle, inBuff.c_str(), (uint32_t)inBuff.size(), buff, (tsCompressionActionEnum)action);
+        bool retVal = desc->decompress(handle, inBuff.c_str(), (uint32_t)inBuff.size(), buff, (tsCompressionActionEnum)action);
         outBuff.clear();
         if (buff != NULL && tsBufferUsed(buff) > 0)
         {
@@ -98,7 +100,7 @@ public:
     {
         TSBYTE_BUFF buff = tsCreateBuffer();
 
-        bool retVal = tsDecompressFinal(handle, buff);
+        bool retVal = desc->decompressFinal(handle, buff);
         outBuff.clear();
         if (buff != NULL && tsBufferUsed(buff) > 0)
         {
@@ -109,6 +111,7 @@ public:
     }
 
 private:
+    const TSCompressionDescriptor* desc;
     TSCOMPRESSION handle;
 };
 
@@ -117,9 +120,11 @@ class HIDDEN CCkmZLibCompression : public ICompression, public tsmod::IObject
 public:
 	CCkmZLibCompression()
 		:
-		handle(nullptr)
+		handle(nullptr),
+        desc(nullptr)
 	{
-        handle = tsCreateConpressor("ZLIB");
+        handle = tsCreateWorkspaceForAlgorithm("COMPRESSION-ZLIB");
+        desc = (const TSCompressionDescriptor*)tsGetDescriptorFromWorkspace(handle);
 	}
 
 	virtual ~CCkmZLibCompression()
@@ -129,13 +134,13 @@ public:
 
 	virtual bool CompressInit(int level)
 	{
-        return tsCompressInit(handle, level);
+        return desc->compressInit(handle, level);
 	}
 	virtual bool Compress(const tscrypto::tsCryptoData &inBuff, tscrypto::tsCryptoData &outBuff, CompressionAction action)
 	{
         TSBYTE_BUFF buff = tsCreateBuffer();
 
-        bool retVal = tsCompress(handle, inBuff.c_str(), (uint32_t)inBuff.size(), buff, (tsCompressionActionEnum)action);
+        bool retVal = desc->compress(handle, inBuff.c_str(), (uint32_t)inBuff.size(), buff, (tsCompressionActionEnum)action);
         outBuff.clear();
         if (buff != NULL && tsBufferUsed(buff) > 0)
         {
@@ -148,7 +153,7 @@ public:
 	{
         TSBYTE_BUFF buff = tsCreateBuffer();
 
-        bool retVal = tsCompressFinal(handle, buff);
+        bool retVal = desc->compressFinal(handle, buff);
         outBuff.clear();
         if (buff != NULL && tsBufferUsed(buff) > 0)
         {
@@ -160,13 +165,13 @@ public:
 
 	virtual bool DecompressInit()
 	{
-        return tsDecompressInit(handle);
+        return desc->decompressInit(handle);
 	}
 	virtual bool Decompress(const tscrypto::tsCryptoData &inBuff, tscrypto::tsCryptoData &outBuff, CompressionAction action)
 	{
         TSBYTE_BUFF buff = tsCreateBuffer();
 
-        bool retVal = tsDecompress(handle, inBuff.c_str(), (uint32_t)inBuff.size(), buff, (tsCompressionActionEnum)action);
+        bool retVal = desc->decompress(handle, inBuff.c_str(), (uint32_t)inBuff.size(), buff, (tsCompressionActionEnum)action);
         outBuff.clear();
         if (buff != NULL && tsBufferUsed(buff) > 0)
         {
@@ -179,7 +184,7 @@ public:
 	{
         TSBYTE_BUFF buff = tsCreateBuffer();
 
-        bool retVal = tsDecompressFinal(handle, buff);
+        bool retVal = desc->decompressFinal(handle, buff);
         outBuff.clear();
         if (buff != NULL && tsBufferUsed(buff) > 0)
         {
@@ -191,6 +196,7 @@ public:
 
 private:
     TSCOMPRESSION handle;
+    const TSCompressionDescriptor* desc;
 };
 
 class HIDDEN NoCompression : public ICompression, public tsmod::IObject

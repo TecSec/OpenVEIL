@@ -99,8 +99,8 @@ public:
         rlDesc(nullptr)
     {
         _serverCerts = CreateTsCryptoDataList();
-        rlDesc = (const TSTlsRecordLayerDescriptor*)tsFindCkmAlgorithm("TLS-RECORDLAYER");
-        supDesc = (const TSTlsSupportDescriptor*)tsFindCkmAlgorithm("TLS-SUPPORT");
+        rlDesc = (const TSTlsRecordLayerDescriptor*)tsFindGeneralAlgorithm("TLS-RECORDLAYER");
+        supDesc = (const TSTlsSupportDescriptor*)tsFindGeneralAlgorithm("TLS-SUPPORT");
     }
     virtual ~SslHandshake_Client() 
     {

@@ -92,17 +92,6 @@ if(APPLE)
 
 
 
-    set(ENABLE_SMART_CARD ON)
-
-  set(VEILSmartCard_ROOT_DIR ${VEILSmartCard_LIBRARY})
-
-  if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    set(VEILSmartCard_TARGET ${VEILSmartCard_D_LIBRARY})
-  else()
-    set(VEILSmartCard_TARGET ${VEILSmartCard_LIBRARY})
-  endif()
-
-
 
   set(VEILWxWidgets_NAME "VEILWxWidgets")
 	FIND_LIBRARY(VEILWxWidgets_LIBRARY ${VEILWxWidgets_NAME})

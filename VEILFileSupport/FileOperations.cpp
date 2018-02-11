@@ -1151,7 +1151,34 @@ bool  FileVEILOperationsImpl::ValidateFileContents_PublicOnly(const tscrypto::ts
 	}
 	return TSRETURN(("OK"), true);
 }
+bool FileVEILOperationsImpl::ValidateBufferContents_PublicOnly(const tscrypto::tsCryptoData& buffer)
+{
+    TSDECLARE_FUNCTIONExt(true);
 
+    std::shared_ptr<ICryptoHelper> helper;
+    std::shared_ptr<IDataReader> reader;
+    std::shared_ptr<IDataIOBase> ioBase;
+    std::shared_ptr<IKeyVEILSession> empty;
+
+    m_failureReason.clear();
+    if (!(helper = CreateCryptoHelper(empty)))
+    {
+        LogError("Unable to create the decryption processor.");
+        return TSRETURN_ERROR(("Unable to create the decryption processor"), false);
+    }
+
+    helper->SetOperationStatusCallback(m_status);
+    helper->SetTaskInformation(m_currentTask, m_taskCount);
+    if (!!m_keyGenCallback)
+        helper->SetKeyGenCallback(m_keyGenCallback);
+
+    if (!helper->ValidateBufferContents_PublicOnly(buffer))
+    {
+        LogError("ERROR:  The file has been modified.");
+        return TSRETURN_ERROR(("The file has been modified."), false);
+    }
+    return TSRETURN(("OK"), true);
+}
 bool  FileVEILOperationsImpl::DecryptStream(std::shared_ptr<IDataReader> sFile, std::shared_ptr<IDataWriter> sDecrFile)
 {
 	TSDECLARE_FUNCTIONExt(true);
@@ -1370,7 +1397,7 @@ void FileVEILOperationsImpl::getCkmInfo(const tscrypto::tsCryptoString& name, ts
 		o.add("canRead", false);
 		return;
 	}
-	o.add("canRead", false);
+	o.add("canRead", true);
     tsCloseFile(infile);
 
 	// Now we need to look at the contents to determine its type:
@@ -1560,7 +1587,205 @@ void FileVEILOperationsImpl::getCkmInfo(const tscrypto::tsCryptoString& name, ts
 		}
 	}
 }
+void FileVEILOperationsImpl::getCkmInfoForBuffer(const tscrypto::tsCryptoData& buffer, tscrypto::JSONObject& o)
+{
+    std::shared_ptr<ICmsHeader> header7;
+    bool isCkm7 = true;
+    tscrypto::JSONObject testObj;
+    Asn1::CTS::_POD_Favorite fav;
+    Asn1::CTS::_POD_CkmRecipe recipe;
+    Asn1::CTS::_POD_Profile profile;
 
+    o.add("canOpen", true);
+    o.add("canRead", true);
+
+    // Now we need to look at the contents to determine its type:
+
+    if (buffer.size() < 300000 && testObj.FromJSON(buffer.ToUtf8String().c_str()))
+    {
+        // May be a FavJ.  It is at least a JSON file
+        if (testObj.hasField("name") && testObj.hasField("recipe"))
+        {
+            o.add("type", "FavJ - JSON Favorite");
+            o.add("favRecipe", testObj);
+        }
+        else
+        {
+            o.add("type", "JSON File");
+        }
+    }
+    else if (fav.Decode(buffer))
+    {
+        tscrypto::JSONObject ob;
+
+        // This is a favorite
+        o.add("type", "Fav2 - Binary Favorite");
+
+        ob
+            .add("name", fav.get_Name())
+            .add("id", ToString()(fav.get_Id()))
+            .add("serial", fav.get_serialNumber().ToHexString())
+            ;
+        if (!(header7 = ::TopServiceLocator()->try_get_instance<ICmsHeader>("/CmsHeader")))
+        {
+            throw tscrypto::tsCryptoString("An error occurred while creating the CMS Header.");
+        }
+        if (header7->IsProbableHeader(fav.get_data().c_str(), fav.get_data().size()))
+        {
+            tscrypto::JSONObject ckmInfo;
+
+            ckmInfo.FromJSON(header7->toString("JSONDEBUG").c_str());
+            ob.add("ckmInfo", ckmInfo);
+        }
+
+        o.add("favorite", ob);
+
+    }
+    else if (recipe.Decode(buffer))
+    {
+        // This is a binary recipe
+        o.add("type", "FavJ - JSON Favorite (binary)");
+        o.add("recipe", recipe.toJSON());
+    }
+    else if (profile.Decode(buffer))
+    {
+        // This is a some type of Token.  Go through the types here ...
+        if (profile.get_OID().ToOIDString() == id_TECSEC_DATA_CTS_OID)
+        {
+            o.add("type", "CTS");
+
+            //<String Name = "MemberName" JSONName = "memberName" / >
+            //<Guid Name = "MemberId" JSONName = "memid" / >
+            //<String Name = "EnterpriseName" JSONName = "enterpriseName" / >
+            //<Guid Name = "EnterpriseId" JSONName = "entid" / >
+            //<OctetString Name = "keyId" JSONName = "keyid" / >
+            //<String Name = "DistinguishName" JSONName = "memdn" / >
+            //<Date Name = "Issue" JSONName = "issue" / >
+            //<Date Name = "Expire" JSONName = "expire" / >
+            //<Sequence Name = "passwordPolicy" ElementType = "PasswordPolicy" JSONName = "passwordPolicy" / >
+            //<Sequence Name = "enterpriseSigning" ElementType = "EnterpriseSigning" JSONName = "signing" / >
+            //<Guid Name = "EnterpriseCryptoGroup" JSONName = "enterpriseCryptoGroup" / >
+            //<SequenceOf Name = "cryptoGroupList" JSONName = "cryptoGroups" / >
+            //<String Name = "uid" JSONName = "uid" / >
+            //<String Name = "url" JSONName = "url" / >
+            //<String Name = "TokenName" JSONName = "TokenName" / >
+            //<Sequence Name = "authData" ElementType = "TokenAuthentication" / >
+            //<Int32 Name = "UpdateNumber" JSONName = "updateNumber" / >
+            //<OctetString Name = "SerialNumber" JSONName = "serno" / >
+            //<OctetString Name = "PrivateData" / >
+            //<Bool Name = "AllowSingleSignOn" JSONName = "allowSSO" / >
+            profile.clear_PrivateData();
+            o.add("ctsInfo", profile.toJSON());
+        }
+        else if (profile.get_OID().ToOIDString() == id_TECSEC_TOKEN_UPDATE_OID)
+        {
+            o.add("type", "Token Update");
+            //<String Name = "MemberName" JSONName = "memberName" / >
+            //<Guid Name = "MemberId" JSONName = "memid" / >
+            //<String Name = "EnterpriseName" JSONName = "enterpriseName" / >
+            //<Guid Name = "EnterpriseId" JSONName = "entid" / >
+            //<OctetString Name = "keyId" JSONName = "keyid" / >
+            //<String Name = "DistinguishName" JSONName = "memdn" / >
+            //<Date Name = "Issue" JSONName = "issue" / >
+            //<Date Name = "Expire" JSONName = "expire" / >
+            //<Sequence Name = "passwordPolicy" ElementType = "PasswordPolicy" JSONName = "passwordPolicy" / >
+            //<Sequence Name = "enterpriseSigning" ElementType = "EnterpriseSigning" JSONName = "signing" / >
+            //<Guid Name = "EnterpriseCryptoGroup" JSONName = "enterpriseCryptoGroup" / >
+            //<SequenceOf Name = "cryptoGroupList" JSONName = "cryptoGroups" / >
+            //<String Name = "uid" JSONName = "uid" / >
+            //<String Name = "url" JSONName = "url" / >
+            //<String Name = "TokenName" JSONName = "TokenName" / >
+            //<Sequence Name = "authData" ElementType = "TokenAuthentication" / >
+            //<Int32 Name = "UpdateNumber" JSONName = "updateNumber" / >
+            //<OctetString Name = "SerialNumber" JSONName = "serno" / >
+            //<OctetString Name = "PrivateData" / >
+            //<Bool Name = "AllowSingleSignOn" JSONName = "allowSSO" / >
+            //<OctetString Name = "Signature" / >
+            profile.clear_PrivateData();
+            o.add("tufInfo", profile.toJSON());
+        }
+        else if (profile.get_OID().ToOIDString() == id_TECSEC_SOFT_TOKEN_OID)
+        {
+            o.add("type", "Soft Token");
+            //<String Name = "MemberName" JSONName = "memberName" / >
+            //<Guid Name = "MemberId" JSONName = "memid" / >
+            //<String Name = "EnterpriseName" JSONName = "enterpriseName" / >
+            //<Guid Name = "EnterpriseId" JSONName = "entid" / >
+            //<OctetString Name = "keyId" JSONName = "keyid" / >
+            //<String Name = "DistinguishName" JSONName = "memdn" / >
+            //<Date Name = "Issue" JSONName = "issue" / >
+            //<Date Name = "Expire" JSONName = "expire" / >
+            //<Sequence Name = "passwordPolicy" ElementType = "PasswordPolicy" JSONName = "passwordPolicy" / >
+            //<Sequence Name = "enterpriseSigning" ElementType = "EnterpriseSigning" JSONName = "signing" / >
+            //<Guid Name = "EnterpriseCryptoGroup" JSONName = "enterpriseCryptoGroup" / >
+            //<SequenceOf Name = "cryptoGroupList" JSONName = "cryptoGroups" / >
+            //<String Name = "TokenName" JSONName = "TokenName" / >
+            //<Sequence Name = "authData" ElementType = "TokenAuthentication" / >
+            //<Int32 Name = "UpdateNumber" JSONName = "updateNumber" / >
+            //<OctetString Name = "SerialNumber" JSONName = "serno" / >
+            //<OctetString Name = "PrivateData" / >
+            //<Bool Name = "AllowSingleSignOn" JSONName = "allowSSO" / >
+            //<OctetString Name = "Signature" / >
+            profile.clear_PrivateData();
+            o.add("sftInfo", profile.toJSON());
+        }
+        else if (profile.get_OID().ToOIDString() == id_TECSEC_SOFT_TOKEN_UNLOCK_OID)
+        {
+            o.add("type", "Soft Token Unlock");
+            //<String Name = "MemberName" JSONName = "memberName" / >
+            //<Guid Name = "MemberId" JSONName = "memid" / >
+            //<String Name = "EnterpriseName" JSONName = "enterpriseName" / >
+            //<Guid Name = "EnterpriseId" JSONName = "entid" / >
+            //<OctetString Name = "keyId" JSONName = "keyid" / >
+            //<String Name = "DistinguishName" JSONName = "memdn" / >
+            //<Sequence Name = "enterpriseSigning" ElementType = "EnterpriseSigning" JSONName = "signing" / >
+            //<Guid Name = "EnterpriseCryptoGroup" JSONName = "enterpriseCryptoGroup" / >
+            //<Sequence Name = "authData" ElementType = "TokenAuthentication" / >
+            //<Int32 Name = "UpdateNumber" JSONName = "updateNumber" / >
+            //<OctetString Name = "SerialNumber" JSONName = "serno" / >
+            //<OctetString Name = "Signature" / >
+            profile.clear_PrivateData();
+            o.add("sftUnlockInfo", profile.toJSON());
+        }
+    }
+    else
+    {
+
+        if (!(header7 = ::TopServiceLocator()->try_get_instance<ICmsHeader>("/CmsHeader")))
+        {
+            throw tscrypto::tsCryptoString("An error occurred while creating the CMS Header.");
+        }
+        if (!header7->IsProbableHeader(buffer.c_str(), buffer.size()))
+        {
+            isCkm7 = false;
+            o.add("type", "Generic File");
+            return;
+        }
+
+        if (isCkm7)
+        {
+            tscrypto::JSONObject ckmInfo;
+
+            ckmInfo.FromJSON(header7->toString("JSONDEBUG").c_str());
+
+            bool hr = ValidateBufferContents_PublicOnly(buffer);
+
+            if (!hr)
+            {
+                ckmInfo.add("fileIntegrity", "FAILED");
+            }
+            else
+            {
+                ckmInfo.add("fileIntegrity", "pass");
+            }
+            o.add("ckmInfo", ckmInfo).add("type", "CKM Encrypted File");
+        }
+        else
+        {
+            o.add("type", "Generic File");
+        }
+    }
+}
 void FileVEILOperationsImpl::getFileStreamNamesAndInfo(const tscrypto::tsCryptoString& name, tscrypto::JSONObject& o, bool includeCkmInfo)
 {
     char tmp[MAX_PATH] = { 0, };
@@ -1625,7 +1850,23 @@ void FileVEILOperationsImpl::getFileStreamNamesAndInfo(const tscrypto::tsCryptoS
 		}
 	}
 }
+void FileVEILOperationsImpl::getBufferInfo(const tscrypto::tsCryptoString& name, const tscrypto::tsCryptoData& buffer, tscrypto::JSONObject& o, bool includeCkmInfo)
+{
+    char tmp[MAX_PATH] = { 0, };
+    tscrypto::tsCryptoString stream;
+    std::shared_ptr<IVEILFileList> filelist;
 
+    o.add("file", name);
+    o.add("fullPath", name);
+    o.add("isDirectory", false);
+    o.add("exists", true);
+    o.add("size", (int64_t)buffer.size());
+
+    if (includeCkmInfo)
+    {
+        getCkmInfoForBuffer(buffer, o);
+    }
+}
 bool FileVEILOperationsImpl::GetFileInformation(const tscrypto::tsCryptoString & filename, tscrypto::JSONObject & info)
 {
 	try
@@ -1659,6 +1900,38 @@ bool FileVEILOperationsImpl::GetFileInformation(const tscrypto::tsCryptoString &
 	}
 }
 
+bool FileVEILOperationsImpl::GetDataInformation(const tscrypto::tsCryptoData& buffer, tscrypto::JSONObject& info)
+{
+    try
+    {
+        try
+        {
+            JSONObject o;
+
+            if (!info.hasField("files"))
+                info.createArrayField("files");
+            getBufferInfo("Buffer", buffer, o, true);
+            info.add("files", o);
+
+            return true;
+        }
+        catch (tscrypto::tsCryptoString& s)
+        {
+            info.add("error", s);
+            return false;
+        }
+    }
+    catch (tscrypto::tsCryptoString& str)
+    {
+        info.add("error", str);
+        return false;
+    }
+    catch (tsstd::Exception& ex)
+    {
+        info.add("error", (tscrypto::tsCryptoString(typeid(ex).name()) + ":  " + ex.Message()));
+        return false;
+    }
+}
 bool  FileVEILOperationsImpl::RecoverKeys(const tscrypto::tsCryptoString& inputFile, FileVEILFileOp_recoveredKeyList& keys)
 {
 	tscrypto::tsCryptoStringList lStreams = CreateTsAsciiList();

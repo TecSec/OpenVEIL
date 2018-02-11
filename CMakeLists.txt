@@ -119,16 +119,17 @@ endif(APPLE)
 ## Start Options
 #####################################################################
 
+## SET VERSION HERE
 set(${VEILCORENAME_U}_MAJOR_VERSION 7)
 set(${VEILCORENAME_U}_MINOR_VERSION 0)
-set(${VEILCORENAME_U}_REVISION_VERSION 63)
+set(${VEILCORENAME_U}_REVISION_VERSION 67)
 set(${VEILCORENAME_U}_BUILD_VERSION 0)
 set(OSX_FRAMEWORK_VERSION A)
 
 #####################################################################
 ## End Options
 #####################################################################
-set(VEIL_COPYRIGHT "Copyright (C) 2017 TecSec, Inc.  All Rights Reserved Worldwide.")
+set(VEIL_COPYRIGHT "Copyright (C) 2018 TecSec, Inc.  All Rights Reserved Worldwide.")
 
 set(${VEILCORENAME_U}_VERSION "${${VEILCORENAME_U}_MAJOR_VERSION}.${${VEILCORENAME_U}_MINOR_VERSION}.${${VEILCORENAME_U}_REVISION_VERSION}")
 set(${VEILCORENAME_U}_VERSION_COMMA "${${VEILCORENAME_U}_MAJOR_VERSION},${${VEILCORENAME_U}_MINOR_VERSION},${${VEILCORENAME_U}_REVISION_VERSION}")
@@ -461,9 +462,6 @@ if (wxWidgets_FOUND)
     add_subdirectory(VeilWxWidgets)
     add_subdirectory(TextVEIL)
 endif (wxWidgets_FOUND)
-# IF(HAVE_SMARTCARD)
-#     add_subdirectory(VEILSmartCard)
-# ENDIF(HAVE_SMARTCARD)
 add_subdirectory(FileVEIL)
 add_subdirectory(veiltool)
 if(GTEST_FOUND)
@@ -533,6 +531,20 @@ if(APPLE)
                 ${CMAKE_COMMAND} -P BuildFrameworks.VEILWxWidgets.cmake
         )
         add_dependencies(CopyFrameworkVEILWxWidgets CopyFrameworkVEILCore VEILWxWidgets ) # VEILWxWidgets
+
+
+        CONFIGURE_FILE(SolutionItems/BuildFrameworks.OpenVEIL.cmake.osx.in ${CMAKE_CURRENT_BINARY_DIR}/bin/BuildFrameworks.OpenVEIL.cmake @ONLY)
+        CONFIGURE_FILE(SolutionItems/OpenVEIL.list.osx.in ${CMAKE_CURRENT_BINARY_DIR}/bin/OpenVEIL.list @ONLY)
+        CONFIGURE_FILE(SolutionItems/OpenVEILSDK.list.osx.in ${CMAKE_CURRENT_BINARY_DIR}/bin/OpenVEILSDK.list @ONLY)
+
+        add_custom_target(CopyFrameworkOpenVEIL ALL
+            WORKING_DIRECTORY
+                ${CMAKE_CURRENT_BINARY_DIR}/bin
+            COMMAND 
+                ${CMAKE_COMMAND} -P BuildFrameworks.OpenVEIL.cmake
+        )
+        add_dependencies(CopyFrameworkOpenVEIL CopyFrameworkVEILCore CopyFrameworkVEILWxWidgets  CopyFrameworkVEILFileSupport CopyFrameworkVEILCmsHeader) # VEILWxWidgets
+
     endif (wxWidgets_FOUND)
 
 endif(APPLE)

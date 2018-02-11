@@ -39,7 +39,7 @@ class ServerAuthenticationCalculatorPbkdfImpl : public ServerAuthenticationCalcu
 public:
     ServerAuthenticationCalculatorPbkdfImpl(const tsCryptoStringBase& algorithm)
     {
-        calc = (const TSCkmAuthCalcDescriptor *)tsFindCkmAlgorithm("CKMAUTH-CALC");
+        calc = (const TSCkmAuthCalcDescriptor *)tsFindGeneralAlgorithm("CKMAUTH-CALC");
         macName = "HMAC-SHA512";
         hashName = "SHA512";
         workspace = calc;

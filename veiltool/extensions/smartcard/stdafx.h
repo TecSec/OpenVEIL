@@ -63,24 +63,26 @@ using namespace tscrypto;
 #include "core/IOutputCollector.h"
 #include "core/IVeilUtilities.h"
 
+extern const TSSmartCardManagerDescriptor* scMan;
+
 class SmartCardTransaction
 {
 public:
-	SmartCardTransaction(TSSMARTCARD_CONNECTION connection) : _connection2(connection), _alreadyHadTransaction(false)
+	SmartCardTransaction(TSSMARTCARD_CONNECTION connection) : _connection2(connection), _alreadyHadTransaction(false), desc((const TSSmartCardConnectionDescriptor*)tsGetDescriptorFromWorkspace(connection))
 	{
-		if (!!_connection2)
+		if (!!_connection2 && desc != NULL)
 		{
-            _alreadyHadTransaction = tsSmartcardIsInTransaction(connection);
+            _alreadyHadTransaction = desc->isInTransaction(connection);
 			if (!_alreadyHadTransaction)
-				tsSmartcardStartTransaction(connection);
+				desc->startTransaction(connection);
 		}
 	}
 	bool ExitTransaction(bool reset)
 	{
-		if (_connection2 != nullptr && !_alreadyHadTransaction)
+		if (_connection2 != nullptr && desc != NULL && !_alreadyHadTransaction)
 		{
 			_alreadyHadTransaction = false;
-            tsSmartcardFinishTransaction(_connection2, reset);
+            desc->finishTransaction(_connection2, reset);
 			_connection2 = nullptr;
 			return true;
 		}
@@ -88,13 +90,14 @@ public:
 	}
 	~SmartCardTransaction()
 	{
-		if (_connection2 != nullptr && !_alreadyHadTransaction)
+		if (_connection2 != nullptr && desc != NULL && !_alreadyHadTransaction)
 		{
-            tsSmartcardFinishTransaction(_connection2, false);
+            desc->finishTransaction(_connection2, false);
         }
 	}
 private:
     TSSMARTCARD_CONNECTION _connection2;
+    const TSSmartCardConnectionDescriptor* desc;
 	bool _alreadyHadTransaction;
 };
 

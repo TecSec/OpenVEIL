@@ -64,6 +64,10 @@ if(APPLE)
         INTERFACE_INCLUDE_DIRECTORIES "${CyberVEIL_TARGET}/Headers"
         )
   endif()
+  include (tecsec_ConfigureCyberVEILdb)
+  include (tecsec_ConfigureCyberVEILsup)
+  include (tecsec_ConfigureCyberVEILsc)
+  include (tecsec_ConfigureCyberVEILnet)
 
 else()
   set(__path_suffixes 
@@ -274,48 +278,11 @@ else()
           message(FATAL_ERROR "CyberVEIL not found")
         endif()
       endif()
-      if(NOT TARGET SQLite.cyberveil.db)
-        if(WIN32 AND MINGW AND EXISTS ${CyberVEIL_SHLIB_RELEASE}/SQLite.cyberveil.db.dll)
-          add_library(SQLite.cyberveil.db SHARED IMPORTED)
-          set_target_properties(SQLite.cyberveil.db PROPERTIES
-            IMPORTED_LOCATION_DEBUG "${CyberVEIL_SHLIB_DEBUG}/SQLite.cyberveil.db.dll"
-            IMPORTED_LOCATION_RELEASE "${CyberVEIL_SHLIB_RELEASE}/SQLite.cyberveil.db.dll"
-            INTERFACE_BIN_MODULES_DEBUG "${CyberVEIL_SHLIB_DEBUG}/SQLite.cyberveil.db.dll"
-            INTERFACE_BIN_MODULES_RELEASE "${CyberVEIL_SHLIB_RELEASE}/SQLite.cyberveil.db.dll"
-          )
-        elseif(EXISTS ${CyberVEIL_SHLIB_RELEASE}/${CMAKE_SHARED_LIBRARY_PREFIX}SQLite.cyberveil.db${CMAKE_SHARED_LIBRARY_SUFFIX})
-          add_library(SQLite.cyberveil.db SHARED IMPORTED)
-          set_target_properties(SQLite.cyberveil.db PROPERTIES
-            IMPORTED_LOCATION_DEBUG "${CyberVEIL_SHLIB_DEBUG}/${CMAKE_SHARED_LIBRARY_PREFIX}SQLite.cyberveil.db${CMAKE_SHARED_LIBRARY_SUFFIX}"
-            IMPORTED_LOCATION_RELEASE "${CyberVEIL_SHLIB_RELEASE}/${CMAKE_SHARED_LIBRARY_PREFIX}SQLite.cyberveil.db${CMAKE_SHARED_LIBRARY_SUFFIX}"
-            INTERFACE_BIN_MODULES_DEBUG "${CyberVEIL_SHLIB_DEBUG}/${CMAKE_SHARED_LIBRARY_PREFIX}SQLite.cyberveil.db${CMAKE_SHARED_LIBRARY_SUFFIX}"
-            INTERFACE_BIN_MODULES_RELEASE "${CyberVEIL_SHLIB_RELEASE}/${CMAKE_SHARED_LIBRARY_PREFIX}SQLite.cyberveil.db${CMAKE_SHARED_LIBRARY_SUFFIX}"
-          )
-        else()
-          message(FATAL_ERROR "SQLite.cyberveil.db not found")
-        endif()
-      endif()
-      if(NOT TARGET ODBC.cyberveil.db)
-      if(WIN32 AND MINGW AND EXISTS ${CyberVEIL_SHLIB_RELEASE}/ODBC.cyberveil.db.dll)
-        add_library(ODBC.cyberveil.db SHARED IMPORTED)
-        set_target_properties(ODBC.cyberveil.db PROPERTIES
-          IMPORTED_LOCATION_DEBUG "${CyberVEIL_SHLIB_DEBUG}/ODBC.cyberveil.db.dll"
-          IMPORTED_LOCATION_RELEASE "${CyberVEIL_SHLIB_RELEASE}/ODBC.cyberveil.db.dll"
-          INTERFACE_BIN_MODULES_DEBUG "${CyberVEIL_SHLIB_DEBUG}/ODBC.cyberveil.db.dll"
-          INTERFACE_BIN_MODULES_RELEASE "${CyberVEIL_SHLIB_RELEASE}/ODBC.cyberveil.db.dll"
-        )
-      elseif(EXISTS ${CyberVEIL_SHLIB_RELEASE}/${CMAKE_SHARED_LIBRARY_PREFIX}ODBC.cyberveil.db${CMAKE_SHARED_LIBRARY_SUFFIX})
-        add_library(ODBC.cyberveil.db SHARED IMPORTED)
-        set_target_properties(ODBC.cyberveil.db PROPERTIES
-          IMPORTED_LOCATION_DEBUG "${CyberVEIL_SHLIB_DEBUG}/${CMAKE_SHARED_LIBRARY_PREFIX}ODBC.cyberveil.db${CMAKE_SHARED_LIBRARY_SUFFIX}"
-          IMPORTED_LOCATION_RELEASE "${CyberVEIL_SHLIB_RELEASE}/${CMAKE_SHARED_LIBRARY_PREFIX}ODBC.cyberveil.db${CMAKE_SHARED_LIBRARY_SUFFIX}"
-          INTERFACE_BIN_MODULES_DEBUG "${CyberVEIL_SHLIB_DEBUG}/${CMAKE_SHARED_LIBRARY_PREFIX}ODBC.cyberveil.db${CMAKE_SHARED_LIBRARY_SUFFIX}"
-          INTERFACE_BIN_MODULES_RELEASE "${CyberVEIL_SHLIB_RELEASE}/${CMAKE_SHARED_LIBRARY_PREFIX}ODBC.cyberveil.db${CMAKE_SHARED_LIBRARY_SUFFIX}"
-        )
-      else()
-        message(FATAL_ERROR "ODBC.cyberveil.db not found")
-      endif()
-    endif()
+      include (tecsec_ConfigureCyberVEILdb)
+      include (tecsec_ConfigureCyberVEILsup)
+      include (tecsec_ConfigureCyberVEILsc)
+      include (tecsec_ConfigureCyberVEILnet)
+
       if(NOT TARGET CyberVEIL_s)
         if(EXISTS ${CyberVEIL_ROOT_LIB_RELEASE}/${CMAKE_STATIC_LIBRARY_PREFIX}CyberVEIL_static${__releaseSuffix}${CMAKE_STATIC_LIBRARY_SUFFIX})
           add_library(CyberVEIL_s STATIC IMPORTED)

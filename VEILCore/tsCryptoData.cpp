@@ -267,7 +267,7 @@ tsCryptoData &tsCryptoData::operator=(const TSBYTE_BUFF& obj)
     return *this;
 }
 
-TSBYTE_BUFF tsCryptoData::getByteBuff()
+TSBYTE_BUFF tsCryptoData::getByteBuff() const
 {
     return _data;
 }

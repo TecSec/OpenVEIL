@@ -54,9 +54,9 @@ else()
 endif()
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -fvisibility=hidden -msse4.1 -maes -Wall -Wextra -Wdeclaration-after-statement -std=c11 -Wno-unused-parameter -fno-strict-aliasing")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -msse -msse4.1 -maes -fvisibility-ms-compat")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y -msse -msse4.1 -maes -fvisibility-ms-compat")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG -DDEBUG")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D_RELEASE -O3")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D_RELEASE -DNDEBUG -O3")
 
 ## These are noise for now. Hide them from the basic display in the
 ## GUI tools.

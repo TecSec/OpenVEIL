@@ -57,9 +57,9 @@ add_precompiled_header(smartcard stdafx.h FORCEINCLUDE SOURCE_CXX stdafx.cpp)
 set_source_files_properties(smartcard.rc PROPERTIES COMPILE_DEFINITIONS RC_COMPILED)
 set_target_properties(smartcard PROPERTIES FOLDER "Tools/veilExtensions")
 if(APPLE)
-    TARGET_LINK_LIBRARIES(smartcard VEILCore ${CyberVEIL_TARGET})
+    TARGET_LINK_LIBRARIES(smartcard VEILCore ${CyberVEIL_TARGET} ${CyberVEILsup_TARGET})
 else()
-    TARGET_LINK_LIBRARIES(smartcard VEILCore CyberVEIL)
+    TARGET_LINK_LIBRARIES(smartcard VEILCore CyberVEIL CyberVEILsup)
 endif(APPLE)
 set_target_properties(smartcard PROPERTIES 
 	SUFFIX ".veil"  

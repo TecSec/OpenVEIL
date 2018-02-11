@@ -122,6 +122,10 @@ static void DoStartup()
 #ifndef _WIN32
     //hDllInstance = (XP_MODULE)(void*)&DoStartup;
 #endif // !_WIN32
+    if (tsGetCyberVEILsupLib() == NULL)
+    {
+        printf("Unable to load the CyberVEIL support library.\n");
+    }
 }
 
 class DllStartup
@@ -387,128 +391,128 @@ void TSPatchValueFromXML(const tscrypto::tsCryptoStringBase &value, tscrypto::ts
     }
 }
 
-bool gzipCompress(const uint8_t* src, size_t srcLen, int level, uint8_t* dest, size_t& destLen)
-{
-    ts_bool retVal;
-    uint32_t dLen = (uint32_t)destLen;
-
-    retVal = tsGzipCompress(src, (uint32_t)srcLen, level, dest, &dLen);
-    destLen = dLen;
-    return retVal;
-}
-bool gzipDecompress(const uint8_t* src, size_t srcLen, uint8_t* dest, size_t& destLen)
-{
-    ts_bool retVal;
-    uint32_t dLen = (uint32_t)destLen;
-
-    retVal = tsGzipDecompress(src, (uint32_t)srcLen, dest, &dLen);
-    destLen = dLen;
-    return retVal;
-}
-bool gzipDecompress(const uint8_t* src, size_t srcLen, tscrypto::tsCryptoData& outputData)
-{
-    ts_bool retVal;
-    TSBYTE_BUFF buff = tsCreateBuffer();
-
-    retVal = tsGzipDecompressBuffer(src, (uint32_t)srcLen, buff);
-    if (buff != NULL)
-    {
-        outputData.assign(tsGetBufferDataPtr(buff), tsBufferUsed(buff));
-        tsFreeBuffer(&buff);
-    }
-    return retVal;
-}
-
-bool raw_zlibCompress(const uint8_t* src, size_t srcLen, int level, uint8_t* dest, size_t& destLen)
-{
-    ts_bool retVal;
-    uint32_t dLen = (uint32_t)destLen;
-
-    retVal = tsRawZlibCompress(src, (uint32_t)srcLen, level, dest, &dLen);
-    destLen = dLen;
-    return retVal;
-}
-bool raw_zlibDecompress(const uint8_t* src, size_t srcLen, uint8_t* dest, size_t& destLen)
-{
-    ts_bool retVal;
-    uint32_t dLen = (uint32_t)destLen;
-
-    retVal = tsRawZlibDecompress(src, (uint32_t)srcLen, dest, &dLen);
-    destLen = dLen;
-    return retVal;
-}
-bool raw_zlibDecompress(const uint8_t* src, size_t srcLen, tscrypto::tsCryptoData& outputData)
-{
-    ts_bool retVal;
-    TSBYTE_BUFF buff = tsCreateBuffer();
-
-    retVal = tsRawZlibDecompressBuffer(src, (uint32_t)srcLen, buff);
-    if (buff != NULL)
-    {
-        outputData.assign(tsGetBufferDataPtr(buff), tsBufferUsed(buff));
-        tsFreeBuffer(&buff);
-    }
-    return retVal;
-}
-
-bool zlibCompress(const uint8_t* src, size_t srcLen, int level, uint8_t* dest, size_t& destLen)
-{
-    ts_bool retVal;
-    uint32_t dLen = (uint32_t)destLen;
-
-    retVal = tsZlibCompress(src, (uint32_t)srcLen, level, dest, &dLen);
-    destLen = dLen;
-    return retVal;
-}
-bool zlibDecompress(const uint8_t* src, size_t srcLen, uint8_t* dest, size_t& destLen)
-{
-    ts_bool retVal;
-    uint32_t dLen = (uint32_t)destLen;
-
-    retVal = tsZlibDecompress(src, (uint32_t)srcLen, dest, &dLen);
-    destLen = dLen;
-    return retVal;
-}
-_Check_return_ tscrypto::tsCryptoData VEILCORE_API zlibCompress(const tscrypto::tsCryptoData& src, int level)
-{
-    tsCryptoData tmp;
-    uint32_t tmpLen;
-
-    tmp.resize(src.size() + 1024);
-    tmpLen = (uint32_t)tmp.size();
-    if (!tsZlibCompress(src.c_str(), (uint32_t)src.size(), level, tmp.rawData(), &tmpLen))
-        tmpLen = 0;
-    tmp.resize(tmpLen);
-    return tmp;
-}
-_Check_return_ tscrypto::tsCryptoData VEILCORE_API zlibDecompress(const tscrypto::tsCryptoData& src)
-{
-    ts_bool retVal;
-    tsCryptoData outputData;
-    TSBYTE_BUFF buff = tsCreateBuffer();
-
-    retVal = tsZlibDecompressBuffer(src.c_str(), (uint32_t)src.size(), buff);
-    if (buff != NULL)
-    {
-        outputData.assign(tsGetBufferDataPtr(buff), tsBufferUsed(buff));
-        tsFreeBuffer(&buff);
-    }
-    return outputData;
-}
-
-bool zlibDecompress(const uint8_t* src, size_t srcLen, tscrypto::tsCryptoData& outputData)
-{
-    ts_bool retVal;
-    TSBYTE_BUFF buff = tsCreateBuffer();
-
-    retVal = tsZlibDecompressBuffer(src, (uint32_t)srcLen, buff);
-    if (buff != NULL)
-    {
-        outputData.assign(tsGetBufferDataPtr(buff), tsBufferUsed(buff));
-        tsFreeBuffer(&buff);
-    }
-    return retVal;
-}
+//bool gzipCompress(const uint8_t* src, size_t srcLen, int level, uint8_t* dest, size_t& destLen)
+//{
+//    ts_bool retVal;
+//    uint32_t dLen = (uint32_t)destLen;
+//
+//    retVal = tsGzipCompress(src, (uint32_t)srcLen, level, dest, &dLen);
+//    destLen = dLen;
+//    return retVal;
+//}
+//bool gzipDecompress(const uint8_t* src, size_t srcLen, uint8_t* dest, size_t& destLen)
+//{
+//    ts_bool retVal;
+//    uint32_t dLen = (uint32_t)destLen;
+//
+//    retVal = tsGzipDecompress(src, (uint32_t)srcLen, dest, &dLen);
+//    destLen = dLen;
+//    return retVal;
+//}
+//bool gzipDecompress(const uint8_t* src, size_t srcLen, tscrypto::tsCryptoData& outputData)
+//{
+//    ts_bool retVal;
+//    TSBYTE_BUFF buff = tsCreateBuffer();
+//
+//    retVal = tsGzipDecompressBuffer(src, (uint32_t)srcLen, buff);
+//    if (buff != NULL)
+//    {
+//        outputData.assign(tsGetBufferDataPtr(buff), tsBufferUsed(buff));
+//        tsFreeBuffer(&buff);
+//    }
+//    return retVal;
+//}
+//
+//bool raw_zlibCompress(const uint8_t* src, size_t srcLen, int level, uint8_t* dest, size_t& destLen)
+//{
+//    ts_bool retVal;
+//    uint32_t dLen = (uint32_t)destLen;
+//
+//    retVal = tsRawZlibCompress(src, (uint32_t)srcLen, level, dest, &dLen);
+//    destLen = dLen;
+//    return retVal;
+//}
+//bool raw_zlibDecompress(const uint8_t* src, size_t srcLen, uint8_t* dest, size_t& destLen)
+//{
+//    ts_bool retVal;
+//    uint32_t dLen = (uint32_t)destLen;
+//
+//    retVal = tsRawZlibDecompress(src, (uint32_t)srcLen, dest, &dLen);
+//    destLen = dLen;
+//    return retVal;
+//}
+//bool raw_zlibDecompress(const uint8_t* src, size_t srcLen, tscrypto::tsCryptoData& outputData)
+//{
+//    ts_bool retVal;
+//    TSBYTE_BUFF buff = tsCreateBuffer();
+//
+//    retVal = tsRawZlibDecompressBuffer(src, (uint32_t)srcLen, buff);
+//    if (buff != NULL)
+//    {
+//        outputData.assign(tsGetBufferDataPtr(buff), tsBufferUsed(buff));
+//        tsFreeBuffer(&buff);
+//    }
+//    return retVal;
+//}
+//
+//bool zlibCompress(const uint8_t* src, size_t srcLen, int level, uint8_t* dest, size_t& destLen)
+//{
+//    ts_bool retVal;
+//    uint32_t dLen = (uint32_t)destLen;
+//
+//    retVal = tsZlibCompress(src, (uint32_t)srcLen, level, dest, &dLen);
+//    destLen = dLen;
+//    return retVal;
+//}
+//bool zlibDecompress(const uint8_t* src, size_t srcLen, uint8_t* dest, size_t& destLen)
+//{
+//    ts_bool retVal;
+//    uint32_t dLen = (uint32_t)destLen;
+//
+//    retVal = tsZlibDecompress(src, (uint32_t)srcLen, dest, &dLen);
+//    destLen = dLen;
+//    return retVal;
+//}
+//_Check_return_ tscrypto::tsCryptoData VEILCORE_API zlibCompress(const tscrypto::tsCryptoData& src, int level)
+//{
+//    tsCryptoData tmp;
+//    uint32_t tmpLen;
+//
+//    tmp.resize(src.size() + 1024);
+//    tmpLen = (uint32_t)tmp.size();
+//    if (!tsZlibCompress(src.c_str(), (uint32_t)src.size(), level, tmp.rawData(), &tmpLen))
+//        tmpLen = 0;
+//    tmp.resize(tmpLen);
+//    return tmp;
+//}
+//_Check_return_ tscrypto::tsCryptoData VEILCORE_API zlibDecompress(const tscrypto::tsCryptoData& src)
+//{
+//    ts_bool retVal;
+//    tsCryptoData outputData;
+//    TSBYTE_BUFF buff = tsCreateBuffer();
+//
+//    retVal = tsZlibDecompressBuffer(src.c_str(), (uint32_t)src.size(), buff);
+//    if (buff != NULL)
+//    {
+//        outputData.assign(tsGetBufferDataPtr(buff), tsBufferUsed(buff));
+//        tsFreeBuffer(&buff);
+//    }
+//    return outputData;
+//}
+//
+//bool zlibDecompress(const uint8_t* src, size_t srcLen, tscrypto::tsCryptoData& outputData)
+//{
+//    ts_bool retVal;
+//    TSBYTE_BUFF buff = tsCreateBuffer();
+//
+//    retVal = tsZlibDecompressBuffer(src, (uint32_t)srcLen, buff);
+//    if (buff != NULL)
+//    {
+//        outputData.assign(tsGetBufferDataPtr(buff), tsBufferUsed(buff));
+//        tsFreeBuffer(&buff);
+//    }
+//    return retVal;
+//}
 
 
 void RunInitializers()

@@ -55,9 +55,9 @@ add_precompiled_header(filetool stdafx.h FORCEINCLUDE SOURCE_CXX stdafx.cpp)
 set_source_files_properties(filetool.rc PROPERTIES COMPILE_DEFINITIONS RC_COMPILED)
 set_target_properties(filetool PROPERTIES FOLDER "Tools/veilExtensions")
 if(APPLE)
-    TARGET_LINK_LIBRARIES(filetool VEILCore VEILCmsHeader VEILFileSupport ${CyberVEIL_TARGET})
+    TARGET_LINK_LIBRARIES(filetool VEILCore VEILCmsHeader VEILFileSupport ${CyberVEIL_TARGET} ${CyberVEILsup_TARGET})
 else()
-    TARGET_LINK_LIBRARIES(filetool VEILCore VEILCmsHeader VEILFileSupport CyberVEIL)
+    TARGET_LINK_LIBRARIES(filetool VEILCore VEILCmsHeader VEILFileSupport CyberVEIL CyberVEILsup)
 endif(APPLE)
 set_target_properties(filetool PROPERTIES 
 	SUFFIX ".veil"  

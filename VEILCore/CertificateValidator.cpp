@@ -291,7 +291,7 @@ protected:
         }
 
         // Validate the flags for the sslCert
-        const TSTlsSupportDescriptor* supDesc = (const TSTlsSupportDescriptor*)tsFindCkmAlgorithm("TLS-SUPPORT");
+        const TSTlsSupportDescriptor* supDesc = (const TSTlsSupportDescriptor*)tsFindGeneralAlgorithm("TLS-SUPPORT");
 
         if (supDesc == nullptr)
             return tsSslalert_certificate_unknown;

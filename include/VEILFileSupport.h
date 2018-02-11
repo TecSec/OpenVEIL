@@ -398,6 +398,16 @@ public:
 	virtual tscrypto::tsCryptoString failureReason() = 0;
 	// Added 7.0.46
 	virtual bool GetFileInformation(const tscrypto::tsCryptoString& filename, tscrypto::JSONObject& info) = 0;
+    // Added 7.0.67
+    virtual bool GetDataInformation(const tscrypto::tsCryptoData& buffer, tscrypto::JSONObject& info) = 0;
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// <summary>Validates the buffer contents using public checks only.</summary>
+    ///
+    /// <param name="buffer">The buffer to validate.</param>
+    ///
+    /// <returns>S_OK for success or a standard COM error code for failure.</returns>
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    virtual bool ValidateBufferContents_PublicOnly(const tscrypto::tsCryptoData& buffer) = 0;
 };
 
 
@@ -697,6 +707,28 @@ public:
 
 	// Added 7.0.43
 	virtual tscrypto::tsCryptoString failureReason() = 0;
+
+    // Added 7.0.67
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// <summary>Performs all validations of the header and data that can be done publically (no private or secret keys needed).</summary>
+    ///
+    /// <param name="buffer">[in] The input data.</param>
+    ///
+    /// <returns>S_OK for success or a standard COM error for failure.</returns>
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    virtual bool ValidateBufferContents_PublicOnly(const tscrypto::tsCryptoData& buffer) = 0;
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// <summary>Checks a data buffer to see if it begins with a CKM 7 header</summary>
+    ///
+    /// <param name="buffer">[in] The input data buffer.</param>
+    /// <param name="headerLen">[in] The length of the header that was found.</param>
+    /// <param name="pVal">  [out] The CKM header found at the beginning of the data stream.</param>
+    ///
+    /// <returns>true if a header was found, false if not.</returns>
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    virtual bool    BufferStartsWithCkmHeader(const tscrypto::tsCryptoData& buffer, uint32_t& headerLen, std::shared_ptr<ICmsHeaderBase>& pVal) = 0;
+
 };
 
 /*! @brief Enumeration that defines the compression action to take
