@@ -169,17 +169,17 @@ protected:
     }
 	void GetSmartCardInfo(const tscrypto::tsCryptoString& readerName)
 	{
-        TSSMARTCARD_CONNECTION connection = NULL;
-        TSSMARTCARD_INFORMATION cardinfo = NULL;
+        TSWORKSPACE connection = NULL;
+        TSWORKSPACE cardinfo = NULL;
 		JSONObject out;
 		tscrypto::tsCryptoData selectResponse;
-        const TSSmartCardConnectionDescriptor* cardDesc = nullptr;
-        const TSSmartCardInformationDescriptor* infoDesc = nullptr;
+        const TSISmartCardConnection* cardDesc = nullptr;
+        const TSISmartCardInformation* infoDesc = nullptr;
 
 		if (!(connection = tsCreateWorkspaceForAlgorithm("SMARTCARD_CONNECTION")) ||
-            (cardDesc = (const TSSmartCardConnectionDescriptor*)tsGetDescriptorFromWorkspace(connection)) == nullptr ||
+            (cardDesc = TSWorker(TSISmartCardConnection, connection)) == nullptr ||
 			!(cardinfo = tsCreateWorkspaceForAlgorithm("SMARTCARD_INFO")) ||
-            (infoDesc = (const TSSmartCardInformationDescriptor*)tsGetDescriptorFromWorkspace(cardinfo)) == nullptr)
+            (infoDesc = TSWorker(TSISmartCardInformation, cardinfo)) == nullptr)
 		{
             tsFreeWorkspace(&cardinfo);
 			std::cout << "ERROR:  Unable to create the Winscard Connector." << std::endl;
@@ -421,20 +421,20 @@ protected:
 		DisplayCardInfo(out);
 		gSmartCardDone.Set();
 	}
-    int SelectCkmInfo(TSSMARTCARD_CONNECTION connection, uint8_t* selectResponse, uint32_t* selectResponseLen)
+    int SelectCkmInfo(TSWORKSPACE connection, uint8_t* selectResponse, uint32_t* selectResponseLen)
     {
         return SelectApplet(connection, gCkmInfoAid, (uint32_t)sizeof(gCkmInfoAid), selectResponse, selectResponseLen);
     }
-    int SelectCkmInfo(TSSMARTCARD_CONNECTION connection, tscrypto::tsCryptoData& selectResponse)
+    int SelectCkmInfo(TSWORKSPACE connection, tscrypto::tsCryptoData& selectResponse)
     {
         return SelectApplet(connection, tscrypto::tsCryptoData(gCkmInfoAid, sizeof(gCkmInfoAid)), selectResponse);
     }
-    int GetFreeCardMemory(TSSMARTCARD_CONNECTION connection)
+    int GetFreeCardMemory(TSWORKSPACE connection)
 	{
         uint8_t outData[280];
         uint32_t outDataLen = sizeof(outData);
         uint32_t sw;
-        const TSSmartCardConnectionDescriptor* cardDesc = (const TSSmartCardConnectionDescriptor*)tsGetDescriptorFromWorkspace(connection);
+        const TSISmartCardConnection* cardDesc = TSWorker(TSISmartCardConnection, connection);
 
 		if (!SelectCkmInfo(connection, outData, &outDataLen))
 		{
@@ -455,12 +455,12 @@ protected:
 			return -1;
 		}
 	}
-	int GetFreeDeselectRam(TSSMARTCARD_CONNECTION  connection)
+	int GetFreeDeselectRam(TSWORKSPACE  connection)
 	{
         uint8_t outData[280];
         uint32_t outDataLen = sizeof(outData);
         uint32_t sw;
-        const TSSmartCardConnectionDescriptor* cardDesc = (const TSSmartCardConnectionDescriptor*)tsGetDescriptorFromWorkspace(connection);
+        const TSISmartCardConnection* cardDesc = TSWorker(TSISmartCardConnection, connection);
 
         if (!SelectCkmInfo(connection, outData, &outDataLen))
         {
@@ -481,12 +481,12 @@ protected:
 			return -1;
 		}
 	}
-	int GetFreeResetRam(TSSMARTCARD_CONNECTION  connection)
+	int GetFreeResetRam(TSWORKSPACE  connection)
 	{
         uint8_t outData[280];
         uint32_t outDataLen = sizeof(outData);
         uint32_t sw;
-        const TSSmartCardConnectionDescriptor* cardDesc = (const TSSmartCardConnectionDescriptor*)tsGetDescriptorFromWorkspace(connection);
+        const TSISmartCardConnection* cardDesc = TSWorker(TSISmartCardConnection, connection);
 
         if (!SelectCkmInfo(connection, outData, &outDataLen))
         {
@@ -507,24 +507,24 @@ protected:
 			return -1;
 		}
 	}
-	int SelectISD(TSSMARTCARD_CONNECTION connection, tscrypto::tsCryptoData& selectResponse)
+	int SelectISD(TSWORKSPACE connection, tscrypto::tsCryptoData& selectResponse)
 	{
 		return SelectApplet(connection, tscrypto::tsCryptoData(gIsdAid, sizeof(gIsdAid)), selectResponse);
 	}
-	int SelectPiv(TSSMARTCARD_CONNECTION connection, tscrypto::tsCryptoData& selectResponse)
+	int SelectPiv(TSWORKSPACE connection, tscrypto::tsCryptoData& selectResponse)
 	{
 		return SelectApplet(connection, tscrypto::tsCryptoData(gPivAid, sizeof(gPivAid)), selectResponse);
 	}
-	int SelectBmoc(TSSMARTCARD_CONNECTION connection, tscrypto::tsCryptoData& selectResponse)
+	int SelectBmoc(TSWORKSPACE connection, tscrypto::tsCryptoData& selectResponse)
 	{
 		return SelectApplet(connection, tscrypto::tsCryptoData(gBmocAid, sizeof(gBmocAid)), selectResponse);
 	}
-    int SelectApplet(TSSMARTCARD_CONNECTION connection, const tscrypto::tsCryptoData& aid, tscrypto::tsCryptoData& selectResponse)
+    int SelectApplet(TSWORKSPACE connection, const tscrypto::tsCryptoData& aid, tscrypto::tsCryptoData& selectResponse)
     {
         uint32_t len = 280;
         uint32_t sw;
         tscrypto::tsCryptoData cmd("00 A4 04 00", tscrypto::tsCryptoData::HEX);
-        const TSSmartCardConnectionDescriptor* cardDesc = (const TSSmartCardConnectionDescriptor*)tsGetDescriptorFromWorkspace(connection);
+        const TSISmartCardConnection* cardDesc = TSWorker(TSISmartCardConnection, connection);
 
         if (connection == NULL)
             return 0x6F00;
@@ -536,11 +536,11 @@ protected:
         selectResponse.resize(len);
         return (int)sw;
     }
-    int SelectApplet(TSSMARTCARD_CONNECTION connection, const uint8_t* aid, uint32_t aidLen, uint8_t* selectResponse, uint32_t* selectResponseLen)
+    int SelectApplet(TSWORKSPACE connection, const uint8_t* aid, uint32_t aidLen, uint8_t* selectResponse, uint32_t* selectResponseLen)
     {
         uint32_t sw;
         tscrypto::tsCryptoData cmd("00 A4 04 00", tscrypto::tsCryptoData::HEX);
-        const TSSmartCardConnectionDescriptor* cardDesc = (const TSSmartCardConnectionDescriptor*)tsGetDescriptorFromWorkspace(connection);
+        const TSISmartCardConnection* cardDesc = TSWorker(TSISmartCardConnection, connection);
 
         if (connection == NULL)
             return 0x6F00;
@@ -549,10 +549,10 @@ protected:
         cardDesc->sendCommand(connection, cmd.c_str(), (uint32_t)cmd.size(), 0, selectResponse, selectResponseLen, &sw);
         return (int)sw;
     }
-    void GetSiloInfo(TSSMARTCARD_CONNECTION connection, JSONObject& obj, const tscrypto::tsCryptoString& name, const tscrypto::tsCryptoData& aid)
+    void GetSiloInfo(TSWORKSPACE connection, JSONObject& obj, const tscrypto::tsCryptoString& name, const tscrypto::tsCryptoData& aid)
 	{
 		tscrypto::tsCryptoData selectResponse;
-        const TSSmartCardConnectionDescriptor* cardDesc = (const TSSmartCardConnectionDescriptor*)tsGetDescriptorFromWorkspace(connection);
+        const TSISmartCardConnection* cardDesc = TSWorker(TSISmartCardConnection, connection);
 
 		if (SelectApplet(connection, aid, selectResponse) == 0x9000)
 		{
@@ -634,12 +634,12 @@ protected:
 			obj.add("Silos", o);
 		}
 	}
-	tscrypto::tsCryptoData GetSerialNumber(TSSMARTCARD_CONNECTION card)
+	tscrypto::tsCryptoData GetSerialNumber(TSWORKSPACE card)
 	{
         uint8_t outData[280];
         uint32_t outDataLen = sizeof(outData);
         uint32_t sw;
-        const TSSmartCardConnectionDescriptor* cardDesc = (const TSSmartCardConnectionDescriptor*)tsGetDescriptorFromWorkspace(card);
+        const TSISmartCardConnection* cardDesc = TSWorker(TSISmartCardConnection, card);
 
 		if (card == NULL)
 			return tscrypto::tsCryptoData();
@@ -748,10 +748,10 @@ protected:
         This->GetSmartCardInfo(readerName);
     }
 
-    static const TSSmartCard_ChangeConsumer mySmartcardChanges;
+    static const TSISmartCard_ChangeConsumer mySmartcardChanges;
 
 };
-const TSSmartCard_ChangeConsumer SmartCardInfoTool::mySmartcardChanges = {
+const TSISmartCard_ChangeConsumer SmartCardInfoTool::mySmartcardChanges = {
     NULL, NULL, &SmartCardInfoTool::CardInserted, NULL,
 };
 

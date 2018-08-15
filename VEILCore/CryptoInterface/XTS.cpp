@@ -60,7 +60,7 @@ public:
         m_keySizeInBits = (int)key.size() * 8;
 
         m_context.reset();
-        m_context = desc;
+        m_context = desc->def;
         m_forEncrypt = forEncrypt;
 
         tsCryptoString name(m_baseName);
@@ -68,7 +68,7 @@ public:
         name.append((key.size() * 8));
         SetName(name);
 
-        return desc->init(desc, m_context, key.c_str(), (uint32_t)key.size());
+        return desc->init(m_context, key.c_str(), (uint32_t)key.size());
     }
     virtual bool update(tsCryptoData &sector, size_t sectorSizeInBits, const tsCryptoData &sectorAddress) override
     {
@@ -91,11 +91,11 @@ public:
         bool retVal;
         if (m_forEncrypt)
         {
-            retVal = desc->encrypt(desc, m_context, sector.rawData(), (unsigned int)sectorSizeInBits, sectorAddress.c_str());
+            retVal = desc->encrypt(m_context, sector.rawData(), (unsigned int)sectorSizeInBits, sectorAddress.c_str());
         }
         else
         {
-            retVal = desc->decrypt(desc, m_context, sector.rawData(), (unsigned int)sectorSizeInBits, sectorAddress.c_str());
+            retVal = desc->decrypt(m_context, sector.rawData(), (unsigned int)sectorSizeInBits, sectorAddress.c_str());
         }
         if (!retVal)
         {
@@ -133,7 +133,7 @@ public:
         if (m_context.empty())
             return false;
 
-        bool retVal = desc->finish(desc, m_context);
+        bool retVal = desc->finish(m_context);
         m_context.reset();
         m_keySizeInBits = 0;
         return retVal;
@@ -207,7 +207,7 @@ protected:
 
 private:
     SmartCryptoWorkspace m_context;
-    const TSXtsDescriptor* desc;
+    const TSIXts* desc;
     bool m_forEncrypt;
     tsCryptoString m_baseName;
     int m_keySizeInBits;
@@ -226,7 +226,7 @@ private:
             parts->push_back("AES");
         alg = "XTS-" + parts->at(1);
 
-        desc = tsFindXtsAlgorithm(alg.c_str());
+        desc = TSLookup(TSIXts, alg.c_str());
         if (desc == nullptr)
             return false;
 

@@ -42,12 +42,14 @@
 #   include "CyberVEILdb/CyberVEILdb.h"
 #   include "CyberVEILnet/CyberVEILnet.h"
 #   include "CyberVEILsc/CyberVEILsc.h"
+#   include "CyberVEILcpp/CyberVEILcpp.h"
 #else
 #   include "CyberVEIL.h"
 #   include "CyberVEILsup.h"
 #   include "CyberVEILdb.h"
 #   include "CyberVEILnet.h"
 #   include "CyberVEILsc.h"
+#   include "CyberVEILcpp.h"
 #endif
 
 #ifndef _WIN32
@@ -408,7 +410,7 @@ namespace tscrypto
 	/// <param name="flags">The filter flags that indicate the types of algorithms to return.</param>
 	/// <param name="matchAllFlags">If true an algorithm must match all of the specified flags to be returned.</param>
 	/// <returns>A list of matching algorithms</returns>
-	extern VEILCORE_API std::shared_ptr<tscrypto::IAlgorithmList> GetAlgorithmList(CryptoAlgType flags = (CryptoAlgType)0, bool matchAllFlags = true);
+	extern VEILCORE_API std::shared_ptr<tscrypto::IAlgorithmList> GetAlgorithmList(TSCryptoAlgType flags = (TSCryptoAlgType)0, bool matchAllFlags = true);
 	/// <summary>
 	/// Translates an algorithm name into the internal id.
 	/// </summary>
@@ -541,7 +543,7 @@ namespace tscrypto
 	/// <param name="AlgID">The internal algorithm identifier.</param>
 	/// <returns>true if successful.</returns>
 	/// \ingroup HighLevelHelpers
-	_Check_return_ extern VEILCORE_API bool TSHash(const tsCryptoData &data, HashDigest &hash, TS_ALG_ID AlgID = tscrypto::_TS_ALG_ID::TS_ALG_SHA1);
+	_Check_return_ extern VEILCORE_API bool TSHash(const tsCryptoData &data, HashDigest &hash, TS_ALG_ID AlgID = TS_ALG_SHA1);
 	/// <summary>
 	/// Generates a hash value of the specified data
 	/// </summary>
@@ -673,7 +675,7 @@ namespace tscrypto
 	/// <param name="keyPair">The key pair is returned here.</param>
 	/// <returns>true if successful.</returns>
 	/// \ingroup HighLevelHelpers
-	_Check_return_ extern VEILCORE_API bool TSGenerateECCKeysByAlg(tscrypto::TS_ALG_ID alg, std::shared_ptr<tscrypto::EccKey>& keyPair);
+	_Check_return_ extern VEILCORE_API bool TSGenerateECCKeysByAlg(TS_ALG_ID alg, std::shared_ptr<tscrypto::EccKey>& keyPair);
 	/// <summary>
 	/// Generates an ECC Key Pair specifed by the algorithm name.
 	/// </summary>
@@ -751,7 +753,7 @@ namespace tscrypto
 	/// <param name="ctx">The cryptographic context object that represents this hash session.</param>
 	/// <returns>true if successful.</returns>
 	/// \ingroup HighLevelHelpers
-	_Check_return_ extern VEILCORE_API bool TSHMACStart(tscrypto::TS_ALG_ID algorithm, const tscrypto::tsCryptoData &key, tscrypto::CryptoContext &ctx);
+	_Check_return_ extern VEILCORE_API bool TSHMACStart(TS_ALG_ID algorithm, const tscrypto::tsCryptoData &key, tscrypto::CryptoContext &ctx);
 	/// <summary>
 	/// Begin a multipart HMAC session.
 	/// </summary>
@@ -786,7 +788,7 @@ namespace tscrypto
 	/// <param name="hmac">The computed HMAC value is put here.</param>
 	/// <returns>true if successful.</returns>
 	/// \ingroup HighLevelHelpers
-	_Check_return_ extern VEILCORE_API bool TSHMAC(tscrypto::TS_ALG_ID algorithm, const tscrypto::tsCryptoData &key, const tscrypto::tsCryptoData &data, tscrypto::tsCryptoData &hmac);
+	_Check_return_ extern VEILCORE_API bool TSHMAC(TS_ALG_ID algorithm, const tscrypto::tsCryptoData &key, const tscrypto::tsCryptoData &data, tscrypto::tsCryptoData &hmac);
 	/// <summary>
 	/// Performs an HMAC computation in one call.
 	/// </summary>
@@ -926,7 +928,7 @@ namespace tscrypto
 	/// <param name="signAlgorithm">The signature algorithm to use.</param>
 	/// <returns>true if successful.</returns>
 	/// \ingroup HighLevelHelpers
-	_Check_return_ extern VEILCORE_API bool TSRSAPKCS11Sign(const tsCryptoData &RSAPrivate, const uint8_t *value, size_t valueLen, tsCryptoData &signature, tscrypto::TS_ALG_ID signAlgorithm);
+	_Check_return_ extern VEILCORE_API bool TSRSAPKCS11Sign(const tsCryptoData &RSAPrivate, const uint8_t *value, size_t valueLen, tsCryptoData &signature, TS_ALG_ID signAlgorithm);
 	/// <summary>
 	/// Signs the data using the RSA key blob and PKCS #11 signature formatting.
 	/// </summary>
@@ -936,7 +938,7 @@ namespace tscrypto
 	/// <param name="signAlgorithm">The signature algorithm to use.</param>
 	/// <returns>true if successful.</returns>
 	/// \ingroup HighLevelHelpers
-	_Check_return_ extern VEILCORE_API bool TSRSAPKCS11Sign(const tsCryptoData &RSAPrivate, const tsCryptoData &value, tsCryptoData &signature, tscrypto::TS_ALG_ID signAlgorithm);
+	_Check_return_ extern VEILCORE_API bool TSRSAPKCS11Sign(const tsCryptoData &RSAPrivate, const tsCryptoData &value, tsCryptoData &signature, TS_ALG_ID signAlgorithm);
 	/// <summary>
 	/// Verifies an RSA PKCS #11 signature
 	/// </summary>
@@ -947,7 +949,7 @@ namespace tscrypto
 	/// <param name="signAlgorithm">The signature algorithm that was used to create the signature.</param>
 	/// <returns>true if successful.</returns>
 	/// \ingroup HighLevelHelpers
-	_Check_return_ extern VEILCORE_API bool TSRSAPKCS11Verify(const tsCryptoData &RSAPublic, const uint8_t *value, const uint32_t valueLen, const tsCryptoData &signature, tscrypto::TS_ALG_ID signAlgorithm);
+	_Check_return_ extern VEILCORE_API bool TSRSAPKCS11Verify(const tsCryptoData &RSAPublic, const uint8_t *value, const uint32_t valueLen, const tsCryptoData &signature, TS_ALG_ID signAlgorithm);
 	/// <summary>
 	/// Verifies an RSA PKCS #11 signature
 	/// </summary>
@@ -957,7 +959,7 @@ namespace tscrypto
 	/// <param name="signAlgorithm">The signature algorithm that was used to create the signature.</param>
 	/// <returns>true if successful.</returns>
 	/// \ingroup HighLevelHelpers
-	_Check_return_ extern VEILCORE_API bool TSRSAPKCS11Verify(const tsCryptoData &RSAPublic, const tsCryptoData &value, const tsCryptoData &signature, tscrypto::TS_ALG_ID signAlgorithm);
+	_Check_return_ extern VEILCORE_API bool TSRSAPKCS11Verify(const tsCryptoData &RSAPublic, const tsCryptoData &value, const tsCryptoData &signature, TS_ALG_ID signAlgorithm);
 	/// <summary>
 	/// Returns the size in bits of the key specified in the key blob
 	/// </summary>

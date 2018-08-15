@@ -38,9 +38,9 @@ class KDF : public KeyDerivationFunction, public TSName, public tscrypto::ICrypt
 public:
 	KDF()
 	{
-		desc = tsFindKdfAlgorithm("KDF");
+        desc = TSLookup(TSIKdf, "KDF");
 		if (desc != nullptr)
-			workspace = desc;
+            workspace = desc->def;
 		macName = "SHA512";
 	}
 	virtual ~KDF(void)
@@ -53,18 +53,18 @@ public:
 		if (!gFipsState.operational() || desc == nullptr)
 			return false;
 
-		if (!desc->configure(desc, workspace, macName.c_str()))
+        if (!desc->configure(workspace, macName.c_str()))
 			return false;
-		return desc->init(desc, workspace);
+        return desc->init(workspace);
 	}
 	virtual bool initializeWithKey(const tsCryptoData &key) override
 	{
 		if (!gFipsState.operational() || desc == nullptr)
 			return false;
 
-		if (!desc->configure(desc, workspace, macName.c_str()))
+        if (!desc->configure(workspace, macName.c_str()))
 			return false;
-		return desc->initWithKey(desc, workspace, key.c_str(), (uint32_t)key.size());
+        return desc->initWithKey(workspace, key.c_str(), (uint32_t)key.size());
 	}
 	virtual bool Derive_X9_63_Counter(const tsCryptoData &Z, const tsCryptoData &otherInfo, size_t outputBitLength, tsCryptoData &output) override
 	{
@@ -72,7 +72,7 @@ public:
 			return false;
 
 		output.resize((outputBitLength + 7) / 8);
-		bool retVal = desc->derive_X9_63_Counter(desc, workspace, Z.c_str(), (uint32_t)Z.size(), otherInfo.c_str(), (uint32_t)otherInfo.size(), (uint32_t)outputBitLength, output.rawData());
+        bool retVal = desc->derive_X9_63_Counter(workspace, Z.c_str(), (uint32_t)Z.size(), otherInfo.c_str(), (uint32_t)otherInfo.size(), (uint32_t)outputBitLength, output.rawData());
 		if (!retVal)
 			output.clear();
 		return retVal;
@@ -84,7 +84,7 @@ public:
 			return false;
 
 		output.resize((outputBitLength + 7) / 8);
-		bool retVal = desc->derive_SP800_108_Counter(desc, workspace, containsBitLength, (uint32_t)bytesOfBitLength, containsLabel, counterLocation, (uint32_t)counterByteLength,
+        bool retVal = desc->derive_SP800_108_Counter(workspace, containsBitLength, (uint32_t)bytesOfBitLength, containsLabel, counterLocation, (uint32_t)counterByteLength,
 			Label.c_str(), (uint32_t)Label.size(), Context.c_str(), (uint32_t)Context.size(), (uint32_t)outputBitLength, output.rawData());
 		if (!retVal)
 			output.clear();
@@ -96,7 +96,7 @@ public:
 			return false;
 
 		output.resize((outputBitLength + 7) / 8);
-		bool retVal = desc->derive_SP800_108_Feedback(desc, workspace, (TSkdf_feedbackCounterLocation)counterLocation, counterByteLength, containsBitLength, bytesOfBitLength, containsLabel, feedbackIV.c_str(), (uint32_t)feedbackIV.size(), (uint8_t*)Label.c_str(), (uint32_t)Label.size(),
+        bool retVal = desc->derive_SP800_108_Feedback(workspace, (TSkdf_feedbackCounterLocation)counterLocation, counterByteLength, containsBitLength, bytesOfBitLength, containsLabel, feedbackIV.c_str(), (uint32_t)feedbackIV.size(), (uint8_t*)Label.c_str(), (uint32_t)Label.size(),
 			Context.c_str(), (uint32_t)Context.size(), (uint32_t)outputBitLength, output.rawData());
 		if (!retVal)
 			output.clear();
@@ -108,7 +108,7 @@ public:
 			return false;
 
 		output.resize((outputBitLength + 7) / 8);
-		bool retVal = desc->derive_SP800_56A_Counter(desc, workspace, Z.c_str(), (uint32_t)Z.size(), otherInfo.c_str(), (uint32_t)otherInfo.size(),
+        bool retVal = desc->derive_SP800_56A_Counter(workspace, Z.c_str(), (uint32_t)Z.size(), otherInfo.c_str(), (uint32_t)otherInfo.size(),
 			(uint32_t)outputBitLength, output.rawData());
 		if (!retVal)
 			output.clear();
@@ -120,7 +120,7 @@ public:
 			return false;
 
 		output.resize((outputBitLength + 7) / 8);
-		bool retVal = desc->derive_SP800_56A_Feedback(desc, workspace, includeCounter, feedbackIV.c_str(), (uint32_t)feedbackIV.size(), Z.c_str(), (uint32_t)Z.size(),
+        bool retVal = desc->derive_SP800_56A_Feedback(workspace, includeCounter, feedbackIV.c_str(), (uint32_t)feedbackIV.size(), Z.c_str(), (uint32_t)Z.size(),
 			otherInfo.c_str(), (uint32_t)otherInfo.size(), (uint32_t)outputBitLength, output.rawData());
 		if (!retVal)
 			output.clear();
@@ -132,7 +132,7 @@ public:
 			return false;
 
 		output.resize((outputBitLength + 7) / 8);
-		bool retVal = desc->derive_SCP03(desc, workspace, type, (uint32_t)outputBitLength, Context.c_str(), (uint32_t)Context.size(), output.rawData());
+        bool retVal = desc->derive_SCP03(workspace, type, (uint32_t)outputBitLength, Context.c_str(), (uint32_t)Context.size(), output.rawData());
 		if (!retVal)
 			output.clear();
 		return retVal;
@@ -144,7 +144,7 @@ public:
 			return false;
 
 		output.resize((outputBitLength + 7) / 8);
-		bool retVal = desc->derive_Raw(desc, workspace, includeCounter, useFeedback, feedbackIV.c_str(), (uint32_t)feedbackIV.size(), Context.c_str(), (uint32_t)Context.size(), 
+        bool retVal = desc->derive_Raw(workspace, includeCounter, useFeedback, feedbackIV.c_str(), (uint32_t)feedbackIV.size(), Context.c_str(), (uint32_t)Context.size(), 
 			(uint32_t)counterLength, (uint32_t)counterStart, (uint32_t)feedbackPosition, (uint32_t)outputBitLength, output.rawData());
 		if (!retVal)
 			output.clear();
@@ -155,19 +155,19 @@ public:
 		if (!gFipsState.operational() || desc == nullptr)
 			return false;
 
-		return desc->finish(desc, workspace);
+        return desc->finish(workspace);
 	}
 	virtual size_t GetBlockSize() override
 	{
 		if (desc == nullptr)
 			return 0;
-        return desc->getBlockSize(desc, workspace);
+        return desc->getBlockSize(workspace);
 	}
 	virtual size_t GetDigestSize() override
 	{
 		if (desc == nullptr)
 			return 0;
-		return desc->getDigestSize(desc, workspace);
+        return desc->getDigestSize(workspace);
 	}
 
     // AlgorithmInfo
@@ -209,7 +209,7 @@ public:
 	}
 
 private:
-	const TSKdfDescriptor* desc;
+    const TSIKdf* desc;
 	SmartCryptoWorkspace workspace;
     tsCryptoString macName;
 };

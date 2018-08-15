@@ -153,7 +153,7 @@ void MainFrame::OnEncrypt(wxCommandEvent& event)
 	tscrypto::tsCryptoData encData;
 
 	if (!fileOps->EncryptCryptoData(dataToEnc, encData, header, ct_zLib,
-		tscrypto::_TS_ALG_ID::TS_ALG_AES_GCM_256, tscrypto::_TS_ALG_ID::TS_ALG_INVALID, false, true,
+		TS_ALG_AES_GCM_256, TS_ALG_INVALID, false, true,
 		TS_FORMAT_CMS_ENC_AUTH, false, tscrypto::_SymmetricPaddingType::padding_None))
 	{
 		const char *errorMsg = "Failed to encrypt.";

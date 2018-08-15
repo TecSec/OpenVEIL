@@ -264,7 +264,7 @@ void TcpConnection::ClearErrors()
 {
 	m_errors.clear();
 }
-bool TcpConnection::RawSend(const tscrypto::tsCryptoData& data)
+bool TcpConnection::RawSend(const tscrypto::tsCryptoData& data, ts_bool closeAfterWrite)
 {
 	//	int64_t start = GetTicks();
 

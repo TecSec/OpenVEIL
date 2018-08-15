@@ -78,7 +78,7 @@ endif()
 add_precompiled_header(VEILCmsHeader stdafx.h FORCEINCLUDE SOURCE_CXX stdafx.cpp)
 
 if(APPLE)
-	TARGET_LINK_LIBRARIES(VEILCmsHeader VEILCore ${CyberVEIL_TARGET})
+	TARGET_LINK_LIBRARIES(VEILCmsHeader VEILCore ${CyberVEIL_TARGET} ${CyberVEILcpp_TARGET})
 else()
 	TARGET_LINK_LIBRARIES(VEILCmsHeader VEILCore CyberVEIL)
 endif(APPLE)

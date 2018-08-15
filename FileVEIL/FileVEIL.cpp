@@ -657,7 +657,7 @@ int main(int argc, char* argv[])
 						}
 						else
 						{
-							for (size_t i = 0; i < profile->get_cryptoGroupList()->size(); i++)
+							for (uint32_t i = 0; i < profile->get_cryptoGroupList()->size(); i++)
 							{
 								pCG = nullptr;
 								if ((pCG = &profile->get_cryptoGroupList()->get_at(i)) != nullptr)
@@ -940,12 +940,12 @@ bool buildHeader(std::vector<stringList> &pAGList, Asn1::CTS::_POD_CryptoGroup* 
 	header->SetCreatorGuid(member);
 	header->SetEnterpriseGuid(enterprise);
 	//	header->SetEncryptionAlgorithmID(gDesktopPrefs->getEncryptionAlgorithm());
-	header->SetEncryptionAlgorithmID(_TS_ALG_ID::TS_ALG_AES_GCM_256);
+	header->SetEncryptionAlgorithmID(TS_ALG_AES_GCM_256);
 	header->SetCombinerVersion(7);
 	header->SetPaddingType(_SymmetricPaddingType::padding_Pkcs5);
 	if (!hasAsym)
 	{
-		header->SetSignatureAlgorithmId(_TS_ALG_ID::TS_ALG_HMAC_SHA512);
+		header->SetSignatureAlgorithmId(TS_ALG_HMAC_SHA512);
 	}
 	else
 	{

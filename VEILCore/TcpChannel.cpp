@@ -44,7 +44,7 @@ void TcpChannel::SendLogout()
 		m_processor->Logout();
 }
 
-bool TcpChannel::Send(const tscrypto::tsCryptoData& _data)
+bool TcpChannel::Send(const tscrypto::tsCryptoData& _data, ts_bool closeAfterWrite)
 {
 	tscrypto::tsCryptoData data(_data);
 	bool retVal = true;
@@ -53,9 +53,9 @@ bool TcpChannel::Send(const tscrypto::tsCryptoData& _data)
 		return false;
 
 	if (!data.empty())
-		retVal = RawSend(data);
+		retVal = RawSend(data, closeAfterWrite);
 
-	if (m_processor != nullptr && m_processor->shouldCloseAfterTransmit())
+	if (m_processor != nullptr && closeAfterWrite)
 	{
 		Disconnect();
 	}
@@ -187,11 +187,12 @@ bool TcpChannel::processAuthenticationMessages()
 						if (buff.size() > 0)
 							m_bufferedData << buff;
 
-						if (!!m_processor && m_processor->shouldCloseAfterTransmit())
-						{
-							Disconnect();
-							return false;
-						}
+                        // TODO:  Eval
+						//if (!!m_processor && m_processor->shouldCloseAfterTransmit())
+						//{
+						//	Disconnect();
+						//	return false;
+						//}
 					}
 					else if (len == SOCKET_ERROR)
 						return false;

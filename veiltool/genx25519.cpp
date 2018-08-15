@@ -185,7 +185,7 @@ protected:
 		std::shared_ptr<EccKey> ecc;
 		tscrypto::tsCryptoData outputData;
 
-		if (!TSBuildEccKey(tscrypto::tsCryptoData(id_CURVE_25519_OID, tscrypto::tsCryptoData::OID), ecc) || !ecc->generateKeyPair(signature))
+		if (!TSBuildEccKey(tscrypto::tsCryptoData(id_THAWTE_X25519, tscrypto::tsCryptoData::OID), ecc) || !ecc->generateKeyPair(signature))
 		{
 			utils->console() << BoldRed << "ERROR:  " << BoldWhite << "The system could not generate the requested key." << ::endl << ::endl;
 			Usage();

@@ -122,7 +122,7 @@ endif(APPLE)
 ## SET VERSION HERE
 set(${VEILCORENAME_U}_MAJOR_VERSION 7)
 set(${VEILCORENAME_U}_MINOR_VERSION 0)
-set(${VEILCORENAME_U}_REVISION_VERSION 67)
+set(${VEILCORENAME_U}_REVISION_VERSION 70)
 set(${VEILCORENAME_U}_BUILD_VERSION 0)
 set(OSX_FRAMEWORK_VERSION A)
 
@@ -244,6 +244,7 @@ CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/SolutionItems/compilerconfig_c.h.in $
 ImportTarget(CyberVEIL)
 
 add_definitions(-DWFMO)
+add_definitions(-D_CYBERVEILCPP_HEADER_ONLY)
 
 include_directories(
     ${CMAKE_CURRENT_BINARY_DIR} 
@@ -262,14 +263,7 @@ if(IS_OPAQUEVEIL)
     endif(UNIX)
 endif(IS_OPAQUEVEIL)
 
-IF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/bzip2")
-    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/bzip2)
-ENDIF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/bzip2")
 if(NOT ANDROID)
-    IF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/zlib")
-        include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/zlib)
-        include_directories(${CMAKE_CURRENT_BINARY_DIR}/ThirdParty/zlib)
-    ENDIF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/zlib")
 ELSE()
     set(CMAKE_INSTALL_DO_STRIP ON)
 ENDIF()
@@ -451,7 +445,6 @@ if(UNIX)
     # install(FILES ${CMAKE_CURRENT_BINARY_DIR}/install.sh ${CMAKE_CURRENT_BINARY_DIR}/installtools.sh ${CMAKE_CURRENT_BINARY_DIR}/installsdk.sh ${CMAKE_CURRENT_BINARY_DIR}/stage.sh ${CMAKE_CURRENT_BINARY_DIR}/stagesdk.sh DESTINATION ${BIN_DIR} PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)
 endif(UNIX)
 
-add_subdirectory(ThirdParty)
 add_subdirectory(VEILCore)
 add_subdirectory(VEILCmsHeader)
 add_subdirectory(VEILFileSupport)

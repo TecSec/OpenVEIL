@@ -41,7 +41,7 @@ public:
 		bitSize(256),
 		outputSize(512)
 	{
-		desc = tsFindXofAlgorithm("SHAKE256");
+		desc = TSLookup(TSIHash, "SHAKE256");
 		SetName("SHAKE256");
 	}
 	virtual ~XOFImpl(void)
@@ -53,8 +53,8 @@ public:
 		if (!gFipsState.operational() || desc == nullptr)
 			return false;
 		context.reset();
-		context = desc;
-		return desc->init(desc, context);
+		context = desc->def;
+		return desc->init(context);
 	}
 	virtual bool update(const tsCryptoData &data) override
 	{
@@ -62,7 +62,7 @@ public:
 			return false;
 		if (context.empty())
 			return false;
-		return desc->update(desc, context, data.c_str(), (uint32_t)data.size());
+		return desc->update(context, data.c_str(), (uint32_t)data.size());
 	}
 	virtual bool finish(tsCryptoData &digest) override
 	{
@@ -71,7 +71,7 @@ public:
 		digest.resize((outputSize + 7) / 8);
 		if (context.empty())
 			return false;
-		bool retVal = desc->finish(desc, context, digest.rawData(), (uint32_t)digest.size());
+		bool retVal = desc->finish(context, digest.rawData(), (uint32_t)digest.size());
 		context.reset();
 		return retVal;
 	}
@@ -117,7 +117,7 @@ public:
 		algorithm.ToUpper();
 		tsCryptoStringList parts = algorithm.split('-');
 
-		desc = tsFindXofAlgorithm(fullName.c_str());
+		desc = TSLookup(TSIHash, fullName.c_str());
 		if (desc != nullptr)
 		{
 			bitSize = desc->digestSize * 8;
@@ -144,7 +144,7 @@ protected:
 
 private:
 	SmartCryptoWorkspace context;
-	const TSHashDescriptor *desc;
+	const TSIHash *desc;
 	int bitSize;
 	int outputSize;
 };

@@ -37,7 +37,7 @@ class Key_ECC : public EccKey, public TSName, public DhEccPrimitives, public tsc
 public:
     Key_ECC() : m_validationReason(tskvf_NoFailure)
     {
-        desc = tsFindEccAlgorithm("ECC-P256");
+        desc = TSLookup(TSIEcc, "ECC-P256");
     }
     virtual ~Key_ECC(void)
     {
@@ -49,7 +49,7 @@ public:
     {
         if (desc != nullptr && keyPair != nullptr)
         {
-            desc->clearKey(desc, keyPair);
+            desc->clearKey(keyPair);
             keyPair.reset();
         }
         m_validationReason = tskvf_NoFailure;
@@ -64,25 +64,25 @@ public:
     {
         if (desc == nullptr)
             return false;
-        return desc->hasPublicKey(desc, keyPair);
+        return desc->hasPublicKey(keyPair);
     }
     virtual bool IsPrivateLoaded() const override
     {
         if (desc == nullptr)
             return false;
-        return desc->hasPrivateKey(desc, keyPair);
+        return desc->hasPrivateKey(keyPair);
     }
     virtual bool IsPublicVerified() const override
     {
         if (desc == nullptr)
             return false;
-        return desc->publicIsValidated(desc, keyPair);
+        return desc->publicIsValidated(keyPair);
     }
     virtual bool IsPrivateVerified() const override
     {
         if (desc == nullptr)
             return false;
-        return desc->privateIsValidated(desc, keyPair);
+        return desc->privateIsValidated(keyPair);
     }
     virtual bool HasPublicKey() const override
     {
@@ -96,7 +96,7 @@ public:
     {
         if (desc == nullptr)
             return false;
-        return desc->validateKeys(desc, keyPair, &m_validationReason);
+        return desc->validateKeys(keyPair, &m_validationReason);
     }
     virtual bool KeysAreCompatible(std::shared_ptr<AsymmetricKey> secondKey) const override
     {
@@ -119,10 +119,10 @@ public:
             desc = desc->signingDescriptor;
         else if (!forSignature && desc->encryptionDescriptor != nullptr)
             desc = desc->encryptionDescriptor;
-        keyPair = desc->createKeyStructure(desc);
+        keyPair = tsCreateWorkspace(desc);
         if (keyPair == nullptr)
             return false;
-        if (!desc->generateKeyPair(desc, keyPair))
+        if (!desc->generateKeyPair(keyPair))
         {
             Clear();
             return false;
@@ -248,21 +248,21 @@ public:
 
             if (blissPrivate.Decode(data))
             {
-                desc = tsFindEccAlgorithm(blissPrivate.get_oid().ToOIDString().c_str());
+                desc = TSLookup(TSIEcc, blissPrivate.get_oid().ToOIDString().c_str());
                 if (desc == nullptr)
                     return false;
-                SetName(tsCryptoString(desc->core.name).Replace("ECC-", "KEY-"));
-                keyPair = desc->createKeyStructure(desc);
-                return desc->addPrivateKey(desc, keyPair, data.c_str(), (uint32_t)data.size());
+                SetName(tsCryptoString(desc->def.name).Replace("ECC-", "KEY-"));
+                keyPair = tsCreateWorkspace(desc);
+                return desc->addPrivateKey(keyPair, data.c_str(), (uint32_t)data.size());
             }
             else if (blissPublic.Decode(data))
             {
-                desc = tsFindEccAlgorithm(blissPrivate.get_oid().ToOIDString().c_str());
+                desc = TSLookup(TSIEcc, blissPrivate.get_oid().ToOIDString().c_str());
                 if (desc == nullptr)
                     return false;
-                SetName(tsCryptoString(desc->core.name).Replace("ECC-", "KEY-"));
-                keyPair = desc->createKeyStructure(desc);
-                return desc->addPublicPoint(desc, keyPair, data.c_str(), (uint32_t)data.size());
+                SetName(tsCryptoString(desc->def.name).Replace("ECC-", "KEY-"));
+                keyPair = tsCreateWorkspace(desc);
+                return desc->addPublicPoint(keyPair, data.c_str(), (uint32_t)data.size());
             }
             else if (pkcs8Key.Decode(data))
             {
@@ -296,11 +296,11 @@ public:
                             if (tsStrniCmp(eccName.c_str(), "ED", 2) == 0)
                                 eccName.insert(0, "ECC-").Replace("_PH", "");
 
-                            desc = tsFindEccAlgorithm(eccName.c_str());
+                            desc = TSLookup(TSIEcc, eccName.c_str());
                             if (desc == nullptr)
                                 return false;
                             SetName(curvename);
-                            keyPair = desc->createKeyStructure(desc);
+                            keyPair = tsCreateWorkspace(desc);
                         }
                             break;
                         // TODO:  Implement me - Search through ECC list to find a matching curve
@@ -363,11 +363,11 @@ public:
                     if (tsStrniCmp(eccName.c_str(), "ED", 2) == 0)
                         eccName.insert(0, "ECC-").Replace("_PH", "");
 
-                    desc = tsFindEccAlgorithm(eccName.c_str());
+                    desc = TSLookup(TSIEcc, eccName.c_str());
                     if (desc == nullptr)
                         break;
                     SetName(curvename);
-                    keyPair = desc->createKeyStructure(desc);
+                    keyPair = tsCreateWorkspace(desc);
 
                     if (key.exists_publicKey())
                     {
@@ -409,11 +409,11 @@ public:
             if (tsStrniCmp(eccName.c_str(), "ED", 2) == 0)
                 eccName.insert(0, "ECC-").Replace("_PH", "");
 
-            desc = tsFindEccAlgorithm(eccName.c_str());
+            desc = TSLookup(TSIEcc, eccName.c_str());
             if (desc == nullptr)
                 return false;
             SetName(curvename);
-            keyPair = desc->createKeyStructure(desc);
+            keyPair = tsCreateWorkspace(desc);
         }
 
         if (!innerDoc->LoadTlv(AdjustBitString(top->Children()->at(1)->InnerData())))
@@ -517,7 +517,7 @@ public:
                 tsCryptoData data = toByteArray();
                 keyPair.reset();
                 desc = desc->signingDescriptor;
-                keyPair = desc->createKeyStructure(desc);
+                keyPair = tsCreateWorkspace(desc);
                 fromByteArray(data);
             }
         }
@@ -531,7 +531,7 @@ public:
                 tsCryptoData data = toByteArray();
                 keyPair.reset();
                 desc = desc->encryptionDescriptor;
-                keyPair = desc->createKeyStructure(desc);
+                keyPair = tsCreateWorkspace(desc);
                 fromByteArray(data);
             }
         }
@@ -551,11 +551,11 @@ public:
         tsCryptoData tmp;
         uint32_t len;
 
-        if (desc == nullptr || keyPair == nullptr || !desc->exportPrivateKey(desc, keyPair, nullptr, &len))
+        if (desc == nullptr || keyPair == nullptr || !desc->exportPrivateKey(keyPair, nullptr, &len))
             throw tscrypto::not_ready("No curve");
 
         tmp.resize(len);
-        if (!desc->exportPrivateKey(desc, keyPair, tmp.rawData(), &len))
+        if (!desc->exportPrivateKey(keyPair, tmp.rawData(), &len))
             throw tscrypto::not_ready("No curve");
 
         tmp.resize(len);
@@ -582,22 +582,22 @@ public:
             return false;
 
         if (keyPair == nullptr)
-            keyPair = desc->createKeyStructure(desc);
+            keyPair = tsCreateWorkspace(desc);
         if (keyPair == nullptr)
             return false;
 
-        return desc->addPrivateKey(desc, keyPair, data.c_str(), (uint32_t)data.size());
+        return desc->addPrivateKey(keyPair, data.c_str(), (uint32_t)data.size());
     }
     virtual tsCryptoData get_PublicX() const override
     {
         tsCryptoData tmp;
         uint32_t len = 0;
 
-        if (desc == nullptr || keyPair == nullptr || !desc->exportPublicX(desc, keyPair, nullptr, &len))
+        if (desc == nullptr || keyPair == nullptr || !desc->exportPublicX(keyPair, nullptr, &len))
             throw tscrypto::not_ready("No curve");
 
         tmp.resize(len);
-        if (!desc->exportPublicX(desc, keyPair, tmp.rawData(), &len))
+        if (!desc->exportPublicX(keyPair, tmp.rawData(), &len))
             tmp.clear();
         else
             tmp.resize(len);
@@ -608,11 +608,11 @@ public:
         tsCryptoData tmp;
         uint32_t len = 0;
 
-        if (desc == nullptr || keyPair == nullptr || !desc->exportPublicY(desc, keyPair, nullptr, &len))
+        if (desc == nullptr || keyPair == nullptr || !desc->exportPublicY(keyPair, nullptr, &len))
             throw tscrypto::not_ready("No curve");
 
         tmp.resize(len);
-        if (!desc->exportPublicY(desc, keyPair, tmp.rawData(), &len))
+        if (!desc->exportPublicY(keyPair, tmp.rawData(), &len))
             tmp.clear();
         else
             tmp.resize(len);
@@ -623,11 +623,11 @@ public:
         tsCryptoData tmp;
         uint32_t len = 0;
 
-        if (desc == nullptr || keyPair == nullptr || !desc->exportPublicPoint(desc, keyPair, nullptr, &len))
+        if (desc == nullptr || keyPair == nullptr || !desc->exportPublicPoint(keyPair, nullptr, &len))
             throw tscrypto::not_ready("No curve");
 
         tmp.resize(len);
-        if (!desc->exportPublicPoint(desc, keyPair, tmp.rawData(), &len))
+        if (!desc->exportPublicPoint(keyPair, tmp.rawData(), &len))
             tmp.clear();
         else
             tmp.resize(len);
@@ -639,11 +639,11 @@ public:
             return false;
 
         if (keyPair == nullptr)
-            keyPair = desc->createKeyStructure(desc);
+            keyPair = tsCreateWorkspace(desc);
         if (keyPair == nullptr)
             return false;
 
-        return desc->addPublicPoint(desc, keyPair, data.c_str(), (uint32_t)data.size());
+        return desc->addPublicPoint(keyPair, data.c_str(), (uint32_t)data.size());
     }
 
     // DhEccPrimitives
@@ -654,13 +654,13 @@ public:
         if (!gFipsState.operational() || !HasPrivateKey() || !desc->canSign)
             return false;
 
-        if (!desc->signUsingData(desc, keyPair, data.c_str(), (uint32_t)data.size(), nullptr, &rLen, nullptr, &sLen))
+        if (!desc->signUsingData(keyPair, data.c_str(), (uint32_t)data.size(), nullptr, &rLen, nullptr, &sLen))
             return false;
 
         r.resize(rLen);
         s.resize(sLen);
 
-        if (!desc->signUsingData(desc, keyPair, data.c_str(), (uint32_t)data.size(), r.rawData(), &rLen, s.rawData(), &sLen))
+        if (!desc->signUsingData(keyPair, data.c_str(), (uint32_t)data.size(), r.rawData(), &rLen, s.rawData(), &sLen))
             return false;
 
         r.resize(rLen);
@@ -689,29 +689,29 @@ public:
                 r1.padLeft(keySizeInBytes);
             if (s1.size() < keySizeInBytes)
                 s1.padLeft(keySizeInBytes);
-            return desc->verifySignatureForData(desc, keyPair, data.c_str(), (uint32_t)data.size(), r1.c_str(), (uint32_t)r1.size(), s1.c_str(), (uint32_t)s1.size());
+            return desc->verifySignatureForData(keyPair, data.c_str(), (uint32_t)data.size(), r1.c_str(), (uint32_t)r1.size(), s1.c_str(), (uint32_t)s1.size());
         }
         else
-            return desc->verifySignatureForData(desc, keyPair, data.c_str(), (uint32_t)data.size(), r.c_str(), (uint32_t)r.size(), s.c_str(), (uint32_t)s.size());
+            return desc->verifySignatureForData(keyPair, data.c_str(), (uint32_t)data.size(), r.c_str(), (uint32_t)r.size(), s.c_str(), (uint32_t)s.size());
     }
     virtual bool DH(const tsCryptoData &publicPoint, tsCryptoData &Z) const override
     {
-        SmartCryptoKey secondKey;
+        SmartCryptoWorkspace secondKey;
         uint32_t len;
         bool retVal;
 
         if (!gFipsState.operational() || !HasPrivateKey() || !desc->canComputeZ)
             return false;
 
-        secondKey = desc->createKeyStructure(desc);
-        if (secondKey == nullptr || !desc->addPublicPoint(desc, secondKey, publicPoint.c_str(), (uint32_t)publicPoint.size()) ||
-            !desc->computeZ(desc, keyPair, secondKey, nullptr, &len))
+        secondKey = tsCreateWorkspace(desc);
+        if (secondKey == nullptr || !desc->addPublicPoint(secondKey, publicPoint.c_str(), (uint32_t)publicPoint.size()) ||
+            !desc->computeZ(keyPair, secondKey, nullptr, &len))
         {
             return false;
         }
         Z.clear();
         Z.resize(len);
-        retVal = desc->computeZ(desc, keyPair, secondKey, Z.rawData(), &len);
+        retVal = desc->computeZ(keyPair, secondKey, Z.rawData(), &len);
         Z.resize(len);
         if (!retVal)
             Z.clear();
@@ -748,39 +748,39 @@ public:
             algorithm.insert(0, "ECC-");
         algorithm.Replace("X25519", "CURVE25519").Replace("_PH", "");
         keyPair.reset();
-        desc = tsFindEccAlgorithm(algorithm.c_str());
+        desc = TSLookup(TSIEcc, algorithm.c_str());
         if (desc == nullptr)
             return false;
         return true;
     }
 
 private:
-    const TSEccDescriptor* desc;
-    SmartCryptoKey keyPair;
+    const TSIEcc* desc;
+    SmartCryptoWorkspace keyPair;
     TSKeyValidationFailureType m_validationReason;
 
     // Inherited via TSALG_Access
-    virtual const TSCryptoBaseDescriptor * Descriptor() const override
+    virtual const TSICyberVEILObject * Descriptor() const override
     {
-        return desc;
+        return desc->def.primary;
     }
-    virtual TSCRYPTO_ASYMKEY getKeyPair() const override
+    virtual TSWORKSPACE getKeyPair() const override
     {
         return keyPair;
     }
-    virtual TSCRYPTO_WORKSPACE getWorkspace() const override
+    virtual TSWORKSPACE getWorkspace() const override
     {
         return nullptr;
     }
-    virtual TSCRYPTO_ASYMKEY detachFromKeyPair() override
+    virtual TSWORKSPACE detachFromKeyPair() override
     {
         return keyPair.detach();
     }
-    virtual TSCRYPTO_ASYMKEY cloneKeyPair() const override
+    virtual TSWORKSPACE cloneKeyPair() const override
     {
         if (desc == nullptr || keyPair == nullptr)
             return nullptr;
-        return desc->cloneKey(desc, keyPair);
+        return tsClone(keyPair);
     }
 };
 

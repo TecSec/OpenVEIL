@@ -956,7 +956,7 @@ std::shared_ptr<tscrypto::AsymmetricKey> tsCertificateParser::PublicKeyObject(bo
         {
             ecc = std::dynamic_pointer_cast<tscrypto::EccKey>(CryptoFactory("KEY-P256K1"));
         }
-        else if (paramOid == id_CURVE_25519_OID)
+        else if (paramOid == id_THAWTE_X25519 || paramOid == id_THAWTE_EDDSA25519 || paramOid == id_THAWTE_EDDSA25519_PH)
         {
             if (forSigning)
             {

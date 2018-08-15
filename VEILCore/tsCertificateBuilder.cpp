@@ -52,8 +52,8 @@ private:
 public:
     CertificateIssuer()
     {
-        _crypto.signatureHash = _TS_ALG_ID::TS_ALG_SHA256;
-        _crypto.keyType = _TS_ALG_ID::TS_ALG_ECC_P384;
+        _crypto.signatureHash = TS_ALG_SHA256;
+        _crypto.keyType = TS_ALG_ECC_P384;
         _crypto.nextSerialNumber = 1;
         _crypto.issuerDays = 1460;
         _crypto.memberDays = 365;
@@ -132,117 +132,117 @@ protected:
 
         switch (_crypto.keyType)
         {
-        case _TS_ALG_ID::TS_ALG_RSA:
+        case TS_ALG_RSA:
             switch (_crypto.signatureHash)
             {
-            case _TS_ALG_ID::TS_ALG_SHA1:
+            case TS_ALG_SHA1:
                 id.set_oid(tsCryptoData(id_RSA_SHA1_SIGN_OID, tsCryptoData::OID)); //sha1RsaWithEncryption
                 break;
-            case _TS_ALG_ID::TS_ALG_SHA224:
+            case TS_ALG_SHA224:
                 id.set_oid(tsCryptoData(id_RSA_SHA224_SIGN_OID, tsCryptoData::OID)); //sha224RsaWithEncryption
                 break;
-            case _TS_ALG_ID::TS_ALG_SHA256:
+            case TS_ALG_SHA256:
                 id.set_oid(tsCryptoData(id_RSA_SHA256_SIGN_OID, tsCryptoData::OID)); //sha256RsaWithEncryption
                 break;
-            case _TS_ALG_ID::TS_ALG_SHA384:
+            case TS_ALG_SHA384:
                 id.set_oid(tsCryptoData(id_RSA_SHA384_SIGN_OID, tsCryptoData::OID)); //sha384RsaWithEncryption
                 break;
-            case _TS_ALG_ID::TS_ALG_SHA512:
+            case TS_ALG_SHA512:
                 id.set_oid(tsCryptoData(id_RSA_SHA512_SIGN_OID, tsCryptoData::OID)); //sha512RsaWithEncryption
                 break;
             default:
                 throw tscrypto::Exception("Invalid hash type");
             }
             break;
-        case _TS_ALG_ID::TS_ALG_DSA:
+        case TS_ALG_DSA:
             switch (_crypto.signatureHash)
             {
-            case _TS_ALG_ID::TS_ALG_SHA1:
+            case TS_ALG_SHA1:
                 id.set_oid(tsCryptoData(id_DSA_SHA1_OID, tsCryptoData::OID)); //sha1Dsa
                 break;
-            case _TS_ALG_ID::TS_ALG_SHA224:
+            case TS_ALG_SHA224:
                 id.set_oid(tsCryptoData(id_NIST_DSA_SHA224_OID, tsCryptoData::OID)); //sha224Dsa
                 break;
-            case _TS_ALG_ID::TS_ALG_SHA256:
+            case TS_ALG_SHA256:
                 id.set_oid(tsCryptoData(id_NIST_DSA_SHA256_OID, tsCryptoData::OID)); //sha256Dsa
                 break;
-            case _TS_ALG_ID::TS_ALG_SHA384:
+            case TS_ALG_SHA384:
                 //id.set_oid(tsCryptoData(DSA_SHA384_OID, tsCryptoData::OID)); //sha384Dsa
                 //break;
-            case _TS_ALG_ID::TS_ALG_SHA512:
+            case TS_ALG_SHA512:
                 //id.set_oid(tsCryptoData(DSA_SHA512_OID, tsCryptoData::OID)); //sha512Dsa
                 //break;
             default:
                 throw tscrypto::Exception("Invalid hash type");
             }
             break;
-        case _TS_ALG_ID::TS_ALG_ECC_P256:
+        case TS_ALG_ECC_P256:
             any.value = tsCryptoData(id_SECP256R1_CURVE_OID, tsCryptoData::OID); // p256
             id.set_Parameter(any);
             switch (_crypto.signatureHash)
             {
-            case _TS_ALG_ID::TS_ALG_SHA1:
+            case TS_ALG_SHA1:
                 id.set_oid(tsCryptoData(id_ECDSA_SHA1_OID, tsCryptoData::OID)); //ECDSA with SHA1
                 break;
-            case _TS_ALG_ID::TS_ALG_SHA224:
+            case TS_ALG_SHA224:
                 id.set_oid(tsCryptoData(id_ECDSA_SHA224_OID, tsCryptoData::OID)); //ECDSA with SHA224
                 break;
-            case _TS_ALG_ID::TS_ALG_SHA256:
+            case TS_ALG_SHA256:
                 id.set_oid(tsCryptoData(id_ECDSA_SHA256_OID, tsCryptoData::OID)); //ECDSA with SHA256
                 break;
-            case _TS_ALG_ID::TS_ALG_SHA384:
+            case TS_ALG_SHA384:
                 id.set_oid(tsCryptoData(id_ECDSA_SHA384_OID, tsCryptoData::OID)); //ECDSA with SHA384
                 break;
-            case _TS_ALG_ID::TS_ALG_SHA512:
+            case TS_ALG_SHA512:
                 id.set_oid(tsCryptoData(id_ECDSA_SHA512_OID, tsCryptoData::OID)); //ECDSA with SHA512
                 break;
             default:
                 throw tscrypto::Exception("Invalid hash type");
             }
             break;
-        case _TS_ALG_ID::TS_ALG_ECC_P384:
+        case TS_ALG_ECC_P384:
             
             any.value = tsCryptoData(id_SECP384R1_CURVE_OID, tsCryptoData::OID); // p384
             id.set_Parameter(any);
             switch (_crypto.signatureHash)
             {
-            case _TS_ALG_ID::TS_ALG_SHA1:
+            case TS_ALG_SHA1:
                 id.set_oid(tsCryptoData(id_ECDSA_SHA1_OID, tsCryptoData::OID)); //ECDSA with SHA1
                 break;
-            case _TS_ALG_ID::TS_ALG_SHA224:
+            case TS_ALG_SHA224:
                 id.set_oid(tsCryptoData(id_ECDSA_SHA224_OID, tsCryptoData::OID)); //ECDSA with SHA224
                 break;
-            case _TS_ALG_ID::TS_ALG_SHA256:
+            case TS_ALG_SHA256:
                 id.set_oid(tsCryptoData(id_ECDSA_SHA256_OID, tsCryptoData::OID)); //ECDSA with SHA256
                 break;
-            case _TS_ALG_ID::TS_ALG_SHA384:
+            case TS_ALG_SHA384:
                 id.set_oid(tsCryptoData(id_ECDSA_SHA384_OID, tsCryptoData::OID)); //ECDSA with SHA384
                 break;
-            case _TS_ALG_ID::TS_ALG_SHA512:
+            case TS_ALG_SHA512:
                 id.set_oid(tsCryptoData(id_ECDSA_SHA512_OID, tsCryptoData::OID)); //ECDSA with SHA512
                 break;
             default:
                 throw tscrypto::Exception("Invalid hash type");
             }
             break;
-        case _TS_ALG_ID::TS_ALG_ECC_P521:
+        case TS_ALG_ECC_P521:
             any.value = tsCryptoData(id_SECP521R1_CURVE_OID, tsCryptoData::OID); // p521
             id.set_Parameter(any);
             switch (_crypto.signatureHash)
             {
-            case _TS_ALG_ID::TS_ALG_SHA1:
+            case TS_ALG_SHA1:
                 id.set_oid(tsCryptoData(id_ECDSA_SHA1_OID, tsCryptoData::OID)); //ECDSA with SHA1
                 break;
-            case _TS_ALG_ID::TS_ALG_SHA224:
+            case TS_ALG_SHA224:
                 id.set_oid(tsCryptoData(id_ECDSA_SHA224_OID, tsCryptoData::OID)); //ECDSA with SHA224
                 break;
-            case _TS_ALG_ID::TS_ALG_SHA256:
+            case TS_ALG_SHA256:
                 id.set_oid(tsCryptoData(id_ECDSA_SHA256_OID, tsCryptoData::OID)); //ECDSA with SHA256
                 break;
-            case _TS_ALG_ID::TS_ALG_SHA384:
+            case TS_ALG_SHA384:
                 id.set_oid(tsCryptoData(id_ECDSA_SHA384_OID, tsCryptoData::OID)); //ECDSA with SHA384
                 break;
-            case _TS_ALG_ID::TS_ALG_SHA512:
+            case TS_ALG_SHA512:
                 id.set_oid(tsCryptoData(id_ECDSA_SHA512_OID, tsCryptoData::OID)); //ECDSA with SHA512
                 break;
             default:
@@ -794,7 +794,7 @@ protected:
 #pragma endregion
 #pragma region Generic Key Support
 protected:
-    std::shared_ptr<AsymmetricKey> BuildRootKey(const char *keyType, int optKeySize, TS_ALG_ID hash = _TS_ALG_ID::TS_ALG_INVALID)
+    std::shared_ptr<AsymmetricKey> BuildRootKey(const char *keyType, int optKeySize, TS_ALG_ID hash = TS_ALG_INVALID)
     {
         std::shared_ptr<AsymmetricKey> key;
         std::shared_ptr<RsaKey> rsakey;
@@ -826,29 +826,29 @@ protected:
                 throw tscrypto::Exception("Unable to generate the RSA key pair");
         }
         _crypto.keyType = algInfo->AlgorithmID();
-        if (hash == _TS_ALG_ID::TS_ALG_INVALID)
+        if (hash == TS_ALG_INVALID)
         {
             switch (key->KeySize())
             {
             case 1024:
-                _crypto.signatureHash = _TS_ALG_ID::TS_ALG_SHA1;
+                _crypto.signatureHash = TS_ALG_SHA1;
                 break;
             case 2048:
             case 3072:
-                _crypto.signatureHash = _TS_ALG_ID::TS_ALG_SHA256;
+                _crypto.signatureHash = TS_ALG_SHA256;
                 break;
             case 192:
             case 224:
-                _crypto.signatureHash = _TS_ALG_ID::TS_ALG_SHA224;
+                _crypto.signatureHash = TS_ALG_SHA224;
                 break;
             case 256:
-                _crypto.signatureHash = _TS_ALG_ID::TS_ALG_SHA256;
+                _crypto.signatureHash = TS_ALG_SHA256;
                 break;
             case 384:
-                _crypto.signatureHash = _TS_ALG_ID::TS_ALG_SHA384;
+                _crypto.signatureHash = TS_ALG_SHA384;
                 break;
             case 521:
-                _crypto.signatureHash = _TS_ALG_ID::TS_ALG_SHA512;
+                _crypto.signatureHash = TS_ALG_SHA512;
                 break;
             default:
                 throw tscrypto::ArgumentException("Invalid key type specified.");
@@ -1019,19 +1019,19 @@ protected:
         {
             switch (_crypto.signatureHash)
             {
-            case _TS_ALG_ID::TS_ALG_SHA1:
+            case TS_ALG_SHA1:
                 signerName = "SIGN-ECC-SHA1";
                 break;
-            case _TS_ALG_ID::TS_ALG_SHA224:
+            case TS_ALG_SHA224:
                 signerName = "SIGN-ECC-SHA224";
                 break;
-            case _TS_ALG_ID::TS_ALG_SHA256:
+            case TS_ALG_SHA256:
                 signerName = "SIGN-ECC-SHA256";
                 break;
-            case _TS_ALG_ID::TS_ALG_SHA384:
+            case TS_ALG_SHA384:
                 signerName = "SIGN-ECC-SHA384";
                 break;
-            case _TS_ALG_ID::TS_ALG_SHA512:
+            case TS_ALG_SHA512:
                 signerName = "SIGN-ECC-SHA512";
                 break;
             default:
@@ -1042,19 +1042,19 @@ protected:
         {
             switch (_crypto.signatureHash)
             {
-            case _TS_ALG_ID::TS_ALG_SHA1:
+            case TS_ALG_SHA1:
                 signerName = "SIGN-RSA-PKCS-SHA1";
                 break;
-            case _TS_ALG_ID::TS_ALG_SHA224:
+            case TS_ALG_SHA224:
                 signerName = "SIGN-RSA-PKCS-SHA224";
                 break;
-            case _TS_ALG_ID::TS_ALG_SHA256:
+            case TS_ALG_SHA256:
                 signerName = "SIGN-RSA-PKCS-SHA256";
                 break;
-            case _TS_ALG_ID::TS_ALG_SHA384:
+            case TS_ALG_SHA384:
                 signerName = "SIGN-RSA-PKCS-SHA384";
                 break;
-            case _TS_ALG_ID::TS_ALG_SHA512:
+            case TS_ALG_SHA512:
                 signerName = "SIGN-RSA-PKCS-SHA512";
                 break;
             default:
@@ -1065,19 +1065,19 @@ protected:
         {
             switch (_crypto.signatureHash)
             {
-            case _TS_ALG_ID::TS_ALG_SHA1:
+            case TS_ALG_SHA1:
                 signerName = "SIGN-DSA-SHA1";
                 break;
-            case _TS_ALG_ID::TS_ALG_SHA224:
+            case TS_ALG_SHA224:
                 signerName = "SIGN-DSA-SHA224";
                 break;
-            case _TS_ALG_ID::TS_ALG_SHA256:
+            case TS_ALG_SHA256:
                 signerName = "SIGN-DSA-SHA256";
                 break;
-            case _TS_ALG_ID::TS_ALG_SHA384:
+            case TS_ALG_SHA384:
                 signerName = "SIGN-DSA-SHA384";
                 break;
-            case _TS_ALG_ID::TS_ALG_SHA512:
+            case TS_ALG_SHA512:
                 signerName = "SIGN-DSA-SHA512";
                 break;
             default:

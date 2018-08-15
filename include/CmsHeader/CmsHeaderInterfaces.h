@@ -75,13 +75,13 @@ public:
     ///
     /// <returns>The encryption algorithm identifier.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual tscrypto::TS_ALG_ID GetEncryptionAlgorithmID() const = 0;
+    virtual TS_ALG_ID GetEncryptionAlgorithmID() const = 0;
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Sets the encryption algorithm identifier.</summary>
     ///
     /// <param name="setTo">the encryption algorithm identifier.</param>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual void SetEncryptionAlgorithmID(tscrypto::TS_ALG_ID setTo) = 0;
+    virtual void SetEncryptionAlgorithmID(TS_ALG_ID setTo) = 0;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Gets the compression type.</summary>
@@ -857,13 +857,13 @@ public:
     ///
     /// <returns>The signature algorithm identifier.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual tscrypto::TS_ALG_ID GetSignatureAlgorithmId() const = 0;
+    virtual TS_ALG_ID GetSignatureAlgorithmId() const = 0;
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Sets the signature algorithm identifier.</summary>
     ///
     /// <param name="setTo">the signature algorithm identifier.</param>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual void SetSignatureAlgorithmId(tscrypto::TS_ALG_ID setTo) = 0;
+    virtual void SetSignatureAlgorithmId(TS_ALG_ID setTo) = 0;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Gets the signature algorithm as an oid.</summary>
@@ -1529,15 +1529,6 @@ public:
 	virtual bool SetNextCallback(std::shared_ptr<IKeyGenCallback> callback) = 0;
 };
 
-typedef enum {
-	TS_FORMAT_CMS_PT_HASHED = tscrypto::_TS_ALG_ID::TS_ALG_RUNTIME_RESERVED + 0x00,	///< \brief The plaintext is hashed
-	TS_FORMAT_CMS_CT_HASHED = tscrypto::_TS_ALG_ID::TS_ALG_RUNTIME_RESERVED + 0x01,	///< \brief The ciphertext is hashed
-	TS_FORMAT_CMS_ENC_AUTH = tscrypto::_TS_ALG_ID::TS_ALG_RUNTIME_RESERVED + 0x02,	///< \brief The GCM mode of AES is used, the plaintext is split into blocks and each block is separately keyed and integrity checked.
-
-	TS_FORMAT_MAX = tscrypto::_TS_ALG_ID::TS_ALG_RUNTIME_RESERVED + 0x7F	///< \brief The maximum format value reserved.
-} CMSFileFormatIds;
-
-
 class ICkmOperations
 {
 public:
@@ -1576,8 +1567,8 @@ public:
 	///
 	/// <returns>S_OK for success or a standard COM error for failure.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual bool PrepareHeader(CompressionType comp, tscrypto::TS_ALG_ID algorithm, tscrypto::TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData,
-		CMSFileFormatIds DataFormat, bool randomIvec, tscrypto::SymmetricPaddingType paddingType, int blockSize, int64_t fileSize) = 0;
+	virtual bool PrepareHeader(CompressionType comp, TS_ALG_ID algorithm, TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData,
+		TS_ALG_ID DataFormat, bool randomIvec, tscrypto::SymmetricPaddingType paddingType, int blockSize, int64_t fileSize) = 0;
 	virtual bool GenerateWorkingKey(std::shared_ptr<IKeyVEILSession> session, std::shared_ptr<IKeyGenCallback> callback, tscrypto::tsCryptoData& workingKey) = 0;
 	virtual bool RegenerateWorkingKey(std::shared_ptr<IKeyVEILSession> session, tscrypto::tsCryptoData& workingKey) = 0;
 	virtual bool CanGenerateWorkingKey(std::shared_ptr<IKeyVEILSession> session) = 0;

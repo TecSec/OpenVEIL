@@ -461,8 +461,8 @@ namespace tscrypto {
 	bool VEILCORE_API EncodeTlv(void* data, std::shared_ptr<TlvNode> parent, const Asn1Metadata2* __metadata, size_t __metadataCount);
 	bool VEILCORE_API DecodeTlv(void* data, const std::shared_ptr<TlvNode> parent, const Asn1Metadata2* __metadata, size_t __metadataCount, bool decodeSelectedOnly = false);
 	Asn1Metadata2::matchResult VEILCORE_API NodeMatchesMetadata(const std::shared_ptr<TlvNode> node, const Asn1Metadata2* metadata);
-	bool VEILCORE_API FindVersionToEncode(void* data, const Asn1StructureDefinition2& def, const struct Asn1Metadata2*& metadata, size_t& count);
-	bool VEILCORE_API FindVersionToDecode(const std::shared_ptr<TlvNode> root, const Asn1StructureDefinition2& def, const struct Asn1Metadata2*& metadata, size_t& count);
+	bool VEILCORE_API FindVersionToEncode(void* data, const Asn1StructureDefinition2& def, const struct Asn1Metadata2*& metadata, uint32_t& count);
+	bool VEILCORE_API FindVersionToDecode(const std::shared_ptr<TlvNode> root, const Asn1StructureDefinition2& def, const struct Asn1Metadata2*& metadata, uint32_t& count);
 	bool VEILCORE_API EncodeChoiceTlv(void* data, std::shared_ptr<TlvNode> parent, int32_t choiceItem, const Asn1Metadata2* __metadata, size_t __metadataCount);
 	bool VEILCORE_API DecodeChoiceTlv(void* data, const std::shared_ptr<TlvNode> parent, int32_t *choiceItem, const Asn1Metadata2* __metadata, size_t __metadataCount, bool decodeSelectedOnly = false);
 	bool VEILCORE_API EncodeSequenceOfTlv(void* data, std::shared_ptr<TlvNode> parent, const Asn1Metadata2* __metadata, ptrdiff_t offsetToArray);

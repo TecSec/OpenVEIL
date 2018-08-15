@@ -71,9 +71,9 @@ const char *AlgNames[] =
 
 const TS_ALG_ID algIds[] =
 {
-	_TS_ALG_ID::TS_ALG_AES_GCM_256,
-	_TS_ALG_ID::TS_ALG_AES_CBC_256,
-	_TS_ALG_ID::TS_ALG_DES3_THREEKEY_CBC,
+	TS_ALG_AES_GCM_256,
+	TS_ALG_AES_CBC_256,
+	TS_ALG_DES3_THREEKEY_CBC,
 };
 
 const char *HashAlgNames[] =
@@ -87,11 +87,11 @@ const char *HashAlgNames[] =
 
 const TS_ALG_ID hashAlgIds[] =
 {
-	_TS_ALG_ID::TS_ALG_SHA1,
-	_TS_ALG_ID::TS_ALG_SHA224,
-	_TS_ALG_ID::TS_ALG_SHA256,
-	_TS_ALG_ID::TS_ALG_SHA384,
-	_TS_ALG_ID::TS_ALG_SHA512,
+	TS_ALG_SHA1,
+	TS_ALG_SHA224,
+	TS_ALG_SHA256,
+	TS_ALG_SHA384,
+	TS_ALG_SHA512,
 };
 
 
@@ -156,8 +156,8 @@ void GeneralSettingsPropertyPage::Init()
     cmbHash = NULL;
     edtAIDList = NULL;
 ////@end GeneralSettingsPropertyPage member initialisation
-	_Alg = _TS_ALG_ID::TS_ALG_AES_GCM_256;
-	_HashAlg = _TS_ALG_ID::TS_ALG_SHA512;
+	_Alg = TS_ALG_AES_GCM_256;
+	_HashAlg = TS_ALG_SHA512;
 	_bDisplayMsgDlg = false;
 	_bInitialized = false;
 	_bDirty = false;
@@ -510,7 +510,7 @@ void GeneralSettingsPropertyPage::UpdateData(bool fromControls)
 		}
 		else
 		{
-			_Alg = _TS_ALG_ID::TS_ALG_AES_GCM_256;
+			_Alg = TS_ALG_AES_GCM_256;
 		}
 		index = cmbHash->GetSelection();
 		if (index >= 0)
@@ -519,7 +519,7 @@ void GeneralSettingsPropertyPage::UpdateData(bool fromControls)
 		}
 		else
 		{
-			_HashAlg = _TS_ALG_ID::TS_ALG_SHA512;
+			_HashAlg = TS_ALG_SHA512;
 		}
 		_url = edtKeyVEILUrl->GetValue().c_str().AsChar();
 		_username = edtKeyVEILUsername->GetValue().c_str().AsChar();

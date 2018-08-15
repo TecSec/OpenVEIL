@@ -175,7 +175,7 @@ TEST(Crypto, CreateAlgs)
 	EXPECT_TRUE(!!CryptoFactory("KEYWRAP-RFC3394-AES-128"));
 	EXPECT_TRUE(!!CryptoFactory("KEYWRAP-TDES"));
 	EXPECT_TRUE(!!CryptoFactory("KEYWRAP-BLOWFISH"));
-	EXPECT_TRUE(!!CryptoFactory("KEYWRAP-XTEA"));
+//	EXPECT_TRUE(!!CryptoFactory("KEYWRAP-XTEA"));
 	EXPECT_TRUE(!!CryptoFactory("PRIME-PROVABLE"));
 	EXPECT_TRUE(!!CryptoFactory("PRIME-PROBABLE"));
 //	EXPECT_TRUE(!!CryptoFactory("PRIME-X9.31"));
@@ -452,7 +452,7 @@ TEST(Crypto, CreateAlgs)
 //}
 TEST(Crypto, TDES_CFB8_MMT_Issue_c)
 {
-	const TSSymmetricAlgorithmDescriptor *desc = tsFindSymmetricAlgorithm("TDES-CFB8");
+	const TSISymmetric *desc = TSLookup(TSISymmetric, "TDES-CFB8");
 	tsCryptoData key1(std::initializer_list<uint8_t>{0x10, 0x04, 0x67, 0x83, 0x97, 0x91, 0xab, 0x3d});
 	tsCryptoData iv1(std::initializer_list<uint8_t>{0xc0, 0x59, 0xed, 0x45, 0x76, 0xec, 0x5c, 0xc4});
 	tsCryptoData ct1(std::initializer_list<uint8_t>{0x25});
@@ -462,21 +462,21 @@ TEST(Crypto, TDES_CFB8_MMT_Issue_c)
 
 	ASSERT_NE(nullptr, desc);
 
-	context = desc;
+	context = desc->def;
 	// First encrypt and make sure it works
 	outData.clear();
 	outData.resize(pt1.size());
-	EXPECT_TRUE(desc->init(desc, context, true, key1.c_str(), (uint32_t)key1.size(), iv1.c_str(), (uint32_t)iv1.size(), 0));
-	EXPECT_TRUE(desc->update(desc, context, pt1.c_str(), (uint32_t)ct1.size(), outData.rawData()));
-	EXPECT_TRUE(desc->finish(desc, context));
+	EXPECT_TRUE(desc->init(context, true, key1.c_str(), (uint32_t)key1.size(), iv1.c_str(), (uint32_t)iv1.size(), 0));
+	EXPECT_TRUE(desc->update(context, pt1.c_str(), (uint32_t)ct1.size(), outData.rawData()));
+	EXPECT_TRUE(desc->finish(context));
 	EXPECT_STREQ(ct1.ToHexStringWithSpaces().c_str(), outData.ToHexStringWithSpaces().c_str());
 
 	// Now see if the decrypt works
 	outData.clear();
 	outData.resize(ct1.size());
-	EXPECT_TRUE(desc->init(desc, context, false, key1.c_str(), (uint32_t)key1.size(), iv1.c_str(), (uint32_t)iv1.size(), 0));
-	EXPECT_TRUE(desc->update(desc, context, ct1.c_str(), (uint32_t)ct1.size(), outData.rawData()));
-	EXPECT_TRUE(desc->finish(desc, context));
+	EXPECT_TRUE(desc->init(context, false, key1.c_str(), (uint32_t)key1.size(), iv1.c_str(), (uint32_t)iv1.size(), 0));
+	EXPECT_TRUE(desc->update(context, ct1.c_str(), (uint32_t)ct1.size(), outData.rawData()));
+	EXPECT_TRUE(desc->finish(context));
 	EXPECT_STREQ(pt1.ToHexStringWithSpaces().c_str(), outData.ToHexStringWithSpaces().c_str());
 }
 
@@ -563,29 +563,6 @@ TEST(CKMAUTH, Calc)
 	EXPECT_FALSE(servData == tsCryptoData("9e8edc4641030c2f74872421269a134a8bb21cb41e765d4f3d510daf0699b469ab255a827719d81f57eee08507229c5b08fef665cbc7ea65ba4b93da3ceb02e4", tsCryptoData::HEX));
 	EXPECT_TRUE(calc->validateServerAuthenticationParameters(tsCryptoData("This is my Password", tsCryptoData::ASCII), servData, storedKey));
 }
-TEST(CKMAUTH, TestInitiatorValues)
-{
-	std::shared_ptr<AuthenticationInitiator> init = std::dynamic_pointer_cast<AuthenticationInitiator>(CryptoFactory("CKMAUTH"));
-	tsCryptoData eccPrivKey("00AC8A29AA54FA24B68630F358451BCB3A74434467ACA1DD4168B50C4F070C40217D87700BC7C064F41E6F61E262937822C030359519A30C61E07F4DFD6CC25ECD5A", tsCryptoData::HEX);
-	tsCryptoData eccPubKey("040059B683072B9C91B62136E16FAC66F10D926FFD394F506A6B59B4473449C032B1A93719B1834D605333A387E6A6B4267FFC86EF701C9E516B29DE66D464CDD5423101B0EB0403387F313AF3E14AC3D3A0035AAA00D7B645EEFA0EBD2DED80C2310342787CEE8655AFDCA0F6033B606D3E3040D4A7F3D909398D9C497F90BAAFC0C7AB72", tsCryptoData::HEX);
-	tsCryptoData ephPrivKey("00C9BC4731DB042FFCBBEE269E783A50FFF70E8FE4ECC3429637F8C7AA90BB79FE6FF614EE52402C8BD8562ED093401BD27CBF44780101C3D21D7CBC819FD25BC115", tsCryptoData::HEX);
-	tsCryptoData ephPubKey("0401A35C0D4D5DF19368D9529B040F8338C6E9EC4FB2FBD3721BCBD70B13AA481D58A13EF7A7CD396EECEE9BF0AA0A21F90AE92C3C3C407E8AF8E8782BA6C57F2C917C0054B4BB27E640FEE45391631FED4743A0D3A885594B36C4D4ADE7CAE2A9D23AF6F2C103303E892E7BAACD39399BC147389ED4E0907669BE6499DDCBE1E559561C73", tsCryptoData::HEX);
-	tsCryptoData KGK("0207ed83518ba5762a672a7deff00c582c6a4eee48eecd6a1d055dd212396277", tsCryptoData::HEX);
-	_POD_CkmAuthInitiatorParameters initParams;
-	_POD_CkmAuthServerParameters servAuthParams;
-
-	EXPECT_TRUE(servAuthParams.Decode(tsCryptoData("30670609672a090a0300070932020100a057020100020203e804409b05f45ca75a99572959184c9f35cf30f672f278c71a5b24b3e61ad23549a6bf2b02922a74bfe2926a681b0e5d75dfb848485b7160343f520bf664db2d7ce287300c06082a864886f70d020b0500", tsCryptoData::HEX)));
-	initParams.set_authParameters(servAuthParams);
-	initParams.set_keySizeInBits(512);
-	initParams.set_nonce(tsCryptoData("7eee08507229c52f74872421269a134a8bb08fef665cbc7ea65bb21cb41e765d", tsCryptoData::HEX));
-	initParams.set_oidInfo(tsCryptoData("03e804409b05f45ca75a99572959184c9f35cf30f672f278c71a5b24b3e61ad23549a6bf2b02922a74bfe2", tsCryptoData::HEX));
-	initParams.set_responderPublicKey(eccPubKey);
-
-	EXPECT_TRUE(init->testInitiatorValues(initParams.Encode(), tsCryptoData("This is my Password", tsCryptoData::ASCII), KGK, ephPrivKey, ephPubKey, 
-		tsCryptoData("308201970609672A090A03000709340201000481850401A35C0D4D5DF19368D9529B040F8338C6E9EC4FB2FBD3721BCBD70B13AA481D58A13EF7A7CD396EECEE9BF0AA0A21F90AE92C3C3C407E8AF8E8782BA6C57F2C917C0054B4BB27E640FEE45391631FED4743A0D3A885594B36C4D4ADE7CAE2A9D23AF6F2C103303E892E7BAACD39399BC147389ED4E0907669BE6499DDCBE1E559561C7304284EDDDA6C8DE47F2C353A4A4DC76DAE1CCCC652D1AE0000DC2A27B6287FC7BC3959D6A7BABC5E0767042B03E804409B05F45CA75A99572959184C9F35CF30F672F278C71A5B24B3E61AD23549A6BF2B02922A74BFE204207EEE08507229C52F74872421269A134A8BB08FEF665CBC7EA65BB21CB41E765D02020200044062ABBEC12271B5DDA0022C20BD2DB46C551A9904C584A45550402EDB7CB4FF07044A65219D8573EE5FE269885E7D260502BCFFD5E2AC2A3D3B5632A83B3E403B0440037E727F8129D8ED14961CC4CFE8ED46CD09181B5EB2A5B4D367D675AB728E9EF00DA5AB458C9F891BFAEAF0C8C1F4B77FAB6F38A800FC559144D6C5F6258C06", tsCryptoData::HEX), 
-		tsCryptoData("3792b415b1dc301aee972602d8554c6dc069ec1f70a47ed89db22d630077c75bdd6baa114829d3c8f3e34f0dd307b74e7064f2a6dd9b9aed0cfc56c50e9a67be", tsCryptoData::HEX), 
-		tsCryptoData("cc6918670e7967f1c1c53cf0364690a58fd14742122245095d3b14e4b0a3772983857da23c6763cdc3701cd4a4caef21b1b7161c45b064b5a603e5a34e487ede", tsCryptoData::HEX)));
-}
 
 
 TEST(TestSerializers, AlgorithmID)
@@ -601,68 +578,6 @@ TEST(TestSerializers, AlgorithmID)
 
 	EXPECT_TRUE(pid.Decode(tsCryptoData("300D0609672A090A030007021A0500", tsCryptoData::HEX)));
 	EXPECT_STREQ(id_TECSEC_AES_192_GCM_OID, pid.get_oid().ToOIDString().c_str());
-}
-
-TEST(TestSerializers, CkmTunnelLogout)
-{
-	_POD_CkmTunnelLogout obj;
-
-	EXPECT_STRCASEEQ("300D0608672A090A03000B06020100", obj.Encode().ToHexString().c_str());
-	obj.clear();
-
-	EXPECT_TRUE(obj.Decode(tsCryptoData("300D0608672A090A03000B06020100", tsCryptoData::HEX)));
-}
-
-TEST(TestSerializers, CkmTunnelError)
-{
-	_POD_CkmTunnelError obj;
-
-	obj.set_Message("My error message goes here");
-	EXPECT_STRCASEEQ("30290608672A090A03000B050201000C1A4D79206572726F72206D65737361676520676F65732068657265", obj.Encode().ToHexString().c_str());
-	obj.clear();
-	EXPECT_STREQ("", obj.get_Message().c_str());
-
-	EXPECT_TRUE(obj.Decode(tsCryptoData("30290608672A090A03000B050201000C1A4D79206572726F72206D65737361676520676F65732068657265", tsCryptoData::HEX)));
-	EXPECT_STREQ("My error message goes here", obj.get_Message().c_str());
-}
-
-TEST(TestSerializers, CkmTunnelInitLogin)
-{
-	_POD_CkmTunnelInitLogin obj;
-
-	obj.set_username("Super D Duper User");
-	EXPECT_STRCASEEQ("30210608672A090A03000B010201000C12537570657220442044757065722055736572", obj.Encode().ToHexString().c_str());
-	obj.clear();
-	EXPECT_STREQ("", obj.get_username().c_str());
-
-	EXPECT_TRUE(obj.Decode(tsCryptoData("30210608672A090A03000B010201000C12537570657220442044757065722055736572", tsCryptoData::HEX)));
-	EXPECT_STREQ("Super D Duper User", obj.get_username().c_str());
-}
-
-TEST(TestSerializers, CkmAuthResponderParameters)
-{
-	_POD_CkmAuthResponderParameters obj;
-
-	obj.set_eKGK(tsCryptoData("eKGK", tsCryptoData::ASCII));
-	obj.set_ephemeralPublic(tsCryptoData("ephemeralPublic", tsCryptoData::ASCII));
-	obj.set_initiatorAuthProof(tsCryptoData("initiatorAuthProof", tsCryptoData::ASCII));
-	obj.set_initiatorMITMProof(tsCryptoData("initiatorMITMProof", tsCryptoData::ASCII));
-	obj.set_keySizeInBits(1234);
-	obj.set_nonce(tsCryptoData("nonce", tsCryptoData::ASCII));
-	obj.set_oidInfo(tsCryptoData("oidInfo", tsCryptoData::ASCII));
-
-	EXPECT_STRCASEEQ("30610609672A090A0300070934020100040F657068656D6572616C5075626C69630404654B474B04076F6964496E666F04056E6F6E6365020204D20412696E69746961746F724D49544D50726F6F660412696E69746961746F724175746850726F6F66", obj.Encode().ToHexString().c_str());
-	obj.clear();
-	EXPECT_EQ(0, obj.get_keySizeInBits());
-
-	EXPECT_TRUE(obj.Decode(tsCryptoData("30610609672A090A0300070934020100040F657068656D6572616C5075626C69630404654B474B04076F6964496E666F04056E6F6E6365020204D20412696E69746961746F724D49544D50726F6F660412696E69746961746F724175746850726F6F66", tsCryptoData::HEX)));
-	EXPECT_STREQ("eKGK", obj.get_eKGK().ToUtf8String().c_str());
-	EXPECT_STREQ("ephemeralPublic", obj.get_ephemeralPublic().ToUtf8String().c_str());
-	EXPECT_STREQ("initiatorAuthProof", obj.get_initiatorAuthProof().ToUtf8String().c_str());
-	EXPECT_STREQ("initiatorMITMProof", obj.get_initiatorMITMProof().ToUtf8String().c_str());
-	EXPECT_EQ(1234, obj.get_keySizeInBits());
-	EXPECT_STREQ("nonce", obj.get_nonce().ToUtf8String().c_str());
-	EXPECT_STREQ("oidInfo", obj.get_oidInfo().ToUtf8String().c_str());
 }
 
 TEST(TestSerializers, PBKDF_Parameters)
@@ -683,219 +598,6 @@ TEST(TestSerializers, PBKDF_Parameters)
 	EXPECT_STREQ("This is my salt value", obj.get_Salt().ToUtf8String().c_str());
 	EXPECT_STREQ(id_NIST_HMAC_SHA3_224_OID, obj.get_hmacAlgorithm().get_oid().ToOIDString().c_str());
 	EXPECT_EQ(9876, obj.get_IterationCount());
-}
-
-TEST(TestSerializers, CkmAuthServerParameters)
-{
-	_POD_CkmAuthServerParameters obj;
-
-	obj.set_Expired(true);
-	obj.set_hashName("hashName");
-	obj.set_kdfMacName("kdfMacName");
-	obj.set_kdfName("kdf");
-	obj.set_keyWrapName("KeyWrap");
-	obj.set_macName("Mu mac");
-	obj.set_useMITM(true);
-	obj.get_params().set_selectedItem(_POD_CkmAuthServerParameters_params::Choice_Pbkdf);
-
-	obj.get_params().get_Pbkdf().set_IterationCount(4958);
-	obj.get_params().get_Pbkdf().set_Salt(tsCryptoData("This is a salt value", tsCryptoData::ASCII));
-	obj.get_params().get_Pbkdf().get_hmacAlgorithm().set_oid(id_NIST_HMAC_SHA3_512_OID);
-	obj.get_params().get_Pbkdf().get_hmacAlgorithm().set_Parameter();
-	obj.get_params().get_Pbkdf().get_hmacAlgorithm().get_Parameter()->tag = 5;
-
-
-	EXPECT_STRCASEEQ("306E0609672A090A0300070932020100A02C0201000202135E04145468697320697320612073616C742076616C7565300D060960864801650304021005008101FF8208686173684E616D6583064D75206D616384074B65795772617085036B6466860A6B64664D61634E616D658701FF", obj.Encode().ToHexString().c_str());
-	obj.clear();
-	EXPECT_EQ(0, obj.get_params().get_Pbkdf().get_IterationCount());
-	EXPECT_FALSE(obj.get_Expired());
-	EXPECT_FALSE(obj.get_useMITM());
-
-	EXPECT_TRUE(obj.Decode(tsCryptoData("306E0609672A090A0300070932020100A02C0201000202135E04145468697320697320612073616C742076616C7565300D060960864801650304021005008101FF8208686173684E616D6583064D75206D616384074B65795772617085036B6466860A6B64664D61634E616D658701FF", tsCryptoData::HEX)));
-	EXPECT_STREQ("This is a salt value", obj.get_params().get_Pbkdf().get_Salt().ToUtf8String().c_str());
-	EXPECT_STREQ(id_NIST_HMAC_SHA3_512_OID, obj.get_params().get_Pbkdf().get_hmacAlgorithm().get_oid().ToOIDString().c_str());
-	EXPECT_EQ(4958, obj.get_params().get_Pbkdf().get_IterationCount());
-
-	EXPECT_TRUE(obj.get_Expired());
-	EXPECT_TRUE(obj.get_useMITM());
-	EXPECT_STREQ("hashName", obj.get_hashName()->c_str());
-	EXPECT_STREQ("kdfMacName", obj.get_kdfMacName()->c_str());
-	EXPECT_STREQ("kdf", obj.get_kdfName()->c_str());
-	EXPECT_STREQ("KeyWrap", obj.get_keyWrapName()->c_str());
-	EXPECT_STREQ("Mu mac", obj.get_macName()->c_str());
-
-}
-
-TEST(TestSerializers, CkmAuthInitiatorParameters)
-{
-	_POD_CkmAuthInitiatorParameters obj;
-	_POD_CkmAuthServerParameters obj1;
-
-	obj1.set_Expired(true);
-	obj1.set_hashName("hashName");
-	obj1.set_kdfMacName("kdfMacName");
-	obj1.set_kdfName("kdf");
-	obj1.set_keyWrapName("KeyWrap");
-	obj1.set_macName("Mu mac");
-	obj1.set_useMITM(true);
-	obj1.get_params().set_selectedItem(_POD_CkmAuthServerParameters_params::Choice_Pbkdf);
-
-	obj1.get_params().get_Pbkdf().set_IterationCount(4958);
-	obj1.get_params().get_Pbkdf().set_Salt(tsCryptoData("This is a salt value", tsCryptoData::ASCII));
-	obj1.get_params().get_Pbkdf().get_hmacAlgorithm().set_oid(id_NIST_HMAC_SHA3_512_OID);
-	obj1.get_params().get_Pbkdf().get_hmacAlgorithm().set_Parameter();
-	obj1.get_params().get_Pbkdf().get_hmacAlgorithm().get_Parameter()->tag = 5;
-
-	obj.set_authParameters(obj1);
-	obj.set_keySizeInBits(2311);
-	obj.set_nonce(tsCryptoData("nonce", tsCryptoData::ASCII));
-	obj.set_oidInfo(tsCryptoData("oidInfo", tsCryptoData::ASCII));
-	obj.set_responderPublicKey(tsCryptoData("responderPublicKey", tsCryptoData::ASCII));
-	obj.set_responderPublicKeyOID(tsCryptoData("responderPublicKeyOID", tsCryptoData::ASCII));
-
-	EXPECT_STRCASEEQ("3081BD0609672A090A03000709330201000412726573706F6E6465725075626C69634B657904076F6964496E666F04056E6F6E636502020907306E0609672A090A0300070932020100A02C0201000202135E04145468697320697320612073616C742076616C7565300D060960864801650304021005008101FF8208686173684E616D6583064D75206D616384074B65795772617085036B6466860A6B64664D61634E616D658701FF8015726573706F6E6465725075626C69634B65794F4944", obj.Encode().ToHexString().c_str());
-	obj.clear();
-	EXPECT_EQ(0, obj.get_keySizeInBits());
-	EXPECT_EQ(0, obj.get_authParameters().get_params().get_Pbkdf().get_IterationCount());
-	EXPECT_FALSE(obj.get_authParameters().get_Expired());
-	EXPECT_FALSE(obj.get_authParameters().get_useMITM());
-
-	EXPECT_TRUE(obj.Decode(tsCryptoData("3081BD0609672A090A03000709330201000412726573706F6E6465725075626C69634B657904076F6964496E666F04056E6F6E636502020907306E0609672A090A0300070932020100A02C0201000202135E04145468697320697320612073616C742076616C7565300D060960864801650304021005008101FF8208686173684E616D6583064D75206D616384074B65795772617085036B6466860A6B64664D61634E616D658701FF8015726573706F6E6465725075626C69634B65794F4944", tsCryptoData::HEX)));
-
-	EXPECT_STREQ("nonce", obj.get_nonce().ToUtf8String().c_str());
-	EXPECT_STREQ("oidInfo", obj.get_oidInfo().ToUtf8String().c_str());
-	EXPECT_STREQ("responderPublicKey", obj.get_responderPublicKey().ToUtf8String().c_str());
-	EXPECT_STREQ("responderPublicKeyOID", obj.get_responderPublicKeyOID()->ToUtf8String().c_str());
-	EXPECT_EQ(2311, obj.get_keySizeInBits());
-
-	EXPECT_STREQ("This is a salt value", obj.get_authParameters().get_params().get_Pbkdf().get_Salt().ToUtf8String().c_str());
-	EXPECT_STREQ(id_NIST_HMAC_SHA3_512_OID, obj.get_authParameters().get_params().get_Pbkdf().get_hmacAlgorithm().get_oid().ToOIDString().c_str());
-	EXPECT_EQ(4958, obj.get_authParameters().get_params().get_Pbkdf().get_IterationCount());
-
-	EXPECT_TRUE(obj.get_authParameters().get_Expired());
-	EXPECT_TRUE(obj.get_authParameters().get_useMITM());
-	EXPECT_STREQ("hashName", obj.get_authParameters().get_hashName()->c_str());
-	EXPECT_STREQ("kdfMacName", obj.get_authParameters().get_kdfMacName()->c_str());
-	EXPECT_STREQ("kdf", obj.get_authParameters().get_kdfName()->c_str());
-	EXPECT_STREQ("KeyWrap", obj.get_authParameters().get_keyWrapName()->c_str());
-	EXPECT_STREQ("Mu mac", obj.get_authParameters().get_macName()->c_str());
-
-}
-
-TEST(TestSerializers, CkmTunnelInitLoginResponse)
-{
-	_POD_CkmTunnelInitLoginResponse obj;
-	_POD_CkmAuthInitiatorParameters obj2;
-	_POD_CkmAuthServerParameters obj1;
-
-	obj1.set_Expired(true);
-	obj1.set_hashName("hashName");
-	obj1.set_kdfMacName("kdfMacName");
-	obj1.set_kdfName("kdf");
-	obj1.set_keyWrapName("KeyWrap");
-	obj1.set_macName("Mu mac");
-	obj1.set_useMITM(true);
-	obj1.get_params().set_selectedItem(_POD_CkmAuthServerParameters_params::Choice_Pbkdf);
-
-	obj1.get_params().get_Pbkdf().set_IterationCount(4958);
-	obj1.get_params().get_Pbkdf().set_Salt(tsCryptoData("This is a salt value", tsCryptoData::ASCII));
-	obj1.get_params().get_Pbkdf().get_hmacAlgorithm().set_oid(id_NIST_HMAC_SHA3_512_OID);
-	obj1.get_params().get_Pbkdf().get_hmacAlgorithm().set_Parameter();
-	obj1.get_params().get_Pbkdf().get_hmacAlgorithm().get_Parameter()->tag = 5;
-
-	obj2.set_authParameters(obj1);
-	obj2.set_keySizeInBits(2311);
-	obj2.set_nonce(tsCryptoData("nonce", tsCryptoData::ASCII));
-	obj2.set_oidInfo(tsCryptoData("oidInfo", tsCryptoData::ASCII));
-	obj2.set_responderPublicKey(tsCryptoData("responderPublicKey", tsCryptoData::ASCII));
-	obj2.set_responderPublicKeyOID(tsCryptoData("responderPublicKeyOID", tsCryptoData::ASCII));
-
-	obj.set_AuthenticationInformation(obj2);
-	obj.set_MessageEncryptionAlg();
-	obj.get_MessageEncryptionAlg()->set_oid(tsCryptoData(oid2, sizeof(oid2)));
-	obj.get_MessageEncryptionAlg()->set_Parameter();
-	obj.get_MessageEncryptionAlg()->get_Parameter()->tag = 4;
-	obj.set_MessageKeyBitSize(256);
-	obj.set_MessageMacAlg();
-	obj.get_MessageMacAlg()->set_oid(tsCryptoData(oid3, sizeof(oid3)));
-	obj.get_MessageMacAlg()->set_Parameter();
-	obj.get_MessageMacAlg()->get_Parameter()->tag = 2;
-
-
-	EXPECT_STRCASEEQ("3081EE0608672A090A03000B020201003081BD0609672A090A03000709330201000412726573706F6E6465725075626C69634B657904076F6964496E666F04056E6F6E636502020907306E0609672A090A0300070932020100A02C0201000202135E04145468697320697320612073616C742076616C7565300D060960864801650304021005008101FF8208686173684E616D6583064D75206D616384074B65795772617085036B6466860A6B64664D61634E616D658701FF8015726573706F6E6465725075626C69634B65794F494402020100A00D0609672A090A03000709320400A10C0608672A090A03000B040200", obj.Encode().ToHexString().c_str());
-	obj.clear();
-	EXPECT_EQ(0, obj.get_MessageKeyBitSize());
-	EXPECT_EQ(0, obj.get_AuthenticationInformation().get_keySizeInBits());
-	EXPECT_EQ(0, obj.get_AuthenticationInformation().get_authParameters().get_params().get_Pbkdf().get_IterationCount());
-	EXPECT_FALSE(obj.get_AuthenticationInformation().get_authParameters().get_Expired());
-	EXPECT_FALSE(obj.get_AuthenticationInformation().get_authParameters().get_useMITM());
-
-	EXPECT_TRUE(obj.Decode(tsCryptoData("3081EE0608672A090A03000B020201003081BD0609672A090A03000709330201000412726573706F6E6465725075626C69634B657904076F6964496E666F04056E6F6E636502020907306E0609672A090A0300070932020100A02C0201000202135E04145468697320697320612073616C742076616C7565300D060960864801650304021005008101FF8208686173684E616D6583064D75206D616384074B65795772617085036B6466860A6B64664D61634E616D658701FF8015726573706F6E6465725075626C69634B65794F494402020100A00D0609672A090A03000709320400A10C0608672A090A03000B040200", tsCryptoData::HEX)));
-
-	EXPECT_EQ(256, obj.get_MessageKeyBitSize());
-	EXPECT_STREQ("2.23.42.9.10.3.0.7.9.50", obj.get_MessageEncryptionAlg()->get_oid().ToOIDString().c_str());
-	EXPECT_EQ(4, obj.get_MessageEncryptionAlg()->get_Parameter()->tag);
-
-	EXPECT_STREQ("2.23.42.9.10.3.0.11.4", obj.get_MessageMacAlg()->get_oid().ToOIDString().c_str());
-	EXPECT_EQ(2, obj.get_MessageMacAlg()->get_Parameter()->tag);
-
-	EXPECT_STREQ("nonce", obj.get_AuthenticationInformation().get_nonce().ToUtf8String().c_str());
-	EXPECT_STREQ("oidInfo", obj.get_AuthenticationInformation().get_oidInfo().ToUtf8String().c_str());
-	EXPECT_STREQ("responderPublicKey", obj.get_AuthenticationInformation().get_responderPublicKey().ToUtf8String().c_str());
-	EXPECT_STREQ("responderPublicKeyOID", obj.get_AuthenticationInformation().get_responderPublicKeyOID()->ToUtf8String().c_str());
-	EXPECT_EQ(2311, obj.get_AuthenticationInformation().get_keySizeInBits());
-
-	EXPECT_STREQ("This is a salt value", obj.get_AuthenticationInformation().get_authParameters().get_params().get_Pbkdf().get_Salt().ToUtf8String().c_str());
-	EXPECT_STREQ(id_NIST_HMAC_SHA3_512_OID, obj.get_AuthenticationInformation().get_authParameters().get_params().get_Pbkdf().get_hmacAlgorithm().get_oid().ToOIDString().c_str());
-	EXPECT_EQ(4958, obj.get_AuthenticationInformation().get_authParameters().get_params().get_Pbkdf().get_IterationCount());
-
-	EXPECT_TRUE(obj.get_AuthenticationInformation().get_authParameters().get_Expired());
-	EXPECT_TRUE(obj.get_AuthenticationInformation().get_authParameters().get_useMITM());
-	EXPECT_STREQ("hashName", obj.get_AuthenticationInformation().get_authParameters().get_hashName()->c_str());
-	EXPECT_STREQ("kdfMacName", obj.get_AuthenticationInformation().get_authParameters().get_kdfMacName()->c_str());
-	EXPECT_STREQ("kdf", obj.get_AuthenticationInformation().get_authParameters().get_kdfName()->c_str());
-	EXPECT_STREQ("KeyWrap", obj.get_AuthenticationInformation().get_authParameters().get_keyWrapName()->c_str());
-	EXPECT_STREQ("Mu mac", obj.get_AuthenticationInformation().get_authParameters().get_macName()->c_str());
-
-}
-
-TEST(TestSerializers, CkmTunnelFinishLogin)
-{
-	_POD_CkmTunnelFinishLogin obj;
-
-	obj.get_AuthenticationInformation().set_eKGK(tsCryptoData("eKGK", tsCryptoData::ASCII));
-	obj.get_AuthenticationInformation().set_ephemeralPublic(tsCryptoData("ephemeralPublic", tsCryptoData::ASCII));
-	obj.get_AuthenticationInformation().set_initiatorAuthProof(tsCryptoData("initiatorAuthProof", tsCryptoData::ASCII));
-	obj.get_AuthenticationInformation().set_initiatorMITMProof(tsCryptoData("initiatorMITMProof", tsCryptoData::ASCII));
-	obj.get_AuthenticationInformation().set_keySizeInBits(1234);
-	obj.get_AuthenticationInformation().set_nonce(tsCryptoData("nonce", tsCryptoData::ASCII));
-	obj.get_AuthenticationInformation().set_oidInfo(tsCryptoData("oidInfo", tsCryptoData::ASCII));
-
-	EXPECT_STRCASEEQ("30700608672A090A03000B0302010030610609672A090A0300070934020100040F657068656D6572616C5075626C69630404654B474B04076F6964496E666F04056E6F6E6365020204D20412696E69746961746F724D49544D50726F6F660412696E69746961746F724175746850726F6F66", obj.Encode().ToHexString().c_str());
-	obj.clear();
-	EXPECT_EQ(0, obj.get_AuthenticationInformation().get_keySizeInBits());
-
-	EXPECT_TRUE(obj.Decode(tsCryptoData("30700608672A090A03000B0302010030610609672A090A0300070934020100040F657068656D6572616C5075626C69630404654B474B04076F6964496E666F04056E6F6E6365020204D20412696E69746961746F724D49544D50726F6F660412696E69746961746F724175746850726F6F66", tsCryptoData::HEX)));
-	EXPECT_STREQ("eKGK", obj.get_AuthenticationInformation().get_eKGK().ToUtf8String().c_str());
-	EXPECT_STREQ("ephemeralPublic", obj.get_AuthenticationInformation().get_ephemeralPublic().ToUtf8String().c_str());
-	EXPECT_STREQ("initiatorAuthProof", obj.get_AuthenticationInformation().get_initiatorAuthProof().ToUtf8String().c_str());
-	EXPECT_STREQ("initiatorMITMProof", obj.get_AuthenticationInformation().get_initiatorMITMProof().ToUtf8String().c_str());
-	EXPECT_EQ(1234, obj.get_AuthenticationInformation().get_keySizeInBits());
-	EXPECT_STREQ("nonce", obj.get_AuthenticationInformation().get_nonce().ToUtf8String().c_str());
-	EXPECT_STREQ("oidInfo", obj.get_AuthenticationInformation().get_oidInfo().ToUtf8String().c_str());
-}
-
-TEST(TestSerializers, CkmTunnelFinishResponse)
-{
-	_POD_CkmTunnelFinishResponse obj;
-
-	obj.set_ResponderProof(tsCryptoData("My error message goes here", tsCryptoData::ASCII));
-	EXPECT_STRCASEEQ("30290608672A090A03000B04020100041A4D79206572726F72206D65737361676520676F65732068657265", obj.Encode().ToHexString().c_str());
-	obj.clear();
-	EXPECT_STREQ("", obj.get_ResponderProof().ToUtf8String().c_str());
-
-	EXPECT_TRUE(obj.Decode(tsCryptoData("30290608672A090A03000B04020100041A4D79206572726F72206D65737361676520676F65732068657265", tsCryptoData::HEX)));
-	EXPECT_STREQ("My error message goes here", obj.get_ResponderProof().ToUtf8String().c_str());
 }
 
 class authKeyTestHarness : public authenticationResponderKeyHandler
@@ -927,60 +629,6 @@ protected:
 	}
 };
 
-TEST(CKMAUTH, TestResponderValues)
-{
-	std::shared_ptr<AuthenticationResponder> resp = std::dynamic_pointer_cast<AuthenticationResponder>(CryptoFactory("CKMAUTH"));
-	tsCryptoData eccPrivKey("00AC8A29AA54FA24B68630F358451BCB3A74434467ACA1DD4168B50C4F070C40217D87700BC7C064F41E6F61E262937822C030359519A30C61E07F4DFD6CC25ECD5A", tsCryptoData::HEX);
-	tsCryptoData eccPubKey("040059B683072B9C91B62136E16FAC66F10D926FFD394F506A6B59B4473449C032B1A93719B1834D605333A387E6A6B4267FFC86EF701C9E516B29DE66D464CDD5423101B0EB0403387F313AF3E14AC3D3A0035AAA00D7B645EEFA0EBD2DED80C2310342787CEE8655AFDCA0F6033B606D3E3040D4A7F3D909398D9C497F90BAAFC0C7AB72", tsCryptoData::HEX);
-	tsCryptoData ephPrivKey("00C9BC4731DB042FFCBBEE269E783A50FFF70E8FE4ECC3429637F8C7AA90BB79FE6FF614EE52402C8BD8562ED093401BD27CBF44780101C3D21D7CBC819FD25BC115", tsCryptoData::HEX);
-	tsCryptoData ephPubKey("0401A35C0D4D5DF19368D9529B040F8338C6E9EC4FB2FBD3721BCBD70B13AA481D58A13EF7A7CD396EECEE9BF0AA0A21F90AE92C3C3C407E8AF8E8782BA6C57F2C917C0054B4BB27E640FEE45391631FED4743A0D3A885594B36C4D4ADE7CAE2A9D23AF6F2C103303E892E7BAACD39399BC147389ED4E0907669BE6499DDCBE1E559561C73", tsCryptoData::HEX);
-	tsCryptoData KGK("0207ed83518ba5762a672a7deff00c582c6a4eee48eecd6a1d055dd212396277", tsCryptoData::HEX);
-	_POD_CkmAuthInitiatorParameters initParams;
-	_POD_CkmAuthServerParameters servAuthParams;
-	tsCryptoData respParams, respMITM, sessionKey;
-	authKeyTestHarness harness(eccPrivKey);
-
-	EXPECT_TRUE(servAuthParams.Decode(tsCryptoData("30670609672a090a0300070932020100a057020100020203e804409b05f45ca75a99572959184c9f35cf30f672f278c71a5b24b3e61ad23549a6bf2b02922a74bfe2926a681b0e5d75dfb848485b7160343f520bf664db2d7ce287300c06082a864886f70d020b0500", tsCryptoData::HEX)));
-	initParams.set_authParameters(servAuthParams);
-	initParams.set_keySizeInBits(512);
-	initParams.set_nonce(tsCryptoData("7eee08507229c52f74872421269a134a8bb08fef665cbc7ea65bb21cb41e765d", tsCryptoData::HEX));
-	initParams.set_oidInfo(tsCryptoData("03e804409b05f45ca75a99572959184c9f35cf30f672f278c71a5b24b3e61ad23549a6bf2b02922a74bfe2", tsCryptoData::HEX));
-	initParams.set_responderPublicKey(eccPubKey);
-
-	EXPECT_TRUE(resp->computeResponderValues(tsCryptoData("308201970609672A090A03000709340201000481850401A35C0D4D5DF19368D9529B040F8338C6E9EC4FB2FBD3721BCBD70B13AA481D58A13EF7A7CD396EECEE9BF0AA0A21F90AE92C3C3C407E8AF8E8782BA6C57F2C917C0054B4BB27E640FEE45391631FED4743A0D3A885594B36C4D4ADE7CAE2A9D23AF6F2C103303E892E7BAACD39399BC147389ED4E0907669BE6499DDCBE1E559561C7304284EDDDA6C8DE47F2C353A4A4DC76DAE1CCCC652D1AE0000DC2A27B6287FC7BC3959D6A7BABC5E0767042B03E804409B05F45CA75A99572959184C9F35CF30F672F278C71A5B24B3E61AD23549A6BF2B02922A74BFE204207EEE08507229C52F74872421269A134A8BB08FEF665CBC7EA65BB21CB41E765D02020200044062ABBEC12271B5DDA0022C20BD2DB46C551A9904C584A45550402EDB7CB4FF07044A65219D8573EE5FE269885E7D260502BCFFD5E2AC2A3D3B5632A83B3E403B0440037E727F8129D8ED14961CC4CFE8ED46CD09181B5EB2A5B4D367D675AB728E9EF00DA5AB458C9F891BFAEAF0C8C1F4B77FAB6F38A800FC559144D6C5F6258C06", tsCryptoData::HEX), 
-		tsCryptoData("9e8edc4641030c2f74872421269a134a8bb21cb41e765d4f3d510daf0699b469ab255a827719d81f57eee08507229c5b08fef665cbc7ea65ba4b93da3ceb02e4", tsCryptoData::HEX), 
-		&harness, respMITM, sessionKey));
-	EXPECT_STRCASEEQ("3792b415b1dc301aee972602d8554c6dc069ec1f70a47ed89db22d630077c75bdd6baa114829d3c8f3e34f0dd307b74e7064f2a6dd9b9aed0cfc56c50e9a67be", respMITM.ToHexString().c_str());
-	EXPECT_STRCASEEQ("cc6918670e7967f1c1c53cf0364690a58fd14742122245095d3b14e4b0a3772983857da23c6763cdc3701cd4a4caef21b1b7161c45b064b5a603e5a34e487ede", sessionKey.ToHexString().c_str());
-}
-
-TEST(CKMAUTH, AuthTest)
-{
-	std::shared_ptr<AuthenticationInitiator> init = std::dynamic_pointer_cast<AuthenticationInitiator>(CryptoFactory("CKMAUTH"));
-	std::shared_ptr<AuthenticationResponder> resp = std::dynamic_pointer_cast<AuthenticationResponder>(CryptoFactory("CKMAUTH"));
-	_POD_CkmAuthInitiatorParameters initParams;
-	_POD_CkmAuthServerParameters servAuthParams;
-	tsCryptoData eccPrivKey("00AC8A29AA54FA24B68630F358451BCB3A74434467ACA1DD4168B50C4F070C40217D87700BC7C064F41E6F61E262937822C030359519A30C61E07F4DFD6CC25ECD5A", tsCryptoData::HEX);
-	tsCryptoData eccPubKey("040059B683072B9C91B62136E16FAC66F10D926FFD394F506A6B59B4473449C032B1A93719B1834D605333A387E6A6B4267FFC86EF701C9E516B29DE66D464CDD5423101B0EB0403387F313AF3E14AC3D3A0035AAA00D7B645EEFA0EBD2DED80C2310342787CEE8655AFDCA0F6033B606D3E3040D4A7F3D909398D9C497F90BAAFC0C7AB72", tsCryptoData::HEX);
-	tsCryptoData respParams, respMITM, sessionKey;
-	tsCryptoData respMITM2, sessionKey2;
-	authKeyTestHarness harness(eccPrivKey);
-
-	EXPECT_TRUE(servAuthParams.Decode(tsCryptoData("30670609672a090a0300070932020100a057020100020203e804409b05f45ca75a99572959184c9f35cf30f672f278c71a5b24b3e61ad23549a6bf2b02922a74bfe2926a681b0e5d75dfb848485b7160343f520bf664db2d7ce287300c06082a864886f70d020b0500", tsCryptoData::HEX)));
-	initParams.set_authParameters(servAuthParams);
-	initParams.set_keySizeInBits(512);
-	initParams.set_nonce(tsCryptoData("7eee08507229c52f74872421269a134a8bb08fef665cbc7ea65bb21cb41e765d", tsCryptoData::HEX));
-	initParams.set_oidInfo(tsCryptoData("03e804409b05f45ca75a99572959184c9f35cf30f672f278c71a5b24b3e61ad23549a6bf2b02922a74bfe2", tsCryptoData::HEX));
-	initParams.set_responderPublicKey(eccPubKey);
-	EXPECT_TRUE(init->computeInitiatorValues(initParams.Encode(), tsCryptoData("This is my Password", tsCryptoData::ASCII), respParams, respMITM, sessionKey));
-
-	EXPECT_TRUE(resp->computeResponderValues(respParams, tsCryptoData("9e8edc4641030c2f74872421269a134a8bb21cb41e765d4f3d510daf0699b469ab255a827719d81f57eee08507229c5b08fef665cbc7ea65ba4b93da3ceb02e4", tsCryptoData::HEX), 
-		&harness, respMITM2, sessionKey2));
-	EXPECT_STRCASEEQ(respMITM.ToHexString().c_str(), respMITM2.ToHexString().c_str());
-	EXPECT_STRCASEEQ(sessionKey.ToHexString().c_str(), sessionKey2.ToHexString().c_str());
-	EXPECT_STRCASENE("3792b415b1dc301aee972602d8554c6dc069ec1f70a47ed89db22d630077c75bdd6baa114829d3c8f3e34f0dd307b74e7064f2a6dd9b9aed0cfc56c50e9a67be", respMITM2.ToHexString().c_str());
-	EXPECT_STRCASENE("cc6918670e7967f1c1c53cf0364690a58fd14742122245095d3b14e4b0a3772983857da23c6763cdc3701cd4a4caef21b1b7161c45b064b5a603e5a34e487ede", sessionKey2.ToHexString().c_str());
-}
 #ifdef TEST_JSON
 TEST(TestAsn1CkmHeader, Json) {
 	tscryptotest::CMS::_POD_CmsHeaderData header;
@@ -1428,6 +1076,8 @@ GTEST_API_ int main(int argc, char **argv) {
   //_CrtSetBreakAlloc(176);
   //_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF | _CRTDBG_CHECK_ALWAYS_DF | _CRTDBG_DELAY_FREE_MEM_DF); //   _CRTDBG_CHECK_EVERY_128_DF |  | |  
   //_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF); //   _CRTDBG_CHECK_EVERY_128_DF |  | |  
+    //tsSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF | _CRTDBG_CHECK_ALWAYS_DF | _CRTDBG_DELAY_FREE_MEM_DF);
+    //tsSetBreakAlloc(10521);
 #endif
 
 

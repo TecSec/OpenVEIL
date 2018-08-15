@@ -100,9 +100,9 @@ JsonConfigLocation BasicVEILPreferences::DefaultSaveLocation() const
 }
 
 
-DEFINE_ENUM_PREF_CODE(BasicVEILPreferences, "$.Desktop.EncryptionAlgorithm", EncryptionAlgorithm, TS_ALG_ID, _TS_ALG_ID::TS_ALG_AES_GCM_256)
+DEFINE_ENUM_PREF_CODE(BasicVEILPreferences, "$.Desktop.EncryptionAlgorithm", EncryptionAlgorithm, TS_ALG_ID, TS_ALG_AES_GCM_256)
 DEFINE_TEXT_PREF_CODE(BasicVEILPreferences, "$.Desktop.HeaderSigningKeyAlgorithm", HeaderSigningKeyAlgorithm, "")
-DEFINE_ENUM_PREF_CODE(BasicVEILPreferences, "$.Desktop.HashAlgorithm", HashAlgorithm, TS_ALG_ID, _TS_ALG_ID::TS_ALG_SHA512)
+DEFINE_ENUM_PREF_CODE(BasicVEILPreferences, "$.Desktop.HashAlgorithm", HashAlgorithm, TS_ALG_ID, TS_ALG_SHA512)
 DEFINE_BOOL_PREF_CODE(BasicVEILPreferences, "$.Desktop.SignHeader", SignHeader, true)
 DEFINE_BOOL_PREF_CODE(BasicVEILPreferences, "$.Desktop.AllowSigning", AllowSigning, false)
 DEFINE_BOOL_PREF_CODE(BasicVEILPreferences, "$.Desktop.AllowCertificateEncryption", AllowCertificateEncryption, false)

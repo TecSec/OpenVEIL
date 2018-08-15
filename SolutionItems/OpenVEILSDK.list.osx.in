@@ -1,0 +1,239 @@
+%product TecSecOpenVEILSDK
+%copyright @VEIL_COPYRIGHT@
+%vendor TecSec, Inc.
+%license ../bin/LICENSE.md
+%readme ../bin/README.md
+%description TecSec OpenVEIL Framework SDK
+%version @VEIL_VERSION@
+l 755 root wheel /Library/Frameworks/VEILCore.framework/Headers Versions/Current/Headers
+l 755 root wheel /Library/Frameworks/VEILCore.framework/Resources Versions/Current/Resources
+l 755 root wheel /Library/Frameworks/VEILCore.framework/VEILApiVersion.cmake Versions/Current/VEILApiVersion.cmake
+l 755 root wheel /Library/Frameworks/VEILCore.framework/VEILCore Versions/Current/VEILCore
+d 755 root wheel /Library/Frameworks/VEILCore.framework/Versions -
+d 755 root wheel /Library/Frameworks/VEILCore.framework/Versions/A -
+d 755 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers -
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/VEIL.h sdk/VEILCore.framework/Versions/A/Headers/VEIL.h
+d 755 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core -
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/Asn1CkmHeader.export sdk/VEILCore.framework/Versions/A/Headers/core/Asn1CkmHeader.export
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/Asn1CkmHeader.h sdk/VEILCore.framework/Versions/A/Headers/core/Asn1CkmHeader.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/BasicVEILPreferences.h sdk/VEILCore.framework/Versions/A/Headers/core/BasicVEILPreferences.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/ChangeTracker.h sdk/VEILCore.framework/Versions/A/Headers/core/ChangeTracker.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/CkmFileReader.h sdk/VEILCore.framework/Versions/A/Headers/core/CkmFileReader.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/CkmFileStreams.h sdk/VEILCore.framework/Versions/A/Headers/core/CkmFileStreams.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/CkmFileWriter.h sdk/VEILCore.framework/Versions/A/Headers/core/CkmFileWriter.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/CkmMemoryFifoStream.h sdk/VEILCore.framework/Versions/A/Headers/core/CkmMemoryFifoStream.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/CkmMemoryStream.h sdk/VEILCore.framework/Versions/A/Headers/core/CkmMemoryStream.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/CkmReadAppendFile.h sdk/VEILCore.framework/Versions/A/Headers/core/CkmReadAppendFile.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/CkmReadWriteFile.h sdk/VEILCore.framework/Versions/A/Headers/core/CkmReadWriteFile.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/CkmSymmetricAlgorithmImpl.h sdk/VEILCore.framework/Versions/A/Headers/core/CkmSymmetricAlgorithmImpl.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/CryptoAsn1.export sdk/VEILCore.framework/Versions/A/Headers/core/CryptoAsn1.export
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/CryptoAsn1.h sdk/VEILCore.framework/Versions/A/Headers/core/CryptoAsn1.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/CryptoContainerWrapper.h sdk/VEILCore.framework/Versions/A/Headers/core/CryptoContainerWrapper.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/CryptoEvent.h sdk/VEILCore.framework/Versions/A/Headers/core/CryptoEvent.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/CryptoExceptions.h sdk/VEILCore.framework/Versions/A/Headers/core/CryptoExceptions.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/CryptoInterfaces.h sdk/VEILCore.framework/Versions/A/Headers/core/CryptoInterfaces.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/CryptoIterators.h sdk/VEILCore.framework/Versions/A/Headers/core/CryptoIterators.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/cryptolocator.h sdk/VEILCore.framework/Versions/A/Headers/core/cryptolocator.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/cryptolocatorwriter.h sdk/VEILCore.framework/Versions/A/Headers/core/cryptolocatorwriter.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/CryptoLocks.h sdk/VEILCore.framework/Versions/A/Headers/core/CryptoLocks.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/CryptoUtf16.h sdk/VEILCore.framework/Versions/A/Headers/core/CryptoUtf16.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/CTSProfile.export sdk/VEILCore.framework/Versions/A/Headers/core/CTSProfile.export
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/CTSProfile.h sdk/VEILCore.framework/Versions/A/Headers/core/CTSProfile.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/Endian.h sdk/VEILCore.framework/Versions/A/Headers/core/Endian.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/FipsState.h sdk/VEILCore.framework/Versions/A/Headers/core/FipsState.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/HttpChannel.h sdk/VEILCore.framework/Versions/A/Headers/core/HttpChannel.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/HttpHeader.h sdk/VEILCore.framework/Versions/A/Headers/core/HttpHeader.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/INotifyPropertyChange.h sdk/VEILCore.framework/Versions/A/Headers/core/INotifyPropertyChange.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/IOutputCollector.h sdk/VEILCore.framework/Versions/A/Headers/core/IOutputCollector.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/IPreferenceChangeNotify.h sdk/VEILCore.framework/Versions/A/Headers/core/IPreferenceChangeNotify.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/IPropertyMap.h sdk/VEILCore.framework/Versions/A/Headers/core/IPropertyMap.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/IVeilToolCommand.h sdk/VEILCore.framework/Versions/A/Headers/core/IVeilToolCommand.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/IVeilUtilities.h sdk/VEILCore.framework/Versions/A/Headers/core/IVeilUtilities.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/json.h sdk/VEILCore.framework/Versions/A/Headers/core/json.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/nargv.h sdk/VEILCore.framework/Versions/A/Headers/core/nargv.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/pem.h sdk/VEILCore.framework/Versions/A/Headers/core/pem.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/pevents.h sdk/VEILCore.framework/Versions/A/Headers/core/pevents.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/PKIX.export sdk/VEILCore.framework/Versions/A/Headers/core/PKIX.export
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/PKIX.h sdk/VEILCore.framework/Versions/A/Headers/core/PKIX.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/PKIX_Cert.export sdk/VEILCore.framework/Versions/A/Headers/core/PKIX_Cert.export
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/PKIX_Cert.h sdk/VEILCore.framework/Versions/A/Headers/core/PKIX_Cert.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/PKIX_OCSP.export sdk/VEILCore.framework/Versions/A/Headers/core/PKIX_OCSP.export
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/PKIX_OCSP.h sdk/VEILCore.framework/Versions/A/Headers/core/PKIX_OCSP.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/SimpleOpt.h sdk/VEILCore.framework/Versions/A/Headers/core/SimpleOpt.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/standardLayoutList.h sdk/VEILCore.framework/Versions/A/Headers/core/standardLayoutList.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/TlvDocument.h sdk/VEILCore.framework/Versions/A/Headers/core/TlvDocument.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/TlvNode.h sdk/VEILCore.framework/Versions/A/Headers/core/TlvNode.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/TokenPacket.export sdk/VEILCore.framework/Versions/A/Headers/core/TokenPacket.export
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/TokenPacket.h sdk/VEILCore.framework/Versions/A/Headers/core/TokenPacket.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/tsAppConfig.h sdk/VEILCore.framework/Versions/A/Headers/core/tsAppConfig.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/tsAttributeMap.h sdk/VEILCore.framework/Versions/A/Headers/core/tsAttributeMap.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/tsCertificateBuilder.h sdk/VEILCore.framework/Versions/A/Headers/core/tsCertificateBuilder.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/tsCertificateExtension.h sdk/VEILCore.framework/Versions/A/Headers/core/tsCertificateExtension.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/tsCertificateNamePart.h sdk/VEILCore.framework/Versions/A/Headers/core/tsCertificateNamePart.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/tsCertificateParser.h sdk/VEILCore.framework/Versions/A/Headers/core/tsCertificateParser.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/tsCryptoData.h sdk/VEILCore.framework/Versions/A/Headers/core/tsCryptoData.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/tsCryptoDate.h sdk/VEILCore.framework/Versions/A/Headers/core/tsCryptoDate.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/tsCryptoString.h sdk/VEILCore.framework/Versions/A/Headers/core/tsCryptoString.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/tsCryptoStringBase.h sdk/VEILCore.framework/Versions/A/Headers/core/tsCryptoStringBase.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/tsDebug.h sdk/VEILCore.framework/Versions/A/Headers/core/tsDebug.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/tsDebugStream.h sdk/VEILCore.framework/Versions/A/Headers/core/tsDebugStream.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/tsDistinguishedName.h sdk/VEILCore.framework/Versions/A/Headers/core/tsDistinguishedName.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/tsJsonPreferencesBase.h sdk/VEILCore.framework/Versions/A/Headers/core/tsJsonPreferencesBase.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/tsLog.h sdk/VEILCore.framework/Versions/A/Headers/core/tsLog.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/tsmod_extension.h sdk/VEILCore.framework/Versions/A/Headers/core/tsmod_extension.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/tsThread.h sdk/VEILCore.framework/Versions/A/Headers/core/tsThread.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/tsTlvSerializer.h sdk/VEILCore.framework/Versions/A/Headers/core/tsTlvSerializer.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/tsTraceStream.h sdk/VEILCore.framework/Versions/A/Headers/core/tsTraceStream.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/tsXmlError.h sdk/VEILCore.framework/Versions/A/Headers/core/tsXmlError.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/tsXmlNode.h sdk/VEILCore.framework/Versions/A/Headers/core/tsXmlNode.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/tsXmlParser.h sdk/VEILCore.framework/Versions/A/Headers/core/tsXmlParser.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/tsXmlParserCallback.h sdk/VEILCore.framework/Versions/A/Headers/core/tsXmlParserCallback.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/UrlParser.h sdk/VEILCore.framework/Versions/A/Headers/core/UrlParser.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/VEILCore.h sdk/VEILCore.framework/Versions/A/Headers/core/VEILCore.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/VEILCrypto.h sdk/VEILCore.framework/Versions/A/Headers/core/VEILCrypto.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/xp_console.h sdk/VEILCore.framework/Versions/A/Headers/core/xp_console.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/xp_file.h sdk/VEILCore.framework/Versions/A/Headers/core/xp_file.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/xp_sharedlib.h sdk/VEILCore.framework/Versions/A/Headers/core/xp_sharedlib.h
+d 755 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/@TS_TOOLSET@ -
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/@TS_TOOLSET@/compilerconfig.h sdk/VEILCore.framework/Versions/A/Headers/core/@TS_TOOLSET@/compilerconfig.h
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/core/@TS_TOOLSET@/compilerconfig_c.h sdk/VEILCore.framework/Versions/A/Headers/core/@TS_TOOLSET@/compilerconfig_c.h
+d 755 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/Help -
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Headers/Help/FileVEILHelp.h sdk/VEILCore.framework/Versions/A/Headers/Help/FileVEILHelp.h
+#
+d 755 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Documentation -
+#f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Documentation/CyberVEIL.pdf @CMAKE_CURRENT_SOURCE_DIR@/docs/CyberVEIL.pdf
+#
+d 755 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Resources -
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Resources/CKM_Lock_Icon.icns @CMAKE_CURRENT_SOURCE_DIR@/cmakemodules/CKM_Lock_Icon.icns
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Resources/Info.plist sdk/VEILCore.framework/Versions/A/Resources/Info.plist
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/VEILApiVersion.cmake sdk/VEILCore.framework/Versions/A/VEILApiVersion.cmake
+f 755 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/VEILCore sdk/VEILCore.framework/Versions/A/VEILCore
+l 755 root wheel /Library/Frameworks/VEILCore.framework/Versions/Current A
+#
+# Now create the embeddable framework in /usr/local/TecSec
+#
+l 755 root wheel /Library/Frameworks/VEILCore.framework/Resources Versions/Current/Resources
+l 755 root wheel /Library/Frameworks/VEILCore.framework/VEILApiVersion.cmake Versions/Current/VEILApiVersion.cmake
+l 755 root wheel /Library/Frameworks/VEILCore.framework/VEILCore Versions/Current/VEILCore
+d 755 root wheel /Library/Frameworks/VEILCore.framework/Versions -
+d 755 root wheel /Library/Frameworks/VEILCore.framework/Versions/A -
+d 755 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Resources -
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Resources/CKM_Lock_Icon.icns @CMAKE_CURRENT_SOURCE_DIR@/cmakemodules/CKM_Lock_Icon.icns
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/Resources/Info.plist sdk/VEILCore.framework/Versions/A/Resources/Info.plist
+f 644 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/VEILApiVersion.cmake sdk/VEILCore.framework/Versions/A/VEILApiVersion.cmake
+f 755 root wheel /Library/Frameworks/VEILCore.framework/Versions/A/VEILCore sdk/VEILCore.framework/Versions/A/VEILCore
+l 755 root wheel /Library/Frameworks/VEILCore.framework/Versions/Current A
+
+
+
+
+l 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Headers Versions/Current/Headers
+l 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Resources Versions/Current/Resources
+l 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/VEILApiVersion.cmake Versions/Current/VEILApiVersion.cmake
+l 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/VEILCmsHeader Versions/Current/VEILCmsHeader
+d 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions -
+d 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A -
+d 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/Headers -
+f 644 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/Headers/VEILCmsHeader.h sdk/VEILCmsHeader.framework/Versions/A/Headers/VEILCmsHeader.h
+d 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/Headers/CmsHeader -
+f 644 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/Headers/CmsHeader/CmsHeaderExtensionOIDs.h sdk/VEILCmsHeader.framework/Versions/A/Headers/CmsHeader/CmsHeaderExtensionOIDs.h
+f 644 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/Headers/CmsHeader/CmsHeaderInterfaces.h sdk/VEILCmsHeader.framework/Versions/A/Headers/CmsHeader/CmsHeaderInterfaces.h
+#
+d 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/Documentation -
+#f 644 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/Documentation/CyberVEIL.pdf @CMAKE_CURRENT_SOURCE_DIR@/docs/CyberVEIL.pdf
+#
+d 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/Resources -
+f 644 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/Resources/CKM_Lock_Icon.icns @CMAKE_CURRENT_SOURCE_DIR@/cmakemodules/CKM_Lock_Icon.icns
+f 644 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/Resources/Info.plist sdk/VEILCmsHeader.framework/Versions/A/Resources/Info.plist
+f 644 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/VEILApiVersion.cmake sdk/VEILCmsHeader.framework/Versions/A/VEILApiVersion.cmake
+f 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/VEILCmsHeader sdk/VEILCmsHeader.framework/Versions/A/VEILCmsHeader
+l 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/Current A
+#
+# Now create the embeddable framework in /usr/local/TecSec
+#
+l 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Resources Versions/Current/Resources
+l 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/VEILApiVersion.cmake Versions/Current/VEILApiVersion.cmake
+l 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/VEILCmsHeader Versions/Current/VEILCmsHeader
+d 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions -
+d 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A -
+d 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/Resources -
+f 644 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/Resources/CKM_Lock_Icon.icns @CMAKE_CURRENT_SOURCE_DIR@/cmakemodules/CKM_Lock_Icon.icns
+f 644 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/Resources/Info.plist sdk/VEILCmsHeader.framework/Versions/A/Resources/Info.plist
+f 644 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/VEILApiVersion.cmake sdk/VEILCmsHeader.framework/Versions/A/VEILApiVersion.cmake
+f 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/A/VEILCmsHeader sdk/VEILCmsHeader.framework/Versions/A/VEILCmsHeader
+l 755 root wheel /Library/Frameworks/VEILCmsHeader.framework/Versions/Current A
+
+
+
+
+l 755 root wheel /Library/Frameworks/VEILFileSupport.framework/Headers Versions/Current/Headers
+l 755 root wheel /Library/Frameworks/VEILFileSupport.framework/Resources Versions/Current/Resources
+l 755 root wheel /Library/Frameworks/VEILFileSupport.framework/VEILApiVersion.cmake Versions/Current/VEILApiVersion.cmake
+l 755 root wheel /Library/Frameworks/VEILFileSupport.framework/VEILFileSupport Versions/Current/VEILFileSupport
+d 755 root wheel /Library/Frameworks/VEILFileSupport.framework/Versions -
+d 755 root wheel /Library/Frameworks/VEILFileSupport.framework/Versions/A -
+d 755 root wheel /Library/Frameworks/VEILFileSupport.framework/Versions/A/Headers -
+f 644 root wheel /Library/Frameworks/VEILFileSupport.framework/Versions/A/Headers/VEILFileSupport.h sdk/VEILFileSupport.framework/Versions/A/Headers/VEILFileSupport.h
+#
+d 755 root wheel /Library/Frameworks/VEILFileSupport.framework/Versions/A/Documentation -
+#f 644 root wheel /Library/Frameworks/VEILFileSupport.framework/Versions/A/Documentation/CyberVEIL.pdf @CMAKE_CURRENT_SOURCE_DIR@/docs/CyberVEIL.pdf
+#
+d 755 root wheel /Library/Frameworks/VEILFileSupport.framework/Versions/A/Resources -
+f 644 root wheel /Library/Frameworks/VEILFileSupport.framework/Versions/A/Resources/CKM_Lock_Icon.icns @CMAKE_CURRENT_SOURCE_DIR@/cmakemodules/CKM_Lock_Icon.icns
+f 644 root wheel /Library/Frameworks/VEILFileSupport.framework/Versions/A/Resources/Info.plist sdk/VEILFileSupport.framework/Versions/A/Resources/Info.plist
+f 644 root wheel /Library/Frameworks/VEILFileSupport.framework/Versions/A/VEILApiVersion.cmake sdk/VEILFileSupport.framework/Versions/A/VEILApiVersion.cmake
+f 755 root wheel /Library/Frameworks/VEILFileSupport.framework/Versions/A/VEILFileSupport sdk/VEILFileSupport.framework/Versions/A/VEILFileSupport
+l 755 root wheel /Library/Frameworks/VEILFileSupport.framework/Versions/Current A
+#
+# Now create the embeddable framework in /usr/local/TecSec
+#
+l 755 root wheel /Library/Frameworks/VEILFileSupport.framework/Resources Versions/Current/Resources
+l 755 root wheel /Library/Frameworks/VEILFileSupport.framework/VEILApiVersion.cmake Versions/Current/VEILApiVersion.cmake
+l 755 root wheel /Library/Frameworks/VEILFileSupport.framework/VEILFileSupport Versions/Current/VEILFileSupport
+d 755 root wheel /Library/Frameworks/VEILFileSupport.framework/Versions -
+d 755 root wheel /Library/Frameworks/VEILFileSupport.framework/Versions/A -
+d 755 root wheel /Library/Frameworks/VEILFileSupport.framework/Versions/A/Resources -
+f 644 root wheel /Library/Frameworks/VEILFileSupport.framework/Versions/A/Resources/CKM_Lock_Icon.icns @CMAKE_CURRENT_SOURCE_DIR@/cmakemodules/CKM_Lock_Icon.icns
+f 644 root wheel /Library/Frameworks/VEILFileSupport.framework/Versions/A/Resources/Info.plist sdk/VEILFileSupport.framework/Versions/A/Resources/Info.plist
+f 644 root wheel /Library/Frameworks/VEILFileSupport.framework/Versions/A/VEILApiVersion.cmake sdk/VEILFileSupport.framework/Versions/A/VEILApiVersion.cmake
+f 755 root wheel /Library/Frameworks/VEILFileSupport.framework/Versions/A/VEILFileSupport sdk/VEILFileSupport.framework/Versions/A/VEILFileSupport
+l 755 root wheel /Library/Frameworks/VEILFileSupport.framework/Versions/Current A
+
+
+
+
+l 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/Headers Versions/Current/Headers
+l 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/Resources Versions/Current/Resources
+l 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/VEILApiVersion.cmake Versions/Current/VEILApiVersion.cmake
+l 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/VEILWxWidgets Versions/Current/VEILWxWidgets
+d 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions -
+d 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A -
+d 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A/Headers -
+f 644 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A/Headers/VEILwxWidgets.h sdk/VEILWxWidgets.framework/Versions/A/Headers/VEILwxWidgets.h
+f 644 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A/Headers/VEILwxWidgetsVersion.h sdk/VEILWxWidgets.framework/Versions/A/Headers/VEILwxWidgetsVersion.h
+d 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A/Headers/VEILWxWidgets -
+f 644 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A/Headers/VEILWxWidgets/wxhtmlhelp.h sdk/VEILWxWidgets.framework/Versions/A/Headers/VEILWxWidgets/wxhtmlhelp.h
+#
+d 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A/Documentation -
+#f 644 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A/Documentation/CyberVEIL.pdf @CMAKE_CURRENT_SOURCE_DIR@/docs/CyberVEIL.pdf
+#
+d 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A/Resources -
+f 644 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A/Resources/CKM_Lock_Icon.icns @CMAKE_CURRENT_SOURCE_DIR@/cmakemodules/CKM_Lock_Icon.icns
+f 644 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A/Resources/Info.plist sdk/VEILWxWidgets.framework/Versions/A/Resources/Info.plist
+f 644 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A/VEILApiVersion.cmake sdk/VEILWxWidgets.framework/Versions/A/VEILApiVersion.cmake
+f 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A/VEILWxWidgets sdk/VEILWxWidgets.framework/Versions/A/VEILWxWidgets
+l 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/Current A
+#
+# Now create the embeddable framework in /usr/local/TecSec
+#
+l 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/Resources Versions/Current/Resources
+l 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/VEILApiVersion.cmake Versions/Current/VEILApiVersion.cmake
+l 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/VEILWxWidgets Versions/Current/VEILWxWidgets
+d 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions -
+d 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A -
+d 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A/Resources -
+f 644 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A/Resources/CKM_Lock_Icon.icns @CMAKE_CURRENT_SOURCE_DIR@/cmakemodules/CKM_Lock_Icon.icns
+f 644 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A/Resources/Info.plist sdk/VEILWxWidgets.framework/Versions/A/Resources/Info.plist
+f 644 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A/VEILApiVersion.cmake sdk/VEILWxWidgets.framework/Versions/A/VEILApiVersion.cmake
+f 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/A/VEILWxWidgets sdk/VEILWxWidgets.framework/Versions/A/VEILWxWidgets
+l 755 root wheel /Library/Frameworks/VEILWxWidgets.framework/Versions/Current A

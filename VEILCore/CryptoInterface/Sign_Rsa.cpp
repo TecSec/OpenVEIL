@@ -56,9 +56,9 @@ public:
         if (!key || !(m_key = std::dynamic_pointer_cast<RsaKey>(key)) || !(access = std::dynamic_pointer_cast<TSALG_Access>(key)))
             return false;
 
-        workspace = signDesc;
+        workspace = signDesc->def;
 
-        return signDesc->init(signDesc, workspace, (const TSRsaDescriptor*)access->Descriptor(), access->getKeyPair(), hashName.c_str());
+        return signDesc->init(workspace, access->getKeyPair(), hashName.c_str());
     }
     virtual bool signHash(const tsCryptoData &hashData, tsCryptoData &signature) override
     {
@@ -68,11 +68,11 @@ public:
 
         signature.clear();
 
-        if (!signDesc->signHash(signDesc, workspace, hashData.c_str(), (uint32_t)hashData.size(), nullptr, &len))
+        if (!signDesc->signHash(workspace, hashData.c_str(), (uint32_t)hashData.size(), nullptr, &len))
             return false;
 
         signature.resize(len);
-        if (!signDesc->signHash(signDesc, workspace, hashData.c_str(), (uint32_t)hashData.size(), signature.rawData(), &len))
+        if (!signDesc->signHash(workspace, hashData.c_str(), (uint32_t)hashData.size(), signature.rawData(), &len))
         {
             signature.clear();
             return false;
@@ -85,7 +85,7 @@ public:
         if (!gFipsState.operational() || signDesc == nullptr || workspace.empty())
             return false;
 
-        return signDesc->update(signDesc, workspace, data.c_str(), (uint32_t)data.size());
+        return signDesc->update(workspace, data.c_str(), (uint32_t)data.size());
     }
     virtual bool sign(tsCryptoData &signature) override
     {
@@ -95,11 +95,11 @@ public:
         uint32_t len;
         signature.clear();
 
-        if (!signDesc->sign(signDesc, workspace, nullptr, &len))
+        if (!signDesc->sign(workspace, nullptr, &len))
             return false;
 
         signature.resize(len);
-        if (!signDesc->sign(signDesc, workspace, signature.rawData(), &len))
+        if (!signDesc->sign(workspace, signature.rawData(), &len))
         {
             signature.clear();
             return false;
@@ -112,14 +112,14 @@ public:
         if (!gFipsState.operational() || signDesc == nullptr || workspace.empty())
             return false;
 
-        return signDesc->verifyHash(signDesc, workspace, hashData.c_str(), (uint32_t)hashData.size(), signature.c_str(), (uint32_t)signature.size());
+        return signDesc->verifyHash(workspace, hashData.c_str(), (uint32_t)hashData.size(), signature.c_str(), (uint32_t)signature.size());
     }
     virtual bool verify(const tsCryptoData &signature) override
     {
         if (!gFipsState.operational() || signDesc == nullptr || workspace.empty())
             return false;
 
-        return signDesc->verify(signDesc, workspace, signature.c_str(), (uint32_t)signature.size());
+        return signDesc->verify(workspace, signature.c_str(), (uint32_t)signature.size());
     }
     virtual bool finish() override
     {
@@ -128,20 +128,20 @@ public:
         if (workspace.empty())
             return true;
 
-        signDesc->finish(signDesc, workspace);
+        signDesc->finish(workspace);
         workspace.reset();
         return true;
     }
     virtual size_t GetHashBlockSize() override
     {
-        const TSHashDescriptor* hash = tsFindHashAlgorithm(hashName.c_str());
+        const TSIHash* hash = TSLookup(TSIHash, hashName.c_str());
         if (hash == nullptr)
             return 0;
         return hash->blockSize;
     }
     virtual size_t GetHashDigestSize() override
     {
-        const TSHashDescriptor* hash = tsFindHashAlgorithm(hashName.c_str());
+        const TSIHash* hash = TSLookup(TSIHash, hashName.c_str());
         if (hash == nullptr)
             return 0;
         return hash->digestSize;
@@ -181,7 +181,7 @@ public:
             tsCryptoString name("RSA_");
             name += parts->at(2);
 
-            signDesc = tsFindRsaSignerAlgorithm(name.c_str());
+            signDesc = TSLookup(TSIRsaSigner, name.c_str());
             if (signDesc == nullptr)
             {
                 return false;
@@ -200,7 +200,7 @@ public:
     }
 
 private:
-    const TSRsaSignerDescriptor* signDesc;
+    const TSIRsaSigner* signDesc;
     SmartCryptoWorkspace workspace;
     tsCryptoString hashName;
     SmartCryptoWorkspace hashWorkspace;

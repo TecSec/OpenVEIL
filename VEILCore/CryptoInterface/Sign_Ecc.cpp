@@ -79,7 +79,7 @@ public:
 		if (parts->size() < 3)
 			SetName((GetName() + tsCryptoString("-SHA256")).c_str());
 
-		if (tsStrLen(GetName().c_str()) > tsStrLen("SIGN-ECC") && tsStrniCmp(GetName().c_str(), ("SIGN-ECC"), 8) == 0)
+		if (tsStrLen(GetName()) > tsStrLen("SIGN-ECC") && tsStrniCmp(GetName(), ("SIGN-ECC"), 8) == 0)
 		{
 			m_isEcc = true;
 			if (!(m_hasher = std::dynamic_pointer_cast<Hash>(CryptoFactory(&GetName()[9]))))
@@ -87,7 +87,7 @@ public:
 				return false;
 			}
 		}
-		else if (tsStrLen(GetName().c_str()) > tsStrLen("SIGN-DSA") && tsStrniCmp(GetName().c_str(), ("SIGN-DSA"), 8) == 0)
+		else if (tsStrLen(GetName()) > tsStrLen("SIGN-DSA") && tsStrniCmp(GetName(), ("SIGN-DSA"), 8) == 0)
 		{
 			if (!(m_hasher = std::dynamic_pointer_cast<Hash>(CryptoFactory(&GetName()[9]))))
 			{

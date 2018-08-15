@@ -710,7 +710,7 @@ bool TSUnpad(tscrypto::tsCryptoData& value, int blockSize)
 
 bool TSEncryptInit(const tscrypto::tsCryptoData &Key, const tscrypto::tsCryptoData &IV, CryptoContext &Context, TS_ALG_ID AlgID)
 {
-    TS_ALG_ID algorithm = _TS_ALG_ID::TS_ALG_INVALID;
+    TS_ALG_ID algorithm = TS_ALG_INVALID;
     size_t ivSize = 0;
     SymmetricMode mode;
 
@@ -720,15 +720,15 @@ bool TSEncryptInit(const tscrypto::tsCryptoData &Key, const tscrypto::tsCryptoDa
             return false;
         if (Key.size() < 16)
         {
-            algorithm = _TS_ALG_ID::TS_ALG_DES_CBC;
+            algorithm = TS_ALG_DES_CBC;
         }
         else if (Key.size() < 24)
         {
-            algorithm = _TS_ALG_ID::TS_ALG_DES3_TWOKEY_CBC;
+            algorithm = TS_ALG_DES3_TWOKEY_CBC;
         }
         else
         {
-            algorithm = _TS_ALG_ID::TS_ALG_DES3_THREEKEY_CBC;
+            algorithm = TS_ALG_DES3_THREEKEY_CBC;
         }
     }
     else
@@ -779,7 +779,7 @@ bool TSEncrypt(const tscrypto::tsCryptoData &source, tscrypto::tsCryptoData &des
 
 bool TSDecryptInit(const tscrypto::tsCryptoData &Key, const tscrypto::tsCryptoData &IV, CryptoContext &Context, TS_ALG_ID AlgID)
 {
-    TS_ALG_ID algorithm = _TS_ALG_ID::TS_ALG_INVALID;
+    TS_ALG_ID algorithm = TS_ALG_INVALID;
     size_t ivSize = 0;
     SymmetricMode mode;
 
@@ -789,15 +789,15 @@ bool TSDecryptInit(const tscrypto::tsCryptoData &Key, const tscrypto::tsCryptoDa
             return false;
         if (Key.size() < 16)
         {
-            algorithm = _TS_ALG_ID::TS_ALG_DES_CBC;
+            algorithm = TS_ALG_DES_CBC;
         }
         else if (Key.size() < 24)
         {
-            algorithm = _TS_ALG_ID::TS_ALG_DES3_TWOKEY_CBC;
+            algorithm = TS_ALG_DES3_TWOKEY_CBC;
         }
         else
         {
-            algorithm = _TS_ALG_ID::TS_ALG_DES3_THREEKEY_CBC;
+            algorithm = TS_ALG_DES3_THREEKEY_CBC;
         }
     }
     else
@@ -968,15 +968,15 @@ bool TSBytesToKey(const tscrypto::tsCryptoData &Bytes, tscrypto::tsCryptoData &K
             return false;
         if (Key.size() < 16)
         {
-            AlgID = _TS_ALG_ID::TS_ALG_DES_CBC;
+            AlgID = TS_ALG_DES_CBC;
         }
         else if (Key.size() < 24)
         {
-            AlgID = _TS_ALG_ID::TS_ALG_DES3_TWOKEY_CBC;
+            AlgID = TS_ALG_DES3_TWOKEY_CBC;
         }
         else
         {
-            AlgID = _TS_ALG_ID::TS_ALG_DES3_THREEKEY_CBC;
+            AlgID = TS_ALG_DES3_THREEKEY_CBC;
         }
     }
 

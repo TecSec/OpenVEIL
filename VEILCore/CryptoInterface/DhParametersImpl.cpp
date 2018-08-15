@@ -42,10 +42,10 @@ public:
         desc(nullptr),
         reason(tskvf_NoFailure)
     {
-        desc = tsFindDhParamAlgorithm("DHPARAMETERS");
+        desc = TSLookup(TSIDhParameters, "DHPARAMETERS");
         if (desc != nullptr)
         {
-            dhParams = desc->createParametersetStructure(desc);
+            dhParams = tsCreateWorkspace(desc);
         }
         SetName(algorithm);
     }
@@ -77,7 +77,7 @@ public:
             return tsCryptoData();
 
         tmp.resize(len);
-        if (!desc->getPrime(desc, dhParams, tmp.rawData(), &len))
+        if (!desc->getPrime(dhParams, tmp.rawData(), &len))
             return tsCryptoData();
         tmp.resize(len);
         return tmp;
@@ -99,7 +99,7 @@ public:
         default:
             return false;
         }
-        return desc->setPrime(desc, dhParams, setTo.c_str(), (uint32_t)setTo.size());
+        return desc->setPrime(dhParams, setTo.c_str(), (uint32_t)setTo.size());
     }
     virtual tsCryptoData get_subprime() const override
     {
@@ -110,7 +110,7 @@ public:
             return tsCryptoData();
 
         tmp.resize(len);
-        if (!desc->getSubprime(desc, dhParams, tmp.rawData(), &len))
+        if (!desc->getSubprime(dhParams, tmp.rawData(), &len))
             return tsCryptoData();
         tmp.resize(len);
         return tmp;
@@ -131,7 +131,7 @@ public:
         default:
             return false;
         }
-        return desc->setSubprime(desc, dhParams, setTo.c_str(), (uint32_t)setTo.size());
+        return desc->setSubprime(dhParams, setTo.c_str(), (uint32_t)setTo.size());
     }
     virtual tsCryptoData get_generator() const override
     {
@@ -142,7 +142,7 @@ public:
             return tsCryptoData();
 
         tmp.resize(len);
-        if (!desc->getGenerator(desc, dhParams, tmp.rawData(), &len))
+        if (!desc->getGenerator(dhParams, tmp.rawData(), &len))
             return tsCryptoData();
         tmp.resize(len);
         return tmp;
@@ -165,7 +165,7 @@ public:
         default:
             return false;
         }
-        return desc->setGenerator(desc, dhParams, setTo.c_str(), (uint32_t)setTo.size());
+        return desc->setGenerator(dhParams, setTo.c_str(), (uint32_t)setTo.size());
     }
     virtual tsCryptoData get_firstSeed() const override
     {
@@ -176,7 +176,7 @@ public:
             return tsCryptoData();
 
         tmp.resize(len);
-        if (!desc->getFirstSeed(desc, dhParams, tmp.rawData(), &len))
+        if (!desc->getFirstSeed(dhParams, tmp.rawData(), &len))
             return tsCryptoData();
         tmp.resize(len);
         return tmp;
@@ -188,7 +188,7 @@ public:
 
         if (setTo.size() == 0)
             return false;
-        return desc->setFirstSeed(desc, dhParams, setTo.c_str(), (uint32_t)setTo.size());;
+        return desc->setFirstSeed(dhParams, setTo.c_str(), (uint32_t)setTo.size());;
     }
     virtual tsCryptoData get_pSeed() const override
     {
@@ -199,7 +199,7 @@ public:
             return tsCryptoData();
 
         tmp.resize(len);
-        if (!desc->getPSeed(desc, dhParams, tmp.rawData(), &len))
+        if (!desc->getPSeed(dhParams, tmp.rawData(), &len))
             return tsCryptoData();
         tmp.resize(len);
         return tmp;
@@ -211,7 +211,7 @@ public:
 
         if (setTo.size() == 0)
             return false;
-        return desc->setPSeed(desc, dhParams, setTo.c_str(), (uint32_t)setTo.size());;
+        return desc->setPSeed(dhParams, setTo.c_str(), (uint32_t)setTo.size());;
     }
     virtual tsCryptoData get_qSeed() const override
     {
@@ -222,7 +222,7 @@ public:
             return tsCryptoData();
 
         tmp.resize(len);
-        if (!desc->getQSeed(desc, dhParams, tmp.rawData(), &len))
+        if (!desc->getQSeed(dhParams, tmp.rawData(), &len))
             return tsCryptoData();
         tmp.resize(len);
         return tmp;
@@ -234,7 +234,7 @@ public:
 
         if (setTo.size() == 0)
             return false;
-        return desc->setQSeed(desc, dhParams, setTo.c_str(), (uint32_t)setTo.size());;
+        return desc->setQSeed(dhParams, setTo.c_str(), (uint32_t)setTo.size());;
     }
     virtual tsCryptoData get_generatorFactor() const override
     {
@@ -245,7 +245,7 @@ public:
             return tsCryptoData();
 
         tmp.resize(len);
-        if (!desc->getGeneratorFactor(desc, dhParams, tmp.rawData(), &len))
+        if (!desc->getGeneratorFactor(dhParams, tmp.rawData(), &len))
             return tsCryptoData();
         tmp.resize(len);
         return tmp;
@@ -257,74 +257,74 @@ public:
 
         if (setTo.size() == 0)
             return false;
-        return desc->setGeneratorFactor(desc, dhParams, setTo.c_str(), (uint32_t)setTo.size());;
+        return desc->setGeneratorFactor(dhParams, setTo.c_str(), (uint32_t)setTo.size());;
     }
     virtual size_t get_pgen_counter() const override
     {
         if (desc == nullptr || dhParams == nullptr)
             return 0;
 
-        return desc->getPgenCounter(desc, dhParams);
+        return desc->getPgenCounter(dhParams);
     }
     virtual bool set_pgen_counter(size_t setTo) override
     {
         if (!gFipsState.operational() || desc == nullptr || dhParams == nullptr)
             return false;
 
-        return desc->setPgenCounter(desc, dhParams, (uint32_t)setTo);
+        return desc->setPgenCounter(dhParams, (uint32_t)setTo);
     }
     virtual size_t get_qgen_counter() const override
     {
         if (desc == nullptr || dhParams == nullptr)
             return 0;
 
-        return desc->getQgenCounter(desc, dhParams);
+        return desc->getQgenCounter(dhParams);
     }
     virtual bool set_qgen_counter(size_t setTo) override
     {
         if (!gFipsState.operational() || desc == nullptr || dhParams == nullptr)
             return false;
 
-        return desc->setQgenCounter(desc, dhParams, (uint32_t)setTo);
+        return desc->setQgenCounter(dhParams, (uint32_t)setTo);
     }
     virtual bool generateProbablePrimeParameters(const tsCryptoStringBase& hashAlgName, size_t primeBitLength, size_t subprimeBitLength, size_t seedLen, const tsCryptoData &optionalFirstSeed, uint8_t index) override
     {
         if (!gFipsState.operational() || desc == nullptr || dhParams == nullptr)
             return false;
 
-        return desc->generateProbablePrimeParameters(desc, dhParams, hashAlgName.c_str(), (uint32_t)primeBitLength, (uint32_t)subprimeBitLength, (uint32_t)seedLen, optionalFirstSeed.c_str(), (uint32_t)optionalFirstSeed.size(), index);
+        return desc->generateProbablePrimeParameters(dhParams, hashAlgName.c_str(), (uint32_t)primeBitLength, (uint32_t)subprimeBitLength, (uint32_t)seedLen, optionalFirstSeed.c_str(), (uint32_t)optionalFirstSeed.size(), index);
     }
     virtual bool generateProvablePrimeParameters(const tsCryptoStringBase& hashAlgName, size_t primeBitLength, size_t subprimeBitLength, size_t seedLen, const tsCryptoData &optionalFirstSeed, uint8_t index) override
     {
         if (!gFipsState.operational() || desc == nullptr || dhParams == nullptr)
             return false;
 
-        return desc->generateProvablePrimeParameters(desc, dhParams, hashAlgName.c_str(), (uint32_t)primeBitLength, (uint32_t)subprimeBitLength, (uint32_t)seedLen, optionalFirstSeed.c_str(), (uint32_t)optionalFirstSeed.size(), index);
+        return desc->generateProvablePrimeParameters(dhParams, hashAlgName.c_str(), (uint32_t)primeBitLength, (uint32_t)subprimeBitLength, (uint32_t)seedLen, optionalFirstSeed.c_str(), (uint32_t)optionalFirstSeed.size(), index);
     }
     virtual bool validateParametersAndGenerator(const tsCryptoStringBase& hashAlgName, DH_Param_Gen_Type primeType, bool verifiableGenerator, uint8_t index) override
     {
         if (!gFipsState.operational() || desc == nullptr || dhParams == nullptr)
             return false;
-        return desc->validateParametersAndGenerator(desc, dhParams, hashAlgName.c_str(), (TSDhParamGeneratorType)primeType, verifiableGenerator, index, &reason);
+        return desc->validateParametersAndGenerator(dhParams, hashAlgName.c_str(), (TSDhParamGeneratorType)primeType, verifiableGenerator, index, &reason);
     }
     virtual bool validateParameters(const tsCryptoStringBase& hashAlgName, DH_Param_Gen_Type primeType) override
     {
         if (!gFipsState.operational() || desc == nullptr || dhParams == nullptr)
             return false;
-        return desc->validateParameters(desc, dhParams, hashAlgName.c_str(), (TSDhParamGeneratorType)primeType, &reason);
+        return desc->validateParameters(dhParams, hashAlgName.c_str(), (TSDhParamGeneratorType)primeType, &reason);
     }
     virtual bool validateGenerator(const tsCryptoStringBase& hashAlgName, bool verifiableGenerator, uint8_t index) override
     {
         if (!gFipsState.operational() || desc == nullptr || dhParams == nullptr)
             return false;
-        return desc->validateGenerator(desc, dhParams, hashAlgName.c_str(), verifiableGenerator, index);
+        return desc->validateGenerator(dhParams, hashAlgName.c_str(), verifiableGenerator, index);
     }
     virtual void Clear() override
     {
         if (!gFipsState.operational() || desc == nullptr || dhParams == nullptr)
             return;
 
-        dhParams = desc->createParametersetStructure(desc);
+        dhParams = tsCreateWorkspace(desc);
         reason = tskvf_NoFailure;
     }
     virtual size_t ParameterSize() const override
@@ -332,35 +332,35 @@ public:
         if (desc == nullptr || dhParams == nullptr)
             return 0;
 
-        return desc->parameterSize(desc, dhParams);
+        return desc->parameterSize(dhParams);
     }
     virtual bool PrimesLoaded() const override
     {
         if (desc == nullptr || dhParams == nullptr)
             return 0;
 
-        return desc->primesLoaded(desc, dhParams);
+        return desc->primesLoaded(dhParams);
     }
     virtual bool GeneratorLoaded() const override
     {
         if (desc == nullptr || dhParams == nullptr)
             return 0;
 
-        return desc->generatorLoaded(desc, dhParams);
+        return desc->generatorLoaded(dhParams);
     }
     virtual bool PrimesVerified() const override
     {
         if (desc == nullptr || dhParams == nullptr)
             return 0;
 
-        return desc->primesVerified(desc, dhParams);
+        return desc->primesVerified(dhParams);
     }
     virtual bool GeneratorVerified() const override
     {
         if (desc == nullptr || dhParams == nullptr)
             return 0;
 
-        return desc->generatorVerified(desc, dhParams);
+        return desc->generatorVerified(dhParams);
     }
     virtual bool ParametersAreCompatible(std::shared_ptr<DhParameters> obj) const override
     {
@@ -371,14 +371,14 @@ public:
         if (!obj || !PrimesLoaded() || !obj->PrimesLoaded())
             return false;
 
-        return desc->parametersAreCompatible(desc, dhParams, (TSCRYPTO_DH_PARAMS)ts->getKeyPair());
+        return desc->parametersAreCompatible(dhParams, ts->getKeyPair());
     }
     virtual bool computeGenerator(const tsCryptoStringBase& hashAlgName, const tsCryptoData &seed, uint8_t index) override
     {
         if (!gFipsState.operational() || desc == nullptr || dhParams == nullptr)
             return false;
 
-        return desc->computeGenerator(desc, dhParams, hashAlgName.c_str(), seed.c_str(), (uint32_t)seed.size(), index);
+        return desc->computeGenerator(dhParams, hashAlgName.c_str(), seed.c_str(), (uint32_t)seed.size(), index);
     }
     virtual tsCryptoData toByteArray() const override
     {
@@ -389,7 +389,7 @@ public:
             return tsCryptoData();
 
         tmp.resize(len);
-        if (!desc->exportParameterSet(desc, dhParams, tmp.rawData(), &len))
+        if (!desc->exportParameterSet(dhParams, tmp.rawData(), &len))
             return tsCryptoData();
         tmp.resize(len);
         return tmp;
@@ -400,7 +400,7 @@ public:
             return false;
 
         reason = tskvf_NoFailure;
-        SmartCryptoDhParams newParams = desc->createParametersetStructureFromBlob(desc, data.c_str(), (uint32_t)data.size());
+        SmartCryptoWorkspace newParams = desc->createParametersetStructureFromBlob(desc, data.c_str(), (uint32_t)data.size());
         if (newParams != nullptr)
         {
             dhParams = std::move(newParams);
@@ -453,32 +453,32 @@ public:
     }
 
     // Inherited via TSALG_Access
-    virtual const TSCryptoBaseDescriptor * Descriptor() const override
+    virtual const TSICyberVEILObject * Descriptor() const override
     {
-        return desc;
+        return desc->def.primary;
     }
-    virtual TSCRYPTO_ASYMKEY getKeyPair() const override
+    virtual TSWORKSPACE getKeyPair() const override
     {
-        return (TSCRYPTO_ASYMKEY)(TSCRYPTO_DH_PARAMS)dhParams;
+        return dhParams;
     }
-    virtual TSCRYPTO_WORKSPACE getWorkspace() const override
+    virtual TSWORKSPACE getWorkspace() const override
     {
         return nullptr;
     }
-    virtual TSCRYPTO_ASYMKEY detachFromKeyPair() override
+    virtual TSWORKSPACE detachFromKeyPair() override
     {
-        return (TSCRYPTO_ASYMKEY)dhParams.detach();
+        return (TSWORKSPACE)dhParams.detach();
     }
-    virtual TSCRYPTO_ASYMKEY cloneKeyPair() const override
+    virtual TSWORKSPACE cloneKeyPair() const override
     {
         if (desc == nullptr || dhParams == nullptr)
             return nullptr;
-        return (TSCRYPTO_ASYMKEY)desc->cloneKey(desc, dhParams);
+        return tsClone(dhParams);
     }
 
 private:
-    const TSDhParametersDescriptor* desc;
-    SmartCryptoDhParams dhParams;
+    const TSIDhParameters* desc;
+    SmartCryptoWorkspace dhParams;
     TSKeyValidationFailureType reason;
 };
 

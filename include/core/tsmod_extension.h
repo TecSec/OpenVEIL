@@ -400,8 +400,8 @@ namespace tsmod
 
 		virtual void QueueReceivedData(const tscrypto::tsCryptoData& data) = 0;
 		virtual void SetSentDataCallback(std::function<void(const tscrypto::tsCryptoData& data)> func) = 0;
-		virtual void CloseAfterTransmit(bool setTo) = 0;
-		virtual bool CloseAfterTransmit() = 0;
+		virtual void reserved3(bool setTo) = 0;
+		virtual bool reserved4() = 0;
 		virtual void closingConnection() = 0;
 		virtual void channelShutdown() = 0;
 

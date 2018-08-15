@@ -871,25 +871,31 @@ public:
 
 	virtual size_t AddKeyVEILChangeCallback(std::function<void(JSONObject& eventData)> func) override
 	{
-		CallbackHolder holder;
+        //CallbackHolder holder;
 
-		holder.cookie = InterlockedIncrement(&_nextCallbackId);
-		holder.func = func;
-		TSAUTOLOCKER lock(_callbackLock);
-		_callbacks.push_back(holder);
-		StartCallbackSystem();
-		return holder.cookie;
+        //holder.cookie = InterlockedIncrement(&_nextCallbackId);
+        //holder.func = func;
+        //TSAUTOLOCKER lock(_callbackLock);
+        //_callbacks.push_back(holder);
+        //StartCallbackSystem();
+        //return holder.cookie;
+
+        // TODO:  Temporarily removed as there is a deadlock.
+        return 0;
 	}
 	virtual size_t AddKeyVEILGeneralChangeCallback(std::function<void()> func) override
 	{
-		CallbackHolder holder;
+        //CallbackHolder holder;
 
-		holder.cookie = InterlockedIncrement(&_nextCallbackId);
-		holder.generalFunc = func;
-		TSAUTOLOCKER lock(_callbackLock);
-		_callbacks.push_back(holder);
-		StartCallbackSystem();
-		return holder.cookie;
+        //holder.cookie = InterlockedIncrement(&_nextCallbackId);
+        //holder.generalFunc = func;
+        //TSAUTOLOCKER lock(_callbackLock);
+        //_callbacks.push_back(holder);
+        //StartCallbackSystem();
+        //return holder.cookie;
+
+        // TODO:  Temporarily removed as there is a deadlock.
+        return 0;
 	}
 	virtual void RemoveKeyVEILChangeCallback(size_t cookie) override
 	{
@@ -1002,11 +1008,10 @@ protected:
 		int iter = 0;
 		tscrypto::tsCryptoData pubKey;
 		tscrypto::tsCryptoData identity;
-		_POD_CkmAuthServerParameters authParams;
 		tscrypto::tsCryptoData bsAuthParams;
 		std::shared_ptr<AuthenticationInitiator> initiator;
-		_POD_CkmAuthInitiatorParameters initParams;
-		_POD_CkmAuthResponderParameters respParams;
+        TSCkmAuthInitiatorParameters initParams;
+        TSCkmAuthResponderParameters respParams;
 		tscrypto::tsCryptoData initiatorParams;
 		tscrypto::tsCryptoData responderParams;
 		tscrypto::tsCryptoData MITMProof;
@@ -1014,6 +1019,8 @@ protected:
 		tscrypto::tsCryptoData initiatorSessionKey;
 		bool retVal = false;
 
+        memset(&initParams, 0, sizeof(initParams));
+        memset(&respParams, 0, sizeof(respParams));
 		if (!_channel)
 			return false;
 
@@ -1079,45 +1086,52 @@ protected:
 			return false;
 		}
 
-		authParams.clear();
-		authParams.get_params().set_selectedItem(_POD_CkmAuthServerParameters_params::Choice_Pbkdf);
-		authParams.get_params().get_Pbkdf().get_hmacAlgorithm().set_oid(id_RSADSI_HMAC_SHA512_OID);
-		authParams.get_params().get_Pbkdf().set_IterationCount(iter);
-		authParams.get_params().get_Pbkdf().set_Salt(salt);
-		authParams.Encode(bsAuthParams);
+        tsClearCkmAuthInitiatorParameters(&initParams, nullptr, nullptr);
+        TSCkmAuthServerParameters& authParams = initParams.authParameters;
+
+        authParams.authChoice = 1;
+        tsAppendOIDToBuffer(authParams.pbkdf.hmacAlg.oid, id_RSADSI_HMAC_SHA512_OID);
+        authParams.pbkdf.iterationCount = iter;
+        tsCopyBuffer(salt.getByteBuff(), authParams.pbkdf.salt);
+        tsEncodeCkmAuthServerParametersBuffer(&authParams, bsAuthParams.getByteBuff(), nullptr, nullptr);
 
 		if (!(initiator = std::dynamic_pointer_cast<AuthenticationInitiator>(CryptoFactory("CKMAUTH"))))
 		{
+            tsFreeCkmAuthInitiatorParameters(&initParams, nullptr, nullptr);
 			return false;
 		}
 
-		initParams.set_authParameters(authParams);
-		initParams.set_keySizeInBits(256);
-		initParams.set_oidInfo(identity);
-		initParams.set_responderPublicKey(pubKey);
-		initParams.set_nonce(nonce);
-		if (!initParams.Encode(initiatorParams))
+        initParams.keySizeInBits = 256;
+        tsCopyBuffer(identity.getByteBuff(), initParams.oidInfo);
+        tsCopyBuffer(pubKey.getByteBuff(), initParams.responderPublicKey);
+        tsCopyBuffer(nonce.getByteBuff(), initParams.nonce);
+        if (!tsEncodeCkmAuthInitiatorParametersBuffer(&initParams, initiatorParams.getByteBuff(), nullptr, nullptr))
 		{
+            tsFreeCkmAuthInitiatorParameters(&initParams, nullptr, nullptr);
 			return false;
 		}
+        tsFreeCkmAuthInitiatorParameters(&initParams, nullptr, nullptr);
 		if (!initiator->computeInitiatorValues(initiatorParams, Pin, responderParams, MITMProof, initiatorSessionKey))
 		{
 			return false;
 		}
-		if (!respParams.Decode(responderParams))
+        if (!tsDecodeCkmAuthResponderParametersBuffer(responderParams.getByteBuff(), &respParams, nullptr, nullptr))
 		{
+            tsFreeCkmAuthResponderParameters(&respParams, nullptr, nullptr);
 			return false;
 		}
 
 		tscrypto::tsCryptoString m, msg;
 		JSONObject obj;
 
-		m << "e=" << respParams.get_ephemeralPublic().ToBase64() << ",k=" << respParams.get_eKGK().ToBase64() << ",v=" << respParams.get_initiatorMITMProof().ToBase64();
+        m << "e=" << tsCryptoData(respParams.ephemeralPublic).ToBase64() << ",k=" << tsCryptoData(respParams.eKGK).ToBase64() << ",v=" << tsCryptoData(respParams.initiatorMITMProof).ToBase64();
 
 		msg << "c=biws,r=" + nonce.ToBase64();
-		msg << ",m=" + m.ToUTF8Data().ToBase64() << ",p=" << respParams.get_initiatorAuthProof().ToBase64();
+        msg << ",m=" + m.ToUTF8Data().ToBase64() << ",p=" << tsCryptoData(respParams.initiatorAuthProof).ToBase64();
 
 		obj.add("msg", msg);
+
+        tsFreeCkmAuthResponderParameters(&respParams, nullptr, nullptr);
 
 		tscrypto::tsCryptoString sMITMProof;
 

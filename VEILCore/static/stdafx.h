@@ -54,10 +54,22 @@
 class TSName
 {
 public:
-    tscrypto::tsCryptoString GetName() const { return _name; }
-    void SetName(const tscrypto::tsCryptoStringBase& setTo) { _name = setTo; }
+    TSName() : _name(nullptr) {
+    }
+    ~TSName() {
+        tsFreeString(&_name);
+    }
+    const char* GetName() const {
+        return _name == nullptr ? "" : _name;
+    }
+    void SetName(const tscrypto::tsCryptoStringBase& setTo) {
+        tsAllocString(setTo.c_str(), &_name);
+    }
+    void SetName(const char* setTo) {
+        tsAllocString(setTo, &_name);
+    }
 private:
-    tscrypto::tsCryptoString _name;
+    const char* _name;
 };
 
 template <class T, int Align = 16>

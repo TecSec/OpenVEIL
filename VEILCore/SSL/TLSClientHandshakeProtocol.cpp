@@ -99,13 +99,13 @@ public:
         rlDesc(nullptr)
     {
         _serverCerts = CreateTsCryptoDataList();
-        rlDesc = (const TSTlsRecordLayerDescriptor*)tsFindGeneralAlgorithm("TLS-RECORDLAYER");
-        supDesc = (const TSTlsSupportDescriptor*)tsFindGeneralAlgorithm("TLS-SUPPORT");
+        rlDesc = TSLookup(TSITlsRecordLayer, "TLS-RECORDLAYER");
+        supDesc = TSLookup(TSITlsSupport, "TLS-SUPPORT");
     }
     virtual ~SslHandshake_Client() 
     {
         if (rlDesc != nullptr && !rlWork.empty())
-            rlDesc->finish(rlDesc, rlWork);
+            rlDesc->finish(rlWork);
     }
 
     virtual void OnConstructionFinished() override
@@ -144,13 +144,13 @@ public:
         _ctrlChannel = ctrlChannel;
 
         if (rlDesc != nullptr)
-            rlWork = rlDesc;
+            rlWork = rlDesc->def;
 
-        if (!rlDesc->init(rlDesc, rlWork, &_handshakeDesc, this))
+        if (!rlDesc->init(rlWork, &_handshakeDesc, this))
             return false;
 
         if (!!_packetReceiverFn)
-            rlDesc->setOnPacketReceivedCallback(rlDesc, rlWork, _internalPacketReceivedFn, this);
+            rlDesc->setOnPacketReceivedCallback(rlWork, _internalPacketReceivedFn, this);
 
         _username = username;
         __state = tsSslConn_ProtocolReset;
@@ -169,7 +169,7 @@ public:
         _ctrlChannel = nullptr;
 
         if (rlDesc != nullptr && !rlWork.empty())
-            rlDesc->finish(rlDesc, rlWork);
+            rlDesc->finish(rlWork);
         rlWork.reset();
 
         __state = tsSslConn_ProtocolReset;
@@ -188,14 +188,15 @@ public:
         if (__state != tsSslConn_ProtocolReset && __state != tsSslConn_ProtocolClosed &&
             __state != tsSslConn_Logout)
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_close_notify);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_close_notify);
         }
 
-        rlDesc->reset(rlDesc, rlWork);
+        rlDesc->reset(rlWork);
 
         _resetTunnel();
         if (_ctrlChannel != nullptr)
-            _ctrlChannel->setCloseAfterTransmit();
+            _ctrlChannel->sendControlData(tsCryptoData(), true);
+        //    _ctrlChannel->setCloseAfterTransmit();
 
         return true;
     }
@@ -204,12 +205,12 @@ public:
         if (!isValid())
             return false;
         
-        rlDesc->dataReceivedFromComms(rlDesc, rlWork, src.c_str(), (uint32_t)src.size());
-        _lastError = rlDesc->processData(rlDesc, rlWork);
+        rlDesc->dataReceivedFromComms(rlWork, src.c_str(), (uint32_t)src.size());
+        _lastError = rlDesc->processData(rlWork);
         
         if (_lastError != tsSslalert_no_error)
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, _lastError);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, _lastError);
             StopTunnel();
             return false;
         }
@@ -247,7 +248,7 @@ public:
 
                 packetLen = (uint32_t)data.size();
                 data.resize(packetLen + 512);
-                if (!rlDesc->packBlock(rlDesc, rlWork, data.rawData(), &packetLen, (uint32_t)data.size()))
+                if (!rlDesc->packBlock(rlWork, data.rawData(), &packetLen, (uint32_t)data.size()))
                 {
                     Logout();
                     return false;
@@ -258,7 +259,7 @@ public:
                 if (!!_packetSentFn)
                     _packetSentFn(data[0], data.c_str(), (uint32_t)data.size());
 
-                if (_ctrlChannel == nullptr || !_ctrlChannel->sendControlData(data))
+                if (_ctrlChannel == nullptr || !_ctrlChannel->sendControlData(data, false))
                 {
                     Logout();
                     return false;
@@ -285,7 +286,7 @@ public:
         _packetReceiverFn = func;
         if (rlDesc == nullptr || rlWork.empty())
             return true;
-        return rlDesc->setOnPacketReceivedCallback(rlDesc, rlWork, _internalPacketReceivedFn, this);
+        return rlDesc->setOnPacketReceivedCallback(rlWork, _internalPacketReceivedFn, this);
     }
     virtual bool SetOnPacketSentCallback(std::function<void(uint8_t packetType, const uint8_t*data, uint32_t dataLen)> func) override
     {
@@ -360,7 +361,7 @@ private:
 
         if (!changeState(tsSslConn_Server_Hello))
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
             StopTunnel();
             return false;
         }
@@ -372,7 +373,7 @@ private:
             !getU2(buffer, offset, serverCipher) ||
             !getU1(buffer, offset, compressor))
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_decode_error);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_decode_error);
             StopTunnel();
             return false;
         }
@@ -380,14 +381,14 @@ private:
         {
             if (!getU2Buffer(buffer, offset, extensionData))
             {
-                rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_decode_error);
+                rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_decode_error);
                 StopTunnel();
                 return false;
             }
         }
         if (offset != buffer.size())
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_record_overflow);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_record_overflow);
             StopTunnel();
             return false;
         }
@@ -395,7 +396,7 @@ private:
 
         if (serverMajor != _major || serverMinor < _minor)
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_protocol_version);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_protocol_version);
             StopTunnel();
             return false;
         }
@@ -413,7 +414,7 @@ private:
                 if (!getU2(extensionData, extensionOffset, type) ||
                     !getU2Buffer(extensionData, extensionOffset, value))
                 {
-                    rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_decode_error);
+                    rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_decode_error);
                     StopTunnel();
                     return false;
                 }
@@ -452,7 +453,7 @@ private:
                 }
                 else
                 {
-                    rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_unsupported_extension);
+                    rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_unsupported_extension);
                     StopTunnel();
                 }
                 //TODO:  Implement additional extensions here
@@ -462,7 +463,7 @@ private:
         _cipher = supDesc->getCipherInfo((TSSslCipher)serverCipher);
         if (_cipher == nullptr)
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
             StopTunnel();
             return false;
         }
@@ -475,7 +476,7 @@ private:
 
         if (serverCipher == tsTLS_NULL_WITH_NULL_NULL)
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
             StopTunnel();
             return false;
         }
@@ -505,19 +506,19 @@ private:
 
         if (!changeState(tsSslConn_Server_Certificate))
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
             StopTunnel();
             return false;
         }
         if (!getU3Buffer(buffer, offset, certificateData))
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_decode_error);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_decode_error);
             StopTunnel();
             return false;
         }
         if (offset != buffer.size())
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_record_overflow);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_record_overflow);
             StopTunnel();
             return false;
         }
@@ -527,7 +528,7 @@ private:
             tsCryptoData cert;
             if (!getU3Buffer(certificateData, certOffset, cert))
             {
-                rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_decode_error);
+                rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_decode_error);
                 StopTunnel();
                 return false;
             }
@@ -540,7 +541,7 @@ private:
             _lastError = certVerifierCB(_serverCerts, _cipher->value);
             if (_lastError != tsSslalert_no_error)
             {
-                rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, _lastError);
+                rlDesc->sendAlert(rlWork, tsssl_fatal, _lastError);
                 StopTunnel();
                 return false;
             }
@@ -550,7 +551,7 @@ private:
 
         if (_serverCerts->size() == 0 || !parser.LoadCertificate(_serverCerts->at(0)))
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_decode_error);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_decode_error);
             StopTunnel();
             return false;
         }
@@ -629,7 +630,7 @@ private:
         }
         else
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_decode_error);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_decode_error);
             StopTunnel();
             return false;
         }
@@ -642,7 +643,7 @@ private:
 
         if (!changeState(tsSslConn_Server_Hello_Done))
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
             StopTunnel();
             return false;
         }
@@ -651,20 +652,20 @@ private:
 
         if (!_sendClientKeyExchange())
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
             StopTunnel();
             return false;
         }
 
         if (!changeState(tsSslConn_Client_Send_Change_Cipher_Spec))
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
             StopTunnel();
             return false;
         }
-        if (rlDesc->sendChangeCipherSpec(rlDesc, rlWork, buff1, 1) != tsSslalert_no_error)
+        if (rlDesc->sendChangeCipherSpec(rlWork, buff1, 1) != tsSslalert_no_error)
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
             StopTunnel();
             return false;
         }
@@ -673,13 +674,13 @@ private:
 
         if (!changeState(tsSslConn_Client_Finished))
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
             StopTunnel();
             return false;
         }
         if (!_sendClientFinished())
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
             StopTunnel();
             return false;
         }
@@ -693,14 +694,14 @@ private:
 
         if (!changeState(tsSslConn_Server_Finished))
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
             StopTunnel();
             return false;
         }
 
         if (!TSHash(_handshakeData, hash, _cipher->helloHasher))
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
             StopTunnel();
             return false;
         }
@@ -711,14 +712,14 @@ private:
         if (!supDesc->PRF(_cipher->prfHasher, _master_secret.c_str(), (uint32_t)_master_secret.size(), "server finished", hash.c_str(), (uint32_t)hash.size(), _cipher->verify_length, verificationData.rawData()) ||
             buffer != verificationData)
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
             StopTunnel();
             return false;
         }
 
         if (!changeState(tsSslConn_Active))
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
             StopTunnel();
             return false;
         }
@@ -730,7 +731,7 @@ private:
 
         if (buffer.size() != 0)
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_decode_error);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_decode_error);
             StopTunnel();
             return false;
         }
@@ -740,20 +741,20 @@ private:
 
         if (!changeState(tsSslConn_Hello_Request))
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
             StopTunnel();
             return false;
         }
 
         if (!changeState(tsSslConn_Client_Hello))
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
             StopTunnel();
             return false;
         }
         if (!_sendClientHello())
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
             StopTunnel();
             return false;
         }
@@ -769,7 +770,7 @@ private:
 
         if (!changeState(tsSslConn_Server_Key_Exchange))
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
             StopTunnel();
             return false;
         }
@@ -796,19 +797,19 @@ private:
 
             if (!getU2Buffer(buffer, offset, hint))
             {
-                rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_decode_error);
+                rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_decode_error);
                 StopTunnel();
                 return false;
             }
             if (!pskCB)
             {
-                rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+                rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
                 StopTunnel();
                 return false;
             }
             if (!pskCB(hint, _pskIdentity, _psk))
             {
-                rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+                rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
                 StopTunnel();
                 return false;
             }
@@ -825,7 +826,7 @@ private:
         }
         else
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
             StopTunnel();
             return false;
         }
@@ -884,7 +885,7 @@ private:
                     return false;
                 break;
             default:
-                rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+                rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
                 StopTunnel();
                 return false;
             }
@@ -1034,7 +1035,7 @@ private:
 
         packetLen = (uint32_t)buffer.size();
         buffer.resize(packetLen + 512);
-        _lastError = rlDesc->sendData(rlDesc, rlWork, tsssl_handshake, buffer.rawData(), packetLen);
+        _lastError = rlDesc->sendData(rlWork, tsssl_handshake, buffer.rawData(), packetLen, false);
         return _lastError == tsSslalert_no_error;
     }
     bool _sendClientKeyExchange()
@@ -1147,19 +1148,22 @@ private:
         else if (_cipher->KeyExchange == tsSslke_ckmauth)
         {
             tsCryptoData clientPoint, ekgk, oidInfo, initProof;
-            _POD_CkmAuthResponderParameters respParams;
+            TSCkmAuthResponderParameters respParams;
 
-            if (!respParams.Decode(_ckmAuthResponderParams))
+            memset(&respParams, 0, sizeof(respParams));
+            if (!tsDecodeCkmAuthResponderParametersBuffer(_ckmAuthResponderParams.getByteBuff(), &respParams, nullptr, nullptr))
             {
+                tsFreeCkmAuthResponderParameters(&respParams, nullptr, nullptr);
                 return false;
             }
 
-            payload << (uint8_t)(respParams.get_ephemeralPublic().size() & 0xff) << respParams.get_ephemeralPublic();
-            payload << (uint8_t)(respParams.get_eKGK().size() & 0xff) << respParams.get_eKGK();
-            payload << (uint8_t)(respParams.get_oidInfo().size() >> 8) << (uint8_t)(respParams.get_oidInfo().size() & 0xff) << respParams.get_oidInfo();
-            payload << (uint8_t)(respParams.get_initiatorAuthProof().size() & 0xff) << respParams.get_initiatorAuthProof();
+            payload << (uint8_t)(tsBufferUsed(respParams.ephemeralPublic) & 0xff) << tsCryptoData(respParams.ephemeralPublic);
+            payload << (uint8_t)(tsBufferUsed(respParams.eKGK) & 0xff) << tsCryptoData(respParams.eKGK);
+            payload << (uint8_t)(tsBufferUsed(respParams.oidInfo) >> 8) << (uint8_t)(tsBufferUsed(respParams.oidInfo) & 0xff) << tsCryptoData(respParams.oidInfo);
+            payload << (uint8_t)(tsBufferUsed(respParams.initiatorAuthProof) & 0xff) << tsCryptoData(respParams.initiatorAuthProof);
 
             preMaster = std::move(_ckmAuthSessionKey);
+            tsFreeCkmAuthResponderParameters(&respParams, nullptr, nullptr);
         }
         else if (_cipher->KeyExchange == tsSslke_psk)
         {
@@ -1167,13 +1171,13 @@ private:
             {
                 if (!pskCB)
                 {
-                    rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+                    rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
                     StopTunnel();
                     return false;
                 }
                 if (!pskCB(tsCryptoData(), _pskIdentity, _psk))
                 {
-                    rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+                    rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
                     StopTunnel();
                     return false;
                 }
@@ -1194,13 +1198,13 @@ private:
             {
                 if (!pskCB)
                 {
-                    rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+                    rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
                     StopTunnel();
                     return false;
                 }
                 if (!pskCB(tsCryptoData(), _pskIdentity, _psk))
                 {
-                    rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+                    rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
                     StopTunnel();
                     return false;
                 }
@@ -1236,13 +1240,13 @@ private:
             {
                 if (!pskCB)
                 {
-                    rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+                    rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
                     StopTunnel();
                     return false;
                 }
                 if (!pskCB(tsCryptoData(), _pskIdentity, _psk))
                 {
-                    rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+                    rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
                     StopTunnel();
                     return false;
                 }
@@ -1277,13 +1281,13 @@ private:
             {
                 if (!pskCB)
                 {
-                    rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+                    rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
                     StopTunnel();
                     return false;
                 }
                 if (!pskCB(tsCryptoData(), _pskIdentity, _psk))
                 {
-                    rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+                    rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
                     StopTunnel();
                     return false;
                 }
@@ -1303,13 +1307,13 @@ private:
             GenerateRandom(R, 46);
             preMaster << _major << _minor << R;
 
-            const TSRsaDescriptor* rsaDesc = ((const TSRsaDescriptor*)tsAlg->Descriptor());
-            TSCRYPTO_ASYMKEY keyPair = tsAlg->getKeyPair();
+            const TSIRsa* rsaDesc = TSDynamic(TSIRsa, &tsAlg->Descriptor()->def);
+            TSWORKSPACE keyPair = tsAlg->getKeyPair();
 
             R.clear();
             R.resize(Rlen);
 
-            if (!rsaDesc->encodePkcsAndEncrypt(rsaDesc, keyPair, preMaster.c_str(), (uint32_t)preMaster.size(), R.rawData(), &Rlen))
+            if (!rsaDesc->encodePkcsAndEncrypt(keyPair, preMaster.c_str(), (uint32_t)preMaster.size(), R.rawData(), &Rlen))
             //if (!TSRSAEncrypt(rsa, preMaster, R))
             {
                 return false;
@@ -1329,13 +1333,13 @@ private:
             GenerateRandom(R, 46);
             preMaster << _major << _minor << R;
 
-            const TSRsaDescriptor* rsaDesc = ((const TSRsaDescriptor*)tsAlg->Descriptor());
-            TSCRYPTO_ASYMKEY keyPair = tsAlg->getKeyPair();
+            const TSIRsa* rsaDesc = TSDynamic(TSIRsa, &tsAlg->Descriptor()->def);
+            TSWORKSPACE keyPair = tsAlg->getKeyPair();
 
             R.clear();
             payload.resize(len);
 
-            if (!rsaDesc->encodePkcsAndEncrypt(rsaDesc, keyPair, preMaster.c_str(), (uint32_t)preMaster.size(), payload.rawData(), &len))
+            if (!rsaDesc->encodePkcsAndEncrypt(keyPair, preMaster.c_str(), (uint32_t)preMaster.size(), payload.rawData(), &len))
             //if (!TSRSAEncrypt(rsa, preMaster, payload))
             {
                 return false;
@@ -1430,7 +1434,7 @@ private:
 
         packetLen = (uint32_t)buffer.size();
         buffer.resize(packetLen + 512);
-        _lastError = rlDesc->sendData(rlDesc, rlWork, tsssl_handshake, buffer.rawData(), packetLen);
+        _lastError = rlDesc->sendData(rlWork, tsssl_handshake, buffer.rawData(), packetLen, false);
         if (_lastError != tsSslalert_no_error)
         {
             return false;
@@ -1490,14 +1494,14 @@ private:
         if (!supDesc->PRF(_cipher->prfHasher, _master_secret.c_str(), (uint32_t)_master_secret.size(), "key expansion", tmp2.c_str(), (uint32_t)tmp2.size(), keyLenNeeded, keys.rawData()))
             return false;
 
-        if (!rlDesc->setReceiveCryptoSuite(rlDesc, rlWork, _cipher->Encryptor, _cipher->hasher, 
+        if (!rlDesc->setReceiveCryptoSuite(rlWork, _cipher->Encryptor, _cipher->hasher, 
                 keys.substring(_cipher->hashKeySizeInBytes * 2 + _cipher->keySizeInBytes, _cipher->keySizeInBytes).c_str(), _cipher->keySizeInBytes,
                 keys.substring(_cipher->hashKeySizeInBytes * 2 + _cipher->keySizeInBytes * 2 + _cipher->ivSizeInBytes, _cipher->ivSizeInBytes).c_str(), _cipher->ivSizeInBytes, 
                 keys.substring(_cipher->hashKeySizeInBytes, _cipher->hashKeySizeInBytes).c_str(), _cipher->hashKeySizeInBytes, _compression, _cipher->tagLength))
         {
             return false;
         }
-        if (!rlDesc->setSendCryptoSuite(rlDesc, rlWork, _cipher->Encryptor, _cipher->hasher, 
+        if (!rlDesc->setSendCryptoSuite(rlWork, _cipher->Encryptor, _cipher->hasher, 
                 keys.substring(_cipher->hashKeySizeInBytes * 2, _cipher->keySizeInBytes).c_str(), _cipher->keySizeInBytes,
                 keys.substring(_cipher->hashKeySizeInBytes * 2 + _cipher->keySizeInBytes * 2, _cipher->ivSizeInBytes).c_str(), _cipher->ivSizeInBytes,
                 keys.substring(0, _cipher->hashKeySizeInBytes).c_str(), _cipher->hashKeySizeInBytes, 
@@ -1544,7 +1548,7 @@ private:
 
         _handshakeData.append(buffer, packetLen);
 
-        _lastError = rlDesc->sendData(rlDesc, rlWork, tsssl_handshake, buffer, packetLen);
+        _lastError = rlDesc->sendData(rlWork, tsssl_handshake, buffer, packetLen, false);
         memset(buffer, 0, sizeof(buffer));
         return _lastError == tsSslalert_no_error;
     }
@@ -1555,7 +1559,7 @@ private:
 
         if (!getU1(buffer, offset, curveType))
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_decode_error);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_decode_error);
             StopTunnel();
             return false;
         }
@@ -1570,7 +1574,7 @@ private:
             if (!getU2(buffer, offset, curveId) ||
                 !getU1Buffer(buffer, offset, point))
             {
-                rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_decode_error);
+                rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_decode_error);
                 StopTunnel();
                 return false;
             }
@@ -1581,7 +1585,7 @@ private:
             case tsSslCurve_secp256r1:
                 if (!TSBuildEccKey(tsCryptoString("KEY-P256"), key))
                 {
-                    rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+                    rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
                     StopTunnel();
                     return false;
                 }
@@ -1589,7 +1593,7 @@ private:
             case tsSslCurve_secp384r1:
                 if (!TSBuildEccKey(tsCryptoString("KEY-P384"), key))
                 {
-                    rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+                    rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
                     StopTunnel();
                     return false;
                 }
@@ -1597,13 +1601,13 @@ private:
             case tsSslCurve_secp521r1:
                 if (!TSBuildEccKey(tsCryptoString("KEY-P521"), key))
                 {
-                    rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+                    rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
                     StopTunnel();
                     return false;
                 }
                 break;
             default:
-                rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+                rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
                 StopTunnel();
                 return false;
             }
@@ -1611,7 +1615,7 @@ private:
 
             if (!key->set_Point(point))
             {
-                rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+                rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
                 StopTunnel();
                 return false;
             }
@@ -1627,14 +1631,14 @@ private:
                     !getU1(buffer, offset, *(uint8_t*)&recvdAlg.sig) ||
                     !getU2Buffer(buffer, offset, signature))
                 {
-                    rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_decode_error);
+                    rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_decode_error);
                     StopTunnel();
                     return false;
                 }
 
                 if (_serverCerts->size() == 0 || !parser.LoadCertificate(_serverCerts->at(0)))
                 {
-                    rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+                    rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
                     StopTunnel();
                     return false;
                 }
@@ -1668,21 +1672,21 @@ private:
 
                 if (!TSVerifyData(certKey, _clientRandom + _serverRandom + signablePart, signature, suffix.c_str()))
                 {
-                    rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+                    rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
                     StopTunnel();
                     return false;
                 }
             }
             if (offset != buffer.size())
             {
-                rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_record_overflow);
+                rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_record_overflow);
                 StopTunnel();
                 return false;
             }
         }
         else
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
             StopTunnel();
             return false;
         }
@@ -1700,7 +1704,7 @@ private:
             !getU2Buffer(buffer, offset, g) ||
             !getU2Buffer(buffer, offset, Y))
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
             StopTunnel();
             return false;
         }
@@ -1722,13 +1726,13 @@ private:
             qBitSize = 256;
             break;
         default:
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
             StopTunnel();
             return false;
         }
         if (!GenerateRandom(q, qBitSize / 8))
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
             StopTunnel();
             return false;
         }
@@ -1737,7 +1741,7 @@ private:
 
         if (!TSBuildDhParams(_dhParams) || !_dhParams->set_prime(p) || !_dhParams->set_subprime(q) || !_dhParams->set_generator(g) || !TSBuildDhKey(dhKey) || !dhKey->set_DomainParameters(_dhParams) || !dhKey->set_PublicKey(Y))
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
             StopTunnel();
             return false;
         }
@@ -1756,14 +1760,14 @@ private:
                 !getU1(buffer, offset, *(uint8_t*)&recvdAlg.sig) ||
                 !getU2Buffer(buffer, offset, signature))
             {
-                rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_decode_error);
+                rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_decode_error);
                 StopTunnel();
                 return false;
             }
 
             if (_serverCerts->size() == 0 || !parser.LoadCertificate(_serverCerts->at(0)))
             {
-                rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+                rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
                 StopTunnel();
                 return false;
             }
@@ -1797,14 +1801,14 @@ private:
 
             if (!TSVerifyData(certKey, _clientRandom + _serverRandom + signablePart, signature, suffix.c_str()))
             {
-                rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+                rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
                 StopTunnel();
                 return false;
             }
         }
         if (offset != buffer.size())
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_record_overflow);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_record_overflow);
             StopTunnel();
             return false;
         }
@@ -1829,13 +1833,13 @@ private:
             !getU2(buffer, offset, count) ||
             !getU1Buffer(buffer, offset, hmacName))
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_decode_error);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_decode_error);
             StopTunnel();
             return false;
         }
         if (offset != buffer.size())
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_record_overflow);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_record_overflow);
             StopTunnel();
             return false;
         }
@@ -1843,7 +1847,7 @@ private:
         tsCryptoStringList oidParts = oidInfo.ToUtf8String().split(";", 4);
         if (oidParts->size() != 4 || oidParts->at(1) != _username)
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
             StopTunnel();
             return false;
         }
@@ -1852,41 +1856,46 @@ private:
         _serverRandom.FromBase64(oidParts->at(2));
         if (_serverRandom != nonce || !ckmAuth)
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
             StopTunnel();
             return false;
         }
 
-        _POD_CkmAuthInitiatorParameters params;
-        _POD_CkmAuthServerParameters serverParams;
+        TSCkmAuthInitiatorParameters params;
         tsCryptoData initParams;
         tsCryptoData password, mitm;
 
-        serverParams.get_params().set_selectedItem(_POD_CkmAuthServerParameters_params::Choice_Pbkdf);
-        serverParams.get_params().get_Pbkdf().get_hmacAlgorithm().set_oid(hmacName.ToUtf8String());
-        serverParams.get_params().get_Pbkdf().set_IterationCount(count);
-        serverParams.get_params().get_Pbkdf().set_Salt(salt);
+        memset(&params, 0, sizeof(params));
 
-        params.set_responderPublicKey(point);
-        params.set_oidInfo(oidInfo);
-        params.set_nonce(_serverRandom);
-        params.set_authParameters(serverParams);
-        params.set_keySizeInBits((int)(512 + _msgKeyBitSize));
+        tsClearCkmAuthInitiatorParameters(&params, nullptr, nullptr);
+
+        params.authParameters.authChoice = 1;
+        tsAppendOIDToBuffer(params.authParameters.pbkdf.hmacAlg.oid, hmacName.ToUtf8String().c_str());
+        params.authParameters.pbkdf.iterationCount = count;
+        tsCopyBuffer(salt.getByteBuff(), params.authParameters.pbkdf.salt);
+
+        tsMoveBuffer(point.getByteBuff(), params.responderPublicKey);
+        tsMoveBuffer(oidInfo.getByteBuff(), params.oidInfo);
+        tsCopyBuffer(_serverRandom.getByteBuff(), params.nonce);
+        params.keySizeInBits = ((int)(512 + _msgKeyBitSize));
         // TODO:  Implement me params.set_responderPublicKeyOID()
 
         if (!passwordCB || !passwordCB(password))
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
             StopTunnel();
+            tsFreeCkmAuthInitiatorParameters(&params, nullptr, nullptr);
             return false;
         }
-        if (!params.Encode(initParams) ||
+        if (!tsEncodeCkmAuthInitiatorParametersBuffer(&params, initParams.getByteBuff(), nullptr, nullptr) ||
             !ckmAuth->computeInitiatorValues(initParams, password, _ckmAuthResponderParams, mitm, _ckmAuthSessionKey))
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
             StopTunnel();
+            tsFreeCkmAuthInitiatorParameters(&params, nullptr, nullptr);
             return false;
         }
+        tsFreeCkmAuthInitiatorParameters(&params, nullptr, nullptr);
         if (_msgKeyBitSize > 0)
         {
             _msgKey = _ckmAuthSessionKey.substring(64, _msgKeyBitSize / 8);
@@ -2000,14 +2009,14 @@ private:
     {
         if (major != _major || minor != _minor)
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_protocol_version);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_protocol_version);
             StopTunnel();
             return;
         }
 
         if (!isValid())
         {
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
             StopTunnel();
             return;
         }
@@ -2017,7 +2026,7 @@ private:
         case tsssl_change_cipher_spec:
             if (!changeState(tsSslConn_Server_Send_Change_Cipher_Spec))
             {
-                rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+                rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
                 StopTunnel();
                 return;
             }
@@ -2026,9 +2035,9 @@ private:
                 _initiatingCipherChange = false;
                 return;
             }
-            if (!rlDesc->changeReaderCryptoSuite(rlDesc, rlWork))
+            if (!rlDesc->changeReaderCryptoSuite(rlWork))
             {
-                rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+                rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
                 StopTunnel();
                 return;
             }
@@ -2036,14 +2045,14 @@ private:
         case tsssl_alert:
             if (dataLen < 2)
             {
-                rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_record_overflow);
+                rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_record_overflow);
                 StopTunnel();
                 return;
             }
             _lastError = (TSSslAlertDescription)data[1];
             if (_lastError == tsSslalert_close_notify && __state != tsSslConn_Logout)
             {
-                rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_close_notify);
+                rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_close_notify);
                 changeState(tsSslConn_Logout);
 
                 if (_ctrlChannel != nullptr)
@@ -2067,7 +2076,8 @@ private:
                     _ctrlChannel->failed(msg.c_str());
                 }
                 if (_ctrlChannel != nullptr)
-                    _ctrlChannel->setCloseAfterTransmit();
+                    _ctrlChannel->sendControlData(tsCryptoData(), true);
+                //    _ctrlChannel->setCloseAfterTransmit();
             }
             StopTunnel();
             break;
@@ -2078,13 +2088,13 @@ private:
         case tsssl_application_data:
             if (_ctrlChannel == nullptr || !_ctrlChannel->sendReceivedData(tsCryptoData(data, dataLen)))
             {
-                rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_handshake_failure);
+                rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_handshake_failure);
                 StopTunnel();
                 return ;
             }
             break;
         default:
-            rlDesc->sendAlert(rlDesc, rlWork, tsssl_fatal, tsSslalert_unexpected_message);
+            rlDesc->sendAlert(rlWork, tsssl_fatal, tsSslalert_unexpected_message);
             StopTunnel();
             return;
         }
@@ -2184,7 +2194,7 @@ private:
     
         if (isValid())
         {
-            rlDesc->reset(rlDesc, rlWork);
+            rlDesc->reset(rlWork);
             // TODO:  Reset state
         }
         _major = 3;
@@ -2235,14 +2245,14 @@ private:
             This->_packetSentFn(data[0], data, dataLen);
         return This->_ctrlChannel->sendReceivedData(tsCryptoData(data, dataLen));
     }
-    static ts_bool _sendControlData(void* params, const uint8_t* data, uint32_t dataLen)
+    static ts_bool _sendControlData(void* params, const uint8_t* data, uint32_t dataLen, ts_bool closeAfterWrite)
     {
         SslHandshake_Client* This = (SslHandshake_Client*)params;
         if (!This->_ctrlChannel)
             return false;
         if (!!This->_packetSentFn)
             This->_packetSentFn(data[0], data, dataLen);
-        return This->_ctrlChannel->sendControlData(tsCryptoData(data, dataLen));
+        return This->_ctrlChannel->sendControlData(tsCryptoData(data, dataLen), closeAfterWrite);
     }
     static ts_bool _flushApplicationData(void* params)
     {
@@ -2264,7 +2274,8 @@ private:
     {
         SslHandshake_Client* This = (SslHandshake_Client*)params;
         if (This->_ctrlChannel != nullptr)
-            This->_ctrlChannel->setCloseAfterTransmit();
+            This->_ctrlChannel->sendControlData(tsCryptoData(), true);
+        //This->_ctrlChannel->setCloseAfterTransmit();
         return true;
     }
     static void _internalPacketReceivedFn(void *params, uint8_t packetType, const uint8_t* data, uint32_t dataLen)
@@ -2274,9 +2285,9 @@ private:
             This->_packetReceiverFn(packetType, data, dataLen);
     }
 private:
-    static const TSTlsHandshakeDataCallbackDescriptor _handshakeDesc;
-    const TSTlsSupportDescriptor* supDesc;
-    const TSTlsRecordLayerDescriptor* rlDesc;
+    static const TSITlsHsCallback _handshakeDesc;
+    const TSITlsSupport* supDesc;
+    const TSITlsRecordLayer* rlDesc;
     SmartCryptoWorkspace rlWork;
 
     uint8_t _major, _minor;
@@ -2322,7 +2333,7 @@ private:
     authenticationControlDataCommunications* _ctrlChannel;
 };
 
-const TSTlsHandshakeDataCallbackDescriptor SslHandshake_Client::_handshakeDesc =
+const TSITlsHsCallback SslHandshake_Client::_handshakeDesc =
 {
     &SslHandshake_Client::_sendReceivedData,
     &SslHandshake_Client::_dataReceivedFromRecordLayer,

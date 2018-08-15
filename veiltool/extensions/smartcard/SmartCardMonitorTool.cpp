@@ -88,7 +88,7 @@ static void CardRemoved(void* params, const char* readerName)
     std::cout << "Card Removed:  " << readerName << std::endl;
 }
 
-static const TSSmartCard_ChangeConsumer mySmartcardChanges = {
+static const TSISmartCard_ChangeConsumer mySmartcardChanges = {
     &ReaderAdded, &ReaderRemoved, &CardInserted, &CardRemoved,
 };
 

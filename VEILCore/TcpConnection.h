@@ -47,7 +47,7 @@ public:
 
 	virtual tscrypto::tsCryptoString Errors() const override;
 	virtual void ClearErrors() override;
-	virtual bool RawSend(const tscrypto::tsCryptoData& data) override;
+	virtual bool RawSend(const tscrypto::tsCryptoData& data, ts_bool closeAfterWrite) override;
 	virtual bool RawReceive(tscrypto::tsCryptoData& _data, size_t size) override;
 
 	virtual bool isConnected() const override;

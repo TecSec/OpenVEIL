@@ -31,7 +31,7 @@
 
 #include "stdafx.h"
 
-const TSSmartCardManagerDescriptor* scMan = nullptr;
+const TSISmartCardManager* scMan = nullptr;
 
 static tsmod::IObject* CreateSmartCardTool()
 {
@@ -75,7 +75,7 @@ bool EXPORTME Initialize_smartcard(std::shared_ptr<tsmod::IServiceLocator> servL
 	UNREFERENCED_PARAMETER(servLoc);
 	UNREFERENCED_PARAMETER(log);
 
-    scMan = (const TSSmartCardManagerDescriptor*)tsFindGeneralAlgorithm("SMARTCARDMANAGER");
+    scMan = TSLookup(TSISmartCardManager, "SMARTCARDMANAGER");
     if (scMan == nullptr)
         return false;
 

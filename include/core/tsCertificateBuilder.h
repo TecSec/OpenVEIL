@@ -154,8 +154,8 @@ namespace tscrypto
 		tsCryptoStringList crlPoints;
 		tsCryptoStringList authAccess;
 
-		tscrypto::TS_ALG_ID signatureHash;
-		tscrypto::TS_ALG_ID keyType;
+		TS_ALG_ID signatureHash;
+		TS_ALG_ID keyType;
 
 		int64_t nextSerialNumber;
 		int64_t issuerSerialNumber;
@@ -199,8 +199,8 @@ namespace tscrypto
 		virtual tsCryptoString getIssuerInformation() = 0;
 		virtual void setCryptoInformation(const CA_Crypto_Info& issuer) = 0;
 		virtual CA_Crypto_Info getCryptoInformation() = 0;
-		virtual void NewCA(const char *keyType, int optKeySize, tscrypto::TS_ALG_ID hash = tscrypto::_TS_ALG_ID::TS_ALG_INVALID) = 0;
-		virtual void NewCA(std::shared_ptr<tscrypto::AsymmetricKey> key, tscrypto::TS_ALG_ID hash = tscrypto::_TS_ALG_ID::TS_ALG_INVALID) = 0;
+		virtual void NewCA(const char *keyType, int optKeySize, TS_ALG_ID hash = TS_ALG_INVALID) = 0;
+		virtual void NewCA(std::shared_ptr<tscrypto::AsymmetricKey> key, TS_ALG_ID hash = TS_ALG_INVALID) = 0;
 		virtual void CreatePivSigningCert(tsCryptoData& certData, tsCryptoData& keyPair) = 0;
 		virtual void CreateMemberCertAndKey(CA_Certificate_Request& member, const char *keyType, int optKeySize, tsCryptoData& certData, tsCryptoData& keyPair) = 0;
 		virtual tsCryptoData CreateMemberCert(CA_Certificate_Request& member, const tsCryptoData& publicKey) = 0;

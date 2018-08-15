@@ -748,7 +748,7 @@ void CmsHeaderExtensionImpl::toGroupList()
 
 					if (ext->get_AttrItem().exists_EncryptedRandom())
 						attr->SetEncryptedRandom(*ext->get_AttrItem().get_EncryptedRandom());
-					for (size_t li = 0; li < ext->get_AttrItem().get_AttrIndices().size(); li++)
+					for (uint32_t li = 0; li < ext->get_AttrItem().get_AttrIndices().size(); li++)
 					{
 						attr->AddAttributeIndex(ext->get_AttrItem().get_AttrIndices().get_at(li));
 					}
@@ -813,9 +813,9 @@ void CmsHeaderExtensionImpl::toCryptoGroupList()
 
 	if (data.Decode(m_contents))
 	{
-		size_t count = data.get_CryptoGroup().size();
+        uint32_t count = data.get_CryptoGroup().size();
 
-		for (size_t i = 0; i < count; i++)
+		for (uint32_t i = 0; i < count; i++)
 		{
 			Asn1::CMS::_POD_CmsHE_CryptoGroup &cryptoGroupData = data.get_CryptoGroup().get_at(i);
 
@@ -888,9 +888,9 @@ void CmsHeaderExtensionImpl::toAttributeList()
 
 	if (data.Decode(m_contents))
 	{
-		size_t count = data.get_Attributes().size();
+        uint32_t count = data.get_Attributes().size();
 
-		for (size_t i = 0; i < count; i++)
+		for (uint32_t i = 0; i < count; i++)
 		{
 			std::shared_ptr<ICmsHeaderAttribute> myAttribute;
 			Asn1::CMS::_POD_CmsHE_Attribute &attr = data.get_Attributes().get_at(i);

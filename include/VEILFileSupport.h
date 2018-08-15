@@ -244,8 +244,8 @@ public:
     ///
     /// <returns>S_OK for success or a standard COM error code for failure.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual bool Encrypt_File(const tscrypto::tsCryptoString& sFile, const tscrypto::tsCryptoString& sEncrFile, std::shared_ptr<ICmsHeader> header, CompressionType comp, tscrypto::TS_ALG_ID algorithm, tscrypto::TS_ALG_ID hashAlgorithm,
-		bool SignHeader, bool bindData, CMSFileFormatIds DataFormat, bool randomIvec, tscrypto::SymmetricPaddingType paddingType, int blockSize = 5000000) = 0;
+	virtual bool Encrypt_File(const tscrypto::tsCryptoString& sFile, const tscrypto::tsCryptoString& sEncrFile, std::shared_ptr<ICmsHeader> header, CompressionType comp, TS_ALG_ID algorithm, TS_ALG_ID hashAlgorithm,
+		bool SignHeader, bool bindData, TS_ALG_ID DataFormat, bool randomIvec, tscrypto::SymmetricPaddingType paddingType, int blockSize = 5000000) = 0;
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Encrypts a stream within a file using CKM 7.</summary>
     ///
@@ -264,8 +264,8 @@ public:
     ///
     /// <returns>S_OK for success or a standard COM error code for failure.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual bool EncryptStream(std::shared_ptr<IDataReader> sFile, std::shared_ptr<IDataWriter> sEncrFile, std::shared_ptr<ICmsHeader> header, CompressionType comp, tscrypto::TS_ALG_ID algorithm, tscrypto::TS_ALG_ID hashAlgorithm,
-		bool SignHeader, bool bindData, CMSFileFormatIds DataFormat, bool randomIvec, tscrypto::SymmetricPaddingType paddingType, int blockSize = 5000000) = 0;
+	virtual bool EncryptStream(std::shared_ptr<IDataReader> sFile, std::shared_ptr<IDataWriter> sEncrFile, std::shared_ptr<ICmsHeader> header, CompressionType comp, TS_ALG_ID algorithm, TS_ALG_ID hashAlgorithm,
+		bool SignHeader, bool bindData, TS_ALG_ID DataFormat, bool randomIvec, tscrypto::SymmetricPaddingType paddingType, int blockSize = 5000000) = 0;
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>Encrypts a file and its streams using CKM 7.</summary>
     ///
@@ -284,8 +284,8 @@ public:
     ///
     /// <returns>S_OK for success or a standard COM error code for failure.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual bool EncryptFileAndStreams(const tscrypto::tsCryptoString& sFile, const tscrypto::tsCryptoString& sEncrFile, std::shared_ptr<ICmsHeader> header, CompressionType comp, tscrypto::TS_ALG_ID algorithm,
-		tscrypto::TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData, CMSFileFormatIds DataFormat, bool randomIvec, tscrypto::SymmetricPaddingType paddingType, int blockSize = 5000000) = 0;
+	virtual bool EncryptFileAndStreams(const tscrypto::tsCryptoString& sFile, const tscrypto::tsCryptoString& sEncrFile, std::shared_ptr<ICmsHeader> header, CompressionType comp, TS_ALG_ID algorithm,
+		TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData, TS_ALG_ID DataFormat, bool randomIvec, tscrypto::SymmetricPaddingType paddingType, int blockSize = 5000000) = 0;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Decrypts a file and its streams.</summary>
@@ -368,8 +368,8 @@ public:
     ///
     /// <returns>S_OK for success or a standard COM error code for failure.</returns>
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual bool EncryptCryptoData(const tscrypto::tsCryptoData &inputData, tscrypto::tsCryptoData &outputData, std::shared_ptr<ICmsHeader> header, CompressionType comp, tscrypto::TS_ALG_ID algorithm,
-		tscrypto::TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData, CMSFileFormatIds DataFormat, bool randomIvec, tscrypto::SymmetricPaddingType paddingType, int blockSize = 5000000) = 0;
+	virtual bool EncryptCryptoData(const tscrypto::tsCryptoData &inputData, tscrypto::tsCryptoData &outputData, std::shared_ptr<ICmsHeader> header, CompressionType comp, TS_ALG_ID algorithm,
+		TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData, TS_ALG_ID DataFormat, bool randomIvec, tscrypto::SymmetricPaddingType paddingType, int blockSize = 5000000) = 0;
 
 	virtual bool RecoverKeys(const tscrypto::tsCryptoString& inputFile, FileVEILFileOp_recoveredKeyList& keys) = 0;
 	/**
@@ -508,7 +508,7 @@ public:
 	///
 	/// <returns>S_OK for success or a standard COM error for failure.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual bool HashData(const tscrypto::tsCryptoData &data, tscrypto::TS_ALG_ID algorithm, tscrypto::tsCryptoData &hash) = 0;
+	virtual bool HashData(const tscrypto::tsCryptoData &data, TS_ALG_ID algorithm, tscrypto::tsCryptoData &hash) = 0;
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Computes an Hmac of the specified data.</summary>
 	///
@@ -519,7 +519,7 @@ public:
 	///
 	/// <returns>S_OK for success or a standard COM error for failure.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual bool HmacData(const tscrypto::tsCryptoData &data, const tscrypto::tsCryptoData &key, tscrypto::TS_ALG_ID algorithm, tscrypto::tsCryptoData &hash) = 0;
+	virtual bool HmacData(const tscrypto::tsCryptoData &data, const tscrypto::tsCryptoData &key, TS_ALG_ID algorithm, tscrypto::tsCryptoData &hash) = 0;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>(CKM 7)Encrypts the data in the CKM 7 stream.</summary>
@@ -541,10 +541,10 @@ public:
 	///
 	/// <returns>S_OK for success or a standard COM error for failure.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual bool EncryptStream(CompressionType comp, tscrypto::TS_ALG_ID algorithm, tscrypto::TS_ALG_ID hashAlgorithm,
+	virtual bool EncryptStream(CompressionType comp, TS_ALG_ID algorithm, TS_ALG_ID hashAlgorithm,
 		std::shared_ptr<ICmsHeaderBase> header, bool prependHeader, const tscrypto::tsCryptoData &forcedIvec,
 		std::shared_ptr<IDataReader> reader, std::shared_ptr<IDataWriter> writer,
-		bool SignHeader, bool bindData, CMSFileFormatIds DataFormat, bool randomIvec,
+		bool SignHeader, bool bindData, TS_ALG_ID DataFormat, bool randomIvec,
 		tscrypto::SymmetricPaddingType paddingType, int blockSize = 5000000) = 0;
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Decrypts a stream of data and returns the header.</summary>
@@ -633,8 +633,8 @@ public:
 	///
 	/// <returns>S_OK for success or a standard COM error for failure.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual bool PrepareHeader(std::shared_ptr<ICmsHeader> header7, CompressionType comp, tscrypto::TS_ALG_ID algorithm, tscrypto::TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData,
-		CMSFileFormatIds DataFormat, bool randomIvec, tscrypto::SymmetricPaddingType paddingType, int blockSize, int64_t fileSize) = 0;
+	virtual bool PrepareHeader(std::shared_ptr<ICmsHeader> header7, CompressionType comp, TS_ALG_ID algorithm, TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData,
+        TS_ALG_ID DataFormat, bool randomIvec, tscrypto::SymmetricPaddingType paddingType, int blockSize, int64_t fileSize) = 0;
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Gets the size in bytes that is reserved for the CKM header in the data stream.</summary>
 	///
@@ -667,9 +667,9 @@ public:
 	///
 	/// <returns>S_OK for success or a standard COM error for failure.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual bool EncryptStreamWithKey(CompressionType comp, tscrypto::TS_ALG_ID algorithm, const tscrypto::tsCryptoData &hashOid,
+	virtual bool EncryptStreamWithKey(CompressionType comp, TS_ALG_ID algorithm, const tscrypto::tsCryptoData &hashOid,
 		const tscrypto::tsCryptoData &key, const tscrypto::tsCryptoData &forcedIvec, std::shared_ptr<IDataReader> reader, std::shared_ptr<IDataWriter> writer,
-		CMSFileFormatIds DataFormat, tscrypto::SymmetricPaddingType paddingType, const tscrypto::tsCryptoData &authData, tscrypto::tsCryptoData &finalHash, int blockSize = 5000000) = 0;
+        TS_ALG_ID DataFormat, tscrypto::SymmetricPaddingType paddingType, const tscrypto::tsCryptoData &authData, tscrypto::tsCryptoData &finalHash, int blockSize = 5000000) = 0;
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>Decrypts a data stream using the specified symmetric key.</summary>
 	///
@@ -689,7 +689,7 @@ public:
 	/// <returns>S_OK for success or a standard COM error for failure.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	virtual bool DecryptStreamWithKey(std::shared_ptr<IDataReader> reader, std::shared_ptr<IDataWriter> writer, CompressionType comp,
-		tscrypto::TS_ALG_ID algorithm, const tscrypto::tsCryptoData &hashOid, const tscrypto::tsCryptoData &key, const tscrypto::tsCryptoData &forcedIvec, CMSFileFormatIds DataFormat,
+		TS_ALG_ID algorithm, const tscrypto::tsCryptoData &hashOid, const tscrypto::tsCryptoData &key, const tscrypto::tsCryptoData &forcedIvec, TS_ALG_ID DataFormat,
 		tscrypto::SymmetricPaddingType paddingType, const tscrypto::tsCryptoData &authData, const tscrypto::tsCryptoData &finalHash, int blockSize = 5000000) = 0;
 
 	/**
@@ -804,7 +804,7 @@ public:
 class VEILFILESUPPORT_EXPORT IEncryptProcessor : public IReservedLength
 {
 public:
-	virtual bool EncryptUsingKey(const tscrypto::tsCryptoData &key, int format, int blocksize, tscrypto::TS_ALG_ID encryptionAlg, const tscrypto::tsCryptoData &hashOid, CompressionType compType,
+	virtual bool EncryptUsingKey(const tscrypto::tsCryptoData &key, int format, int blocksize, TS_ALG_ID encryptionAlg, const tscrypto::tsCryptoData &hashOid, CompressionType compType,
 		const tscrypto::tsCryptoData &ivec, tscrypto::SymmetricPaddingType padding, const tscrypto::tsCryptoData &authData, tscrypto::tsCryptoData &finalHash) = 0;
 };
 
@@ -856,7 +856,7 @@ public:
 	///
 	/// <returns>S_OK for success or a standard COM error for failure.</returns>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	virtual bool DecryptUsingKey(const tscrypto::tsCryptoData &key, int format, int blocksize, tscrypto::TS_ALG_ID encryptionAlg, const tscrypto::tsCryptoData &hashOid, CompressionType compType,
+	virtual bool DecryptUsingKey(const tscrypto::tsCryptoData &key, int format, int blocksize, TS_ALG_ID encryptionAlg, const tscrypto::tsCryptoData &hashOid, CompressionType compType,
 		const tscrypto::tsCryptoData &ivec, tscrypto::SymmetricPaddingType padding, const tscrypto::tsCryptoData &authData, const tscrypto::tsCryptoData &finalHash) = 0;
 };
 

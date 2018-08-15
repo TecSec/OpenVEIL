@@ -41,7 +41,7 @@ public:
 		m_keySizeInBits(0)
 	{
 		SetName("CHACHA20");
-		desc = tsFindSymmetricAlgorithm("CHACHA20");
+        desc = TSLookup(TSISymmetric, "CHACHA20");
 	}
 	virtual ~SymmetricStream(void)
 	{
@@ -90,8 +90,8 @@ public:
 		m_key = key;
 
 		m_context.reset();
-		m_context = desc;
-		return desc->init(desc, m_context, forEncrypt, key.c_str(), (uint32_t)key.size(), ivec.c_str(), (uint32_t)ivec.size(), 0);
+        m_context = desc->def;
+        return desc->init(m_context, forEncrypt, key.c_str(), (uint32_t)key.size(), ivec.c_str(), (uint32_t)ivec.size(), 0);
 	}
 	virtual bool update(const tsCryptoData &in_Data, tsCryptoData &out_Data) override
 	{
@@ -108,7 +108,7 @@ public:
 		if (dataToProcess == 0)
 			return true;
 
-		return desc->update(desc, m_context, in_Data.c_str(), (uint32_t)in_Data.size(), out_Data.rawData());
+        return desc->update(m_context, in_Data.c_str(), (uint32_t)in_Data.size(), out_Data.rawData());
 	}
 	virtual bool finish(tsCryptoData &out_Data) override
 	{
@@ -131,7 +131,7 @@ public:
 			return false;
 		ivec.clear();
 		ivec.resize(desc->ivecSize);
-		return desc->getIvec(desc, m_context, ivec.rawData());
+        return desc->getIvec(m_context, ivec.rawData());
 	}
 	virtual bool setIVEC(const tsCryptoData &ivec) override
 	{
@@ -141,7 +141,7 @@ public:
 			return false;
 		if (ivec.size() != desc->ivecSize)
 			return false;
-		return desc->setIvec(desc, m_context, ivec.c_str());
+        return desc->setIvec(m_context, ivec.c_str());
 	}
 	virtual bool supportsBlockLength(size_t in_blockLength) override
 	{
@@ -178,11 +178,11 @@ public:
 	{
 		if (!gFipsState.operational())
 			return 0;
-		return desc->getBlockCount(desc, m_context);
+        return desc->getBlockCount(m_context);
 	}
 	virtual void setBlockCount(uint64_t setTo) override
 	{
-		desc->setBlockCount(desc, m_context, setTo);
+        desc->setBlockCount(m_context, setTo);
 	}
 	virtual void registerCounterModeIncrementor(std::shared_ptr<CounterModeIncrementor> pObj) override
 	{
@@ -303,7 +303,7 @@ public:
 		SetName(fullName);
 		m_context.reset();
 
-		desc = tsFindSymmetricAlgorithm(fullName.c_str());
+        desc = TSLookup(TSISymmetric, fullName.c_str());
 
 		m_mode = (_SymmetricMode::CKM_SymMode_CTR);
 		return true;
@@ -314,7 +314,7 @@ public:
 	}
 
 private:
-	const TSSymmetricAlgorithmDescriptor* desc;
+    const TSISymmetric* desc;
     SmartCryptoWorkspace m_context;
 	tsCryptoData m_key;
 	std::shared_ptr<CounterModeIncrementor> m_incrementer;

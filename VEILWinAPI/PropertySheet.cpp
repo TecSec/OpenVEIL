@@ -46,9 +46,9 @@ const char *AlgNames[] =
 
 const TS_ALG_ID algIds[] =
 {
-	_TS_ALG_ID::TS_ALG_AES_GCM_256,
-	_TS_ALG_ID::TS_ALG_AES_CBC_256,
-	_TS_ALG_ID::TS_ALG_DES3_THREEKEY_CBC,
+	TS_ALG_AES_GCM_256,
+	TS_ALG_AES_CBC_256,
+	TS_ALG_DES3_THREEKEY_CBC,
 };
 
 const char *HashAlgNames[] =
@@ -62,11 +62,11 @@ const char *HashAlgNames[] =
 
 const TS_ALG_ID hashAlgIds[] =
 {
-	_TS_ALG_ID::TS_ALG_SHA1,
-	_TS_ALG_ID::TS_ALG_SHA224,
-	_TS_ALG_ID::TS_ALG_SHA256,
-	_TS_ALG_ID::TS_ALG_SHA384,
-	_TS_ALG_ID::TS_ALG_SHA512,
+	TS_ALG_SHA1,
+	TS_ALG_SHA224,
+	TS_ALG_SHA256,
+	TS_ALG_SHA384,
+	TS_ALG_SHA512,
 };
 
 struct PageDescriptor
@@ -89,8 +89,8 @@ public:
 	~GeneralSettingsHandler(){}
 
 protected:
-	GeneralSettingsHandler() : _bDirty(FALSE), _cbxAlg(nullptr), _cbxHashAlg(nullptr), /*_bCKMweb(FALSE),*/ _Alg(_TS_ALG_ID::TS_ALG_AES_GCM_256),
-		_HashAlg(_TS_ALG_ID::TS_ALG_SHA512), _bInitialized(FALSE), _bDisplayMsgDlg(FALSE) {}
+	GeneralSettingsHandler() : _bDirty(FALSE), _cbxAlg(nullptr), _cbxHashAlg(nullptr), /*_bCKMweb(FALSE),*/ _Alg(TS_ALG_AES_GCM_256),
+		_HashAlg(TS_ALG_SHA512), _bInitialized(FALSE), _bDisplayMsgDlg(FALSE) {}
 	// =============================================================================
 	// General Settings dialog
 	// =============================================================================
@@ -212,7 +212,7 @@ protected:
 			}
 			else
 			{
-				_Alg = _TS_ALG_ID::TS_ALG_AES_GCM_256;
+				_Alg = TS_ALG_AES_GCM_256;
 			}
 			index = (int)SendMessage(_cbxHashAlg, CB_GETCURSEL, 0, 0);
 			if (index != CB_ERR)
@@ -221,7 +221,7 @@ protected:
 			}
 			else
 			{
-				_HashAlg = _TS_ALG_ID::TS_ALG_SHA512;
+				_HashAlg = TS_ALG_SHA512;
 			}
 			buff[0] = 0;
 			GetDlgItemText(hWnd, IDC_KEYVEIL_URL, buff, sizeof(buff));

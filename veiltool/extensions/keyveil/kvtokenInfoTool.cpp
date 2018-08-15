@@ -234,15 +234,15 @@ public:
 		profile = session->GetProfile();
 		if (!!profile && profile->exists_cryptoGroupList())
 		{
-			for (size_t c = 0; c < profile->get_cryptoGroupList()->size(); c++)
+			for (uint32_t c = 0; c < profile->get_cryptoGroupList()->size(); c++)
 			{
 				Asn1::CTS::_POD_CryptoGroup& grp = profile->get_cryptoGroupList()->get_at(c);
 
 				if (grp.get_Usage() == Asn1::CTS::cgu_User)
 				{
-					size_t fiefdomCount;
-					size_t categoryCount;
-					size_t attributeCount;
+                    uint32_t fiefdomCount;
+                    uint32_t categoryCount;
+                    uint32_t attributeCount;
 
 					printf("Crypto Group:  %s\n", grp.get_Name().c_str());
 					printf("----------------------------------------------------------------------\n");
@@ -254,7 +254,7 @@ public:
 					if (grp.exists_FiefdomList())
 					{
 						fiefdomCount = grp.get_FiefdomList()->size();
-						for (size_t i = 0; i < fiefdomCount; i++)
+						for (uint32_t i = 0; i < fiefdomCount; i++)
 						{
 							Asn1::CTS::_POD_Fiefdom& fief = grp.get_FiefdomList()->get_at(i);
 							printf("\n    Fiefdom:  %s\n", fief.get_Name().c_str());
@@ -262,7 +262,7 @@ public:
 							if (fief.exists_CategoryList())
 							{
 							categoryCount = fief.get_CategoryList()->size();
-								for (size_t j = 0; j < categoryCount; j++)
+								for (uint32_t j = 0; j < categoryCount; j++)
 								{
 								Asn1::CTS::_POD_Category& cat = fief.get_CategoryList()->get_at(j);
 									if (cat.exists_AttributeList())
@@ -271,7 +271,7 @@ public:
 
 								printf("\n      Category:  %s\n", cat.get_Name().c_str());
 
-									for (size_t k = 0; k < attributeCount; k++)
+									for (uint32_t k = 0; k < attributeCount; k++)
 									{
 									Asn1::CTS::_POD_Attribute& attr = cat.get_AttributeList()->get_at(k);
 

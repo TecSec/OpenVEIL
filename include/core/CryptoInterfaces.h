@@ -1409,12 +1409,12 @@ namespace tscrypto {
 	class VEILCORE_API authenticationControlDataCommunications
 	{
 	public:
-		virtual bool sendControlData(const tsCryptoData& dest) = 0;
+        virtual bool sendControlData(const tsCryptoData& dest, ts_bool closeAfterWrite) = 0;
 		virtual void stateChanged(bool isActive, uint32_t currentState) = 0;
 		virtual void failed(const char *message) = 0;
 		virtual void loggedOut() = 0;
-		virtual void setCloseAfterTransmit() = 0;
-		virtual bool shouldCloseAfterTransmit() = 0;
+        virtual void reserved1() = 0;
+        virtual bool reserved2() = 0;
 		virtual bool sendReceivedData(const tsCryptoData& dest) = 0;
 	};
 
@@ -2326,13 +2326,13 @@ namespace tscrypto {
 		virtual TS_ALG_ID algId() const = 0;
 		virtual tsCryptoString oid() const = 0;
 		virtual tsCryptoString name() const = 0;
-		virtual CryptoAlgType algFlags() const = 0;
+        virtual TSCryptoAlgType algFlags() const = 0;
 
 		// Indexable style
 		virtual TS_ALG_ID algId(size_t index) const = 0;
 		virtual tsCryptoString oid(size_t index) const = 0;
 		virtual tsCryptoString name(size_t index) const = 0;
-		virtual CryptoAlgType algFlags(size_t index) const = 0;
+        virtual TSCryptoAlgType algFlags(size_t index) const = 0;
 	};
 
 	class VEILCORE_API IAlgorithmListManager
@@ -2345,15 +2345,16 @@ namespace tscrypto {
 		virtual TS_ALG_ID algId(size_t index) const = 0;
 		virtual tsCryptoString oid(size_t index) const = 0;
 		virtual tsCryptoString name(size_t index) const = 0;
-		virtual CryptoAlgType algFlags(size_t index) const = 0;
+        virtual TSCryptoAlgType algFlags(size_t index) const = 0;
 
-		virtual std::shared_ptr<tscrypto::IAlgorithmList> GetAlgorithmList(CryptoAlgType flags, bool matchAllFlags) = 0;
+        virtual std::shared_ptr<tscrypto::IAlgorithmList> GetAlgorithmList(TSCryptoAlgType flags, bool matchAllFlags) = 0;
 
 		virtual TS_ALG_ID LookUpAlgID(const tsCryptoStringBase& algName) const = 0;
 		virtual tsCryptoString LookUpAlgOID(const tsCryptoStringBase& algName) const = 0;
 		virtual tsCryptoString OIDtoAlgName(const tsCryptoStringBase& oid) const = 0;
 		virtual TS_ALG_ID OIDtoID(const tsCryptoStringBase& OID) const = 0;
 		virtual tsCryptoString IDtoOID(TS_ALG_ID id) const = 0;
+        virtual tsCryptoString oid2(size_t index) const = 0;
 	};
 
 	class VEILCORE_API IAlgorithmListManagerWriter : public IAlgorithmListManager
@@ -2366,7 +2367,7 @@ namespace tscrypto {
 		virtual void RemoveAlgorithmByOid(const tsCryptoData& oid) = 0;
 		virtual void RemoveAlgorithmByName(const tsCryptoStringBase& name) = 0;
 
-		virtual bool AddAlgorithm(TS_ALG_ID algId, const tsCryptoStringBase& oid, const tsCryptoStringBase& name, CryptoAlgType algFlags) = 0;
+        virtual bool AddAlgorithm(TS_ALG_ID algId, const tsCryptoStringBase& oid, const tsCryptoStringBase& name, TSCryptoAlgType algFlags, const tsCryptoStringBase& oid2) = 0;
 	};
 
 	VEILCORE_API void AddKeySizeFunction(std::function<bool(TS_ALG_ID AlgID, size_t& pVal)> fn);
@@ -3422,11 +3423,11 @@ namespace tscrypto {
 	{
 	public:
 		virtual ~TSALG_Access() {}
-		virtual const TSCryptoBaseDescriptor* Descriptor() const = 0;
-		virtual TSCRYPTO_ASYMKEY getKeyPair() const = 0;
-		virtual TSCRYPTO_WORKSPACE getWorkspace() const = 0;
-		virtual TSCRYPTO_ASYMKEY detachFromKeyPair() = 0;
-		virtual TSCRYPTO_ASYMKEY cloneKeyPair() const = 0;
+        virtual const TSICyberVEILObject* Descriptor() const = 0;
+        virtual TSWORKSPACE getKeyPair() const = 0;
+        virtual TSWORKSPACE getWorkspace() const = 0;
+        virtual TSWORKSPACE detachFromKeyPair() = 0;
+        virtual TSWORKSPACE cloneKeyPair() const = 0;
 	};
 }
 

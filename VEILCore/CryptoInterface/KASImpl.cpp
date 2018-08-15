@@ -39,9 +39,9 @@ class KASImpl : public KAS, public TSName, public tscrypto::ICryptoObject, publi
 public:
     KASImpl() : desc(nullptr)
     {
-        desc = tsFindDHKeyAgreementAlgorithm("KAS");
+        desc = TSLookup(TSIKas, "KAS");
         if (desc)
-            workspace = desc;
+            workspace = desc->def;
         kdfName = "KDF";
         SetName("KAS");
     }
@@ -50,7 +50,7 @@ public:
         clear();
         if (desc != nullptr && !workspace.empty())
         {
-            desc->finish(desc, workspace);
+            desc->finish(workspace);
             workspace.reset();
         }
     }
@@ -99,10 +99,10 @@ public:
         uint32_t len;
         tsCryptoData tmp;
 
-        if (!desc->getIDu(desc, workspace, NULL, &len))
+        if (!desc->getIDu(workspace, NULL, &len))
             return tsCryptoData();
         tmp.resize(len);
-        if (!desc->getIDu(desc, workspace, tmp.rawData(), &len))
+        if (!desc->getIDu(workspace, tmp.rawData(), &len))
             return tsCryptoData();
         tmp.resize(len);
         return tmp;
@@ -111,7 +111,7 @@ public:
     {
         if (!gFipsState.operational() || desc == nullptr || workspace.empty())
             return false;
-        return desc->setIDu(desc, workspace, data.c_str(), (uint32_t)data.size());
+        return desc->setIDu(workspace, data.c_str(), (uint32_t)data.size());
     }
     virtual tsCryptoData get_IDv() const override
     {
@@ -121,10 +121,10 @@ public:
         uint32_t len;
         tsCryptoData tmp;
 
-        if (!desc->getIDv(desc, workspace, NULL, &len))
+        if (!desc->getIDv(workspace, NULL, &len))
             return tsCryptoData();
         tmp.resize(len);
-        if (!desc->getIDv(desc, workspace, tmp.rawData(), &len))
+        if (!desc->getIDv(workspace, tmp.rawData(), &len))
             return tsCryptoData();
         tmp.resize(len);
         return tmp;
@@ -133,20 +133,20 @@ public:
     {
         if (!gFipsState.operational() || desc == nullptr || workspace.empty())
             return false;
-        return desc->setIDv(desc, workspace, data.c_str(), (uint32_t)data.size());
+        return desc->setIDv(workspace, data.c_str(), (uint32_t)data.size());
     }
     virtual size_t get_KcKeyLengthInBits() const override
     {
         if (desc == nullptr || workspace.empty())
             return 0;
 
-        return desc->getKcKeyLengthInBits(desc, workspace);
+        return desc->getKcKeyLengthInBits(workspace);
     }
     virtual bool set_KcKeyLengthInBits(size_t setTo) override
     {
         if (!gFipsState.operational() || desc == nullptr || workspace.empty())
             return false;
-        return desc->setKcKeyLengthInBits(desc, workspace, (uint32_t)setTo);
+        return desc->setKcKeyLengthInBits(workspace, (uint32_t)setTo);
     }
     virtual tsCryptoString get_KcAlgorithmName() const override
     {
@@ -156,7 +156,7 @@ public:
     {
         if (!gFipsState.operational() || desc == nullptr || workspace.empty())
             return false;
-        if (!desc->configure(desc, workspace, kdfName.c_str(), kdfMacName.c_str(), macName.c_str()))
+        if (!desc->configure(workspace, kdfName.c_str(), kdfMacName.c_str(), macName.c_str()))
             return false;
         return true;
     }
@@ -168,10 +168,10 @@ public:
         uint32_t len;
         tsCryptoData tmp;
 
-        if (!desc->getKcSuffixU(desc, workspace, NULL, &len))
+        if (!desc->getKcSuffixU(workspace, NULL, &len))
             return tsCryptoData();
         tmp.resize(len);
-        if (!desc->getKcSuffixU(desc, workspace, tmp.rawData(), &len))
+        if (!desc->getKcSuffixU(workspace, tmp.rawData(), &len))
             return tsCryptoData();
         tmp.resize(len);
         return tmp;
@@ -180,7 +180,7 @@ public:
     {
         if (!gFipsState.operational() || desc == nullptr || workspace.empty())
             return false;
-        return desc->setKcSuffixU(desc, workspace, data.c_str(), (uint32_t)data.size());
+        return desc->setKcSuffixU(workspace, data.c_str(), (uint32_t)data.size());
     }
     virtual tsCryptoData get_KcSuffixV() const override
     {
@@ -190,10 +190,10 @@ public:
         uint32_t len;
         tsCryptoData tmp;
 
-        if (!desc->getKcSuffixV(desc, workspace, NULL, &len))
+        if (!desc->getKcSuffixV(workspace, NULL, &len))
             return tsCryptoData();
         tmp.resize(len);
-        if (!desc->getKcSuffixV(desc, workspace, tmp.rawData(), &len))
+        if (!desc->getKcSuffixV(workspace, tmp.rawData(), &len))
             return tsCryptoData();
         tmp.resize(len);
         return tmp;
@@ -202,20 +202,20 @@ public:
     {
         if (!gFipsState.operational() || desc == nullptr || workspace.empty())
             return false;
-        return desc->setKcSuffixV(desc, workspace, data.c_str(), (uint32_t)data.size());
+        return desc->setKcSuffixV(workspace, data.c_str(), (uint32_t)data.size());
     }
     virtual size_t get_KcLengthInBits() const override
     {
         if (desc == nullptr || workspace.empty())
             return 0;
 
-        return desc->getKcLengthInBits(desc, workspace);
+        return desc->getKcLengthInBits(workspace);
     }
     virtual bool set_KcLengthInBits(size_t setTo) override
     {
         if (!gFipsState.operational() || desc == nullptr || workspace.empty())
             return false;
-        return desc->setKcLengthInBits(desc, workspace, (uint32_t)setTo);
+        return desc->setKcLengthInBits(workspace, (uint32_t)setTo);
     }
     virtual tsCryptoData get_OtherInfoPrefix() const override
     {
@@ -225,10 +225,10 @@ public:
         uint32_t len;
         tsCryptoData tmp;
 
-        if (!desc->getOtherInfoPrefix(desc, workspace, NULL, &len))
+        if (!desc->getOtherInfoPrefix(workspace, NULL, &len))
             return tsCryptoData();
         tmp.resize(len);
-        if (!desc->getOtherInfoPrefix(desc, workspace, tmp.rawData(), &len))
+        if (!desc->getOtherInfoPrefix(workspace, tmp.rawData(), &len))
             return tsCryptoData();
         tmp.resize(len);
         return tmp;
@@ -237,7 +237,7 @@ public:
     {
         if (!gFipsState.operational() || desc == nullptr || workspace.empty())
             return false;
-        return desc->setOtherInfoPrefix(desc, workspace, data.c_str(), (uint32_t)data.size());
+        return desc->setOtherInfoPrefix(workspace, data.c_str(), (uint32_t)data.size());
     }
     virtual tsCryptoData get_OtherInfoSuffix() const override
     {
@@ -247,10 +247,10 @@ public:
         uint32_t len;
         tsCryptoData tmp;
 
-        if (!desc->getOtherInfoSuffix(desc, workspace, NULL, &len))
+        if (!desc->getOtherInfoSuffix(workspace, NULL, &len))
             return tsCryptoData();
         tmp.resize(len);
-        if (!desc->getOtherInfoSuffix(desc, workspace, tmp.rawData(), &len))
+        if (!desc->getOtherInfoSuffix(workspace, tmp.rawData(), &len))
             return tsCryptoData();
         tmp.resize(len);
         return tmp;
@@ -259,7 +259,7 @@ public:
     {
         if (!gFipsState.operational() || desc == nullptr || workspace.empty())
             return false;
-        return desc->setOtherInfoSuffix(desc, workspace, data.c_str(), (uint32_t)data.size());
+        return desc->setOtherInfoSuffix(workspace, data.c_str(), (uint32_t)data.size());
     }
     virtual tsCryptoData get_CCMNonce() const override
     {
@@ -269,10 +269,10 @@ public:
         uint32_t len;
         tsCryptoData tmp;
 
-        if (!desc->getCCMNonce(desc, workspace, NULL, &len))
+        if (!desc->getCCMNonce(workspace, NULL, &len))
             return tsCryptoData();
         tmp.resize(len);
-        if (!desc->getCCMNonce(desc, workspace, tmp.rawData(), &len))
+        if (!desc->getCCMNonce(workspace, tmp.rawData(), &len))
             return tsCryptoData();
         tmp.resize(len);
         return tmp;
@@ -281,7 +281,7 @@ public:
     {
         if (!gFipsState.operational() || desc == nullptr || workspace.empty())
             return false;
-        return desc->setCCMNonce(desc, workspace, data.c_str(), (uint32_t)data.size());
+        return desc->setCCMNonce(workspace, data.c_str(), (uint32_t)data.size());
     }
     virtual bool computeCCMNonce(size_t nonceBitLength, tsCryptoData &nonce) override
     {
@@ -293,7 +293,7 @@ public:
         if (!tsInternalGenerateRandomBits(tmp.rawData(), (uint32_t)nonceBitLength, true, (uint8_t*)"KAS Nonce", 9))
             return false;
 
-        if (!desc->setCCMNonce(desc, workspace, tmp.c_str(), (uint32_t)tmp.size()))
+        if (!desc->setCCMNonce(workspace, tmp.c_str(), (uint32_t)tmp.size()))
             return false;
         return true;
     }
@@ -301,7 +301,7 @@ public:
     {
         if (!gFipsState.operational() || desc == nullptr || workspace.empty())
             return false;
-        return desc->getCCMTagLengthInBytes(desc, workspace);
+        return desc->getCCMTagLengthInBytes(workspace);
     }
     virtual bool set_CCMTagLengthInBytes(size_t setTo) override
     {
@@ -309,7 +309,7 @@ public:
             return false;
         if (setTo < 4 || setTo > 16 || (setTo & 1) != 0)
             return false;
-        return desc->setCCMTagLengthInBytes(desc, workspace, (uint32_t)setTo);
+        return desc->setCCMTagLengthInBytes(workspace, (uint32_t)setTo);
     }
     virtual tsCryptoData get_NonceU() const override
     {
@@ -319,10 +319,10 @@ public:
         uint32_t len;
         tsCryptoData tmp;
 
-        if (!desc->getNonceU(desc, workspace, NULL, &len))
+        if (!desc->getNonceU(workspace, NULL, &len))
             return tsCryptoData();
         tmp.resize(len);
-        if (!desc->getNonceU(desc, workspace, tmp.rawData(), &len))
+        if (!desc->getNonceU(workspace, tmp.rawData(), &len))
             return tsCryptoData();
         tmp.resize(len);
         return tmp;
@@ -331,7 +331,7 @@ public:
     {
         if (!gFipsState.operational() || desc == nullptr || workspace.empty())
             return false;
-        return desc->setNonceU(desc, workspace, data.c_str(), (uint32_t)data.size());
+        return desc->setNonceU(workspace, data.c_str(), (uint32_t)data.size());
     }
     virtual bool computeNonceU(size_t nonceBitLength, tsCryptoData &nonce) override
     {
@@ -343,7 +343,7 @@ public:
         if (!tsInternalGenerateRandomBits(tmp.rawData(), (uint32_t)nonceBitLength, true, (uint8_t*)"KAS Nonce", 9))
             return false;
 
-        if (!desc->setNonceU(desc, workspace, tmp.c_str(), (uint32_t)tmp.size()))
+        if (!desc->setNonceU(workspace, tmp.c_str(), (uint32_t)tmp.size()))
             return false;
         return true;
     }
@@ -355,10 +355,10 @@ public:
         uint32_t len;
         tsCryptoData tmp;
 
-        if (!desc->getNonceV(desc, workspace, NULL, &len))
+        if (!desc->getNonceV(workspace, NULL, &len))
             return tsCryptoData();
         tmp.resize(len);
-        if (!desc->getNonceV(desc, workspace, tmp.rawData(), &len))
+        if (!desc->getNonceV(workspace, tmp.rawData(), &len))
             return tsCryptoData();
         tmp.resize(len);
         return tmp;
@@ -367,7 +367,7 @@ public:
     {
         if (!gFipsState.operational() || desc == nullptr || workspace.empty())
             return false;
-        return desc->setNonceV(desc, workspace, data.c_str(), (uint32_t)data.size());
+        return desc->setNonceV(workspace, data.c_str(), (uint32_t)data.size());
     }
     virtual bool computeNonceV(size_t nonceBitLength, tsCryptoData &nonce) override
     {
@@ -379,7 +379,7 @@ public:
         if (!tsInternalGenerateRandomBits(tmp.rawData(), (uint32_t)nonceBitLength, true, (uint8_t*)"KAS Nonce", 9))
             return false;
 
-        if (!desc->setNonceV(desc, workspace, tmp.c_str(), (uint32_t)tmp.size()))
+        if (!desc->setNonceV(workspace, tmp.c_str(), (uint32_t)tmp.size()))
             return false;
         return true;
     }
@@ -394,31 +394,20 @@ public:
         std::shared_ptr<DhKey> dhEphemeral = std::dynamic_pointer_cast<DhKey>(ephemeralKey);
         std::shared_ptr<TSALG_Access> accStatic = std::dynamic_pointer_cast<TSALG_Access>(staticKey);
         std::shared_ptr<TSALG_Access> accEphemeral = std::dynamic_pointer_cast<TSALG_Access>(ephemeralKey);
-        const TSCryptoBaseDescriptor* staticDesc = nullptr;
-        TSCRYPTO_ASYMKEY staticKeyPair;
-        const TSCryptoBaseDescriptor* ephemeralDesc = nullptr;
-        TSCRYPTO_ASYMKEY ephemeralKeyPair;
+        TSWORKSPACE staticKeyPair;
+        TSWORKSPACE ephemeralKeyPair;
 
         if (!!accStatic)
         {
-            staticDesc = accStatic->Descriptor();
             staticKeyPair = accStatic->getKeyPair();
         }
         if (!!accEphemeral)
         {
-            ephemeralDesc = accEphemeral->Descriptor();
             ephemeralKeyPair = accEphemeral->getKeyPair();
         }
-        if (staticDesc == nullptr)
-            staticDesc = ephemeralDesc;
-
-        if (!!eccStatic || !!eccEphemeral)
+        if (!!eccStatic || !!eccEphemeral || !!dhStatic || !!dhEphemeral)
         {
-            return desc->init_ecc(desc, workspace, isPartyU, (uint32_t)kmLengthInBits, (const TSEccDescriptor*)staticDesc, staticKeyPair, ephemeralKeyPair);
-        }
-        else if (!!dhStatic || !!dhEphemeral)
-        {
-            return desc->init_dh(desc, workspace, isPartyU, (uint32_t)kmLengthInBits, (const TSDhDescriptor*)staticDesc, staticKeyPair, ephemeralKeyPair);
+            return desc->init(workspace, isPartyU, (uint32_t)kmLengthInBits, staticKeyPair, ephemeralKeyPair);
         }
         else
             return false;
@@ -427,14 +416,14 @@ public:
     {
         if (!gFipsState.operational() || desc == nullptr || workspace.empty())
             return false;
-        return desc->finish(desc, workspace);
+        return desc->finish(workspace);
     }
     virtual bool setKCDirection(bool bilateral, bool unilateralFromMe) override
     {
         if (!gFipsState.operational() || desc == nullptr || workspace.empty())
             return false;
 
-        return desc->setKCDirection(desc, workspace, bilateral, unilateralFromMe);
+        return desc->setKCDirection(workspace, bilateral, unilateralFromMe);
     }
     virtual bool computeZ(std::shared_ptr<AsymmetricKey> otherStaticKey, std::shared_ptr<AsymmetricKey> otherEphemeral) override
     {
@@ -443,8 +432,8 @@ public:
 
         std::shared_ptr<TSALG_Access> accStatic = std::dynamic_pointer_cast<TSALG_Access>(otherStaticKey);
         std::shared_ptr<TSALG_Access> accEphemeral = std::dynamic_pointer_cast<TSALG_Access>(otherEphemeral);
-        TSCRYPTO_ASYMKEY staticKeyPair;
-        TSCRYPTO_ASYMKEY ephemeralKeyPair;
+        TSWORKSPACE staticKeyPair;
+        TSWORKSPACE ephemeralKeyPair;
 
         if (!!accStatic)
         {
@@ -455,7 +444,7 @@ public:
             ephemeralKeyPair = accEphemeral->getKeyPair();
         }
 
-        return desc->computeZ(desc, workspace, staticKeyPair, ephemeralKeyPair);
+        return desc->computeZ(workspace, staticKeyPair, ephemeralKeyPair);
     }
     virtual bool computeMac(tsCryptoData &mac) override
     {
@@ -464,10 +453,10 @@ public:
         if (!gFipsState.operational() || desc == nullptr || workspace.empty())
             return false;
 
-        if (!desc->computeMac(desc, workspace, nullptr, &len))
+        if (!desc->computeMac(workspace, nullptr, &len))
             return false;
         mac.resize(len);
-        if (!desc->computeMac(desc, workspace, mac.rawData(), &len))
+        if (!desc->computeMac(workspace, mac.rawData(), &len))
         {
             mac.resize(len);
             return false;
@@ -480,7 +469,7 @@ public:
         if (!gFipsState.operational() || desc == nullptr || workspace.empty())
             return false;
 
-        return desc->verifyMac(desc, workspace, mac.c_str(), (uint32_t)mac.size());
+        return desc->verifyMac(workspace, mac.c_str(), (uint32_t)mac.size());
     }
     virtual bool retrieveKeyingMaterial(tsCryptoData &keyingMaterial) override
     {
@@ -489,10 +478,10 @@ public:
         uint32_t len;
 
         keyingMaterial.clear();
-        if (!desc->retrieveKeyingMaterial(desc, workspace, NULL, &len))
+        if (!desc->retrieveKeyingMaterial(workspace, NULL, &len))
             return false;
         keyingMaterial.resize(len);
-        if (!desc->retrieveKeyingMaterial(desc, workspace, keyingMaterial.rawData(), &len))
+        if (!desc->retrieveKeyingMaterial(workspace, keyingMaterial.rawData(), &len))
             return false;
         keyingMaterial.resize(len);
         return true;
@@ -505,10 +494,10 @@ public:
         uint32_t len;
 
         data.clear();
-        if (!desc->getZ(desc, workspace, NULL, &len))
+        if (!desc->getZ(workspace, NULL, &len))
             return false;
         data.resize(len);
-        if (!desc->getZ(desc, workspace, data.rawData(), &len))
+        if (!desc->getZ(workspace, data.rawData(), &len))
             return false;
         data.resize(len);
         return true;
@@ -521,10 +510,10 @@ public:
         uint32_t len;
 
         data.clear();
-        if (!desc->getMacData(desc, workspace, NULL, &len))
+        if (!desc->getMacData(workspace, NULL, &len))
             return false;
         data.resize(len);
-        if (!desc->getMacData(desc, workspace, data.rawData(), &len))
+        if (!desc->getMacData(workspace, data.rawData(), &len))
             return false;
         data.resize(len);
         return true;
@@ -537,10 +526,10 @@ public:
         uint32_t len;
 
         data.clear();
-        if (!desc->getOtherMacData(desc, workspace, NULL, &len))
+        if (!desc->getOtherMacData(workspace, NULL, &len))
             return false;
         data.resize(len);
-        if (!desc->getOtherMacData(desc, workspace, data.rawData(), &len))
+        if (!desc->getOtherMacData(workspace, data.rawData(), &len))
             return false;
         data.resize(len);
         return true;
@@ -553,10 +542,10 @@ public:
         uint32_t len;
 
         data.clear();
-        if (!desc->getOtherInfo(desc, workspace, NULL, &len))
+        if (!desc->getOtherInfo(workspace, NULL, &len))
             return false;
         data.resize(len);
-        if (!desc->getOtherInfo(desc, workspace, data.rawData(), &len))
+        if (!desc->getOtherInfo(workspace, data.rawData(), &len))
             return false;
         data.resize(len);
         return true;
@@ -568,8 +557,8 @@ public:
 
         std::shared_ptr<TSALG_Access> accStatic = std::dynamic_pointer_cast<TSALG_Access>(otherStaticKey);
         std::shared_ptr<TSALG_Access> accEphemeral = std::dynamic_pointer_cast<TSALG_Access>(otherEphemeral);
-        TSCRYPTO_ASYMKEY staticKeyPair = nullptr;
-        TSCRYPTO_ASYMKEY ephemeralKeyPair = nullptr;
+        TSWORKSPACE staticKeyPair = nullptr;
+        TSWORKSPACE ephemeralKeyPair = nullptr;
 
         if (!!accStatic)
         {
@@ -580,7 +569,7 @@ public:
             ephemeralKeyPair = accEphemeral->getKeyPair();
         }
 
-        return desc->computeZForOtherInfo(desc, workspace, otherInfo.c_str(), (uint32_t)otherInfo.size(), staticKeyPair, ephemeralKeyPair);
+        return desc->computeZForOtherInfo(workspace, otherInfo.c_str(), (uint32_t)otherInfo.size(), staticKeyPair, ephemeralKeyPair);
     }
     virtual bool get_DKM(tsCryptoData &data) override
     {
@@ -590,10 +579,10 @@ public:
         uint32_t len;
 
         data.clear();
-        if (!desc->getDKM(desc, workspace, NULL, &len))
+        if (!desc->getDKM(workspace, NULL, &len))
             return false;
         data.resize(len);
-        if (!desc->getDKM(desc, workspace, data.rawData(), &len))
+        if (!desc->getDKM(workspace, data.rawData(), &len))
             return false;
         data.resize(len);
         return true;
@@ -606,10 +595,10 @@ public:
         uint32_t len;
 
         mac.clear();
-        if (!desc->computeMacForData(desc, workspace, data.c_str(), (uint32_t)data.size(), NULL, &len))
+        if (!desc->computeMacForData(workspace, data.c_str(), (uint32_t)data.size(), NULL, &len))
             return false;
         mac.resize(len);
-        if (!desc->computeMacForData(desc, workspace, data.c_str(), (uint32_t)data.size(), mac.rawData(), &len))
+        if (!desc->computeMacForData(workspace, data.c_str(), (uint32_t)data.size(), mac.rawData(), &len))
             return false;
         mac.resize(len);
         return true;
@@ -625,7 +614,7 @@ public:
     }
 
 private:
-    const TSDhKeyAgreementDescriptor* desc;
+    const TSIKas* desc;
     mutable SmartCryptoWorkspace workspace;
     tsCryptoString kdfName, kdfMacName, macName;
 

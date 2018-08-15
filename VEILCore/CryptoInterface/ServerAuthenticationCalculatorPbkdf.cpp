@@ -39,10 +39,10 @@ class ServerAuthenticationCalculatorPbkdfImpl : public ServerAuthenticationCalcu
 public:
     ServerAuthenticationCalculatorPbkdfImpl(const tsCryptoStringBase& algorithm)
     {
-        calc = (const TSCkmAuthCalcDescriptor *)tsFindGeneralAlgorithm("CKMAUTH-CALC");
+        calc = TSLookup(TSICkmAuthCalc, "CKMAUTH-CALC");
         macName = "HMAC-SHA512";
         hashName = "SHA512";
-        workspace = calc;
+        workspace = calc->def;
         _pbkdfHashAlg = "HMAC-SHA512";
     }
     virtual ~ServerAuthenticationCalculatorPbkdfImpl(void)
@@ -91,14 +91,14 @@ public:
         if (!TSGenerateRandom(seed, 32))
             return false;
 
-        if (!calc->init_pbkdf(calc, workspace, _pbkdfHashAlg.c_str(), iterCount, seed.c_str(), (uint32_t)seed.size()))
+        if (!calc->init_pbkdf(workspace, _pbkdfHashAlg.c_str(), iterCount, seed.c_str(), (uint32_t)seed.size()))
         {
             return false;
         }
 
         storedKey.resize(storedKeyLen);
         authenticationParameters.resize(authOutputLen);
-        if (!calc->computeServerAuth(calc, workspace, macName.c_str(), hashName.c_str(), authInfo.c_str(), (uint32_t)authInfo.size(), authenticationParameters.rawData(), &authOutputLen, storedKey.rawData(), &storedKeyLen))
+        if (!calc->computeServerAuth(workspace, macName.c_str(), hashName.c_str(), authInfo.c_str(), (uint32_t)authInfo.size(), authenticationParameters.rawData(), &authOutputLen, storedKey.rawData(), &storedKeyLen))
         {
             storedKey.clear();
             authenticationParameters.clear();
@@ -110,20 +110,28 @@ public:
     }
     virtual bool validateServerAuthenticationParameters(const tsCryptoData& authInfo, const tsCryptoData& authenticationParameters, const tsCryptoData& storedKey) override
     {
-        _POD_CkmAuthServerParameters params;
+        TSCkmAuthServerParameters params;
         tsCryptoData salt;
+        bool retVal;
 
         if (!gFipsState.operational())
             return false;
 
-        if (!params.Decode(authenticationParameters))
+        memset(&params, 0, sizeof(params));
+
+        if (!tsDecodeCkmAuthServerParameters(authenticationParameters.data(), (uint32_t)authenticationParameters.size(), &params, nullptr, nullptr))
+        {
+            tsFreeCkmAuthServerParameters(&params, nullptr, nullptr);
             return false;
+        }
 
 
-        salt = params.get_params().get_Pbkdf().get_Salt();
-        return 
-            calc->init_pbkdf(calc, workspace, _pbkdfHashAlg.c_str(), params.get_params().get_Pbkdf().get_IterationCount(), salt.c_str(), (uint32_t)salt.size()) &&
-            calc->validateServerAuth(calc, workspace, macName.c_str(), hashName.c_str(), authInfo.c_str(), (uint32_t)authInfo.size(), storedKey.c_str(), (uint32_t)storedKey.size());
+        salt = params.pbkdf.salt;
+        retVal = 
+            calc->init_pbkdf(workspace, _pbkdfHashAlg.c_str(), params.pbkdf.iterationCount, salt.c_str(), (uint32_t)salt.size()) &&
+            calc->validateServerAuth(workspace, macName.c_str(), hashName.c_str(), authInfo.c_str(), (uint32_t)authInfo.size(), storedKey.c_str(), (uint32_t)storedKey.size());
+        tsFreeCkmAuthServerParameters(&params, nullptr, nullptr);
+        return retVal;
     }
 
     // tscrypto::IInitializableObject
@@ -150,7 +158,7 @@ public:
     }
 
 private:
-    const TSCkmAuthCalcDescriptor *calc;
+    const TSICkmAuthCalc *calc;
     tsCryptoString macName;
     tsCryptoString hashName;
     SmartCryptoWorkspace workspace;

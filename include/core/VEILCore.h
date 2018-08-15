@@ -1172,8 +1172,8 @@ _Check_return_ extern VEILCORE_API bool TSGenerateRandom(tscrypto::tsCryptoData&
 _Check_return_ extern VEILCORE_API bool TSGenerateRandom(uint8_t* data, size_t lenInBytes);
 _Check_return_ extern VEILCORE_API bool TSGenerateStrongRandom(tscrypto::tsCryptoData& data, size_t lenInBytes);
 _Check_return_ extern VEILCORE_API bool TSGenerateStrongRandom(uint8_t* data, size_t lenInBytes);
-_Check_return_ extern VEILCORE_API bool TSWrap(const tscrypto::tsCryptoData &key, const tscrypto::tsCryptoData &dataToWrap, tscrypto::tsCryptoData &wrappedData, tscrypto::TS_ALG_ID alg = tscrypto::_TS_ALG_ID::TS_ALG_KEYWRAP_AES256);
-_Check_return_ extern VEILCORE_API bool TSUnwrap(const tscrypto::tsCryptoData &key, const tscrypto::tsCryptoData &dataToUnwrap, tscrypto::tsCryptoData &unwrappedData, tscrypto::TS_ALG_ID alg = tscrypto::_TS_ALG_ID::TS_ALG_KEYWRAP_AES256);
+_Check_return_ extern VEILCORE_API bool TSWrap(const tscrypto::tsCryptoData &key, const tscrypto::tsCryptoData &dataToWrap, tscrypto::tsCryptoData &wrappedData, TS_ALG_ID alg = TS_ALG_KEYWRAP_AES256);
+_Check_return_ extern VEILCORE_API bool TSUnwrap(const tscrypto::tsCryptoData &key, const tscrypto::tsCryptoData &dataToUnwrap, tscrypto::tsCryptoData &unwrappedData, TS_ALG_ID alg = TS_ALG_KEYWRAP_AES256);
 _Check_return_ extern VEILCORE_API bool TSPad(tscrypto::tsCryptoData& value, int blockSize);
 _Check_return_ extern VEILCORE_API bool TSUnpad(tscrypto::tsCryptoData& value, int blockSize);
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1187,7 +1187,7 @@ _Check_return_ extern VEILCORE_API bool TSUnpad(tscrypto::tsCryptoData& value, i
 /// <returns>S_OK for success, otherwise a standard COM error code.</returns>
 /// <seealso cref="tsCrypto::TSEncrypt"/>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-_Check_return_ extern VEILCORE_API bool TSEncryptInit(const tscrypto::tsCryptoData &Key, const tscrypto::tsCryptoData &IV, tscrypto::CryptoContext &Context, tscrypto::TS_ALG_ID AlgID = tscrypto::_TS_ALG_ID::TS_ALG_INVALID);
+_Check_return_ extern VEILCORE_API bool TSEncryptInit(const tscrypto::tsCryptoData &Key, const tscrypto::tsCryptoData &IV, tscrypto::CryptoContext &Context, TS_ALG_ID AlgID = TS_ALG_INVALID);
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>Encrypts data</summary>
 ///
@@ -1210,7 +1210,7 @@ _Check_return_ extern VEILCORE_API bool TSEncrypt(const tscrypto::tsCryptoData &
 /// <returns>S_OK for success, otherwise a standard COM error code.</returns>
 /// <seealso cref="tsCrypto::TSDecrypt"/>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-_Check_return_ extern VEILCORE_API bool TSDecryptInit(const tscrypto::tsCryptoData &Key, const tscrypto::tsCryptoData &IV, tscrypto::CryptoContext &Context, tscrypto::TS_ALG_ID AlgID = tscrypto::_TS_ALG_ID::TS_ALG_INVALID);
+_Check_return_ extern VEILCORE_API bool TSDecryptInit(const tscrypto::tsCryptoData &Key, const tscrypto::tsCryptoData &IV, tscrypto::CryptoContext &Context, TS_ALG_ID AlgID = TS_ALG_INVALID);
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /// <summary>Decrypts data</summary>
 ///
@@ -1224,7 +1224,7 @@ _Check_return_ extern VEILCORE_API bool TSDecryptInit(const tscrypto::tsCryptoDa
 _Check_return_ extern VEILCORE_API bool TSDecrypt(const tscrypto::tsCryptoData &source, tscrypto::tsCryptoData &dest, tscrypto::CryptoContext &Context);
 
 
-_Check_return_ bool VEILCORE_API TSBytesToKey(const tscrypto::tsCryptoData &Bytes, tscrypto::tsCryptoData &Key, tscrypto::TS_ALG_ID AlgID);
+_Check_return_ bool VEILCORE_API TSBytesToKey(const tscrypto::tsCryptoData &Bytes, tscrypto::tsCryptoData &Key, TS_ALG_ID AlgID);
 
 VEILCORE_API void xor8(const uint8_t* src, const uint8_t* second, uint8_t* dest);
 VEILCORE_API void xor16(const uint8_t* src, const uint8_t* second, uint8_t* dest);

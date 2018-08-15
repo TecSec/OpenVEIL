@@ -45,7 +45,7 @@ public:
     Prime_Provable()
     {
         SetName("PRIME-PROVABLE");
-        desc = tsFindProvablePrimeAlgorithm("FIPS186-3-PROVABLE-PRIME");
+        desc = TSLookup(TSIProvablePrime, "FIPS186-3-PROVABLE-PRIME");
     }
     virtual ~Prime_Provable(void)
     {
@@ -54,22 +54,22 @@ public:
     // ProvablePrime
     virtual bool GeneratePrime(size_t bitLength, const tsCryptoStringBase& hashName, const tsCryptoData &seed, tsCryptoData &prime, size_t &prime_gen_counter, size_t strength, tsCryptoData &primeSeed) override
     {
-        const TSHashDescriptor* hasher;
+        const TSIHash* hasher;
         SmartCryptoWorkspace hashWorkspace;
         uint32_t primeLen, counter = (uint32_t)prime_gen_counter;
 
         if (!gFipsState.operational() || desc == nullptr)
             return false;
 
-        hasher = tsFindHashAlgorithm(hashName.c_str());
+        hasher = TSLookup(TSIHash, hashName.c_str());
         if (hasher == nullptr)
             return false;
-        hashWorkspace = hasher;
+        hashWorkspace = hasher->def;
 
         primeLen = (uint32_t)(bitLength + 7) / 8;
         prime.resize(primeLen);
         primeSeed = seed;
-        bool retVal = desc->generatePrime(desc, hasher, hashWorkspace, (uint32_t)bitLength, primeSeed.rawData(), (uint32_t)primeSeed.size(), prime.rawData(), &primeLen, &counter, (uint32_t)strength);
+        bool retVal = desc->generatePrime(desc, hashWorkspace, (uint32_t)bitLength, primeSeed.rawData(), (uint32_t)primeSeed.size(), prime.rawData(), &primeLen, &counter, (uint32_t)strength);
         prime_gen_counter = counter;
         prime.resize(primeLen);
         if (!retVal)
@@ -82,7 +82,7 @@ public:
     virtual bool ConstructPrimeFromFactors(size_t bitLength, const tsCryptoStringBase& hashName, size_t p1BitLength, size_t p2BitLength, tsCryptoData &firstSeed, const tsCryptoData &exponent, 
         tsCryptoData &p1, tsCryptoData &p2, tsCryptoData &p, tsCryptoData &pSeed, size_t &counter, size_t strength) override
     {
-        const TSHashDescriptor* hasher;
+        const TSIHash* hasher;
         SmartCryptoWorkspace hashWorkspace;
         uint32_t count = (uint32_t)counter;
         uint32_t primeLen = (uint32_t)(bitLength + 7) / 8;
@@ -92,16 +92,16 @@ public:
         if (!gFipsState.operational() || desc == nullptr)
             return false;
 
-        hasher = tsFindHashAlgorithm(hashName.c_str());
+        hasher = TSLookup(TSIHash, hashName.c_str());
         if (hasher == nullptr)
             return false;
-        hashWorkspace = hasher;
+        hashWorkspace = hasher->def;
 
         p.resize(primeLen);
         p1.resize(p1Len);
         p2.resize(p2Len);
 
-        bool retVal = desc->constructPrimeFromFactors(desc, hasher, hashWorkspace, (uint32_t)bitLength, (uint32_t)p1BitLength, (uint32_t)p2BitLength, 
+        bool retVal = desc->constructPrimeFromFactors(desc, hashWorkspace, (uint32_t)bitLength, (uint32_t)p1BitLength, (uint32_t)p2BitLength, 
             firstSeed.rawData(), (uint32_t)firstSeed.size(), exponent.c_str(), (uint32_t)exponent.size(), p1.rawData(), &p1Len, p2.rawData(), &p2Len, p.rawData(), &primeLen, &count, (uint32_t)strength);
         counter = count;
         p.resize(primeLen);
@@ -141,7 +141,7 @@ public:
     }
 
 protected:
-    const TSProvablePrimeDescriptor* desc;
+    const TSIProvablePrime* desc;
 };
 
 tscrypto::ICryptoObject* CreateProvablePrime()

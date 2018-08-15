@@ -489,138 +489,6 @@ set(SDK_RUNTIME_BINARIES
     )
 ENDIF(BUILD_SXS)
 	
-set(GMOCK_BINARIES
-    ${CMAKE_SHARED_MODULE_PREFIX}gmock.dll
-    ${CMAKE_SHARED_MODULE_PREFIX}gmock_main.dll
-    ${CMAKE_SHARED_MODULE_PREFIX}gtest.dll
-    ${CMAKE_SHARED_MODULE_PREFIX}gtest_main.dll
-    )
-macro(CopySdkFrameworkBinaries folder name)
-	set(__list "")
-    foreach(_file ${SDK_FRAMEWORK_BINARIES})
-        CopyFile(${SDK_ROOT_VS}/bin/${TS_X_PLATFORM}/${_file} ${folder}/${_file})
-		set(__list ${__list} ${folder}/${_file})
-    endforeach()
-    add_custom_target(Start_AppFolders_${name}
-        SOURCES
-            ${__list}
-        DEPENDS
-            ${name}
-            ${ARGN}
-        COMMAND
-            ${CMAKE_COMMAND} -E echo Creating the application output folders
-        )    
-endmacro()
-macro(CopySdkFrameworkBinariesAndGmock folder name)
-	set(__list "")
-    foreach(_file ${SDK_FRAMEWORK_BINARIES})
-        CopyFile(${SDK_ROOT_VS}/bin/${TS_X_PLATFORM}/${_file} ${folder}/${_file})
-		set(__list ${__list} ${folder}/${_file})
-    endforeach()
-    foreach(_file ${GMOCK_BINARIES})
-        CopyFile(${PUBLIC_SOURCE_TOP_DIR}/../thirdparty/${TS_VS_CONFIGURATION}/${_file} ${folder}/${_file})
-		set(__list ${__list} ${folder}/${_file})
-    endforeach()
-    add_custom_target(Start_AppFolders_${name}
-        SOURCES
-            ${__list}
-        DEPENDS
-            ${name}
-            ${ARGN}
-        COMMAND
-            ${CMAKE_COMMAND} -E echo Creating the application output folders
-        )    
-endmacro()
-macro(CopySdkCryptoBinaries folder name)
-	set(__list "")
-    foreach(_file ${SDK_CRYPTO_BINARIES})
-        CopyFile(${SDK_ROOT_VS}/bin/${TS_X_PLATFORM}/${_file} ${folder}/${_file})
-		set(__list ${__list} ${folder}/${_file})
-    endforeach()
-    add_custom_target(Start_AppFolders_${name}
-        SOURCES
-            ${__list}
-            
-        DEPENDS
-            ${name}
-            ${ARGN}
-        COMMAND
-            echo Creating the application output folders
-        )    
-endmacro()
-macro(CopySdkCryptoBinariesAndGmock folder name)
-	set(__list "")
-    foreach(_file ${SDK_CRYPTO_BINARIES})
-        CopyFile(${SDK_ROOT_VS}/bin/${TS_X_PLATFORM}/${_file} ${folder}/${_file})
-		set(__list ${__list} ${folder}/${_file})
-    endforeach()
-    foreach(_file ${GMOCK_BINARIES})
-        CopyFile(${PUBLIC_SOURCE_TOP_DIR}/../thirdparty/${TS_VS_CONFIGURATION}/${_file} ${folder}/${_file})
-		set(__list ${__list} ${folder}/${_file})
-    endforeach()
-    add_custom_target(Start_AppFolders_${name}
-        SOURCES
-            ${__list}
-        DEPENDS
-            ${name}
-            ${ARGN}
-        COMMAND
-            echo Creating the application output folders
-        )    
-endmacro()
-macro(CopySdkRuntimeBinaries folder name)
-	set(__list "")
-    foreach(_file ${SDK_RUNTIME_BINARIES})
-        CopyFile(${SDK_ROOT_VS}/bin/${TS_X_PLATFORM}/${_file} ${folder}/${_file})
-		set(__list ${__list} ${folder}/${_file})
-    endforeach()
-    add_custom_target(Start_AppFolders_${name}
-        SOURCES
-            ${__list}
-            
-        DEPENDS
-            ${name}
-            ${ARGN}
-        COMMAND
-            echo Creating the application output folders
-        )    
-endmacro()
-macro(CopySdkRuntimeBinariesAndGmock folder name)
-	set(__list "")
-    foreach(_file ${SDK_RUNTIME_BINARIES})
-        CopyFile(${SDK_ROOT_VS}/bin/${TS_X_PLATFORM}/${_file} ${folder}/${_file})
-		set(__list ${__list} ${folder}/${_file})
-    endforeach()
-    foreach(_file ${GMOCK_BINARIES})
-        CopyFile(${PUBLIC_SOURCE_TOP_DIR}/../thirdparty/${TS_VS_CONFIGURATION}/${_file} ${folder}/${_file})
-		set(__list ${__list} ${folder}/${_file})
-    endforeach()
-    add_custom_target(Start_AppFolders_${name}
-        SOURCES
-            ${__list}
-        DEPENDS
-            ${name}
-            ${ARGN}
-        COMMAND
-            echo Creating the application output folders
-        ) 
-endmacro()
-macro(CopySdkRteBinariesToWeb name folder)
-	set(__list "")
-    foreach(_file ${SDK_RUNTIME_BINARIES})
-        CopyFile(${SDK_ROOT_VS}/bin/${TS_X_PLATFORM}/${_file} ${APP_TEST_ROOT_VS}/${folder}/${TS_X_PLATFORM}-${TS_TOOLSET}/Web/bin/${_file})
-		set(__list ${__list} ${APP_TEST_ROOT_VS}/${folder}/${TS_X_PLATFORM}-${TS_TOOLSET}/Web/bin/${_file})
-    endforeach()
-    add_custom_target(Start_AppFolders.Web.${name}
-        SOURCES
-			${__list}
-
-		COMMAND
-            echo Creating the application output folders
-        )    
-        set_target_properties(Start_AppFolders.Web.${name} PROPERTIES FOLDER "Finish")
-endmacro()
-
 macro(Minify source dest)
 if(APPLE)
 	GET_FILENAME_COMPONENT(__destFile ${dest} NAME)
@@ -702,6 +570,28 @@ macro(CopyImportTargetBinariesToBuildFolder target dest)
                 ${_file}
         )
         LIST(APPEND soFilesToCopy "${dest}/${__destFile}")
+    endforeach()
+endmacro()
+macro(CopyTargetBinariesToJar target jarName incVar)
+    get_property(_tmp TARGET ${target} PROPERTY INTERFACE_BIN_MODULES_${TS_CONFIG})
+    foreach(_file ${_tmp})
+        GET_FILENAME_COMPONENT(__destPath ${_file} DIRECTORY)
+        GET_FILENAME_COMPONENT(__destFile ${_file} NAME)
+        set(__old ${${incVar}})
+        MATH(EXPR ${incVar} "${${incVar}}+1")
+        add_custom_command(
+            OUTPUT
+                ${jarName}.${${incVar}}.jar
+            COMMAND 
+                ${CMAKE_COMMAND} -E copy_if_different ${jarName}.${__old}.jar ${jarName}.${${incVar}}.jar
+            COMMAND 
+                ${CMAKE_Java_ARCHIVE} -uf ${jarName}.${${incVar}}.jar -C "${__destPath}" "${__destFile}"
+            DEPENDS
+                ${_file}
+                ${jarName}.${__old}.jar
+                ${ARGN}
+        )
+        LIST(APPEND soFilesInJar ${jarName}.${${incVar}}.jar)
     endforeach()
 endmacro()
 macro(CopyImportTargetTools target dest)

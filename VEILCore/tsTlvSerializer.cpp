@@ -333,7 +333,7 @@ static bool matches(const tsCryptoData& inOid, int32_t inVersion, const Asn1Vers
 	return true;
 }
 
-bool tscrypto::FindVersionToEncode(void* data, const Asn1StructureDefinition2& def, const struct Asn1Metadata2*& metadata, size_t& count)
+bool tscrypto::FindVersionToEncode(void* data, const Asn1StructureDefinition2& def, const struct Asn1Metadata2*& metadata, uint32_t& count)
 {
 	tsCryptoData oid;
 	int32_t version = -1;
@@ -383,12 +383,12 @@ bool tscrypto::FindVersionToEncode(void* data, const Asn1StructureDefinition2& d
 		}
 	}
 	metadata = def.subMetadata;
-	count = def.subMetadataCount;
+	count = (uint32_t)def.subMetadataCount;
 	if (metadata != nullptr && count > 0)
 		return true;
 	return false;
 }
-bool tscrypto::FindVersionToDecode(const std::shared_ptr<TlvNode> root, const Asn1StructureDefinition2& def, const struct Asn1Metadata2*& metadata, size_t& count)
+bool tscrypto::FindVersionToDecode(const std::shared_ptr<TlvNode> root, const Asn1StructureDefinition2& def, const struct Asn1Metadata2*& metadata, uint32_t& count)
 {
 	tsCryptoData oid;
 	int32_t version = -1;
@@ -423,7 +423,7 @@ bool tscrypto::FindVersionToDecode(const std::shared_ptr<TlvNode> root, const As
 		}
 	}
 	metadata = def.subMetadata;
-	count = def.subMetadataCount;
+	count = (uint32_t)def.subMetadataCount;
 	if (metadata != nullptr && count > 0)
 		return true;
 	return false;

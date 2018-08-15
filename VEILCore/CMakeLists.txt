@@ -51,15 +51,6 @@ endif(APPLE)
 add_definitions("-DDLL_FRAMEWORK_USONLY")
 add_definitions("-DWFMO")
 
-if(MINGW)
-    string(REPLACE "/" "\\" xmlCodeGen ${CRYPTO_BIN_DIR}/xml2Asn1CodeGen${CMAKE_EXECUTABLE_SUFFIX})
-    # message(STATUS "CodeGen Path ${xmlCodeGen}")
-    elseif(APPLE)
-        set(xmlCodeGen /usr/local/bin/xml2Asn1CodeGen)
-else()
-    set(xmlCodeGen ${CRYPTO_BIN_DIR}/xml2Asn1CodeGen${CMAKE_EXECUTABLE_SUFFIX})
-endif()
-
 add_custom_command(
     OUTPUT
         ${CMAKE_CURRENT_BINARY_DIR}/CryptoAsn1.cpp
@@ -68,7 +59,7 @@ add_custom_command(
     DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/CryptoAsn1.xasn
     COMMAND
-        ${xmlCodeGen} --output=${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/CryptoAsn1.xasn
+        xml2Asn1CodeGen --output=${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/CryptoAsn1.xasn
     COMMAND
         ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/CryptoAsn1.export ${PUBLIC_BINARY_TOP_DIR}/core/CryptoAsn1.export
     COMMAND
@@ -90,7 +81,7 @@ add_custom_command(
         ${CMAKE_CURRENT_SOURCE_DIR}/pkix.xasn
         ${PUBLIC_BINARY_TOP_DIR}/core/CryptoAsn1.export
     COMMAND
-        ${xmlCodeGen} --output=${CMAKE_CURRENT_BINARY_DIR} -e=${PUBLIC_BINARY_TOP_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/pkix.xasn
+        xml2Asn1CodeGen --output=${CMAKE_CURRENT_BINARY_DIR} -e=${PUBLIC_BINARY_TOP_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/pkix.xasn
     COMMAND
         ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/PKIX.export ${PUBLIC_BINARY_TOP_DIR}/core/PKIX.export
     COMMAND
@@ -114,7 +105,7 @@ add_custom_command(
         ${PUBLIC_BINARY_TOP_DIR}/core/CryptoAsn1.export
         ${CMAKE_CURRENT_SOURCE_DIR}/Asn1CkmHeader.xasn
     COMMAND
-        ${xmlCodeGen} --output=${CMAKE_CURRENT_BINARY_DIR} -e=${CRYPTO_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/Asn1CkmHeader.xasn
+        xml2Asn1CodeGen --output=${CMAKE_CURRENT_BINARY_DIR} -e=${CRYPTO_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/Asn1CkmHeader.xasn
     COMMAND
         ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/Asn1CkmHeader.h ${PUBLIC_BINARY_TOP_DIR}/Asn1CkmHeader.h
     COMMAND
@@ -133,7 +124,7 @@ add_custom_command(
         ${CMAKE_CURRENT_SOURCE_DIR}/TokenPacket.xasn
         ${PUBLIC_BINARY_TOP_DIR}/core/CryptoAsn1.export
     COMMAND
-        ${xmlCodeGen} --output=${CMAKE_CURRENT_BINARY_DIR} -e=${CRYPTO_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/TokenPacket.xasn
+        xml2Asn1CodeGen --output=${CMAKE_CURRENT_BINARY_DIR} -e=${CRYPTO_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/TokenPacket.xasn
     COMMAND
         ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/TokenPacket.h ${PUBLIC_BINARY_TOP_DIR}/TokenPacket.h
     COMMAND
@@ -390,7 +381,7 @@ target_include_directories(VEILCore INTERFACE $<BUILD_INTERFACE:${PUBLIC_SOURCE_
 add_definitions("-DVEILCORE_EXPORTS")
 
 if(APPLE)
-    TARGET_LINK_LIBRARIES(VEILCore ${CyberVEIL_TARGET} ${CyberVEILdb_TARGET} ${CyberVEILsup_TARGET} ${CyberVEILdb_TARGET} ${Security_LIBRARY} ${VEILCore_TARGET} ${ApplicationServices_LIBRARY})
+    TARGET_LINK_LIBRARIES(VEILCore ${CyberVEIL_TARGET} ${CyberVEILdb_TARGET} ${CyberVEILsup_TARGET} ${CyberVEILcpp_TARGET} ${Security_LIBRARY} ${VEILCore_TARGET} ${ApplicationServices_LIBRARY})
 else()
     TARGET_LINK_LIBRARIES(VEILCore CyberVEIL CyberVEILsup CyberVEILdb)
 endif(APPLE)

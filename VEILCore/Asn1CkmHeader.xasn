@@ -47,10 +47,10 @@
           <SequenceOf Name="Name" Tag="Set" JSONName="nameParts">
             <Sequence Name="CmsName" ElementType="CmsName" Tag="Sequence" Type="Universal" JSONName="namePart"/>
           </SequenceOf>
-          <OctetString Name="SerialNumber" JSONName="serial"/>
+          <HexOctetString Name="SerialNumber" JSONName="serial"/>
         </Sequence>
         <Sequence Name="CmsHE_Attribute" JSONName="attribute">
-          <OctetString Name="Id" JSONName="id"/>
+          <HexOctetString Name="Id" JSONName="id"/>
           <Int32 Name="Version" Initializer="0" JSONName="version"/>
           <Int32 Name="CryptoGroupNumber" Initializer="0" JSONName="cgNo"/>
           <OctetString Name="Signature" Optional="true" JSONName="signature"/>
@@ -69,7 +69,7 @@
           <OctetString Name="EphemeralValue" JSONName="ephData"/>
         </Sequence>
         <Sequence Name="CmsHE_CryptoGroup" JSONName="cg">
-          <OctetString Name="CryptoGroupId" JSONName="id"/>
+          <HexOctetString Name="CryptoGroupId" JSONName="id"/>
           <Int32 Name="CML" Initializer="0" JSONName="cml"/>
           <OctetString Name="EphemeralPublic" Optional="true" JSONName="ephPub"/>
           <SequenceOf Name="EphemeralSet" Optional="true" Tag="0" Type="Context" JSONName="ephemSet">
@@ -86,7 +86,7 @@
           <OctetString Name="ProtectedValue" Optional="true" JSONName="value"/>
         </Sequence>
         <Sequence Name="CmsHE_PartialCert" JSONName="partialCert">
-          <OctetString Name="KeyId" JSONName="keyId"/>
+          <HexOctetString Name="KeyId" JSONName="keyId"/>
           <OctetString Name="Subject" JSONName="subject"/>
           <OctetString Name="ProtectedValue" Optional="true" JSONName="value"/>
         </Sequence>
@@ -134,7 +134,7 @@
             <Int32 Name="Compression" JSONName="compression"/>
             <Int32 Name="Padding" JSONName="padding"/>
 
-            <OctetString Name="objectId" JSONName="objId"/>
+            <HexOctetString Name="objectId" JSONName="objId"/>
             <SequenceOf Name="ProtectedExtensions" JSONName="protected"/>
             <Sequence Name="SignatureAlgorithm" ElementType="AlgorithmIdentifier" JSONName="sigAlg"/>
           </Part>
@@ -143,18 +143,18 @@
           <Int32 Name="CombinerVersion" JSONName="combinerVersion"/>
           <Choice Name="WhoCreated" JSONName="who">
             <Sequence Name="Issuer" ElementType="CmsIssuerAndSerialNumber" JSONName="issuer"/>
-            <OctetString Name="SubjectId" Tag="0" Type="Context" JSONName="subjectId"/>
+            <HexOctetString Name="SubjectId" Tag="0" Type="Context" JSONName="subjectId"/>
             <Guid Name="SubjectGuid" Tag="1" Type="Context" JSONName="subjectGuid"/>
           </Choice>
           <Date Name="CreationDate" JSONName="created"/>
           <Choice Name="EncAlg" JSONName="encAlg">
-            <Enum Name="EncryptionAlgorithmId" ElementType="tscrypto::TS_ALG_ID" BaseType="Int32" Tag="Number" Initializer="tscrypto::_TS_ALG_ID::TS_ALG_INVALID" JSONName="algId"/>
+            <Enum Name="EncryptionAlgorithmId" ElementType="TS_ALG_ID" BaseType="Int32" Tag="Number" Initializer="TS_ALG_INVALID" JSONName="algId"/>
             <Sequence Name="EncryptionAlgorithm" ElementType="AlgorithmIdentifier" JSONName="algorithm"/>
           </Choice>
           <Int32 Name="Compression" Default="0" Tag="0" Type="Context" JSONName="compression"/>
           <Int32 Name="Padding" Default="0" Tag="1" Type="Context" JSONName="padding"/>
 
-          <OctetString Name="objectId" Tag="6" Type="Context" Optional="true" JSONName="objId"/>
+          <HexOctetString Name="objectId" Tag="6" Type="Context" Optional="true" JSONName="objId"/>
 
           <SequenceOf Name="ProtectedExtensions" Tag="2" Type="Context" Optional="true" JSONName="protected">
             <Sequence Name="CmsExtension" ElementType="CmsExtension" Tag="Sequence" Type="Universal" JSONName="extension"/>
@@ -166,7 +166,7 @@
           </SequenceOf>
           <Int32 Name="PaddedSize" Tag="7" Type="Context" Optional="true" JSONName="paddedSize"/>
 
-          <!--<Function ReturnType="tscrypto::TS_ALG_ID" Name="getEncryptionAlgorithmAsId" Parameters="" suffix="const">
+          <!--<Function ReturnType="TS_ALG_ID" Name="getEncryptionAlgorithmAsId" Parameters="" suffix="const">
                         <Description>
                             <![CDATA[<Summary>Retrieves the encryption algorithm id translated into a TS_ALG_ID</Summary>
 <Returns>The TS_ALG_ID of the encryption algorithm</Returns>
@@ -180,7 +180,7 @@ case CmsHeaderData_EncAlg::Choice_EncryptionAlgorithmId: // ID
 case CmsHeaderData_EncAlg::Choice_EncryptionAlgorithm: // AlgorithmIdentifier
     return tsCrypto::OIDtoID(_EncAlg._EncryptionAlgorithm._oid.oidString());
 default:
-    return tscrypto::_TS_ALG_ID::TS_ALG_INVALID;
+    return TS_ALG_INVALID;
 }
 ]]>
                     </Function>
@@ -197,10 +197,10 @@ default:
 }
 ]]>
                     </Function>
-                    <Function ReturnType="tscrypto::TS_ALG_ID" Name="getSignatureAlgorithmAsId" Parameters="" suffix="const">
+                    <Function ReturnType="TS_ALG_ID" Name="getSignatureAlgorithmAsId" Parameters="" suffix="const">
                         <![CDATA[
 if (_SignatureAlgorithm.value == nullptr)
-    return tscrypto::_TS_ALG_ID::TS_ALG_INVALID;
+    return TS_ALG_INVALID;
                                     
 return tsCrypto::OIDtoID(dynamic_cast<tscrypto::AlgorithmIdentifier*>(_SignatureAlgorithm.value)->_oid.oidString());
 ]]>
@@ -212,7 +212,7 @@ if (_SignatureAlgorithm.value != nullptr)
 return tscrypto::tsCryptoData();
 ]]>
                     </Function>
-                    <Function ReturnType="void" Name="setSignatureAlgorithmId" Parameters="tscrypto::TS_ALG_ID id">
+                    <Function ReturnType="void" Name="setSignatureAlgorithmId" Parameters="TS_ALG_ID id">
 <![CDATA[
 tscrypto::AlgorithmIdentifier ai;
 ai._oid.oidString(tsCrypto::IDtoOID(id));

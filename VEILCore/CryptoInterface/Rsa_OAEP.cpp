@@ -274,7 +274,7 @@ public:
 			tmp += "-SHA1";
 			SetName(tmp);
 		}
-		if (!(m_hasher = std::dynamic_pointer_cast<Hash>(CryptoFactory(&GetName().c_str()[9]))))
+		if (!(m_hasher = std::dynamic_pointer_cast<Hash>(CryptoFactory(&GetName()[9]))))
 		{
 			return false;
 		}

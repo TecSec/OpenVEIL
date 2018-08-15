@@ -72,16 +72,16 @@ public:
         if (tsStrniCmp(algName.c_str(), "HASH-", 5) == 0)
             algName.erase(0, 5);
         algName.ToUpper();
-        desc = tsFindHashAlgorithm(algName.c_str());
+        desc = TSLookup(TSIHash, algName.c_str());
         if (desc == nullptr)
         {
             tsCryptoStringList parts = tsCryptoString(fullName).split("-");
-            desc = tsFindHashAlgorithm(parts->back().c_str());
+            desc = TSLookup(TSIHash, parts->back().c_str());
         }
         if (desc != nullptr)
         {
             context.reset();
-            context = desc;
+            context = desc->def;
         }
         SetName(fullName);
         context.reset();
@@ -89,7 +89,7 @@ public:
     }
 private:
     SmartCryptoWorkspace context;
-    const TSHashDescriptor* desc;
+    const TSIHash* desc;
 };
 
 tscrypto::ICryptoObject* CreateHash()
@@ -99,10 +99,10 @@ tscrypto::ICryptoObject* CreateHash()
 Hash_Alg::Hash_Alg(const tsCryptoStringBase& algorithm)
 {
     tsCryptoStringList parts = tsCryptoString(algorithm).split("-");
-    desc = tsFindHashAlgorithm(parts->back().c_str());
+    desc = TSLookup(TSIHash, parts->back().c_str());
     if (desc != nullptr)
     {
-        context = desc;
+        context = desc->def;
     }
     SetName(algorithm);
     context.reset();
@@ -118,8 +118,8 @@ bool Hash_Alg::initialize()
     if (!gFipsState.operational())
         return false;
     context.reset();
-    context = desc;
-    return desc->init(desc, context);
+    context = desc->def;
+    return desc->init(context);
 }
 
 bool Hash_Alg::update(const tsCryptoData &data)
@@ -130,7 +130,7 @@ bool Hash_Alg::update(const tsCryptoData &data)
         return false;
     if (data.size() > 0)
     {
-        return desc->update(desc, context, data.c_str(), (uint32_t)data.size());
+        return desc->update(context, data.c_str(), (uint32_t)data.size());
     }
     return true;
 }
@@ -142,7 +142,7 @@ bool Hash_Alg::finish(tsCryptoData &digest)
     digest.resize(desc->digestSize);
     if (!context.empty())
     {
-        if (!desc->finish(desc, context, digest.rawData(), (uint32_t)digest.size()))
+        if (!desc->finish(context, digest.rawData(), (uint32_t)digest.size()))
         {
             digest.clear();
             return false;

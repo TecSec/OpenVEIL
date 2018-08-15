@@ -38,7 +38,7 @@ class MAC_Handler : public TSName, public MessageAuthenticationCode, public tscr
 public:
     MAC_Handler()
     {
-        desc = tsFindMacAlgorithm("HMAC-SHA512");
+        desc = TSLookup(TSIMac, "HMAC-SHA512");
     }
     virtual ~MAC_Handler(void)
     {
@@ -50,9 +50,9 @@ public:
         if (!gFipsState.operational() || desc == nullptr)
             return false;
 
-        context = desc;
+        context = desc->def;
 
-        return desc->init(desc, context, key.c_str(), (uint32_t)key.size());
+        return desc->init(context, key.c_str(), (uint32_t)key.size());
     }
     virtual bool update(const tsCryptoData &data) override
     {
@@ -61,7 +61,7 @@ public:
 
         if (data.size() > 0)
         {
-            return desc->update(desc, context, data.c_str(), (uint32_t)data.size());
+            return desc->update(context, data.c_str(), (uint32_t)data.size());
         }
         return true;
     }
@@ -72,7 +72,7 @@ public:
 
         digest.clear();
         digest.resize(desc->getDigestSize(desc));
-        bool retVal = desc->finish(desc, context, digest.rawData(), (uint32_t)digest.size());
+        bool retVal = desc->finish(context, digest.rawData(), (uint32_t)digest.size());
         if (!retVal)
             digest.clear();
         context.reset();
@@ -155,14 +155,14 @@ public:
             algName.ToUpper().Replace("SHA3-", "SHA3_");
 
             SetName(algorithm);
-            desc = tsFindMacAlgorithm(algName.c_str());
+            desc = TSLookup(TSIMac, algName.c_str());
         }
         else if (tsStrniCmp(algorithm.c_str(), "CMAC", 4) == 0)
         {
             if (algorithm.size() < 6)
             {
                 SetName("CMAC-AES");
-                desc = tsFindMacAlgorithm("CMAC-AES");
+                desc = TSLookup(TSIMac, "CMAC-AES");
                 if (desc == nullptr)
                 {
                     return false;
@@ -173,7 +173,7 @@ public:
             {
                 tsCryptoString name = "CMAC-";
                 name << &algorithm[5];
-                desc = tsFindMacAlgorithm(name.c_str());
+                desc = TSLookup(TSIMac, name.c_str());
                 if (desc == nullptr)
                 {
                     tsCryptoStringList parts = name.split("-");
@@ -188,7 +188,7 @@ public:
                             if (!tmp.empty())
                                 tmp << "-";
                             tmp << s;
-                            desc = tsFindMacAlgorithm(tmp.c_str());
+                            desc = TSLookup(TSIMac, tmp.c_str());
                             if (desc != nullptr)
                             {
                                 foundIt = true;
@@ -206,7 +206,7 @@ public:
         {
             algorithm = "POLY1305";
             SetName("POLY1305");
-            desc = tsFindMacAlgorithm("POLY1305");
+            desc = TSLookup(TSIMac, "POLY1305");
         }
         
         if (desc == nullptr)
@@ -216,7 +216,7 @@ public:
 
 private:
     SmartCryptoWorkspace context;
-    const TSMacDescriptor* desc;
+    const TSIMac* desc;
 };
 
 tscrypto::ICryptoObject* CreateMAC()

@@ -473,7 +473,7 @@ public:
         _AEAD.reset();
         _symm.reset();
         _hasher.reset();
-        _closeAfterTransmit = false;
+        //_closeAfterTransmit = false;
         if (!!_tunnel)
             _tunnel->Logout();
         //if (!!_httpsTunnel)
@@ -502,26 +502,30 @@ public:
     // authenticationInitiatorTunnelKeyHandler
     virtual tscrypto::tsCryptoData getAuthenticationInformation(const tscrypto::tsCryptoData& serverRequirements) override
     {
-        _POD_CkmAuthInitiatorParameters initParams;
+        TSCkmAuthInitiatorParameters initParams;
         tscrypto::tsCryptoString password;
 
-        if (!initParams.Decode(serverRequirements))
+        memset(&initParams, 0, sizeof(initParams));
+        if (!tsDecodeCkmAuthInitiatorParametersBuffer(serverRequirements.getByteBuff(), &initParams, nullptr, nullptr))
         {
+            tsFreeCkmAuthInitiatorParameters(&initParams, nullptr, nullptr);
             return tscrypto::tsCryptoData();
         }
 
-        if (initParams.get_authParameters().get_params().get_selectedItem() != _POD_CkmAuthServerParameters_params::Choice_Pbkdf)
+        if (initParams.authParameters.authChoice != 1)
         {
+            tsFreeCkmAuthInitiatorParameters(&initParams, nullptr, nullptr);
             return tscrypto::tsCryptoData();
         }
+        tsFreeCkmAuthInitiatorParameters(&initParams, nullptr, nullptr);
         return _serverPin;
     }
 
     // authenticationControlDataCommunications
-    virtual bool sendControlData(const tscrypto::tsCryptoData& dest) override
+    virtual bool sendControlData(const tscrypto::tsCryptoData& dest, ts_bool closeAfterWrite) override
     {
         if (!!_channel)
-            return _channel->RawSend(dest);
+            return _channel->RawSend(dest, closeAfterWrite);
         if (!!_callbacks)
             return _callbacks->RawSend(dest);
         return false;
@@ -645,13 +649,14 @@ public:
     {
         return _failureReason;
     }
-    virtual void setCloseAfterTransmit() override
+    virtual void reserved1() override
     {
-        _closeAfterTransmit = true;
+        //_closeAfterTransmit = true;
     }
-    virtual bool shouldCloseAfterTransmit() override
+    virtual bool reserved2() override
     {
-        return _closeAfterTransmit;
+        return false;
+        //return _closeAfterTransmit;
     }
     virtual bool sendReceivedData(const tscrypto::tsCryptoData& dest) override
     {
@@ -719,7 +724,7 @@ public:
         return false;
     }
 
-    TcpMsgProcessor() : _sequenceNumber(0), _transportState(IHttpChannelProcessor::inactive), _closeAfterTransmit(false) {}
+    TcpMsgProcessor() : _sequenceNumber(0), _transportState(IHttpChannelProcessor::inactive)/*, _closeAfterTransmit(false)*/ {}
     ~TcpMsgProcessor(){}
 protected:
     TSSslAlertDescription CertificateVerifier(const tscrypto::tsCryptoDataList& certificate, TSSslCipher cipher)
@@ -839,7 +844,7 @@ protected:
     std::function<TSSslAlertDescription(const tscrypto::tsCryptoDataList& certificate, TSSslCipher cipher)> _CertVerifier;
     std::function<bool(const tscrypto::tsCryptoData& hint, tscrypto::tsCryptoData& identity, tscrypto::tsCryptoData& psk)> _pskCallback;
     tscrypto::tsCryptoString _ckmAuthUsername;
-    bool _closeAfterTransmit;
+    //bool _closeAfterTransmit;
 
     std::shared_ptr<CCM_GCM> _AEAD;
     std::shared_ptr<Symmetric> _symm;

@@ -1124,7 +1124,7 @@ protected:
 
 		if (GetProfile()->exists_cryptoGroupList())
 		{
-			for (size_t i = 0; i < GetProfile()->get_cryptoGroupList()->size(); i++)
+			for (uint32_t i = 0; i < GetProfile()->get_cryptoGroupList()->size(); i++)
 			{
 				if (GetProfile()->get_cryptoGroupList()->get_at(i).get_Id() == id)
 				{
@@ -1140,7 +1140,7 @@ protected:
 		if (!HasSession() || !Session()->IsValid() || !HasProfile() || !GetProfile()->exists_cryptoGroupList() || GetProfile()->get_cryptoGroupList()->size() == 0)
 			return -1;
 
-		for (size_t i = 0; i < GetProfile()->get_cryptoGroupList()->size(); i++)
+		for (uint32_t i = 0; i < GetProfile()->get_cryptoGroupList()->size(); i++)
 		{
 			if (GetProfile()->get_cryptoGroupList()->get_at(i).get_Id() == id)
 				return (int)i;

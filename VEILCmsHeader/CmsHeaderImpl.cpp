@@ -754,7 +754,7 @@ public:
 				return false;
 			}
 
-			for (size_t i = 0; i < rGroups.size(); i++)
+			for (uint32_t i = 0; i < rGroups.size(); i++)
 			{
 				andGroup.reset();
 				attributeGroup.reset();
@@ -766,7 +766,7 @@ public:
 				const Asn1::CTS::_POD_AccessGroup& ag = rGroups.get_at(i);
 				const Asn1::CTS::_POD_AccessGroup_attributes& attrs = ag.get_attributes();
 
-				for (size_t j = 0; j < attrs.size(); j++)
+				for (uint32_t j = 0; j < attrs.size(); j++)
 				{
 					int idx = findAttributeIndex(attrList, attrs.get_at(j).get_id());
 
@@ -800,7 +800,7 @@ public:
 		tscrypto::tsCryptoData Empty, hash;
 
 		m_failureReason.clear();
-		if (!(hasher = std::dynamic_pointer_cast<Hash>(CryptoFactory(_TS_ALG_ID::TS_ALG_SHA512))) || !hasher->initialize())
+		if (!(hasher = std::dynamic_pointer_cast<Hash>(CryptoFactory(TS_ALG_SHA512))) || !hasher->initialize())
 		{
 			LogError("Invalid hash algorithm");
 			return Empty;
@@ -889,7 +889,7 @@ public:
 		return true;
 	}
 	virtual bool PrepareHeader(CompressionType comp, TS_ALG_ID algorithm, TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData,
-		CMSFileFormatIds DataFormat, bool randomIvec, SymmetricPaddingType paddingType, int blockSize, int64_t fileSize) override
+        TS_ALG_ID DataFormat, bool randomIvec, SymmetricPaddingType paddingType, int blockSize, int64_t fileSize) override
 	{
 		TSDECLARE_FUNCTIONExt(true);
 
@@ -923,7 +923,7 @@ public:
 
 		const char *keySizeOid = id_TECSEC_CKM7_KEY_AND_IVEC_OID;
 
-		if (hashAlgorithm != _TS_ALG_ID::TS_ALG_INVALID)
+		if (hashAlgorithm != TS_ALG_INVALID)
 		{
 			if (!(mac = std::dynamic_pointer_cast<MessageAuthenticationCode>(CryptoFactory(hashAlgorithm))))
 			{
@@ -1145,8 +1145,8 @@ public:
 		}
 		else
 		{
-			if (GetSignatureAlgorithmId() == _TS_ALG_ID::TS_ALG_INVALID)
-				SetSignatureAlgorithmId(_TS_ALG_ID::TS_ALG_HMAC_SHA512);
+			if (GetSignatureAlgorithmId() == TS_ALG_INVALID)
+				SetSignatureAlgorithmId(TS_ALG_HMAC_SHA512);
 			if (!(GenerateMAC(wk, OIDtoAlgName(IDtoOID(GetSignatureAlgorithmId())))))
 			{
 				LogError("Header MAC generation failed.");
@@ -1246,24 +1246,24 @@ protected:
 	{
 		if (cg->exists_FiefdomList())
 		{
-			size_t fiefdomCount = cg->get_FiefdomList()->size();
-			size_t categoryCount;
-			size_t attributeCount;
+            uint32_t fiefdomCount = cg->get_FiefdomList()->size();
+            uint32_t categoryCount;
+            uint32_t attributeCount;
 
-			for (size_t f = 0; f < fiefdomCount; f++)
+			for (uint32_t f = 0; f < fiefdomCount; f++)
 			{
 				Asn1::CTS::_POD_Fiefdom& fiefdom = cg->get_FiefdomList()->get_at(f);
 				if (fiefdom.exists_CategoryList())
 				{
 					categoryCount = fiefdom.get_CategoryList()->size();
-					for (size_t c = 0; c < categoryCount; c++)
+					for (uint32_t c = 0; c < categoryCount; c++)
 					{
 						Asn1::CTS::_POD_Category& category = fiefdom.get_CategoryList()->get_at(c);
 						if (category.exists_AttributeList())
 						{
 							attributeCount = category.get_AttributeList()->size();
 
-							for (size_t a = 0; a < attributeCount; a++)
+							for (uint32_t a = 0; a < attributeCount; a++)
 							{
 								if (category.get_AttributeList()->get_at(a).get_Id() == id)
 									return &category.get_AttributeList()->get_at(a);
@@ -1410,8 +1410,8 @@ protected:
 			{
 				if (profile->exists_cryptoGroupList())
 				{
-					size_t count = profile->get_cryptoGroupList()->size();
-					for (size_t i = 0; i < count; i++)
+                    uint32_t count = profile->get_cryptoGroupList()->size();
+					for (uint32_t i = 0; i < count; i++)
 					{
 						cg = &profile->get_cryptoGroupList()->get_at(i);
 						if (cg->get_Id() == guidCryptoGroup)
@@ -1623,8 +1623,8 @@ protected:
 			{
 				if (profile->exists_cryptoGroupList())
 				{
-					size_t count = profile->get_cryptoGroupList()->size();
-					for (size_t i = 0; i < count; i++)
+                    uint32_t count = profile->get_cryptoGroupList()->size();
+					for (uint32_t i = 0; i < count; i++)
 					{
 						cg = &profile->get_cryptoGroupList()->get_at(i);
 						if (cg->get_Id() == guidCryptoGroup)
@@ -1757,7 +1757,7 @@ protected:
 		std::shared_ptr<ICmsHeaderAccessGroup> andGroup;
 		std::shared_ptr<ICmsHeaderAttributeGroup> attributeGroup;
 		std::shared_ptr<ICmsHeaderAttributeListExtension> attrList;
-		size_t groupIndex = 0;
+        uint32_t groupIndex = 0;
 
 		SetCombinerVersion(parameters.get_ckmVersion());
 		if (!GetCryptoGroup(0, headerCryptoGroup))
@@ -1785,13 +1785,13 @@ protected:
 		// Transfer the attribute signatures to the header
 		if (parameters.exists_signatures())
 		{
-			for (size_t pi = 0; pi < parameters.get_signatures()->size(); pi++)
+			for (uint32_t pi = 0; pi < parameters.get_signatures()->size(); pi++)
 				//			for (std::shared_ptr<Asn1DataBaseClass>& s : *parameters.get_signatures()->_list)
 			{
 				Asn1::CTS::_POD_AttributeSignature& sig = parameters.get_signatures()->get_at(pi);
-				size_t count = attrList->GetAttributeCount();
+                uint32_t count = (uint32_t)attrList->GetAttributeCount();
 				std::shared_ptr<ICmsHeaderAttribute> hAttribute;
-				for (size_t i = 0; i < count; i++)
+				for (uint32_t i = 0; i < count; i++)
 				{
 					hAttribute.reset();
 					if (attrList->GetAttribute(i, hAttribute))
@@ -1982,7 +1982,7 @@ static TS_ALG_ID getEncryptionAlgorithmAsId(_POD_CmsHeaderData& data)
 	case _POD_CmsHeaderData_EncAlg::Choice_EncryptionAlgorithm: // AlgorithmIdentifier
 		return OIDtoID(data.get_EncAlg().get_EncryptionAlgorithm().get_oid().ToOIDString());
 	default:
-		return _TS_ALG_ID::TS_ALG_INVALID;
+		return TS_ALG_INVALID;
 	}
 }
 static tscrypto::tsCryptoData getEncryptionAlgorithmAsOID(_POD_CmsHeaderData& data)
@@ -1997,10 +1997,10 @@ static tscrypto::tsCryptoData getEncryptionAlgorithmAsOID(_POD_CmsHeaderData& da
 		return tscrypto::tsCryptoData();
 	}
 }
-static tscrypto::TS_ALG_ID getSignatureAlgorithmAsId(_POD_CmsHeaderData& data)
+static TS_ALG_ID getSignatureAlgorithmAsId(_POD_CmsHeaderData& data)
 {
 	if (!data.exists_SignatureAlgorithm())
-		return _TS_ALG_ID::TS_ALG_INVALID;
+		return TS_ALG_INVALID;
 
 	return OIDtoID(data.get_SignatureAlgorithm()->get_oid().ToOIDString());
 }
@@ -2010,7 +2010,7 @@ static tscrypto::tsCryptoData getSignatureAlgorithmAsOID(_POD_CmsHeaderData& dat
 		return data.get_SignatureAlgorithm()->get_oid();
 	return tscrypto::tsCryptoData();
 }
-static void setSignatureAlgorithmId(_POD_CmsHeaderData& data, tscrypto::TS_ALG_ID id)
+static void setSignatureAlgorithmId(_POD_CmsHeaderData& data, TS_ALG_ID id)
 {
 	_POD_AlgorithmIdentifier ai;
 	ai.set_oid(IDtoOID(id));
@@ -2606,7 +2606,7 @@ void CmsHeaderImpl::PrepareForEncode()
 		SetCreatorGuid(GUID_NULL);
 
 	if (m_data.get_EncAlg().get_selectedItem() == 0)
-		SetEncryptionAlgorithmID(_TS_ALG_ID::TS_ALG_AES_GCM_256);
+		SetEncryptionAlgorithmID(TS_ALG_AES_GCM_256);
 
 	if (!(GetExtension(tscrypto::tsCryptoData(id_TECSEC_CKMHEADER_V7_KEY_USAGE_EXT_OID, tscrypto::tsCryptoData::OID), ext)) ||
 		!(ku = std::dynamic_pointer_cast<ICmsHeaderKeyUsageExtension>(ext)))
@@ -2614,10 +2614,10 @@ void CmsHeaderImpl::PrepareForEncode()
 		SetKeyUsageOID(tscrypto::tsCryptoData(id_TECSEC_CKM7_SCP_KEYS_OID, tscrypto::tsCryptoData::OID));
 		SetKeySizeInBits(768);
 	}
-	if (getEncryptionAlgorithmAsId(m_data) == _TS_ALG_ID::TS_ALG_INVALID)
+	if (getEncryptionAlgorithmAsId(m_data) == TS_ALG_INVALID)
 	{
 		m_data.get_EncAlg().set_selectedItem(_POD_CmsHeaderData_EncAlg::Choice_EncryptionAlgorithmId);
-		m_data.get_EncAlg().set_EncryptionAlgorithmId(_TS_ALG_ID::TS_ALG_AES_GCM_256);
+		m_data.get_EncAlg().set_EncryptionAlgorithmId(TS_ALG_AES_GCM_256);
 	}
 	//tscrypto::tsCryptoData oid = m_data.getEncryptionAlgorithmAsOID();
 	//if (oid.size() > 0)

@@ -34,15 +34,6 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_CURRENT_BINARY_DIR}
     )
 
-if(MINGW)
-	string(REPLACE "/" "\\" xmlCodeGen ${CRYPTO_BIN_DIR}/xml2Asn1CodeGen${CMAKE_EXECUTABLE_SUFFIX})
-	# message(STATUS "CodeGen Path ${xmlCodeGen}")
-elseif(APPLE)
-	set(xmlCodeGen /usr/local/bin/xml2Asn1CodeGen)
-else()
-	set(xmlCodeGen ${CRYPTO_BIN_DIR}/xml2Asn1CodeGen${CMAKE_EXECUTABLE_SUFFIX})
-endif()
-
 add_custom_command(
     OUTPUT
         ${CMAKE_CURRENT_BINARY_DIR}/CodeGenTemplates.cpp
@@ -62,7 +53,7 @@ add_custom_command(
     DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/CodeGenTemplates.xasn
     COMMAND
-        ${xmlCodeGen} --output=${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/CodeGenTemplates.xasn
+        xml2Asn1CodeGen --output=${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/CodeGenTemplates.xasn
     COMMAND
         ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/CodeGenTemplates.h ${PUBLIC_BINARY_TOP_DIR}/CodeGenTemplates.h
     COMMAND
@@ -88,7 +79,7 @@ add_custom_command(
     DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/Asn1ParserTest.xasn
     COMMAND
-        ${xmlCodeGen} --output=${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/Asn1ParserTest.xasn
+        xml2Asn1CodeGen --output=${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/Asn1ParserTest.xasn
     COMMAND
         ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/Asn1ParserTest.h ${PUBLIC_BINARY_TOP_DIR}/Asn1ParserTest.h
     COMMAND
@@ -107,7 +98,7 @@ add_custom_command(
         ${CMAKE_CURRENT_SOURCE_DIR}/Asn1ParserTestImport.xasn
 		${PUBLIC_BINARY_TOP_DIR}/Asn1ParserTest.h
     COMMAND
-        ${xmlCodeGen} --output=${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/Asn1ParserTestImport.xasn
+        xml2Asn1CodeGen --output=${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/Asn1ParserTestImport.xasn
     COMMAND
         ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/Asn1ParserTestImport.h ${PUBLIC_BINARY_TOP_DIR}/Asn1ParserTestImport.h
     )

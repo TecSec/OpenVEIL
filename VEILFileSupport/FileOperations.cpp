@@ -668,7 +668,7 @@ bool  FileVEILOperationsImpl::FileStartsWithCmsHeader(const tscrypto::tsCryptoSt
 	return true;
 }
 
-bool  FileVEILOperationsImpl::Encrypt_File(const tscrypto::tsCryptoString& sFile, const tscrypto::tsCryptoString& sEncrFile, std::shared_ptr<ICmsHeader> header, CompressionType comp, TS_ALG_ID algorithm, TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData, CMSFileFormatIds DataFormat, bool randomIvec, SymmetricPaddingType paddingType, int blockSize)
+bool  FileVEILOperationsImpl::Encrypt_File(const tscrypto::tsCryptoString& sFile, const tscrypto::tsCryptoString& sEncrFile, std::shared_ptr<ICmsHeader> header, CompressionType comp, TS_ALG_ID algorithm, TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData, TS_ALG_ID DataFormat, bool randomIvec, SymmetricPaddingType paddingType, int blockSize)
 {
 	bool retVal = false;
 	tscrypto::tsCryptoString sTempFile;
@@ -688,7 +688,7 @@ bool  FileVEILOperationsImpl::Encrypt_File(const tscrypto::tsCryptoString& sFile
 	return retVal;
 }
 
-bool  FileVEILOperationsImpl::EncryptFileAndStreams(const tscrypto::tsCryptoString& sFile, const tscrypto::tsCryptoString& sEncrFile, std::shared_ptr<ICmsHeader> header, CompressionType comp, TS_ALG_ID algorithm, TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData, CMSFileFormatIds DataFormat, bool randomIvec, SymmetricPaddingType paddingType, int blockSize)
+bool  FileVEILOperationsImpl::EncryptFileAndStreams(const tscrypto::tsCryptoString& sFile, const tscrypto::tsCryptoString& sEncrFile, std::shared_ptr<ICmsHeader> header, CompressionType comp, TS_ALG_ID algorithm, TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData, TS_ALG_ID DataFormat, bool randomIvec, SymmetricPaddingType paddingType, int blockSize)
 {
 	TSDECLARE_FUNCTIONExt(true);
 
@@ -800,7 +800,7 @@ bool  FileVEILOperationsImpl::DataStartsWithCmsHeader(const tscrypto::tsCryptoDa
 	return true;
 }
 bool  FileVEILOperationsImpl::EncryptCryptoData(const tscrypto::tsCryptoData &inputData, tscrypto::tsCryptoData &outputData, std::shared_ptr<ICmsHeader> header,
-	CompressionType comp, TS_ALG_ID algorithm, TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData, CMSFileFormatIds DataFormat,
+	CompressionType comp, TS_ALG_ID algorithm, TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData, TS_ALG_ID DataFormat,
 	bool randomIvec, SymmetricPaddingType paddingType, int blockSize)
 {
 	TSDECLARE_FUNCTIONExt(true);
@@ -841,7 +841,7 @@ bool  FileVEILOperationsImpl::EncryptCryptoData(const tscrypto::tsCryptoData &in
 	return TSRETURN(("OK"), true);
 }
 
-bool  FileVEILOperationsImpl::EncryptStream(std::shared_ptr<IDataReader> sFile, std::shared_ptr<IDataWriter> sEncrFile, std::shared_ptr<ICmsHeader> header, CompressionType comp, TS_ALG_ID algorithm, TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData, CMSFileFormatIds DataFormat, bool randomIvec, SymmetricPaddingType paddingType, int blockSize)
+bool  FileVEILOperationsImpl::EncryptStream(std::shared_ptr<IDataReader> sFile, std::shared_ptr<IDataWriter> sEncrFile, std::shared_ptr<ICmsHeader> header, CompressionType comp, TS_ALG_ID algorithm, TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData, TS_ALG_ID DataFormat, bool randomIvec, SymmetricPaddingType paddingType, int blockSize)
 {
 	tscrypto::tsCryptoString sTempFile;
 
@@ -854,7 +854,7 @@ bool  FileVEILOperationsImpl::EncryptStream(std::shared_ptr<IDataReader> sFile, 
 }
 
 bool FileVEILOperationsImpl::PrepareHeader(std::shared_ptr<ICmsHeader> header7, CompressionType comp, TS_ALG_ID algorithm, TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData,
-	CMSFileFormatIds DataFormat, bool randomIvec, SymmetricPaddingType paddingType, int blockSize, int64_t fileSize)
+    TS_ALG_ID DataFormat, bool randomIvec, SymmetricPaddingType paddingType, int blockSize, int64_t fileSize)
 {
 	TSDECLARE_FUNCTIONExt(true);
 
@@ -900,7 +900,7 @@ bool FileVEILOperationsImpl::PrepareHeader(std::shared_ptr<ICmsHeader> header7, 
 
 bool FileVEILOperationsImpl::EncryptSignFile(const tscrypto::tsCryptoString &sFilename, const tscrypto::tsCryptoString &sEncryptedFilename, const tscrypto::tsCryptoString &lpszTempFile,
 	std::shared_ptr<ICmsHeader> Header, CompressionType comp, TS_ALG_ID algorithm, TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData,
-	CMSFileFormatIds DataFormat, bool randomIvec, SymmetricPaddingType paddingType, int blockSize)
+    TS_ALG_ID DataFormat, bool randomIvec, SymmetricPaddingType paddingType, int blockSize)
 {
 	TSDECLARE_FUNCTIONExt(true);
 
@@ -1006,7 +1006,7 @@ bool FileVEILOperationsImpl::EncryptSignFile(const tscrypto::tsCryptoString &sFi
 }
 
 bool FileVEILOperationsImpl::EncryptSignStream(std::shared_ptr<IDataReader> inputData, std::shared_ptr<IDataWriter> outputData, std::shared_ptr<ICmsHeader> Header, CompressionType comp, TS_ALG_ID algorithm,
-	TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData, CMSFileFormatIds DataFormat, bool randomIvec, SymmetricPaddingType paddingType, int blockSize)
+	TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData, TS_ALG_ID DataFormat, bool randomIvec, SymmetricPaddingType paddingType, int blockSize)
 {
 	TSDECLARE_FUNCTIONExt(true);
 

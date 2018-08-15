@@ -40,7 +40,7 @@ public:
         desc(nullptr)
     {
         handle = tsCreateWorkspaceForAlgorithm("COMPRESSION-BZIP2");
-        desc = (const TSCompressionDescriptor*)tsGetDescriptorFromWorkspace(handle);
+        desc = TSWorker(TSICompression, handle);
     }
 
     virtual ~CCkmBZ2Compression()
@@ -111,8 +111,8 @@ public:
     }
 
 private:
-    const TSCompressionDescriptor* desc;
-    TSCOMPRESSION handle;
+    const TSICompression* desc;
+    TSWORKSPACE handle;
 };
 
 class HIDDEN CCkmZLibCompression : public ICompression, public tsmod::IObject
@@ -124,7 +124,7 @@ public:
         desc(nullptr)
 	{
         handle = tsCreateWorkspaceForAlgorithm("COMPRESSION-ZLIB");
-        desc = (const TSCompressionDescriptor*)tsGetDescriptorFromWorkspace(handle);
+        desc = TSWorker(TSICompression, handle);
 	}
 
 	virtual ~CCkmZLibCompression()
@@ -195,8 +195,8 @@ public:
     }
 
 private:
-    TSCOMPRESSION handle;
-    const TSCompressionDescriptor* desc;
+    TSWORKSPACE handle;
+    const TSICompression* desc;
 };
 
 class HIDDEN NoCompression : public ICompression, public tsmod::IObject

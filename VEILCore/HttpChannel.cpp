@@ -142,11 +142,11 @@ public:
         _channel->ClearErrors();
         _errors.clear();
     }
-    virtual bool RawSend(const tscrypto::tsCryptoData & data) override
+    virtual bool RawSend(const tscrypto::tsCryptoData & data, ts_bool closeAfterWrite) override
     {
         if (!_channel || !_channel->isConnected())
             throw std::runtime_error("The channel has been closed.");
-        return _channel->RawSend(data);
+        return _channel->RawSend(data, closeAfterWrite);
     }
     virtual bool RawReceive(tscrypto::tsCryptoData & data, size_t size) override
     {
@@ -319,7 +319,7 @@ protected:
         {
             _sentClose = true;
         }
-        bool retVal = RawSend(frame);
+        bool retVal = RawSend(frame, opcode == WebSocketOpcode::ConnectionClose);
         if (opcode == WebSocketOpcode::ConnectionClose)
         {
             dataType = 0;
@@ -618,9 +618,9 @@ public:
     {
         TcpConnection::ClearErrors();
     }
-    virtual bool RawSend(const tscrypto::tsCryptoData& data) override
+    virtual bool RawSend(const tscrypto::tsCryptoData& data, ts_bool closeAfterWrite) override
     {
-        return TcpConnection::RawSend(data);
+        return TcpConnection::RawSend(data, closeAfterWrite);
     }
     virtual bool RawReceive(tscrypto::tsCryptoData& _data, size_t size) override
     {
@@ -642,9 +642,9 @@ public:
     {
         TcpChannel::SendLogout();
     }
-    virtual bool Send(const tscrypto::tsCryptoData& _data) override
+    virtual bool Send(const tscrypto::tsCryptoData& _data, ts_bool closeAfterWrite) override
     {
-        return TcpChannel::Send(_data);
+        return TcpChannel::Send(_data, closeAfterWrite);
     }
     virtual bool Receive(tscrypto::tsCryptoData& _data, size_t size) override
     {
@@ -814,7 +814,7 @@ public:
             return true; // Already handled
 
         // Send it
-        return RawSend(message);
+        return RawSend(message, false);
     }
     virtual bool Receive(IHttpResponse *header) override
     {
@@ -932,7 +932,7 @@ public:
         if (!Send("GET", url, tscrypto::tsCryptoData(), "", _headers) || !Receive(_hdr.get()) || _hdr->errorCode() != 101)
             return nullptr;
 
-        TSHash((tmp.ToBase64() + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11").ToUTF8Data(), hash, _TS_ALG_ID::TS_ALG_SHA1);
+        TSHash((tmp.ToBase64() + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11").ToUTF8Data(), hash, TS_ALG_SHA1);
         const HttpAttribute* attr = _hdr->attributeByName("Sec-WebSocket-Accept");
         if (attr == nullptr || attr->m_Value != hash.ToBase64())
             return nullptr;
@@ -963,8 +963,8 @@ protected:
         if (attr != nullptr && tsStriCmp(attr->m_Value.c_str(), "deflate") == 0)
         {
             tscrypto::tsCryptoData tmp;
-            const TSCompressionDescriptor* Desc = (const TSCompressionDescriptor*)tsFindGeneralAlgorithm("COMPRESSION-ZLIB");
-            const TSCompressionDescriptor* rawDesc = (const TSCompressionDescriptor*)tsFindGeneralAlgorithm("COMPRESSION-RAWZLIB");
+            const TSICompression* Desc = TSLookup(TSICompression, "COMPRESSION-ZLIB");
+            const TSICompression* rawDesc = TSLookup(TSICompression, "COMPRESSION-RAWZLIB");
 
             if (!Desc->decompressBufferAll(header->dataPart().getByteBuff(), tmp.getByteBuff()) && !rawDesc->decompressBufferAll(header->dataPart().getByteBuff(), tmp.getByteBuff()))
                 return false;
@@ -974,7 +974,7 @@ protected:
         if (attr != nullptr && tsStriCmp(attr->m_Value.c_str(), "gzip") == 0)
         {
             tscrypto::tsCryptoData tmp;
-            const TSCompressionDescriptor* Desc = (const TSCompressionDescriptor*)tsFindGeneralAlgorithm("COMPRESSION-GZIP");
+            const TSICompression* Desc = TSLookup(TSICompression, "COMPRESSION-GZIP");
 
             if (!Desc->decompressBufferAll(header->dataPart().getByteBuff(), tmp.getByteBuff()))
                 return false;

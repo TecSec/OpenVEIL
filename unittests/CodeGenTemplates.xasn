@@ -1728,7 +1728,7 @@
           </Choice>
           <Date Name="CreationDate" JSONName="created"/>
           <Choice Name="EncAlg" JSONName="encAlg">
-            <Enum Name="EncryptionAlgorithmId" ElementType="tscryptotest::TS_ALG_ID" BaseType="Int32" Tag="Number" Initializer="tscryptotest::_TS_ALG_ID::TS_ALG_INVALID" JSONName="algId"/>
+            <Enum Name="EncryptionAlgorithmId" ElementType="tscryptotest::TS_ALG_ID" BaseType="Int32" Tag="Number" Initializer="TS_ALG_INVALID" JSONName="algId"/>
             <Sequence Name="EncryptionAlgorithm" ElementType="AlgorithmIdentifier" JSONName="algorithm"/>
           </Choice>
           <Int32 Name="Compression" Default="0" Tag="0" Type="Context" JSONName="compression"/>

@@ -157,12 +157,12 @@ protected:
 
 		if (cryptoGroup->exists_FiefdomList())
 		{
-			for (size_t i = 0; i < cryptoGroup->get_FiefdomList()->size(); i++)
+			for (uint32_t i = 0; i < cryptoGroup->get_FiefdomList()->size(); i++)
 			{
 				Asn1::CTS::_POD_Fiefdom& fief = cryptoGroup->get_FiefdomList()->get_at(i);
 				if (fief.exists_CategoryList())
 				{
-					for (size_t j = 0; j < fief.get_CategoryList()->size(); j++)
+					for (uint32_t j = 0; j < fief.get_CategoryList()->size(); j++)
 					{
 						tmp.push_back(&fief.get_CategoryList()->get_at(j));
 					}
@@ -294,7 +294,7 @@ protected:
 		if (!_profile->exists_cryptoGroupList())
 			return nullptr;
 
-		for (size_t i = 0; i < _profile->get_cryptoGroupList()->size(); i++)
+		for (uint32_t i = 0; i < _profile->get_cryptoGroupList()->size(); i++)
 		{
 			Asn1::CTS::_POD_CryptoGroup* group = &_profile->get_cryptoGroupList()->get_at(i);
 
@@ -304,7 +304,7 @@ protected:
 		return nullptr;
 	}
 
-	Asn1::CTS::_POD_CryptoGroup* GetCryptoGroup(std::shared_ptr<IKeyVEILSession> session, size_t index)
+	Asn1::CTS::_POD_CryptoGroup* GetCryptoGroup(std::shared_ptr<IKeyVEILSession> session, uint32_t index)
 	{
 		if (!_profile->exists_cryptoGroupList())
 			return nullptr;

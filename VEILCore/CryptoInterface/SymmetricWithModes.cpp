@@ -49,7 +49,7 @@ public:
 		m_keySizeInBits(0),
 		m_baseAlgName("AES")
 	{
-		desc = tsFindSymmetricAlgorithm(m_baseAlgName.c_str());
+		desc = TSLookup(TSISymmetric, m_baseAlgName.c_str());
 	}
 	virtual ~SymmetricWithModes(void)
 	{
@@ -98,22 +98,22 @@ public:
 		case _SymmetricMode::CKM_SymMode_Default:
 			break;
 		case _SymmetricMode::CKM_SymMode_ECB:
-			desc = tsFindSymmetricAlgorithm((m_baseAlgName).c_str());
+			desc = TSLookup(TSISymmetric, (m_baseAlgName).c_str());
 			break;
 		case _SymmetricMode::CKM_SymMode_CBC:
-			desc = tsFindSymmetricAlgorithm((m_baseAlgName + "-CBC").c_str());
+			desc = TSLookup(TSISymmetric, (m_baseAlgName + "-CBC").c_str());
 			break;
 		case _SymmetricMode::CKM_SymMode_OFB:
-			desc = tsFindSymmetricAlgorithm((m_baseAlgName + "-OFB").c_str());
+			desc = TSLookup(TSISymmetric, (m_baseAlgName + "-OFB").c_str());
 			break;
 		case _SymmetricMode::CKM_SymMode_CFB8:
-			desc = tsFindSymmetricAlgorithm((m_baseAlgName + "-CFB8").c_str());
+			desc = TSLookup(TSISymmetric, (m_baseAlgName + "-CFB8").c_str());
 			break;
 		case _SymmetricMode::CKM_SymMode_CFBfull:
-			desc = tsFindSymmetricAlgorithm((m_baseAlgName + "-CFBFULL").c_str());
+			desc = TSLookup(TSISymmetric, (m_baseAlgName + "-CFBFULL").c_str());
 			break;
 		case _SymmetricMode::CKM_SymMode_CTR:
-			desc = tsFindSymmetricAlgorithm((m_baseAlgName + "-CTR").c_str());
+			desc = TSLookup(TSISymmetric, (m_baseAlgName + "-CTR").c_str());
 			break;
 		default:
 			return false;
@@ -124,7 +124,7 @@ public:
 			return false;
 
 		m_context.reset();
-		m_context = desc;
+		m_context = desc->def;
 		if (mode == _SymmetricMode::CKM_SymMode_CBC || mode == _SymmetricMode::CKM_SymMode_OFB || mode == _SymmetricMode::CKM_SymMode_CFB8 || 
 			mode == _SymmetricMode::CKM_SymMode_CFBfull || mode == _SymmetricMode::CKM_SymMode_CTR)
 		{
@@ -164,7 +164,7 @@ public:
 		SetName(name);
 
 		m_forEncrypt = forEncrypt;
-		return desc->init(desc, m_context, forEncrypt, key.c_str(), (uint32_t)key.size(), ivec.c_str(), (uint32_t)ivec.size(), 0);
+		return desc->init(m_context, forEncrypt, key.c_str(), (uint32_t)key.size(), ivec.c_str(), (uint32_t)ivec.size(), 0);
 	}
 	virtual bool update(const tsCryptoData &in_Data, tsCryptoData &out_Data) override
 	{
@@ -203,7 +203,7 @@ public:
 		if (dataToProcess == 0)
 			return true;
 
-		return desc->update(desc, m_context, out_Data.c_str(), (uint32_t)out_Data.size(), out_Data.rawData());
+		return desc->update(m_context, out_Data.c_str(), (uint32_t)out_Data.size(), out_Data.rawData());
 	}
 	virtual bool finish(tsCryptoData &out_Data) override
 	{
@@ -220,7 +220,7 @@ public:
 			m_lastBlock.clear();
 			if (m_forEncrypt)
 				PadData(out_Data);
-			if (!desc->update(desc, m_context, out_Data.c_str(), (uint32_t)out_Data.size(), out_Data.rawData()))
+			if (!desc->update(m_context, out_Data.c_str(), (uint32_t)out_Data.size(), out_Data.rawData()))
 				return false;
 			if (!m_forEncrypt)
 			{
@@ -241,7 +241,7 @@ public:
 			return false;
 		ivec.clear();
 		ivec.resize(desc->ivecSize);
-		return desc->getIvec(desc, m_context, ivec.rawData());
+		return desc->getIvec(m_context, ivec.rawData());
 	}
 	virtual bool setIVEC(const tsCryptoData &ivec) override
 	{
@@ -251,7 +251,7 @@ public:
 			return false;
 		if (ivec.size() != 0 && ivec.size() != desc->ivecSize)
 			return false;
-		return desc->setIvec(desc, m_context, ivec.c_str());
+		return desc->setIvec(m_context, ivec.c_str());
 	}
 	virtual bool supportsBlockLength(size_t in_blockLength) override
 	{
@@ -288,13 +288,13 @@ public:
 	{
 		if (!gFipsState.operational() || desc == nullptr)
 			return 0;
-		return desc->getBlockCount(desc, m_context);
+		return desc->getBlockCount(m_context);
 	}
 	virtual void setBlockCount(uint64_t setTo) override
 	{
 		if (!gFipsState.operational() || desc == nullptr)
 			return ;
-		desc->setBlockCount(desc, m_context, setTo);
+		desc->setBlockCount(m_context, setTo);
 	}
 	virtual void registerCounterModeIncrementor(std::shared_ptr<CounterModeIncrementor> pObj) override
 	{
@@ -632,39 +632,39 @@ public:
 				if (tsStriCmp(parts->at(2).c_str(), ("CBC")) == 0)
 				{
 					m_mode = _SymmetricMode::CKM_SymMode_CBC;
-					desc = tsFindSymmetricAlgorithm((m_baseAlgName + "-CBC").c_str());
+					desc = TSLookup(TSISymmetric, (m_baseAlgName + "-CBC").c_str());
 				}
 				else if (tsStriCmp(parts->at(2).c_str(), ("ECB")) == 0)
 				{
 					m_mode = _SymmetricMode::CKM_SymMode_ECB;
-					desc = tsFindSymmetricAlgorithm((m_baseAlgName).c_str());
+					desc = TSLookup(TSISymmetric, (m_baseAlgName).c_str());
 				}
 				else if (tsStriCmp(parts->at(2).c_str(), ("CFB8")) == 0)
 				{
 					m_mode = _SymmetricMode::CKM_SymMode_CFB8;
-					desc = tsFindSymmetricAlgorithm((m_baseAlgName + "-CFB8").c_str());
+					desc = TSLookup(TSISymmetric, (m_baseAlgName + "-CFB8").c_str());
 				}
 				else if (tsStriCmp(parts->at(2).c_str(), ("CFBfull")) == 0)
 				{
 					m_mode = _SymmetricMode::CKM_SymMode_CFBfull;
-					desc = tsFindSymmetricAlgorithm((m_baseAlgName + "-CFBFULL").c_str());
+					desc = TSLookup(TSISymmetric, (m_baseAlgName + "-CFBFULL").c_str());
 				}
 				else if (tsStriCmp(parts->at(2).c_str(), ("CTR")) == 0)
 				{
 					m_mode = _SymmetricMode::CKM_SymMode_CTR;
-					desc = tsFindSymmetricAlgorithm((m_baseAlgName + "-CTR").c_str());
+					desc = TSLookup(TSISymmetric, (m_baseAlgName + "-CTR").c_str());
 				}
 				else if (tsStriCmp(parts->at(2).c_str(), ("OFB")) == 0)
 				{
 					m_mode = _SymmetricMode::CKM_SymMode_OFB;
-					desc = tsFindSymmetricAlgorithm((m_baseAlgName + "-OFB").c_str());
+					desc = TSLookup(TSISymmetric, (m_baseAlgName + "-OFB").c_str());
 				}
 			}
 			if (desc == nullptr)
 			{
 				return false;
 			}
-			m_context = desc;
+			m_context = desc->def;
 
 			if (m_mode != _SymmetricMode::CKM_SymMode_ECB)
 			{
@@ -688,12 +688,12 @@ public:
 		else
 		{
 			m_mode = _SymmetricMode::CKM_SymMode_ECB;
-			desc = tsFindSymmetricAlgorithm((m_baseAlgName).c_str());
+			desc = TSLookup(TSISymmetric, (m_baseAlgName).c_str());
 			if (desc == nullptr)
 			{
 				return false;
 			}
-			m_context = desc;
+			m_context = desc->def;
 		}
 		return true;
 	}
@@ -869,7 +869,7 @@ protected:
 #endif // 0
 
 private:
-	const TSSymmetricAlgorithmDescriptor* desc;
+	const TSISymmetric* desc;
 	tsCryptoString m_baseAlgName;
     SmartCryptoWorkspace m_context;
 	std::shared_ptr<CounterModeIncrementor> m_incrementer;

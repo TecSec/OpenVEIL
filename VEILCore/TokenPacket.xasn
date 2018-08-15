@@ -77,9 +77,9 @@
           <Enum Name="tokenType" Tag="Number"/>
           <String Name="email"/>
           <String Name="distinguishedName"/>
-          <OctetString Name="serialNumber"/>
+          <HexOctetString Name="serialNumber"/>
           <Sequence Name="signatureAlgorithm" ElementType="AlgorithmIdentifier"/>
-          <OctetString Name="signatureKeyId"/>
+          <HexOctetString Name="signatureKeyId"/>
           <Sequence Name="encryptionAlgorithm" ElementType="AlgorithmIdentifier"/>
           <Sequence Name="keyManagementAlgorithm" ElementType="AlgorithmIdentifier"/>
           <OctetString Name="encryptedData"/>
@@ -92,9 +92,9 @@
           <Enum Name="tokenType" Tag="Number"/>
           <String Name="email"/>
           <String Name="distinguishedName"/>
-          <OctetString Name="serialNumber"/>
+          <HexOctetString Name="serialNumber"/>
           <Sequence Name="signatureAlgorithm" ElementType="AlgorithmIdentifier"/>
-          <OctetString Name="signatureKeyId"/>
+          <HexOctetString Name="signatureKeyId"/>
           <Sequence Name="encryptionAlgorithm" ElementType="AlgorithmIdentifier"/>
           <Sequence Name="keyManagementAlgorithm" ElementType="AlgorithmIdentifier"/>
           <OctetString Name="encryptedData"/>
@@ -109,9 +109,9 @@
           <Enum Name="tokenType" Tag="Number"/>
           <String Name="email"/>
           <String Name="distinguishedName"/>
-          <OctetString Name="serialNumber"/>
+          <HexOctetString Name="serialNumber"/>
           <Sequence Name="signatureAlgorithm" ElementType="AlgorithmIdentifier"/>
-          <OctetString Name="signatureKeyId"/>
+          <HexOctetString Name="signatureKeyId"/>
           <Sequence Name="encryptionAlgorithm" ElementType="AlgorithmIdentifier"/>
           <Sequence Name="keyManagementAlgorithm" ElementType="AlgorithmIdentifier"/>
           <OctetString Name="encryptedData"/>
@@ -122,9 +122,9 @@
         <Enum Name="tokenType" ElementType="TokenType" BaseType="Int32" Initializer="tt_SoftToken"/>
         <String Name="email"/>
         <String Name="distinguishedName"/>
-        <OctetString Name="serialNumber"/>
+        <HexOctetString Name="serialNumber"/>
         <Sequence Name="signatureAlgorithm" ElementType="AlgorithmIdentifier"/>
-        <OctetString Name="signatureKeyId"/>
+        <HexOctetString Name="signatureKeyId"/>
         <Sequence Name="encryptionAlgorithm" ElementType="AlgorithmIdentifier"/>
         <Sequence Name="keyManagementAlgorithm" ElementType="AlgorithmIdentifier"/>
         <OctetString Name="encryptedData"/>
@@ -161,16 +161,16 @@
       </Sequence>
 
       <Sequence Name="SmartCardCommands" ElementType="SmartCardCommands">
-        <OctetString Name="iin"/>
-        <OctetString Name="cin"/>
-        <OctetString Name="aid"/>
+        <HexOctetString Name="iin"/>
+        <HexOctetString Name="cin"/>
+        <HexOctetString Name="aid"/>
         <SequenceOf Name="commands" Tag="Sequence" Type="Universal">
           <Sequence Name="SmartCardCommand" ElementType="SmartCardCommand" Tag="Sequence" Type="Universal"/>
         </SequenceOf>
       </Sequence>
 
       <Sequence Name="TP_Attr" ElementType="TP_Attr">
-        <OctetString Name="attributeId"/>
+        <HexOctetString Name="attributeId"/>
         <Int32 Name="keyVersion" Initializer="0"/>
         <OctetString Name="signature" Optional="true" Tag="0" Type="Context"/>
       </Sequence>
@@ -309,18 +309,18 @@
         <Sequence Name="EnterpriseSigning" DefaultVersion="0" JSONName="enterpriseSign">
           <Version Name="V0" MinNumber="0" MaxNumber="0">
             <Sequence Name="algorithm" ElementType="AlgorithmIdentifier"/>
-            <OctetString Name="keyId"/>
+            <HexOctetString Name="keyId"/>
             <OctetString Name="publicKey"/>
           </Version>
           <Sequence Name="algorithm" ElementType="AlgorithmIdentifier" JSONName="alg"/>
-          <OctetString Name="keyId" JSONName="id"/>
+          <HexOctetString Name="keyId" JSONName="id"/>
           <OctetString Name="publicKey" JSONName="value"/>
         </Sequence>
 
         <Sequence Name="Attribute" DefaultVersion="0" JSONName="attribute">
           <Version Name="V0" MinNumber="0" MaxNumber="0">
             <String Name="Name"/>
-            <OctetString Name="Id"/>
+            <HexOctetString Name="Id"/>
             <Bool Name="hasRead"/>
             <Bool Name="hasWrite"/>
             <Int32 Name="ForwardVersion"/>
@@ -335,7 +335,7 @@
             <Bool Name="AllowSSO"/>
           </Version>
           <String Name="Name" JSONName="name"/>
-          <OctetString Name="Id" JSONName="id"/>
+          <HexOctetString Name="Id" JSONName="id"/>
           <Bool Name="hasRead" JSONName="hasRead"/>
           <Bool Name="hasWrite" JSONName="hasWrite"/>
           <Int32 Name="ForwardVersion" Initializer="0" JSONName="forward"/>
@@ -385,7 +385,7 @@
         <Sequence Name="CryptoGroup" DefaultVersion="0" JSONName="cryptoGroup">
           <Version Name="V0" MinNumber="0" MaxNumber="0">
             <String Name="Name"/>
-            <OctetString Name="Id"/>
+            <HexOctetString Name="Id"/>
             <NamedInt Name="Type" Tag="Number"/>
             <Enum Name="Usage" Tag="Number"/>
             <Int32 Name="ForwardVersion"/>
@@ -402,7 +402,7 @@
             <Bool Name="cacheSmartCard"/>
           </Version>
           <String Name="Name" JSONName="name"/>
-          <OctetString Name="Id" JSONName="id"/>
+          <HexOctetString Name="Id" JSONName="id"/>
           <NamedInt Name="Type" ElementType="CkmCryptoGroupType" JSONName="type" Initializer="ct_None"/>
           <Enum Name="Usage" ElementType="CryptoGroupUsage" JSONName="usage" Initializer="cgu_User"/>
           <Int32 Name="ForwardVersion" Initializer="0" JSONName="forward"/>
@@ -425,21 +425,21 @@
 ]]>
             </Description>
             <![CDATA[
-size_t fiefdomCount;
-size_t categoryCount;
-size_t attributeCount;
+uint32_t fiefdomCount;
+uint32_t categoryCount;
+uint32_t attributeCount;
 if (!exists_FiefdomList())
   return nullptr;
 fiefdomCount = get_FiefdomList()->size();
-for (size_t i = 0; i < fiefdomCount; i++)
+for (uint32_t i = 0; i < fiefdomCount; i++)
 {
   _POD_Fiefdom& fief = get_FiefdomList()->get_at(i);
   categoryCount = fief.get_CategoryList()->size();
-  for (size_t j = 0; j < categoryCount; j++)
+  for (uint32_t j = 0; j < categoryCount; j++)
   {
 	_POD_Category& cat = fief.get_CategoryList()->get_at(j);
     attributeCount = cat.get_AttributeList()->size();
-    for (size_t k = 0; k < attributeCount; k++)
+    for (uint32_t k = 0; k < attributeCount; k++)
     {
 	_POD_Attribute& attr = cat.get_AttributeList()->get_at(k);
       if (attr.get_Id() == id)
@@ -456,21 +456,21 @@ return nullptr;
 ]]>
             </Description>
             <![CDATA[
-size_t fiefdomCount;
-size_t categoryCount;
-size_t attributeCount;
+uint32_t fiefdomCount;
+uint32_t categoryCount;
+uint32_t attributeCount;
 if (!exists_FiefdomList())
   return nullptr;
 fiefdomCount = get_FiefdomList()->size();
-for (size_t i = 0; i < fiefdomCount; i++)
+for (uint32_t i = 0; i < fiefdomCount; i++)
 {
   _POD_Fiefdom& fief = get_FiefdomList()->get_at(i);
   categoryCount = fief.get_CategoryList()->size();
-  for (size_t j = 0; j < categoryCount; j++)
+  for (uint32_t j = 0; j < categoryCount; j++)
   {
 	_POD_Category& cat = fief.get_CategoryList()->get_at(j);
     attributeCount = cat.get_AttributeList()->size();
-    for (size_t k = 0; k < attributeCount; k++)
+    for (uint32_t k = 0; k < attributeCount; k++)
     {
 	_POD_Attribute& attr = cat.get_AttributeList()->get_at(k);
       if (attr.get_Name() == name)
@@ -566,7 +566,7 @@ return true;
             <Guid Name="MemberId" JSONName="memid"/>
             <String Name="EnterpriseName" JSONName="enterpriseName"/>
             <Guid Name="EnterpriseId" JSONName="entid"/>
-            <OctetString Name="keyId" JSONName="keyid"/>
+            <HexOctetString Name="keyId" JSONName="keyid"/>
             <String Name="DistinguishName" JSONName="memdn"/>
             <Date Name="Issue" JSONName="issue"/>
             <Date Name="Expire" JSONName="expire"/>
@@ -579,7 +579,7 @@ return true;
             <String Name="tokenName" JSONName="tokenName"/>
             <Sequence Name="authData" ElementType="TokenAuthentication" />
             <Int32 Name="UpdateNumber" JSONName="updateNumber" />
-            <OctetString Name="SerialNumber" JSONName="serno"/>
+            <HexOctetString Name="SerialNumber" JSONName="serno"/>
             <OctetString Name="PrivateData" />
             <Bool Name="AllowSingleSignOn" JSONName="allowSSO"/>
           </Version>
@@ -588,7 +588,7 @@ return true;
             <Guid Name="MemberId" JSONName="memid"/>
             <String Name="EnterpriseName" JSONName="enterpriseName"/>
             <Guid Name="EnterpriseId" JSONName="entid"/>
-            <OctetString Name="keyId" JSONName="keyid"/>
+            <HexOctetString Name="keyId" JSONName="keyid"/>
             <String Name="DistinguishName" JSONName="memdn"/>
             <Date Name="Issue" JSONName="issue"/>
             <Date Name="Expire" JSONName="expire"/>
@@ -601,7 +601,7 @@ return true;
             <String Name="tokenName" JSONName="tokenName"/>
             <Sequence Name="authData" ElementType="TokenAuthentication"/>
             <Int32 Name="UpdateNumber" JSONName="updateNumber" />
-            <OctetString Name="SerialNumber" JSONName="serno"/>
+            <HexOctetString Name="SerialNumber" JSONName="serno"/>
             <OctetString Name="PrivateData" />
             <Bool Name="AllowSingleSignOn" JSONName="allowSSO"/>
             <OctetString Name="Signature"/>
@@ -611,7 +611,7 @@ return true;
             <Guid Name="MemberId" JSONName="memid"/>
             <String Name="EnterpriseName" JSONName="enterpriseName"/>
             <Guid Name="EnterpriseId" JSONName="entid"/>
-            <OctetString Name="keyId" JSONName="keyid"/>
+            <HexOctetString Name="keyId" JSONName="keyid"/>
             <String Name="DistinguishName" JSONName="memdn"/>
             <Date Name="Issue" JSONName="issue"/>
             <Date Name="Expire" JSONName="expire"/>
@@ -622,7 +622,7 @@ return true;
             <String Name="tokenName" JSONName="tokenName"/>
             <Sequence Name="authData" ElementType="TokenAuthentication"/>
             <Int32 Name="UpdateNumber" JSONName="updateNumber" />
-            <OctetString Name="SerialNumber" JSONName="serno"/>
+            <HexOctetString Name="SerialNumber" JSONName="serno"/>
             <OctetString Name="PrivateData" />
             <Bool Name="AllowSingleSignOn" JSONName="allowSSO"/>
             <OctetString Name="Signature"/>
@@ -632,13 +632,13 @@ return true;
             <Guid Name="MemberId" JSONName="memid"/>
             <String Name="EnterpriseName" JSONName="enterpriseName"/>
             <Guid Name="EnterpriseId" JSONName="entid"/>
-            <OctetString Name="keyId" JSONName="keyid"/>
+            <HexOctetString Name="keyId" JSONName="keyid"/>
             <String Name="DistinguishName" JSONName="memdn"/>
             <Sequence Name="enterpriseSigning" ElementType="EnterpriseSigning" JSONName="signing"/>
             <OctetString Name="EnterpriseCryptoGroup" JSONName="enterpriseCryptoGroup"/>
             <Sequence Name="authData" ElementType="TokenAuthentication"/>
             <Int32 Name="UpdateNumber" JSONName="updateNumber" />
-            <OctetString Name="SerialNumber" JSONName="serno"/>
+            <HexOctetString Name="SerialNumber" JSONName="serno"/>
             <OctetString Name="Signature"/>
           </Version>
           <Part Name="publicPart">
@@ -648,7 +648,7 @@ return true;
             <Guid Name="MemberId" JSONName="memid"/>
             <String Name="EnterpriseName" JSONName="enterpriseName"/>
             <Guid Name="EnterpriseId" JSONName="entid"/>
-            <OctetString Name="keyId" JSONName="keyid"/>
+            <HexOctetString Name="keyId" JSONName="keyid"/>
             <String Name="DistinguishName" JSONName="memdn"/>
             <Date Name="Issue" JSONName="issue"/>
             <Date Name="Expire" JSONName="expire"/>
@@ -659,7 +659,7 @@ return true;
             <String Name="url" JSONName="url"/>
             <String Name="tokenName" JSONName="tokenName"/>
             <Int32 Name="UpdateNumber" JSONName="updateNumber" />
-            <OctetString Name="SerialNumber" JSONName="serno"/>
+            <HexOctetString Name="SerialNumber" JSONName="serno"/>
             <Bool Name="AllowSingleSignOn" JSONName="allowSSO"/>
           </Part>
           <Part Name="privatePart">
@@ -671,7 +671,7 @@ return true;
               <Guid Name="MemberId" JSONName="memid"/>
               <String Name="EnterpriseName" JSONName="enterpriseName"/>
               <Guid Name="EnterpriseId" JSONName="entid"/>
-              <OctetString Name="keyId" JSONName="keyid"/>
+              <HexOctetString Name="keyId" JSONName="keyid"/>
               <String Name="DistinguishName" JSONName="memdn"/>
               <Date Name="Issue" JSONName="issue"/>
               <Date Name="Expire" JSONName="expire"/>
@@ -684,7 +684,7 @@ return true;
               <String Name="tokenName" JSONName="tokenName"/>
               <Sequence Name="authData" ElementType="TokenAuthentication"/>
               <Int32 Name="UpdateNumber" JSONName="updateNumber" />
-              <OctetString Name="SerialNumber" JSONName="serno"/>
+              <HexOctetString Name="SerialNumber" JSONName="serno"/>
               <OctetString Name="PrivateData" />
               <Bool Name="AllowSingleSignOn" JSONName="allowSSO"/>
             </Version>
@@ -693,7 +693,7 @@ return true;
               <Guid Name="MemberId" JSONName="memid"/>
               <String Name="EnterpriseName" JSONName="enterpriseName"/>
               <Guid Name="EnterpriseId" JSONName="entid"/>
-              <OctetString Name="keyId" JSONName="keyid"/>
+              <HexOctetString Name="keyId" JSONName="keyid"/>
               <String Name="DistinguishName" JSONName="memdn"/>
               <Date Name="Issue" JSONName="issue"/>
               <Date Name="Expire" JSONName="expire"/>
@@ -706,7 +706,7 @@ return true;
               <String Name="tokenName" JSONName="tokenName"/>
               <Sequence Name="authData" ElementType="TokenAuthentication"/>
               <Int32 Name="UpdateNumber" JSONName="updateNumber" />
-              <OctetString Name="SerialNumber" JSONName="serno"/>
+              <HexOctetString Name="SerialNumber" JSONName="serno"/>
               <OctetString Name="PrivateData" />
               <Bool Name="AllowSingleSignOn" JSONName="allowSSO"/>
             </Version>
@@ -715,7 +715,7 @@ return true;
               <Guid Name="MemberId" JSONName="memid"/>
               <String Name="EnterpriseName" JSONName="enterpriseName"/>
               <Guid Name="EnterpriseId" JSONName="entid"/>
-              <OctetString Name="keyId" JSONName="keyid"/>
+              <HexOctetString Name="keyId" JSONName="keyid"/>
               <String Name="DistinguishName" JSONName="memdn"/>
               <Date Name="Issue" JSONName="issue"/>
               <Date Name="Expire" JSONName="expire"/>
@@ -726,7 +726,7 @@ return true;
               <String Name="tokenName" JSONName="tokenName"/>
               <Sequence Name="authData" ElementType="TokenAuthentication"/>
               <Int32 Name="UpdateNumber" JSONName="updateNumber" />
-              <OctetString Name="SerialNumber" JSONName="serno"/>
+              <HexOctetString Name="SerialNumber" JSONName="serno"/>
               <OctetString Name="PrivateData" />
               <Bool Name="AllowSingleSignOn" JSONName="allowSSO"/>
             </Version>
@@ -735,20 +735,20 @@ return true;
               <Guid Name="MemberId" JSONName="memid"/>
               <String Name="EnterpriseName" JSONName="enterpriseName"/>
               <Guid Name="EnterpriseId" JSONName="entid"/>
-              <OctetString Name="keyId" JSONName="keyid"/>
+              <HexOctetString Name="keyId" JSONName="keyid"/>
               <String Name="DistinguishName" JSONName="memdn"/>
               <Sequence Name="enterpriseSigning" ElementType="EnterpriseSigning" JSONName="signing"/>
               <OctetString Name="EnterpriseCryptoGroup" JSONName="enterpriseCryptoGroup"/>
               <Sequence Name="authData" ElementType="TokenAuthentication"/>
               <Int32 Name="UpdateNumber" JSONName="updateNumber" />
-              <OctetString Name="SerialNumber" JSONName="serno"/>
+              <HexOctetString Name="SerialNumber" JSONName="serno"/>
             </Version>
 
             <String Name="MemberName" JSONName="memberName"/>
             <Guid Name="MemberId" JSONName="memid"/>
             <String Name="EnterpriseName" JSONName="enterpriseName"/>
             <Guid Name="EnterpriseId" JSONName="entid"/>
-            <OctetString Name="keyId" JSONName="keyid"/>
+            <HexOctetString Name="keyId" JSONName="keyid"/>
             <String Name="DistinguishName" JSONName="memdn"/>
             <Date Name="Issue" JSONName="issue"/>
             <Date Name="Expire" JSONName="expire"/>
@@ -761,7 +761,7 @@ return true;
             <String Name="tokenName" JSONName="tokenName"/>
             <Sequence Name="authData" ElementType="TokenAuthentication"/>
             <Int32 Name="UpdateNumber" JSONName="updateNumber" />
-            <OctetString Name="SerialNumber" JSONName="serno"/>
+            <HexOctetString Name="SerialNumber" JSONName="serno"/>
             <OctetString Name="PrivateData" />
             <Bool Name="AllowSingleSignOn" JSONName="allowSSO"/>
           </Part>
@@ -770,7 +770,7 @@ return true;
           <Guid Name="MemberId" JSONName="memid"/>
           <String Name="EnterpriseName" JSONName="enterpriseName"/>
           <Guid Name="EnterpriseId" JSONName="entid"/>
-          <OctetString Name="keyId" JSONName="keyid"/>
+          <HexOctetString Name="keyId" JSONName="keyid"/>
           <String Name="DistinguishName" JSONName="memdn"/>
           <Date Name="Issue" JSONName="issue"/>
           <Date Name="Expire" JSONName="expire"/>
@@ -785,7 +785,7 @@ return true;
           <String Name="tokenName" Tag="3" Type="Context" Optional="true" JSONName="tokenName"/>
           <Sequence Name="authData" ElementType="TokenAuthentication" Tag="4" Type="Context" Optional="true"/>
           <Int32 Name="UpdateNumber" Initializer="0" JSONName="updateNumber" Tag="5" Type="Context" Optional="true"/>
-          <OctetString Name="SerialNumber" Tag="6" Type="Context" Optional="true" JSONName="serno"/>
+          <HexOctetString Name="SerialNumber" Tag="6" Type="Context" Optional="true" JSONName="serno"/>
           <OctetString Name="PrivateData" Tag="7" Type="Context" Optional="true"/>
           <Bool Name="AllowSingleSignOn" Tag="9" Type="Context" Optional="true" Initializer="false" JSONName="allowSSO"/>
 
@@ -821,7 +821,7 @@ return true;
 
 
         <Sequence Name="AttributeIdentifier" JSONName="attributeIdentifier">
-          <OctetString Name="id" JSONName="id"/>
+          <HexOctetString Name="id" JSONName="id"/>
           <Int32 Name="version" JSONName="version"/>
         </Sequence>
 
@@ -833,19 +833,19 @@ return true;
         </Sequence>
 
         <Sequence Name="AttributeSignature" JSONName="attributeSignature">
-          <OctetString Name="attributeId" JSONName="attributeId"/>
+          <HexOctetString Name="attributeId" JSONName="attributeId"/>
           <Int32 Name="version" JSONName="version"/>
           <OctetString Name="signature" JSONName="signature"/>
         </Sequence>
 
         <Sequence Name="CkmCombineParameters" OID="id_TECSEC_DATA_CTS_COMBINE_OID" DefaultVersion="0" JSONName="ckmCombineParameters">
           <Version Name="V0" OID="id_TECSEC_DATA_CTS_COMBINE_OID" MinNumber="0" MaxNumber="0">
-            <OctetString Name="cryptoGroupId" JSONName="cgid"/>
+            <HexOctetString Name="cryptoGroupId" JSONName="cgid"/>
             <OctetString Name="publicKey" JSONName="pubKey"/>
             <Int32 Name="bitSize" JSONName="bitsize"/>
             <Bool Name="sign" JSONName="sign"/>
             <SequenceOf Name="groups" JSONName="groups"/>
-            <OctetString Name="objectId" JSONName="objectId"/>
+            <HexOctetString Name="objectId" JSONName="objectId"/>
             <OID Name="keyUsage" JSONName="keyUsage"/>
             <OctetString Name="preHash" JSONName="preHash"/>
             <OctetString Name="prependHash" JSONName="prependHash"/>
@@ -862,12 +862,12 @@ return true;
           <Part Name="combine">
             <OID Name="OID"/>
             <Int32 Name="VERSION"/>
-            <OctetString Name="cryptoGroupId" JSONName="cgid"/>
+            <HexOctetString Name="cryptoGroupId" JSONName="cgid"/>
             <OctetString Name="publicKey" JSONName="pubKey"/>
             <Int32 Name="bitSize" JSONName="bitsize"/>
             <Bool Name="sign" JSONName="sign"/>
             <SequenceOf Name="groups" JSONName="groups"/>
-            <OctetString Name="objectId" JSONName="objectId"/>
+            <HexOctetString Name="objectId" JSONName="objectId"/>
             <OID Name="keyUsage" JSONName="keyUsage"/>
             <OctetString Name="preHash" JSONName="preHash"/>
             <OctetString Name="prependHash" JSONName="prependHash"/>
@@ -877,12 +877,12 @@ return true;
           <Part Name="combineResults">
             <OID Name="OID"/>
             <Int32 Name="VERSION"/>
-            <OctetString Name="cryptoGroupId" JSONName="cgid"/>
+            <HexOctetString Name="cryptoGroupId" JSONName="cgid"/>
             <OctetString Name="publicKey" JSONName="pubKey"/>
             <Int32 Name="bitSize" JSONName="bitsize"/>
             <Bool Name="sign" JSONName="sign"/>
             <SequenceOf Name="groups" JSONName="groups"/>
-            <OctetString Name="objectId" JSONName="objectId"/>
+            <HexOctetString Name="objectId" JSONName="objectId"/>
             <OID Name="keyUsage" JSONName="keyUsage"/>
             <OctetString Name="preHash" JSONName="preHash"/>
             <OctetString Name="prependHash" JSONName="prependHash"/>
@@ -899,11 +899,11 @@ return true;
           <Part Name="recombine">
             <OID Name="OID"/>
             <Int32 Name="VERSION"/>
-            <OctetString Name="cryptoGroupId" JSONName="cgid"/>
+            <HexOctetString Name="cryptoGroupId" JSONName="cgid"/>
             <OctetString Name="publicKey" JSONName="pubKey"/>
             <Int32 Name="bitSize" JSONName="bitsize"/>
             <SequenceOf Name="groups" JSONName="groups"/>
-            <OctetString Name="objectId" JSONName="objectId"/>
+            <HexOctetString Name="objectId" JSONName="objectId"/>
             <OID Name="keyUsage" JSONName="keyUsage"/>
             <OctetString Name="preHash" JSONName="preHash"/>
             <OctetString Name="prependHash" JSONName="prependHash"/>
@@ -918,11 +918,11 @@ return true;
           <Part Name="recombineResults">
             <OID Name="OID"/>
             <Int32 Name="VERSION"/>
-            <OctetString Name="cryptoGroupId" JSONName="cgid"/>
+            <HexOctetString Name="cryptoGroupId" JSONName="cgid"/>
             <OctetString Name="publicKey" JSONName="pubKey"/>
             <Int32 Name="bitSize" JSONName="bitsize"/>
             <SequenceOf Name="groups" JSONName="groups"/>
-            <OctetString Name="objectId" JSONName="objectId"/>
+            <HexOctetString Name="objectId" JSONName="objectId"/>
             <OID Name="keyUsage" JSONName="keyUsage"/>
             <OctetString Name="preHash" JSONName="preHash"/>
             <OctetString Name="prependHash" JSONName="prependHash"/>
@@ -937,14 +937,14 @@ return true;
             <Guid Name="enterpriseId" JSONName="entid"/>
           </Part>
 
-          <OctetString Name="cryptoGroupId" JSONName="cgid"/>
+          <HexOctetString Name="cryptoGroupId" JSONName="cgid"/>
           <OctetString Name="publicKey" JSONName="pubKey"/>
           <Int32 Name="bitSize" JSONName="bitsize"/>
           <Bool Name="sign" JSONName="sign"/>
           <SequenceOf Name="groups" Tag="0" Type="Context" JSONName="groups">
             <Sequence Name="group" ElementType="AccessGroup" JSONName="group"/>
           </SequenceOf>
-          <OctetString Name="objectId" JSONName="objectId"/>
+          <HexOctetString Name="objectId" JSONName="objectId"/>
           <OID Name="keyUsage" JSONName="keyUsage"/>
           <OctetString Name="preHash" JSONName="preHash"/>
           <OctetString Name="prependHash" JSONName="prependHash"/>
@@ -966,24 +966,24 @@ return true;
         <Sequence Name="CkmRecipe" OID="id_TECSEC_DATA_CTS_RECIPE_OID" DefaultVersion="0" JSONName="recipe">
           <Version Name="V0" OID="id_TECSEC_DATA_CTS_RECIPE_OID" MinNumber="0" MaxNumber="0">
             <Int32 Name="ckmVersion" JSONName="ckmVersion"/>
-            <OctetString Name="cryptoGroupId" JSONName="cgid"/>
+            <HexOctetString Name="cryptoGroupId" JSONName="cgid"/>
             <OctetString Name="publicKey" JSONName="pubKey"/>
             <Int32 Name="bitSize" JSONName="bitsize"/>
             <Bool Name="sign" JSONName="sign"/>
             <SequenceOf Name="groups" JSONName="groups"/>
-            <OctetString Name="objectId" JSONName="objectId"/>
+            <HexOctetString Name="objectId" JSONName="objectId"/>
             <OID Name="keyUsage" JSONName="keyUsage"/>
           </Version>
 
           <Int32 Name="ckmVersion" JSONName="ckmVersion" Initializer="7"/>
-          <OctetString Name="cryptoGroupId" JSONName="cgid"/>
+          <HexOctetString Name="cryptoGroupId" JSONName="cgid"/>
           <OctetString Name="publicKey" JSONName="pubKey"/>
           <Int32 Name="bitSize" JSONName="bitsize"/>
           <Bool Name="sign" JSONName="sign"/>
           <SequenceOf Name="groups" Tag="0" Type="Context" JSONName="groups">
             <Sequence Name="group" ElementType="AccessGroup" JSONName="group"/>
           </SequenceOf>
-          <OctetString Name="objectId" JSONName="objectId"/>
+          <HexOctetString Name="objectId" JSONName="objectId"/>
           <OID Name="keyUsage" JSONName="keyUsage"/>
         </Sequence>
 
@@ -991,12 +991,12 @@ return true;
           <Version Name="V0" OID="id_TECSEC_FAVORITE_OID" MinNumber="0" MaxNumber="0">
             <Guid Name="Id"/>
             <String Name="Name"/>
-            <OctetString Name="serialNumber"/>
+            <HexOctetString Name="serialNumber"/>
             <OctetString Name="data"/>
           </Version>
           <Guid Name="Id" JSONName="id"/>
           <String Name="Name" JSONName="name"/>
-          <OctetString Name="serialNumber" JSONName="serial"/>
+          <HexOctetString Name="serialNumber" JSONName="serial"/>
           <OctetString Name="data" JSONName="data"/>
         </Sequence>
       </Namespace>

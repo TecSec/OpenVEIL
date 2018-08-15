@@ -46,12 +46,12 @@ public:
 	virtual bool  FileStartsWithCmsHeader(const tscrypto::tsCryptoString& filename, std::shared_ptr<ICmsHeaderBase>& pVal) override;
 	virtual bool    StreamStartsWithCmsHeader(std::shared_ptr<IDataReader> stream, std::shared_ptr<ICmsHeaderBase>& pVal) override;
 
-	virtual bool Encrypt_File(const tscrypto::tsCryptoString& sFile, const tscrypto::tsCryptoString& sEncrFile, std::shared_ptr<ICmsHeader> header, CompressionType comp, tscrypto::TS_ALG_ID algorithm, tscrypto::TS_ALG_ID hashAlgorithm,
-		bool SignHeader, bool bindData, CMSFileFormatIds DataFormat, bool randomIvec, tscrypto::SymmetricPaddingType paddingType, int blockSize) override;
-	virtual bool EncryptStream(std::shared_ptr<IDataReader> sFile, std::shared_ptr<IDataWriter> sEncrFile, std::shared_ptr<ICmsHeader> header, CompressionType comp, tscrypto::TS_ALG_ID algorithm,
-		tscrypto::TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData, CMSFileFormatIds DataFormat, bool randomIvec, tscrypto::SymmetricPaddingType paddingType, int blockSize) override;
-	virtual bool EncryptFileAndStreams(const tscrypto::tsCryptoString& sFile, const tscrypto::tsCryptoString& sEncrFile, std::shared_ptr<ICmsHeader> header, CompressionType comp, tscrypto::TS_ALG_ID algorithm, tscrypto::TS_ALG_ID hashAlgorithm,
-		bool SignHeader, bool bindData, CMSFileFormatIds DataFormat, bool randomIvec, tscrypto::SymmetricPaddingType paddingType, int blockSize) override;
+	virtual bool Encrypt_File(const tscrypto::tsCryptoString& sFile, const tscrypto::tsCryptoString& sEncrFile, std::shared_ptr<ICmsHeader> header, CompressionType comp, TS_ALG_ID algorithm, TS_ALG_ID hashAlgorithm,
+		bool SignHeader, bool bindData, TS_ALG_ID DataFormat, bool randomIvec, tscrypto::SymmetricPaddingType paddingType, int blockSize) override;
+	virtual bool EncryptStream(std::shared_ptr<IDataReader> sFile, std::shared_ptr<IDataWriter> sEncrFile, std::shared_ptr<ICmsHeader> header, CompressionType comp, TS_ALG_ID algorithm,
+		TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData, TS_ALG_ID DataFormat, bool randomIvec, tscrypto::SymmetricPaddingType paddingType, int blockSize) override;
+	virtual bool EncryptFileAndStreams(const tscrypto::tsCryptoString& sFile, const tscrypto::tsCryptoString& sEncrFile, std::shared_ptr<ICmsHeader> header, CompressionType comp, TS_ALG_ID algorithm, TS_ALG_ID hashAlgorithm,
+		bool SignHeader, bool bindData, TS_ALG_ID DataFormat, bool randomIvec, tscrypto::SymmetricPaddingType paddingType, int blockSize) override;
 
 	virtual bool DecryptStream(std::shared_ptr<IDataReader> sFile, std::shared_ptr<IDataWriter> sDecrFile) override;
 	virtual bool DecryptFileAndStreams(const tscrypto::tsCryptoString& sFile, const tscrypto::tsCryptoString& sDecrFile) override;
@@ -60,8 +60,8 @@ public:
     virtual bool ValidateBufferContents_PublicOnly(const tscrypto::tsCryptoData& buffer) override;
 	virtual bool SetSessionCallback(std::shared_ptr<IFileVEILSessionCallback> callback) override;
 	virtual bool DecryptStreamWithHeader(std::shared_ptr<IDataReader> sFile, std::shared_ptr<IDataWriter> sDecrFile, std::shared_ptr<ICmsHeaderBase>& header) override;
-	virtual bool EncryptCryptoData(const tscrypto::tsCryptoData &inputData, tscrypto::tsCryptoData &outputData, std::shared_ptr<ICmsHeader> header, CompressionType comp, tscrypto::TS_ALG_ID algorithm, tscrypto::TS_ALG_ID hashAlgorithm,
-		bool SignHeader, bool bindData, CMSFileFormatIds DataFormat, bool randomIvec, tscrypto::SymmetricPaddingType paddingType, int blockSize) override;
+	virtual bool EncryptCryptoData(const tscrypto::tsCryptoData &inputData, tscrypto::tsCryptoData &outputData, std::shared_ptr<ICmsHeader> header, CompressionType comp, TS_ALG_ID algorithm, TS_ALG_ID hashAlgorithm,
+		bool SignHeader, bool bindData, TS_ALG_ID DataFormat, bool randomIvec, tscrypto::SymmetricPaddingType paddingType, int blockSize) override;
     virtual bool RecoverKeys(const tscrypto::tsCryptoString& inputFile, FileVEILFileOp_recoveredKeyList& keys) override;
 	virtual bool DecryptCryptoData(const tscrypto::tsCryptoData &inputData, tscrypto::tsCryptoData &outputData) override;
 	virtual bool DecryptCryptoDataWithHeader(const tscrypto::tsCryptoData &inputData, tscrypto::tsCryptoData &outputData, std::shared_ptr<ICmsHeaderBase>& header) override;
@@ -75,16 +75,16 @@ private:
     bool secureDeleteEntireFile(const tscrypto::tsCryptoString& inFilename, int inDeletePasses);
     bool secureDeleteFile(const tscrypto::tsCryptoString& inFilename, int inDeletePasses);
     bool secureDeleteStreams(const tscrypto::tsCryptoString& inFilename, int inDeletePasses);
-	bool EncryptSignFile(const tscrypto::tsCryptoString &sFilename, const tscrypto::tsCryptoString &sEncryptedFilename, const tscrypto::tsCryptoString &lpszTempFile, std::shared_ptr<ICmsHeader> Header, CompressionType comp, tscrypto::TS_ALG_ID algorithm,
-		tscrypto::TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData, CMSFileFormatIds DataFormat, bool randomIvec, tscrypto::SymmetricPaddingType paddingType, int blockSize);
-	bool EncryptSignStream(std::shared_ptr<IDataReader> inputData, std::shared_ptr<IDataWriter> outputData, std::shared_ptr<ICmsHeader> Header, CompressionType comp, tscrypto::TS_ALG_ID algorithm,
-		tscrypto::TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData, CMSFileFormatIds DataFormat, bool randomIvec, tscrypto::SymmetricPaddingType paddingType, int blockSize);
+	bool EncryptSignFile(const tscrypto::tsCryptoString &sFilename, const tscrypto::tsCryptoString &sEncryptedFilename, const tscrypto::tsCryptoString &lpszTempFile, std::shared_ptr<ICmsHeader> Header, CompressionType comp, TS_ALG_ID algorithm,
+		TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData, TS_ALG_ID DataFormat, bool randomIvec, tscrypto::SymmetricPaddingType paddingType, int blockSize);
+	bool EncryptSignStream(std::shared_ptr<IDataReader> inputData, std::shared_ptr<IDataWriter> outputData, std::shared_ptr<ICmsHeader> Header, CompressionType comp, TS_ALG_ID algorithm,
+		TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData, TS_ALG_ID DataFormat, bool randomIvec, tscrypto::SymmetricPaddingType paddingType, int blockSize);
     bool DecryptVerify(const tscrypto::tsCryptoString &sFilename, const tscrypto::tsCryptoString &sDecryptedFilename, const tscrypto::tsCryptoString &lpszTempFile);
 	bool DecryptVerify(std::shared_ptr<ICmsHeader> header, const tscrypto::tsCryptoString &sFilename, const tscrypto::tsCryptoString &sDecryptedFilename, const tscrypto::tsCryptoString &lpszTempFile, const tscrypto::tsCryptoString &sTempFile, bool headerIncluded);
 	bool DecryptVerify(std::shared_ptr<ICmsHeader> header, std::shared_ptr<IDataReader> reader, std::shared_ptr<IDataWriter> writer, bool headerIncluded);
     void    LogError(tscrypto::tsCryptoString error, ...);
-	bool PrepareHeader(std::shared_ptr<ICmsHeader> header7, CompressionType comp, tscrypto::TS_ALG_ID algorithm, tscrypto::TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData,
-							CMSFileFormatIds DataFormat, bool randomIvec, tscrypto::SymmetricPaddingType paddingType, int blockSize, int64_t fileSize);
+	bool PrepareHeader(std::shared_ptr<ICmsHeader> header7, CompressionType comp, TS_ALG_ID algorithm, TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData,
+        TS_ALG_ID DataFormat, bool randomIvec, tscrypto::SymmetricPaddingType paddingType, int blockSize, int64_t fileSize);
     bool RegenerateStreamKey(const tscrypto::tsCryptoString &sFilename, tscrypto::tsCryptoData& headerSignature, tscrypto::tsCryptoData& workingKey);
 
 	void getFileStreamNamesAndInfo(const tscrypto::tsCryptoString& name, tscrypto::JSONObject& o, bool includeCkmInfo = false);

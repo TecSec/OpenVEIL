@@ -46,7 +46,7 @@ public:
 	virtual bool FinishHeader(const tscrypto::tsCryptoData &key, std::shared_ptr<ICmsHeaderBase> header);
 	virtual bool SetNextCallback(std::shared_ptr<IKeyGenCallback> callback);
 
-	virtual bool EncryptUsingKey(const tscrypto::tsCryptoData &key, int format, int blocksize, tscrypto::TS_ALG_ID encryptionAlg, const tscrypto::tsCryptoData &hashOid, CompressionType compType,
+	virtual bool EncryptUsingKey(const tscrypto::tsCryptoData &key, int format, int blocksize, TS_ALG_ID encryptionAlg, const tscrypto::tsCryptoData &hashOid, CompressionType compType,
 		const tscrypto::tsCryptoData &ivec, tscrypto::SymmetricPaddingType padding, const tscrypto::tsCryptoData &authData, tscrypto::tsCryptoData &finalHash);
 
 	int ReservedHeaderLength() const { return m_headerLen; }
@@ -55,7 +55,7 @@ public:
 	virtual bool PrevalidateData(std::shared_ptr<ICmsHeaderBase> header);
 	virtual bool DecryptData(const tscrypto::tsCryptoData &key, std::shared_ptr<ICmsHeaderBase>& header);
 	virtual bool PrevalidateDataHash(const tscrypto::tsCryptoData &finalHash, const tscrypto::tsCryptoData &hashOid, const tscrypto::tsCryptoData &authData, int format);
-	virtual bool DecryptUsingKey(const tscrypto::tsCryptoData &key, int format, int blocksize, tscrypto::TS_ALG_ID encryptionAlg, const tscrypto::tsCryptoData &hashOid, CompressionType compType,
+	virtual bool DecryptUsingKey(const tscrypto::tsCryptoData &key, int format, int blocksize, TS_ALG_ID encryptionAlg, const tscrypto::tsCryptoData &hashOid, CompressionType compType,
 		const tscrypto::tsCryptoData &ivec, tscrypto::SymmetricPaddingType padding,
 		const tscrypto::tsCryptoData &authData, const tscrypto::tsCryptoData &finalHash);
 
@@ -65,18 +65,18 @@ public:
 protected:
 	void LogError(tscrypto::tsCryptoString error, ...);
 	bool ProcessHashed(const tscrypto::tsCryptoData &key, std::shared_ptr<ICmsHeader> header7, int blocksize, bool hashPlainText, std::shared_ptr<IFifoStream> fifo);
-	bool ProcessHashed(const tscrypto::tsCryptoData &key, int blocksize, bool hashPlainText, std::shared_ptr<IFifoStream> fifo, tscrypto::TS_ALG_ID encryptionAlg, const tscrypto::tsCryptoData &hashOid, CompressionType compType, const tscrypto::tsCryptoData &ivec, tscrypto::SymmetricPaddingType padding, const tscrypto::tsCryptoData &authData, tscrypto::tsCryptoData &finalHash);
+	bool ProcessHashed(const tscrypto::tsCryptoData &key, int blocksize, bool hashPlainText, std::shared_ptr<IFifoStream> fifo, TS_ALG_ID encryptionAlg, const tscrypto::tsCryptoData &hashOid, CompressionType compType, const tscrypto::tsCryptoData &ivec, tscrypto::SymmetricPaddingType padding, const tscrypto::tsCryptoData &authData, tscrypto::tsCryptoData &finalHash);
 	bool ProcessEncAuthHashed(const tscrypto::tsCryptoData &key, std::shared_ptr<ICmsHeader> header7, int blocksize, std::shared_ptr<IFifoStream> fifo);
-	bool ProcessEncAuthHashed(const tscrypto::tsCryptoData &key, int blocksize, std::shared_ptr<IFifoStream> fifo, tscrypto::TS_ALG_ID encryptionAlg, const tscrypto::tsCryptoData &hashOid, CompressionType compType, const tscrypto::tsCryptoData &ivec, tscrypto::SymmetricPaddingType padding, const tscrypto::tsCryptoData &authData, tscrypto::tsCryptoData &finalHash);
+	bool ProcessEncAuthHashed(const tscrypto::tsCryptoData &key, int blocksize, std::shared_ptr<IFifoStream> fifo, TS_ALG_ID encryptionAlg, const tscrypto::tsCryptoData &hashOid, CompressionType compType, const tscrypto::tsCryptoData &ivec, tscrypto::SymmetricPaddingType padding, const tscrypto::tsCryptoData &authData, tscrypto::tsCryptoData &finalHash);
 	bool ValidateEncAuthFormat(std::shared_ptr<ICmsHeader> header, int64_t headerSize, int64_t fileSize);
 	bool ValidateHashedFormat(std::shared_ptr<ICmsHeader> header, int64_t headerSize, int64_t fileSize, bool plaintext);
 	bool ValidateEncAuthFormat(const tscrypto::tsCryptoData &finalhash, const tscrypto::tsCryptoData &hashOid, const tscrypto::tsCryptoData &authData, int64_t fileSize);
 	bool ValidateHashedFormat(const tscrypto::tsCryptoData &finalhash, const tscrypto::tsCryptoData &hashOid, const tscrypto::tsCryptoData &authData, int64_t fileSize, bool plaintext);
 	bool DecryptEncAuthData(const tscrypto::tsCryptoData &key, std::shared_ptr<ICmsHeader> header, int headerSize, int blocksize, std::shared_ptr<IFifoStream> fifo);
 	bool DecryptEncAuthData(const tscrypto::tsCryptoData &key, int blocksize, std::shared_ptr<IFifoStream> fifo,
-		tscrypto::TS_ALG_ID encAlg, const tscrypto::tsCryptoData &hashOid, CompressionType compType, const tscrypto::tsCryptoData &ivec, tscrypto::SymmetricPaddingType padding, const tscrypto::tsCryptoData &authData, const tscrypto::tsCryptoData &finalHash);
+		TS_ALG_ID encAlg, const tscrypto::tsCryptoData &hashOid, CompressionType compType, const tscrypto::tsCryptoData &ivec, tscrypto::SymmetricPaddingType padding, const tscrypto::tsCryptoData &authData, const tscrypto::tsCryptoData &finalHash);
 	bool DecryptHashed(const tscrypto::tsCryptoData &key, std::shared_ptr<ICmsHeader> header, int headerSize, int blocksize, bool hashPlainText, std::shared_ptr<IFifoStream> fifo);
-	bool DecryptHashed(const tscrypto::tsCryptoData &key, int blocksize, bool hashPlainText, std::shared_ptr<IFifoStream> fifo, tscrypto::TS_ALG_ID encryptionAlg, const tscrypto::tsCryptoData &hashOid, CompressionType compType, const tscrypto::tsCryptoData &ivec, tscrypto::SymmetricPaddingType padding, const tscrypto::tsCryptoData &authData, const tscrypto::tsCryptoData &finalHash);
+	bool DecryptHashed(const tscrypto::tsCryptoData &key, int blocksize, bool hashPlainText, std::shared_ptr<IFifoStream> fifo, TS_ALG_ID encryptionAlg, const tscrypto::tsCryptoData &hashOid, CompressionType compType, const tscrypto::tsCryptoData &ivec, tscrypto::SymmetricPaddingType padding, const tscrypto::tsCryptoData &authData, const tscrypto::tsCryptoData &finalHash);
 
 	bool DecryptEncAuthPart(std::shared_ptr<IFifoStream> fifo);
 	bool DecryptHashedPart(std::shared_ptr<IFifoStream> fifo);
@@ -96,7 +96,7 @@ private:
 
 	// BEGIN - Stream callback variables
 	bool m_processingEncrypt;
-	CMSFileFormatIds m_format;
+    TS_ALG_ID m_format;
 	std::shared_ptr<tscrypto::MessageAuthenticationCode> m_hasher;
 	std::shared_ptr<ICompression> m_compressor;
 	int64_t m_fileSize;
@@ -221,7 +221,7 @@ bool EncryptProcessor::FinishHeader(const tscrypto::tsCryptoData &key, std::shar
 		format = TS_FORMAT_CMS_CT_HASHED;
 	}
 
-	m_format = (CMSFileFormatIds)format;
+	m_format = (TS_ALG_ID)format;
 	switch (format)
 	{
 	case TS_FORMAT_CMS_CT_HASHED:
@@ -254,7 +254,7 @@ bool EncryptProcessor::FinishHeader(const tscrypto::tsCryptoData &key, std::shar
 	}
 	return TSRETURN(("OK"), true);
 }
-bool EncryptProcessor::EncryptUsingKey(const tscrypto::tsCryptoData &key, int format, int blocksize, tscrypto::TS_ALG_ID encryptionAlg, const tscrypto::tsCryptoData &hashOid, CompressionType compType,
+bool EncryptProcessor::EncryptUsingKey(const tscrypto::tsCryptoData &key, int format, int blocksize, TS_ALG_ID encryptionAlg, const tscrypto::tsCryptoData &hashOid, CompressionType compType,
 	const tscrypto::tsCryptoData &ivec, tscrypto::SymmetricPaddingType padding, const tscrypto::tsCryptoData &authData, tscrypto::tsCryptoData &finalHash)
 {
 	TSDECLARE_FUNCTIONExt(true);
@@ -279,7 +279,7 @@ bool EncryptProcessor::EncryptUsingKey(const tscrypto::tsCryptoData &key, int fo
 	if (m_writer->AllowsRandomAccess())
 		m_writer->GoToPosition(0);
 
-	m_format = (CMSFileFormatIds)format;
+	m_format = (TS_ALG_ID)format;
 	switch (format)
 	{
 	case TS_FORMAT_CMS_CT_HASHED:
@@ -431,7 +431,7 @@ bool EncryptProcessor::ProcessHashed(const tscrypto::tsCryptoData &_key, std::sh
 	size_t keyLen = (int)_key.size();
 	int percent = 0;
 	int64_t inOffset = 0;
-	tscrypto::TS_ALG_ID encAlg = _TS_ALG_ID::TS_ALG_INVALID;
+	TS_ALG_ID encAlg = TS_ALG_INVALID;
 //	SymmetricMode encMode;
 	size_t encKeySize = 0, ivecSize = 0, encBlocksize;
 	tscrypto::tsCryptoData encKey, macKey;
@@ -711,7 +711,7 @@ bool EncryptProcessor::ProcessHashed(const tscrypto::tsCryptoData &_key, std::sh
 	return TSRETURN(("OK"), true);
 }
 bool EncryptProcessor::ProcessHashed(const tscrypto::tsCryptoData &_key, int blocksize, bool hashPlainText, std::shared_ptr<IFifoStream > fifo,
-	tscrypto::TS_ALG_ID encAlg, const tscrypto::tsCryptoData &hashOid, CompressionType compType, const tscrypto::tsCryptoData &ivec, tscrypto::SymmetricPaddingType padding,
+	TS_ALG_ID encAlg, const tscrypto::tsCryptoData &hashOid, CompressionType compType, const tscrypto::tsCryptoData &ivec, tscrypto::SymmetricPaddingType padding,
 	const tscrypto::tsCryptoData &authData, tscrypto::tsCryptoData &finalHash)
 {
 	TSDECLARE_FUNCTIONExt(true);
@@ -1127,7 +1127,7 @@ bool EncryptProcessor::ProcessEncAuthHashed(const tscrypto::tsCryptoData &_key, 
 	const uint8_t *key = _key.c_str();
 	int keyLen = (int)_key.size();
 	int percent = 0;
-	tscrypto::TS_ALG_ID encAlg = _TS_ALG_ID::TS_ALG_INVALID;
+	TS_ALG_ID encAlg = TS_ALG_INVALID;
 	SymmetricMode encMode;
 	size_t encKeySize = 0, ivecSize = 0, encBlocksize;
 	tscrypto::tsCryptoData encKey, macKey, ivec, tag;
@@ -1394,7 +1394,7 @@ bool EncryptProcessor::ProcessEncAuthHashed(const tscrypto::tsCryptoData &_key, 
 	}
 	return TSRETURN(("OK"), true);
 }
-bool EncryptProcessor::ProcessEncAuthHashed(const tscrypto::tsCryptoData &_key, int blocksize, std::shared_ptr<IFifoStream> fifo, tscrypto::TS_ALG_ID encAlg, const tscrypto::tsCryptoData &hashOid, CompressionType compType,
+bool EncryptProcessor::ProcessEncAuthHashed(const tscrypto::tsCryptoData &_key, int blocksize, std::shared_ptr<IFifoStream> fifo, TS_ALG_ID encAlg, const tscrypto::tsCryptoData &hashOid, CompressionType compType,
 	const tscrypto::tsCryptoData &_ivec, tscrypto::SymmetricPaddingType padding, const tscrypto::tsCryptoData &authData, tscrypto::tsCryptoData &finalHash)
 {
     UNREFERENCED_PARAMETER(padding);
@@ -1708,7 +1708,7 @@ bool EncryptProcessor::DecryptData(const tscrypto::tsCryptoData &key, std::share
 		format = TS_FORMAT_CMS_PT_HASHED;
 	}
 
-	m_format = (CMSFileFormatIds)format;
+	m_format = (TS_ALG_ID)format;
 	switch (format)
 	{
 	case TS_FORMAT_CMS_CT_HASHED:
@@ -1733,7 +1733,7 @@ bool EncryptProcessor::DecryptData(const tscrypto::tsCryptoData &key, std::share
 
 	return TSRETURN_ERROR(("OK"), true);
 }
-bool EncryptProcessor::DecryptUsingKey(const tscrypto::tsCryptoData &key, int format, int blocksize, tscrypto::TS_ALG_ID encAlg, const tscrypto::tsCryptoData &hashOid, CompressionType compType,
+bool EncryptProcessor::DecryptUsingKey(const tscrypto::tsCryptoData &key, int format, int blocksize, TS_ALG_ID encAlg, const tscrypto::tsCryptoData &hashOid, CompressionType compType,
 	const tscrypto::tsCryptoData &ivec, tscrypto::SymmetricPaddingType padding, const tscrypto::tsCryptoData &authData, const tscrypto::tsCryptoData &finalHash)
 {
 	TSDECLARE_FUNCTIONExt(true);
@@ -1754,7 +1754,7 @@ bool EncryptProcessor::DecryptUsingKey(const tscrypto::tsCryptoData &key, int fo
 		}
 	}
 
-	m_format = (CMSFileFormatIds)format;
+	m_format = (TS_ALG_ID)format;
 	switch (format)
 	{
 	case TS_FORMAT_CMS_CT_HASHED:
@@ -1927,7 +1927,7 @@ bool EncryptProcessor::DecryptEncAuthData(const tscrypto::tsCryptoData &_key, st
 			return TSRETURN_ERROR(("Unable to create the data hash algorithm."), false);
 	}
 
-	tscrypto::TS_ALG_ID encAlg = header->GetEncryptionAlgorithmID();
+	TS_ALG_ID encAlg = header->GetEncryptionAlgorithmID();
 	encMode = Alg2Mode(encAlg);
 
 	if (!(m_kdf = std::dynamic_pointer_cast<KeyDerivationFunction>(CryptoFactory("KDF-SHA512"))) ||
@@ -2180,7 +2180,7 @@ bool EncryptProcessor::DecryptEncAuthData(const tscrypto::tsCryptoData &_key, st
 	return TSRETURN_ERROR(("OK"), true);
 }
 bool EncryptProcessor::DecryptEncAuthData(const tscrypto::tsCryptoData &_key, int blocksize, std::shared_ptr<IFifoStream> fifo,
-	tscrypto::TS_ALG_ID encAlg, const tscrypto::tsCryptoData &hashOid, CompressionType compType, const tscrypto::tsCryptoData &_ivec, tscrypto::SymmetricPaddingType padding, const tscrypto::tsCryptoData &authData, const tscrypto::tsCryptoData &finalHash)
+	TS_ALG_ID encAlg, const tscrypto::tsCryptoData &hashOid, CompressionType compType, const tscrypto::tsCryptoData &_ivec, tscrypto::SymmetricPaddingType padding, const tscrypto::tsCryptoData &authData, const tscrypto::tsCryptoData &finalHash)
 {
     UNREFERENCED_PARAMETER(padding);
 
@@ -2568,7 +2568,7 @@ bool EncryptProcessor::DecryptHashed(const tscrypto::tsCryptoData &_key, std::sh
 			return TSRETURN_ERROR(("Unable to create the data hash algorithm."), false);
 	}
 
-	tscrypto::TS_ALG_ID encAlg = header->GetEncryptionAlgorithmID();
+	TS_ALG_ID encAlg = header->GetEncryptionAlgorithmID();
 	encMode = Alg2Mode(encAlg);
 
 	if (!(m_enc = std::dynamic_pointer_cast<Symmetric>(CryptoFactory(header->GetEncryptionAlgorithmOID().ToOIDString()))))
@@ -2841,7 +2841,7 @@ bool EncryptProcessor::DecryptHashed(const tscrypto::tsCryptoData &_key, std::sh
 	return TSRETURN_ERROR(("OK"), true);
 }
 bool EncryptProcessor::DecryptHashed(const tscrypto::tsCryptoData &_key, int blocksize, bool hashPlainText, std::shared_ptr<IFifoStream> fifo,
-	tscrypto::TS_ALG_ID encAlg, const tscrypto::tsCryptoData &hashOid, CompressionType compType, const tscrypto::tsCryptoData &_ivec, tscrypto::SymmetricPaddingType padding, const tscrypto::tsCryptoData &authData, const tscrypto::tsCryptoData &finalHash)
+	TS_ALG_ID encAlg, const tscrypto::tsCryptoData &hashOid, CompressionType compType, const tscrypto::tsCryptoData &_ivec, tscrypto::SymmetricPaddingType padding, const tscrypto::tsCryptoData &authData, const tscrypto::tsCryptoData &finalHash)
 {
 	TSDECLARE_FUNCTIONExt(true);
 

@@ -75,7 +75,9 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-strict-aliasing")
 
 # Add -Wunused when using gcc 4.6 so we get the same errors as when building
 # with cdbs (Common Debian Build System)
-if (GCC_VERSION VERSION_GREATER 4.6 OR GCC_VERSION VERSION_EQUAL 4.6)
+if (GCC_VERSION VERSION_GREATER 5 OR GCC_VERSION VERSION_EQUAL 5)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused -std=c++17")
+elseif (GCC_VERSION VERSION_GREATER 4.6 OR GCC_VERSION VERSION_EQUAL 4.6)
 	#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wunused -std=c++11")
 	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused -std=c++11 -fno-implicit-templates")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunused -std=c++11")

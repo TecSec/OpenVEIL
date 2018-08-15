@@ -757,9 +757,9 @@ TEST(TlvSerializer, generateCert)
 	issuer = tscrypto::CryptoLocator()->get_instance<tscrypto::ICertificateIssuer>("/CERTIFICATEISSUER");
 	EXPECT_TRUE(!!issuer);
 	issuer->setIssuerInformation("C=US,ST=Virginia,L=Centreville,O=Test,CN=localhost");
-	ASSERT_TRUE(tscrypto::TSGenerateECCKeysByAlg(tscrypto::_TS_ALG_ID::TS_ALG_ECC_P384, localhostKey));
+	ASSERT_TRUE(tscrypto::TSGenerateECCKeysByAlg(TS_ALG_ECC_P384, localhostKey));
 
-	issuer->NewCA(localhostKey, tscrypto::_TS_ALG_ID::TS_ALG_SHA512);
+	issuer->NewCA(localhostKey, TS_ALG_SHA512);
 	tscrypto::CA_Crypto_Info crypto = issuer->getCryptoInformation();
 	localhostCert = crypto.rootCert;
 	EXPECT_NE(0, localhostCert.size());

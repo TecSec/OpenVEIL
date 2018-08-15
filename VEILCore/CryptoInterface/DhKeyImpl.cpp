@@ -44,7 +44,7 @@ public:
         desc(nullptr),
         reason(tskvf_NoFailure)
     {
-        desc = tsFindDhAlgorithm("DH");
+        desc = TSLookup(TSIDh, "DH");
         SetName(algorithm);
     }
     virtual ~DhKeyImpl(void)
@@ -59,56 +59,56 @@ public:
         reason = tskvf_NoFailure;
         if (desc != nullptr && dhKey != nullptr)
         {
-            desc->clearKey(desc, dhKey);
+            desc->clearKey(dhKey);
         }
     }
     virtual size_t KeySize() const override
     {
         if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
             return 0;
-        return desc->getPrimeSize(desc, dhKey);
+        return desc->getPrimeSize(dhKey);
     }
     virtual bool IsPublicLoaded() const override
     {
         if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
             return false;
-        return desc->hasPublicKey(desc, dhKey);
+        return desc->hasPublicKey(dhKey);
     }
     virtual bool IsPrivateLoaded() const override
     {
         if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
             return false;
-        return desc->hasPrivateKey(desc, dhKey);
+        return desc->hasPrivateKey(dhKey);
     }
     virtual bool IsPublicVerified() const override
     {
         if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
             return false;
-        return desc->publicIsValidated(desc, dhKey);
+        return desc->publicIsValidated(dhKey);
     }
     virtual bool IsPrivateVerified() const override
     {
         if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
             return false;
-        return desc->privateIsValidated(desc, dhKey);
+        return desc->privateIsValidated(dhKey);
     }
     virtual bool HasPublicKey() const override
     {
         if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
             return false;
-        return desc->hasPublicKey(desc, dhKey);
+        return desc->hasPublicKey(dhKey);
     }
     virtual bool HasPrivateKey() const override
     {
         if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
             return false;
-        return desc->hasPrivateKey(desc, dhKey);
+        return desc->hasPrivateKey(dhKey);
     }
     virtual bool ValidateKeys() override
     {
         if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
             return false;
-        return desc->validateKeys(desc, dhKey, &reason);
+        return desc->validateKeys(dhKey, &reason);
     }
     virtual bool KeysAreCompatible(std::shared_ptr<AsymmetricKey> secondKey) const override
     {
@@ -119,14 +119,14 @@ public:
         if (!ts)
             return false;
 
-        return desc->keysAreCompatible(desc, dhKey, ts->getKeyPair());
+        return desc->keysAreCompatible(dhKey, ts->getKeyPair());
     }
     virtual bool generateKeyPair(bool forSignature) override
     {
         if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
             return false;
 
-        return desc->generateKeyPair(desc, dhKey);
+        return desc->generateKeyPair(dhKey);
     }
     virtual bool CanComputeZ() const override
     {
@@ -144,7 +144,7 @@ public:
         
         Z.clear();
         Z.resize(len);
-        retVal = desc->computeZ(desc, dhKey, ts->getKeyPair(), Z.rawData(), &len);
+        retVal = desc->computeZ(dhKey, ts->getKeyPair(), Z.rawData(), &len);
         if (!retVal)
             len = 0;
         Z.resize(len);
@@ -286,7 +286,8 @@ public:
         dhParams = setTo;
         if (!!dhParams && !!ts)
         {
-            dhKey = desc->createKeyStructure(desc, (const TSDhParametersDescriptor*)ts->Descriptor(), (TSCRYPTO_DH_PARAMS)ts->getKeyPair());
+            dhKey = tsCreateWorkspace(desc);
+            desc->setParameterset(dhKey, ts->getKeyPair());
             return dhKey != nullptr;
         }
         return true;
@@ -300,7 +301,7 @@ public:
             return tsCryptoData();
 
         tmp.resize(len);
-        if (!desc->exportPrivateKey(desc, dhKey, tmp.rawData(), &len))
+        if (!desc->exportPrivateKey(dhKey, tmp.rawData(), &len))
             return tsCryptoData();
         tmp.resize(len);
         return tmp;
@@ -312,7 +313,7 @@ public:
 
         if (data.size() == 0)
             return false;
-        return desc->addPrivateKey(desc, dhKey, data.c_str(), (uint32_t)data.size());;
+        return desc->addPrivateKey(dhKey, data.c_str(), (uint32_t)data.size());;
     }
     virtual tsCryptoData get_PublicKey() const override
     {
@@ -323,7 +324,7 @@ public:
             return tsCryptoData();
 
         tmp.resize(len);
-        if (!desc->exportPublicKey(desc, dhKey, tmp.rawData(), &len))
+        if (!desc->exportPublicKey(dhKey, tmp.rawData(), &len))
             return tsCryptoData();
         tmp.resize(len);
         return tmp;
@@ -335,7 +336,7 @@ public:
 
         if (data.size() == 0)
             return false;
-        return desc->addPublicKey(desc, dhKey, data.c_str(), (uint32_t)data.size());;
+        return desc->addPublicKey(dhKey, data.c_str(), (uint32_t)data.size());;
     }
 
     // DhEccPrimitives
@@ -350,7 +351,7 @@ public:
         r.resize(Rlen);
         s.resize(Slen);
 
-        retVal = desc->signUsingData(desc, dhKey, data.c_str(), (uint32_t)data.size(), r.rawData(), &Rlen, s.rawData(), &Slen);
+        retVal = desc->signUsingData(dhKey, data.c_str(), (uint32_t)data.size(), r.rawData(), &Rlen, s.rawData(), &Slen);
         if (!retVal)
         {
             Rlen = 0;
@@ -365,7 +366,7 @@ public:
         if (!gFipsState.operational() || desc == nullptr || dhKey == nullptr)
             return false;
 
-        return desc->verifySignatureForData(desc, dhKey, data.c_str(), (uint32_t)data.size(), r.c_str(), (uint32_t)r.size(), s.c_str(), (uint32_t)s.size());
+        return desc->verifySignatureForData(dhKey, data.c_str(), (uint32_t)data.size(), r.c_str(), (uint32_t)r.size(), s.c_str(), (uint32_t)s.size());
     }
     virtual bool DH(const tsCryptoData &publicKey, tsCryptoData &Z) const override
     {
@@ -402,32 +403,32 @@ public:
     }
 
     // Inherited via TSALG_Access
-    virtual const TSCryptoBaseDescriptor * Descriptor() const override
+    virtual const TSICyberVEILObject * Descriptor() const override
     {
-        return desc;
+        return desc->def.primary;
     }
-    virtual TSCRYPTO_ASYMKEY getKeyPair() const override
+    virtual TSWORKSPACE getKeyPair() const override
     {
         return dhKey;
     }
-    virtual TSCRYPTO_WORKSPACE getWorkspace() const override
+    virtual TSWORKSPACE getWorkspace() const override
     {
         return nullptr;
     }
-    virtual TSCRYPTO_ASYMKEY detachFromKeyPair() override
+    virtual TSWORKSPACE detachFromKeyPair() override
     {
-        return (TSCRYPTO_ASYMKEY)dhKey.detach();
+        return (TSWORKSPACE)dhKey.detach();
     }
-    virtual TSCRYPTO_ASYMKEY cloneKeyPair() const override
+    virtual TSWORKSPACE cloneKeyPair() const override
     {
         if (desc == nullptr || dhKey == nullptr)
             return nullptr;
-        return desc->cloneKey(desc, dhKey);
+        return tsClone(dhKey);
     }
 
 private:
-    const TSDhDescriptor* desc;
-    SmartCryptoKey dhKey;
+    const TSIDh* desc;
+    SmartCryptoWorkspace dhKey;
     TSKeyValidationFailureType reason;
     std::shared_ptr<tscrypto::DhParameters> dhParams;
 };

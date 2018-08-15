@@ -63,12 +63,12 @@ using namespace tscrypto;
 #include "core/IOutputCollector.h"
 #include "core/IVeilUtilities.h"
 
-extern const TSSmartCardManagerDescriptor* scMan;
+extern const TSISmartCardManager* scMan;
 
 class SmartCardTransaction
 {
 public:
-	SmartCardTransaction(TSSMARTCARD_CONNECTION connection) : _connection2(connection), _alreadyHadTransaction(false), desc((const TSSmartCardConnectionDescriptor*)tsGetDescriptorFromWorkspace(connection))
+	SmartCardTransaction(TSWORKSPACE connection) : _connection2(connection), _alreadyHadTransaction(false), desc(TSWorker(TSISmartCardConnection, connection))
 	{
 		if (!!_connection2 && desc != NULL)
 		{
@@ -96,8 +96,8 @@ public:
         }
 	}
 private:
-    TSSMARTCARD_CONNECTION _connection2;
-    const TSSmartCardConnectionDescriptor* desc;
+    TSWORKSPACE _connection2;
+    const TSISmartCardConnection* desc;
 	bool _alreadyHadTransaction;
 };
 

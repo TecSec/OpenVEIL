@@ -37,445 +37,6 @@
 
 
 
-      <NamedInt Name="TS_ALG_ID" BaseType="int32_t" Exported="true">
-        <ID Name="TS_ALG_INVALID" Value="0"/>
-        <ID Name="TS_ALG_DES_CBC" Value="1"/>
-        <ID Name="TS_ALG_DES_ECB" Value="2"/>
-        <ID Name="TS_ALG_DES3_TWOKEY_CBC" Value="5"/>
-        <ID Name="TS_ALG_DES3_TWOKEY_ECB" Value="6"/>
-        <ID Name="TS_ALG_DES3_THREEKEY_CBC" Value="9"/>
-        <ID Name="TS_ALG_DES3_THREEKEY_ECB" Value="10"/>
-        <ID Name="TS_ALG_PSQUARED" Value="11"/>
-        <ID Name="TS_ALG_BLOWFISH_CBC" Value="12"/>
-        <ID Name="TS_ALG_BLOWFISH_ECB" Value="13"/>
-        <ID Name="TS_ALG_AES_CBC_256" Value="16"/>
-        <ID Name="TS_ALG_AES_ECB_256" Value="32"/>
-        <ID Name="TS_ALG_AES_CBC_192" Value="37"/>
-        <ID Name="TS_ALG_AES_ECB_192" Value="38"/>
-        <ID Name="TS_ALG_AES_CBC_128" Value="39"/>
-        <ID Name="TS_ALG_AES_ECB_128" Value="40"/>
-        <ID Name="TS_ALG_RC2_ECB" Value="41"/>
-        <ID Name="TS_ALG_RC2_CBC" Value="42"/>
-        <ID Name="TS_ALG_RC4" Value="43"/>
-        <ID Name="TS_ALG_DES_CTR" Value="44"/>
-        <ID Name="TS_ALG_DES3_TWOKEY_CTR" Value="45"/>
-        <ID Name="TS_ALG_DES3_THREEKEY_CTR" Value="46"/>
-        <ID Name="TS_ALG_BLOWFISH_CTR" Value="47"/>
-        <ID Name="TS_ALG_AES_CTR" Value="49"/>
-        <ID Name="TS_ALG_AES_CTR_256" Value="49"/>
-        <ID Name="TS_ALG_AES_CTR_192" Value="52"/>
-        <ID Name="TS_ALG_AES_CTR_128" Value="53"/>
-        <ID Name="TS_ALG_RC2_CTR" Value="54"/>
-        <ID Name="TS_ALG_TSAES_CBC_256" Value="55"/>
-        <ID Name="TS_ALG_TSAES_ECB_256" Value="56"/>
-        <ID Name="TS_ALG_TSAES_CBC_192" Value="57"/>
-        <ID Name="TS_ALG_TSAES_ECB_192" Value="58"/>
-        <ID Name="TS_ALG_TSAES_CBC_128" Value="59"/>
-        <ID Name="TS_ALG_TSAES_ECB_128" Value="60"/>
-        <ID Name="TS_ALG_CMAC_TDES" Value="61"/>
-        <ID Name="TS_ALG_CMAC_AES128" Value="62"/>
-        <ID Name="TS_ALG_CMAC_AES192" Value="63"/>
-        <ID Name="TS_ALG_CMAC_AES256" Value="64"/>
-        <ID Name="TS_ALG_CMAC_TSAES128" Value="0x41"/>
-        <ID Name="TS_ALG_CMAC_TSAES192" Value="0x42"/>
-        <ID Name="TS_ALG_CMAC_TSAES256" Value="0x43"/>
-        <ID Name="TS_ALG_AES_OFB_256" Value="0x44"/>
-        <ID Name="TS_ALG_AES_OFB_192" Value="0x45"/>
-        <ID Name="TS_ALG_AES_OFB_128" Value="0x46"/>
-        <ID Name="TS_ALG_TSAES_OFB_256" Value="0x47"/>
-        <ID Name="TS_ALG_TSAES_OFB_192" Value="0x48"/>
-        <ID Name="TS_ALG_TSAES_OFB_128" Value="0x49"/>
-        <ID Name="TS_ALG_DES3_TWOKEY_OFB" Value="0x4a"/>
-        <ID Name="TS_ALG_DES3_THREEKEY_OFB" Value="0x4b"/>
-        <ID Name="TS_ALG_AES_CFB8_256" Value="0x4c"/>
-        <ID Name="TS_ALG_AES_CFB8_192" Value="0x4d"/>
-        <ID Name="TS_ALG_AES_CFB8_128" Value="0x4e"/>
-        <ID Name="TS_ALG_TSAES_CFB8_256" Value="0x4f"/>
-        <ID Name="TS_ALG_TSAES_CFB8_192" Value="0x50"/>
-        <ID Name="TS_ALG_TSAES_CFB8_128" Value="0x51"/>
-        <ID Name="TS_ALG_DES3_TWOKEY_CFB8" Value="0x52"/>
-        <ID Name="TS_ALG_DES3_THREEKEY_CFB8" Value="0x53"/>
-        <ID Name="TS_ALG_AES_CFB128_256" Value="0x54"/>
-        <ID Name="TS_ALG_AES_CFB128_192" Value="0x55"/>
-        <ID Name="TS_ALG_AES_CFB128_128" Value="0x56"/>
-        <ID Name="TS_ALG_TSAES_CFB128_256" Value="0x57"/>
-        <ID Name="TS_ALG_TSAES_CFB128_192" Value="0x58"/>
-        <ID Name="TS_ALG_TSAES_CFB128_128" Value="0x59"/>
-        <ID Name="TS_ALG_DES3_TWOKEY_CFB64" Value="0x5a"/>
-        <ID Name="TS_ALG_DES3_THREEKEY_CFB64" Value="0x5b"/>
-        <ID Name="TS_ALG_TSAES_CTR_256" Value="0x5c"/>
-        <ID Name="TS_ALG_TSAES_CTR_192" Value="0x5d"/>
-        <ID Name="TS_ALG_TSAES_CTR_128" Value="0x5e"/>
-        <ID Name="TS_ALG_AES_CCM_256" Value="0x5f"/>
-        <ID Name="TS_ALG_AES_CCM_192" Value="0x60"/>
-        <ID Name="TS_ALG_AES_CCM_128" Value="0x61"/>
-        <ID Name="TS_ALG_TSAES_CCM_256" Value="0x62"/>
-        <ID Name="TS_ALG_TSAES_CCM_192" Value="0x63"/>
-        <ID Name="TS_ALG_TSAES_CCM_128" Value="0x64"/>
-        <ID Name="TS_ALG_AES_GCM_256" Value="0x65"/>
-        <ID Name="TS_ALG_AES_GCM_192" Value="0x66"/>
-        <ID Name="TS_ALG_AES_GCM_128" Value="0x67"/>
-        <ID Name="TS_ALG_TSAES_GCM_256" Value="0x68"/>
-        <ID Name="TS_ALG_TSAES_GCM_192" Value="0x69"/>
-        <ID Name="TS_ALG_TSAES_GCM_128" Value="0x6a"/>
-        
-        <ID Name="TS_ALG_AES_XTS_256" Value="0x6b"/>
-        <ID Name="TS_ALG_AES_XTS_192" Value="0x6c"/>
-        <ID Name="TS_ALG_AES_XTS_128" Value="0x6d"/>
-
-        <ID Name="TS_ALG_PROBABLE_PRIME" Value="0x71"/>
-        <ID Name="TS_ALG_PROVABLE_PRIME" Value="0x72"/>
-        <ID Name="TS_ALG_DES_CFB8" Value="0x73"/>
-        <ID Name="TS_ALG_DES_CFB64" Value="0x74"/>
-        <ID Name="TS_ALG_DES_OFB" Value="0x75"/>
-        <ID Name="TS_ALG_PROBABLE_X9_31_PRIME" Value="0x76"/>
-        <ID Name="TS_ALG_RC2_OFB" Value="0x77"/>
-        <ID Name="TS_ALG_RC2_CFB8" Value="0x78"/>
-        <ID Name="TS_ALG_RC2_CFB64" Value="0x79"/>
-        <ID Name="TS_ALG_RC2_128_ECB" Value="0x7a"/>
-        <ID Name="TS_ALG_RC2_128_CBC" Value="0x7b"/>
-        <ID Name="TS_ALG_RC2_128_CTR" Value="0x7c"/>
-        <ID Name="TS_ALG_RC2_128_OFB" Value="0x7d"/>
-        <ID Name="TS_ALG_RC2_128_CFB8" Value="0x7e"/>
-        <ID Name="TS_ALG_RC2_128_CFB64" Value="0x7f"/>
-        
-        <ID Name="TS_ALG_SALSA20" Value="0x80"/>
-        <ID Name="TS_ALG_XSALSA20" Value="0x81"/>
-        <ID Name="TS_ALG_CHACHA20" Value="0x82"/>
-        <ID Name="TS_ALG_POLY1305" Value="0x83"/>
-
-        <ID Name="TS_ALG_DH" Value="0x101"/>
-        <ID Name="TS_ALG_DSA" Value="0x102"/>
-        <ID Name="TS_ALG_DSA_SHA1" Value="0x103"/>
-        <ID Name="TS_ALG_RSA_PKCS_v15" Value="0x104"/>
-        <ID Name="TS_ALG_RSA_SHA1_v15" Value="0x105"/>
-        <ID Name="TS_ALG_RSA_MD5_v15" Value="0x106"/>
-        <ID Name="TS_ALG_RSA_SHA256_v15" Value="0x107"/>
-        <ID Name="TS_ALG_RSA_SHA384_v15" Value="0x108"/>
-        <ID Name="TS_ALG_RSA_SHA512_v15" Value="0x109"/>
-        <ID Name="TS_ALG_RSA_SHA224_v15" Value="0x10a"/>
-        <ID Name="TS_ALG_RSA" Value="0x10b"/>
-        <ID Name="TS_ALG_RSA_PKCS" Value="TS_ALG_RSA_PKCS_v15"/>
-        <ID Name="TS_ALG_RSA_SHA1" Value="TS_ALG_RSA_SHA1_v15"/>
-        <ID Name="TS_ALG_RSA_MD5" Value="TS_ALG_RSA_MD5_v15"/>
-        <ID Name="TS_ALG_RSA_SHA256" Value="TS_ALG_RSA_SHA256_v15"/>
-        <ID Name="TS_ALG_RSA_SHA384" Value="TS_ALG_RSA_SHA384_v15"/>
-        <ID Name="TS_ALG_RSA_SHA512" Value="TS_ALG_RSA_SHA512_v15"/>
-        <ID Name="TS_ALG_RSA_SHA224" Value="TS_ALG_RSA_SHA224_v15"/>
-        <ID Name="TS_ALG_DSA_SHA256" Value="0x10c"/>
-        <ID Name="TS_ALG_DSA_SHA512" Value="0x10d"/>
-        <ID Name="TS_ALG_ECC" Value="0x10e"/>
-        <ID Name="TS_ALG_ECC_P256" Value="0x10f"/>
-        <ID Name="TS_ALG_ECC_P384" Value="0x110"/>
-        <ID Name="TS_ALG_ECC_P521" Value="0x111"/>
-        <ID Name="TS_ALG_KDF_CMAC_AES" Value="0x112"/>
-        <ID Name="TS_ALG_KDF_CMAC_TSAES" Value="0x113"/>
-        <ID Name="TS_ALG_KDF_CMAC_TDES" Value="0x114"/>
-        <ID Name="TS_ALG_KDF_HMAC_SHA1" Value="0x115"/>
-        <ID Name="TS_ALG_KDF_HMAC_SHA224" Value="0x116"/>
-        <ID Name="TS_ALG_KDF_HMAC_SHA256" Value="0x117"/>
-        <ID Name="TS_ALG_KDF_HMAC_SHA384" Value="0x118"/>
-        <ID Name="TS_ALG_KDF_HMAC_SHA512" Value="0x119"/>
-        <ID Name="TS_ALG_KDF_HASH_SHA1" Value="0x11a"/>
-        <ID Name="TS_ALG_KDF_HASH_SHA224" Value="0x11b"/>
-        <ID Name="TS_ALG_KDF_HASH_SHA256" Value="0x11c"/>
-        <ID Name="TS_ALG_KDF_HASH_SHA384" Value="0x11d"/>
-        <ID Name="TS_ALG_KDF_HASH_SHA512" Value="0x11e"/>
-        <ID Name="TS_ALG_RSA_PSS_ENCODE" Value="0x11f"/>
-        <ID Name="TS_ALG_RSA_X9_31_ENCODE" Value="0x120"/>
-        <ID Name="TS_ALG_ECC_SHA1" Value="0x121"/>
-        <ID Name="TS_ALG_ECC_SHA224" Value="0x122"/>
-        <ID Name="TS_ALG_ECC_SHA256" Value="0x123"/>
-        <ID Name="TS_ALG_ECC_SHA384" Value="0x124"/>
-        <ID Name="TS_ALG_ECC_SHA512" Value="0x125"/>
-        <ID Name="TS_ALG_ECC_P192" Value="0x126"/>
-        <ID Name="TS_ALG_ECC_P224" Value="0x127"/>
-        <ID Name="TS_ALG_RSA_X9_31_SHA1" Value="0x128"/>
-        <ID Name="TS_ALG_RSA_X9_31_SHA224" Value="0x129"/>
-        <ID Name="TS_ALG_RSA_X9_31_SHA256" Value="0x12a"/>
-        <ID Name="TS_ALG_RSA_X9_31_SHA384" Value="0x12b"/>
-        <ID Name="TS_ALG_RSA_X9_31_SHA512" Value="0x12c"/>
-        <ID Name="TS_ALG_RSA_PSS_SHA1" Value="0x12d"/>
-        <ID Name="TS_ALG_RSA_PSS_SHA224" Value="0x12e"/>
-        <ID Name="TS_ALG_RSA_PSS_SHA256" Value="0x12f"/>
-        <ID Name="TS_ALG_RSA_PSS_SHA384" Value="0x130"/>
-        <ID Name="TS_ALG_RSA_PSS_SHA512" Value="0x131"/>
-
-        <ID Name="TS_ALG_CKM7_CRYPTOGROUP_P256_SHA512" Value="0x133"/>
-        <ID Name="TS_ALG_CKM7_CRYPTOGROUP_P384_SHA512" Value="0x135"/>
-        <ID Name="TS_ALG_CKM7_CRYPTOGROUP_P521_SHA512" Value="0x137"/>
-        <ID Name="TS_ALG_CKM7_ATTRIBUTE_SYM" Value="0x138"/>
-        <ID Name="TS_ALG_CKM7_ATTRIBUTE_P256" Value="0x139"/>
-        <ID Name="TS_ALG_CKM7_ATTRIBUTE_P384" Value="0x13a"/>
-        <ID Name="TS_ALG_CKM7_ATTRIBUTE_P521" Value="0x13b"/>
-
-        <ID Name="TS_ALG_DSA_SHA224" Value="0x13c"/>
-        <ID Name="TS_ALG_DSA_SHA384" Value="0x13d"/>
-        <ID Name="TS_ALG_DH_PARAMETERS" Value="0x13e"/>
-        <ID Name="TS_ALG_DH_KEY" Value="0x13f"/>
-        <ID Name="TS_ALG_DSA_KEY" Value="0x13f"/>
-
-        <ID Name="TS_ALG_CKM7_ATTRIBUTE_P192" Value="0x140"/>
-        <ID Name="TS_ALG_CKM7_ATTRIBUTE_P224" Value="0x141"/>
-        <ID Name="TS_ALG_CKM7_CRYPTOGROUP_P192_SHA512" Value="0x143"/>
-        <ID Name="TS_ALG_CKM7_CRYPTOGROUP_P224_SHA512" Value="0x145"/>
-
-        <ID Name="TS_ALG_PBKDF2" Value="0x146"/>
-        <ID Name="TS_ALG_RSA_X9_31_KEY" Value="0x147"/>
-        
-        <ID Name="TS_ALG_RSASVE" Value="0x148"/>
-
-        <ID Name="TS_ALG_RSA_OAEP_SHA1" Value="0x149"/>
-        <ID Name="TS_ALG_RSA_OAEP_SHA224" Value="0x14a"/>
-        <ID Name="TS_ALG_RSA_OAEP_SHA256" Value="0x14b"/>
-        <ID Name="TS_ALG_RSA_OAEP_SHA384" Value="0x14c"/>
-        <ID Name="TS_ALG_RSA_OAEP_SHA512" Value="0x14d"/>
-        
-        <ID Name="TS_ALG_RSA_KEM_KWS" Value="0x14e"/>
-        <ID Name="TS_ALG_RSA_KAS1" Value="0x14f"/>
-        <ID Name="TS_ALG_RSA_KAS2" Value="0x150"/>
-        <ID Name="TS_ALG_RSA_KTS_OAEP" Value="0x151"/>
-        <ID Name="TS_ALG_RSA_KTS_KEM_KWS" Value="0x152"/>
-        <ID Name="TS_ALG_DH_ECDH_KAS" Value="0x153"/> 
-
-        <ID Name="TS_ALG_KDF_HASH_MD5" Value="0x154"/>
-        <ID Name="TS_ALG_KDF_HMAC_MD5" Value="0x155"/>
-        <ID Name="TS_ALG_RIPEMD160" Value="0x156"/>
-        <ID Name="TS_ALG_HMAC_RIPEMD160" Value="0x157"/>
-        <ID Name="TS_ALG_KDF_HMAC_RIPEMD160" Value="0x158"/>
-        <ID Name="TS_ALG_KDF_HASH_RIPEMD160" Value="0x159"/>
-        
-        <ID Name="TS_ALG_CAMELLIA_CBC_256" Value="0x15a"/>
-        <ID Name="TS_ALG_CAMELLIA_ECB_256" Value="0x15b"/>
-        <ID Name="TS_ALG_CAMELLIA_CBC_192" Value="0x15c"/>
-        <ID Name="TS_ALG_CAMELLIA_ECB_192" Value="0x15d"/>
-        <ID Name="TS_ALG_CAMELLIA_CBC_128" Value="0x15e"/>
-        <ID Name="TS_ALG_CAMELLIA_ECB_128" Value="0x15f"/>
-        <ID Name="TS_ALG_CAMELLIA_CTR" Value="0x160"/>
-        <ID Name="TS_ALG_CAMELLIA_CTR_256" Value="TS_ALG_CAMELLIA_CTR"/>
-        <ID Name="TS_ALG_CAMELLIA_CTR_192" Value="0x161"/>
-        <ID Name="TS_ALG_CAMELLIA_CTR_128" Value="0x162"/>
-        <ID Name="TS_ALG_CMAC_CAMELLIA128" Value="0x163"/>
-        <ID Name="TS_ALG_CMAC_CAMELLIA192" Value="0x164"/>
-        <ID Name="TS_ALG_CMAC_CAMELLIA256" Value="0x165"/>
-        <ID Name="TS_ALG_CAMELLIA_OFB_256" Value="0x166"/>
-        <ID Name="TS_ALG_CAMELLIA_OFB_192" Value="0x167"/>
-        <ID Name="TS_ALG_CAMELLIA_OFB_128" Value="0x168"/>
-        <ID Name="TS_ALG_CAMELLIA_CFB8_256" Value="0x169"/>
-        <ID Name="TS_ALG_CAMELLIA_CFB8_192" Value="0x16a"/>
-        <ID Name="TS_ALG_CAMELLIA_CFB8_128" Value="0x16b"/>
-        <ID Name="TS_ALG_CAMELLIA_CFB128_256" Value="0x16c"/>
-        <ID Name="TS_ALG_CAMELLIA_CFB128_192" Value="0x16d"/>
-        <ID Name="TS_ALG_CAMELLIA_CFB128_128" Value="0x16e"/>
-        <ID Name="TS_ALG_CAMELLIA_CCM_256" Value="0x16f"/>
-        <ID Name="TS_ALG_CAMELLIA_CCM_192" Value="0x170"/>
-        <ID Name="TS_ALG_CAMELLIA_CCM_128" Value="0x171"/>
-        <ID Name="TS_ALG_CAMELLIA_GCM_256" Value="0x172"/>
-        <ID Name="TS_ALG_CAMELLIA_GCM_192" Value="0x173"/>
-        <ID Name="TS_ALG_CAMELLIA_GCM_128" Value="0x174"/>
-        <ID Name="TS_ALG_CAMELLIA_XTS_256" Value="0x175"/>
-        <ID Name="TS_ALG_CAMELLIA_XTS_192" Value="0x176"/>
-        <ID Name="TS_ALG_CAMELLIA_XTS_128" Value="0x177"/>
-        <ID Name="TS_ALG_KDF_CMAC_CAMELLIA" Value="0x178"/>
-
-        <ID Name="TS_ALG_CMAC_BLOWFISH" Value="0x179"/>
-        <ID Name="TS_ALG_KDF_CMAC_BLOWFISH" Value="0x17a"/>
-        <ID Name="TS_ALG_XTEA_CBC" Value="0x17b"/>
-        <ID Name="TS_ALG_XTEA_ECB" Value="0x17c"/>
-        <ID Name="TS_ALG_XTEA_CTR" Value="0x17d"/>
-        <ID Name="TS_ALG_CMAC_XTEA" Value="0x17e"/>
-        <ID Name="TS_ALG_KDF_CMAC_XTEA" Value="0x17f"/>
-        
-        <ID Name="TS_ALG_ARIA_CBC_256" Value="0x180"/>
-        <ID Name="TS_ALG_ARIA_ECB_256" Value="0x181"/>
-        <ID Name="TS_ALG_ARIA_CBC_192" Value="0x182"/>
-        <ID Name="TS_ALG_ARIA_ECB_192" Value="0x183"/>
-        <ID Name="TS_ALG_ARIA_CBC_128" Value="0x184"/>
-        <ID Name="TS_ALG_ARIA_ECB_128" Value="0x185"/>
-        <ID Name="TS_ALG_ARIA_CTR" Value="0x186"/>
-        <ID Name="TS_ALG_ARIA_CTR_256" Value="TS_ALG_ARIA_CTR"/>
-        <ID Name="TS_ALG_ARIA_CTR_192" Value="0x187"/>
-        <ID Name="TS_ALG_ARIA_CTR_128" Value="0x188"/>
-        <ID Name="TS_ALG_CMAC_ARIA128" Value="0x189"/>
-        <ID Name="TS_ALG_CMAC_ARIA192" Value="0x18A"/>
-        <ID Name="TS_ALG_CMAC_ARIA256" Value="0x18b"/>
-        <ID Name="TS_ALG_ARIA_OFB_256" Value="0x18c"/>
-        <ID Name="TS_ALG_ARIA_OFB_192" Value="0x18d"/>
-        <ID Name="TS_ALG_ARIA_OFB_128" Value="0x18e"/>
-        <ID Name="TS_ALG_ARIA_CFB8_256" Value="0x18f"/>
-        <ID Name="TS_ALG_ARIA_CFB8_192" Value="0x190"/>
-        <ID Name="TS_ALG_ARIA_CFB8_128" Value="0x191"/>
-        <ID Name="TS_ALG_ARIA_CFB128_256" Value="0x192"/>
-        <ID Name="TS_ALG_ARIA_CFB128_192" Value="0x193"/>
-        <ID Name="TS_ALG_ARIA_CFB128_128" Value="0x194"/>
-        <ID Name="TS_ALG_ARIA_CCM_256" Value="0x195"/>
-        <ID Name="TS_ALG_ARIA_CCM_192" Value="0x196"/>
-        <ID Name="TS_ALG_ARIA_CCM_128" Value="0x197"/>
-        <ID Name="TS_ALG_ARIA_GCM_256" Value="0x198"/>
-        <ID Name="TS_ALG_ARIA_GCM_192" Value="0x199"/>
-        <ID Name="TS_ALG_ARIA_GCM_128" Value="0x19a"/>
-        <ID Name="TS_ALG_ARIA_XTS_256" Value="0x19b"/>
-        <ID Name="TS_ALG_ARIA_XTS_192" Value="0x19c"/>
-        <ID Name="TS_ALG_ARIA_XTS_128" Value="0x19d"/>
-        <ID Name="TS_ALG_KDF_CMAC_ARIA" Value="0x19e"/>
-        <ID Name="TS_ALG_SEED_CBC_128" Value="0x19f"/>
-        <ID Name="TS_ALG_SEED_ECB_128" Value="0x1a0"/>
-        <ID Name="TS_ALG_SEED_CTR_128" Value="0x1a1"/>
-        <ID Name="TS_ALG_CMAC_SEED128" Value="0x1a2"/>
-        <ID Name="TS_ALG_SEED_OFB_128" Value="0x1a3"/>
-        <ID Name="TS_ALG_SEED_CFB8_128" Value="0x1a4"/>
-        <ID Name="TS_ALG_SEED_CFB128_128" Value="0x1a5"/>
-        <ID Name="TS_ALG_SEED_CCM_128" Value="0x1a6"/>
-        <ID Name="TS_ALG_SEED_GCM_128" Value="0x1a7"/>
-        <ID Name="TS_ALG_SEED_XTS_128" Value="0x1a8"/>
-        <ID Name="TS_ALG_KDF_CMAC_SEED" Value="0x1a9"/>
-        <ID Name="TS_ALG_KDF_HMAC_SHA3_224" Value="0x1aa"/>
-        <ID Name="TS_ALG_KDF_HMAC_SHA3_256" Value="0x1ab"/>
-        <ID Name="TS_ALG_KDF_HMAC_SHA3_384" Value="0x1ac"/>
-        <ID Name="TS_ALG_KDF_HMAC_SHA3_512" Value="0x1ad"/>
-        <ID Name="TS_ALG_KDF_HASH_SHA3_224" Value="0x1ae"/>
-        <ID Name="TS_ALG_KDF_HASH_SHA3_256" Value="0x1af"/>
-        <ID Name="TS_ALG_KDF_HASH_SHA3_384" Value="0x1b0"/>
-        <ID Name="TS_ALG_KDF_HASH_SHA3_512" Value="0x1b1"/>
-        <ID Name="TS_ALG_RSA_X9_31_SHA3_224" Value="0x1b2"/>
-        <ID Name="TS_ALG_RSA_X9_31_SHA3_256" Value="0x1b3"/>
-        <ID Name="TS_ALG_RSA_X9_31_SHA3_384" Value="0x1b4"/>
-        <ID Name="TS_ALG_RSA_X9_31_SHA3_512" Value="0x1b5"/>
-        <ID Name="TS_ALG_RSA_PKCS_SHA3_224" Value="0x1b6"/>
-        <ID Name="TS_ALG_RSA_PKCS_SHA3_256" Value="0x1b7"/>
-        <ID Name="TS_ALG_RSA_PKCS_SHA3_384" Value="0x1b8"/>
-        <ID Name="TS_ALG_RSA_PKCS_SHA3_512" Value="0x1b9"/>
-        <ID Name="TS_ALG_RSA_PSS_SHA3_224" Value="0x1ba"/>
-        <ID Name="TS_ALG_RSA_PSS_SHA3_256" Value="0x1bb"/>
-        <ID Name="TS_ALG_RSA_PSS_SHA3_384" Value="0x1bc"/>
-        <ID Name="TS_ALG_RSA_PSS_SHA3_512" Value="0x1bd"/>
-        <ID Name="TS_ALG_RSA_OAEP_SHA3_224" Value="0x1be"/>
-        <ID Name="TS_ALG_RSA_OAEP_SHA3_256" Value="0x1bf"/>
-        <ID Name="TS_ALG_RSA_OAEP_SHA3_384" Value="0x1c0"/>
-        <ID Name="TS_ALG_RSA_OAEP_SHA3_512" Value="0x1c1"/>
-        <ID Name="TS_ALG_ECC_SHA3_224" Value="0x1c2"/>
-        <ID Name="TS_ALG_ECC_SHA3_256" Value="0x1c3"/>
-        <ID Name="TS_ALG_ECC_SHA3_384" Value="0x1c4"/>
-        <ID Name="TS_ALG_ECC_SHA3_512" Value="0x1c5"/>
-        <ID Name="TS_ALG_DSA_SHA3_224" Value="0x1c6"/>
-        <ID Name="TS_ALG_DSA_SHA3_256" Value="0x1c7"/>
-        <ID Name="TS_ALG_DSA_SHA3_384" Value="0x1c8"/>
-        <ID Name="TS_ALG_DSA_SHA3_512" Value="0x1c9"/>
-        <ID Name="TS_ALG_CHACHA20_POLY1305" Value="0x1ca"/>
-        <ID Name="TS_ALG_SALSA20_POLY1305" Value="0x1cb"/>
-
-        <ID Name="TS_ALG_X25519" Value="0x1CC"/>
-        <ID Name="TS_ALG_X448" Value="0x1CD"/>
-        <ID Name="TS_ALG_X25519_PH" Value="0x1CE"/>
-        <ID Name="TS_ALG_X448_PH" Value="0x1CF"/>
-        
-        <ID Name="TS_ALG_CKM7_CRYPTOGROUP_X25519_SHA512" Value="0x1D0"/>
-        <ID Name="TS_ALG_CKM7_ATTRIBUTE_X25519" Value="0x1D1"/>
-        <ID Name="TS_ALG_ECC_P256K1" Value="0x1D2"/>
-        <ID Name="TS_ALG_CKM7_CRYPTOGROUP_P256K1_SHA512" Value="0x1D3"/>
-        <ID Name="TS_ALG_CKM7_ATTRIBUTE_P256K1" Value="0x1D4"/>
-        
-        <ID Name="TS_ALG_NUMSP256D1" Value="0x1D5"/>
-        <ID Name="TS_ALG_NUMSP384D1" Value="0x1D6"/>
-        <ID Name="TS_ALG_NUMSP512D1" Value="0x1D7"/>
-        <ID Name="TS_ALG_NUMSP256T1" Value="0x1D8"/>
-        <ID Name="TS_ALG_NUMSP384T1" Value="0x1D9"/>
-        <ID Name="TS_ALG_NUMSP512T1" Value="0x1DA"/>
-        
-        <ID Name="TS_ALG_CKM7_CRYPTOGROUP_NUMSP256D1_SHA512" Value="0x1DB"/>
-        <ID Name="TS_ALG_CKM7_CRYPTOGROUP_NUMSP384D1_SHA512" Value="0x1DC"/>
-        <ID Name="TS_ALG_CKM7_CRYPTOGROUP_NUMSP512D1_SHA512" Value="0x1DD"/>
-        <ID Name="TS_ALG_CKM7_CRYPTOGROUP_NUMSP256T1_SHA512" Value="0x1DE"/>
-        <ID Name="TS_ALG_CKM7_CRYPTOGROUP_NUMSP384T1_SHA512" Value="0x1DF"/>
-        <ID Name="TS_ALG_CKM7_CRYPTOGROUP_NUMSP512T1_SHA512" Value="0x1E0"/>
-        
-        <ID Name="TS_ALG_CKM7_ATTRIBUTE_NUMSP256D1" Value="0x1E1"/>
-        <ID Name="TS_ALG_CKM7_ATTRIBUTE_NUMSP384D1" Value="0x1E2"/>
-        <ID Name="TS_ALG_CKM7_ATTRIBUTE_NUMSP512D1" Value="0x1E3"/>
-        <ID Name="TS_ALG_CKM7_ATTRIBUTE_NUMSP256T1" Value="0x1E4"/>
-        <ID Name="TS_ALG_CKM7_ATTRIBUTE_NUMSP384T1" Value="0x1E5"/>
-        <ID Name="TS_ALG_CKM7_ATTRIBUTE_NUMSP512T1" Value="0x1E6"/>
-
-        <ID Name="TS_ALG_BLISS_I" Value="0x1E7"/>
-        <ID Name="TS_ALG_BLISS_II" Value="0x1E8"/>
-        <ID Name="TS_ALG_BLISS_III" Value="0x1E9"/>
-        <ID Name="TS_ALG_BLISS_IV" Value="0x1Ea"/>
-        <ID Name="TS_ALG_BLISS_B_I" Value="0x1Eb"/>
-        <ID Name="TS_ALG_BLISS_B_II" Value="0x1Ec"/>
-        <ID Name="TS_ALG_BLISS_B_III" Value="0x1Ed"/>
-        <ID Name="TS_ALG_BLISS_B_IV" Value="0x1Ee"/>
-
-        
-        <ID Name="TS_ALG_SHA1" Value="0x201"/>
-        <ID Name="TS_ALG_MD5" Value="0x202"/>
-        <ID Name="TS_ALG_SHA256" Value="0x203"/>
-        <ID Name="TS_ALG_SHA384" Value="0x204"/>
-        <ID Name="TS_ALG_SHA512" Value="0x205"/>
-        <ID Name="TS_ALG_SHA224" Value="0x206"/>
-        
-        <ID Name="TS_ALG_SHA3_224" Value="0x207"/>
-        <ID Name="TS_ALG_SHA3_256" Value="0x208"/>
-        <ID Name="TS_ALG_SHA3_384" Value="0x209"/>
-        <ID Name="TS_ALG_SHA3_512" Value="0x20a"/>
-        <ID Name="TS_ALG_SHAKE128" Value="0x20b"/>
-        <ID Name="TS_ALG_SHAKE256" Value="0x20c"/>
-
-        <ID Name="TS_ALG_HMAC_SHA1" Value="0x251"/>
-        <ID Name="TS_ALG_HMAC_MD5" Value="0x252"/>
-        <ID Name="TS_ALG_HMAC_SHA256" Value="0x253"/>
-        <ID Name="TS_ALG_HMAC_SHA384" Value="0x254"/>
-        <ID Name="TS_ALG_HMAC_SHA512" Value="0x255"/>
-        <ID Name="TS_ALG_HMAC_SHA224" Value="0x256"/>
-        
-        <ID Name="TS_ALG_HMAC_SHA3_256" Value="0x257"/>
-        <ID Name="TS_ALG_HMAC_SHA3_384" Value="0x258"/>
-        <ID Name="TS_ALG_HMAC_SHA3_512" Value="0x259"/>
-        <ID Name="TS_ALG_HMAC_SHA3_224" Value="0x25a"/>
-
-        <ID Name="TS_ALG_KEYWRAP_TDES" Value="0x300"/>
-        <ID Name="TS_ALG_KEYWRAP_AES128" Value="0x301"/>
-        <ID Name="TS_ALG_KEYWRAP_AES192" Value="0x302"/>
-        <ID Name="TS_ALG_KEYWRAP_AES256" Value="0x303"/>
-        <ID Name="TS_ALG_KEYWRAP_TSAES128" Value="0x304"/>
-        <ID Name="TS_ALG_KEYWRAP_TSAES192" Value="0x305"/>
-        <ID Name="TS_ALG_KEYWRAP_TSAES256" Value="0x306"/>
-        
-        <ID Name="TS_ALG_KEYWRAP_CAMELLIA128" Value="0x307"/>
-        <ID Name="TS_ALG_KEYWRAP_CAMELLIA192" Value="0x308"/>
-        <ID Name="TS_ALG_KEYWRAP_CAMELLIA256" Value="0x309"/>
-
-        <ID Name="TS_ALG_KEYWRAP_BLOWFISH" Value="0x30A"/>
-        <ID Name="TS_ALG_KEYWRAP_XTEA" Value="0x30b"/>
-        
-        <ID Name="TS_ALG_KEYWRAP_ARIA128" Value="0x30c"/>
-        <ID Name="TS_ALG_KEYWRAP_ARIA192" Value="0x30d"/>
-        <ID Name="TS_ALG_KEYWRAP_ARIA256" Value="0x30e"/>
-        <ID Name="TS_ALG_KEYWRAP_SEED128" Value="0x30f"/>
-
-        <ID Name="TS_ALG_CKMAUTH_PBKDF_SHA1" Value="0x400"/>
-        <ID Name="TS_ALG_CKMAUTH_PBKDF_SHA224" Value="0x401"/>
-        <ID Name="TS_ALG_CKMAUTH_PBKDF_SHA256" Value="0x402"/>
-        <ID Name="TS_ALG_CKMAUTH_PBKDF_SHA384" Value="0x403"/>
-        <ID Name="TS_ALG_CKMAUTH_PBKDF_SHA512" Value="0x404"/>
-        
-        <ID Name="TS_ALG_CKMAUTH_PBKDF_SHA3_224" Value="0x405"/>
-        <ID Name="TS_ALG_CKMAUTH_PBKDF_SHA3_256" Value="0x406"/>
-        <ID Name="TS_ALG_CKMAUTH_PBKDF_SHA3_384" Value="0x407"/>
-        <ID Name="TS_ALG_CKMAUTH_PBKDF_SHA3_512" Value="0x408"/>
-
-        <ID Name="TS_ALG_CKMAUTH" Value="0x4FF"/>
-        
-        <ID Name="TS_ALG_CKM" Value="0x1000"/>
-        <ID Name="TS_ALG_SYM_CKM_256" Value="0x1001"/>
-        <ID Name="TS_ALG_CKM7" Value="0x1002"/>
-
-        <ID Name="TS_ALG_MISC" Value="0x1100"/>
-        <ID Name="TS_ALG_RND_SHA256_HASH_DRBG" Value="0x1201"/>
-        <ID Name="TS_ALG_RND_SHA512_HASH_DRBG" Value="0x1202"/>
-        <ID Name="TS_ALG_SECURE_CHANNEL_SERVER" Value="0x1203"/>
-        <ID Name="TS_ALG_RUNTIME_RESERVED" Value="0x2000"/>
-        <ID Name="TS_ALG_RUNTIME_RESERVED_MAX" Value="0x2fff"/>
-      </NamedInt>
       <NamedInt Name="KeyType" BaseType="int32_t" Exported="true">
         <ID Name="kt_UNKNOWN" Value="(int)0x80000000"/>
         <ID Name="kt_RSA" Value="0"/>
@@ -545,31 +106,6 @@
         <ID Name="CKM_SymMode_CCM" Value="7"/>
         <ID Name="CKM_SymMode_GCM" Value="8"/>        
         <ID Name="CKM_SymMode_XTS" Value="9"/>
-      </NamedInt>
-
-      <NamedInt Name="CryptoAlgType" BaseType="int32_t" Exported="true">
-        <ID Name="cat_Symmetric" Value="0x00000001"/>
-        <ID Name="cat_Asymmetric" Value="0x00000002"/>
-        <ID Name="cat_Sign" Value="0x00000004"/>
-        <ID Name="cat_Encrypt" Value="0x00000008"/>
-        <ID Name="cat_KDF" Value="0x00000010"/>
-        <ID Name="cat_Digest" Value="0x00000020"/>
-        <ID Name="cat_MAC" Value="0x00000040"/>
-        <ID Name="cat_AEAD" Value="0x00000080"/>
-        <ID Name="cat_Random" Value="0x00000100"/>
-        <ID Name="cat_KeyTransport" Value="0x00000200"/>
-        <ID Name="cat_PbKdf" Value="0x00000400"/>
-        <ID Name="cat_CkmAuth" Value="0x00000800"/>
-        <ID Name="cat_Tunnel" Value="0x00001000"/>
-        <ID Name="cat_Prime" Value="0x00002000"/>
-        <ID Name="cat_KeyAgreement" Value="0x00004000"/>
-        <ID Name="cat_Encoder" Value="0x00008000"/>
-        <ID Name="cat_StreamCipher" Value="0x00010000"/>
-        <ID Name="cat_XTS" Value="0x00020000"/>
-        <ID Name="cat_XOF" Value="0x00040000"/>
-        <ID Name="cat_Combiner" Value="0x00080000"/>
-        <ID Name="cat_Attribute" Value="0x00100000"/>
-        <ID Name="cat_CryptoGroup" Value="0x00200000"/>
       </NamedInt>
 
       <NamedInt Name="SymmetricPaddingType" BaseType="uint8_t" Exported="true">
@@ -760,7 +296,7 @@
         <OctetString Name="Salt"/>
         <Sequence Name="hmacAlgorithm" ElementType="AlgorithmIdentifier"/>
       </Sequence>
-      <Sequence Name="CkmAuthServerParameters" OID="id_TECSEC_CKMAUTH_SERVER_PARAMETERS_OID" DefaultVersion="0" Exported="true">
+<!--      <Sequence Name="CkmAuthServerParameters" OID="id_TECSEC_CKMAUTH_SERVER_PARAMETERS_OID" DefaultVersion="0" Exported="true">
         <Version Name="V0" OID="id_TECSEC_CKMAUTH_SERVER_PARAMETERS_OID" MinNumber="0" MaxNumber="0">
           <Choice Name="params"/>
           <Bool Name="Expired" Tag="1" Type="Context"/>
@@ -818,7 +354,7 @@
         <OctetString Name="initiatorMITMProof"/>
         <OctetString Name="initiatorAuthProof"/>
       </Sequence>
-
+-->
 
       <Sequence Name="CkmAuthTlsExtRequest" OID="id_TECSEC_CKM_TUNNEL_TLS_EXT_REQUEST_OID" DefaultVersion="0">
         <Version Name="V0" OID="id_TECSEC_CKM_TUNNEL_TLS_EXT_REQUEST_OID" MinNumber="0" MaxNumber="0">
@@ -842,6 +378,7 @@
       <ID Name="id_CKM_TUNNEL_FINISH_LOGIN" Value="{TECSEC_CKM_TUNNEL_OID}.3"/>
       <ID Name="id_CKM_TUNNEL_FINISH_LOGIN_RESPONSE" Value="{TECSEC_CKM_TUNNEL_OID}.4"/>-->
 
+      <!--
       <Sequence Name="CkmTunnelInitLogin" OID="id_TECSEC_CKM_TUNNEL_INIT_LOGIN_OID" DefaultVersion="0" Exported="true">
         <Version Name="V0" OID="id_TECSEC_CKM_TUNNEL_INIT_LOGIN_OID" MinNumber="0" MaxNumber="0">
           <String Name="username"/>
@@ -882,6 +419,7 @@
         <Version Name="V0" OID="id_TECSEC_CKM_TUNNEL_LOGOUT_OID" MinNumber="0" MaxNumber="0">
         </Version>
       </Sequence>
+      -->
       <Sequence Name="Pkcs8EccCurve">
         <OID Name="parameters"/>
       </Sequence>
@@ -947,23 +485,23 @@
         </Choice>
       </Sequence>
 
-      <Sequence Name="EdwardsCurveKey" OID="id_CURVE_25519_OID">
-        <Version Name="x25519" OID="id_CURVE_25519_OID">
+      <Sequence Name="EdwardsCurveKey" OID="id_THAWTE_EDDSA25519">
+        <Version Name="x25519" OID="id_THAWTE_EDDSA25519">
           <Bool Name="forECDH"/>
           <OctetString Name="PublicValue"/>
           <OctetString Name="SecretValue" Tag="0" Type="Context"/>
         </Version>
-        <Version Name="x448" OID="id_CURVE_448_OID">
+        <Version Name="x448" OID="id_THAWTE_EDDSA448">
           <Bool Name="forECDH"/>
           <OctetString Name="PublicValue"/>
           <OctetString Name="SecretValue" Tag="0" Type="Context"/>
         </Version>
-        <Version Name="x25519_PH" OID="id_CURVE_25519_PH_OID">
+        <Version Name="x25519_PH" OID="id_THAWTE_EDDSA25519_PH">
           <Bool Name="forECDH"/>
           <OctetString Name="PublicValue"/>
           <OctetString Name="SecretValue" Tag="0" Type="Context"/>
         </Version>
-        <Version Name="x448_PH" OID="id_CURVE_448_PH_OID">
+        <Version Name="x448_PH" OID="id_THAWTE_EDDSA448_PH">
           <Bool Name="forECDH"/>
           <OctetString Name="PublicValue"/>
           <OctetString Name="SecretValue" Tag="0" Type="Context"/>

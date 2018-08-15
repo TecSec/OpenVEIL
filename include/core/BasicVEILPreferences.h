@@ -81,8 +81,8 @@ public:
 	virtual tscrypto::tsCryptoString getEntrySearch(int index) const;
 	virtual JsonConfigLocation DefaultSaveLocation() const;
 
-	DECLARE_BASE_TYPE_PREF_CODE(EncryptionAlgorithm, tscrypto::TS_ALG_ID)
-	DECLARE_BASE_TYPE_PREF_CODE(HashAlgorithm, tscrypto::TS_ALG_ID)
+	DECLARE_BASE_TYPE_PREF_CODE(EncryptionAlgorithm, TS_ALG_ID)
+	DECLARE_BASE_TYPE_PREF_CODE(HashAlgorithm, TS_ALG_ID)
 	DECLARE_BOOL_PREF_CODE(SignHeader)
 	DECLARE_TEXT_PREF_CODE(HeaderSigningKeyAlgorithm)
 	DECLARE_BOOL_PREF_CODE(AllowSigning)

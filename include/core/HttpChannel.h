@@ -62,7 +62,7 @@ public:
     virtual tscrypto::tsCryptoString CkmAuthUsername() const = 0;
     virtual void CkmAuthUsername(const tscrypto::tsCryptoString& setTo) = 0;
     // Added 7.0.40
-    virtual bool shouldCloseAfterTransmit() = 0;
+    virtual bool reserved2() = 0;
 };
 
 class VEILCORE_API IChannelProcessorEvents
@@ -149,7 +149,7 @@ public:
     virtual tscrypto::tsCryptoString Errors() const = 0;
     virtual void ClearErrors() = 0;
 
-    virtual bool RawSend(const tscrypto::tsCryptoData& data) = 0;
+    virtual bool RawSend(const tscrypto::tsCryptoData& data, ts_bool closeAfterWrite) = 0;
     virtual bool RawReceive(tscrypto::tsCryptoData& data, size_t size = 5000) = 0;
 
     virtual bool isConnected() const = 0;
@@ -189,7 +189,7 @@ class VEILCORE_API ITcpChannel : public ITcpConnection
 public:
     virtual ~ITcpChannel(void) {}
 
-    virtual bool Send(const tscrypto::tsCryptoData& data) = 0;
+    virtual bool Send(const tscrypto::tsCryptoData& data, ts_bool closeAfterWrite) = 0;
     virtual void SendLogout() = 0;
     virtual bool Receive(tscrypto::tsCryptoData& data, size_t size = 5000) = 0;
 

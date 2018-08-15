@@ -46,14 +46,14 @@ public:
 	virtual bool HmacData(const tscrypto::tsCryptoData &data, const tscrypto::tsCryptoData &key, TS_ALG_ID algorithm, tscrypto::tsCryptoData &hash) override;
 
 	virtual bool EncryptStream(CompressionType comp, TS_ALG_ID algorithm, TS_ALG_ID hashAlgorithm, std::shared_ptr<ICmsHeaderBase> header, bool prependHeader, const tscrypto::tsCryptoData &forcedIvec,
-		std::shared_ptr<IDataReader> reader, std::shared_ptr<IDataWriter> writer, bool SignHeader, bool bindData, CMSFileFormatIds DataFormat, bool randomIvec,
+		std::shared_ptr<IDataReader> reader, std::shared_ptr<IDataWriter> writer, bool SignHeader, bool bindData, TS_ALG_ID DataFormat, bool randomIvec,
 		SymmetricPaddingType paddingType, int blockSize) override;
 	virtual bool EncryptStreamWithKey(CompressionType comp, TS_ALG_ID algorithm, const tscrypto::tsCryptoData &hashOid, const tscrypto::tsCryptoData &key, const tscrypto::tsCryptoData &forcedIvec,
-		std::shared_ptr<IDataReader> reader, std::shared_ptr<IDataWriter> writer, CMSFileFormatIds DataFormat, SymmetricPaddingType paddingType, const tscrypto::tsCryptoData &authData,
+		std::shared_ptr<IDataReader> reader, std::shared_ptr<IDataWriter> writer, TS_ALG_ID DataFormat, SymmetricPaddingType paddingType, const tscrypto::tsCryptoData &authData,
 		tscrypto::tsCryptoData &finalHash, int blockSize) override;
 	virtual bool DecryptStream(std::shared_ptr<ICmsHeaderBase> header, std::shared_ptr<IDataReader> reader, std::shared_ptr<IDataWriter> writer, bool headerIncludedInStream) override;
 	virtual bool DecryptStreamWithKey(std::shared_ptr<IDataReader> reader, std::shared_ptr<IDataWriter> writer, CompressionType comp,
-		TS_ALG_ID algorithm, const tscrypto::tsCryptoData &hashOid, const tscrypto::tsCryptoData &key, const tscrypto::tsCryptoData &forcedIvec, CMSFileFormatIds DataFormat,
+		TS_ALG_ID algorithm, const tscrypto::tsCryptoData &hashOid, const tscrypto::tsCryptoData &key, const tscrypto::tsCryptoData &forcedIvec, TS_ALG_ID DataFormat,
 		SymmetricPaddingType paddingType, const tscrypto::tsCryptoData &authData, const tscrypto::tsCryptoData &finalHash, int blockSize) override;
 	virtual bool    StreamStartsWithCkmHeader(std::shared_ptr<IDataReader> stream, std::shared_ptr<ICmsHeaderBase>& pVal) override;
 	virtual bool ValidateFileContents_PublicOnly(std::shared_ptr<IDataReader> reader) override;
@@ -66,7 +66,7 @@ public:
 	}
 	virtual bool padHeaderToSize(std::shared_ptr<ICmsHeaderBase> header, uint32_t size) override;
 	virtual bool PrepareHeader(std::shared_ptr<ICmsHeader> header7, CompressionType comp, TS_ALG_ID algorithm, TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData,
-		CMSFileFormatIds DataFormat, bool randomIvec, SymmetricPaddingType paddingType, int blockSize, int64_t fileSize) override;
+        TS_ALG_ID DataFormat, bool randomIvec, SymmetricPaddingType paddingType, int blockSize, int64_t fileSize) override;
 	virtual uint32_t   ReservedHeaderLength() const override;
 	virtual bool SetKeyGenCallback(std::shared_ptr<IKeyGenCallback> callback) override;
 	virtual bool SetSessionCallback(std::shared_ptr<IFileVEILSessionCallback> callback) override;
@@ -314,7 +314,7 @@ bool CCKMCryptoHelperImpl::computeAlgParams(TS_ALG_ID algorithm, tscrypto::tsCry
 bool CCKMCryptoHelperImpl::EncryptStream(CompressionType comp, TS_ALG_ID algorithm, TS_ALG_ID hashAlgorithm,
 	std::shared_ptr<ICmsHeaderBase> Header, bool prependHeader, const tscrypto::tsCryptoData &forcedIvec,
 	std::shared_ptr<IDataReader> reader, std::shared_ptr<IDataWriter> writer,
-	bool SignHeader, bool bindData, CMSFileFormatIds DataFormat, bool randomIvec,
+	bool SignHeader, bool bindData, TS_ALG_ID DataFormat, bool randomIvec,
 	SymmetricPaddingType paddingType, int blockSize)
 {
 	TSDECLARE_FUNCTIONExt(true);
@@ -440,7 +440,7 @@ bool CCKMCryptoHelperImpl::EncryptStream(CompressionType comp, TS_ALG_ID algorit
 }
 
 bool CCKMCryptoHelperImpl::EncryptStreamWithKey(CompressionType comp, TS_ALG_ID algorithm, const tscrypto::tsCryptoData &hashOid, const tscrypto::tsCryptoData &key, const tscrypto::tsCryptoData &forcedIvec,
-	std::shared_ptr<IDataReader> reader, std::shared_ptr<IDataWriter> writer, CMSFileFormatIds DataFormat, SymmetricPaddingType paddingType, const tscrypto::tsCryptoData &authData, tscrypto::tsCryptoData &finalHash, int blockSize)
+	std::shared_ptr<IDataReader> reader, std::shared_ptr<IDataWriter> writer, TS_ALG_ID DataFormat, SymmetricPaddingType paddingType, const tscrypto::tsCryptoData &authData, tscrypto::tsCryptoData &finalHash, int blockSize)
 {
 	TSDECLARE_FUNCTIONExt(true);
 
@@ -658,7 +658,7 @@ bool CCKMCryptoHelperImpl::DecryptStream(std::shared_ptr<ICmsHeaderBase> header,
 }
 
 bool CCKMCryptoHelperImpl::DecryptStreamWithKey(std::shared_ptr<IDataReader> reader, std::shared_ptr<IDataWriter> writer, CompressionType comp,
-	TS_ALG_ID algorithm, const tscrypto::tsCryptoData &hashOid, const tscrypto::tsCryptoData &key, const tscrypto::tsCryptoData &forcedIvec, CMSFileFormatIds DataFormat,
+	TS_ALG_ID algorithm, const tscrypto::tsCryptoData &hashOid, const tscrypto::tsCryptoData &key, const tscrypto::tsCryptoData &forcedIvec, TS_ALG_ID DataFormat,
 	SymmetricPaddingType paddingType, const tscrypto::tsCryptoData &authData, const tscrypto::tsCryptoData &finalHash, int blockSize)
 {
 	TSDECLARE_FUNCTIONExt(true);
@@ -1540,7 +1540,7 @@ tscrypto::tsCryptoData computeHeaderIdentity(std::shared_ptr<ICmsHeader> header)
 }
 
 bool CCKMCryptoHelperImpl::PrepareHeader(std::shared_ptr<ICmsHeader> header7, CompressionType comp, TS_ALG_ID algorithm, TS_ALG_ID hashAlgorithm, bool SignHeader, bool bindData,
-	CMSFileFormatIds DataFormat, bool randomIvec, SymmetricPaddingType paddingType, int blockSize, int64_t fileSize)
+    TS_ALG_ID DataFormat, bool randomIvec, SymmetricPaddingType paddingType, int blockSize, int64_t fileSize)
 {
 	std::shared_ptr<ICkmOperations> ops = std::dynamic_pointer_cast<ICkmOperations>(header7);
 

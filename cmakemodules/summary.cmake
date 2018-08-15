@@ -98,52 +98,35 @@ Optional libraries:")
 if (BZ2_FOUND)
 set(_output_results "${_output_results}
    BZ2                FOUND ${BZ2_VERSION_STRING}")
-else()
-set(_output_results "${_output_results}
-   BZ2                missing")
 endif(BZ2_FOUND)
 if (ZLIB_FOUND)
 set(_output_results "${_output_results}
    ZLIB               FOUND ${ZLIB_VERSION_STRING}")
-else()
-set(_output_results "${_output_results}
-   ZLIB               missing")
 endif(ZLIB_FOUND)
 if (HARU_FOUND)
 set(_output_results "${_output_results}
    HARU               FOUND ${HARU_VERSION_STRING}")
-else()
-set(_output_results "${_output_results}
-   HARU               missing")
 endif(HARU_FOUND)
 if (wxWidgets_FOUND)
 set(_output_results "${_output_results}
-   wxWidgets          FOUND ${wxWidgets_VERSION_STRING}")
-else()
-set(_output_results "${_output_results}
-   wxWidgets          missing")
+   wxWidgets          FOUND ${wxWidgets_VERSION_STRING} ${wxWidgets_DEFINITIONS}")
 endif(wxWidgets_FOUND)
 if (GMOCK_FOUND)
 set(_output_results "${_output_results}
    GMOCK              FOUND")
-else()
-set(_output_results "${_output_results}
-   GMOCK              missing")
 endif(GMOCK_FOUND)
 if (GTEST_FOUND)
 set(_output_results "${_output_results}
    GTEST              FOUND")
-else()
-set(_output_results "${_output_results}
-   GTEST              missing")
 endif(GTEST_FOUND)
 if (PNG_FOUND)
 set(_output_results "${_output_results}
    PNG                FOUND")
-else()
-set(_output_results "${_output_results}
-   PNG                missing")
 endif(PNG_FOUND)
+if (V8_FOUND)
+set(_output_results "${_output_results}
+   V8                 FOUND")
+endif(V8_FOUND)
 
 message("${_output_results}
 ")

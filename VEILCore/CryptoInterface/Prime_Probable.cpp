@@ -44,7 +44,7 @@ public:
     Prime_Probable()
     {
         SetName("PRIME-PROBABLE");
-        desc = tsFindProbablePrimeAlgorithm("FIPS186-3-PROBABLE-PRIME");
+        desc = TSLookup(TSIProbablePrime, "FIPS186-3-PROBABLE-PRIME");
     }
     virtual ~Prime_Probable(void)
     {
@@ -154,7 +154,7 @@ public:
         return true;
     }
 protected:
-    const TSProbablePrimeDescriptor* desc;
+    const TSIProbablePrime* desc;
 };
 tscrypto::ICryptoObject* CreateProbablePrime()
 {

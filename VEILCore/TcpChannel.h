@@ -62,9 +62,9 @@ public:
 	{
 		TcpConnection::ClearErrors();
 	}
-	virtual bool RawSend(const tscrypto::tsCryptoData& data) override
+	virtual bool RawSend(const tscrypto::tsCryptoData& data, ts_bool closeAfterWrite) override
 	{
-		return TcpConnection::RawSend(data);
+		return TcpConnection::RawSend(data, closeAfterWrite);
 	}
 	virtual bool RawReceive(tscrypto::tsCryptoData& _data, size_t size) override
 	{
@@ -85,7 +85,7 @@ public:
 
 
 	virtual void SendLogout() override;
-	virtual bool Send(const tscrypto::tsCryptoData& _data) override;
+	virtual bool Send(const tscrypto::tsCryptoData& _data, ts_bool closeAfterWrite) override;
 	virtual bool Receive(tscrypto::tsCryptoData& _data, size_t size) override;
 	virtual bool isAuthenticated() const override;
 	virtual bool processAuthenticationMessages() override;

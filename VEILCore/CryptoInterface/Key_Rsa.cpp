@@ -43,9 +43,9 @@ public:
         m_validationReason(tskvf_NoFailure),
         desc(nullptr)
     {
-        desc = tsFindRsaAlgorithm("RSA");
+        desc = TSLookup(TSIRsa, "RSA");
         if (desc != nullptr)
-            keyPair = desc->createKeyStructure(desc);
+            keyPair = tsCreateWorkspace(desc);
     }
     virtual ~Key_Rsa(void)
     {
@@ -56,38 +56,38 @@ public:
     virtual void Clear() override
     {
         if (desc != nullptr && keyPair != nullptr)
-            desc->clearKey(desc, keyPair);
+            desc->clearKey(keyPair);
         m_validationReason = tskvf_NoFailure;
     }
     virtual size_t KeySize() const override
     {
         if (desc == nullptr || keyPair == nullptr)
             return 0;
-        return desc->exportKeySize(desc, keyPair);
+        return desc->exportKeySize(keyPair);
     }
     virtual bool IsPublicLoaded() const override
     {
         if (desc == nullptr || keyPair == nullptr)
             return false;
-        return desc->hasPublicKey(desc, keyPair);
+        return desc->hasPublicKey(keyPair);
     }
     virtual bool IsPrivateLoaded() const override
     {
         if (desc == nullptr || keyPair == nullptr)
             return false;
-        return desc->hasPrivateKey(desc, keyPair);
+        return desc->hasPrivateKey(keyPair);
     }
     virtual bool IsPublicVerified() const override
     {
         if (desc == nullptr || keyPair == nullptr)
             return false;
-        return desc->publicIsValidated(desc, keyPair);
+        return desc->publicIsValidated(keyPair);
     }
     virtual bool IsPrivateVerified() const override
     {
         if (desc == nullptr || keyPair == nullptr)
             return false;
-        return desc->privateIsValidated(desc, keyPair);
+        return desc->privateIsValidated(keyPair);
     }
     virtual bool HasPublicKey() const override
     {
@@ -101,7 +101,7 @@ public:
     {
         if (desc == nullptr || keyPair == nullptr)
             return false;
-        return desc->validateKeys(desc, keyPair, false, &m_validationReason);
+        return desc->validateKeys(keyPair, false, &m_validationReason);
     }
     virtual bool KeysAreCompatible(std::shared_ptr<AsymmetricKey> secondKey) const override
     {
@@ -442,12 +442,12 @@ public:
 
         uint32_t len;
 
-        if (!desc->encryptPrimitive(desc, keyPair, inputData.c_str(), (uint32_t)inputData.size(), nullptr, &len))
+        if (!desc->encryptPrimitive(keyPair, inputData.c_str(), (uint32_t)inputData.size(), nullptr, &len))
             return false;
 
         outputData.resize(len);
 
-        if (!desc->encryptPrimitive(desc, keyPair, inputData.c_str(), (uint32_t)inputData.size(), outputData.rawData(), &len))
+        if (!desc->encryptPrimitive(keyPair, inputData.c_str(), (uint32_t)inputData.size(), outputData.rawData(), &len))
         {
             outputData.clear();
             return false;
@@ -462,12 +462,12 @@ public:
 
         uint32_t len;
 
-        if (!desc->decryptPrimitive(desc, keyPair, inputData.c_str(), (uint32_t)inputData.size(), nullptr, &len))
+        if (!desc->decryptPrimitive(keyPair, inputData.c_str(), (uint32_t)inputData.size(), nullptr, &len))
             return false;
 
         outputData.resize(len);
 
-        if (!desc->decryptPrimitive(desc, keyPair, inputData.c_str(), (uint32_t)inputData.size(), outputData.rawData(), &len))
+        if (!desc->decryptPrimitive(keyPair, inputData.c_str(), (uint32_t)inputData.size(), outputData.rawData(), &len))
         {
             outputData.clear();
             return false;
@@ -484,10 +484,10 @@ public:
 
         tsCryptoData tmp;
         uint32_t len;
-        if (!desc->exportPublicModulus(desc, keyPair, nullptr, &len))
+        if (!desc->exportPublicModulus(keyPair, nullptr, &len))
             return tsCryptoData();
         tmp.resize(len);
-        if (!desc->exportPublicModulus(desc, keyPair, tmp.rawData(), &len))
+        if (!desc->exportPublicModulus(keyPair, tmp.rawData(), &len))
             return tsCryptoData();
         tmp.resize(len);
         return tmp;
@@ -496,7 +496,7 @@ public:
     {
         if (!gFipsState.operational() || desc == nullptr || keyPair == nullptr)
             return false;
-        if (!desc->addPublicModulus(desc, keyPair, data.c_str(), (uint32_t)data.size()))
+        if (!desc->addPublicModulus(keyPair, data.c_str(), (uint32_t)data.size()))
         {
             return false;
         }
@@ -509,10 +509,10 @@ public:
 
         tsCryptoData tmp;
         uint32_t len;
-        if (!desc->exportPublicExponent(desc, keyPair, nullptr, &len))
+        if (!desc->exportPublicExponent(keyPair, nullptr, &len))
             return tsCryptoData();
         tmp.resize(len);
-        if (!desc->exportPublicExponent(desc, keyPair, tmp.rawData(), &len))
+        if (!desc->exportPublicExponent(keyPair, tmp.rawData(), &len))
             return tsCryptoData();
         tmp.resize(len);
         return tmp;
@@ -521,7 +521,7 @@ public:
     {
         if (!gFipsState.operational() || desc == nullptr || keyPair == nullptr)
             return false;
-        if (!desc->addPublicExponent(desc, keyPair, data.c_str(), (uint32_t)data.size()))
+        if (!desc->addPublicExponent(keyPair, data.c_str(), (uint32_t)data.size()))
         {
             return false;
         }
@@ -534,10 +534,10 @@ public:
 
         tsCryptoData tmp;
         uint32_t len;
-        if (!desc->exportPrivateExponent(desc, keyPair, nullptr, &len))
+        if (!desc->exportPrivateExponent(keyPair, nullptr, &len))
             return tsCryptoData();
         tmp.resize(len);
-        if (!desc->exportPrivateExponent(desc, keyPair, tmp.rawData(), &len))
+        if (!desc->exportPrivateExponent(keyPair, tmp.rawData(), &len))
             return tsCryptoData();
         tmp.resize(len);
         return tmp;
@@ -546,7 +546,7 @@ public:
     {
         if (!gFipsState.operational() || desc == nullptr || keyPair == nullptr)
             return false;
-        if (!desc->addPrivateKey(desc, keyPair, data.c_str(), (uint32_t)data.size()))
+        if (!desc->addPrivateKey(keyPair, data.c_str(), (uint32_t)data.size()))
         {
             return false;
         }
@@ -559,14 +559,14 @@ public:
 
         tsCryptoData p, q, dp, dq, qInv;
         uint32_t Plen, Qlen, DPlen, DQlen, QINVlen;
-        if (!desc->exportPrivateCrt(desc, keyPair, nullptr, &Plen, nullptr, &Qlen, nullptr, &DPlen, nullptr, &DQlen, nullptr, &QINVlen))
+        if (!desc->exportPrivateCrt(keyPair, nullptr, &Plen, nullptr, &Qlen, nullptr, &DPlen, nullptr, &DQlen, nullptr, &QINVlen))
             return tsCryptoData();
         p.resize(Plen);
         q.resize(Qlen);
         dp.resize(DPlen);
         dq.resize(DQlen);
         qInv.resize(QINVlen);
-        if (!desc->exportPrivateCrt(desc, keyPair, p.rawData(), &Plen, q.rawData(), &Qlen, dp.rawData(), &DPlen, dq.rawData(), &DQlen, qInv.rawData(), &QINVlen))
+        if (!desc->exportPrivateCrt(keyPair, p.rawData(), &Plen, q.rawData(), &Qlen, dp.rawData(), &DPlen, dq.rawData(), &DQlen, qInv.rawData(), &QINVlen))
             return tsCryptoData();
         p.resize(Plen);
         q.resize(Qlen);
@@ -579,7 +579,7 @@ public:
     {
         if (!gFipsState.operational() || desc == nullptr || keyPair == nullptr)
             return false;
-        if (!desc->addPrivateCrtP(desc, keyPair, data.c_str(), (uint32_t)data.size()))
+        if (!desc->addPrivateCrtP(keyPair, data.c_str(), (uint32_t)data.size()))
         {
             return false;
         }
@@ -592,14 +592,14 @@ public:
 
         tsCryptoData p, q, dp, dq, qInv;
         uint32_t Plen, Qlen, DPlen, DQlen, QINVlen;
-        if (!desc->exportPrivateCrt(desc, keyPair, nullptr, &Plen, nullptr, &Qlen, nullptr, &DPlen, nullptr, &DQlen, nullptr, &QINVlen))
+        if (!desc->exportPrivateCrt(keyPair, nullptr, &Plen, nullptr, &Qlen, nullptr, &DPlen, nullptr, &DQlen, nullptr, &QINVlen))
             return tsCryptoData();
         p.resize(Plen);
         q.resize(Qlen);
         dp.resize(DPlen);
         dq.resize(DQlen);
         qInv.resize(QINVlen);
-        if (!desc->exportPrivateCrt(desc, keyPair, p.rawData(), &Plen, q.rawData(), &Qlen, dp.rawData(), &DPlen, dq.rawData(), &DQlen, qInv.rawData(), &QINVlen))
+        if (!desc->exportPrivateCrt(keyPair, p.rawData(), &Plen, q.rawData(), &Qlen, dp.rawData(), &DPlen, dq.rawData(), &DQlen, qInv.rawData(), &QINVlen))
             return tsCryptoData();
         p.resize(Plen);
         q.resize(Qlen);
@@ -612,7 +612,7 @@ public:
     {
         if (!gFipsState.operational() || desc == nullptr || keyPair == nullptr)
             return false;
-        if (!desc->addPrivateCrtQ(desc, keyPair, data.c_str(), (uint32_t)data.size()))
+        if (!desc->addPrivateCrtQ(keyPair, data.c_str(), (uint32_t)data.size()))
         {
             return false;
         }
@@ -625,14 +625,14 @@ public:
 
         tsCryptoData p, q, dp, dq, qInv;
         uint32_t Plen, Qlen, DPlen, DQlen, QINVlen;
-        if (!desc->exportPrivateCrt(desc, keyPair, nullptr, &Plen, nullptr, &Qlen, nullptr, &DPlen, nullptr, &DQlen, nullptr, &QINVlen))
+        if (!desc->exportPrivateCrt(keyPair, nullptr, &Plen, nullptr, &Qlen, nullptr, &DPlen, nullptr, &DQlen, nullptr, &QINVlen))
             return tsCryptoData();
         p.resize(Plen);
         q.resize(Qlen);
         dp.resize(DPlen);
         dq.resize(DQlen);
         qInv.resize(QINVlen);
-        if (!desc->exportPrivateCrt(desc, keyPair, p.rawData(), &Plen, q.rawData(), &Qlen, dp.rawData(), &DPlen, dq.rawData(), &DQlen, qInv.rawData(), &QINVlen))
+        if (!desc->exportPrivateCrt(keyPair, p.rawData(), &Plen, q.rawData(), &Qlen, dp.rawData(), &DPlen, dq.rawData(), &DQlen, qInv.rawData(), &QINVlen))
             return tsCryptoData();
         p.resize(Plen);
         q.resize(Qlen);
@@ -645,7 +645,7 @@ public:
     {
         if (!gFipsState.operational() || desc == nullptr || keyPair == nullptr)
             return false;
-        if (!desc->addPrivateCrtDP(desc, keyPair, data.c_str(), (uint32_t)data.size()))
+        if (!desc->addPrivateCrtDP(keyPair, data.c_str(), (uint32_t)data.size()))
         {
             return false;
         }
@@ -658,14 +658,14 @@ public:
 
         tsCryptoData p, q, dp, dq, qInv;
         uint32_t Plen, Qlen, DPlen, DQlen, QINVlen;
-        if (!desc->exportPrivateCrt(desc, keyPair, nullptr, &Plen, nullptr, &Qlen, nullptr, &DPlen, nullptr, &DQlen, nullptr, &QINVlen))
+        if (!desc->exportPrivateCrt(keyPair, nullptr, &Plen, nullptr, &Qlen, nullptr, &DPlen, nullptr, &DQlen, nullptr, &QINVlen))
             return tsCryptoData();
         p.resize(Plen);
         q.resize(Qlen);
         dp.resize(DPlen);
         dq.resize(DQlen);
         qInv.resize(QINVlen);
-        if (!desc->exportPrivateCrt(desc, keyPair, p.rawData(), &Plen, q.rawData(), &Qlen, dp.rawData(), &DPlen, dq.rawData(), &DQlen, qInv.rawData(), &QINVlen))
+        if (!desc->exportPrivateCrt(keyPair, p.rawData(), &Plen, q.rawData(), &Qlen, dp.rawData(), &DPlen, dq.rawData(), &DQlen, qInv.rawData(), &QINVlen))
             return tsCryptoData();
         p.resize(Plen);
         q.resize(Qlen);
@@ -678,7 +678,7 @@ public:
     {
         if (!gFipsState.operational() || desc == nullptr || keyPair == nullptr)
             return false;
-        if (!desc->addPrivateCrtDQ(desc, keyPair, data.c_str(), (uint32_t)data.size()))
+        if (!desc->addPrivateCrtDQ(keyPair, data.c_str(), (uint32_t)data.size()))
         {
             return false;
         }
@@ -691,14 +691,14 @@ public:
 
         tsCryptoData p, q, dp, dq, qInv;
         uint32_t Plen, Qlen, DPlen, DQlen, QINVlen;
-        if (!desc->exportPrivateCrt(desc, keyPair, nullptr, &Plen, nullptr, &Qlen, nullptr, &DPlen, nullptr, &DQlen, nullptr, &QINVlen))
+        if (!desc->exportPrivateCrt(keyPair, nullptr, &Plen, nullptr, &Qlen, nullptr, &DPlen, nullptr, &DQlen, nullptr, &QINVlen))
             return tsCryptoData();
         p.resize(Plen);
         q.resize(Qlen);
         dp.resize(DPlen);
         dq.resize(DQlen);
         qInv.resize(QINVlen);
-        if (!desc->exportPrivateCrt(desc, keyPair, p.rawData(), &Plen, q.rawData(), &Qlen, dp.rawData(), &DPlen, dq.rawData(), &DQlen, qInv.rawData(), &QINVlen))
+        if (!desc->exportPrivateCrt(keyPair, p.rawData(), &Plen, q.rawData(), &Qlen, dp.rawData(), &DPlen, dq.rawData(), &DQlen, qInv.rawData(), &QINVlen))
             return tsCryptoData();
         p.resize(Plen);
         q.resize(Qlen);
@@ -711,7 +711,7 @@ public:
     {
         if (!gFipsState.operational() || desc == nullptr || keyPair == nullptr)
             return false;
-        if (!desc->addPrivateCrtQINV(desc, keyPair, data.c_str(), (uint32_t)data.size()))
+        if (!desc->addPrivateCrtQINV(keyPair, data.c_str(), (uint32_t)data.size()))
         {
             return false;
         }
@@ -719,23 +719,23 @@ public:
     }
     virtual bool generateKeyPair(RSA_Key_Gen_Type primeType, const tsCryptoStringBase& hashName, size_t keyLengthInBits, bool forSignature) override
     {
-        const TSHashDescriptor* hasher;
+        const TSIHash* hasher;
         SmartCryptoWorkspace hashWorkspace;
 
         if (!gFipsState.operational() || desc == nullptr)
             return false;
 
         if (keyPair == nullptr)
-            keyPair = desc->createKeyStructure(desc);
+            keyPair = tsCreateWorkspace(desc);
         if (keyPair == nullptr)
             return false;
 
-        hasher = tsFindHashAlgorithm(hashName.c_str());
+        hasher = TSLookup(TSIHash, hashName.c_str());
         if (hasher == nullptr)
             return false;
-        hashWorkspace = hasher;
+        hashWorkspace = hasher->def;
 
-        return desc->generateKeyPair(desc, keyPair, (TSRsaKeyGenType)primeType, (uint32_t)keyLengthInBits, hasher, hashWorkspace, false) &&
+        return desc->generateKeyPair(keyPair, (TSRsaKeyGenType)primeType, (uint32_t)keyLengthInBits, hashWorkspace, false) &&
             ValidateKeys();
     }
     virtual bool reserved1() override
@@ -759,10 +759,10 @@ public:
 
         tsCryptoData tmp;
         uint32_t len;
-        if (!desc->getSeed(desc, keyPair, nullptr, &len))
+        if (!desc->getSeed(keyPair, nullptr, &len))
             return tsCryptoData();
         tmp.resize(len);
-        if (!desc->getSeed(desc, keyPair, tmp.rawData(), &len))
+        if (!desc->getSeed(keyPair, tmp.rawData(), &len))
             return tsCryptoData();
         tmp.resize(len);
         return tmp;
@@ -771,7 +771,7 @@ public:
     {
         if (!gFipsState.operational() || desc == nullptr || keyPair == nullptr)
             return false;
-        if (!desc->setSeed(desc, keyPair, data.c_str(), (uint32_t)data.size()))
+        if (!desc->setSeed(keyPair, data.c_str(), (uint32_t)data.size()))
         {
             return false;
         }
@@ -784,10 +784,10 @@ public:
 
         tsCryptoData tmp;
         uint32_t len;
-        if (!desc->getP1(desc, keyPair, nullptr, &len))
+        if (!desc->getP1(keyPair, nullptr, &len))
             return tsCryptoData();
         tmp.resize(len);
-        if (!desc->getP1(desc, keyPair, tmp.rawData(), &len))
+        if (!desc->getP1(keyPair, tmp.rawData(), &len))
             return tsCryptoData();
         tmp.resize(len);
         return tmp;
@@ -796,7 +796,7 @@ public:
     {
         if (!gFipsState.operational() || desc == nullptr || keyPair == nullptr)
             return false;
-        if (!desc->setP1(desc, keyPair, data.c_str(), (uint32_t)data.size()))
+        if (!desc->setP1(keyPair, data.c_str(), (uint32_t)data.size()))
         {
             return false;
         }
@@ -809,10 +809,10 @@ public:
 
         tsCryptoData tmp;
         uint32_t len;
-        if (!desc->getP2(desc, keyPair, nullptr, &len))
+        if (!desc->getP2(keyPair, nullptr, &len))
             return tsCryptoData();
         tmp.resize(len);
-        if (!desc->getP2(desc, keyPair, tmp.rawData(), &len))
+        if (!desc->getP2(keyPair, tmp.rawData(), &len))
             return tsCryptoData();
         tmp.resize(len);
         return tmp;
@@ -821,7 +821,7 @@ public:
     {
         if (!gFipsState.operational() || desc == nullptr || keyPair == nullptr)
             return false;
-        if (!desc->setP2(desc, keyPair, data.c_str(), (uint32_t)data.size()))
+        if (!desc->setP2(keyPair, data.c_str(), (uint32_t)data.size()))
         {
             return false;
         }
@@ -834,10 +834,10 @@ public:
 
         tsCryptoData tmp;
         uint32_t len;
-        if (!desc->getQ1(desc, keyPair, nullptr, &len))
+        if (!desc->getQ1(keyPair, nullptr, &len))
             return tsCryptoData();
         tmp.resize(len);
-        if (!desc->getQ1(desc, keyPair, tmp.rawData(), &len))
+        if (!desc->getQ1(keyPair, tmp.rawData(), &len))
             return tsCryptoData();
         tmp.resize(len);
         return tmp;
@@ -846,7 +846,7 @@ public:
     {
         if (!gFipsState.operational() || desc == nullptr || keyPair == nullptr)
             return false;
-        if (!desc->setQ1(desc, keyPair, data.c_str(), (uint32_t)data.size()))
+        if (!desc->setQ1(keyPair, data.c_str(), (uint32_t)data.size()))
         {
             return false;
         }
@@ -859,10 +859,10 @@ public:
 
         tsCryptoData tmp;
         uint32_t len;
-        if (!desc->getQ2(desc, keyPair, nullptr, &len))
+        if (!desc->getQ2(keyPair, nullptr, &len))
             return tsCryptoData();
         tmp.resize(len);
-        if (!desc->getQ2(desc, keyPair, tmp.rawData(), &len))
+        if (!desc->getQ2(keyPair, tmp.rawData(), &len))
             return tsCryptoData();
         tmp.resize(len);
         return tmp;
@@ -871,7 +871,7 @@ public:
     {
         if (!gFipsState.operational() || desc == nullptr || keyPair == nullptr)
             return false;
-        if (!desc->setQ2(desc, keyPair, data.c_str(), (uint32_t)data.size()))
+        if (!desc->setQ2(keyPair, data.c_str(), (uint32_t)data.size()))
         {
             return false;
         }
@@ -884,10 +884,10 @@ public:
 
         tsCryptoData tmp;
         uint32_t len;
-        if (!desc->getXp1(desc, keyPair, nullptr, &len))
+        if (!desc->getXp1(keyPair, nullptr, &len))
             return tsCryptoData();
         tmp.resize(len);
-        if (!desc->getXp1(desc, keyPair, tmp.rawData(), &len))
+        if (!desc->getXp1(keyPair, tmp.rawData(), &len))
             return tsCryptoData();
         tmp.resize(len);
         return tmp;
@@ -896,7 +896,7 @@ public:
     {
         if (!gFipsState.operational() || desc == nullptr || keyPair == nullptr)
             return false;
-        if (!desc->setXp1(desc, keyPair, data.c_str(), (uint32_t)data.size()))
+        if (!desc->setXp1(keyPair, data.c_str(), (uint32_t)data.size()))
         {
             return false;
         }
@@ -909,10 +909,10 @@ public:
 
         tsCryptoData tmp;
         uint32_t len;
-        if (!desc->getXp2(desc, keyPair, nullptr, &len))
+        if (!desc->getXp2(keyPair, nullptr, &len))
             return tsCryptoData();
         tmp.resize(len);
-        if (!desc->getXp2(desc, keyPair, tmp.rawData(), &len))
+        if (!desc->getXp2(keyPair, tmp.rawData(), &len))
             return tsCryptoData();
         tmp.resize(len);
         return tmp;
@@ -921,7 +921,7 @@ public:
     {
         if (!gFipsState.operational() || desc == nullptr || keyPair == nullptr)
             return false;
-        if (!desc->setXp2(desc, keyPair, data.c_str(), (uint32_t)data.size()))
+        if (!desc->setXp2(keyPair, data.c_str(), (uint32_t)data.size()))
         {
             return false;
         }
@@ -934,10 +934,10 @@ public:
 
         tsCryptoData tmp;
         uint32_t len;
-        if (!desc->getXq1(desc, keyPair, nullptr, &len))
+        if (!desc->getXq1(keyPair, nullptr, &len))
             return tsCryptoData();
         tmp.resize(len);
-        if (!desc->getXq1(desc, keyPair, tmp.rawData(), &len))
+        if (!desc->getXq1(keyPair, tmp.rawData(), &len))
             return tsCryptoData();
         tmp.resize(len);
         return tmp;
@@ -946,7 +946,7 @@ public:
     {
         if (!gFipsState.operational() || desc == nullptr || keyPair == nullptr)
             return false;
-        if (!desc->setXq1(desc, keyPair, data.c_str(), (uint32_t)data.size()))
+        if (!desc->setXq1(keyPair, data.c_str(), (uint32_t)data.size()))
         {
             return false;
         }
@@ -959,10 +959,10 @@ public:
 
         tsCryptoData tmp;
         uint32_t len;
-        if (!desc->getXq2(desc, keyPair, nullptr, &len))
+        if (!desc->getXq2(keyPair, nullptr, &len))
             return tsCryptoData();
         tmp.resize(len);
-        if (!desc->getXq2(desc, keyPair, tmp.rawData(), &len))
+        if (!desc->getXq2(keyPair, tmp.rawData(), &len))
             return tsCryptoData();
         tmp.resize(len);
         return tmp;
@@ -971,7 +971,7 @@ public:
     {
         if (!gFipsState.operational() || desc == nullptr || keyPair == nullptr)
             return false;
-        if (!desc->setXq2(desc, keyPair, data.c_str(), (uint32_t)data.size()))
+        if (!desc->setXq2(keyPair, data.c_str(), (uint32_t)data.size()))
         {
             return false;
         }
@@ -984,10 +984,10 @@ public:
 
         tsCryptoData tmp;
         uint32_t len;
-        if (!desc->getXp(desc, keyPair, nullptr, &len))
+        if (!desc->getXp(keyPair, nullptr, &len))
             return tsCryptoData();
         tmp.resize(len);
-        if (!desc->getXp(desc, keyPair, tmp.rawData(), &len))
+        if (!desc->getXp(keyPair, tmp.rawData(), &len))
             return tsCryptoData();
         tmp.resize(len);
         return tmp;
@@ -996,7 +996,7 @@ public:
     {
         if (!gFipsState.operational() || desc == nullptr || keyPair == nullptr)
             return false;
-        if (!desc->setXp(desc, keyPair, data.c_str(), (uint32_t)data.size()))
+        if (!desc->setXp(keyPair, data.c_str(), (uint32_t)data.size()))
         {
             return false;
         }
@@ -1009,10 +1009,10 @@ public:
 
         tsCryptoData tmp;
         uint32_t len;
-        if (!desc->getXq(desc, keyPair, nullptr, &len))
+        if (!desc->getXq(keyPair, nullptr, &len))
             return tsCryptoData();
         tmp.resize(len);
-        if (!desc->getXq(desc, keyPair, tmp.rawData(), &len))
+        if (!desc->getXq(keyPair, tmp.rawData(), &len))
             return tsCryptoData();
         tmp.resize(len);
         return tmp;
@@ -1021,7 +1021,7 @@ public:
     {
         if (!gFipsState.operational() || desc == nullptr || keyPair == nullptr)
             return false;
-        if (!desc->setXq(desc, keyPair, data.c_str(), (uint32_t)data.size()))
+        if (!desc->setXq(keyPair, data.c_str(), (uint32_t)data.size()))
         {
             return false;
         }
@@ -1032,13 +1032,13 @@ public:
         if (!tsCryptoOK() || desc == nullptr || keyPair == nullptr)
             return 0;
 
-        return desc->getBitlength1(desc, keyPair);
+        return desc->getBitlength1(keyPair);
     }
     virtual bool set_bitlength1(size_t setTo) override
     {
         if (!gFipsState.operational() || desc == nullptr || keyPair == nullptr)
             return false;
-        if (!desc->setBitlength1(desc, keyPair, (uint32_t)setTo))
+        if (!desc->setBitlength1(keyPair, (uint32_t)setTo))
         {
             return false;
         }
@@ -1049,13 +1049,13 @@ public:
         if (!tsCryptoOK() || desc == nullptr || keyPair == nullptr)
             return 0;
 
-        return desc->getBitlength2(desc, keyPair);
+        return desc->getBitlength2(keyPair);
     }
     virtual bool set_bitlength2(size_t setTo) override
     {
         if (!gFipsState.operational() || desc == nullptr || keyPair == nullptr)
             return false;
-        if (!desc->setBitlength2(desc, keyPair, (uint32_t)setTo))
+        if (!desc->setBitlength2(keyPair, (uint32_t)setTo))
         {
             return false;
         }
@@ -1066,13 +1066,13 @@ public:
         if (!tsCryptoOK() || desc == nullptr || keyPair == nullptr)
             return 0;
 
-        return desc->getBitlength3(desc, keyPair);
+        return desc->getBitlength3(keyPair);
     }
     virtual bool set_bitlength3(size_t setTo) override
     {
         if (!gFipsState.operational() || desc == nullptr || keyPair == nullptr)
             return false;
-        if (!desc->setBitlength3(desc, keyPair, (uint32_t)setTo))
+        if (!desc->setBitlength3(keyPair, (uint32_t)setTo))
         {
             return false;
         }
@@ -1083,13 +1083,13 @@ public:
         if (!tsCryptoOK() || desc == nullptr || keyPair == nullptr)
             return 0;
 
-        return desc->getBitlength4(desc, keyPair);
+        return desc->getBitlength4(keyPair);
     }
     virtual bool set_bitlength4(size_t setTo) override
     {
         if (!gFipsState.operational() || desc == nullptr || keyPair == nullptr)
             return false;
-        if (!desc->setBitlength4(desc, keyPair, (uint32_t)setTo))
+        if (!desc->setBitlength4(keyPair, (uint32_t)setTo))
         {
             return false;
         }
@@ -1137,31 +1137,31 @@ public:
 
 private:
     TSKeyValidationFailureType m_validationReason;
-    const TSRsaDescriptor* desc;
-    SmartCryptoKey keyPair;
+    const TSIRsa* desc;
+    SmartCryptoWorkspace keyPair;
 
     // Inherited via TSALG_Access
-    virtual const TSCryptoBaseDescriptor * Descriptor() const override
+    virtual const TSICyberVEILObject * Descriptor() const override
     {
-        return desc;
+        return desc->def.primary;
     }
-    virtual TSCRYPTO_ASYMKEY getKeyPair() const override
+    virtual TSWORKSPACE getKeyPair() const override
     {
         return keyPair;
     }
-    virtual TSCRYPTO_WORKSPACE getWorkspace() const override
+    virtual TSWORKSPACE getWorkspace() const override
     {
         return nullptr;
     }
-    virtual TSCRYPTO_ASYMKEY detachFromKeyPair() override
+    virtual TSWORKSPACE detachFromKeyPair() override
     {
         return keyPair.detach();
     }
-    virtual TSCRYPTO_ASYMKEY cloneKeyPair() const override
+    virtual TSWORKSPACE cloneKeyPair() const override
     {
         if (desc == nullptr || keyPair == nullptr)
             return nullptr;
-        return desc->cloneKey(desc, keyPair);
+        return tsClone(keyPair);
     }
 };
 

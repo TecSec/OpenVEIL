@@ -38,7 +38,7 @@ NameValueList CreateNameValueList()
 
 UrlParser::UrlParser()
     :
-    _port(0)
+    _port(-1)
 {
     _parameters = CreateNameValueList();
 }
@@ -51,7 +51,7 @@ void UrlParser::clear()
 {
     _scheme.clear();
     _server.clear();
-    _port = 0;
+    _port = -1;
     _path.clear();
     _parameters->clear();
     _hash.clear();
@@ -246,7 +246,7 @@ tscrypto::tsCryptoString UrlParser::BuildUrl() const
     {
         url << _scheme << "://";
         url << encodeServer(_server);
-        if (_port != 0)
+        if (_port != -1)
             url << ":" << _port;
     }
     if (_path.size() > 0)
@@ -295,7 +295,7 @@ void UrlParser::setServer(const tscrypto::tsCryptoString& setTo)
 
 int UrlParser::getPort() const
 {
-    if (_port == 0)
+    if (_port == -1)
     {
         if (tsStriCmp(getScheme().c_str(), "http") == 0)
             return 80;

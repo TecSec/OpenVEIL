@@ -133,8 +133,8 @@ public:
 	std::weak_ptr<IVEILPropertySheet> _parentSheet;
 	std::shared_ptr<BasicVEILPreferences> _prefs;
 	bool _bDirty;
-	tscrypto::TS_ALG_ID _Alg;
-	tscrypto::TS_ALG_ID _HashAlg;
+	TS_ALG_ID _Alg;
+	TS_ALG_ID _HashAlg;
 	tscrypto::tsCryptoString _url;
 	tscrypto::tsCryptoString _username;
 	tscrypto::tsCryptoString _aidList;
@@ -145,8 +145,8 @@ public:
 	void OnInitialize();
 	void Initialization();
 	void UpdateData(bool fromControls);
-	int FindAlgByID(tscrypto::TS_ALG_ID alg);
-	int FindHashAlgByID(tscrypto::TS_ALG_ID alg);
+	int FindAlgByID(TS_ALG_ID alg);
+	int FindHashAlgByID(TS_ALG_ID alg);
 	void SetModified(bool bChanged = true);
 
 };

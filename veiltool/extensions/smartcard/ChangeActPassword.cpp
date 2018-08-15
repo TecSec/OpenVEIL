@@ -125,8 +125,8 @@ protected:
 	void ChangeServerActivationPassword(const tscrypto::tsCryptoString& readerName)
 	{
 		tscrypto::tsCryptoData cardcmd("00 A4 04 00", tscrypto::tsCryptoData::HEX);
-		TSSMARTCARD_CONNECTION card = NULL;
-        const TSSmartCardConnectionDescriptor* cardDesc = nullptr;
+		TSWORKSPACE card = NULL;
+        const TSISmartCardConnection* cardDesc = nullptr;
 		tscrypto::tsCryptoString tokenName;
 		uint8_t outData[280];
         uint32_t outDataLen;
@@ -140,7 +140,7 @@ protected:
 		xp_console ts_out;
 
         card = tsCreateWorkspaceForAlgorithm("SMARTCARD_CONNECTION");
-        cardDesc = (const TSSmartCardConnectionDescriptor*)tsGetDescriptorFromWorkspace(card);
+        cardDesc = TSWorker(TSISmartCardConnection, card);
         if (cardDesc == nullptr)
             return;
 
@@ -231,7 +231,7 @@ protected:
 			SmartCardTransaction trans(card);
 			uint8_t outData[280];
             uint32_t outDataLen = sizeof(outData);
-            TSSECURE_CHANNEL channel = NULL;
+            TSWORKSPACE channel = NULL;
             bool retVal;
 
 
@@ -255,7 +255,7 @@ protected:
             retVal = retVal && (cardDesc->sendCommand(card, tscrypto::tsCryptoData("00B0000000", tscrypto::tsCryptoData::HEX).c_str(), 5, 0, outData, &outDataLen, &sw) && sw == 0x9000);
 				if (!channel)
 				{
-                const TSSmartCardServerSecureChannelDescriptor* desc = (const TSSmartCardServerSecureChannelDescriptor*)tsGetDescriptorFromWorkspace(channel);
+                const TSISmartCardServerSecureChannel* desc = TSWorker(TSISmartCardServerSecureChannel, channel);
                 desc->finish(channel);
 				}
 			if (!retVal)
@@ -315,7 +315,7 @@ protected:
 			SmartCardTransaction trans(card);
             uint8_t outData[280];
             uint32_t outDataLen = sizeof(outData);
-			TSSECURE_CHANNEL channel = NULL;
+			TSWORKSPACE channel = NULL;
 
 
             if (!cardDesc->sendCommand(card, cardcmd.c_str(), (uint32_t)cardcmd.size(), 0, outData, &outDataLen, &sw) || sw != 0x9000)
@@ -358,7 +358,7 @@ protected:
 			}
 			if (!channel)
 			{
-                const TSSmartCardServerSecureChannelDescriptor* desc = (const TSSmartCardServerSecureChannelDescriptor*)tsGetDescriptorFromWorkspace(channel);
+                const TSISmartCardServerSecureChannel* desc = TSWorker(TSISmartCardServerSecureChannel, channel);
 
                 desc->finish(channel);
 			}
@@ -366,12 +366,12 @@ protected:
 		}
 		gSmartCardDone.Set();
 	}
-	tscrypto::tsCryptoString GetTokenName(TSSMARTCARD_CONNECTION card)
+	tscrypto::tsCryptoString GetTokenName(TSWORKSPACE card)
 	{
 		uint8_t outData[280];
         uint32_t outDataLen = sizeof(outData);
 		uint32_t sw;
-        const TSSmartCardConnectionDescriptor* cardDesc = (const TSSmartCardConnectionDescriptor*)tsGetDescriptorFromWorkspace(card);
+        const TSISmartCardConnection* cardDesc = TSWorker(TSISmartCardConnection, card);
 
 		if (card == NULL)
 			return "";
@@ -391,7 +391,7 @@ protected:
         tsStrTrim((char*)outData, " \t\n\r");
 		return (const char*)outData;
 	}
-	bool ExternalAuthCkm(TSSMARTCARD_CONNECTION connection, uint8_t reference, const tscrypto::tsCryptoString &in_pin, tscrypto::tsCryptoData& authKey, tscrypto::tsCryptoData& kek)
+	bool ExternalAuthCkm(TSWORKSPACE connection, uint8_t reference, const tscrypto::tsCryptoString &in_pin, tscrypto::tsCryptoData& authKey, tscrypto::tsCryptoData& kek)
 	{
 		tscrypto::tsCryptoData challenge;
 		tscrypto::tsCryptoData iv;
@@ -433,27 +433,27 @@ protected:
 
 		return true;
 	}
-	int StartSecureChannel(TSSMARTCARD_CONNECTION connection, const tscrypto::tsCryptoData& encKey, const tscrypto::tsCryptoData& macKey, const tscrypto::tsCryptoData& kek, uint8_t SCPVersion, uint8_t SCPLevel, uint8_t SecurityLevel, uint8_t keyRef, uint8_t keyVersion)
+	int StartSecureChannel(TSWORKSPACE connection, const tscrypto::tsCryptoData& encKey, const tscrypto::tsCryptoData& macKey, const tscrypto::tsCryptoData& kek, uint8_t SCPVersion, uint8_t SCPLevel, uint8_t SecurityLevel, uint8_t keyRef, uint8_t keyVersion)
 	{
 		uint8_t outdata[280];
         uint32_t outdataLen = sizeof(outdata);
 		uint32_t sw;
-		TSSECURE_CHANNEL channel = NULL;
-        const TSSmartCardServerSecureChannelDescriptor* desc = nullptr;
-        const TSSmartCardConnectionDescriptor* cardDesc = (const TSSmartCardConnectionDescriptor*)tsGetDescriptorFromWorkspace(connection);
+		TSWORKSPACE channel = NULL;
+        const TSISmartCardServerSecureChannel* desc = nullptr;
+        const TSISmartCardConnection* cardDesc = TSWorker(TSISmartCardConnection, connection);
 
 		if (connection == NULL)
 			return 0x6F00;
 
         channel = cardDesc->getSecureChannel(connection);
-        desc = (const TSSmartCardServerSecureChannelDescriptor*)tsGetDescriptorFromWorkspace(channel);
+        desc = TSWorker(TSISmartCardServerSecureChannel, channel);
 
 		if (!channel)
 		{
 			if (!(channel = tsCreateWorkspaceForAlgorithm("SECURE_CHANNEL_SERVER")))
 				return 0x6F80;
             cardDesc->setSecureChannel(connection, channel);
-            desc = (const TSSmartCardServerSecureChannelDescriptor*)tsGetDescriptorFromWorkspace(channel);
+            desc = TSWorker(TSISmartCardServerSecureChannel, channel);
 		}
         desc->setSCPVersion(channel, SCPVersion);
         desc->setSCPLevel(channel, SCPLevel);
@@ -495,12 +495,12 @@ protected:
         desc->activateChannel(channel);
 		return (int)sw;
 	}
-	bool getUserSaltAndKek(TSSMARTCARD_CONNECTION connection, tscrypto::tsCryptoData &salt, tscrypto::tsCryptoData& kek)
+	bool getUserSaltAndKek(TSWORKSPACE connection, tscrypto::tsCryptoData &salt, tscrypto::tsCryptoData& kek)
 	{
         uint8_t outData[280];
         uint32_t outDataLen = sizeof(outData);
         uint32_t sw;
-        const TSSmartCardConnectionDescriptor* cardDesc = (const TSSmartCardConnectionDescriptor*)tsGetDescriptorFromWorkspace(connection);
+        const TSISmartCardConnection* cardDesc = TSWorker(TSISmartCardConnection, connection);
 
 		salt.clear();
 
@@ -530,10 +530,10 @@ protected:
         This->ChangeServerActivationPassword(readerName);
     }
 
-    static const TSSmartCard_ChangeConsumer mySmartcardChanges;
+    static const TSISmartCard_ChangeConsumer mySmartcardChanges;
 };
 
-const TSSmartCard_ChangeConsumer ChangeActPasswordTool::mySmartcardChanges = {
+const TSISmartCard_ChangeConsumer ChangeActPasswordTool::mySmartcardChanges = {
     NULL, NULL, &ChangeActPasswordTool::CardInserted, NULL,
 };
 
